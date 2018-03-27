@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -56,7 +57,7 @@ namespace Greenshot.Destinations
 		/// <param name="surface">Surface to export</param>
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 		    // No Processing, this is done in the selected destination (if anything was selected)
 			return ShowPickerMenu(true, surface, captureDetails,

@@ -37,7 +37,7 @@ namespace Greenshot.Addons.Controls
 	/// <summary>
 	///     Description of PleaseWaitForm.
 	/// </summary>
-	public partial class PleaseWaitForm : Form
+	public sealed partial class PleaseWaitForm : Form
 	{
 		/// <summary>
 		///     Prevent the close-window button showing
@@ -46,7 +46,8 @@ namespace Greenshot.Addons.Controls
 
 		private static readonly LogSource Log = new LogSource();
 		private string _title;
-		private Thread _waitFor;
+	    private readonly CancellationTokenSource _cancellationTokenSource;
+	    private Thread _waitFor;
 
 		public PleaseWaitForm()
 		{
@@ -57,7 +58,15 @@ namespace Greenshot.Addons.Controls
 			Icon = GreenshotResources.GetGreenshotIcon();
 		}
 
-		protected override CreateParams CreateParams
+	    public PleaseWaitForm(string title, string text, CancellationTokenSource cancellationTokenSource = default) : this()
+	    {
+	        _title = title;
+	        _cancellationTokenSource = cancellationTokenSource;
+	        Text = title;
+	        label_pleasewait.Text = text;
+        }
+
+        protected override CreateParams CreateParams
 		{
 			get
 			{
@@ -161,7 +170,9 @@ namespace Greenshot.Addons.Controls
 		{
 			Log.Debug().WriteLine("Cancel clicked on {0}", _title);
 			cancelButton.Enabled = false;
-			_waitFor.Abort();
-		}
+			_waitFor?.Abort();
+		    _cancellationTokenSource?.Cancel();
+
+        }
 	}
 }

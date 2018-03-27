@@ -48,6 +48,9 @@ namespace Greenshot.Addons
         string BugreportTitle { get; }
         string ClipboardError { get; }
         string ClipboardInuse { get; }
+
+        // TODO: Needs translation from editor files
+        string Close { get; }
         string ColorpickerAlpha { get; }
         string ColorpickerApply { get; }
         string ColorpickerBlue { get; }

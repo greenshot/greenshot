@@ -29,6 +29,7 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
@@ -60,10 +61,7 @@ namespace Greenshot.Addon.Imgur
 	    private readonly Dapplo.HttpExtensions.OAuth.OAuth2Settings _oauth2Settings;
 
 	    [ImportingConstructor]
-		public ImgurDestination(IImgurConfiguration imgurConfiguration,
-	        IImgurLanguage imgurLanguage,
-	        [Import("ui")]
-	        TaskScheduler uiTaskScheduler)
+		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
@@ -84,8 +82,7 @@ namespace Greenshot.Addon.Imgur
 		        ClientSecret = imgurConfiguration.ClientSecret,
 		        RedirectUrl = "http://getgreenshot.org",
 		        AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
-		        Token = imgurConfiguration,
-                UiTaskScheduler = uiTaskScheduler
+		        Token = imgurConfiguration
             };
         }
 
@@ -104,11 +101,13 @@ namespace Greenshot.Addon.Imgur
             }
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
-		    var exportInformation = new ExportInformation(Designation, Description)
+		    var uploadUrl = await Upload(captureDetails, surface);
+
+            var exportInformation = new ExportInformation(Designation, Description)
 		    {
-		        ExportMade = Upload(captureDetails, surface, out var uploadUrl),
+		        ExportMade = uploadUrl != null,
 		        Uri = uploadUrl?.AbsoluteUri
 		    };
 		    ProcessExport(exportInformation, surface);
@@ -120,49 +119,53 @@ namespace Greenshot.Addon.Imgur
         /// </summary>
         /// <param name="captureDetails">ICaptureDetails</param>
         /// <param name="surfaceToUpload">ISurface</param>
-        /// <param name="uploadUrl">out string for the url</param>
-        /// <returns>true if the upload succeeded</returns>
-        private bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out Uri uploadUrl)
+        /// <returns>Uri</returns>
+        private async Task<Uri> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_imgurConfiguration.UploadFormat, _imgurConfiguration.UploadJpegQuality, _imgurConfiguration.UploadReduceColors);
+            var outputSettings = new SurfaceOutputSettings(_imgurConfiguration.UploadFormat, _imgurConfiguration.UploadJpegQuality, _imgurConfiguration.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_imgurConfiguration.FilenamePattern, _imgurConfiguration.UploadFormat, captureDetails));
-                ImgurImage imgurImage = null;
+                ImgurImage imgurImage;
 
-                // Run upload in the background
-                new PleaseWaitForm().ShowAndWait("Imgur plug-in", _imgurLanguage.CommunicationWait, async () =>
+                var cancellationTokenSource = new CancellationTokenSource();
+                using (var pleaseWaitForm = new PleaseWaitForm("Imgur plug-in", _imgurLanguage.CommunicationWait, cancellationTokenSource))
+                {
+                    pleaseWaitForm.Show();
+                    try
                     {
-                        imgurImage = await ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename);
-                        if (imgurImage == null)
+                        imgurImage = await ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename, null, cancellationTokenSource.Token);
+                        if (imgurImage != null)
                         {
-                            return;
-                        }
-                        // Create thumbnail
-                        using (var tmpImage = surfaceToUpload.GetBitmapForExport())
-                        using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
-                        {
-                            imgurImage.Image = thumbnail.ToBitmapSource();
-                        }
-                        if (!_imgurConfiguration.AnonymousAccess || !_imgurConfiguration.TrackHistory)
-                        {
-                            return;
-                        }
+                            // Create thumbnail
+                            using (var tmpImage = surfaceToUpload.GetBitmapForExport())
+                            using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
+                            {
+                                imgurImage.Image = thumbnail.ToBitmapSource();
+                            }
+                            if (_imgurConfiguration.AnonymousAccess && _imgurConfiguration.TrackHistory)
+                            {
+                                Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurImage.Data.Id, imgurImage.Data.Deletehash);
+                                _imgurConfiguration.ImgurUploadHistory.Add(imgurImage.Data.Id, imgurImage.Data.Deletehash);
+                                _imgurConfiguration.RuntimeImgurHistory.Add(imgurImage.Data.Id, imgurImage);
 
-                        Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurImage.Data.Id, imgurImage.Data.Deletehash);
-                        _imgurConfiguration.ImgurUploadHistory.Add(imgurImage.Data.Id, imgurImage.Data.Deletehash);
-                        _imgurConfiguration.RuntimeImgurHistory.Add(imgurImage.Data.Id, imgurImage);
-                        // TODO: Update History - ViewModel!!!
-                        // UpdateHistoryMenuItem();
+                                // TODO: Update History - ViewModel!!!
+                                // UpdateHistoryMenuItem();
+                            }
+                        }
                     }
-                );
+                    finally
+                    {
+                        pleaseWaitForm.Close();
+                    }
+                }
 
                 if (imgurImage != null)
                 {
-                    uploadUrl = _imgurConfiguration.UsePageLink ? imgurImage.Data.LinkPage: imgurImage.Data.Link;
+                    var uploadUrl = _imgurConfiguration.UsePageLink ? imgurImage.Data.LinkPage: imgurImage.Data.Link;
                     if (uploadUrl == null || !_imgurConfiguration.CopyLinkToClipboard)
                     {
-                        return true;
+                        return uploadUrl;
                     }
 
                     try
@@ -175,7 +178,7 @@ namespace Greenshot.Addon.Imgur
                         Log.Error().WriteLine(ex, "Can't write to clipboard: ");
                         uploadUrl = null;
                     }
-                    return true;
+                    return uploadUrl;
                 }
             }
             catch (Exception e)
@@ -183,8 +186,7 @@ namespace Greenshot.Addon.Imgur
                 Log.Error().WriteLine(e, "Error uploading.");
                 MessageBox.Show(_imgurLanguage.UploadFailure + " " + e.Message);
             }
-            uploadUrl = null;
-            return false;
+            return null;
         }
     }
 }

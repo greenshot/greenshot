@@ -56,7 +56,7 @@ namespace Greenshot.Destinations
 
 	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Save.Image");
 
-	    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!

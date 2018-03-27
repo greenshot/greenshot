@@ -112,7 +112,7 @@ namespace Greenshot.Destinations
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;

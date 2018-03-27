@@ -441,7 +441,7 @@ namespace Greenshot.Helpers
                                 var surface = ImageOutput.SurfaceFactory.CreateExport().Value;
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                _destinations.Find("Editor")?.ExportCapture(true, surface, _capture.CaptureDetails);
+                                _destinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Wait();
                                 break;
                             }
                         }
@@ -705,7 +705,7 @@ namespace Greenshot.Helpers
 
             if (captureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
             {
-                _destinations.Find(typeof(PickerDestination))?.ExportCapture(false, surface, captureDetails);
+                _destinations.Find(typeof(PickerDestination))?.ExportCaptureAsync(false, surface, captureDetails).Wait();
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }
@@ -729,7 +729,7 @@ namespace Greenshot.Helpers
                     }
                     Log.Info().WriteLine("Calling destination {0}", destination.Description);
 
-                    var exportInformation = destination.ExportCapture(false, surface, captureDetails);
+                    var exportInformation = destination.ExportCaptureAsync(false, surface, captureDetails).Result;
                     if ("Editor".Equals(destination.Designation) && exportInformation.ExportMade)
                     {
                         canDisposeSurface = false;

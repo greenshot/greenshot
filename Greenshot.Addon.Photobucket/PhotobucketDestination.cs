@@ -134,7 +134,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 		    var uploaded = Upload(captureDetails, surface, _albumPath, out var uploadUrl);

@@ -71,7 +71,7 @@ namespace Greenshot.Addon.Flickr
             }
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 		    var uploaded = Upload(captureDetails, surface, out var uploadUrl);

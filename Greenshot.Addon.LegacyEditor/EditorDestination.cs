@@ -88,7 +88,7 @@ namespace Greenshot.Addon.LegacyEditor
 		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(_editorFactory, _editorLanguage, someEditor));
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// Make sure we collect the garbage before opening the screenshot

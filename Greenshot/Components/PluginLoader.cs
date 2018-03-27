@@ -93,28 +93,5 @@ namespace Greenshot.Components
                 greenshotPlugin.Shutdown();
             }
         }
-
-        /// <summary>
-        ///     A simple helper method which will call ProcessCapture for the Processor with the specified designation
-        /// </summary>
-        /// <param name="designation">Name of the processor</param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        public void ProcessCapture(string designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            _processors.FirstOrDefault(p => p.Designation == designation && p.IsActive)?.ProcessCapture(surface, captureDetails);
-        }
-
-        /// <summary>
-        ///     A simple helper method which will call ExportCapture for the destination with the specified designation
-        /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="designation"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            return _destinations.FirstOrDefault(p => p.Designation == designation && p.IsActive)?.ExportCapture(manuallyInitiated, surface, captureDetails);
-        }
     }
 }

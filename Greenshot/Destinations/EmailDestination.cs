@@ -82,7 +82,7 @@ namespace Greenshot.Destinations
 				{
 					// Disable if the office plugin is installed and the client is outlook
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
-					var outlookdestination = Type.GetType("GreenshotOfficePlugin.Destinations.OutlookDestination,GreenshotOfficePlugin");
+					var outlookdestination = Type.GetType("Greenshot.Addon.Office.Destinations.OutlookDestination,Greenshot.Addon.Office");
 					if (outlookdestination != null)
 					{
 						if (_mapiClient.ToLower().Contains("microsoft outlook"))
@@ -99,7 +99,7 @@ namespace Greenshot.Destinations
 
 		public override Bitmap DisplayIcon => MailIcon;
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			MapiMailMessage.SendImage(surface, captureDetails);

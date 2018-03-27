@@ -59,7 +59,7 @@ namespace Greenshot.Addon.ExternalCommand
 			_presetCommand = commando;
 		}
 
-		public string Designation => "External " + _presetCommand.Replace(',', '_');
+		public override string Designation => "External " + _presetCommand.Replace(',', '_');
 
 		public override string Description => _presetCommand;
 
@@ -73,7 +73,7 @@ namespace Greenshot.Addon.ExternalCommand
 			yield break;
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			var outputSettings = new SurfaceOutputSettings();

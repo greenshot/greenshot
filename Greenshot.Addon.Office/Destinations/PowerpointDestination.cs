@@ -96,7 +96,7 @@ namespace Greenshot.Addon.Office.Destinations
 			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName));
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			var tmpFile = captureDetails.Filename;

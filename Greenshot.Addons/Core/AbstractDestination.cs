@@ -25,8 +25,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
@@ -51,12 +53,15 @@ namespace Greenshot.Addons.Core
         private static readonly LogSource Log = new LogSource();
         private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
+        [Import]
+        private IGreenshotLanguage GreenshotLanguage { get; set; }
+
         protected AbstractDestination()
         {
             Designation = GetType().GetDesignation();
         }
 
-        public string Designation { get; }
+        public virtual string Designation { get; }
 
         public abstract string Description { get; }
 
@@ -89,8 +94,23 @@ namespace Greenshot.Addons.Core
         public virtual bool IsLinkable => false;
 
         public virtual bool IsActive => true;
-        
-        public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+
+        protected virtual ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// This is the Async version of the export Capture, and by default it calls the ExportCapture.
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        /// <returns></returns>
+        public virtual Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            return Task.FromResult(ExportCapture(manuallyInitiated, surface, captureDetails));
+        }
 
         /// <summary>
         ///     Return a menu item
@@ -181,23 +201,23 @@ namespace Greenshot.Addons.Core
                 if (!string.IsNullOrEmpty(exportInformation.Uri))
                 {
                     surface.UploadUrl = exportInformation.Uri;
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+                    surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
                 }
                 else if (!string.IsNullOrEmpty(exportInformation.Filepath))
                 {
                     surface.LastSaveFullPath = exportInformation.Filepath;
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+                    surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
                 }
                 else
                 {
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
                 }
                 surface.Modified = false;
             }
             else if (!string.IsNullOrEmpty(exportInformation?.ErrorMessage))
             {
                 surface.SendMessageEvent(this, SurfaceMessageTyp.Error,
-                    Language.GetFormattedString("exported_to_error", exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
+                    string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
             }
         }
 
@@ -239,7 +259,7 @@ namespace Greenshot.Addons.Core
         /// <param name="captureDetails">Details for the surface</param>
         /// <param name="destinations">The list of destinations to show</param>
         /// <returns></returns>
-        public ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations)
+        protected ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations)
         {
             var menu = new ContextMenuStrip
             {
@@ -260,7 +280,7 @@ namespace Greenshot.Addons.Core
             });
 
             // Generate an empty ExportInformation object, for when nothing was selected.
-            var exportInformation = new ExportInformation("", Language.GetString("settings_destination_picker"));
+            var exportInformation = new ExportInformation("", GreenshotLanguage.SettingsDestinationPicker);
             menu.Closing += (source, eventArgs) =>
             {
                 Log.Debug().WriteLine("Close reason: {0}", eventArgs.CloseReason);
@@ -306,7 +326,7 @@ namespace Greenshot.Addons.Core
             {
                 // Fix foreach loop variable for the delegate
                 var item = destination.GetMenuItem(addDynamics, menu,
-                    (sender, e) =>
+                    async (sender, e) =>
                     {
                         var toolStripMenuItem = sender as ToolStripMenuItem;
                         var clickedDestination = (IDestination) toolStripMenuItem?.Tag;
@@ -316,13 +336,13 @@ namespace Greenshot.Addons.Core
                         }
                         menu.Tag = clickedDestination.Designation;
                         // Export
-                        exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
+                        exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
                         if (exportInformation != null && exportInformation.ExportMade)
                         {
                             Log.Info().WriteLine("Export to {0} success, closing menu", exportInformation.DestinationDescription);
-                            // close menu if the destination wasn't the editor
+                            // close menu
                             menu.Close();
-
+                            menu.Dispose();
                             // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
                             if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
                             {
@@ -349,7 +369,7 @@ namespace Greenshot.Addons.Core
             }
             // Close
             menu.Items.Add(new ToolStripSeparator());
-            var closeItem = new ToolStripMenuItem(Language.GetString("editor_close"))
+            var closeItem = new ToolStripMenuItem(GreenshotLanguage.Close)
             {
                 Image = GreenshotResources.GetBitmap("Close.Image")
             };
@@ -357,6 +377,7 @@ namespace Greenshot.Addons.Core
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
+                menu.Dispose();
                 if (!captureDetails.HasDestination("Editor"))
                 {
                     surface.Dispose();
@@ -393,17 +414,17 @@ namespace Greenshot.Addons.Core
             menu.Show(location);
             menu.Focus();
 
-            // Wait for the menu to close, so we can dispose it.
+            // Wait for the menu to close
             while (true)
             {
                 if (menu.Visible)
                 {
                     Application.DoEvents();
-                    Thread.Sleep(100);
+                    Thread.Sleep(200);
                 }
                 else
                 {
-                    menu.Dispose();
+                    //menu.Dispose();
                     break;
                 }
             }

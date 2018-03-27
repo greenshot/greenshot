@@ -444,10 +444,10 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 {
                     defaultItem.Disposed += (sender, args) => defaultItem.Image.Dispose();
                 }
-                defaultItem.Click += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                defaultItem.Click += async (sender, args) => await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
 
                 // The ButtonClick, this is for the icon, gets the current default item
-                destinationButton.ButtonClick += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                destinationButton.ButtonClick += async (sender, args) => await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
 
                 // Generate the entries for the drop down
                 destinationButton.DropDownOpening += (sender, args) =>
@@ -472,7 +472,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                             };
                         }
 
-                        destinationMenuItem.Click += (o, a) => subDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                        destinationMenuItem.Click += async (o, a) => await subDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
                         destinationButton.DropDownItems.Add(destinationMenuItem);
                     }
                 };
@@ -488,7 +488,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     Text = toolstripDestination.Description,
                     Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi)
                 };
-                destinationButton.Click += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                destinationButton.Click += async (sender, args) => await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
                 if (!Equals(icon, destinationButton.Image))
                 {
                     destinationButton.Disposed += (sender, args) =>
@@ -948,7 +948,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     clickedDestination = (IDestination) clickedMenuItem.Tag;
                 }
             }
-            var exportInformation = clickedDestination?.ExportCapture(true, _surface, _surface.CaptureDetails);
+            var exportInformation = clickedDestination?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).Result;
             if (exportInformation != null && exportInformation.ExportMade)
             {
                 _surface.Modified = false;
@@ -1242,12 +1242,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 destinationDesignation = "FileDialog";
             }
-            _destinations.Find(destinationDesignation)?.ExportCapture(true, _surface, _surface.CaptureDetails);
+            _destinations.Find(destinationDesignation)?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            _destinations.Find("Clipboard")?.ExportCapture(true, _surface, _surface.CaptureDetails);
+            _destinations.Find("Clipboard")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
@@ -1255,7 +1255,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             // The BeginInvoke is a solution for the printdialog not having focus
             BeginInvoke((MethodInvoker) delegate
             {
-                _destinations.Find("Printer")?.ExportCapture(true, _surface, _surface.CaptureDetails);
+                _destinations.Find("Printer")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
             });
         }
 
@@ -1720,7 +1720,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     continue;
                 }
 
-                destination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                destination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
                 return true;
             }
 

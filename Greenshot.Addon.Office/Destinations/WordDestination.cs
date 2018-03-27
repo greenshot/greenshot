@@ -82,7 +82,7 @@ namespace Greenshot.Addon.Office.Destinations
 			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption));
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			var tmpFile = captureDetails.Filename;

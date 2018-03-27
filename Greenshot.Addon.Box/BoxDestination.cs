@@ -28,6 +28,7 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
@@ -71,10 +72,10 @@ namespace Greenshot.Addon.Box
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var uploadUrl = Upload(captureDetails, surface);
+			var uploadUrl = await UploadAsync(captureDetails, surface);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -87,18 +88,27 @@ namespace Greenshot.Addon.Box
 	    /// <summary>
 	    ///     This will be called when the menu item in the Editor is clicked
 	    /// </summary>
-	    private string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+	    private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload)
 	    {
 	        var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
 	        try
 	        {
-	            string url = null;
 	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
 	            var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-	            new PleaseWaitForm().ShowAndWait("Box", _boxLanguage.CommunicationWait,
-	                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
-	            );
+	            string url;
+	            using (var pleaseWaitForm = new PleaseWaitForm("Imgur plug-in", _boxLanguage.CommunicationWait))
+	            {
+	                pleaseWaitForm.Show();
+	                try
+	                {
+	                    url = await Task.Run(() => BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename));
+	                }
+	                finally
+	                {
+	                    pleaseWaitForm.Close();
+	                }
+	            }
 
 	            if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
 	            {

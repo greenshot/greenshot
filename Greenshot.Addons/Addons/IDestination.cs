@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 using Greenshot.Addons.Interfaces;
@@ -114,6 +115,6 @@ namespace Greenshot.Addons.Addons
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
-		ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 	}
 }
