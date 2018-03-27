@@ -29,6 +29,7 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.HttpExtensions;
@@ -59,14 +60,16 @@ namespace Greenshot.Addon.Imgur
 	    private readonly Dapplo.HttpExtensions.OAuth.OAuth2Settings _oauth2Settings;
 
 	    [ImportingConstructor]
-		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage)
+		public ImgurDestination(IImgurConfiguration imgurConfiguration,
+	        IImgurLanguage imgurLanguage,
+	        [Import("ui")]
+	        TaskScheduler uiTaskScheduler)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
             // Configure the OAuth2 settings for Imgur communication
 		    _oauth2Settings = new Dapplo.HttpExtensions.OAuth.OAuth2Settings
             {
-                
 		        AuthorizationUri = new Uri("https://api.imgur.com").AppendSegments("oauth2", "authorize").
 		            ExtendQuery(new Dictionary<string, string>
 		            {
@@ -81,7 +84,8 @@ namespace Greenshot.Addon.Imgur
 		        ClientSecret = imgurConfiguration.ClientSecret,
 		        RedirectUrl = "http://getgreenshot.org",
 		        AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
-		        Token = imgurConfiguration
+		        Token = imgurConfiguration,
+                UiTaskScheduler = uiTaskScheduler
             };
         }
 
@@ -127,10 +131,9 @@ namespace Greenshot.Addon.Imgur
                 ImgurImage imgurImage = null;
 
                 // Run upload in the background
-                new PleaseWaitForm().ShowAndWait("Imgur plug-in", _imgurLanguage.CommunicationWait,
-                    delegate
+                new PleaseWaitForm().ShowAndWait("Imgur plug-in", _imgurLanguage.CommunicationWait, async () =>
                     {
-                        imgurImage = ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename).Result;
+                        imgurImage = await ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename);
                         if (imgurImage == null)
                         {
                             return;

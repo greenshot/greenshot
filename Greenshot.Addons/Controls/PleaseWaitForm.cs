@@ -25,6 +25,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
@@ -66,14 +67,33 @@ namespace Greenshot.Addons.Controls
 			}
 		}
 
-		/// <summary>
-		///     Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
-		///     The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
-		/// </summary>
-		/// <param name="title">The title of the form (and Thread)</param>
-		/// <param name="text">The text in the form</param>
-		/// <param name="waitDelegate">delegate { with your code }</param>
-		public void ShowAndWait(string title, string text, ThreadStart waitDelegate)
+        /// <summary>
+        ///     Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
+        ///     The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
+        /// </summary>
+        /// <param name="title">The title of the form (and Thread)</param>
+        /// <param name="text">The text in the form</param>
+        /// <param name="executeTask">Task</param>
+        public async Task ShowAndWait(string title, string text, Task executeTask)
+	    {
+	        _title = title;
+	        Text = title;
+	        label_pleasewait.Text = text;
+	        cancelButton.Text = Language.GetString("CANCEL");
+
+	        Show();
+	        await executeTask;
+	        Close();
+	    }
+
+	    /// <summary>
+            ///     Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
+            ///     The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
+            /// </summary>
+            /// <param name="title">The title of the form (and Thread)</param>
+            /// <param name="text">The text in the form</param>
+            /// <param name="waitDelegate">delegate { with your code }</param>
+            public void ShowAndWait(string title, string text, ThreadStart waitDelegate)
 		{
 			_title = title;
 			Text = title;

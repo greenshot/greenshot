@@ -268,7 +268,7 @@ namespace Greenshot.Addon.Imgur
 			}
 			else
 			{
-				imgurImage = await AuthenticatedUploadToImgurAsync(oAuth2Settings, surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
+				imgurImage = await AuthenticatedUploadToImgurAsync(oAuth2Settings, surfaceToUpload, outputSettings, otherParameters, progress, token);
 			}
             return imgurImage;
 		}

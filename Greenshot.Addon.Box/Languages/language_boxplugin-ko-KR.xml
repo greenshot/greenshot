@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<languag>
+<language>
 	<resources prefix="Box">
 		<resource name="label_AfterUploadLinkToClipBoard">
 			클립보드로 연결
@@ -30,4 +30,4 @@
 			Box와 연결 중 잠시 기다리세요...
 		</resource>
 	</resources>
-</languag>
+</language>
