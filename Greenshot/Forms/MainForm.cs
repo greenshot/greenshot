@@ -268,7 +268,7 @@ namespace Greenshot.Forms
         {
             _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
             _doubleClickTimer.Stop();
-            BeginInvoke((MethodInvoker) delegate { NotifyIconClick(_coreConfiguration.LeftClickAction); });
+            BeginInvoke((MethodInvoker) (() => NotifyIconClick(_coreConfiguration.LeftClickAction)));
         }
 
         /// <summary>
@@ -622,7 +622,7 @@ namespace Greenshot.Forms
             var allScreensBounds = WindowCapture.GetScreenBounds();
 
             var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-            captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen); }); };
+            captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen)));
             captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
             foreach (var screen in Screen.AllScreens)
             {
@@ -645,7 +645,7 @@ namespace Greenshot.Forms
                     deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
                 }
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-                captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false, screenToCapture.Bounds); }); };
+                captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureRegion(false, screenToCapture.Bounds)));
                 captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
             }
         }

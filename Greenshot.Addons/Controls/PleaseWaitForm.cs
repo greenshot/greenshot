@@ -117,19 +117,18 @@ namespace Greenshot.Addons.Controls
 			try
 			{
 				// Wrap the passed delegate in a try/catch which makes it possible to save the exception
-				_waitFor = new Thread(new ThreadStart(
-					delegate
-					{
-						try
-						{
-							waitDelegate.Invoke();
-						}
-						catch (Exception ex)
-						{
-							Log.Error().WriteLine(ex, "invoke error:");
-							threadException = ex;
-						}
-					})
+				_waitFor = new Thread(() =>
+				    {
+				        try
+				        {
+				            waitDelegate.Invoke();
+				        }
+				        catch (Exception ex)
+				        {
+				            Log.Error().WriteLine(ex, "invoke error:");
+				            threadException = ex;
+				        }
+				    }
 				)
 				{
 					Name = title,

@@ -420,43 +420,48 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			// Pull "up"
 			if (pull) {
 				item = new ToolStripMenuItem(editorLanguage.EditorUptotop);
-				item.Click += delegate {
-					surface.Elements.PullElementsToTop(this);
-					surface.Elements.Invalidate();
+				item.Click += (sender, args) =>
+				{
+				    surface.Elements.PullElementsToTop(this);
+				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 				item = new ToolStripMenuItem(editorLanguage.EditorUponelevel);
-				item.Click += delegate {
-					surface.Elements.PullElementsUp(this);
-					surface.Elements.Invalidate();
+				item.Click += (sender, args) =>
+				{
+				    surface.Elements.PullElementsUp(this);
+				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 			}
 			// Push "down"
 			if (push) {
 				item = new ToolStripMenuItem(editorLanguage.EditorDowntobottom);
-				item.Click += delegate {
-					surface.Elements.PushElementsToBottom(this);
-					surface.Elements.Invalidate();
+				item.Click += (sender, args) =>
+				{
+				    surface.Elements.PushElementsToBottom(this);
+				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 				item = new ToolStripMenuItem(editorLanguage.EditorDownonelevel);
-				item.Click += delegate {
-					surface.Elements.PushElementsDown(this);
-					surface.Elements.Invalidate();
+				item.Click += (sender, args) =>
+				{
+				    surface.Elements.PushElementsDown(this);
+				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 			}
 
 			// Duplicate
 			item = new ToolStripMenuItem(editorLanguage.EditorDuplicate);
-			item.Click += delegate {
-				IDrawableContainerList dcs = this.Clone();
-				dcs.Parent = surface;
-				dcs.MoveBy(10, 10);
-				surface.AddElements(dcs);
-				surface.DeselectAllElements();
-				surface.SelectElements(dcs);
+			item.Click += (sender, args) =>
+			{
+			    IDrawableContainerList dcs = this.Clone();
+			    dcs.Parent = surface;
+			    dcs.MoveBy(10, 10);
+			    surface.AddElements(dcs);
+			    surface.DeselectAllElements();
+			    surface.SelectElements(dcs);
 			};
 			menu.Items.Add(item);
 
@@ -465,9 +470,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			{
 				Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
 			};
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
-			};
+			item.Click += (sender, args) => ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
 			menu.Items.Add(item);
 
 			// Cut
@@ -475,9 +478,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			{
 				Image = (Image) EditorFormResources.GetObject("btnCut.Image")
 			};
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
-				surface.RemoveElements(this);
+			item.Click += (sender, args) =>
+			{
+			    ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
+			    surface.RemoveElements(this);
 			};
 			menu.Items.Add(item);
 
@@ -486,9 +490,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		    {
 		        Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
 		    };
-		    item.Click += delegate {
-				surface.RemoveElements(this);
-			};
+		    item.Click += (sender, args) => surface.RemoveElements(this);
 			menu.Items.Add(item);
 
 			// Reset
@@ -509,18 +511,23 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 
 		    item = new ToolStripMenuItem(editorLanguage.EditorResetsize);
 		    //item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-		    item.Click += delegate {
+		    item.Click += (sender, args) =>
+		    {
 		        MakeBoundsChangeUndoable(false);
-		        foreach (var drawableContainer in this) {
+		        foreach (var drawableContainer in this)
+		        {
 		            var container = (DrawableContainer) drawableContainer;
-		            if (!container.HasDefaultSize) {
+		            if (!container.HasDefaultSize)
+		            {
 		                continue;
 		            }
+
 		            Size defaultSize = container.DefaultSize;
 		            container.MakeBoundsChangeUndoable(false);
 		            container.Width = defaultSize.Width;
 		            container.Height = defaultSize.Height;
 		        }
+
 		        surface.Invalidate();
 		    };
 		    menu.Items.Add(item);

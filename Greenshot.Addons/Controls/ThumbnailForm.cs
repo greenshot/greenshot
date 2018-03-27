@@ -67,7 +67,7 @@ namespace Greenshot.Addons.Controls
 			}
 
 			// cleanup at close
-			FormClosing += delegate { UnregisterThumbnail(); };
+			FormClosing += (sender, args) => UnregisterThumbnail();
 		}
 
 		public new void Hide()
@@ -78,11 +78,13 @@ namespace Greenshot.Addons.Controls
 
 		private void UnregisterThumbnail()
 		{
-			if (_thumbnailHandle != IntPtr.Zero)
-			{
-				Dwm.DwmUnregisterThumbnail(_thumbnailHandle);
-				_thumbnailHandle = IntPtr.Zero;
-			}
+		    if (_thumbnailHandle == IntPtr.Zero)
+		    {
+		        return;
+		    }
+
+		    Dwm.DwmUnregisterThumbnail(_thumbnailHandle);
+		    _thumbnailHandle = IntPtr.Zero;
 		}
 
 		/// <summary>

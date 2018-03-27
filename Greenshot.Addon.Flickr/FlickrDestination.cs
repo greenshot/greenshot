@@ -93,7 +93,7 @@ namespace Greenshot.Addon.Flickr
 	        {
 	            string flickrUrl = null;
 	            new PleaseWaitForm().ShowAndWait("Flickr", _flickrLanguage.CommunicationWait,
-	                delegate
+	                () =>
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
 	                    flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);

@@ -56,10 +56,13 @@ namespace Greenshot
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
             StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
+            // Make sure the exceptions in the log are readable, uses Ben.Demystifier
+            LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
             LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #endif
+
             var application = new Dapplication("Greenshot", "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown

@@ -166,7 +166,7 @@ namespace Greenshot.Addon.Photobucket
 
 	            // Run upload in the background
 	            new PleaseWaitForm().ShowAndWait("Photobucket", _photobucketLanguage.CommunicationWait,
-	                delegate { photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename); }
+	                () => photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename)
 	            );
 	            // This causes an exeption if the upload failed :)
 	            Log.Debug().WriteLine("Uploaded to Photobucket page: " + photobucketInfo.Page);

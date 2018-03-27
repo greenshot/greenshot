@@ -85,7 +85,7 @@ namespace Greenshot.Addon.Lutim  {
 
                 // Run upload in the background
                 new PleaseWaitForm().ShowAndWait("Lutim plug-in", Language.GetString("lutim", LangKey.communication_wait),
-                    delegate
+                    () =>
                     {
                         lutimInfo = LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
                         if (lutimInfo != null)

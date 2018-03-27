@@ -99,7 +99,7 @@ namespace Greenshot.Addon.Dropbox
 	        {
 	            string dropboxUrl = null;
 	            new PleaseWaitForm().ShowAndWait("Dropbox", _dropboxLanguage.CommunicationWait,
-	                delegate
+	                () =>
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
 	                    dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);

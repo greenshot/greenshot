@@ -29,6 +29,8 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using Dapplo.Ini;
@@ -66,7 +68,7 @@ namespace Greenshot.Addons.Core
 			try
 			{
 				// Disable certificate checking
-				ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
+				ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) => true;
 			}
 			catch (Exception ex)
 			{

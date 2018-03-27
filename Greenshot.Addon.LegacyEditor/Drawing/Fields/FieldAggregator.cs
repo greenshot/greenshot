@@ -83,13 +83,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		public void BindElement(IDrawableContainer dc)
 		{
-			var container = dc as DrawableContainer;
-			if (container == null || _boundContainers.Contains(container))
+		    if (!(dc is DrawableContainer container) || _boundContainers.Contains(container))
 			{
 				return;
 			}
 			_boundContainers.Add(container);
-			container.ChildrenChanged += delegate { UpdateFromBoundElements(); };
+			container.ChildrenChanged += (sender, args) => UpdateFromBoundElements();
 			UpdateFromBoundElements();
 		}
 
@@ -101,8 +100,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		public void UpdateElement(IDrawableContainer dc)
 		{
-			var container = dc as DrawableContainer;
-			if (container == null)
+		    if (!(dc is DrawableContainer container))
 			{
 				return;
 			}
@@ -165,37 +163,40 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		private IList<IField> FindCommonFields()
 		{
-			IList<IField> returnFields = null;
-			if (_boundContainers.Count > 0)
-			{
-				// take all fields from the least selected container...
-				var leastSelectedContainer = _boundContainers[_boundContainers.Count - 1] as DrawableContainer;
-				if (leastSelectedContainer != null)
-				{
-					returnFields = leastSelectedContainer.GetFields();
-					for (var i = 0; i < _boundContainers.Count - 1; i++)
-					{
-						var dc = _boundContainers[i] as DrawableContainer;
-						if (dc != null)
-						{
-							IList<IField> fieldsToRemove = new List<IField>();
-							foreach (var field in returnFields)
-							{
-								// ... throw out those that do not apply to one of the other containers
-								if (!dc.HasField(field.FieldType))
-								{
-									fieldsToRemove.Add(field);
-								}
-							}
-							foreach (var field in fieldsToRemove)
-							{
-								returnFields.Remove(field);
-							}
-						}
-					}
-				}
-			}
-			return returnFields ?? new List<IField>();
+		    if (_boundContainers.Count <= 0)
+		    {
+		        return new List<IField>();
+		    }
+
+		    // take all fields from the least selected container...
+		    if (!(_boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer))
+		    {
+		        return new List<IField>();
+		    }
+
+		    var returnFields = leastSelectedContainer.GetFields();
+		    for (var i = 0; i < _boundContainers.Count - 1; i++)
+		    {
+		        if (!(_boundContainers[i] is DrawableContainer dc))
+		        {
+		            continue;
+		        }
+
+		        IList<IField> fieldsToRemove = new List<IField>();
+		        foreach (var field in returnFields)
+		        {
+		            // ... throw out those that do not apply to one of the other containers
+		            if (!dc.HasField(field.FieldType))
+		            {
+		                fieldsToRemove.Add(field);
+		            }
+		        }
+		        foreach (var field in fieldsToRemove)
+		        {
+		            returnFields.Remove(field);
+		        }
+		    }
+		    return returnFields ?? new List<IField>();
 		}
 
 		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)

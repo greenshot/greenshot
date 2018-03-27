@@ -94,10 +94,10 @@ namespace Greenshot.Addon.ExternalCommand
 
 			    if (runInBackground)
 				{
-					var commandThread = new Thread(delegate()
+					var commandThread = new Thread(() =>
 					{
-						CallExternalCommand(exportInformation, fullPath, out _, out _);
-						ProcessExport(exportInformation, surface);
+					    CallExternalCommand(exportInformation, fullPath, out _, out _);
+					    ProcessExport(exportInformation, surface);
 					})
 					{
 						Name = "Running " + _presetCommand,

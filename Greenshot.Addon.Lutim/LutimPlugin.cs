@@ -98,9 +98,7 @@ namespace Greenshot.Addon.Lutim {
 			{
 				Tag = _greenshotHost
             };
-			_historyMenuItem.Click += delegate {
-				LutimHistory.ShowHistory();
-			};
+			_historyMenuItem.Click += (sender, args) => LutimHistory.ShowHistory();
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
 			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("lutim", LangKey.configure))

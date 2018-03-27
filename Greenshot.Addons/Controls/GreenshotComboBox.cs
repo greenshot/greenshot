@@ -39,7 +39,7 @@ namespace Greenshot.Addons.Controls
 
 		public GreenshotComboBox()
 		{
-			SelectedIndexChanged += delegate { StoreSelectedEnum(); };
+			SelectedIndexChanged += (sender, args) => StoreSelectedEnum();
 		}
 
 		[Category("Greenshot")]
@@ -54,11 +54,13 @@ namespace Greenshot.Addons.Controls
 
 		public void SetValue(Enum currentValue)
 		{
-			if (currentValue != null)
-			{
-				_selectedEnum = currentValue;
-				SelectedItem = Language.Translate(currentValue);
-			}
+		    if (currentValue == null)
+		    {
+		        return;
+		    }
+
+		    _selectedEnum = currentValue;
+		    SelectedItem = Language.Translate(currentValue);
 		}
 
 		/// <summary>
@@ -101,14 +103,16 @@ namespace Greenshot.Addons.Controls
 			foreach (Enum enumValue in availableValues)
 			{
 				var enumKey = enumTypeName + "." + enumValue;
-				if (Language.HasKey(enumKey))
-				{
-					var translation = Language.GetString(enumTypeName + "." + enumValue);
-					if (translation.Equals(selectedValue))
-					{
-						returnValue = enumValue;
-					}
-				}
+			    if (!Language.HasKey(enumKey))
+			    {
+			        continue;
+			    }
+
+			    var translation = Language.GetString(enumTypeName + "." + enumValue);
+			    if (translation.Equals(selectedValue))
+			    {
+			        returnValue = enumValue;
+			    }
 			}
 			_selectedEnum = (Enum) returnValue;
 		}

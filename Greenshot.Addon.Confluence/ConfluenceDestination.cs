@@ -191,11 +191,8 @@ namespace Greenshot.Addon.Confluence
 			try
 			{
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
-					delegate
-					{
-						_confluenceConnector.AddAttachment(page.Id, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower(), null, filename,
-							new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-					}
+				    () => _confluenceConnector.AddAttachment(page.Id, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower(), null, filename,
+				        new SurfaceContainer(surfaceToUpload, outputSettings, filename))
 				);
 				Log.Debug().WriteLine("Uploaded to Confluence.");
 				if (!_confluenceConfiguration.CopyWikiMarkupForImageToClipboard)

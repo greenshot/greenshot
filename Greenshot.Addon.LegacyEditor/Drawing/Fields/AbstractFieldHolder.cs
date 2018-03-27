@@ -66,9 +66,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 			// listen to changing properties
 			foreach (var field in fields)
 			{
-				field.PropertyChanged += delegate {
-					_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
-				};
+				field.PropertyChanged += (sender, args) => _fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
 				_fieldsByType[field.FieldType] = field;
 			}
 		}

@@ -142,10 +142,8 @@ namespace Greenshot.Addon.Lutim.Forms {
 					}
 					pictureBox1.Image = pictureBox1.ErrorImage;
 					try {
-						new PleaseWaitForm().ShowAndWait("Lutim", Language.GetString("lutim", LangKey.communication_wait), 
-							delegate {
-								LutimUtils.DeleteLutimImage(lutimInfo);
-							}
+						new PleaseWaitForm().ShowAndWait("Lutim", Language.GetString("lutim", LangKey.communication_wait),
+						    () => LutimUtils.DeleteLutimImage(lutimInfo)
 						);
 					} catch (Exception ex) {
 						Log.Warn().WriteLine(ex, "Problem communicating with Lutim: ");

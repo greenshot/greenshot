@@ -142,18 +142,18 @@ namespace Greenshot.Addons.Core
 			lock (_lockObject)
 			{
 				var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
-				cachedItem.Expired += delegate(TK cacheKey, TV cacheValue)
+				cachedItem.Expired += (cacheKey, cacheValue) =>
 				{
-					if (_internalCache.ContainsKey(cacheKey))
-					{
-						Log.Debug().WriteLine("Expiring object with Key: {0}", cacheKey);
-						_expiredCallback?.Invoke(cacheKey, cacheValue);
-						Remove(cacheKey);
-					}
-					else
-					{
-						Log.Debug().WriteLine("Expired old object with Key: {0}", cacheKey);
-					}
+				    if (_internalCache.ContainsKey(cacheKey))
+				    {
+				        Log.Debug().WriteLine("Expiring object with Key: {0}", cacheKey);
+				        _expiredCallback?.Invoke(cacheKey, cacheValue);
+				        Remove(cacheKey);
+				    }
+				    else
+				    {
+				        Log.Debug().WriteLine("Expired old object with Key: {0}", cacheKey);
+				    }
 				};
 
 				if (_internalCache.ContainsKey(key))

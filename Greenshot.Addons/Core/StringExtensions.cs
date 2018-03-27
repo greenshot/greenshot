@@ -92,15 +92,15 @@ namespace Greenshot.Addons.Core
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 			var values = new List<object>();
-			var rewrittenFormat = r.Replace(format, delegate(Match m)
+			var rewrittenFormat = r.Replace(format, m =>
 			{
-				var startGroup = m.Groups["start"];
-				var propertyGroup = m.Groups["property"];
-				var formatGroup = m.Groups["format"];
-				var endGroup = m.Groups["end"];
+			    var startGroup = m.Groups["start"];
+			    var propertyGroup = m.Groups["property"];
+			    var formatGroup = m.Groups["format"];
+			    var endGroup = m.Groups["end"];
 
 			    values.Add(properties.TryGetValue(propertyGroup.Value, out var value) ? value : source);
-				return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
+			    return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
 			});
 
 			return string.Format(provider, rewrittenFormat, values.ToArray());

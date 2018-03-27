@@ -49,23 +49,24 @@ namespace Greenshot.Addons.Controls
 		/// </summary>
 		protected AnimatingForm()
 		{
-            Load += delegate
-			{
-			    DoubleBuffered = true;
+            Load += (sender, args) =>
+            {
+                DoubleBuffered = true;
                 if (!EnableAnimation)
-				{
-					return;
-				}
-				_timer = new Timer
-				{
-					Interval = 1000 / VRefresh
-				};
-				_timer.Tick += TimerTick;
-				_timer.Start();
-			};
+                {
+                    return;
+                }
+
+                _timer = new Timer
+                {
+                    Interval = 1000 / VRefresh
+                };
+                _timer.Tick += TimerTick;
+                _timer.Start();
+            };
 
 			// Unregister at close
-			FormClosing += delegate { _timer?.Stop(); };
+			FormClosing += (sender, args) => _timer?.Stop();
 		}
 
 		/// <summary>

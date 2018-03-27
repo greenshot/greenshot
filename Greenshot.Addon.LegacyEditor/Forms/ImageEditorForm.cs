@@ -288,7 +288,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
-                _surface.MovingElementChanged += delegate { RefreshEditorControls(); };
+                _surface.MovingElementChanged += (sender, args) => RefreshEditorControls();
                 _surface.DrawingModeChanged += SurfaceDrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
                 _surface.SurfaceMessage += SurfaceMessageReceived;

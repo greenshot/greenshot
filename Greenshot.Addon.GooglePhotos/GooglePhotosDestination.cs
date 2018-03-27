@@ -83,7 +83,7 @@ namespace Greenshot.Addon.GooglePhotos
 	        {
 	            string url = null;
 	            new PleaseWaitForm().ShowAndWait("Google Photos", Language.GetString("googlephotos", LangKey.communication_wait),
-	                delegate
+	                () =>
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_googlePhotosConfiguration.UploadFormat, captureDetails));
 	                    url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);

@@ -136,12 +136,13 @@ namespace Greenshot.Addons.Core
 
             if (IsDynamic && addDynamics)
             {
-                basisMenuItem.DropDownOpening += delegate
+                basisMenuItem.DropDownOpening += (sender, args) =>
                 {
                     if (basisMenuItem.DropDownItems.Count != 0)
                     {
                         return;
                     }
+
                     var subDestinations = new List<IDestination>();
                     // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
                     try
@@ -152,10 +153,12 @@ namespace Greenshot.Addons.Core
                     {
                         Log.Error().WriteLine("Skipping {0}, due to the following error: {1}", Description, ex.Message);
                     }
+
                     if (subDestinations.Count <= 0)
                     {
                         return;
                     }
+
                     if (UseDynamicsOnly && subDestinations.Count == 1)
                     {
                         basisMenuItem.Tag = subDestinations[0];
@@ -373,16 +376,19 @@ namespace Greenshot.Addons.Core
             {
                 Image = GreenshotResources.GetBitmap("Close.Image")
             };
-            closeItem.Click += delegate
+            closeItem.Click += (sender, args) =>
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
                 menu.Dispose();
-                if (!captureDetails.HasDestination("Editor"))
+                // Only dispose if there is a destination which keeps the capture
+                if (captureDetails.HasDestination("Editor"))
                 {
-                    surface.Dispose();
-                    surface = null;
+                    return;
                 }
+
+                surface.Dispose();
+                surface = null;
             };
             menu.Items.Add(closeItem);
 
