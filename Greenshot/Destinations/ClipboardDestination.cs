@@ -48,7 +48,7 @@ namespace Greenshot.Destinations
 	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Clipboard.Image");
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
+	    {
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{

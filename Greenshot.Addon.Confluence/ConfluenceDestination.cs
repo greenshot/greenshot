@@ -61,7 +61,7 @@ namespace Greenshot.Addon.Confluence
 			IsInitialized = false;
 			try
 			{
-				var confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
+				var confluenceIconUri = new Uri("/Greenshot.Addon.Confluence;component/Images/Confluence.ico", UriKind.Relative);
 				using (var iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
 				{
 					// TODO: Check what to do with the IBitmap
