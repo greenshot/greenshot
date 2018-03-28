@@ -67,26 +67,25 @@ namespace Greenshot.Addon.Win10
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
-				var text = Task.Run(async () =>
+			    string text;
+				var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+				using (var imageStream = new MemoryStream())
 				{
-					var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
-					using (var imageStream = new MemoryStream())
-					{
-						ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
-						imageStream.Position = 0;
+					ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+					imageStream.Position = 0;
 
-						var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
-						var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+					var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
+					var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-						var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
-						return ocrResult.Text;
-					}
-				}).Result;
+					var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+					text = ocrResult.Text;
+				}
+
 
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))

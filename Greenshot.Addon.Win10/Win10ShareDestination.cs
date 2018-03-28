@@ -78,7 +78,7 @@ namespace Greenshot.Addon.Win10
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
@@ -107,7 +107,7 @@ namespace Greenshot.Addon.Win10
 
                         shareInfo.ShareTask.TrySetResult(false);
                     });
-                IntPtr windowHandle = new WindowInteropHelper(triggerWindow).Handle;
+                var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
 
 			    Share(shareInfo, windowHandle, surface, captureDetails).Wait();
 			    Log.Debug().WriteLine("Sharing finished, closing window.");
