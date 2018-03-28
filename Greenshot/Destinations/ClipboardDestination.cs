@@ -41,7 +41,7 @@ namespace Greenshot.Destinations
     [Destination("Clipboard",2)]
     public class ClipboardDestination : AbstractDestination
 	{
-	    public override string Description => Language.GetString(LangKey.settings_destination_clipboard);
+	    public override string Description => GreenshotLanguage.SettingsDestinationClipboard;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 

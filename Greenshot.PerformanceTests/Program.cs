@@ -4,7 +4,7 @@ using BenchmarkDotNet.Running;
 namespace Greenshot.PerformanceTests
 {
     /// <summary>
-    /// This initializes the benchmal tests
+    /// This initializes the benchmark tests
     /// </summary>
     public static class Program
     {

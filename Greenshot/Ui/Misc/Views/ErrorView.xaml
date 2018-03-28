@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="Greenshot.Ui.Misc.Views.ErrorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Misc.ViewModels"
+             d:DataContext="{d:DesignInstance viewModels:ErrorViewModel,IsDesignTimeCreatable=True}"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Label Content="{Binding GreenshotLanguage.CurrentVersion}" Width="100" Grid.Row="0" Grid.Column="0"/>
+        <Label Content="{Binding VersionProvider.CurrentVersion}" Width="100" Grid.Row="0" Grid.Column="1"/>
+
+        <Label Content="{Binding GreenshotLanguage.LatestVersion}" Grid.Row="1" Grid.Column="0"/>
+        <Label Content="{Binding VersionProvider.LatestVersion}" Grid.Row="1" Grid.Column="1"/>
+
+        <Label Content="{Binding Message}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"/>
+        <TextBox Text="{Binding Stacktrace}" Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0"/>
+    </Grid>
+</UserControl>

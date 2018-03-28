@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
+using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
 using Dapplo.Language;
@@ -36,6 +37,7 @@ using Dapplo.Log.Loggers;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Ui.Misc.ViewModels;
 using Point = System.Drawing.Point;
 #endregion
 
@@ -60,7 +62,7 @@ namespace Greenshot
             LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
+            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
 #endif
 
             var application = new Dapplication("Greenshot", "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
@@ -78,12 +80,42 @@ namespace Greenshot
                 return;
             }
 
+            RegisterErrorHandlers(application);
+
             // Load the assemblies, and run the application
             application.Bootstrapper.FindAndLoadAssemblies("Dapplo.*");
             // Make sure the non-plugin DLLs are also loaded, so exports are available.
             application.Bootstrapper.FindAndLoadAssemblies("Greenshot*");
             application.Bootstrapper.FindAndLoadAssemblies("Greenshot*", extensions: new[] { "gsp" });
             application.Run();
+        }
+
+        /// <summary>
+        /// Make sure all exception handlers are hooked
+        /// </summary>
+        /// <param name="application">Dapplication</param>
+        private static void RegisterErrorHandlers(Dapplication application)
+        {
+            application.OnUnhandledAppDomainException += (exception, b) => DisplayErrorViewModel(exception);
+            application.OnUnhandledDispatcherException += DisplayErrorViewModel;
+            application.OnUnhandledTaskException += DisplayErrorViewModel;
+        }
+
+        /// <summary>
+        /// Show the exception
+        /// </summary>
+        /// <param name="exception">Exception</param>
+        private static void DisplayErrorViewModel(Exception exception)
+        {
+            var windowManager = Dapplication.Current.Bootstrapper.GetExport<IWindowManager>().Value;
+            var errorViewModel = Dapplication.Current.Bootstrapper.GetExport<ErrorViewModel>().Value;
+            if (windowManager == null || errorViewModel == null)
+            {
+                return;
+            }
+
+            errorViewModel.SetExceptionToDisplay(exception);
+            windowManager.ShowWindow(errorViewModel);
         }
 
         /// <summary>

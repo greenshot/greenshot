@@ -174,5 +174,10 @@ namespace Greenshot.Addons
         string WaitIeCapture { get; }
         string UpdateFound { get; }
         string ExportedTo { get; }
+
+        [DefaultValue("Latest version")]
+        string LatestVersion { get; }
+        [DefaultValue("Current version")]
+        string CurrentVersion { get; }
     }
 }

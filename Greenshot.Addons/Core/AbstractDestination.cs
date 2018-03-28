@@ -54,7 +54,7 @@ namespace Greenshot.Addons.Core
         private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
         [Import]
-        private IGreenshotLanguage GreenshotLanguage { get; set; }
+        protected IGreenshotLanguage GreenshotLanguage { get; set; }
 
         protected AbstractDestination()
         {
