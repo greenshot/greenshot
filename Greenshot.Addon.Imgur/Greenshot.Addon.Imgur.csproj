@@ -227,16 +227,7 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <PropertyGroup>
-    <PreBuildEvent>
-if exist "$(ProjectDir)ImgurCredentials.private.cs" (
-   rename "$(ProjectDir)ImgurCredentials.cs" "ImgurCredentials.orig.cs"
-   rename "$(ProjectDir)ImgurCredentials.private.cs" "ImgurCredentials.cs"
-)</PreBuildEvent>
-    <PostBuildEvent>if exist "$(ProjectDir)ImgurCredentials.orig.cs" (
-   rename "$(ProjectDir)ImgurCredentials.cs" "ImgurCredentials.private.cs"
-   rename "$(ProjectDir)ImgurCredentials.orig.cs" "ImgurCredentials.cs"
-)
-
+    <PostBuildEvent>
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
