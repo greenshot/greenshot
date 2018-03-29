@@ -8,7 +8,6 @@ test: off
 branches:
   only:
   - master
-environment:
 build_script:
 - ps: .\build.ps1 --settings_skipverification=true
 artifacts:
