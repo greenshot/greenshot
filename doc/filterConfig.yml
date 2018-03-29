@@ -1,0 +1,4 @@
+apiRules:
+- exclude:
+    uidRegex: ^.*PowerShell.*$
+    type: Namespace

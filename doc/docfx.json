@@ -1,0 +1,72 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+		  "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ],
+          "exclude": [
+			"**/bin/**",
+			"**/obj/**",
+			"**Tests/*.csproj",
+			"**NuGet/*.csproj",
+			"**TestAddon/*.csproj",
+			"**Example/*.csproj",
+			"**Demo**/*.csproj",
+          ]
+        }
+      ],
+      "dest": "api",
+	  "filter": "filterConfig.yml"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "api/**.md",
+          "api/**.yml",
+          "articles/**.md",
+          "articles/**/toc.yml",
+          "toc.yml",
+          "*.md"
+        ],
+        "exclude": [
+          "_site/**",
+		  "README.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ],
+      }
+    ],
+    "overwrite": [
+      {
+        "files": [
+          "apidoc/**.md"
+        ],
+      }
+    ],
+    "dest": "_site",
+	"globalMetadata": {
+		"_appTitle": "Greenshot",
+		"_appLogoPath": "images/g.svg",
+		"_appFaviconPath": "images/favicon.ico",
+		"_appFooter": "Copyright © 2006-2018 Greenshot"
+	},
+    "globalMetadataFiles": [],
+	"template": [
+      "statictoc",
+	  "template"
+    ],
+    "fileMetadataFiles": [],
+    "postProcessors": [],
+    "noLangKeyword": false
+  }
+}
