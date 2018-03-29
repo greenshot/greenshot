@@ -34,6 +34,7 @@ For users the major changes since 1.2.x are:
 
 For developers, the major changes since 1.2.x are:
 * Updated to .NET 4.5.x
+* Moved logging from log4net to [Dapplo.Log](https://github.com/dapplo/Dapplo.Log) which is a very simple logger
 * Using Dependency Injection (Inversion of Control), via [Dapplo.Addons](https://github.com/dapplo/Dapplo.Addons) which bases upon MEF.
 * Add-ins (formerly plug-ins) can just place attributes on classes to be loaded and injected.
 * Started using WPF via MVVM, provided by Caliburn.Micro via [Dapplo.CaliburnMicro](https://github.com/dapplo/Dapplo.CaliburnMicro)
