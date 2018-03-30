@@ -30,7 +30,7 @@
 		<resource name="clipboard_noimage">Nessuna immagine sugli Appunti.</resource>
 		<resource name="clipboard_inuse">Greenshot non è riuscito a scrivere sugli appunti poichè il processo {0} teneva l'accesso bloccato.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML con immagini in linea</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

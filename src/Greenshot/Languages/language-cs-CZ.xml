@@ -26,7 +26,7 @@ Navštivte prosím níže uvedenou adresu, vytvořte nové hlášení o chybě a
 		<resource name="clipboard_inuse">Greenshot nemohl zapsat data do schránky, je {0} blokován přístup.</resource>
 		<resource name="clipboard_noimage">Obrázek ve schránce nebyl nalezen.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormats.DIB">Zařízení Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Zařízení independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML s vloženými obrázky</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

@@ -25,7 +25,7 @@
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
 		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML avec images en ligne</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

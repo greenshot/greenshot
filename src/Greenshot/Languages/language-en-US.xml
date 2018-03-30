@@ -29,7 +29,7 @@
 		<resource name="clipboard_inuse">Greenshot wasn't able to write to the clipboard as the process {0} blocked the access.</resource>
 		<resource name="clipboard_noimage">Couldn't find a clipboard image.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML with inline images</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>
