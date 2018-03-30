@@ -14,6 +14,9 @@
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "release");
 
+// Used to publish NuGet packages
+var nugetApiKey = Argument("nugetApiKey", EnvironmentVariable("NuGetApiKey"));
+
 // where is our solution located?
 var solutionFilePath = GetFiles("src/*.sln").First();
 var solutionName = solutionFilePath.GetDirectory().GetDirectoryName();
