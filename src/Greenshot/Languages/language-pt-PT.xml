@@ -29,7 +29,7 @@
 		<resource name="clipboard_inuse">O Greenshot não conseguiu escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
 		<resource name="clipboard_noimage">Não foi possível encontrar uma imagem na Área de transferência.</resource>
 		<resource name="ClipboardFormats.BITMAP">Bitmap do Windows </resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML com imagens embutidas</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

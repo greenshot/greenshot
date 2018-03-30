@@ -29,7 +29,7 @@
 		<resource name="clipboard_inuse">Greenshot tidak dapat menulis di papan kip saat proses {0} memblokir akses.</resource>
 		<resource name="clipboard_noimage">Tidak dapat menemukan gambar papan klip apapun.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML dengan gambar inline</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

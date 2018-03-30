@@ -30,7 +30,7 @@
 		<resource name="clipboard_inuse">Greenshot не смог записать в буфер обмена, доступ заблокирован процессом {0}.</resource>
 		<resource name="clipboard_noimage">Изображение в буфере обмена не найдено.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormats.DIB">Устройство Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Устройство independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML со встроенными изображениями</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

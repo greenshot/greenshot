@@ -29,7 +29,7 @@
 		<resource name="clipboard_inuse">Greenshot 無法將資料寫入剪貼簿，因為 {0} 已將剪貼簿鎖定。</resource>
 		<resource name="clipboard_noimage">找不到剪貼簿圖片。</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows 點陣圖</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML 含內嵌圖像</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>

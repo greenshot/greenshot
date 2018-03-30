@@ -27,7 +27,7 @@
 		<resource name="CANCEL">Zrušiť</resource>
 		<resource name="clipboard_error">Neočakávaná chyba pri zápise do schránky.</resource>
 		<resource name="clipboard_inuse">Greenshot nemôhol zapísať do schránky - proces {0} zablokoval prístup.</resource>
-		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.DIB">Device independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML with inline images</resource>
 		<resource name="ClipboardFormats.PNG">PNG</resource>
