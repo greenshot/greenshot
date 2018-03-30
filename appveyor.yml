@@ -7,7 +7,7 @@ clone_depth: 2
 test: off
 branches:
   only:
-  - master
+  - develop
 build_script:
 - ps: .\build.ps1 --settings_skipverification=true
 artifacts:
