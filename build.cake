@@ -17,6 +17,9 @@ var configuration = Argument("configuration", "release");
 // Used to publish NuGet packages
 var nugetApiKey = Argument("nugetApiKey", EnvironmentVariable("NuGetApiKey"));
 
+// Used to publish coverage report
+var coverallsRepoToken = Argument("coverallsRepoToken", EnvironmentVariable("CoverallsRepoToken"));
+
 // where is our solution located?
 var solutionFilePath = GetFiles("src/*.sln").First();
 var solutionName = solutionFilePath.GetDirectory().GetDirectoryName();
