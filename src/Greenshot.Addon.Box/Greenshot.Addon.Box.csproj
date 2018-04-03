@@ -61,6 +61,15 @@
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
     </Reference>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.31\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.31\lib\net45\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.31\lib\net45\Dapplo.HttpExtensions.OAuth.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.24\lib\net45\Dapplo.Ini.dll</HintPath>
     </Reference>
@@ -105,12 +114,17 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net45\System.Reactive.Core.dll</HintPath>
       <Private>True</Private>
@@ -125,6 +139,7 @@
     </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -132,14 +147,16 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\BoxEntity.cs" />
+    <Compile Include="Entities\BoxFile.cs" />
+    <Compile Include="Entities\BoxItem.cs" />
+    <Compile Include="Entities\BoxSharedLink.cs" />
     <Compile Include="IBoxConfiguration.cs" />
-    <Compile Include="BoxCredentials.cs" />
     <Compile Include="BoxDestination.cs" />
-    <Compile Include="BoxEntities.cs" />
-    <Compile Include="BoxUtils.cs" />
     <Compile Include="IBoxLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\BoxConfigViewModel.cs" />
@@ -168,21 +185,13 @@
     </Page>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(ProjectDir)BoxCredentials.orig.cs" (
-   rename "$(ProjectDir)BoxCredentials.cs" "BoxCredentials.private.cs"
-   rename "$(ProjectDir)BoxCredentials.orig.cs" "BoxCredentials.cs"
-)
-
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 </PostBuildEvent>
     <PreBuildEvent>
-if exist "$(ProjectDir)BoxCredentials.private.cs" (
-   rename "$(ProjectDir)BoxCredentials.cs" "BoxCredentials.orig.cs"
-   rename "$(ProjectDir)BoxCredentials.private.cs" "BoxCredentials.cs"
-)</PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

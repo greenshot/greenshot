@@ -24,8 +24,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -72,8 +76,9 @@ namespace Greenshot.Addon.Lutim
 				try
 				{
 					var value = Config.LutimUploadHistory[key];
-					LutimInfo lutimInfo = LutimInfo.FromIniString(key, value);
-					Config.RuntimeLutimHistory[key] = lutimInfo;
+                    // TODO: Read from something
+					//LutimInfo lutimInfo = LutimInfo.FromIniString(key, value);
+					// Config.RuntimeLutimHistory[key] = lutimInfo;
 				}
 				catch (ArgumentException)
 				{
@@ -96,118 +101,37 @@ namespace Greenshot.Addon.Lutim
 		/// <param name="outputSettings">OutputSettings for the image file format</param>
 		/// <param name="filename">Filename</param>
 		/// <returns>LutimInfo with details</returns>
-		public static LutimInfo UploadToLutim(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename)
+		public static async Task<LutimInfo> UploadToLutim(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename)
 		{
-			string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-			byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+		    var baseUrl = new Uri(Config.LutimUrl);
 
-			string responseString = null;
-			var webRequest = NetworkHelper.CreateWebRequest(Config.LutimUrl, HTTPMethod.POST);
-
-			webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
-			webRequest.ServicePoint.Expect100Continue = false;
-
-			try
-			{
-				using (var requestStream = webRequest.GetRequestStream())
-				{
-					WriteFormData(requestStream, boundarybytes, "format", "json");
-					WriteFormData(requestStream, boundarybytes, "first-view", "0");
-					WriteFormData(requestStream, boundarybytes, "delete-day", "0");
-					WriteFormData(requestStream, boundarybytes, "keep-exif", "0");
-
-					requestStream.Write(boundarybytes, 0, boundarybytes.Length);
-
-					const string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-					string header = string.Format(headerTemplate, "file", filename, "image/" + outputSettings.Format);
-					byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
-					requestStream.Write(headerbytes, 0, headerbytes.Length);
-
-					ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
-
-					byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
-					requestStream.Write(trailer, 0, trailer.Length);
-				}
-
-				using (WebResponse response = webRequest.GetResponse())
-				{
-					var responseStream = response.GetResponseStream();
-					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Error().WriteLine(ex, "Upload to lutim gave an exeption: ");
-				throw;
-			}
-
-			if (string.IsNullOrEmpty(responseString))
-			{
-				return null;
-			}
-
-			return LutimInfo.ParseResponse(Config.LutimUrl, responseString);
-		}
-
-		private static void WriteFormData(Stream requestStream, byte[] boundarybytes, string name, object value)
-		{
-			const string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
-			requestStream.Write(boundarybytes, 0, boundarybytes.Length);
-			string formitem = string.Format(formdataTemplate, name, value);
-			byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
-			requestStream.Write(formitembytes, 0, formitembytes.Length);
+            // TODO: Upload
+		    var result = await baseUrl.PostAsync<AddResult>("");
+		    return result.LutimInfo;
 		}
 
 		/// <summary>
 		/// Delete an lutim image, this is done by specifying the delete hash
 		/// </summary>
 		/// <param name="lutimInfo"></param>
-		public static void DeleteLutimImage(LutimInfo lutimInfo)
+		public static async Task DeleteLutimImage(AddResult lutimInfo)
 		{
-			Log.Info().WriteLine("Deleting Lutim image for {0}", lutimInfo.Short);
+			Log.Info().WriteLine("Deleting Lutim image for {0}", lutimInfo.LutimInfo.Short);
 
-			try
-			{
-				var lutimBaseUri = new Uri(Config.LutimUrl);
-				var url = new Uri(lutimBaseUri, "d/" + lutimInfo.RealShort + "/" + lutimInfo.Token + "?format=json");
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-				webRequest.ServicePoint.Expect100Continue = false;
+			var lutimBaseUri = new Uri(Config.LutimUrl);
+			var deleteUri = lutimBaseUri.AppendSegments("d", lutimInfo.LutimInfo.RealShort, lutimInfo.LutimInfo.Token).ExtendQuery("format", "json");
 
-				string responseString = null;
-				using (WebResponse response = webRequest.GetResponse())
-				{
-					var responseStream = response.GetResponseStream();
-					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
-				}
-				Log.Info().WriteLine("Delete result: {0}", responseString);
-			}
-			catch (WebException wE)
+			var httpResponse = await deleteUri.GetAsAsync<HttpResponse<string, string>>();
+                
+			if (httpResponse.StatusCode != HttpStatusCode.BadRequest)
 			{
-				// Allow "Bad request" this means we already deleted it
-				if (wE.Status == WebExceptionStatus.ProtocolError)
-				{
-					if (((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest)
-					{
-						throw;
-					}
-				}
+			    throw new Exception(httpResponse.ErrorResponse);
 			}
+			
+			Log.Info().WriteLine("Delete result: {0}", httpResponse.Response);
 			// Make sure we remove it from the history, if no error occured
-			Config.RuntimeLutimHistory.Remove(lutimInfo.Short);
-			Config.LutimUploadHistory.Remove(lutimInfo.Short);
-			lutimInfo.Thumb = null;
+			Config.RuntimeLutimHistory.Remove(lutimInfo.LutimInfo.Short);
+			Config.LutimUploadHistory.Remove(lutimInfo.LutimInfo.Short);
 		}
 
 		/// <summary>
@@ -222,5 +146,15 @@ namespace Greenshot.Addon.Lutim
 				Log.Info().WriteLine("{0}={1}", key, nameValues[key]);
 			}
 		}
+
+	    public static Task<LutimInfo> RetrieveLutimInfoAsync(string hash, string s, CancellationToken cancellationToken)
+	    {
+	        throw new NotImplementedException();
+	    }
+
+	    public static Task RetrieveLutimThumbnailAsync(LutimInfo lutimInfo, CancellationToken cancellationToken)
+	    {
+	        throw new NotImplementedException();
+	    }
 	}
 }

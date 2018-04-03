@@ -14,7 +14,7 @@ namespace Greenshot.PerformanceTests
     [MinColumn, MaxColumn, MemoryDiagnoser]
     public class GfxPerformance
     {
-        [Benchmark]
+        //[Benchmark]
         public void WuQuantizer()
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
@@ -35,7 +35,7 @@ namespace Greenshot.PerformanceTests
         [Benchmark]
         public void Blur()
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -49,7 +49,7 @@ namespace Greenshot.PerformanceTests
         [Benchmark]
         public void BlurOld()
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -63,7 +63,7 @@ namespace Greenshot.PerformanceTests
         [Benchmark]
         public void Scale()
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))

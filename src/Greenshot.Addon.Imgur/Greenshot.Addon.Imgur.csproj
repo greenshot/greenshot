@@ -177,7 +177,6 @@
     <Compile Include="Entities\ImgurData.cs" />
     <Compile Include="Entities\ImgurImage.cs" />
     <Compile Include="IImgurLanguage.cs" />
-    <Compile Include="ImgurCredentials.cs" />
     <Compile Include="ImgurDestination.cs" />
     <Compile Include="IImgurConfiguration.cs" />
     <Compile Include="ImgurUtils.cs" />

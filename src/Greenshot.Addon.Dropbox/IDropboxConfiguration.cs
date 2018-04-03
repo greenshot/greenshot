@@ -24,9 +24,8 @@
 #region Usings
 
 using System.ComponentModel;
-using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
-using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 
@@ -39,7 +38,7 @@ namespace Greenshot.Addon.Dropbox
 	/// </summary>
 	[IniSection("Dropbox")]
 	[Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
+	public interface IDropboxConfiguration : IIniSection, IOAuth2Token, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("What file type to use for uploading")]
 	    [DefaultValue(OutputFormats.png)]
@@ -53,14 +52,18 @@ namespace Greenshot.Addon.Dropbox
 		[DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard { get; set; }
 
-		[Description("The Dropbox token")]
-		[TypeConverter(typeof(StringEncryptionTypeConverter))]
-		[DataMember(EmitDefaultValue = false)]
-		string DropboxToken { get; set; }
+	    /// <summary>
+	    ///     Not stored, but read so people could theoretically specify their own consumer key.
+	    /// </summary>
+	    [IniPropertyBehavior(Write = false)]
+	    [DefaultValue("@credentials_dropbox_consumer_key@")]
+	    string ClientId { get; set; }
 
-		[Description("The Dropbox token secret")]
-		[TypeConverter(typeof(StringEncryptionTypeConverter))]
-		[DataMember(EmitDefaultValue = false)]
-		string DropboxTokenSecret { get; set; }
-	}
+	    /// <summary>
+	    ///     Not stored, but read so people could theoretically specify their own consumer secret.
+	    /// </summary>
+	    [IniPropertyBehavior(Write = false)]
+	    [DefaultValue("@credentials_dropbox_consumer_secret@")]
+	    string ClientSecret { get; set; }
+    }
 }

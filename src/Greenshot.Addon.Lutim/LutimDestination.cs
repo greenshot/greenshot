@@ -24,8 +24,13 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
+using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -42,25 +47,35 @@ namespace Greenshot.Addon.Lutim  {
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ILutimConfiguration _lutimConfiguration;
+        private readonly ILutimLanguage _lutimLanguage;
 
         [ImportingConstructor]
-        public LutimDestination(ILutimConfiguration lutimConfiguration) {
-			_lutimConfiguration = lutimConfiguration;
-		}
+        public LutimDestination(ILutimConfiguration lutimConfiguration, ILutimLanguage lutimLanguage)
+        {
+            _lutimConfiguration = lutimConfiguration;
+            _lutimLanguage = lutimLanguage;
+        }
 
-		public override string Description => Language.GetString("lutim", LangKey.upload_menu_item);
+		public override string Description => _lutimLanguage.UploadMenuItem;
 
 		public override Bitmap DisplayIcon {
 			get {
-				var resources = new ComponentResourceManager(typeof(LutimPlugin));
-				return (Bitmap)resources.GetObject("Lutim");
-			}
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Lutim\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
+            }
 		}
 
-        protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-		    var exportInformation = new ExportInformation(Designation, Description)
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            var uploadUrl = await Upload(captureDetails, surface);
+
+            var exportInformation = new ExportInformation(Designation, Description)
 		    {
-		        ExportMade = Upload(captureDetails, surface, out var uploadUrl),
+		        ExportMade = uploadUrl != null,
 		        Uri = uploadUrl
 		    };
 		    ProcessExport(exportInformation, surface);
@@ -75,41 +90,46 @@ namespace Greenshot.Addon.Lutim  {
         /// <param name="surfaceToUpload">ISurface</param>
         /// <param name="uploadUrl">out string for the url</param>
         /// <returns>true if the upload succeeded</returns>
-        private bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+        private async Task<string> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
         {
+            string uploadUrl;
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_lutimConfiguration.UploadFormat, _lutimConfiguration.UploadJpegQuality, _lutimConfiguration.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_lutimConfiguration.FilenamePattern, _lutimConfiguration.UploadFormat, captureDetails));
-                LutimInfo lutimInfo = null;
+                LutimInfo lutimInfo;
 
-                // Run upload in the background
-                new PleaseWaitForm().ShowAndWait("Lutim plug-in", Language.GetString("lutim", LangKey.communication_wait),
-                    () =>
+                var cancellationTokenSource = new CancellationTokenSource();
+                using (var pleaseWaitForm = new PleaseWaitForm("Lutim", _lutimLanguage.CommunicationWait, cancellationTokenSource))
+                {
+                    pleaseWaitForm.Show();
+                    try
                     {
-                        lutimInfo = LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
+                        lutimInfo = await LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
                         if (lutimInfo != null)
                         {
-                            Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
-                            _lutimConfiguration.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
+                            Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}",
+                                lutimInfo.Short, lutimInfo.Token);
+                            // TODO: Write somewhere
+                            // _lutimConfiguration.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
                             _lutimConfiguration.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
                             // TODO: Update
                             // UpdateHistoryMenuItem();
                         }
                     }
-                );
+                    finally
+                    {
+                        pleaseWaitForm.Close();
+                    }
+                }
+
 
                 if (lutimInfo != null)
                 {
-                    // TODO: Optimize a second call for export
-                    using (var tmpBitmap = surfaceToUpload.GetBitmapForExport())
-                    {
-                        lutimInfo.Thumb = tmpBitmap.CreateThumbnail(90, 90);
-                    }
-                    uploadUrl = lutimInfo.Uri.AbsoluteUri;
+                    uploadUrl = lutimInfo.Short;
                     if (string.IsNullOrEmpty(uploadUrl) || !_lutimConfiguration.CopyLinkToClipboard)
                     {
-                        return true;
+                        return uploadUrl;
                     }
                     try
                     {
@@ -118,18 +138,17 @@ namespace Greenshot.Addon.Lutim  {
                     catch (Exception ex)
                     {
                         Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-                        uploadUrl = null;
+                        return null;
                     }
-                    return true;
+                    return uploadUrl;
                 }
             }
             catch (Exception e)
             {
                 Log.Error().WriteLine(e, "Error uploading.");
-                MessageBox.Show(Language.GetString("lutim", LangKey.upload_failure) + " " + e.Message);
+                MessageBox.Show(_lutimLanguage.UploadFailure + " " + e.Message);
             }
-            uploadUrl = null;
-            return false;
+            return null;
         }
     }
 }

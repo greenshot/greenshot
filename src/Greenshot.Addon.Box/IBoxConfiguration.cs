@@ -26,6 +26,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
@@ -40,8 +41,8 @@ namespace Greenshot.Addon.Box
 	/// </summary>
 	[IniSection("Box")]
 	[Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
-	{
+	public interface IBoxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth2Token
+    {
 		[Description("What file type to use for uploading")]
 		[DefaultValue(OutputFormats.png)]
 		OutputFormats UploadFormat { get; set; }
@@ -62,21 +63,18 @@ namespace Greenshot.Addon.Box
 	    [DefaultValue("0")]
 		string FolderId { get; set; }
 
-		[Description("Box authorization refresh Token")]
-		[TypeConverter(typeof(StringEncryptionTypeConverter))]
-        string RefreshToken { get; set; }
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own Client ID.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_box_client_id@")]
+        string ClientId { get; set; }
 
         /// <summary>
-        ///     Not stored
+        ///     Not stored, but read so people could theoretically specify their own client secret.
         /// </summary>
-        [IniPropertyBehavior(Read = false, Write = false)]
-        string AccessToken { get; set; }
-
-        /// <summary>
-        ///     Not stored
-        /// </summary>
-        [DataMember(EmitDefaultValue = false)]
-        [IniPropertyBehavior(Read = false, Write = false)]
-        DateTimeOffset AccessTokenExpires { get; set; }
-	}
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_box_client_secret@")]
+        string ClientSecret { get; set; }
+    }
 }

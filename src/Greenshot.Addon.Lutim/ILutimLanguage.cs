@@ -21,15 +21,46 @@
 
 #endregion
 
-namespace Greenshot.Addon.Photobucket
+using System.ComponentModel;
+using Dapplo.Language;
+
+namespace Greenshot.Addon.Lutim
 {
-	/// <summary>
-	///     This class is merely a placeholder for the file keeping the API key and secret for photobucket integration.
-	///     You can set your own values here
-	/// </summary>
-	public static class PhotobucketCredentials
-	{
-		public static string ConsumerKey = "@credentials_photobucket_consumer_key@";
-		public static string ConsumerSecret = "@credentials_photobucket_consumer_secret@";
-	}
+    [Language("Lutim")]
+    public interface ILutimLanguage : ILanguage, INotifyPropertyChanged
+    {
+        string Cancel { get; }
+
+        string ClearQuestion { get; }
+
+        string CommunicationWait { get; }
+
+        string Configure { get; }
+
+        string DeleteQuestion { get; }
+
+        string DeleteTitle { get; }
+
+        string History { get; }
+
+        string LabelClear { get; }
+
+        string LabelUploadFormat { get; }
+
+        string LabelUrl { get; }
+
+        string Ok { get; }
+
+        string SettingsTitle { get; }
+
+        string UploadFailure { get; }
+
+        string UploadMenuItem { get; }
+
+        string UploadSuccess { get; }
+
+        string UsePageLink { get; }
+
+        string AnonymousAccess { get; }
+    }
 }

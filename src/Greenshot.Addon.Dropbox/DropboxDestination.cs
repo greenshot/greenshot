@@ -24,19 +24,29 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Utils;
+using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -46,15 +56,41 @@ namespace Greenshot.Addon.Dropbox
     public class DropboxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
+	    private static readonly Uri DropboxApiUri = new Uri("https://api.dropbox.com");
+	    private static readonly Uri DropboxContentUri = new Uri("https://content.dropboxapi.com/2/files/upload");
+
         private readonly IDropboxConfiguration _dropboxPluginConfiguration;
 	    private readonly IDropboxLanguage _dropboxLanguage;
+	    private OAuth2Settings _oAuth2Settings;
+	    private IHttpBehaviour _oAuthHttpBehaviour;
 
 	    [ImportingConstructor]
 	    public DropboxDestination(IDropboxConfiguration dropboxPluginConfiguration, IDropboxLanguage dropboxLanguage)
 	    {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
 	        _dropboxLanguage = dropboxLanguage;
-	    }
+
+	        _oAuth2Settings = new OAuth2Settings
+	        {
+	            AuthorizationUri = DropboxApiUri.
+	                AppendSegments("1", "oauth2", "authorize").
+	                ExtendQuery(new Dictionary<string, string>
+	                {
+	                    {"response_type", "code"},
+	                    {"client_id", "{ClientId}"},
+	                    {"redirect_uri", "{RedirectUrl}"},
+	                    {"state", "{State}"}
+	                }),
+	            TokenUrl = DropboxApiUri.AppendSegments("1", "oauth2", "token"),
+	            CloudServiceName = "Dropbox",
+	            ClientId = dropboxPluginConfiguration.ClientId,
+	            ClientSecret = dropboxPluginConfiguration.ClientSecret,
+	            AuthorizeMode = AuthorizeModes.LocalhostServer,
+	            RedirectUrl = "http://localhost:47336",
+	            Token = dropboxPluginConfiguration
+            };
+	        _oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
+        }
 
 		public override Bitmap DisplayIcon
 		{
@@ -71,11 +107,11 @@ namespace Greenshot.Addon.Dropbox
 
 		public override string Description => _dropboxLanguage.UploadMenuItem;
 
-	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = Upload(captureDetails, surface, out var uploadUrl);
-			if (uploaded)
+		    var uploadUrl = await UploadAsync(captureDetails, surface);
+			if (uploadUrl != null)
 			{
 				exportInformation.Uri = uploadUrl;
 				exportInformation.ExportMade = true;
@@ -91,33 +127,99 @@ namespace Greenshot.Addon.Dropbox
 	    /// <summary>
 	    ///     This will be called when the menu item in the Editor is clicked
 	    /// </summary>
-	    private bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+	    private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken cancellationToken = default)
 	    {
-	        uploadUrl = null;
+	        string dropboxUrl = null;
 	        var outputSettings = new SurfaceOutputSettings(_dropboxPluginConfiguration.UploadFormat, _dropboxPluginConfiguration.UploadJpegQuality, false);
 	        try
 	        {
-	            string dropboxUrl = null;
-	            new PleaseWaitForm().ShowAndWait("Dropbox", _dropboxLanguage.CommunicationWait,
-	                () =>
+	            var cancellationTokenSource = new CancellationTokenSource();
+                using (var pleaseWaitForm = new PleaseWaitForm("Dropbox", _dropboxLanguage.CommunicationWait, cancellationTokenSource))
+	            {
+	                pleaseWaitForm.Show();
+	                try
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
-	                    dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
+	                    using (var imageStream = new MemoryStream())
+	                    {
+	                        ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+	                        imageStream.Position = 0;
+	                        using (var streamContent = new StreamContent(imageStream))
+	                        {
+	                            streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+	                            dropboxUrl = await UploadAsync(filename, streamContent, null, cancellationToken);
+	                        }
+	                    }
 	                }
-	            );
-	            if (dropboxUrl == null)
-	            {
-	                return false;
+	                finally
+	                {
+	                    pleaseWaitForm.Close();
+	                }
 	            }
-	            uploadUrl = dropboxUrl;
-	            return true;
 	        }
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e);
 	            MessageBox.Show(_dropboxLanguage.UploadFailure + " " + e.Message);
-	            return false;
 	        }
+            return dropboxUrl;
 	    }
+
+        /// <summary>
+		///     Upload the HttpContent to dropbox
+		/// </summary>
+		/// <param name="filename">Name of the file</param>
+		/// <param name="content">HttpContent</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Url as string</returns>
+		private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
+            // Use UploadProgress
+            if (progress != null)
+            {
+                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100))); };
+            }
+            oAuthHttpBehaviour.MakeCurrent();
+
+            // Build the upload content together
+            var uploadContent = new Upload
+            {
+                Content = content
+            };
+
+            // This is needed
+            if (!filename.StartsWith("/"))
+            {
+                filename = "/" + filename;
+            }
+            // Create the upload request parameters
+            var parameters = new UploadRequest
+            {
+                Path = filename
+            };
+
+            // Add it to the headers
+            uploadContent.Headers.Add("Dropbox-API-Arg", JsonConvert.SerializeObject(parameters, Formatting.None));
+            _oAuthHttpBehaviour.MakeCurrent();
+            // Post everything, and return the upload reply or an error
+            var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply, Error>>(uploadContent, cancellationToken);
+
+            if (response.HasError)
+            {
+                throw new ApplicationException(response.ErrorResponse.Summary);
+            }
+            // Take the response from the upload, and use the information to request dropbox to create a link
+            var createLinkRequest = new CreateLinkRequest
+            {
+                Path = response.Response.PathDisplay
+            };
+            var reply = await DropboxApiUri.AppendSegments("2", "sharing", "create_shared_link_with_settings").PostAsync<HttpResponse<CreateLinkReply, Error>>(createLinkRequest, cancellationToken);
+            if (reply.HasError)
+            {
+                throw new ApplicationException(reply.ErrorResponse.Summary);
+            }
+            return reply.Response.Url;
+        }
     }
 }

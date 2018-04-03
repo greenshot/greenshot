@@ -49,6 +49,9 @@
     <Reference Include="CommonServiceLocator, Version=2.0.3.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\packages\CommonServiceLocator.2.0.3\lib\net45\CommonServiceLocator.dll</HintPath>
     </Reference>
+    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.Addons, Version=0.5.55.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.5.55\lib\net45\Dapplo.Addons.dll</HintPath>
     </Reference>
@@ -72,6 +75,12 @@
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.31\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.31\lib\net45\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.24\lib\net45\Dapplo.Ini.dll</HintPath>
@@ -115,14 +124,22 @@
     <Reference Include="Dapplo.Windows.User32, Version=0.5.50.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.User32.0.5.50\lib\net45\Dapplo.Windows.User32.dll</HintPath>
     </Reference>
+    <Reference Include="MahApps.Metro, Version=1.6.1.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.1.6.1\lib\net45\MahApps.Metro.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net45\System.Reactive.Core.dll</HintPath>
       <Private>True</Private>
@@ -137,37 +154,26 @@
     </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\LutimForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LutimHistory.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LutimHistory.Designer.cs">
-      <DependentUpon>LutimHistory.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Entities\AddResult.cs" />
+    <Compile Include="Entities\LutimInfo.cs" />
+    <Compile Include="ILutimLanguage.cs" />
     <Compile Include="LutimDestination.cs" />
-    <Compile Include="LutimInfo.cs" />
-    <Compile Include="LutimPlugin.cs" />
     <Compile Include="ILutimConfiguration.cs" />
     <Compile Include="LutimUtils.cs" />
-    <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\LutimConfigViewModel.cs" />
+    <Compile Include="ViewModels\LutimHistoryViewModel.cs" />
     <None Include="app.config" />
     <None Include="Languages\language_lutimplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -182,16 +188,10 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language_lutimplugin-zh-CN.xml" />
-    <EmbeddedResource Include="Forms\SettingsForm.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="LutimPlugin.resx">
-      <DependentUpon>LutimPlugin.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Lutim.png" />
+    <EmbeddedResource Include="Lutim.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
@@ -217,6 +217,16 @@
     <Content Include="Languages\language_lutimplugin-sv-SE.xml" />
     <Content Include="Languages\language_lutimplugin-uk-UA.xml" />
     <Content Include="Languages\language_lutimplugin-zh-TW.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\LutimConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\LutimHistoryView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>

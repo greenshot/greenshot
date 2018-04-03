@@ -24,12 +24,20 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Extensions;
+using Dapplo.HttpExtensions.Listener;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
@@ -46,15 +54,43 @@ namespace Greenshot.Addon.Flickr
     public class FlickrDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
+	    private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
         private readonly IFlickrConfiguration _flickrConfiguration;
 	    private readonly IFlickrLanguage _flickrLanguage;
+	    private readonly OAuth1Settings _oAuthSettings;
+	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 
 	    [ImportingConstructor]
         public FlickrDestination(IFlickrConfiguration flickrConfiguration, IFlickrLanguage flickrLanguage)
 	    {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;
-	    }
+
+            _oAuthSettings = new OAuth1Settings
+	        {
+	            Token = flickrConfiguration,
+	            ClientId = flickrConfiguration.ClientId,
+	            ClientSecret = flickrConfiguration.ClientSecret,
+	            CloudServiceName = "Flickr",
+	            AuthorizeMode = AuthorizeModes.LocalhostServer,
+	            TokenUrl = FlickrOAuthUri.AppendSegments("request_token"),
+	            TokenMethod = HttpMethod.Post,
+	            AccessTokenUrl = FlickrOAuthUri.AppendSegments("access_token"),
+	            AccessTokenMethod = HttpMethod.Post,
+	            AuthorizationUri = FlickrOAuthUri.AppendSegments("authorize")
+	                .ExtendQuery(new Dictionary<string, string>
+	                {
+	                    {OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
+	                    {OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
+	                }),
+	            // Create a localhost redirect uri, prefer port 47336, but use the first free found
+	            RedirectUrl = new[] { 47336, 0 }.CreateLocalHostUri().AbsoluteUri,
+	            CheckVerifier = true
+	        };
+
+	        _oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
+	        _oAuthHttpBehaviour.ValidateResponseContentType = false;
+        }
 
 		public override string Description => _flickrLanguage.UploadMenuItem;
 
@@ -71,53 +107,60 @@ namespace Greenshot.Addon.Flickr
             }
 		}
 
-	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
-			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = Upload(captureDetails, surface, out var uploadUrl);
-			if (uploaded)
-			{
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
-			}
-			ProcessExport(exportInformation, surface);
+	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    {
+	        var flickrUri = await Upload(captureDetails, surface);
+
+	        var exportInformation = new ExportInformation(Designation, Description)
+	        {
+	            ExportMade = flickrUri != null,
+	            Uri = flickrUri
+	        };
+	        ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 
 
-	    public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
+	    public async Task<string> Upload(ICaptureDetails captureDetails, ISurface surface)
 	    {
-	        var outputSettings = new SurfaceOutputSettings(_flickrConfiguration.UploadFormat, _flickrConfiguration.UploadJpegQuality, false);
-	        uploadUrl = null;
+	        string uploadUrl = null;
+
+            var outputSettings = new SurfaceOutputSettings(_flickrConfiguration.UploadFormat, _flickrConfiguration.UploadJpegQuality, false);
 	        try
 	        {
-	            string flickrUrl = null;
-	            new PleaseWaitForm().ShowAndWait("Flickr", _flickrLanguage.CommunicationWait,
-	                () =>
+
+	            var cancellationTokenSource = new CancellationTokenSource();
+	            using (var pleaseWaitForm = new PleaseWaitForm("Flickr", _flickrLanguage.CommunicationWait, cancellationTokenSource))
+	            {
+	                pleaseWaitForm.Show();
+	                try
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
-	                    flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
+	                    uploadUrl = await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
+                    }
+	                finally
+	                {
+	                    pleaseWaitForm.Close();
 	                }
-	            );
-
-	            if (flickrUrl == null)
-	            {
-	                return false;
 	            }
-	            uploadUrl = flickrUrl;
+               
 
+	            if (uploadUrl == null)
+	            {
+	                return null;
+	            }
 	            if (_flickrConfiguration.AfterUploadLinkToClipBoard)
 	            {
-	                ClipboardHelper.SetClipboardData(flickrUrl);
+	                ClipboardHelper.SetClipboardData(uploadUrl);
 	            }
-	            return true;
+	            
 	        }
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
 	            MessageBox.Show(_flickrLanguage.UploadFailure + " " + e.Message);
 	        }
-	        return false;
+	        return uploadUrl;
 	    }
     }
 }

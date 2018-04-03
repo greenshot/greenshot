@@ -23,11 +23,9 @@
 
 #region Usings
 
-using System;
 using System.ComponentModel;
-using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
-using Dapplo.Ini.Converters;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -39,8 +37,8 @@ namespace Greenshot.Addon.GooglePhotos
 	/// </summary>
 	[IniSection("GooglePhotos")]
 	[Description("Greenshot Google Photos Plugin configuration")]
-	public interface IGooglePhotosConfiguration : IIniSection
-	{
+	public interface IGooglePhotosConfiguration : IIniSection, IOAuth2Token
+    {
 		[Description("What file type to use for uploading")]
         [DefaultValue(OutputFormats.png)]
 		OutputFormats UploadFormat { get; set; }
@@ -65,21 +63,18 @@ namespace Greenshot.Addon.GooglePhotos
 		[DefaultValue("default")]
 		string UploadAlbum { get; set; }
 
-		[Description("Google Photos authorization refresh Token")]
-		[TypeConverter(typeof(StringEncryptionTypeConverter))]
-		[DataMember(EmitDefaultValue = false)]
-        string RefreshToken { get; set; }
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own Client ID.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_picasa_consumer_key@")]
+        string ClientId { get; set; }
 
         /// <summary>
-        ///     Not stored
+        ///     Not stored, but read so people could theoretically specify their own client secret.
         /// </summary>
-        [IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken { get; set; }
-
-        /// <summary>
-        ///     Not stored
-        /// </summary>
-        [IniPropertyBehavior(Read = false, Write = false)]
-        DateTimeOffset AccessTokenExpires { get; set; }
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_picasa_consumer_secret@")]
+        string ClientSecret { get; set; }
     }
 }

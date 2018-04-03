@@ -22,6 +22,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons.Core.Enums;
 
 namespace Greenshot.Addon.Lutim {
@@ -30,7 +32,7 @@ namespace Greenshot.Addon.Lutim {
 	/// </summary>
 	[IniSection("Lutim")]
     [Description("Greenshot Lutim Plugin configuration")]
-	public interface ILutimConfiguration : IIniSection
+	public interface ILutimConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Url to Lutim system.")]
 		[DefaultValue("https://lut.im/")]
@@ -60,6 +62,6 @@ namespace Greenshot.Addon.Lutim {
 		string FilenamePattern { get; set; }
 
 	    [IniPropertyBehavior(Read = false, Write = false)]
-        IDictionary<string, LutimInfo> RuntimeLutimHistory { get; set; }
+        IDictionary<string, Entities.LutimInfo> RuntimeLutimHistory { get; set; }
 	}
 }

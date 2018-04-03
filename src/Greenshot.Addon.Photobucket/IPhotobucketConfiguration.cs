@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
@@ -39,8 +40,8 @@ namespace Greenshot.Addon.Photobucket
 	/// </summary>
 	[IniSection("Photobucket")]
 	[Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
-	{
+	public interface IPhotobucketConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
+    {
 		[Description("What file type to use for uploading")]
 	    [DefaultValue(OutputFormats.png)]
 		OutputFormats UploadFormat { get; set; }
@@ -59,16 +60,6 @@ namespace Greenshot.Addon.Photobucket
 
 	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
 	    [DataMember(EmitDefaultValue = false)]
-        [Description("The Photobucket token")]
-		string Token { get; set; }
-
-	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
-	    [DataMember(EmitDefaultValue = false)]
-        [Description("The Photobucket token secret")]
-		string TokenSecret { get; set; }
-
-	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
-	    [DataMember(EmitDefaultValue = false)]
         [Description("The Photobucket api subdomain")]
 		string SubDomain { get; set; }
 
@@ -76,8 +67,24 @@ namespace Greenshot.Addon.Photobucket
         [Description("The Photobucket api username")]
 		string Username { get; set; }
 
+        [Description("The Photobucket album to use")]
+        string Album { get; set; }
+
         [IniPropertyBehavior(Read = false, Write = false)]
 		int Credits { get; set; }
 
-	}
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own Client ID.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_photobucket_consumer_key@")]
+        string ClientId { get; set; }
+
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own client secret.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_photobucket_consumer_secret@")]
+        string ClientSecret { get; set; }
+    }
 }

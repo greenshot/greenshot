@@ -1,0 +1,34 @@
+﻿<mah:MetroWindow x:Class="Greenshot.Addon.Lutim.Views.LutimHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.Lutim.ViewModels"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:LutimHistoryViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <DataGrid ItemsSource="{Binding LutimHistory}" AutoGenerateColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Image" Width="SizeToCells" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding Image}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Orientation="Horizontal">
+            <Image Source="{Binding }"></Image>
+            <Label Content="{Binding Id}"></Label>
+            <Label Content="{Binding Title}"></Label>
+            <Label Content="{Binding DeleteHash}"></Label>
+            <Label Content="{Binding Date}"></Label>
+        </StackPanel>
+        <Button Content="{Binding LutimLanguage.DeleteTitle}" />
+    </StackPanel>
+</mah:MetroWindow>
+

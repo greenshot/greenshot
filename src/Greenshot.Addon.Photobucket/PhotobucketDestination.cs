@@ -29,11 +29,17 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Extensions;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Utils;
 using Greenshot.Addons.Addons;
-using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -49,10 +55,14 @@ namespace Greenshot.Addon.Photobucket
     [Destination("Photobucket")]
     public class PhotobucketDestination : AbstractDestination
 	{
-	    private static readonly LogSource Log = new LogSource();
+	    private static readonly Uri PhotobucketApiUri = new Uri("http://api.photobucket.com");
+        private static readonly LogSource Log = new LogSource();
         private readonly string _albumPath;
 		private readonly IPhotobucketConfiguration _photobucketConfiguration;
 	    private readonly IPhotobucketLanguage _photobucketLanguage;
+	    private readonly OAuth1Settings _oAuthSettings;
+	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
+	    private IList<string> _albumsCache;
 
         /// <summary>
         ///     Create a Photobucket destination
@@ -64,7 +74,64 @@ namespace Greenshot.Addon.Photobucket
 	    {
 	        _photobucketConfiguration = photobucketConfiguration;
 	        _photobucketLanguage = photobucketLanguage;
-	    }
+
+            _oAuthSettings = new OAuth1Settings
+            {
+                Token = photobucketConfiguration,
+                ClientId = photobucketConfiguration.ClientId,
+                ClientSecret = photobucketConfiguration.ClientSecret,
+                CloudServiceName = "Photobucket",
+                EmbeddedBrowserWidth = 1010,
+                EmbeddedBrowserHeight = 400,
+                AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+                TokenUrl = PhotobucketApiUri.AppendSegments("login", "request"),
+                TokenMethod = HttpMethod.Post,
+                AccessTokenUrl = PhotobucketApiUri.AppendSegments("login", "access"),
+                AccessTokenMethod = HttpMethod.Post,
+                AuthorizationUri = PhotobucketApiUri.AppendSegments("apilogin", "login")
+                    .ExtendQuery(new Dictionary<string, string>
+                    {
+                        {OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
+                        {OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
+                    }),
+                RedirectUrl = "http://getgreenshot.org",
+                CheckVerifier = false
+            };
+            var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
+            // Store the leftover values
+            oAuthHttpBehaviour.OnAccessTokenValues = values =>
+            {
+                if (values != null && values.ContainsKey("subdomain"))
+                {
+                    photobucketConfiguration.SubDomain = values["subdomain"];
+                }
+                if (values != null && values.ContainsKey("username"))
+                {
+                    photobucketConfiguration.Username = values["username"];
+                }
+            };
+
+            oAuthHttpBehaviour.BeforeSend = httpRequestMessage =>
+            {
+                if (photobucketConfiguration.SubDomain == null)
+                {
+                    return;
+                }
+
+                var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri)
+                {
+                    Host = photobucketConfiguration.SubDomain
+                };
+                httpRequestMessage.RequestUri = uriBuilder.Uri;
+            };
+            // Reset the OAuth token if there is no subdomain, without this we need to request it again.
+            if (photobucketConfiguration.SubDomain == null || photobucketConfiguration.Username == null)
+            {
+                photobucketConfiguration.OAuthToken = null;
+                photobucketConfiguration.OAuthTokenSecret = null;
+            }
+            _oAuthHttpBehaviour = oAuthHttpBehaviour;
+        }
 
         /// <summary>
         ///     Create a Photobucket destination, which also has the path to the album in it
@@ -110,7 +177,9 @@ namespace Greenshot.Addon.Photobucket
 			IList<string> albums = null;
 			try
 			{
-				albums = PhotobucketUtils.RetrievePhotobucketAlbums();
+				albums = RetrievePhotobucketAlbums().Result;
+			    _albumsCache = albums;
+
 			}
 			catch
 			{
@@ -134,69 +203,144 @@ namespace Greenshot.Addon.Photobucket
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
-		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = Upload(captureDetails, surface, _albumPath, out var uploadUrl);
-			if (uploaded)
+		    var outputSettings = new SurfaceOutputSettings(_photobucketConfiguration.UploadFormat, _photobucketConfiguration.UploadJpegQuality, false);
+		    var filename = Path.GetFileName(FilenameHelper.GetFilename(_photobucketConfiguration.UploadFormat, captureDetails));
+
+            var uploaded = await UploadToPhotobucket(surface, outputSettings, filename, captureDetails.Title, _albumPath);
+			if (uploaded != null)
 			{
 				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
+				exportInformation.Uri = uploaded.Original;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 
 
-	    /// <summary>
-	    ///     Upload the capture to Photobucket
-	    /// </summary>
-	    /// <param name="captureDetails"></param>
-	    /// <param name="surfaceToUpload">ISurface</param>
-	    /// <param name="albumPath">Path to the album</param>
-	    /// <param name="uploadUrl">out string for the url</param>
-	    /// <returns>true if the upload succeeded</returns>
-	    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl)
-	    {
-	        var outputSettings = new SurfaceOutputSettings(_photobucketConfiguration.UploadFormat, _photobucketConfiguration.UploadJpegQuality, _photobucketConfiguration.UploadReduceColors);
-	        try
-	        {
-	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_photobucketConfiguration.UploadFormat, captureDetails));
-	            PhotobucketInfo photobucketInfo = null;
+        /// <summary>
+		///     Do the actual upload to Photobucket
+		///     For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
+		/// </summary>
+		/// <returns>PhotobucketResponse</returns>
+		public async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null, CancellationToken token = default)
+        {
+            string responseString;
 
-	            // Run upload in the background
-	            new PleaseWaitForm().ShowAndWait("Photobucket", _photobucketLanguage.CommunicationWait,
-	                () => photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename)
-	            );
-	            // This causes an exeption if the upload failed :)
-	            Log.Debug().WriteLine("Uploaded to Photobucket page: " + photobucketInfo.Page);
-	            uploadUrl = null;
-	            try
-	            {
-	                if (_photobucketConfiguration.UsePageLink)
-	                {
-	                    uploadUrl = photobucketInfo.Page;
-	                    Clipboard.SetText(photobucketInfo.Page);
-	                }
-	                else
-	                {
-	                    uploadUrl = photobucketInfo.Original;
-	                    Clipboard.SetText(photobucketInfo.Original);
-	                }
-	            }
-	            catch (Exception ex)
-	            {
-	                Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-	            }
-	            return true;
-	        }
-	        catch (Exception e)
+            var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
+
+            // Use UploadProgress
+            if (progress != null)
+            {
+                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+            }
+            _oAuthHttpBehaviour.MakeCurrent();
+            if (_photobucketConfiguration.Username == null || _photobucketConfiguration.SubDomain == null)
+            {
+                await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").GetAsAsync<object>(token);
+            }
+            if (_photobucketConfiguration.Album == null)
+            {
+                _photobucketConfiguration.Album = _photobucketConfiguration.Username;
+            }
+            var uploadUri = PhotobucketApiUri.AppendSegments("album", _photobucketConfiguration.Album, "upload");
+
+            var signedParameters = new Dictionary<string, object> { { "type", "image" } };
+            // add type
+            // add title
+            if (title != null)
+            {
+                signedParameters.Add("title", title);
+            }
+            // add filename
+            if (filename != null)
+            {
+                signedParameters.Add("filename", filename);
+            }
+            // Add image
+            using (var imageStream = new MemoryStream())
+            {
+                ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+                imageStream.Position = 0;
+                using (var streamContent = new StreamContent(imageStream))
+                {
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+                    streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                    {
+                        Name = "\"uploadfile\"",
+                        FileName = "\"" + filename + "\""
+                    };
+
+                    HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
+                    {
+                        Properties = signedParameters
+                    });
+                    try
+                    {
+                        responseString = await uploadUri.PostAsync<string>(streamContent, token);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error().WriteLine(ex, "Error uploading to Photobucket.");
+                        throw;
+                    }
+                }
+            }
+
+            if (responseString == null)
+            {
+                return null;
+            }
+            Log.Info().WriteLine(responseString);
+            var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
+            Log.Debug().WriteLine("Upload to Photobucket was finished");
+            return photobucketInfo;
+        }
+
+
+	    /// <summary>
+	    ///     Get list of photobucket albums
+	    /// </summary>
+	    /// <returns>List of string</returns>
+	    public async Task<IList<string>> RetrievePhotobucketAlbums()
+	    {
+	        if (_albumsCache != null)
 	        {
-	            Log.Error().WriteLine(e);
-	            MessageBox.Show(_photobucketLanguage.UploadFailure + " " + e.Message);
+	            return _albumsCache;
 	        }
-	        uploadUrl = null;
-	        return false;
+	        
+	        IDictionary<string, object> signedParameters = new Dictionary<string, object>();
+	        string responseString;
+
+            try
+            {
+                var albumsUri = PhotobucketApiUri
+                    .AppendSegments("album", _photobucketConfiguration.Username)
+                    .ExtendQuery("format", "json");
+                var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
+	            oAuthHttpBehaviour.SetConfig(new HttpRequestMessageConfiguration
+	            {
+	                Properties = signedParameters
+	            });
+
+                _oAuthHttpBehaviour.MakeCurrent();
+	            responseString = await albumsUri.GetAsAsync<string>();
+	        }
+	        catch (Exception ex)
+	        {
+	            Log.Error().WriteLine(ex, "Error uploading to Photobucket.");
+	            throw;
+	        }
+	        
+	        if (responseString == null)
+	        {
+	            return null;
+	        }
+	        
+	        return null;
 	    }
+
     }
 }

@@ -24,14 +24,22 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Utils;
+using Greenshot.Addon.Box.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -49,13 +57,36 @@ namespace Greenshot.Addon.Box
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
+	    private readonly OAuth2Settings _oauth2Settings;
+        private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
+        private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
-	    [ImportingConstructor]
+        [ImportingConstructor]
 		public BoxDestination(IBoxConfiguration boxConfiguration, IBoxLanguage boxLanguage)
 	    {
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
-	    }
+
+	        _oauth2Settings = new OAuth2Settings
+	        {
+	            AuthorizationUri = new Uri("https://app.box.com").
+	                AppendSegments("api", "oauth2", "authorize").
+	                ExtendQuery(new Dictionary<string, string>
+	                {
+	                    {"response_type", "code"},
+	                    {"client_id", "{ClientId}"},
+	                    {"redirect_uri", "{RedirectUrl}"},
+	                    {"state", "{State}"}
+	                }),
+	            TokenUrl = new Uri("https://api.box.com/oauth2/token"),
+	            CloudServiceName = "Box",
+	            ClientId = boxConfiguration.ClientId,
+	            ClientSecret = boxConfiguration.ClientSecret,
+	            RedirectUrl = "https://www.box.com/home/",
+	            AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+	            Token = boxConfiguration
+            };
+        }
 
 	    public override string Description => _boxLanguage.UploadMenuItem;
 
@@ -90,19 +121,15 @@ namespace Greenshot.Addon.Box
 	    /// </summary>
 	    private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload)
 	    {
-	        var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
 	        try
 	        {
-	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
-	            var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
 	            string url;
-	            using (var pleaseWaitForm = new PleaseWaitForm("Imgur plug-in", _boxLanguage.CommunicationWait))
+	            using (var pleaseWaitForm = new PleaseWaitForm("Box", _boxLanguage.CommunicationWait))
 	            {
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    url = await Task.Run(() => BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename));
+	                    url = await UploadToBoxAsync(captureDetails, surfaceToUpload);
 	                }
 	                finally
 	                {
@@ -124,5 +151,84 @@ namespace Greenshot.Addon.Box
 	            return null;
 	        }
 	    }
+
+        /// <summary>
+        ///     Do the actual upload to Box
+        ///     For more details on the available parameters, see:
+        ///     http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
+        /// </summary>
+        /// <param name="surface">ICapture</param>
+        /// <param name="progress">IProgress</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>url to uploaded image</returns>
+        public async Task<string> UploadToBoxAsync(ICaptureDetails captureDetails, ISurface surface, IProgress<int> progress = null, CancellationToken cancellationToken = default)
+        {
+            string filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
+            var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
+
+            var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
+            // Use UploadProgress
+            if (progress != null)
+            {
+                oauthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100))); };
+            }
+
+            oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(_oauth2Settings, oauthHttpBehaviour, httpMessageHandler);
+
+            // TODO: See if the PostAsync<Bitmap> can be used? Or at least the HttpContentFactory?
+            using (var imageStream = new MemoryStream())
+            {
+                var multiPartContent = new MultipartFormDataContent();
+                var parentIdContent = new StringContent(_boxConfiguration.FolderId);
+                parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"parent_id\""
+                };
+                multiPartContent.Add(parentIdContent);
+                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+                imageStream.Position = 0;
+
+                BoxFile response;
+                using (var streamContent = new StreamContent(imageStream))
+                {
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
+                    streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                    {
+                        Name = "\"file\"",
+                        FileName = "\"" + filename + "\""
+                    }; // the extra quotes are important here
+                    multiPartContent.Add(streamContent);
+
+                    oauthHttpBehaviour.MakeCurrent();
+                    response = await UploadFileUri.PostAsync<BoxFile>(multiPartContent, cancellationToken);
+                }
+
+                if (response == null)
+                {
+                    return null;
+                }
+
+                if (_boxConfiguration.UseSharedLink)
+                {
+                    if (response.SharedLink?.Url == null)
+                    {
+                        var uriForSharedLink = FilesUri.AppendSegments(response.Id);
+                        var updateAcces = new
+                        {
+                            shared_link = new
+                            {
+                                access = "open"
+                            }
+                        };
+                        oauthHttpBehaviour.MakeCurrent();
+                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAcces, cancellationToken);
+                    }
+                    
+                    return response.SharedLink.Url;
+                }
+                return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.Id);
+            }
+        }
+
     }
 }

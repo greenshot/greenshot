@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
@@ -46,8 +47,8 @@ namespace Greenshot.Addon.Flickr
 	/// </summary>
 	[IniSection("Flickr")]
 	[Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
-	{
+	public interface IFlickrConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
+    {
 		[Description("IsPublic.")]
 		[DefaultValue(true)]
 		bool IsPublic { get; set; }
@@ -84,14 +85,18 @@ namespace Greenshot.Addon.Flickr
 		[DefaultValue(false)]
 		bool UsePageLink { get; set; }
 
-	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
-	    [DataMember(EmitDefaultValue = false)]
-        [Description("The Flickr token")]
-		string FlickrToken { get; set; }
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own Client ID.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_flickr_consumer_key@")]
+        string ClientId { get; set; }
 
-	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
-	    [DataMember(EmitDefaultValue = false)]
-        [Description("The Flickr token secret")]
-		string FlickrTokenSecret { get; set; }
-	}
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own client secret.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_flickr_consumer_secret@")]
+        string ClientSecret { get; set; }
+    }
 }

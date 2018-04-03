@@ -325,10 +325,8 @@
     <Compile Include="Core\ExtensionAttribute.cs" />
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
-    <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
-    <Compile Include="Core\OAuthHelper.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\RssHelper.cs" />
