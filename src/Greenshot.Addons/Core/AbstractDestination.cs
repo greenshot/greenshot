@@ -70,7 +70,7 @@ namespace Greenshot.Addons.Core
 
         public virtual Bitmap DisplayIcon { get; set; }
 
-        public virtual BitmapSource DisplayIconWpf => DisplayIcon?.ToBitmapSource();
+        public virtual BitmapSource DisplayIconWpf => DisplayIcon?.ToBitmapSource() ?? GetDisplayIcon(DpiHandler.DefaultScreenDpi).ToBitmapSource();
 
         public virtual Bitmap GetDisplayIcon(double dpi)
         {
