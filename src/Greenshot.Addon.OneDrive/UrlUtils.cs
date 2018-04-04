@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOneDrivePlugin
+namespace Greenshot.Addon.OneDrive
 {
     public class UrlUtils
     {

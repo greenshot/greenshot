@@ -21,7 +21,7 @@
             Successfully uploaded image to OneDrive!
         </resource>
         <resource name="upload_failure">
-            An error occured while uploading to Imgur:
+            An error occured while uploading to OneDrive:
         </resource>
         <resource name="label_upload_format">
             Image format
@@ -30,10 +30,10 @@
             Communicating with OneDrive. Please wait...
         </resource>
         <resource name="delete_question">
-            Are you sure you want to delete the image {0} from Imgur?
+            Are you sure you want to delete the image {0} from OneDrive?
         </resource>
         <resource name="clear_question">
-            Are you sure you want to delete the local Imgur history?
+            Are you sure you want to delete the local OneDrive history?
         </resource>
         <resource name="delete_title">
             Delete OneDrive {0}

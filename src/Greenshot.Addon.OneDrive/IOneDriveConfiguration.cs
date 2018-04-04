@@ -23,13 +23,9 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
-using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 using GreenshotOneDrivePlugin;
@@ -38,12 +34,10 @@ using GreenshotOneDrivePlugin;
 
 namespace Greenshot.Addon.OneDrive
 {
-
     [IniSection("OneDrive")]
     [Description("Greenshot OneDrive Addon configuration")]
     public interface IOneDriveConfiguration : IIniSection, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
     {
-
         [Description("What file type to use for uploading")]
         [DefaultValue("png")]
         OutputFormats UploadFormat { get; set; }
@@ -57,7 +51,7 @@ namespace Greenshot.Addon.OneDrive
         bool AfterUploadLinkToClipBoard { get; set; }
 
         [Description("Should the link be sharable or restricted.")]
-        [DefaultValue("ANONYMOUS")]
+        [DefaultValue(OneDriveLinkType.@private)]
         OneDriveLinkType LinkType { get; set; }
 
         [Description("The OneDrive refresh token")]
@@ -66,39 +60,23 @@ namespace Greenshot.Addon.OneDrive
         [Description("Reduce color amount of the uploaded image to 256")]
         [DefaultValue(false)]
         bool UploadReduceColors { get; set; }
-        
+
         [Description("Filename for the OneDrive upload")]
         [DefaultValue("${capturetime:d\"yyyyMMdd-HHmm\"}")]
         string FilenamePattern { get; set; }
-        
-        /// <summary>
-        /// Not stored
-        /// </summary>
-        [Description("Url to Imgur system.")]
-        [IniPropertyBehavior(Write = false)]
-        string OneDriveToken{get;set;}
 
         /// <summary>
-        /// Not stored
+        ///     Not stored, but read so people could theoretically specify their own Client ID.
         /// </summary>
-        [Description("Url to Imgur system.")]
         [IniPropertyBehavior(Write = false)]
-        DateTimeOffset AccessTokenExpires{get;set;}
+        [DefaultValue("@credentials_onedrive_client_id@")]
+        string ClientId { get; set; }
 
-//        /// <summary>
-//        /// A form for token
-//        /// </summary>
-//        /// <returns>bool true if OK was pressed, false if cancel</returns>
-//        public bool ShowConfigDialog()
-//        {
-//            DialogResult result = new SettingsForm().ShowDialog();
-//            if (result == DialogResult.OK)
-//            {
-//                return true;
-//            }
-//            return false;
-//        }
-
-
+        /// <summary>
+        ///     Not stored, but read so people could theoretically specify their own client secret.
+        /// </summary>
+        [IniPropertyBehavior(Write = false)]
+        [DefaultValue("@credentials_onedrive_client_secret@")]
+        string ClientSecret { get; set; }
     }
 }

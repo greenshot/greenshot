@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
@@ -37,9 +36,6 @@ using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Windows.Extensions;
-using Greenshot.Addon.OneDrive;
-using Greenshot.Addon.OneDrive.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -49,7 +45,7 @@ using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotOneDrivePlugin
+namespace Greenshot.Addon.OneDrive
 {
     /// <summary>
     ///     Description of OneDriveDestination.
@@ -58,21 +54,20 @@ namespace GreenshotOneDrivePlugin
     public class OneDriveDestination : AbstractDestination
     {
         private static readonly LogSource Log = new LogSource();
-        private readonly IOneDriveConfiguration _config;
+        private readonly IOneDriveConfiguration _oneDriveConfiguration;
         private readonly IOneDriveLanguage _oneDriveLanguage;
-        private readonly Dapplo.HttpExtensions.OAuth.OAuth2Settings _oauth2Settings;
-        private readonly ComponentResourceManager _resources;
+        private readonly OAuth2Settings _oauth2Settings;
+        private static readonly Uri MicrosoftOAuth2Uri = new Uri("https://login.microsoftonline.com/common/oauth2/v2.0");
 
         [ImportingConstructor]
-        public OneDriveDestination(IOneDriveConfiguration config, IOneDriveLanguage oneDriveLanguage)
+        public OneDriveDestination(IOneDriveConfiguration oneDriveConfiguration, IOneDriveLanguage oneDriveLanguage)
         {
-            _resources = new ComponentResourceManager(typeof(OneDriveDestination));
-            _config = config;
+            _oneDriveConfiguration = oneDriveConfiguration;
             _oneDriveLanguage = oneDriveLanguage;
             // Configure the OAuth2 settings for OneDrive communication
-            _oauth2Settings = new Dapplo.HttpExtensions.OAuth.OAuth2Settings
+            _oauth2Settings = new OAuth2Settings
             {
-                AuthorizationUri = new Uri("login.microsoftonline.com/common/oauth2/v2.0/authorize")
+                AuthorizationUri = MicrosoftOAuth2Uri.AppendSegments("authorize")
                     .ExtendQuery(new Dictionary<string, string>
                     {
                         {"response_type", "code"},
@@ -81,13 +76,13 @@ namespace GreenshotOneDrivePlugin
                         {"state", "{State}"},
                         {"scope", "files.readwrite offline_access"}
                     }),
-                TokenUrl = new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/token"),
+                TokenUrl = MicrosoftOAuth2Uri.AppendSegments("token"),
                 CloudServiceName = "OneDrive",
-                ClientId = OneDriveCredentials.CLIENT_ID,
-                ClientSecret = OneDriveCredentials.CLIENT_SECRET,
+                ClientId = _oneDriveConfiguration.ClientId,
+                ClientSecret = _oneDriveConfiguration.ClientSecret,
                 RedirectUrl = "http://getgreenshot.org",
                 AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
-                Token = config
+                Token = oneDriveConfiguration
             };
         }
 
@@ -128,13 +123,13 @@ namespace GreenshotOneDrivePlugin
         /// <returns>Uri</returns>
         private async Task<Uri> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
         {
-            var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality,
-                _config.UploadReduceColors);
+            var outputSettings = new SurfaceOutputSettings(_oneDriveConfiguration.UploadFormat, _oneDriveConfiguration.UploadJpegQuality,
+                _oneDriveConfiguration.UploadReduceColors);
             try
             {
-                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern,
-                    _config.UploadFormat, captureDetails));
-                Uri response = null;
+                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_oneDriveConfiguration.FilenamePattern,
+                    _oneDriveConfiguration.UploadFormat, captureDetails));
+                Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
                 using (var pleaseWaitForm = new PleaseWaitForm("OneDrive plug-in", _oneDriveLanguage.CommunicationWait,
@@ -153,15 +148,12 @@ namespace GreenshotOneDrivePlugin
                     }
                 }
 
-                if (response != null)
+                if (_oneDriveConfiguration.AfterUploadLinkToClipBoard)
                 {
-                    if (_config.AfterUploadLinkToClipBoard)
-                    {
-                        ClipboardHelper.SetClipboardData(response.ToString());
-                    }
-
-                    return response;
+                    ClipboardHelper.SetClipboardData(response.ToString());
                 }
+
+                return response;
             }
             catch (Exception e)
             {

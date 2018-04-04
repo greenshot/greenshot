@@ -33,7 +33,6 @@ namespace Greenshot.Addon.OneDrive
     [Language("OneDrive")]
     public interface IOneDriveLanguage : ILanguage, INotifyPropertyChanged
     {
-
         string Cancel { get; }
 
         string ClearQuestion { get; }

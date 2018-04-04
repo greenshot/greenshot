@@ -21,7 +21,6 @@
 
 #endregion
 
-using System;
 using Newtonsoft.Json;
 
 namespace Greenshot.Addon.OneDrive.Entities
@@ -29,9 +28,9 @@ namespace Greenshot.Addon.OneDrive.Entities
     public class OneDriveUploadResponse
     {
         [JsonProperty("id")] 
-        public String Id;
+        public string Id;
 
         [JsonProperty("id")]
-        public String WebUrl;
+        public string WebUrl;
     }
 }

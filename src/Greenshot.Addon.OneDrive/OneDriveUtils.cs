@@ -24,35 +24,23 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
-using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Ini;
 using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.Factory;
-using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
-using Dapplo.Windows.Extensions;
-using Greenshot.Addon.OneDrive;
 using Greenshot.Addon.OneDrive.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Gfx;
-using OAuth2Settings = Dapplo.HttpExtensions.OAuth.OAuth2Settings;
 
 #endregion
 
-namespace GreenshotOneDrivePlugin
+namespace Greenshot.Addon.OneDrive
 {
     /// <summary>
     /// Description of OneDriveUtils.
@@ -79,7 +67,7 @@ namespace GreenshotOneDrivePlugin
         /// <param name="filename">Filename</param>
         /// <param name="progress">IProgress</param>
         /// <param name="token">CancellationToken</param>
-        /// <returns>ImgurInfo with details</returns>
+        /// <returns>OneDriveUploadResponse with details</returns>
         public static async Task<OneDriveUploadResponse> UploadToOneDriveAsync(OAuth2Settings oAuth2Settings, ISurface surfaceToUpload,
             SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null,
             CancellationToken token = default)
