@@ -24,10 +24,8 @@
 #region Usings
 
 using System.ComponentModel;
-using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
-using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 

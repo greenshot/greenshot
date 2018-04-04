@@ -25,15 +25,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
@@ -43,6 +44,7 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -74,7 +76,7 @@ namespace Greenshot.Addon.GooglePhotos
 	                    {"scope", "https://picasaweb.google.com/data/"}
 	                }),
 	            TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token"),
-	            CloudServiceName = "Picasa",
+	            CloudServiceName = "GooglePhotos",
 	            ClientId = googlePhotosConfiguration.ClientId,
 	            ClientSecret = googlePhotosConfiguration.ClientSecret,
 	            RedirectUrl = "http://getgreenshot.org",
@@ -83,14 +85,18 @@ namespace Greenshot.Addon.GooglePhotos
             };
         }
 
-		public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
+		public override string Description => _googlePhotosLanguage.UploadMenuItem;
 
 		public override Bitmap DisplayIcon
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
-				return (Bitmap) resources.GetObject("GooglePhotos");
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*GooglePhotos\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
 			}
 		}
 
@@ -134,7 +140,7 @@ namespace Greenshot.Addon.GooglePhotos
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
-	            MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
+	            MessageBox.Show(_googlePhotosLanguage.UploadFailure + " " + e.Message);
 	        }
 	        return null;
 	    }

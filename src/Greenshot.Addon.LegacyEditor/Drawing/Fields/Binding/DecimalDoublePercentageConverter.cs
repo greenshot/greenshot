@@ -23,8 +23,6 @@
 
 #region Usings
 
-using System;
-
 #endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding

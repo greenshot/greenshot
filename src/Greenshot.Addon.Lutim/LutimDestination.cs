@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;

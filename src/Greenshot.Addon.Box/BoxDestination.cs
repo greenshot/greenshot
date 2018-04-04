@@ -106,7 +106,7 @@ namespace Greenshot.Addon.Box
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var uploadUrl = await UploadAsync(captureDetails, surface);
+			var uploadUrl = await UploadAsync(captureDetails, surface).ConfigureAwait(true);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -129,7 +129,7 @@ namespace Greenshot.Addon.Box
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    url = await UploadToBoxAsync(captureDetails, surfaceToUpload);
+	                    url = await UploadToBoxAsync(captureDetails, surfaceToUpload).ConfigureAwait(true);
 	                }
 	                finally
 	                {
@@ -213,7 +213,7 @@ namespace Greenshot.Addon.Box
                     if (response.SharedLink?.Url == null)
                     {
                         var uriForSharedLink = FilesUri.AppendSegments(response.Id);
-                        var updateAcces = new
+                        var updateAccess = new
                         {
                             shared_link = new
                             {
@@ -221,12 +221,12 @@ namespace Greenshot.Addon.Box
                             }
                         };
                         oauthHttpBehaviour.MakeCurrent();
-                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAcces, cancellationToken);
+                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAccess, cancellationToken);
                     }
                     
                     return response.SharedLink.Url;
                 }
-                return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.Id);
+                return $"http://www.box.com/files/0/f/0/1/f_{response.Id}";
             }
         }
 

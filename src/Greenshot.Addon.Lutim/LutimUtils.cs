@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -30,7 +29,6 @@ using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Entities;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 

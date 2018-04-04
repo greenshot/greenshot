@@ -27,6 +27,7 @@ using System.ComponentModel;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Greenshot.Addons.Core.Enums;
+using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
@@ -37,7 +38,7 @@ namespace Greenshot.Addon.GooglePhotos
 	/// </summary>
 	[IniSection("GooglePhotos")]
 	[Description("Greenshot Google Photos Plugin configuration")]
-	public interface IGooglePhotosConfiguration : IIniSection, IOAuth2Token
+	public interface IGooglePhotosConfiguration : IIniSection, IOAuth2Token, ITransactionalProperties
     {
 		[Description("What file type to use for uploading")]
         [DefaultValue(OutputFormats.png)]

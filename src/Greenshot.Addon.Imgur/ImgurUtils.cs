@@ -34,12 +34,10 @@ using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
-using Dapplo.Windows.Extensions;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Gfx;
 using OAuth2Settings = Dapplo.HttpExtensions.OAuth.OAuth2Settings;
 
 #endregion

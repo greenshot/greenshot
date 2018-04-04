@@ -21,20 +21,6 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
     <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
@@ -156,29 +142,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\GooglePhotosForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
+    <None Include="app.config" />
     <Compile Include="IGooglePhotosLanguage.cs" />
-    <Compile Include="LanguageKeys.cs" />
     <Compile Include="IGooglePhotosConfiguration.cs" />
     <Compile Include="GooglePhotosDestination.cs" />
-    <Compile Include="GooglePhotosPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="GooglePhotosPlugin.resx">
-      <DependentUpon>GooglePhotosPlugin.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="GooglePhotos.png" />
+    <Compile Include="ViewModels\GooglePhotosConfigViewModel.cs" />
     <Content Include="Languages\language_googlephotosplugin-en-US.xml" />
     <None Include="Languages\language_googlephotosplugin-cs-CZ.xml" />
     <None Include="Languages\language_googlephotosplugin-de-DE.xml" />
@@ -190,21 +159,29 @@
     <None Include="Languages\language_googlephotosplugin-pt-PT.xml" />
     <None Include="Languages\language_googlephotosplugin-sv-SE.xml" />
     <None Include="Languages\language_googlephotosplugin-zh-TW.xml" />
-    <Content Include="GooglePhotos.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>Greenshot.Addons</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Languages\language_googlephotosplugin-fr-FR.xml" />
     <None Include="Languages\language_googlephotosplugin-it-IT.xml" />
     <None Include="Languages\language_googlephotosplugin-ru-RU.xml" />
     <None Include="Languages\language_googlephotosplugin-uk-UA.xml" />
     <None Include="Languages\language_googlephotosplugin-zh-CN.xml" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="GooglePhotos.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
+      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
+      <Name>Greenshot.Addons</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
+      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
+      <Name>Greenshot.Gfx</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\GooglePhotosConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
