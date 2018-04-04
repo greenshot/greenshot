@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="French" ietf="fr-FR" version="1.0.0">
-  <resources>
+  <resources prefix="Office">
     <resource name="settings_title">
       Paramètres Office
     </resource>

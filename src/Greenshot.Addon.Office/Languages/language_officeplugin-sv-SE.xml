@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources prefix="Office">
+    <resource name="settings_title">
+      Officeinställningar
+    </resource>
+    <resource name="word_lockaspect">
+      Lås bildförhållande vid export till Word
+    </resource>
+    <resource name="outlook_allowmeetings">
+      Tillåt export till möten
+    </resource>
+    <resource name="outlook_subject_pattern">
+      Mönster för ämne i Outlook
+    </resource>
+    <resource name="outlook_email_format">
+      E-postformat för nyligen skapade e-postmeddelanden
+    </resource>
+    <resource name="outlook_email_include_signature">
+      Infoga standardsignatur för nya e-postmeddelanden
+    </resource>
+    <resource name="outlook_emailto">
+      Standard för e-postadress Till
+    </resource>
+    <resource name="outlook_emailcc">
+      Standard för e-postadress Kopia
+    </resource>
+    <resource name="outlook_emailbcc">
+      Standard för e-postadress Dold kopia
+    </resource>
+    <resource name="powerpoint_slide_layout">
+      Bildlayout använd vid export
+    </resource>
+    <resource name="powerpoint_lockaspect">
+      Lås bildförhållande vid export till Powerpoint
+    </resource>
+  </resources>
+</language>

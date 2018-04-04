@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Office.OfficeInterop;
 
 #endregion
@@ -36,7 +37,7 @@ namespace Greenshot.Addon.Office
     /// </summary>
     [IniSection("Office")]
 	[Description("Greenshot Office configuration")]
-	public interface IOfficeConfiguration : IIniSection
+	public interface IOfficeConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Default type for emails. (Text, Html)")]
 		[DefaultValue(EmailFormats.Html)]

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources prefix="Office">
+    <resource name="settings_title">
+      Office settings
+    </resource>
+    <resource name="word_lockaspect">
+      Lock image aspect ratio in Word exports
+    </resource>
+    <resource name="outlook_allowmeetings">
+      Allow exports to meetings
+    </resource>
+    <resource name="outlook_subject_pattern">
+      Pattern for the Outlook subject
+    </resource>
+    <resource name="outlook_email_format">
+      Email format for newly created emails
+    </resource>
+    <resource name="outlook_email_include_signature">
+      Insert default signature for new emails
+    </resource>
+    <resource name="outlook_emailto">
+      Default email TO adress
+    </resource>
+    <resource name="outlook_emailcc">
+      Default email CC adress
+    </resource>
+    <resource name="outlook_emailbcc">
+      Default email BCC adress
+    </resource>
+    <resource name="powerpoint_slide_layout">
+      Slide layout used for export
+    </resource>
+    <resource name="powerpoint_lockaspect">
+      Lock image aspect ratio in PowerPoint exports
+    </resource>
+  </resources>
+</language>

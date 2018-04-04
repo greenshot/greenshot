@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+	<resources prefix="ExternalCommand">
 		<resource name="contextmenu_configure">外部コマンドの設定</resource>
 		<resource name="settings_title">外部コマンド設定</resource>
 		<resource name="settings_detail_title">コマンド設定</resource>

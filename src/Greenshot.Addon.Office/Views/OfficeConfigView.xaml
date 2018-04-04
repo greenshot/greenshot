@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="Greenshot.Addon.Office.Views.OfficeConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.Office.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:OfficeConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+
+    <StackPanel>
+        <GroupBox Header="{Binding OfficeLanguage.SettingsTitle}">
+            <StackPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding OfficeLanguage.PowerpointSlideLayout}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedSlideLayout}" ItemsSource="{Binding SlideLayouts}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </DockPanel>
+                <CheckBox IsChecked="{Binding OfficeConfiguration.OutlookAllowExportInMeetings}" Content="{Binding OfficeLanguage.OutlookAllowmeetings}"/>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

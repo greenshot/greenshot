@@ -142,6 +142,7 @@
     <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
+    <Compile Include="IOfficeLanguage.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeInterop\IAppointmentItem.cs" />
     <Compile Include="OfficeInterop\EmailFormats.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="OfficeInterop\OutlookUtils.cs" />
     <Compile Include="OfficeInterop\PowerpointInterop.cs" />
     <Compile Include="OfficeInterop\IWordApplication.cs" />
+    <Compile Include="ViewModels\OfficeConfigViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
@@ -229,12 +231,20 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\OfficeConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
-</PostBuildEvent>
+
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

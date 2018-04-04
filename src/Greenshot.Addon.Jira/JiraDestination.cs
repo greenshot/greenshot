@@ -57,19 +57,22 @@ namespace Greenshot.Addon.Jira
 	    private readonly IWindowManager _windowManager;
 	    private readonly JiraViewModel _jiraViewModel;
 	    private readonly IJiraConfiguration _jiraConfiguration;
+	    private readonly IJiraLanguage _jiraLanguage;
 
 	    [ImportingConstructor]
-	    public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, IWindowManager windowManager, JiraViewModel jiraViewModel)
+	    public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, IWindowManager windowManager, JiraViewModel jiraViewModel)
         {
             _jiraConfiguration = jiraConfiguration;
+            _jiraLanguage = jiraLanguage;
             _jiraConnector = jiraConnector;
             _windowManager = windowManager;
             _jiraViewModel = jiraViewModel;
         }
 
-		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, Issue jiraIssue, IWindowManager windowManager)
+		public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, Issue jiraIssue, IWindowManager windowManager)
 		{
 		    _jiraConfiguration = jiraConfiguration;
+		    _jiraLanguage = jiraLanguage;
 		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
 		    _windowManager = windowManager;
@@ -81,7 +84,7 @@ namespace Greenshot.Addon.Jira
 			{
 				if (_jiraIssue?.Fields?.Summary == null)
 				{
-					return Language.GetString("jira", LangKey.upload_menu_item);
+					return _jiraLanguage.UploadMenuItem;
 				}
 				// Format the title of this destination
 				return _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
@@ -133,7 +136,7 @@ namespace Greenshot.Addon.Jira
 			}
 			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraConfiguration, _jiraConnector, jiraDetails.JiraIssue, _windowManager);
+				yield return new JiraDestination(_jiraConfiguration, _jiraLanguage, _jiraConnector, jiraDetails.JiraIssue, _windowManager);
 			}
 		}
 
@@ -147,7 +150,7 @@ namespace Greenshot.Addon.Jira
 				try
 				{
 					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
+					new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
 						async () =>
 						{
 							var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
@@ -161,7 +164,7 @@ namespace Greenshot.Addon.Jira
 				}
 				catch (Exception e)
 				{
-					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
+					MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
 				}
 			}
 			else
@@ -174,7 +177,7 @@ namespace Greenshot.Addon.Jira
 					{
 						surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraViewModel.JiraIssue.Key).AbsoluteUri;
 						// Run upload in the background
-						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
+						new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
 						    async () =>
 						    {
 						        var attachment = new SurfaceContainer(surface, outputSettings, _jiraViewModel.Filename);
@@ -193,7 +196,7 @@ namespace Greenshot.Addon.Jira
 					}
 					catch (Exception e)
 					{
-						MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
+						MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
 					}
 				}
 			}
