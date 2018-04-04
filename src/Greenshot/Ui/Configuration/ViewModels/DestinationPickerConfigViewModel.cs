@@ -21,12 +21,20 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Reactive.Disposables;
+using System.Windows;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using GongSolutions.Wpf.DragDrop;
 using Greenshot.Addons;
+using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
@@ -44,6 +52,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
 
         [Import]
         public IConfigTranslations ConfigTranslations { get; set; }
+
+        [ImportMany(AllowRecomposition = true)]
+        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> AllDestinations = null;
 
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
@@ -66,7 +77,52 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
             _disposables.Add(greenshotLanguageBinding);
 
+            UsedDestinations.Clear();
+            if (CoreConfiguration.PickerDestinations.Any())
+            {
+                foreach (var outputDestination in CoreConfiguration.PickerDestinations)
+                {
+                    var pickerDestination = AllDestinations
+                        .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
+                        .Where(destination => destination.Value.IsActive)
+                        .Where(destination => outputDestination == destination.Value.Designation)
+                        .Select(d => d.Value).FirstOrDefault();
+
+                    if (pickerDestination != null)
+                    {
+                        UsedDestinations.Add(pickerDestination);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var pickerDestination in AllDestinations
+                    .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
+                    .Where(destination => destination.Value.IsActive)
+                    .OrderBy(destination => destination.Metadata.Priority)
+                    .ThenBy(destination => destination.Value.Description)
+                    .Select(d => d.Value))
+                {
+                    UsedDestinations.Add(pickerDestination);
+                }
+            }
+            AvailableDestinations.Clear();
+            foreach (var destination in AllDestinations
+                .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
+                .Where(destination => destination.Value.IsActive)
+                .Where(destination => UsedDestinations.All(pickerDestination => pickerDestination.Designation != destination.Value.Designation))
+                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
+                .Select(d => d.Value))
+            {
+                AvailableDestinations.Add(destination);
+            }
             base.Initialize(config);
+        }
+
+        public override void Commit()
+        {
+            CoreConfiguration.PickerDestinations = UsedDestinations.Select(d => d.Designation).ToList();
+            base.Commit();
         }
 
         protected override void OnDeactivate(bool close)
@@ -74,5 +130,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
+
+        public ObservableCollection<IDestination> AvailableDestinations { get; } = new ObservableCollection<IDestination>();
+
+        public ObservableCollection<IDestination> UsedDestinations { get; } = new ObservableCollection<IDestination>();
+        
     }
 }

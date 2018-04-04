@@ -4,15 +4,50 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             xmlns:dd="urn:gong-wpf-dragdrop"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:DestinationPickerConfigViewModel,IsDesignTimeCreatable=False}"
              >
     <StackPanel>
         <GroupBox Header="{Binding GreenshotLanguage.SettingsDestinationPicker}">
-            <StackPanel>
-                <Label Content="Place content here"></Label>
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Content="Available" Grid.Column="0" Grid.Row="0"/>
+                <Label Content="Used" Grid.Column="1" Grid.Row="0"/>
+                <ListView ItemsSource="{Binding AvailableDestinations}" Grid.Column="0" Grid.Row="1"
+                          dd:DragDrop.IsDragSource="True"
+                          dd:DragDrop.IsDropTarget="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding DisplayIconWpf}"/>
+                                <Label Content="{Binding Description}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <ListView ItemsSource="{Binding UsedDestinations}" Grid.Column="1" Grid.Row="1"
+                          dd:DragDrop.IsDragSource="True"
+                          dd:DragDrop.IsDropTarget="True" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding DisplayIconWpf}"/>
+                                <Label Content="{Binding Description}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+            </Grid>
         </GroupBox>
     </StackPanel>
 </UserControl>

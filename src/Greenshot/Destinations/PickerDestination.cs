@@ -43,28 +43,53 @@ namespace Greenshot.Destinations
     [Destination("Picker", 1)]
     public class PickerDestination : AbstractDestination
 	{
-		public override string Description => Language.GetString(LangKey.settings_destination_picker);
+	    public override string Description => GreenshotLanguage.SettingsDestinationPicker;
 	    private readonly string _pickerDesignation = typeof(PickerDestination).GetDesignation();
 
         [ImportMany(AllowRecomposition = true)]
 	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
 
-		/// <summary>
-		///     Export the capture with the destination picker
-		/// </summary>
-		/// <param name="manuallyInitiated">Did the user select this destination?</param>
-		/// <param name="surface">Surface to export</param>
-		/// <param name="captureDetails">Details of the capture</param>
-		/// <returns>true if export was made</returns>
-		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
-		    // No Processing, this is done in the selected destination (if anything was selected)
-			return ShowPickerMenu(true, surface, captureDetails,
-			    _destinations
-			        .Where(destination => !_pickerDesignation.Equals(destination.Metadata.Designation))
-			        .Where(destination => destination.Value.IsActive)
-			        .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
-			        .Select(d => d.Value));
+        /// <summary>
+        ///     Export the capture with the destination picker
+        /// </summary>
+        /// <param name="manuallyInitiated">Did the user select this destination?</param>
+        /// <param name="surface">Surface to export</param>
+        /// <param name="captureDetails">Details of the capture</param>
+        /// <returns>true if export was made</returns>
+        protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            var pickerDestinations = new List<IDestination>();
+
+            if (CoreConfiguration.PickerDestinations.Any())
+		    {
+		        foreach (var outputDestination in CoreConfiguration.PickerDestinations)
+		        {
+		            var pickerDestination = _destinations
+                        .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
+		                .Where(destination => destination.Value.IsActive)
+		                .Where(destination => outputDestination == destination.Value.Designation)
+		                .Select(d => d.Value).FirstOrDefault();
+
+		            if (pickerDestination != null)
+		            {
+		                pickerDestinations.Add(pickerDestination);
+		            }
+		        }
+		    }
+		    else
+		    {
+		        foreach (var pickerDestination in _destinations
+                    .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
+		            .Where(destination => destination.Value.IsActive)
+		            .OrderBy(destination => destination.Metadata.Priority)
+		            .ThenBy(destination => destination.Value.Description)
+		            .Select(d => d.Value))
+		        {
+		            pickerDestinations.Add(pickerDestination);
+		        }
+		    }
+            // No Processing, this is done in the selected destination (if anything was selected)
+            return ShowPickerMenu(true, surface, captureDetails, pickerDestinations);
 		}
 	}
 }

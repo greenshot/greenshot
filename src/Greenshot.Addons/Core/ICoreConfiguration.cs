@@ -75,6 +75,9 @@ namespace Greenshot.Addons.Core
         [DefaultValue("Picker")]
         IList<string> OutputDestinations { get; set; }
 
+        [Description("Which destinations does the picker show? Empty means all, which was the default.")]
+        IList<string> PickerDestinations { get; set; }
+
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
         [DefaultValue("PNG,DIB")]
         IList<ClipboardFormats> ClipboardFormats { get; set; }

@@ -30,12 +30,14 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
+using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
@@ -51,10 +53,11 @@ namespace Greenshot.Addons.Core
     public abstract class AbstractDestination : IDestination
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
         [Import]
         protected IGreenshotLanguage GreenshotLanguage { get; set; }
+        [Import]
+        protected ICoreConfiguration CoreConfiguration { get; set; }
 
         protected AbstractDestination()
         {
@@ -67,13 +70,14 @@ namespace Greenshot.Addons.Core
 
         public virtual Bitmap DisplayIcon { get; set; }
 
+        public virtual BitmapSource DisplayIconWpf => DisplayIcon?.ToBitmapSource();
+
         public virtual Bitmap GetDisplayIcon(double dpi)
         {
             return DisplayIcon;
         }
 
         public virtual bool HasDisplayIcon => true;
-
 
         public virtual Keys EditorShortcutKeys => Keys.None;
 
@@ -277,7 +281,7 @@ namespace Greenshot.Addons.Core
 
             dpiHandler.OnDpiChanged.Subscribe(dpi =>
             {
-                var width = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
+                var width = DpiHandler.ScaleWithDpi(CoreConfiguration.IconSize.Width, dpi);
                 var size = new Size(width, width);
                 menu.ImageScalingSize = size;
             });

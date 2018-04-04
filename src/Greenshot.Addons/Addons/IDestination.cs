@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using Dapplo.Windows.Dpi;
 using Greenshot.Addons.Interfaces;
 
@@ -54,6 +55,11 @@ namespace Greenshot.Addons.Addons
 		///     Gets an icon for the destination
 		/// </summary>
 		Bitmap DisplayIcon { get; }
+
+	    /// <summary>
+	    ///     Gets an icon for the destination
+	    /// </summary>
+	    BitmapSource DisplayIconWpf { get; }
 
         /// <summary>
         ///     Gets an icon for the destination, optionally it's already scaled
