@@ -1,0 +1,4 @@
+{
+  "type": "$type",
+  "scope": "$scope"
+}
