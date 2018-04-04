@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
 using Greenshot.Gfx;
+using Greenshot.Gfx.Experimental;
 using Greenshot.Gfx.Quantizer;
 using Greenshot.Tests.Implementation;
 
@@ -43,6 +44,20 @@ namespace Greenshot.PerformanceTests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmap.ApplyBoxBlur(10);
+            }
+        }
+
+        [Benchmark]
+        public void BlurSpan()
+        {
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            {
+                using (var graphics = Graphics.FromImage(bitmap))
+                using (var pen = new SolidBrush(Color.Blue))
+                {
+                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                }
+                bitmap.ApplyBoxBlurSpan(10);
             }
         }
 

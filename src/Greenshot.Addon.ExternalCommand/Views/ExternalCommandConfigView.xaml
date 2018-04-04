@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Greenshot.Addon.ExternalCommand.Views.ExternalCommandConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.ExternalCommand.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:ExternalCommandConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+
+    <StackPanel>
+        <GroupBox Header="{Binding ExternalCommandLanguage.SettingsTitle}">
+            
+        </GroupBox>
+    </StackPanel>
+</UserControl>

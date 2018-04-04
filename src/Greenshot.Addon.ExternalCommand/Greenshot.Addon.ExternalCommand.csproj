@@ -152,6 +152,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ExternalCommandPlugin.cs" />
+    <Compile Include="IExternalCommandLanguage.cs" />
     <Compile Include="IconCache.cs" />
     <Compile Include="ListviewComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="SettingsFormDetail.Designer.cs">
       <DependentUpon>SettingsFormDetail.cs</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\ExternalCommandConfigViewModel.cs" />
     <None Include="app.config" />
     <None Include="Languages\language_externalcommandplugin-en-US.xml" />
     <None Include="packages.config" />
@@ -200,6 +202,12 @@
     <Content Include="Languages\language_externalcommandplugin-uk-UA.xml" />
     <Content Include="Languages\language_externalcommandplugin-zh-CN.xml" />
     <Content Include="Languages\language_externalcommandplugin-zh-TW.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\ExternalCommandConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

@@ -26,6 +26,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
@@ -36,7 +37,7 @@ namespace Greenshot.Addon.ExternalCommand
 	/// </summary>
 	[IniSection("ExternalCommand")]
 	[Description("Greenshot ExternalCommand Plugin configuration")]
-	public interface IExternalCommandConfiguration : IIniSection
+	public interface IExternalCommandConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("The commands that are available.")]
 		IList<string> Commands { get; set; }

@@ -260,6 +260,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj">
+      <Project>{14894a45-aa2c-4bc3-85a3-e388d0bdc1ca}</Project>
+      <Name>Greenshot.Gfx.Experimental</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>
