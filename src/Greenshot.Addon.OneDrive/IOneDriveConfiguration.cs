@@ -28,7 +28,6 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
-using GreenshotOneDrivePlugin;
 
 #endregion
 

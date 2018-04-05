@@ -54,7 +54,7 @@ namespace Greenshot.Addon.LegacyEditor
 		bool MatchSizeToCapture { get; set; }
 
 		[Description("Placement flags")]
-		[DefaultValue((uint)0)]
+		[DefaultValue(WindowPlacementFlags.None)]
 		WindowPlacementFlags WindowPlacementFlags { get; set; }
 
 		[Description("Show command")]

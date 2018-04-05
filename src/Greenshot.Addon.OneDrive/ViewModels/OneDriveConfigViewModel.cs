@@ -54,20 +54,18 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         {
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
-
-            // Place this under the Ui parent
+            
+            // Place this config viewmodel under the Destinations parent
             ParentId = nameof(ConfigIds.Destinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(OneDriveConfiguration);
 
             // automatically update the DisplayName
-            var languBinding = OneDriveLanguage.CreateDisplayNameBinding(this, nameof(IOneDriveLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(languBinding);
-
+            _disposables = new CompositeDisposable
+            {
+                OneDriveLanguage.CreateDisplayNameBinding(this, nameof(IOneDriveLanguage.SettingsTitle))
+            };
             base.Initialize(config);
         }
 
@@ -76,7 +74,6 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
 
         public OutputFormats SelectedUploadFormat
         {
