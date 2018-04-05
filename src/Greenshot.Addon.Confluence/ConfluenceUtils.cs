@@ -27,6 +27,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Dapplo.Confluence;
+using Dapplo.Confluence.Entities;
+using Dapplo.Confluence.Query;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 
@@ -41,9 +45,9 @@ namespace Greenshot.Addon.Confluence
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public static List<Page> GetCurrentPages(ConfluenceConnector confluenceConnector)
+		public static async Task<List<Content>> GetCurrentPages(IConfluenceClient confluenceConnector)
 		{
-			var pages = new List<Page>();
+			var pages = new List<Content>();
 			var pageIdRegex = new Regex(@"pageId=(\d+)");
 			var spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
 			foreach (var browserurl in IEHelper.GetIEUrls().Distinct())
@@ -59,7 +63,7 @@ namespace Greenshot.Addon.Confluence
 					continue;
 				}
 				var pageIdMatch = pageIdRegex.Matches(url);
-				if (pageIdMatch != null && pageIdMatch.Count > 0)
+				if (pageIdMatch.Count > 0)
 				{
 					var pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
 					try
@@ -76,7 +80,7 @@ namespace Greenshot.Addon.Confluence
 						}
 						if (!pageDouble)
 						{
-							var page = confluenceConnector.GetPage(pageId);
+							var page = await confluenceConnector.Content.GetAsync(pageId);
 							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -90,47 +94,52 @@ namespace Greenshot.Addon.Confluence
 					}
 				}
 				var spacePageMatch = spacePageRegex.Matches(url);
-				if (spacePageMatch != null && spacePageMatch.Count > 0)
-				{
-					if (spacePageMatch[0].Groups.Count >= 2)
-					{
-						var space = spacePageMatch[0].Groups[1].Value;
-						var title = spacePageMatch[0].Groups[2].Value;
-						if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
-						{
-							continue;
-						}
-						if (title.EndsWith("#"))
-						{
-							title = title.Substring(0, title.Length - 1);
-						}
-						try
-						{
-							var pageDouble = false;
-							foreach (var page in pages)
-							{
-								if (page.Title.Equals(title))
-								{
-									Log.Debug().WriteLine("Skipping double page with title {0}", title);
-									pageDouble = true;
-									break;
-								}
-							}
-							if (!pageDouble)
-							{
-								var page = confluenceConnector.GetPage(space, title);
-								Log.Debug().WriteLine("Adding page {0}", page.Title);
-								pages.Add(page);
-							}
-						}
-						catch (Exception ex)
-						{
-							// Preventing security problems
-							Log.Debug().WriteLine("Couldn't get page details for space {0} / title {1}", space, title);
-							Log.Warn().WriteLine(ex);
-						}
-					}
-				}
+			    if (spacePageMatch.Count <= 0|| spacePageMatch[0].Groups.Count < 2)
+			    {
+			        continue;
+			    }
+
+			    var space = spacePageMatch[0].Groups[1].Value;
+			    var title = spacePageMatch[0].Groups[2].Value;
+			    if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
+			    {
+			        continue;
+			    }
+			    if (title.EndsWith("#"))
+			    {
+			        title = title.Substring(0, title.Length - 1);
+			    }
+			    try
+			    {
+			        var pageDouble = false;
+			        foreach (var page in pages)
+			        {
+			            if (page.Title.Equals(title))
+			            {
+			                Log.Debug().WriteLine("Skipping double page with title {0}", title);
+			                pageDouble = true;
+			                break;
+			            }
+			        }
+			        if (!pageDouble)
+			        {
+			            var foundContents = await confluenceConnector.Content.SearchAsync(Where.And(Where.Space.Is(space), Where.Title.Is(title)));
+			            var page = foundContents.FirstOrDefault();
+			            if (page != null)
+			            {
+                            continue;
+			            }
+
+                        Log.Debug().WriteLine("Adding page {0}", page.Title);
+			            pages.Add(page);
+			        }
+			    }
+			    catch (Exception ex)
+			    {
+			        // Preventing security problems
+			        Log.Debug().WriteLine("Couldn't get page details for space {0} / title {1}", space, title);
+			        Log.Warn().WriteLine(ex);
+			    }
 			}
 			return pages;
 		}

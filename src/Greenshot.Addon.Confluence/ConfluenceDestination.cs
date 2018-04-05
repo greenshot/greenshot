@@ -30,8 +30,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
+using Dapplo.Confluence;
+using Dapplo.Confluence.Entities;
 using Dapplo.Log;
-using Greenshot.Addon.Confluence.Forms;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -52,9 +53,9 @@ namespace Greenshot.Addon.Confluence
 	    private static readonly LogSource Log = new LogSource();
 		private static readonly Bitmap ConfluenceIcon;
 	    private readonly IConfluenceConfiguration _confluenceConfiguration;
-	    private readonly ICoreConfiguration _coreConfiguration;
-	    private readonly ConfluenceConnector _confluenceConnector;
-		private readonly Page _page;
+	    private readonly IConfluenceLanguage _confluenceLanguage;
+	    private IConfluenceClient _confluenceClient;
+	    private Content  _page;
 
 		static ConfluenceDestination()
 		{
@@ -76,17 +77,11 @@ namespace Greenshot.Addon.Confluence
 		}
 
         [ImportingConstructor]
-		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, ICoreConfiguration coreConfiguration, ConfluenceConnector confluenceConnector)
+		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, IConfluenceLanguage confluenceLanguage)
         {
             _confluenceConfiguration = confluenceConfiguration;
-            _coreConfiguration = coreConfiguration;
-            _confluenceConnector = confluenceConnector;
+            _confluenceLanguage = confluenceLanguage;
         }
-
-		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, ICoreConfiguration coreConfiguration, ConfluenceConnector confluenceConnector, Page page) : this(confluenceConfiguration, coreConfiguration, confluenceConnector)
-		{
-			_page = page;
-		}
 
 		public static bool IsInitialized { get; private set; }
 
@@ -96,9 +91,9 @@ namespace Greenshot.Addon.Confluence
 			{
 				if (_page == null)
 				{
-					return Language.GetString("confluence", LangKey.upload_menu_item);
+					return _confluenceLanguage.UploadMenuItem;
 				}
-				return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
+				return _confluenceLanguage.UploadMenuItem + ": \"" + _page /*.Title */ + "\"";
 			}
 		}
 
@@ -109,19 +104,15 @@ namespace Greenshot.Addon.Confluence
 	    public override Bitmap DisplayIcon => ConfluenceIcon;
 
 	    public override IEnumerable<IDestination> DynamicDestinations()
-		{
-			if (_confluenceConnector == null || !_confluenceConnector.IsLoggedIn)
-			{
-				yield break;
-			}
-			var currentPages = ConfluenceUtils.GetCurrentPages(_confluenceConnector);
+	    {
+	        var currentPages = ConfluenceUtils.GetCurrentPages(null).Result;
 			if (currentPages == null || currentPages.Count == 0)
 			{
 				yield break;
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(_confluenceConfiguration, _coreConfiguration, _confluenceConnector, currentPage);
+				yield return new ConfluenceDestination(_confluenceConfiguration, _confluenceLanguage);
 			}
 		}
 
@@ -129,27 +120,13 @@ namespace Greenshot.Addon.Confluence
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// force password check to take place before the pages load
-			if (!_confluenceConnector.IsLoggedIn)
-			{
-				return exportInformation;
-			}
 
 			var selectedPage = _page;
 			var openPage = _page == null && _confluenceConfiguration.OpenPageAfterUpload;
-			var filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(_coreConfiguration.OutputFileFilenamePattern, captureDetails);
+			var filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(_confluenceConfiguration.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null)
 			{
-				var confluenceUpload = new ConfluenceUpload(_confluenceConnector, filename);
-				var dialogResult = confluenceUpload.ShowDialog();
-				if (dialogResult.HasValue && dialogResult.Value)
-				{
-					selectedPage = confluenceUpload.SelectedPage;
-					if (confluenceUpload.IsOpenPageSelected)
-					{
-						openPage = false;
-					}
-					filename = confluenceUpload.Filename;
-				}
+
 			}
 			var extension = "." + _confluenceConfiguration.UploadFormat;
 			if (!filename.ToLower().EndsWith(extension))
@@ -165,7 +142,7 @@ namespace Greenshot.Addon.Confluence
 					{
 						try
 						{
-							Process.Start(selectedPage.Url);
+							Process.Start(selectedPage.Links.WebUi);
 						}
 						catch
 						{
@@ -173,7 +150,7 @@ namespace Greenshot.Addon.Confluence
 						}
 					}
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = selectedPage.Url;
+					exportInformation.Uri = selectedPage.Links.WebUi;
 				}
 				else
 				{
@@ -184,15 +161,15 @@ namespace Greenshot.Addon.Confluence
 			return exportInformation;
 		}
 
-		private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
+		private bool Upload(ISurface surfaceToUpload, Content page, string filename, out string errorMessage)
 		{
 			var outputSettings = new SurfaceOutputSettings(_confluenceConfiguration.UploadFormat, _confluenceConfiguration.UploadJpegQuality, _confluenceConfiguration.UploadReduceColors);
 			errorMessage = null;
 			try
 			{
-				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
-				    () => _confluenceConnector.AddAttachment(page.Id, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower(), null, filename,
-				        new SurfaceContainer(surfaceToUpload, outputSettings, filename))
+                // TODO: Create content
+				new PleaseWaitForm().ShowAndWait(Description, _confluenceLanguage.CommunicationWait,
+				    () => _confluenceClient.Attachment.AttachAsync(""+page.Id, surfaceToUpload, filename, null, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower())
 				);
 				Log.Debug().WriteLine("Uploaded to Confluence.");
 				if (!_confluenceConfiguration.CopyWikiMarkupForImageToClipboard)

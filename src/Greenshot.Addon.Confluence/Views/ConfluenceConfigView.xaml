@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="Greenshot.Addon.Confluence.Views.ConfluenceConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.Confluence.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:ConfluenceConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <GroupBox Header="{Binding ConfluenceLanguage.PluginSettings}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding ConfluenceConfiguration.IncludePersonSpaces}" Content="{Binding ConfluenceLanguage.IncludePersonSpaces}"/>
+                <CheckBox IsChecked="{Binding ConfluenceConfiguration.OpenPageAfterUpload}" Content="{Binding ConfluenceLanguage.OpenPageAfterUpload}"/>
+                <CheckBox IsChecked="{Binding ConfluenceConfiguration.CopyWikiMarkupForImageToClipboard}" Content="{Binding ConfluenceLanguage.CopyWikimarkup}"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{Binding ConfluenceLanguage.LabelUrl}" />
+                    <TextBox Text="{Binding ConfluenceConfiguration.Url}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{Binding ConfluenceLanguage.LabelTimeout}" />
+                    <TextBox Text="{Binding ConfluenceConfiguration.Timeout}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{Binding ConfluenceLanguage.UploadFormat}" />
+                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

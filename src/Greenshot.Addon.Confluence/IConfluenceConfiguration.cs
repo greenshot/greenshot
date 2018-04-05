@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -36,7 +37,7 @@ namespace Greenshot.Addon.Confluence
 	/// </summary>
 	[IniSection("Confluence")]
 	[Description("Greenshot Confluence Plugin configuration")]
-	public interface IConfluenceConfiguration : IIniSection
+	public interface IConfluenceConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Url to Confluence system, including wsdl.")]
 		[DefaultValue("https://confluence")]
@@ -58,7 +59,11 @@ namespace Greenshot.Addon.Confluence
 		[DefaultValue(false)]
 		bool UploadReduceColors { get; set; }
 
-		[Description("Open the page where the picture is uploaded after upload")]
+	    [Description("Filename pattern for screenshot.")]
+	    [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+	    string OutputFileFilenamePattern { get; set; }
+
+        [Description("Open the page where the picture is uploaded after upload")]
 		[DefaultValue(true)]
 		bool OpenPageAfterUpload { get; set; }
 
