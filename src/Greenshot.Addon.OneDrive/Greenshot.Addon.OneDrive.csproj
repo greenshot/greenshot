@@ -190,7 +190,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="onedrive.png" />
+    <EmbeddedResource Include="onedrive.png" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>
