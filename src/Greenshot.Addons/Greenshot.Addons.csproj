@@ -3,6 +3,7 @@
   <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{5B924697-4DCD-4F98-85F1-105CB84B7341}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addons</RootNamespace>
     <AssemblyName>Greenshot.Addons</AssemblyName>
@@ -33,8 +34,23 @@
     <Reference Include="Dapplo.Addons, Version=0.5.56.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.5.56\lib\net45\Dapplo.Addons.dll</HintPath>
     </Reference>
+    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.5.56.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.5.56\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.CaliburnMicro, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.0.5.28\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Configuration, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Configuration.0.5.28\lib\net45\Dapplo.CaliburnMicro.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Dapp, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Dapp.0.5.28\lib\net45\Dapplo.CaliburnMicro.Dapp.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Menu, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Menu.0.5.28\lib\net45\Dapplo.CaliburnMicro.Menu.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Security, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Security.0.5.28\lib\net45\Dapplo.CaliburnMicro.Security.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
@@ -353,6 +369,7 @@
     <Compile Include="Addons\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\UploadViewModel.cs" />
     <EmbeddedResource Include="Controls\ColorDialog.resx">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -371,6 +388,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Page Include="Views\UploadView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

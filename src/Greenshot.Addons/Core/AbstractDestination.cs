@@ -31,7 +31,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -122,9 +121,9 @@ namespace Greenshot.Addons.Core
         /// <param name="addDynamics">bool is dynamic entries need to be added</param>
         /// <param name="menu">ContextMenuStrip</param>
         /// <param name="destinationClickHandler">EventHandler</param>
-        /// <param name="scaleHandler">BitmapScaleHandler</param>
+        /// <param name="bitmapScaleHandler">BitmapScaleHandler</param>
         /// <returns>ToolStripMenuItem</returns>
-        public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> scaleHandler)
+        public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> bitmapScaleHandler)
         {
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
@@ -132,7 +131,7 @@ namespace Greenshot.Addons.Core
                 Text = Description
             };
 
-            scaleHandler.AddTarget(basisMenuItem, this);
+            bitmapScaleHandler.AddTarget(basisMenuItem, this);
 
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
@@ -178,7 +177,7 @@ namespace Greenshot.Addons.Core
                             {
                                 Tag = subDestination,
                             };
-                            scaleHandler.AddTarget(destinationMenuItem, subDestination);
+                            bitmapScaleHandler.AddTarget(destinationMenuItem, subDestination);
 
                             destinationMenuItem.Click += destinationClickHandler;
                             AddTagEvents(destinationMenuItem, menu, subDestination.Description);

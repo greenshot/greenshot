@@ -67,7 +67,7 @@ namespace Greenshot.Components
                 _coreConfiguration.Language = languageDialog.SelectedLanguage;
             }
 
-            // This makes sure the MainForm can Initialze, calling show first would create the "Handle" and causing e.g. the DPI Handler to be to late.
+            // This makes sure the MainForm can initialize, calling show first would create the "Handle" and causing e.g. the DPI Handler to be to late.
             _mainForm.Initialize();
             _mainForm.Show();
             _windowHandle.Handle = _mainForm.Handle;

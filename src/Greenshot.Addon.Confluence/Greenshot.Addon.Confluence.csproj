@@ -80,8 +80,8 @@
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Confluence, Version=0.7.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Confluence.0.7.16\lib\net45\Dapplo.Confluence.dll</HintPath>
+    <Reference Include="Dapplo.Confluence, Version=0.7.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Confluence.0.7.17\lib\net45\Dapplo.Confluence.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.HttpExtensions.0.8.31\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
@@ -228,13 +228,13 @@ copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Green
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
 copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Fody.3.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.3.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.3.0.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.3.0.0\build\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Costura.Fody.2.0.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.2.0.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.3.0.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.3.0.1\build\Fody.targets'))" />
   </Target>
   <Import Project="..\packages\Costura.Fody.2.0.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.2.0.0\build\Costura.Fody.targets')" />
+  <Import Project="..\packages\Fody.3.0.1\build\Fody.targets" Condition="Exists('..\packages\Fody.3.0.1\build\Fody.targets')" />
 </Project>

@@ -62,7 +62,12 @@ namespace Greenshot.Addon.Imgur
 			}
 		};
 
-		private static async Task<ImgurImage> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress = null, CancellationToken token = default)
+        // Used for image downloading
+	    private static readonly HttpBehaviour ImageHttpBehaviour = new HttpBehaviour
+	    {
+	    };
+
+        private static async Task<ImgurImage> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress = null, CancellationToken token = default)
 		{
 			var uploadUri = new Uri(_imgurConfiguration.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			var localBehaviour = Behaviour.ShallowClone();
@@ -111,7 +116,7 @@ namespace Greenshot.Addon.Imgur
 				{
 					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 					oauthHttpBehaviour.MakeCurrent();
-					return await uploadUri.PostAsync<ImgurImage>(content, token);
+					return await uploadUri.PostAsync<ImgurImage>(content, token).ConfigureAwait(false);
 				}
 			}
 		}
@@ -223,15 +228,8 @@ namespace Greenshot.Addon.Imgur
 				return;
 			}
 			Log.Info().WriteLine("Retrieving Imgur image for {0} with url {1}", imgurImage.Data.Id, imgurImage.Data.LinkThumbnail);
-			Behaviour.MakeCurrent();
-			using (var client = HttpClientFactory.Create(imgurImage.Data.LinkThumbnail))
-			{
-				using (var response = await client.GetAsync(imgurImage.Data.LinkThumbnail, token).ConfigureAwait(false))
-				{
-					await response.HandleErrorAsync().ConfigureAwait(false);
-				    imgurImage.Image = await response.GetAsAsync<BitmapSource>(token).ConfigureAwait(false);
-				}
-			}
+		    ImageHttpBehaviour.MakeCurrent();
+		    imgurImage.Image = await imgurImage.Data.LinkThumbnail.GetAsAsync<BitmapSource>(token).ConfigureAwait(true);
 		}
 
         /// <summary>

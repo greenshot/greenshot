@@ -23,8 +23,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,19 +61,18 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// <summary>
         /// The list of imgur items
         /// </summary>
-        public IList<ImgurImage> ImgurHistory { get; } = new BindableCollection<ImgurImage>();
+        public ObservableCollection<ImgurImage> ImgurHistory { get; } = new BindableCollection<ImgurImage>();
 
         protected override void OnActivate()
         {
              // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
-
             // automatically update the DisplayName
-            var imgurHistoryLanguageBinding = ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.History));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(imgurHistoryLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.History))
+            };
+            LoadHistory();
         }
 
         protected override void OnDeactivate(bool close)
@@ -85,11 +86,13 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         private async Task LoadHistory(CancellationToken cancellationToken = default)
         {
-            bool saveNeeded = false;
-
             // Load the ImUr history
             foreach (string hash in ImgurConfiguration.ImgurUploadHistory.Keys)
             {
+                if (ImgurHistory.Any(imgurInfo => imgurInfo.Data.Id == hash))
+                {
+                    continue;
+                }
                 if (ImgurConfiguration.RuntimeImgurHistory.ContainsKey(hash))
                 {
                     // Already loaded, only add it to the view
@@ -98,10 +101,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
                 }
                 try
                 {
-                    var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken);
+                    var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
                     if (imgurInfo != null)
                     {
-                        await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken);
+                        await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
                         ImgurConfiguration.RuntimeImgurHistory.Add(hash, imgurInfo);
                         // Already loaded, only add it to the view
                         ImgurHistory.Add(imgurInfo);
@@ -110,18 +113,12 @@ namespace Greenshot.Addon.Imgur.ViewModels
                     {
                         Log.Debug().WriteLine("Deleting not found ImgUr {0} from config.", hash);
                         ImgurConfiguration.ImgurUploadHistory.Remove(hash);
-                        saveNeeded = true;
                     }
                 }
                 catch (Exception e)
                 {
                     Log.Error().WriteLine(e, "Problem loading ImgUr history for hash {0}", hash);
                 }
-            }
-            if (saveNeeded)
-            {
-                // Save needed changes
-                // IniConfig.Save();
             }
         }
 
@@ -131,7 +128,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public async Task Delete()
         {
-            await ImgurUtils.DeleteImgurImageAsync(SelectedImgur);
+            await ImgurUtils.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
         }
 
         public bool CanCopyToClipboard => true;

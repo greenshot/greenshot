@@ -16,6 +16,7 @@
                 </DockPanel>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.AnonymousAccess}" Content="{Binding ImgurLanguage.AnonymousAccess}"/>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.UsePageLink}" Content="{Binding ImgurLanguage.UsePageLink}"/>
+                <Button x:Name="ShowHistory" Content="{Binding ImgurLanguage.History}"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

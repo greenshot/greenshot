@@ -38,6 +38,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Windows.Extensions;
 using Greenshot.Addon.Imgur.Entities;
+using Greenshot.Addon.Imgur.ViewModels;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -58,14 +59,16 @@ namespace Greenshot.Addon.Imgur
 	    private static readonly LogSource Log = new LogSource();
         private readonly IImgurConfiguration _imgurConfiguration;
 	    private readonly IImgurLanguage _imgurLanguage;
+	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
 	    private readonly Dapplo.HttpExtensions.OAuth.OAuth2Settings _oauth2Settings;
 
 	    [ImportingConstructor]
-		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage)
+		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage, ImgurHistoryViewModel imgurHistoryViewModel)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
-            // Configure the OAuth2 settings for Imgur communication
+		    _imgurHistoryViewModel = imgurHistoryViewModel;
+		    // Configure the OAuth2 settings for Imgur communication
 		    _oauth2Settings = new Dapplo.HttpExtensions.OAuth.OAuth2Settings
             {
 		        AuthorizationUri = new Uri("https://api.imgur.com").AppendSegments("oauth2", "authorize").
@@ -103,7 +106,7 @@ namespace Greenshot.Addon.Imgur
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
-		    var uploadUrl = await Upload(captureDetails, surface);
+		    var uploadUrl = await Upload(captureDetails, surface).ConfigureAwait(true);
 
             var exportInformation = new ExportInformation(Designation, Description)
 		    {
@@ -129,12 +132,13 @@ namespace Greenshot.Addon.Imgur
                 ImgurImage imgurImage;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("Imgur plug-in", _imgurLanguage.CommunicationWait, cancellationTokenSource))
+                // TODO: Replace the form
+                using (var pleaseWaitForm = new PleaseWaitForm("Imgur", _imgurLanguage.CommunicationWait, cancellationTokenSource))
                 {
                     pleaseWaitForm.Show();
                     try
                     {
-                        imgurImage = await ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename, null, cancellationTokenSource.Token);
+                        imgurImage = await ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename, null, cancellationTokenSource.Token).ConfigureAwait(true);
                         if (imgurImage != null)
                         {
                             // Create thumbnail
@@ -149,8 +153,8 @@ namespace Greenshot.Addon.Imgur
                                 _imgurConfiguration.ImgurUploadHistory.Add(imgurImage.Data.Id, imgurImage.Data.Deletehash);
                                 _imgurConfiguration.RuntimeImgurHistory.Add(imgurImage.Data.Id, imgurImage);
 
-                                // TODO: Update History - ViewModel!!!
-                                // UpdateHistoryMenuItem();
+                                // Update history
+                                _imgurHistoryViewModel.ImgurHistory.Add(imgurImage);
                             }
                         }
                     }

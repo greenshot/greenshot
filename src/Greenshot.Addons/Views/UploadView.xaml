@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="Greenshot.Addons.Views.UploadView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Greenshot.Addons.Views"
+             xmlns:viewModels="clr-namespace:Greenshot.Addons.ViewModels"
+             mc:Ignorable="d" Height="100" Width="500"
+             d:DataContext="{d:DesignInstance viewModels:UploadViewModel,IsDesignTimeCreatable=False}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <ProgressBar IsEnabled="True" IsIndeterminate="True" HorizontalAlignment="Center" VerticalAlignment="Center" Height="10"/>
+</UserControl>

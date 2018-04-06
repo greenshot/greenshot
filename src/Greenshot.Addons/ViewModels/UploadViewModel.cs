@@ -21,21 +21,19 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Caliburn.Micro;
-using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
-using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Addons;
 
-namespace Greenshot.Addon.Imgur.ViewModels
+namespace Greenshot.Addons.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
-    public sealed class ImgurConfigViewModel : SimpleConfigScreen
+    /// <summary>
+    /// A view model for showing uploads
+    /// </summary>
+    [Export]
+    public sealed class UploadViewModel : Conductor<IDestination>.Collection.AllActive
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -43,38 +41,17 @@ namespace Greenshot.Addon.Imgur.ViewModels
         private CompositeDisposable _disposables;
 
         [Import]
-        public IImgurConfiguration ImgurConfiguration { get; set; }
-
-        [Import]
-        public IImgurLanguage ImgurLanguage { get; set; }
-
-        [Import]
-        public IWindowManager WindowManager { get; set; }
-
-        [Import]
-        public ImgurHistoryViewModel ImgurHistoryViewModel { get; set; }
-
-        [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
-        public override void Initialize(IConfig config)
+        protected override void OnActivate()
         {
             // Prepare disposables
             _disposables?.Dispose();
-
-            // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Destinations);
-
-            // Make sure Commit/Rollback is called on the IUiConfiguration
-            config.Register(ImgurConfiguration);
-
-            // automatically update the DisplayName
             _disposables = new CompositeDisposable
             {
-                ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.SettingsTitle))
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.ApplicationTitle))
             };
-
-            base.Initialize(config);
+            base.OnActivate();
         }
 
         protected override void OnDeactivate(bool close)
@@ -82,23 +59,5 @@ namespace Greenshot.Addon.Imgur.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public void ShowHistory()
-        {
-            WindowManager.ShowWindow(ImgurHistoryViewModel);
-        }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => ImgurConfiguration.UploadFormat;
-            set
-            {
-                ImgurConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
-
     }
 }

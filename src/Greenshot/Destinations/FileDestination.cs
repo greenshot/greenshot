@@ -24,18 +24,15 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.Configuration;
 using Dapplo.Log;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Forms;
 
 #endregion
 
@@ -48,17 +45,8 @@ namespace Greenshot.Destinations
     public class FileDestination : AbstractDestination
 	{
 		private static readonly LogSource Log = new LogSource();
-	    private readonly ICoreConfiguration _coreConfiguration;
-	    private readonly SettingsForm _settingsForm;
 
-	    [ImportingConstructor]
-	    public FileDestination(ICoreConfiguration coreConfiguration, SettingsForm settingsForm)
-	    {
-	        _coreConfiguration = coreConfiguration;
-	        _settingsForm = settingsForm;
-	    }
-
-		public override string Description => Language.GetString(LangKey.quicksettings_destination_file);
+		public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 
@@ -85,9 +73,9 @@ namespace Greenshot.Destinations
 			{
 				fullPath = CreateNewFilename(captureDetails);
 				// As we generate a file, the configuration tells us if we allow to overwrite
-				overwrite = _coreConfiguration.OutputFileAllowOverwrite;
+				overwrite = CoreConfiguration.OutputFileAllowOverwrite;
 			}
-			if (_coreConfiguration.OutputFilePromptQuality)
+			if (CoreConfiguration.OutputFilePromptQuality)
 			{
 				var qualityDialog = new QualityDialog(outputSettings);
 				qualityDialog.ShowDialog();
@@ -97,7 +85,7 @@ namespace Greenshot.Destinations
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try
 			{
-				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, _coreConfiguration.OutputFileCopyPathToClipboard);
+				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, CoreConfiguration.OutputFileCopyPathToClipboard);
 				outputMade = true;
 			}
 			catch (ArgumentException ex1)
@@ -112,7 +100,7 @@ namespace Greenshot.Destinations
 			{
 				Log.Error().WriteLine(ex2, "Error saving screenshot!");
 				// Show the problem
-				MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
+				MessageBox.Show(GreenshotLanguage.ErrorSave, GreenshotLanguage.Error);
 				// when save failed we present a SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = fullPath != null;
@@ -126,7 +114,7 @@ namespace Greenshot.Destinations
 				{
 					captureDetails.Filename = fullPath;
 				}
-			    _coreConfiguration.OutputFileAsFullpath = fullPath;
+			    CoreConfiguration.OutputFileAsFullpath = fullPath;
 			}
 
 			ProcessExport(exportInformation, surface);
@@ -135,16 +123,16 @@ namespace Greenshot.Destinations
 
 		private string CreateNewFilename(ICaptureDetails captureDetails)
 		{
-			string fullPath;
+			string fullPath = null;
 			Log.Info().WriteLine("Creating new filename");
-			var pattern = _coreConfiguration.OutputFileFilenamePattern;
+			var pattern = CoreConfiguration.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern))
 			{
 				pattern = "greenshot ${capturetime}";
 			}
-			var filename = FilenameHelper.GetFilenameFromPattern(pattern, _coreConfiguration.OutputFileFormat, captureDetails);
-		    _coreConfiguration.ValidateAndCorrectOutputFilePath();
-			var filepath = FilenameHelper.FillVariables(_coreConfiguration.OutputFilePath, false);
+			var filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfiguration.OutputFileFormat, captureDetails);
+		    CoreConfiguration.ValidateAndCorrectOutputFilePath();
+			var filepath = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
 			try
 			{
 				fullPath = Path.Combine(filepath, filename);
@@ -154,19 +142,12 @@ namespace Greenshot.Destinations
 				// configured filename or path not valid, show error message...
 				Log.Info().WriteLine("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
-				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
+				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error);
+                // TODO: offer settings?
 				// ... lets get the pattern fixed....
-				var dialogResult = _settingsForm.ShowDialog();
-				if (dialogResult == DialogResult.OK)
-				{
-					// ... OK -> then try again:
-					fullPath = CreateNewFilename(captureDetails);
-				}
-				else
-				{
-					// ... cancelled.
-					fullPath = null;
-				}
+				//	fullPath = CreateNewFilename(captureDetails);
+    			// ... cancelled.
+				// fullPath = null;
 			}
 			return fullPath;
 		}
