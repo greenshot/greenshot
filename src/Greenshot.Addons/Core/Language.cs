@@ -507,19 +507,27 @@ namespace Greenshot.Addons.Core
                             var deleteList = new List<LanguageFile>();
                             foreach (var compareWithLangfile in currentFiles)
                             {
-                                if (languageFile.Prefix == null && compareWithLangfile.Prefix == null || languageFile.Prefix != null && languageFile.Prefix.Equals(compareWithLangfile.Prefix))
+                                if ((languageFile.Prefix != null || compareWithLangfile.Prefix != null) &&
+                                    (languageFile.Prefix == null ||
+                                     !languageFile.Prefix.Equals(compareWithLangfile.Prefix)))
                                 {
-                                    if (compareWithLangfile.Version > languageFile.Version)
-                                    {
-                                        Log.Warn().WriteLine("Skipping {0}:{1}:{2} as {3}:{4}:{5} is newer", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath,
-                                            compareWithLangfile.Prefix, compareWithLangfile.Version);
-                                        needToAdd = false;
-                                        break;
-                                    }
-                                    Log.Warn().WriteLine("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath,
-                                        compareWithLangfile.Prefix, compareWithLangfile.Version);
-                                    deleteList.Add(compareWithLangfile);
+                                    continue;
                                 }
+
+                                if (compareWithLangfile.Version == null || languageFile.Version == null)
+                                {
+                                    continue;
+                                }
+                                if (compareWithLangfile.Version > languageFile.Version)
+                                {
+                                    Log.Warn().WriteLine("Skipping {0}:{1}:{2} as {3}:{4}:{5} is newer", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath,
+                                        compareWithLangfile.Prefix, compareWithLangfile.Version);
+                                    needToAdd = false;
+                                    break;
+                                }
+                                Log.Warn().WriteLine("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath,
+                                    compareWithLangfile.Prefix, compareWithLangfile.Version);
+                                deleteList.Add(compareWithLangfile);
                             }
                             if (needToAdd)
                             {
