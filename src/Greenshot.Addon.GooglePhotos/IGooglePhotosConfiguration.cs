@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Greenshot.Addons.Core.Enums;
@@ -67,15 +68,15 @@ namespace Greenshot.Addon.GooglePhotos
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own Client ID.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_picasa_consumer_key@")]
+        [DataMember(EmitDefaultValue = false)]
         string ClientId { get; set; }
 
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own client secret.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_picasa_consumer_secret@")]
+        [DataMember(EmitDefaultValue = false)]
         string ClientSecret { get; set; }
     }
 }

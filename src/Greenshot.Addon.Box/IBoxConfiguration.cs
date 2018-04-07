@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
@@ -63,15 +64,15 @@ namespace Greenshot.Addon.Box
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own Client ID.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_box_client_id@")]
+        [DataMember(EmitDefaultValue = false)]
         string ClientId { get; set; }
 
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own client secret.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_box_client_secret@")]
+        [DataMember(EmitDefaultValue = false)]
         string ClientSecret { get; set; }
     }
 }
