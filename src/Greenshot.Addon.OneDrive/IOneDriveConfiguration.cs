@@ -67,15 +67,9 @@ namespace Greenshot.Addon.OneDrive
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own Client ID.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
+        //[IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_onedrive_client_id@")]
         string ClientId { get; set; }
 
-        /// <summary>
-        ///     Not stored, but read so people could theoretically specify their own client secret.
-        /// </summary>
-        [IniPropertyBehavior(Write = false)]
-        [DefaultValue("@credentials_onedrive_client_secret@")]
-        string ClientSecret { get; set; }
     }
 }

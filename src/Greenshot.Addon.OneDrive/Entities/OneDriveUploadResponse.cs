@@ -30,7 +30,7 @@ namespace Greenshot.Addon.OneDrive.Entities
         [JsonProperty("id")] 
         public string Id;
 
-        [JsonProperty("id")]
+        [JsonProperty("webUrl")]
         public string WebUrl;
     }
 }

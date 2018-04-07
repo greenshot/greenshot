@@ -63,7 +63,8 @@ namespace Greenshot.Addon.OneDrive
         private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri GraphUri = new Uri("https://graph.microsoft.com");
         private static readonly Uri OneDriveUri = GraphUri.AppendSegments("v1.0", "me", "drive");
-        private static readonly Uri OAuth2Uri = new Uri("https://login.live.com");
+        private static readonly Uri OAuth2Uri = new Uri("https://login.microsoftonline.com")
+                .AppendSegments("common", "oauth2", "v2.0");
         private static readonly HttpBehaviour OneDriveHttpBehaviour = new HttpBehaviour
         {
             JsonSerializer = new JsonNetJsonSerializer()
@@ -77,7 +78,7 @@ namespace Greenshot.Addon.OneDrive
             // Configure the OAuth2 settings for OneDrive communication
             _oauth2Settings = new OAuth2Settings
             {
-                AuthorizationUri = OAuth2Uri.AppendSegments("oauth20_authorize.srf")
+                AuthorizationUri = OAuth2Uri.AppendSegments("authorize")
                     .ExtendQuery(new Dictionary<string, string>
                     {
                         {"response_type", "code"},
@@ -86,11 +87,11 @@ namespace Greenshot.Addon.OneDrive
                         {"state", "{State}"},
                         {"scope", "files.readwrite offline_access"}
                     }),
-                TokenUrl = OAuth2Uri.AppendSegments("oauth20_token.srf"),
+                TokenUrl = OAuth2Uri.AppendSegments("token"),
                 CloudServiceName = "OneDrive",
                 ClientId = _oneDriveConfiguration.ClientId,
-                ClientSecret = _oneDriveConfiguration.ClientSecret,
-                RedirectUrl = "https://getgreenshot.org/onedrive",
+                ClientSecret = "",
+                RedirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient",
                 AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
                 Token = oneDriveConfiguration
             };
@@ -133,10 +134,12 @@ namespace Greenshot.Addon.OneDrive
         /// <returns>Uri</returns>
         private async Task<Uri> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
         {
-            var outputSettings = new SurfaceOutputSettings(_oneDriveConfiguration.UploadFormat, _oneDriveConfiguration.UploadJpegQuality, _oneDriveConfiguration.UploadReduceColors);
+            var outputSettings = new SurfaceOutputSettings(_oneDriveConfiguration.UploadFormat,
+                _oneDriveConfiguration.UploadJpegQuality, _oneDriveConfiguration.UploadReduceColors);
             try
             {
-                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_oneDriveConfiguration.FilenamePattern,
+                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(
+                    _oneDriveConfiguration.FilenamePattern,
                     _oneDriveConfiguration.UploadFormat, captureDetails));
                 Uri response;
 
@@ -184,11 +187,12 @@ namespace Greenshot.Addon.OneDrive
         /// <param name="progress">IProgress</param>
         /// <param name="token">CancellationToken</param>
         /// <returns>OneDriveUploadResponse with details</returns>
-        private async Task<OneDriveUploadResponse> UploadToOneDriveAsync(OAuth2Settings oAuth2Settings, ISurface surfaceToUpload,
+        private async Task<OneDriveUploadResponse> UploadToOneDriveAsync(OAuth2Settings oAuth2Settings,
+            ISurface surfaceToUpload,
             SurfaceOutputSettings outputSettings, string filename, IProgress<int> progress = null,
             CancellationToken token = default)
         {
-            var uploadUri = OneDriveUri.AppendSegments("root:", "Screenshots", filename, "content");
+            var uploadUri = OneDriveUri.AppendSegments("root:", "Screenshots", filename + ":", "content");
             var localBehaviour = OneDriveHttpBehaviour.ShallowClone();
             if (progress != null)
             {
@@ -203,7 +207,7 @@ namespace Greenshot.Addon.OneDrive
                 {
                     content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
                     oauthHttpBehaviour.MakeCurrent();
-                    return await uploadUri.PostAsync<OneDriveUploadResponse>(content, token);
+                    return await uploadUri.PutAsync<OneDriveUploadResponse>(content, token);
                 }
             }
         }
