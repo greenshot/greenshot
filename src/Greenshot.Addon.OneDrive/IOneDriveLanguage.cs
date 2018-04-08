@@ -33,27 +33,11 @@ namespace Greenshot.Addon.OneDrive
     [Language("OneDrive")]
     public interface IOneDriveLanguage : ILanguage, INotifyPropertyChanged
     {
-        string Cancel { get; }
-
-        string ClearQuestion { get; }
-
         string CommunicationWait { get; }
-
-        string Configure { get; }
-
-        string DeleteQuestion { get; }
-
-        string DeleteTitle { get; }
-
-        string History { get; }
-
-        string LabelClear { get; }
 
         string LabelUploadFormat { get; }
 
-        string LabelUrl { get; }
-
-        string Ok { get; }
+        string LabelLinkType { get; }
 
         string SettingsTitle { get; }
 
@@ -61,11 +45,6 @@ namespace Greenshot.Addon.OneDrive
 
         string UploadMenuItem { get; }
 
-        string UploadSuccess { get; }
-
         string UsePageLink { get; }
-
-        string AnonymousAccess { get; }
-
     }
 }

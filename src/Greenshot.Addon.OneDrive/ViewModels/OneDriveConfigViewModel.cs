@@ -87,5 +87,17 @@ namespace Greenshot.Addon.OneDrive.ViewModels
 
         public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
 
+        public OneDriveLinkType SelectedLinkType
+        {
+            get => OneDriveConfiguration.LinkType;
+            set
+            {
+                OneDriveConfiguration.LinkType = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
+
     }
 }
