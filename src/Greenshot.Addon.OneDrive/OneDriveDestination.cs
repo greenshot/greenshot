@@ -152,7 +152,18 @@ namespace Greenshot.Addon.OneDrive
                     {
                         var oneDriveResponse = await UploadToOneDriveAsync(_oauth2Settings, surfaceToUpload,
                             outputSettings, filename, null, cancellationTokenSource.Token);
-                        response = new Uri(oneDriveResponse.WebUrl);
+                        Log.Info().WriteLine($"id: {oneDriveResponse.Id}");
+
+                        if (_oneDriveConfiguration.LinkType == OneDriveLinkType.@private)
+                        {
+                            response = new Uri(oneDriveResponse.WebUrl);
+                        }
+                        else
+                        {
+                            var sharableLink = await CreateSharableLinkAync(_oauth2Settings, oneDriveResponse.Id,
+                                _oneDriveConfiguration.LinkType);
+                            response = new Uri(sharableLink.Link.WebUrl);
+                        }
                     }
                     finally
                     {
@@ -210,6 +221,19 @@ namespace Greenshot.Addon.OneDrive
                     return await uploadUri.PutAsync<OneDriveUploadResponse>(content, token);
                 }
             }
+        }
+
+        private async Task<OneDriveGetLinkResponse> CreateSharableLinkAync(OAuth2Settings oAuth2Settings,
+            string imageId, OneDriveLinkType oneDriveLinkType)
+        {
+            var sharableLink = OneDriveUri.AppendSegments("items", imageId, "createLink");
+            var localBehaviour = OneDriveHttpBehaviour.ShallowClone();
+            var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
+            oauthHttpBehaviour.MakeCurrent();
+            var body = new OneDriveGetLinkRequest();
+            body.Scope = oneDriveLinkType == OneDriveLinkType.@public ? "anonymous" : "organization";
+            body.Type = "view";
+            return await sharableLink.PostAsync<OneDriveGetLinkResponse>(body);
         }
     }
 }
