@@ -15,7 +15,11 @@
                     <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
                 <CheckBox IsChecked="{Binding OneDriveConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding OneDriveLanguage.UsePageLink}"/>
-                <CheckBox IsChecked="{Binding OneDriveConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding OneDriveLanguage.UsePageLink}"/>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding OneDriveLanguage.LabelLinkType}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedLinkType}" ItemsSource="{Binding LinkTypes}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </DockPanel>
+                <Button Content="{Binding OneDriveLanguage.ResetCredentialsButton}" IsEnabled="{Binding IsCredentialsButtonEnabled}" Name="CredentialsButton" />
             </StackPanel>
         </GroupBox>
     </StackPanel>

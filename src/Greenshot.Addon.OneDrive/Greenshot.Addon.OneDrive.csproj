@@ -164,6 +164,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\OneDriveGetLinkRequest.cs" />
+    <Compile Include="Entities\OneDriveGetLinkResponse.cs" />
     <Compile Include="Entities\OneDriveUploadResponse.cs" />
     <Compile Include="IOneDriveConfiguration.cs" />
     <Compile Include="IOneDriveLanguage.cs" />

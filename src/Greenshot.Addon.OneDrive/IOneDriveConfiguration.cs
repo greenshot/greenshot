@@ -54,9 +54,6 @@ namespace Greenshot.Addon.OneDrive
         [DefaultValue(OneDriveLinkType.@private)]
         OneDriveLinkType LinkType { get; set; }
 
-        [Description("The OneDrive refresh token")]
-        string RefreshToken { get; set; }
-
         [Description("Reduce color amount of the uploaded image to 256")]
         [DefaultValue(false)]
         bool UploadReduceColors { get; set; }

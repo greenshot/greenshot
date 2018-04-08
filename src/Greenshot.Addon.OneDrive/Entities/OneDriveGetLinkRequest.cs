@@ -21,32 +21,16 @@
 
 #endregion
 
-#region Usings
+using Newtonsoft.Json;
 
-using System.ComponentModel;
-using Dapplo.Language;
-
-#endregion
-
-namespace Greenshot.Addon.OneDrive
+namespace Greenshot.Addon.OneDrive.Entities
 {
-    [Language("OneDrive")]
-    public interface IOneDriveLanguage : ILanguage, INotifyPropertyChanged
+    public class OneDriveGetLinkRequest
     {
-        string CommunicationWait { get; }
-
-        string LabelUploadFormat { get; }
-
-        string LabelLinkType { get; }
-
-        string SettingsTitle { get; }
-
-        string UploadFailure { get; }
-
-        string UploadMenuItem { get; }
-
-        string UsePageLink { get; }
-
-        string ResetCredentialsButton { get; }
+        [JsonProperty("type")] 
+        public string Type;
+        
+        [JsonProperty("scope")] 
+        public string Scope;
     }
 }
