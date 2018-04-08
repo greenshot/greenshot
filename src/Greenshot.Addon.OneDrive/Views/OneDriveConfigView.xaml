@@ -19,6 +19,7 @@
                     <Label Content="{Binding OneDriveLanguage.LabelLinkType}" Width="100" />
                     <ComboBox SelectedValue="{Binding SelectedLinkType}" ItemsSource="{Binding LinkTypes}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
+                <Button Content="{Binding OneDriveLanguage.ResetCredentialsButton}" IsEnabled="{Binding IsCredentialsButtonEnabled}" Name="CredentialsButton" />
             </StackPanel>
         </GroupBox>
     </StackPanel>

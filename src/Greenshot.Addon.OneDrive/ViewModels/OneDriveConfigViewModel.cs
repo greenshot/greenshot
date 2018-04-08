@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
@@ -95,6 +96,24 @@ namespace Greenshot.Addon.OneDrive.ViewModels
                 OneDriveConfiguration.LinkType = value;
                 NotifyOfPropertyChange();
             }
+        }
+
+        public bool IsCredentialsButtonEnabled
+        {
+            get
+            {
+                return OneDriveConfiguration.OAuth2AccessToken != null ||
+                       OneDriveConfiguration.OAuth2RefreshToken != null;
+            }
+        }
+
+        public void CredentialsButton()
+        {
+            OneDriveConfiguration.OAuth2AccessToken = null;
+            OneDriveConfiguration.OAuth2RefreshToken = null;
+            OneDriveConfiguration.OAuth2AccessTokenExpires = DateTimeOffset.MaxValue;//how to reset this property?
+            //todo somehow notify framework that IsCredentialsButtonEnabled will return different value now, so the button gets disabled
+            NotifyOfPropertyChange();
         }
 
         public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();

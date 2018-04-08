@@ -46,5 +46,7 @@ namespace Greenshot.Addon.OneDrive
         string UploadMenuItem { get; }
 
         string UsePageLink { get; }
+
+        string ResetCredentialsButton { get; }
     }
 }

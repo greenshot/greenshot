@@ -23,5 +23,8 @@
         <resource name="label_url">
             Url
         </resource>
+        <resource name="reset_credentials_button">
+            Reset OneDrive credentials
+        </resource>
     </resources>
 </language>
