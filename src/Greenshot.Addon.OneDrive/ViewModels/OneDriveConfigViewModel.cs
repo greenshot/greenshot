@@ -98,25 +98,17 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             }
         }
 
-        public bool IsCredentialsButtonEnabled
-        {
-            get
-            {
-                return OneDriveConfiguration.OAuth2AccessToken != null ||
-                       OneDriveConfiguration.OAuth2RefreshToken != null;
-            }
-        }
+        public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
 
-        public void CredentialsButton()
+        public bool CanResetCredentials => OneDriveConfiguration.OAuth2AccessToken != null ||
+                                                  OneDriveConfiguration.OAuth2RefreshToken != null;
+
+        public void ResetCredentials()
         {
             OneDriveConfiguration.OAuth2AccessToken = null;
             OneDriveConfiguration.OAuth2RefreshToken = null;
             OneDriveConfiguration.OAuth2AccessTokenExpires = DateTimeOffset.MaxValue;//how to reset this property?
-            //todo somehow notify framework that IsCredentialsButtonEnabled will return different value now, so the button gets disabled
-            NotifyOfPropertyChange();
+            NotifyOfPropertyChange(nameof(CanResetCredentials));
         }
-
-        public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
-
     }
 }
