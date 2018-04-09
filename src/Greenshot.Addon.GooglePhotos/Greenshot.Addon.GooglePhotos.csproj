@@ -59,11 +59,11 @@
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.31\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.8.32.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.32\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.31\lib\net45\Dapplo.HttpExtensions.OAuth.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.32.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.32\lib\net45\Dapplo.HttpExtensions.OAuth.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.24\lib\net45\Dapplo.Ini.dll</HintPath>

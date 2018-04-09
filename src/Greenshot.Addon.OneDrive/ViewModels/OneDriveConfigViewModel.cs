@@ -27,6 +27,7 @@ using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -91,14 +92,11 @@ namespace Greenshot.Addon.OneDrive.ViewModels
 
         public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
 
-        public bool CanResetCredentials => OneDriveConfiguration.OAuth2AccessToken != null ||
-                                                  OneDriveConfiguration.OAuth2RefreshToken != null;
+        public bool CanResetCredentials => OneDriveConfiguration.HasToken();
 
         public void ResetCredentials()
         {
-            OneDriveConfiguration.OAuth2AccessToken = null;
-            OneDriveConfiguration.OAuth2RefreshToken = null;
-            OneDriveConfiguration.OAuth2AccessTokenExpires = DateTimeOffset.MaxValue;//how to reset this property?
+            OneDriveConfiguration.ResetToken();
             NotifyOfPropertyChange(nameof(CanResetCredentials));
         }
     }

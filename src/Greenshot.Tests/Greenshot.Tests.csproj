@@ -38,14 +38,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BenchmarkDotNet, Version=0.10.13.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.0.10.13\lib\net46\BenchmarkDotNet.dll</HintPath>
+    <Reference Include="BenchmarkDotNet, Version=0.10.14.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.0.10.14\lib\net46\BenchmarkDotNet.dll</HintPath>
     </Reference>
-    <Reference Include="BenchmarkDotNet.Core, Version=0.10.13.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.Core.0.10.13\lib\net46\BenchmarkDotNet.Core.dll</HintPath>
+    <Reference Include="BenchmarkDotNet.Core, Version=0.10.14.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.Core.0.10.14\lib\net46\BenchmarkDotNet.Core.dll</HintPath>
     </Reference>
-    <Reference Include="BenchmarkDotNet.Toolchains.Roslyn, Version=0.10.13.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.Toolchains.Roslyn.0.10.13\lib\net46\BenchmarkDotNet.Toolchains.Roslyn.dll</HintPath>
+    <Reference Include="BenchmarkDotNet.Toolchains.Roslyn, Version=0.10.14.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.Toolchains.Roslyn.0.10.14\lib\net46\BenchmarkDotNet.Toolchains.Roslyn.dll</HintPath>
     </Reference>
     <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.Core.3.2.0\lib\net45\Caliburn.Micro.dll</HintPath>
