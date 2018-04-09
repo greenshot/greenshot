@@ -25,12 +25,18 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.OneDrive.Entities
 {
-    public class OneDriveUploadResponse
+    public class OneDriveGetLinkResponse
     {
         [JsonProperty("id")] 
         public string Id;
 
-        [JsonProperty("webUrl")]
-        public string WebUrl;
+        [JsonProperty("link")] 
+        public OneDriveGetLinkResponseLink Link;       
+
+        public class OneDriveGetLinkResponseLink
+        {
+            [JsonProperty("webUrl")] 
+            public string WebUrl;
+        }
     }
 }

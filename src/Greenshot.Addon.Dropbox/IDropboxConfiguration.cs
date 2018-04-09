@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
@@ -55,15 +56,15 @@ namespace Greenshot.Addon.Dropbox
 	    /// <summary>
 	    ///     Not stored, but read so people could theoretically specify their own consumer key.
 	    /// </summary>
-	    [IniPropertyBehavior(Write = false)]
 	    [DefaultValue("@credentials_dropbox_consumer_key@")]
+	    [DataMember(EmitDefaultValue = false)]
 	    string ClientId { get; set; }
 
 	    /// <summary>
 	    ///     Not stored, but read so people could theoretically specify their own consumer secret.
 	    /// </summary>
-	    [IniPropertyBehavior(Write = false)]
 	    [DefaultValue("@credentials_dropbox_consumer_secret@")]
+	    [DataMember(EmitDefaultValue = false)]
 	    string ClientSecret { get; set; }
     }
 }

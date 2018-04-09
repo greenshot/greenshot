@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
@@ -53,9 +54,6 @@ namespace Greenshot.Addon.OneDrive
         [DefaultValue(OneDriveLinkType.@private)]
         OneDriveLinkType LinkType { get; set; }
 
-        [Description("The OneDrive refresh token")]
-        string RefreshToken { get; set; }
-
         [Description("Reduce color amount of the uploaded image to 256")]
         [DefaultValue(false)]
         bool UploadReduceColors { get; set; }
@@ -67,15 +65,9 @@ namespace Greenshot.Addon.OneDrive
         /// <summary>
         ///     Not stored, but read so people could theoretically specify their own Client ID.
         /// </summary>
-        [IniPropertyBehavior(Write = false)]
         [DefaultValue("@credentials_onedrive_client_id@")]
+        [DataMember(EmitDefaultValue = false)]
         string ClientId { get; set; }
 
-        /// <summary>
-        ///     Not stored, but read so people could theoretically specify their own client secret.
-        /// </summary>
-        [IniPropertyBehavior(Write = false)]
-        [DefaultValue("@credentials_onedrive_client_secret@")]
-        string ClientSecret { get; set; }
     }
 }

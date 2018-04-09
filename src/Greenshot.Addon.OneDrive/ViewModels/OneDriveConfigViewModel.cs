@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
@@ -87,5 +88,27 @@ namespace Greenshot.Addon.OneDrive.ViewModels
 
         public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
 
+        public OneDriveLinkType SelectedLinkType
+        {
+            get => OneDriveConfiguration.LinkType;
+            set
+            {
+                OneDriveConfiguration.LinkType = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
+
+        public bool CanResetCredentials => OneDriveConfiguration.OAuth2AccessToken != null ||
+                                                  OneDriveConfiguration.OAuth2RefreshToken != null;
+
+        public void ResetCredentials()
+        {
+            OneDriveConfiguration.OAuth2AccessToken = null;
+            OneDriveConfiguration.OAuth2RefreshToken = null;
+            OneDriveConfiguration.OAuth2AccessTokenExpires = DateTimeOffset.MaxValue;//how to reset this property?
+            NotifyOfPropertyChange(nameof(CanResetCredentials));
+        }
     }
 }
