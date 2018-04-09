@@ -219,6 +219,8 @@
     <Compile Include="Extensions\DestinationExtensions.cs" />
     <Compile Include="Extensions\LanguageExtensions.cs" />
     <Compile Include="Extensions\ProcessorExtensions.cs" />
+    <Compile Include="Core\IFileConfiguration.cs" />
+    <Compile Include="Extensions\SurfaceExtensions.cs" />
     <Compile Include="IGreenshotLanguage.cs" />
     <Compile Include="Interfaces\CaptureMode.cs" />
     <Compile Include="Interfaces\DrawingModes.cs" />
@@ -369,6 +371,7 @@
     <Compile Include="Addons\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\FileConfigPartViewModel.cs" />
     <Compile Include="ViewModels\UploadViewModel.cs" />
     <EmbeddedResource Include="Controls\ColorDialog.resx">
       <DependentUpon>ColorDialog.cs</DependentUpon>
@@ -389,6 +392,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="Views\FileConfigPartView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\UploadView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

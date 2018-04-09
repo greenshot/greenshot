@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Caliburn.Micro;
@@ -29,8 +28,7 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
@@ -57,8 +55,12 @@ namespace Greenshot.Addon.Imgur.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel = new FileConfigPartViewModel(ImgurConfiguration, GreenshotLanguage);
+
             // Prepare disposables
             _disposables?.Dispose();
 
@@ -87,18 +89,5 @@ namespace Greenshot.Addon.Imgur.ViewModels
         {
             WindowManager.ShowWindow(ImgurHistoryViewModel);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => ImgurConfiguration.UploadFormat;
-            set
-            {
-                ImgurConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
-
     }
 }

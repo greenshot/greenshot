@@ -42,7 +42,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Core")]
     [Description("Greenshot core configuration")]
-    public interface ICoreConfiguration : IIniSection, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
+    public interface ICoreConfiguration : IIniSection, IFileConfiguration, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
     {
         [Description("The language in IETF format (e.g. en-US)")]
         string Language { get; set; }
@@ -120,52 +120,6 @@ namespace Greenshot.Addons.Core
         [Description("Show a notification from the systray when a capture is taken.")]
         [DefaultValue(true)]
         bool ShowTrayNotification { get; set; }
-
-        [Description("Output file path.")]
-        string OutputFilePath { get; set; }
-
-        [Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.")]
-        [DefaultValue(true)]
-        bool OutputFileAllowOverwrite { get; set; }
-
-        [Description("Filename pattern for screenshot.")]
-        [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
-        string OutputFileFilenamePattern { get; set; }
-
-        [Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)")]
-        [DefaultValue(OutputFormats.png)]
-        OutputFormats OutputFileFormat { get; set; }
-
-        [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]
-        [DefaultValue(false)]
-        bool OutputFileReduceColors { get; set; }
-
-        [Description("If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.")]
-        [DefaultValue(false)]
-        bool OutputFileAutoReduceColors { get; set; }
-
-        [Description("Amount of colors to reduce to, when reducing")]
-        [DefaultValue(256)]
-        int OutputFileReduceColorsTo { get; set; }
-
-        [Description("When saving a screenshot, copy the path to the clipboard?")]
-        [DefaultValue(true)]
-        bool OutputFileCopyPathToClipboard { get; set; }
-
-        [Description("SaveAs Full path?")]
-        string OutputFileAsFullpath { get; set; }
-
-        [Description("JPEG file save quality in %.")]
-        [DefaultValue(80)]
-        int OutputFileJpegQuality { get; set; }
-
-        [Description("Ask for the quality before saving?")]
-        [DefaultValue(false)]
-        bool OutputFilePromptQuality { get; set; }
-
-        [Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save.")]
-        [DefaultValue(1)]
-        uint OutputFileIncrementingNumber { get; set; }
 
         [Description("Ask for print options when printing?")]
         [DefaultValue(true)]
@@ -359,14 +313,6 @@ namespace Greenshot.Addons.Core
         [Description("The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)")]
         [DefaultValue("")]
         string MailApiBCC { get; set; }
-
-        [Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
-        [DefaultValue("")]
-        string OptimizePNGCommand { get; set; }
-
-        [Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.")]
-        [DefaultValue("\"{0}\"")]
-        string OptimizePNGCommandArguments { get; set; }
 
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; set; }

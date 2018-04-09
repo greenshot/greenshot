@@ -30,6 +30,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Imgur.Entities;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -41,23 +42,11 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
+	public interface IImgurConfiguration : IIniSection, IFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Url to Imgur system.")]
 		[DefaultValue("https://api.imgur.com/3")]
 		string ImgurApi3Url { get; set; }
-
-		[Description("What file type to use for uploading")]
-		[DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
-		[Description("Reduce color amount of the uploaded image to 256")]
-		[DefaultValue(false)]
-		bool UploadReduceColors { get; set; }
 
 		[Description("Copy the link, which one is controlled by the UsePageLink, on the clipboard")]
 		[DefaultValue(true)]

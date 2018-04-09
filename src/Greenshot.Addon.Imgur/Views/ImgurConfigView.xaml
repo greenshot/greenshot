@@ -4,16 +4,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Addon.Imgur.ViewModels"
+             xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:ImgurConfigViewModel,IsDesignTimeCreatable=False}"
              >
     <StackPanel>
         <GroupBox Header="{Binding ImgurLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding ImgurLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.AnonymousAccess}" Content="{Binding ImgurLanguage.AnonymousAccess}"/>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.UsePageLink}" Content="{Binding ImgurLanguage.UsePageLink}"/>
                 <Button x:Name="ShowHistory" Content="{Binding ImgurLanguage.History}"/>

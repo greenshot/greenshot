@@ -62,7 +62,11 @@ namespace Greenshot.Addons.Interfaces.Plugin
 			ReduceColors = reduceColors;
 		}
 
-		public OutputFormats Format { get; set; }
+	    public SurfaceOutputSettings(IFileConfiguration fileConfiguration) : this(fileConfiguration.OutputFileFormat, fileConfiguration.OutputFileJpegQuality, fileConfiguration.OutputFileReduceColors)
+	    {
+	    }
+
+        public OutputFormats Format { get; set; }
 
 		public int JPGQuality { get; set; }
 

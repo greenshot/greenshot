@@ -175,7 +175,6 @@
     <Compile Include="IImgurLanguage.cs" />
     <Compile Include="ImgurDestination.cs" />
     <Compile Include="IImgurConfiguration.cs" />
-    <Compile Include="ImgurUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ImgurHistoryViewModel.cs" />
     <Compile Include="ViewModels\ImgurConfigViewModel.cs" />

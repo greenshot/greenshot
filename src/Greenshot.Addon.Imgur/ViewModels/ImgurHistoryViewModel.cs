@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -51,6 +50,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         [Import]
         public IImgurConfiguration ImgurConfiguration { get; set; }
+
+
+        [Import]
+        public ImgurDestination ImgurDestination { get; set; }
 
         [Import]
         public IImgurLanguage ImgurLanguage { get; set; }
@@ -101,10 +104,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
                 }
                 try
                 {
-                    var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
+                    var imgurInfo = await ImgurDestination.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
                     if (imgurInfo != null)
                     {
-                        await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
+                        await ImgurDestination.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
                         ImgurConfiguration.RuntimeImgurHistory.Add(hash, imgurInfo);
                         // Already loaded, only add it to the view
                         ImgurHistory.Add(imgurInfo);
@@ -128,7 +131,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public async Task Delete()
         {
-            await ImgurUtils.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
+            await ImgurDestination.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
         }
 
         public bool CanCopyToClipboard => true;

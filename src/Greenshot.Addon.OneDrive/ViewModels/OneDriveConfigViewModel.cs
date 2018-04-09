@@ -29,8 +29,8 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.OneDrive.ViewModels
 {
@@ -51,8 +51,11 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel = new FileConfigPartViewModel(OneDriveConfiguration, GreenshotLanguage);
             // Prepare disposables
             _disposables?.Dispose();
             
@@ -75,18 +78,6 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => OneDriveConfiguration.UploadFormat;
-            set
-            {
-                OneDriveConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
 
         public OneDriveLinkType SelectedLinkType
         {

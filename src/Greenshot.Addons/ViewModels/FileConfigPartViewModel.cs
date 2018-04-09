@@ -21,38 +21,38 @@
 
 #endregion
 
-#region Usings
-
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Dapplo.HttpExtensions.OAuth;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
+using System.Collections.Generic;
+using Caliburn.Micro;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
 
-#endregion
-
-namespace Greenshot.Addon.OneDrive
+namespace Greenshot.Addons.ViewModels
 {
-    [IniSection("OneDrive")]
-    [Description("Greenshot OneDrive Addon configuration")]
-    public interface IOneDriveConfiguration : IIniSection, IFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
+    /// <summary>
+    /// A view model for showing the file configuration
+    /// </summary>
+    public sealed class FileConfigPartViewModel : Screen
     {
-        [Description("After upload copy OneDrive link to clipboard.")]
-        [DefaultValue("true")]
-        bool AfterUploadLinkToClipBoard { get; set; }
+        public IFileConfiguration FileConfiguration { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Description("Should the link be sharable or restricted.")]
-        [DefaultValue(OneDriveLinkType.@private)]
-        OneDriveLinkType LinkType { get; set; }
+        public FileConfigPartViewModel(IFileConfiguration fileConfiguration, IGreenshotLanguage greenshotLanguage)
+        {
+            FileConfiguration = fileConfiguration;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
-        /// <summary>
-        ///     Not stored, but read so people could theoretically specify their own Client ID.
-        /// </summary>
-        [DefaultValue("@credentials_onedrive_client_id@")]
-        [DataMember(EmitDefaultValue = false)]
-        string ClientId { get; set; }
+        public OutputFormats SelectedFormat
+        {
+            get => FileConfiguration.OutputFileFormat ;
+            set
+            {
+                FileConfiguration.OutputFileFormat = value;
+                NotifyOfPropertyChange();
+            }
+        }
 
+        public IDictionary<OutputFormats, string> Formats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

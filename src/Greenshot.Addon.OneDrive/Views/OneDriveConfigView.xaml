@@ -10,6 +10,7 @@
     <StackPanel>
         <GroupBox Header="{Binding OneDriveLanguage.SettingsTitle}">
             <StackPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding OneDriveLanguage.LabelUploadFormat}" Width="100" />
                     <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
