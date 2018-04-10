@@ -10,10 +10,7 @@
     <StackPanel>
         <GroupBox Header="{Binding JiraLanguage.LabelJira}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding JiraLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding JiraLanguage.LabelUrl}" Width="100" />
                     <TextBox Text="{Binding JiraConfiguration.Url}" />

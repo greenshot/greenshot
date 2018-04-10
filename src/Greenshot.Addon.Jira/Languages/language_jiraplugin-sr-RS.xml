@@ -12,7 +12,6 @@
 		<resource name="label_filename">Назив датотеке</resource>
 		<resource name="label_jira">Џира</resource>
 		<resource name="label_jirafilter">Филтер Џире</resource>
-		<resource name="label_upload_format">Формат слике:</resource>
 		<resource name="label_url">Адреса:</resource>
 		<resource name="login_error">Дошло је до грешке при пријављивању: {0}</resource>
 		<resource name="login_title">Унесите податке за пријављивање на Џиру</resource>

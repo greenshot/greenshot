@@ -21,15 +21,12 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.GooglePhotos.ViewModels
 {
@@ -48,25 +45,25 @@ namespace Greenshot.Addon.GooglePhotos.ViewModels
         public IGooglePhotosLanguage GooglePhotosLanguage { get; set; }
 
         [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
 
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel.DestinationFileConfiguration = GooglePhotosConfiguration;
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
 
+            // automatically update the DisplayName
+            _disposables = new CompositeDisposable
+            {
+                GooglePhotosLanguage.CreateDisplayNameBinding(this, nameof(IGooglePhotosLanguage.SettingsTitle))
+            };
+
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(GooglePhotosConfiguration);
-
-            // automatically update the DisplayName
-            var boxLanguageBinding = GooglePhotosLanguage.CreateDisplayNameBinding(this, nameof(IGooglePhotosLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(boxLanguageBinding);
 
             base.Initialize(config);
         }
@@ -76,17 +73,5 @@ namespace Greenshot.Addon.GooglePhotos.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => GooglePhotosConfiguration.UploadFormat;
-            set
-            {
-                GooglePhotosConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

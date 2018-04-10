@@ -5,7 +5,6 @@
 		<resource name="Configure">Configurazione Google Photos</resource>
 		<resource name="label_AfterUpload">Dopo il carico</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Collegamento agli appunti</resource>
-		<resource name="label_upload_format">Formato immagine</resource>
 		<resource name="settings_title">Impostazioni di Google Photos</resource>
 		<resource name="upload_failure">Si è verificato un errore durante il caricamento su Google Photos:</resource>
 		<resource name="upload_menu_item">Carica su Google Photos</resource>

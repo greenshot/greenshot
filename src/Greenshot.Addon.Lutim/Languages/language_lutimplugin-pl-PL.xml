@@ -9,7 +9,6 @@
 		<resource name="delete_question">Na pewno chcesz usunąć obraz {0} z Lutim?</resource>
 		<resource name="delete_title">Usuń z Lutim {0}</resource>
 		<resource name="history">Historia</resource>
-		<resource name="label_upload_format">Format obrazów</resource>
 		<resource name="label_url">URL</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Ustawienia Lutim</resource>

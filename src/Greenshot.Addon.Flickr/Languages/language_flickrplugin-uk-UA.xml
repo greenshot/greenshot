@@ -11,7 +11,6 @@
 		<resource name="settings_title">Параметри Flickr</resource>
 		<resource name="upload_success">Зображення вдало вивантажено на Flickr!</resource>
 		<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Flickr:</resource>
-		<resource name="label_upload_format">Формат зображення</resource>
 		<resource name="communication_wait">З’єднання з Flickr. Будь ласка, зачекайте...</resource>
 		<resource name="public">Загальне</resource>
 		<resource name="family">Родина</resource>

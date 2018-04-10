@@ -43,8 +43,8 @@ using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 using Newtonsoft.Json;
 
@@ -110,7 +110,7 @@ namespace Greenshot.Addon.Dropbox
 	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploadUrl = await UploadAsync(captureDetails, surface);
+		    var uploadUrl = await UploadAsync(surface).ConfigureAwait(true);
 			if (uploadUrl != null)
 			{
 				exportInformation.Uri = uploadUrl;
@@ -127,10 +127,9 @@ namespace Greenshot.Addon.Dropbox
 	    /// <summary>
 	    ///     This will be called when the menu item in the Editor is clicked
 	    /// </summary>
-	    private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload, CancellationToken cancellationToken = default)
+	    private async Task<string> UploadAsync(ISurface surfaceToUpload, CancellationToken cancellationToken = default)
 	    {
 	        string dropboxUrl = null;
-	        var outputSettings = new SurfaceOutputSettings(_dropboxPluginConfiguration.UploadFormat, _dropboxPluginConfiguration.UploadJpegQuality, false);
 	        try
 	        {
 	            var cancellationTokenSource = new CancellationTokenSource();
@@ -139,15 +138,15 @@ namespace Greenshot.Addon.Dropbox
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
+	                    var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _dropboxPluginConfiguration);
 	                    using (var imageStream = new MemoryStream())
 	                    {
-	                        ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+                            surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _dropboxPluginConfiguration);
 	                        imageStream.Position = 0;
 	                        using (var streamContent = new StreamContent(imageStream))
 	                        {
-	                            streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-	                            dropboxUrl = await UploadAsync(filename, streamContent, null, cancellationToken);
+	                            streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _dropboxPluginConfiguration));
+	                            dropboxUrl = await UploadAsync(filename, streamContent, null, cancellationToken).ConfigureAwait(false);
 	                        }
 	                    }
 	                }
@@ -203,7 +202,7 @@ namespace Greenshot.Addon.Dropbox
             uploadContent.Headers.Add("Dropbox-API-Arg", JsonConvert.SerializeObject(parameters, Formatting.None));
             _oAuthHttpBehaviour.MakeCurrent();
             // Post everything, and return the upload reply or an error
-            var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply, Error>>(uploadContent, cancellationToken);
+            var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply, Error>>(uploadContent, cancellationToken).ConfigureAwait(false);
 
             if (response.HasError)
             {
@@ -214,7 +213,9 @@ namespace Greenshot.Addon.Dropbox
             {
                 Path = response.Response.PathDisplay
             };
-            var reply = await DropboxApiUri.AppendSegments("2", "sharing", "create_shared_link_with_settings").PostAsync<HttpResponse<CreateLinkReply, Error>>(createLinkRequest, cancellationToken);
+            var reply = await DropboxApiUri
+                .AppendSegments("2", "sharing", "create_shared_link_with_settings")
+                .PostAsync<HttpResponse<CreateLinkReply, Error>>(createLinkRequest, cancellationToken).ConfigureAwait(false);
             if (reply.HasError)
             {
                 throw new ApplicationException(reply.ErrorResponse.Summary);

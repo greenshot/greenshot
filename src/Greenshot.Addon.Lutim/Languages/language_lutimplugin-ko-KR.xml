@@ -22,9 +22,6 @@
 		<resource name="upload_failure">
 			Lutim로 업로드시 오류 발생:
 		</resource>
-		<resource name="label_upload_format">
-			이미지 형식
-		</resource>
 		<resource name="communication_wait">
 			Lutim와 연결 중 잠시 기다리세요...
 		</resource>

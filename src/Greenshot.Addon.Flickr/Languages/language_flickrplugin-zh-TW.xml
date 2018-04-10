@@ -10,7 +10,6 @@
 		<resource name="label_AfterUploadLinkToClipBoard">連結到剪貼簿</resource>
 		<resource name="label_HiddenFromSearch">從搜尋隱藏</resource>
 		<resource name="label_SafetyLevel">安全性等級</resource>
-		<resource name="label_upload_format">圖片格式</resource>
 		<resource name="public">公開</resource>
 		<resource name="settings_title">Flickr 設定</resource>
 		<resource name="upload_failure">上傳到 Flickr 時發生錯誤:</resource>

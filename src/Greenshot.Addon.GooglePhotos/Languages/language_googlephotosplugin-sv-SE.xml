@@ -1,32 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="GooglePhotos">
-		<resource name="label_AfterUploadLinkToClipBoard">
-		  Länk till urklipp
-		</resource>
-		<resource name="label_AfterUpload">
-		  Vid uppladdning
-		</resource>
-		<resource name="Configure">
-		  Konfigurera Google Photos
-		</resource>
-		<resource name="upload_menu_item">
-		  Ladda upp till Google Photos
-		</resource>
-		<resource name="settings_title">
-		  Google Photos-inställningar
-		</resource>
-		<resource name="upload_success">
-		  Skärmdumpen laddades upp till Google Photos!
-		</resource>
-		<resource name="upload_failure">
-		  Ett fel uppstod vid uppladdning till Google Photos:
-		</resource>
-		<resource name="label_upload_format">
-		  Bildformat
-		</resource>
-		<resource name="communication_wait">
-		  Kommunicerar med Google Photos. Vänta...
-		</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Länk till urklipp</resource>
+		<resource name="label_AfterUpload">Vid uppladdning</resource>
+		<resource name="Configure">Konfigurera Google Photos</resource>
+		<resource name="upload_menu_item">Ladda upp till Google Photos</resource>
+		<resource name="settings_title">Google Photos-inställningar</resource>
+		<resource name="upload_success">Skärmdumpen laddades upp till Google Photos!</resource>
+		<resource name="upload_failure">Ett fel uppstod vid uppladdning till Google Photos:</resource>
+		<resource name="communication_wait">Kommunicerar med Google Photos. Vänta...</resource>
 	</resources>
 </language>

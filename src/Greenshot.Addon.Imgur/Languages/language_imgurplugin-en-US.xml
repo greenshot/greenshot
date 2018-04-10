@@ -23,9 +23,6 @@
 		<resource name="upload_failure">
 			An error occured while uploading to Imgur:
 		</resource>
-		<resource name="label_upload_format">
-			Image format
-		</resource>
 		<resource name="communication_wait">
 			Communicating with Imgur. Please wait...
 		</resource>

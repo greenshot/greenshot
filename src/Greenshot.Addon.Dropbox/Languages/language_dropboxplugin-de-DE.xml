@@ -26,9 +26,6 @@
 		<resource name="upload_failure">
 			Beim Hochladen ist ein Fehler aufgetreten :
 		</resource>
-		<resource name="label_upload_format">
-			Grafikformat
-		</resource>
 		<resource name="communication_wait">
 			Übermittle Daten zu Dropbox. Bitte warten...
 		</resource>

@@ -5,7 +5,6 @@
 		<resource name="Configure">組態 Google Photos</resource>
 		<resource name="label_AfterUpload">上傳後</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">連結到剪貼簿</resource>
-		<resource name="label_upload_format">圖片格式</resource>
 		<resource name="settings_title">Google Photos 設定</resource>
 		<resource name="upload_failure">上傳到 Google Photos 時發生錯誤:</resource>
 		<resource name="upload_menu_item">上傳到 Google Photos</resource>

@@ -41,6 +41,7 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
@@ -206,10 +207,7 @@ namespace Greenshot.Addon.Photobucket
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var outputSettings = new SurfaceOutputSettings(_photobucketConfiguration.UploadFormat, _photobucketConfiguration.UploadJpegQuality, false);
-		    var filename = Path.GetFileName(FilenameHelper.GetFilename(_photobucketConfiguration.UploadFormat, captureDetails));
-
-            var uploaded = await UploadToPhotobucket(surface, outputSettings, filename, captureDetails.Title, _albumPath);
+            var uploaded = await UploadToPhotobucket(surface,_albumPath, captureDetails.Title);
 			if (uploaded != null)
 			{
 				exportInformation.ExportMade = true;
@@ -225,10 +223,10 @@ namespace Greenshot.Addon.Photobucket
 		///     For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null, CancellationToken token = default)
+		public async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, string albumPath, string title, IProgress<int> progress = null, CancellationToken token = default)
         {
             string responseString;
-
+            var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _photobucketConfiguration);
             var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
 
             // Use UploadProgress
@@ -262,11 +260,11 @@ namespace Greenshot.Addon.Photobucket
             // Add image
             using (var imageStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+                surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _photobucketConfiguration);
                 imageStream.Position = 0;
                 using (var streamContent = new StreamContent(imageStream))
                 {
-                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _photobucketConfiguration));
                     streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                     {
                         Name = "\"uploadfile\"",

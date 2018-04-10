@@ -40,6 +40,8 @@ using Dapplo.Jira.Entities;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Credentials;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
@@ -54,6 +56,7 @@ namespace Greenshot.Addon.Jira
 	    private static readonly LogSource Log = new LogSource();
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly JiraMonitor _jiraMonitor;
+	    private readonly ICoreConfiguration _coreConfiguration;
 
 	    // Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
@@ -62,11 +65,12 @@ namespace Greenshot.Addon.Jira
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
 		[ImportingConstructor]
-		public JiraConnector(IJiraConfiguration jiraConfiguration, JiraMonitor jiraMonitor)
+		public JiraConnector(IJiraConfiguration jiraConfiguration, JiraMonitor jiraMonitor, ICoreConfiguration coreConfiguration)
 		{
 		    jiraConfiguration.Url = jiraConfiguration.Url.Replace(DefaultPostfix, "");
 		    _jiraConfiguration = jiraConfiguration;
 		    _jiraMonitor = jiraMonitor;
+		    _coreConfiguration = coreConfiguration;
 		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url));
 		}
 
@@ -249,21 +253,22 @@ namespace Greenshot.Addon.Jira
 			}
 		}
 
-		/// <summary>
-		///     Attach the content to the jira
-		/// </summary>
-		/// <param name="issueKey"></param>
-		/// <param name="content">IBinaryContainer</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default)
+        /// <summary>
+        ///     Attach the content to the jira
+        /// </summary>
+        /// <param name="issueKey"></param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Task</returns>
+        public async Task AttachAsync(string issueKey, ISurface surface, string filename = null, CancellationToken cancellationToken = default)
 		{
-			await CheckCredentialsAsync(cancellationToken);
+			await CheckCredentialsAsync(cancellationToken).ConfigureAwait(true);
 			using (var memoryStream = new MemoryStream())
 			{
-				content.WriteToStream(memoryStream);
+			    surface.WriteToStream(memoryStream, _coreConfiguration, _jiraConfiguration);
 				memoryStream.Seek(0, SeekOrigin.Begin);
-				await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
+			    var contentType = surface.GenerateMimeType(_coreConfiguration, _jiraConfiguration);
+                await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, filename ?? surface.GenerateFilename(_coreConfiguration, _jiraConfiguration), contentType, cancellationToken).ConfigureAwait(false);
 			}
 		}
 

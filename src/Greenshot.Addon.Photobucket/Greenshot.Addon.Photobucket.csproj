@@ -191,7 +191,21 @@
     <None Include="packages.config" />
     <EmbeddedResource Include="photobucket-logo.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Languages\language_photobucketplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_photobucketplugin-id-ID.xml" />
+    <Resource Include="Languages\language_photobucketplugin-it-IT.xml" />
+    <Resource Include="Languages\language_photobucketplugin-ja-JP.xml" />
+    <Resource Include="Languages\language_photobucketplugin-kab-DZ.xml" />
+    <Resource Include="Languages\language_photobucketplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_photobucketplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_photobucketplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_photobucketplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_photobucketplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_photobucketplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_photobucketplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_photobucketplugin-zh-TW.xml" />
+  </ItemGroup>
   <ItemGroup>
     <Page Include="Views\PhotobucketConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>

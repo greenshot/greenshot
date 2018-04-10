@@ -9,7 +9,6 @@
 		<resource name="delete_question">Желите ли да обришете слику {0} са Имиџера?</resource>
 		<resource name="delete_title">Обриши Имиџер {0}</resource>
 		<resource name="history">Историја</resource>
-		<resource name="label_upload_format">Формат слике:</resource>
 		<resource name="label_url">Адреса</resource>
 		<resource name="OK">У реду</resource>
 		<resource name="settings_title">Поставке Имиџера</resource>

@@ -170,7 +170,7 @@
     <Compile Include="ILutimLanguage.cs" />
     <Compile Include="LutimDestination.cs" />
     <Compile Include="ILutimConfiguration.cs" />
-    <Compile Include="LutimUtils.cs" />
+    <Compile Include="LutimApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\LutimConfigViewModel.cs" />
     <Compile Include="ViewModels\LutimHistoryViewModel.cs" />

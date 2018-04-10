@@ -3,35 +3,14 @@
 <!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
 <language>
 	<resources prefix="Dropbox">
-		<resource name="label_AfterUploadLinkToClipBoard">
-			Saistīt ar starpliktuvi
-		</resource>
-		<resource name="label_AfterUploadOpenHistory">
-			Atvērt vēsturi
-		</resource>
-		<resource name="label_AfterUpload">
-			Pēc augšupielādes
-		</resource>
-		<resource name="Configure">
-			Dropbox iestatījumi
-		</resource>
-		<resource name="upload_menu_item">
-			Augšupieladēt uz Dropbox
-		</resource>
-		<resource name="settings_title">
-			Dropbox iestatījumi
-		</resource>
-		<resource name="upload_success">
-			Attēls veiksmīgi augšupielādēts uz Dropbox!
-		</resource>
-		<resource name="upload_failure">
-			Kļūda augšupielādējot uz Dropbox:
-		</resource>
-		<resource name="label_upload_format">
-			Attēla formāts
-		</resource>
-		<resource name="communication_wait">
-			Savienojos ar Dropbox. Lūdzu uzgaidiet...
-		</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Saistīt ar starpliktuvi</resource>
+		<resource name="label_AfterUploadOpenHistory">Atvērt vēsturi</resource>
+		<resource name="label_AfterUpload">Pēc augšupielādes</resource>
+		<resource name="Configure">Dropbox iestatījumi</resource>
+		<resource name="upload_menu_item">Augšupieladēt uz Dropbox</resource>
+		<resource name="settings_title">Dropbox iestatījumi</resource>
+		<resource name="upload_success">Attēls veiksmīgi augšupielādēts uz Dropbox!</resource>
+		<resource name="upload_failure">Kļūda augšupielādējot uz Dropbox:</resource>
+		<resource name="communication_wait">Savienojos ar Dropbox. Lūdzu uzgaidiet...</resource>
 	</resources>
 </language>

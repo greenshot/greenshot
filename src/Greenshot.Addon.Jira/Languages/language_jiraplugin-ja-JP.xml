@@ -19,7 +19,6 @@
 		<resource name="CANCEL">キャンセル</resource>
 		<resource name="upload_success">JIRA へのアップロードに成功しました！</resource>
 		<resource name="upload_failure">JIRA へのアップロード中にエラーが発生しました:</resource>
-		<resource name="label_upload_format">画像フォーマット</resource>
 		<resource name="communication_wait">JIRA にデータを転送中です。しばらくお待ち下さい...</resource>
 	</resources>
 </language>

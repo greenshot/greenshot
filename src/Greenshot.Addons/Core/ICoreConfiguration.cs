@@ -121,6 +121,13 @@ namespace Greenshot.Addons.Core
         [DefaultValue(true)]
         bool ShowTrayNotification { get; set; }
 
+        [Description("When saving a screenshot, copy the path to the clipboard?")]
+        [DefaultValue(true)]
+        bool OutputFileCopyPathToClipboard { get; set; }
+
+        [Description("SaveAs Full path?")]
+        string OutputFileAsFullpath { get; set; }
+
         [Description("Ask for print options when printing?")]
         [DefaultValue(true)]
         [Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]

@@ -23,9 +23,6 @@
 		<resource name="upload_failure">
 			Es gab einen Fehler beim Hochladen zu Imgur:
 		</resource>
-		<resource name="label_upload_format">
-			Bildformat
-		</resource>
 		<resource name="communication_wait">
 			Übermittle Daten zu Imgur. Bitte warten...
 		</resource>

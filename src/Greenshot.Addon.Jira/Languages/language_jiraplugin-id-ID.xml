@@ -13,7 +13,6 @@
 		<resource name="label_filename">Nama berkas</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">JIRA Filter</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="login_error">Masalah terjadi ketika login: {0}</resource>
 		<resource name="login_title">Masukkan data login Jira anda</resource>

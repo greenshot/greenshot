@@ -13,7 +13,6 @@
 		<resource name="label_AfterUploadOpenHistory">Zobrazit historii</resource>
 		<resource name="label_DefaultSize">Výchozí velikost</resource>
 		<resource name="label_Password">Heslo</resource>
-		<resource name="label_upload_format">Formát obrázku</resource>
 		<resource name="label_Username">Jméno</resource>
 		<resource name="OK">OK</resource>
 		<resource name="PictureDisplaySize.OriginalUrl">Originál URL</resource>

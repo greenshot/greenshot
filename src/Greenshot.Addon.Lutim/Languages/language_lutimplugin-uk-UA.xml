@@ -8,7 +8,6 @@
 	<resource name="CANCEL">Скасувати</resource>
 	<resource name="upload_success">Зображення вдало вивантажено на Lutim!</resource>
 	<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Lutim:</resource>
-	<resource name="label_upload_format">Формат зображення</resource>
 	<resource name="communication_wait">З’єднання з Lutim. Будь ласка, зачекайте...</resource>
 	<resource name="delete_question">Чи дійсно Ви хочете видалити зображення {0} з Lutim?</resource>
 	<resource name="clear_question">Чи дійсно Ви хочете видалити локальну історію Lutim?</resource>

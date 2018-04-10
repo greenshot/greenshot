@@ -8,7 +8,6 @@
 	<resource name="settings_title">Параметри Google Photos</resource>
 	<resource name="upload_success">Зображення вдало вивантажено на Google Photos!</resource>
 	<resource name="upload_failure">Відбулась помилка під час вивантаження на Google Photos:</resource>
-	<resource name="label_upload_format">Формат зображення</resource>
 	<resource name="communication_wait">З’єднання з Google Photos. Будь ласка, зачекайте...</resource>
   </resources>
 </language>

@@ -5,7 +5,6 @@
 		<resource name="CANCEL">Zrušit</resource>
 		<resource name="communication_wait">Komunikace s Photobucket. Prosím čekejte ...</resource>
 		<resource name="configure">Nastavení Photobucket</resource>
-		<resource name="label_upload_format">Formát obrázku</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Nastavení Photobucket</resource>
 		<resource name="upload_failure">Při nahrávání na Photobucket došlo k chybě:</resource>

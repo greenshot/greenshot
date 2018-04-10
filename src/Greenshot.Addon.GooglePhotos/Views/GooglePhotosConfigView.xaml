@@ -11,10 +11,7 @@
     <StackPanel>
         <GroupBox Header="{Binding GooglePhotosLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding GooglePhotosLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding GooglePhotosConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding GooglePhotosLanguage.LabelAfterUploadLinkToClipBoard}"/>
             </StackPanel>
         </GroupBox>

@@ -57,9 +57,6 @@
 		<resource name="upload_failure">
 			Kļūda augšupielādējot uz Jira:
 		</resource>
-		<resource name="label_upload_format">
-			Attēla formāts
-		</resource>
 		<resource name="communication_wait">
 			Pārsūtu datus uz JIRA, Lūdzu uzgaidiet...
 		</resource>

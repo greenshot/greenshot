@@ -10,7 +10,6 @@
 		<resource name="delete_question">是否真的要从Imgur上删除图片{0}？</resource>
 		<resource name="delete_title">删除 Imgur {0}</resource>
 		<resource name="history">历史记录</resource>
-		<resource name="label_upload_format">图片格式</resource>
 		<resource name="label_url">网址</resource>
 		<resource name="OK">确认</resource>
 		<resource name="settings_title">Imgur设置</resource>

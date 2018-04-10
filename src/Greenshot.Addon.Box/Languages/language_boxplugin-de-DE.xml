@@ -9,7 +9,6 @@
 		<resource name="settings_title">Box Einstellungen</resource>
 		<resource name="upload_success">Hochladen zu Box war erfolgreich!</resource>
 		<resource name="upload_failure">Fehler beim Hochladen zu Box:</resource>
-		<resource name="label_upload_format">Grafikformat</resource>
 		<resource name="communication_wait">Übermittle Daten zu Box. Bitte warten...</resource>
 	</resources>
 </language>

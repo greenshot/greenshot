@@ -62,9 +62,6 @@
 		<resource name="upload_failure">
 			Tijdens het uploaden naar Jira is een fout opgetreden:
 		</resource>
-		<resource name="label_upload_format">
-			Beeld formaat
-		</resource>
 		<resource name="communication_wait">
 			Gegevensoverdracht naar Jira, wachten A.U.B...
 		</resource>

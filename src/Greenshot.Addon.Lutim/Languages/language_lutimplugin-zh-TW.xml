@@ -9,7 +9,6 @@
 		<resource name="delete_question">您確定要從 Lutim 刪除圖片 {0} 嗎? </resource>
 		<resource name="delete_title">刪除 Lutim {0}</resource>
 		<resource name="history">歷程記錄</resource>
-		<resource name="label_upload_format">圖片格式</resource>
 		<resource name="label_url">URL</resource>
 		<resource name="OK">確定</resource>
 		<resource name="settings_title">Lutim 設定</resource>

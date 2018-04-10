@@ -23,9 +23,6 @@
 		<resource name="upload_failure">
 			Kļūda augšupielādējot uz Lutim:
 		</resource>
-		<resource name="label_upload_format">
-			Attēla formāts
-		</resource>
 		<resource name="communication_wait">
 			Savienojos ar Lutim. Lūdzu uzgaidiet...
 		</resource>

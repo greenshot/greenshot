@@ -5,7 +5,6 @@
 		<resource name="Configure">Konfigurasi Google Photos</resource>
 		<resource name="label_AfterUpload">Sesudah mengunggah</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Sambung ke papanklip</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="settings_title">Pengaturan Google Photos</resource>
 		<resource name="upload_failure">Kesalahan terjadi ketika mengunggah ke Google Photos:</resource>
 		<resource name="upload_menu_item">Unggah ke Google Photos</resource>

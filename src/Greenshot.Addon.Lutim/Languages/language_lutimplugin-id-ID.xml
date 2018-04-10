@@ -9,7 +9,6 @@
 		<resource name="delete_question">Apakah anda benar-benar ingin menghapus gambar {0} dari Lutim?</resource>
 		<resource name="delete_title">Hapus Lutim {0}</resource>
 		<resource name="history">Riwayat</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="OK">Oke</resource>
 		<resource name="settings_title">Setelan Lutim</resource>

@@ -28,6 +28,7 @@ using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -39,16 +40,8 @@ namespace Greenshot.Addon.Dropbox
 	/// </summary>
 	[IniSection("Dropbox")]
 	[Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxConfiguration : IIniSection, IOAuth2Token, INotifyPropertyChanged, ITransactionalProperties
+	public interface IDropboxConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token, INotifyPropertyChanged, ITransactionalProperties
 	{
-		[Description("What file type to use for uploading")]
-	    [DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
 		[Description("After upload send Dropbox link to clipboard.")]
 		[DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard { get; set; }

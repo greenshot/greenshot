@@ -186,7 +186,6 @@
     <Compile Include="JiraEventTypes.cs" />
     <Compile Include="JiraMonitor.cs" />
     <Compile Include="JiraPlugin.cs" />
-    <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\JiraViewModel.cs" />
     <Compile Include="ViewModels\JiraConfigViewModel.cs" />
@@ -219,7 +218,23 @@
   <ItemGroup>
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Languages\language_jiraplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_jiraplugin-id-ID.xml" />
+    <Resource Include="Languages\language_jiraplugin-it-IT.xml" />
+    <Resource Include="Languages\language_jiraplugin-ja-JP.xml" />
+    <Resource Include="Languages\language_jiraplugin-kab-DZ.xml" />
+    <Resource Include="Languages\language_jiraplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_jiraplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_jiraplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_jiraplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_jiraplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_jiraplugin-sr-Cyrl-RS.xml" />
+    <Resource Include="Languages\language_jiraplugin-sr-RS.xml" />
+    <Resource Include="Languages\language_jiraplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_jiraplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_jiraplugin-zh-TW.xml" />
+  </ItemGroup>
   <ItemGroup>
     <Page Include="Views\JiraConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>

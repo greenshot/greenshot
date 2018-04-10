@@ -55,6 +55,8 @@ namespace Greenshot.Addon.Lutim.ViewModels
 
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
+        [Import]
+        private LutimApi _lutimApi;
 
         /// <summary>
         /// The list of Lutim items
@@ -98,10 +100,10 @@ namespace Greenshot.Addon.Lutim.ViewModels
                 }
                 try
                 {
-                    var lutimInfo = await LutimUtils.RetrieveLutimInfoAsync(hash, LutimConfiguration.LutimUploadHistory[hash], cancellationToken);
+                    var lutimInfo = await _lutimApi.RetrieveLutimInfoAsync(hash, LutimConfiguration.LutimUploadHistory[hash], cancellationToken);
                     if (lutimInfo != null)
                     {
-                        await LutimUtils.RetrieveLutimThumbnailAsync(lutimInfo, cancellationToken);
+                        await _lutimApi.RetrieveLutimThumbnailAsync(lutimInfo, cancellationToken);
                         LutimConfiguration.RuntimeLutimHistory.Add(hash, lutimInfo);
                         // Already loaded, only add it to the view
                         LutimHistory.Add(lutimInfo);
@@ -131,7 +133,7 @@ namespace Greenshot.Addon.Lutim.ViewModels
 
         public async Task Delete()
         {
-            await LutimUtils.DeleteLutimImage(SelectedLutim);
+            await _lutimApi.DeleteLutimImage(SelectedLutim);
         }
 
         public bool CanCopyToClipboard => true;

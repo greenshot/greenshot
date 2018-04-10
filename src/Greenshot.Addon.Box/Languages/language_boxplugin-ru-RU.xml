@@ -6,7 +6,6 @@
 		<resource name="Configure">Настройка Box</resource>
 		<resource name="label_AfterUpload">После загрузки</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Ссылка в буфер обмена</resource>
-		<resource name="label_upload_format">Формат изображения</resource>
 		<resource name="settings_title">Параметры Box</resource>
 		<resource name="upload_failure">Произошла ошибка при загрузке на Box:</resource>
 		<resource name="upload_menu_item">Загрузить на Box</resource>

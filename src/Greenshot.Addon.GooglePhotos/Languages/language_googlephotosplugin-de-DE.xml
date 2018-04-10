@@ -1,32 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="GooglePhotos">
-		<resource name="label_AfterUploadLinkToClipBoard">
-		  Link in der Zwischenablage
-		</resource>
-		<resource name="label_AfterUpload">
-		  Anschliessend
-		</resource>
-		<resource name="Configure">
-		  Google Photos konfigurieren
-		</resource>
-		<resource name="upload_menu_item">
-		  Hochladen zu Google Photos
-		</resource>
-		<resource name="settings_title">
-		  Google Photos Einstellungen
-		</resource>
-		<resource name="upload_success">
-		  Hochladen zu Google Photos war erfolgreich !
-		</resource>
-		<resource name="upload_failure">
-		 Fehler beim Hochladen zu Google Photos:
-		</resource>
-		<resource name="label_upload_format">
-		  Grafikformat
-		</resource>
-		<resource name="communication_wait">
-		 Übermittle Daten zu Google Photos. Bitte warten...
-		</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Link in der Zwischenablage</resource>
+		<resource name="label_AfterUpload">Anschliessend</resource>
+		<resource name="Configure">Google Photos konfigurieren</resource>
+		<resource name="upload_menu_item">Hochladen zu Google Photos</resource>
+		<resource name="settings_title">Google Photos Einstellungen</resource>
+		<resource name="upload_success">Hochladen zu Google Photos war erfolgreich !</resource>
+		<resource name="upload_failure">Fehler beim Hochladen zu Google Photos:</resource>
+		<resource name="communication_wait">Übermittle Daten zu Google Photos. Bitte warten...</resource>
 	</resources>
 </language>

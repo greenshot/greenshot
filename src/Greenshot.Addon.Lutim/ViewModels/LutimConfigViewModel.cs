@@ -21,18 +21,18 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Lutim.ViewModels
 {
+    /// <summary>
+    /// The ViewModel for the Lutim configuration
+    /// </summary>
     [Export(typeof(IConfigScreen))]
     public sealed class LutimConfigViewModel : SimpleConfigScreen
     {
@@ -48,13 +48,14 @@ namespace Greenshot.Addon.Lutim.ViewModels
         public ILutimLanguage LutimLanguage { get; set; }
 
         [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
 
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel.DestinationFileConfiguration = LutimConfiguration;
+
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
@@ -63,10 +64,10 @@ namespace Greenshot.Addon.Lutim.ViewModels
             config.Register(LutimConfiguration);
 
             // automatically update the DisplayName
-            var lutimLanguageBinding = LutimLanguage.CreateDisplayNameBinding(this, nameof(ILutimLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(lutimLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                LutimLanguage.CreateDisplayNameBinding(this, nameof(ILutimLanguage.SettingsTitle))
+            };
 
             base.Initialize(config);
         }
@@ -76,19 +77,5 @@ namespace Greenshot.Addon.Lutim.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => LutimConfiguration.UploadFormat;
-            set
-            {
-                LutimConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
-
     }
 }

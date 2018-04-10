@@ -22,9 +22,6 @@
 		<resource name="upload_failure">
 			Tijdens het uploaden naar Lutim is een fout opgetreden:
 		</resource>
-		<resource name="label_upload_format">
-			Beeld formaat
-		</resource>
 		<resource name="communication_wait">
 			Data overdraging naar Lutim, wachten AUB...
 		</resource>

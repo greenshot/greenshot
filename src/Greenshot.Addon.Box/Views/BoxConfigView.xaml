@@ -11,10 +11,7 @@
     <StackPanel>
         <GroupBox Header="{Binding BoxLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding BoxLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding BoxConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding BoxLanguage.LabelAfterUploadLinkToClipBoard}"/>
             </StackPanel>
         </GroupBox>

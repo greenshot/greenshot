@@ -22,9 +22,6 @@
 	<resource name="upload_failure">
 		Chyba pri nahrávaní na Lutim:
 	</resource>
-	<resource name="label_upload_format">
-		Formát obrázku
-	</resource>
 	<resource name="communication_wait">
 		Prebieha komunikácia s Lutim. Čakajte prosím ...
 	</resource>

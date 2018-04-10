@@ -5,9 +5,6 @@
         <resource name="communication_wait">
             Communicating with OneDrive. Please wait...
         </resource>
-        <resource name="label_upload_format">
-            Image format
-        </resource>
         <resource name="label_link_type">
             Link Type
         </resource>

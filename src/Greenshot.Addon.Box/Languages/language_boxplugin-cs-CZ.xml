@@ -13,7 +13,6 @@
 		<resource name="label_AfterUploadOpenHistory">Otevřít historii</resource>
 		<resource name="label_AuthToken">Ověření Token</resource>
 		<resource name="label_DefaultSize">Výchozí velikost</resource>
-		<resource name="label_upload_format">Formát obrázku</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Nastavení</resource>
 		<resource name="TokenNotSet">Prosím ověřit dostupnost aplikace Box. Nastavení přístupu.</resource>

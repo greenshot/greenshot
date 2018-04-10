@@ -21,15 +21,13 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Box.ViewModels
 {
@@ -50,11 +48,14 @@ namespace Greenshot.Addon.Box.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        [Import]
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
         public override void Initialize(IConfig config)
         {
-            // Prepare disposables
+            FileConfigPartViewModel.DestinationFileConfiguration = BoxConfiguration;
+
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
@@ -63,10 +64,10 @@ namespace Greenshot.Addon.Box.ViewModels
             config.Register(BoxConfiguration);
 
             // automatically update the DisplayName
-            var boxLanguageBinding = BoxLanguage.CreateDisplayNameBinding(this, nameof(IBoxLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(boxLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                BoxLanguage.CreateDisplayNameBinding(this, nameof(IBoxLanguage.SettingsTitle))
+            };
 
             base.Initialize(config);
         }
@@ -76,17 +77,5 @@ namespace Greenshot.Addon.Box.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => BoxConfiguration.UploadFormat;
-            set
-            {
-                BoxConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

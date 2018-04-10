@@ -22,9 +22,6 @@
 		<resource name="upload_failure">
 			Si è verificato un problema durante il collegamento:
 		</resource>
-		<resource name="label_upload_format">
-			Formato immagine
-		</resource>
 		<resource name="communication_wait">
 			Comunicazione con Lutim. Attendere prego...
 		</resource>

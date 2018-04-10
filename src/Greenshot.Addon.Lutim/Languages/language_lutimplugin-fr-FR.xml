@@ -8,7 +8,6 @@
 		<resource name="delete_question">Êtes-vous sûr(e) de vouloir supprimer l'image {0} de Lutim ?</resource>
 		<resource name="delete_title">Supprimer Lutim {0}</resource>
 		<resource name="history">Historique</resource>
-		<resource name="label_upload_format">Format image</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Paramètres Lutim</resource>

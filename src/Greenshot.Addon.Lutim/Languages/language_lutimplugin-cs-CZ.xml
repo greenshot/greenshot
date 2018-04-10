@@ -9,7 +9,6 @@
 		<resource name="delete_question">Jste si jisti, že chcete smazat obrázek {0} z Lutim?</resource>
 		<resource name="delete_title">Odstranit Lutim {0}</resource>
 		<resource name="history">Historie</resource>
-		<resource name="label_upload_format">Formát obrázku</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Nastavení Lutim</resource>

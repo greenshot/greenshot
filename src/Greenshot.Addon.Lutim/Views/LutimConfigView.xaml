@@ -10,10 +10,7 @@
     <StackPanel>
         <GroupBox Header="{Binding LutimLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding LutimLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding LutimConfiguration.AnonymousAccess}" Content="{Binding LutimLanguage.AnonymousAccess}"/>
                 <CheckBox IsChecked="{Binding LutimConfiguration.UsePageLink}" Content="{Binding LutimLanguage.UsePageLink}"/>
             </StackPanel>

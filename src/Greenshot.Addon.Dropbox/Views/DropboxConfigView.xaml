@@ -10,10 +10,7 @@
     <StackPanel>
         <GroupBox Header="{Binding DropboxLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding DropboxLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding DropboxConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding DropboxLanguage.LabelAfterUploadLinkToClipBoard}"/>
             </StackPanel>
         </GroupBox>

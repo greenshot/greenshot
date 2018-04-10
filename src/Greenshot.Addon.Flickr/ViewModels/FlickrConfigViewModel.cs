@@ -26,10 +26,9 @@ using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Flickr.ViewModels
 {
@@ -42,20 +41,19 @@ namespace Greenshot.Addon.Flickr.ViewModels
         private CompositeDisposable _disposables;
 
         [Import]
-        private IGreenshotLanguage GreenshotLanguage { get; set; }
-
-
-        [Import]
         public IFlickrConfiguration FlickrConfiguration { get; set; }
 
         [Import]
         public IFlickrLanguage FlickrLanguage { get; set; }
 
+        [Import]
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel.DestinationFileConfiguration = FlickrConfiguration;
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
@@ -64,11 +62,11 @@ namespace Greenshot.Addon.Flickr.ViewModels
             config.Register(FlickrConfiguration);
 
             // automatically update the DisplayName
-            var boxLanguageBinding = FlickrLanguage.CreateDisplayNameBinding(this, nameof(IFlickrLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(boxLanguageBinding);
-
+            _disposables = new CompositeDisposable
+            {
+                FlickrLanguage.CreateDisplayNameBinding(this, nameof(IFlickrLanguage.SettingsTitle))
+            };
+            
             base.Initialize(config);
         }
 
@@ -77,18 +75,6 @@ namespace Greenshot.Addon.Flickr.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => FlickrConfiguration.UploadFormat;
-            set
-            {
-                FlickrConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
 
         public SafetyLevel SelectedSafetyLevel
         {

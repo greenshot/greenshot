@@ -12,7 +12,6 @@
 		<resource name="label_filename">Jméno souboru</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">JIRA filtr</resource>
-		<resource name="label_upload_format">Formát obrázku</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="login_error">Problém při přihlášení: {0}</resource>
 		<resource name="login_title">Prosím, zadejte přihlašovací údaje pre Jira</resource>

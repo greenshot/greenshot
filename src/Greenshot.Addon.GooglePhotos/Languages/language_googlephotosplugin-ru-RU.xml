@@ -5,7 +5,6 @@
 		<resource name="Configure">Настройка Google Photos</resource>
 		<resource name="label_AfterUpload">После загрузки</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Ссылки в буфер обмена</resource>
-		<resource name="label_upload_format">Формат изображения</resource>
 		<resource name="settings_title">Настройки Google Photos</resource>
 		<resource name="upload_failure">Произошла ошибка при загрузке на Google Photos:</resource>
 		<resource name="upload_menu_item">Загрузить на Google Photos</resource>

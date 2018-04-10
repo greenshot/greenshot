@@ -5,7 +5,6 @@
 		<resource name="Configure">Swel Dropbox</resource>
 		<resource name="label_AfterUpload">Ticki yemmad usali</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Nɣel aseɣwen ɣef afus</resource>
-		<resource name="label_upload_format">Amasal tugna</resource>
 		<resource name="settings_title">Iɣewwaṛen n Dropbox</resource>
 		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ɣer Dropbox :</resource>
 		<resource name="upload_menu_item">Sali ɣer Dropbox</resource>

@@ -7,7 +7,6 @@
 		<resource name="label_AfterUpload">Setelah mengunggah</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Sambung ke papanklip</resource>
 		<resource name="label_AfterUploadOpenHistory">Buka riwayat</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="settings_title">Setelan Dropbox</resource>
 		<resource name="upload_failure">Kesalahan terjadi ketik mengunggah ke Dropbox:</resource>
 		<resource name="upload_menu_item">Unggah ke Dropbox</resource>

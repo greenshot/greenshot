@@ -13,7 +13,6 @@
 		<resource name="label_filename">Имя файла</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">Фильтр JIRA</resource>
-		<resource name="label_upload_format">Формат изображения</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="login_error">Произошла ошибка во время входа: {0}</resource>
 		<resource name="login_title">Пожалуйста, введите ваши регистрационные данные Jira</resource>

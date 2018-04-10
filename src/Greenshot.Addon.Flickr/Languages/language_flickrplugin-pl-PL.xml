@@ -10,7 +10,6 @@
 		<resource name="label_AfterUploadLinkToClipBoard">Link do schowka</resource>
 		<resource name="label_HiddenFromSearch">Ukrywaj z wyszukiwarki</resource>
 		<resource name="label_SafetyLevel">Poziom bezpieczeństwa</resource>
-		<resource name="label_upload_format">Format obrazów</resource>
 		<resource name="public">Publiczny</resource>
 		<resource name="settings_title">Ustawienia Flickr</resource>
 		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu doFlickr:</resource>

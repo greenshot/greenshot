@@ -30,10 +30,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.Listener;
@@ -42,6 +45,7 @@ using Dapplo.Log;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
@@ -59,8 +63,19 @@ namespace Greenshot.Addon.Flickr
 	    private readonly IFlickrLanguage _flickrLanguage;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
+	    private const string FlickrFarmUrl = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
+	    private static readonly Uri FlickrApiBaseUrl = new Uri("https://api.flickr.com/services");
+	    private static readonly Uri FlickrUploadUri = new Uri("https://up.flickr.com/services/upload");
+	    private static readonly Uri FlickrRestUrl = FlickrApiBaseUrl.AppendSegments("rest");
 
-	    [ImportingConstructor]
+	    private static readonly Uri FlickrGetInfoUrl = FlickrRestUrl.ExtendQuery(new Dictionary<string, object>
+	    {
+	        {
+	            "method", "flickr.photos.getInfo"
+	        }
+	    });
+
+        [ImportingConstructor]
         public FlickrDestination(IFlickrConfiguration flickrConfiguration, IFlickrLanguage flickrLanguage)
 	    {
 	        _flickrConfiguration = flickrConfiguration;
@@ -125,7 +140,6 @@ namespace Greenshot.Addon.Flickr
 	    {
 	        string uploadUrl = null;
 
-            var outputSettings = new SurfaceOutputSettings(_flickrConfiguration.UploadFormat, _flickrConfiguration.UploadJpegQuality, false);
 	        try
 	        {
 
@@ -135,8 +149,7 @@ namespace Greenshot.Addon.Flickr
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
-	                    uploadUrl = await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename);
+	                    uploadUrl = await UploadToFlickrAsync(surface, captureDetails.Title);
                     }
 	                finally
 	                {
@@ -162,5 +175,81 @@ namespace Greenshot.Addon.Flickr
 	        }
 	        return uploadUrl;
 	    }
+
+        /// <summary>
+        ///     Do the actual upload to Flickr
+        ///     For more details on the available parameters, see: http://flickrnet.codeplex.com
+        /// </summary>
+        /// <param name="surfaceToUpload"></param>
+        /// <param name="title"></param>
+        /// <param name="progress">IProgres is used to report the progress to</param>
+        /// <param name="token"></param>
+        /// <returns>url to image</returns>
+        public async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, string title, CancellationToken token = default)
+        {
+            var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _flickrConfiguration);
+            try
+            {
+                var signedParameters = new Dictionary<string, object>
+                {
+                    {"content_type", "2"}, // content = screenshot
+					{"tags", "Greenshot"},
+                    {"is_public", _flickrConfiguration.IsPublic ? "1" : "0"},
+                    {"is_friend", _flickrConfiguration.IsFriend ? "1" : "0"},
+                    {"is_family", _flickrConfiguration.IsFamily ? "1" : "0"},
+                    {"safety_level", $"{(int) _flickrConfiguration.SafetyLevel}"},
+                    {"hidden", _flickrConfiguration.HiddenFromSearch ? "1" : "2"},
+                    {"format", "json"}, // Doesn't work... :(
+					{"nojsoncallback", "1"}
+                };
+
+                string photoId;
+                using (var stream = new MemoryStream())
+                {
+                    surfaceToUpload.WriteToStream(stream, CoreConfiguration, _flickrConfiguration);
+                    stream.Position = 0;
+                    using (var streamContent = new StreamContent(stream))
+                    {
+                        streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _flickrConfiguration));
+                        streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                        {
+                            Name = "\"photo\"",
+                            FileName = "\"" + filename + "\""
+                        };
+                        HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
+                        {
+                            Properties = signedParameters
+                        });
+                        var response = await FlickrUploadUri.PostAsync<XDocument>(streamContent, token).ConfigureAwait(false);
+                        photoId = (from element in response.Root.Elements()
+                                   where element.Name == "photoid"
+                                   select element.Value).First();
+                    }
+                }
+
+                // Get Photo Info
+                signedParameters = new Dictionary<string, object>
+                {
+                    {"photo_id", photoId},
+                    {"format", "json"},
+                    {"nojsoncallback", "1"}
+                };
+                HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
+                {
+                    Properties = signedParameters
+                });
+                var photoInfo = await FlickrGetInfoUrl.PostAsync<dynamic>(signedParameters, token).ConfigureAwait(false);
+                if (_flickrConfiguration.UsePageLink)
+                {
+                    return photoInfo.photo.urls.url[0]._content;
+                }
+                return string.Format(FlickrFarmUrl, photoInfo.photo.farm, photoInfo.photo.server, photoId, photoInfo.photo.secret);
+            }
+            catch (Exception ex)
+            {
+                Log.Error().WriteLine(ex, "Upload error: ");
+                throw;
+            }
+        }
     }
 }

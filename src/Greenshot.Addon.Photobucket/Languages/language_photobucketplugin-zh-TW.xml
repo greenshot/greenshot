@@ -5,7 +5,6 @@
 		<resource name="CANCEL">取消</resource>
 		<resource name="communication_wait">正在與 Photobucket 通訊，請稍候...</resource>
 		<resource name="configure">組態 Photobucket</resource>
-		<resource name="label_upload_format">圖片格式</resource>
 		<resource name="OK">確定</resource>
 		<resource name="settings_title">Photobucket 設定</resource>
 		<resource name="upload_failure">上傳到 Photobucket 時發生錯誤:</resource>

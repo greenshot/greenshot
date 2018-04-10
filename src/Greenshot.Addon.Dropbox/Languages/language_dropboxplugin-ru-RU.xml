@@ -7,7 +7,6 @@
 		<resource name="label_AfterUpload">После загрузки</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Ссылку в буфер обмена</resource>
 		<resource name="label_AfterUploadOpenHistory">Открыть историию</resource>
-		<resource name="label_upload_format">Формат изображения</resource>
 		<resource name="settings_title">Настройки Dropbox</resource>
 		<resource name="upload_failure">Произошла ошибка при загрузке на Dropbox:</resource>
 		<resource name="upload_menu_item">Добавить в Dropbox</resource>

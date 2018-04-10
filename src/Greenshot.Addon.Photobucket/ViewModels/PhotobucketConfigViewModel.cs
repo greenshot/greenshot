@@ -21,15 +21,13 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Photobucket.ViewModels
 {
@@ -50,11 +48,14 @@ namespace Greenshot.Addon.Photobucket.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        [Import]
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel.DestinationFileConfiguration = PhotobucketConfiguration;
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
@@ -63,10 +64,10 @@ namespace Greenshot.Addon.Photobucket.ViewModels
             config.Register(PhotobucketConfiguration);
 
             // automatically update the DisplayName
-            var boxLanguageBinding = PhotobucketLanguage.CreateDisplayNameBinding(this, nameof(IPhotobucketLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(boxLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                PhotobucketLanguage.CreateDisplayNameBinding(this, nameof(IPhotobucketLanguage.SettingsTitle))
+            };
 
             base.Initialize(config);
         }
@@ -76,17 +77,5 @@ namespace Greenshot.Addon.Photobucket.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-        public OutputFormats SelectedUploadFormat
-        {
-            get => PhotobucketConfiguration.UploadFormat;
-            set
-            {
-                PhotobucketConfiguration.UploadFormat = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

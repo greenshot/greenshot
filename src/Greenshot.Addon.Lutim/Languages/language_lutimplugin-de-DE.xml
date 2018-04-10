@@ -22,9 +22,6 @@
 		<resource name="upload_failure">
 			Es gab einen Fehler beim Hochladen zu Lutim:
 		</resource>
-		<resource name="label_upload_format">
-			Bildformat
-		</resource>
 		<resource name="communication_wait">
 			Übermittle Daten zu Lutim. Bitte warten...
 		</resource>

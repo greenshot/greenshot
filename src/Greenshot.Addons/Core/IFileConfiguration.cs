@@ -40,7 +40,7 @@ namespace Greenshot.Addons.Core
     /// <summary>
     ///     File configuration.
     /// </summary>
-    public interface IFileConfiguration : INotifyPropertyChanged
+    public interface IFileConfiguration
     {
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
@@ -68,13 +68,6 @@ namespace Greenshot.Addons.Core
         [Description("Amount of colors to reduce to, when reducing")]
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
-
-        [Description("When saving a screenshot, copy the path to the clipboard?")]
-        [DefaultValue(true)]
-        bool OutputFileCopyPathToClipboard { get; set; }
-
-        [Description("SaveAs Full path?")]
-        string OutputFileAsFullpath { get; set; }
 
         [Description("JPEG file save quality in %.")]
         [DefaultValue(80)]

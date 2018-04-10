@@ -10,7 +10,6 @@
 		<resource name="settings_title">Dropbox settings</resource>
 		<resource name="upload_success">Successfully uploaded image to Dropbox!</resource>
 		<resource name="upload_failure">An error occured while uploading to Dropbox:</resource>
-		<resource name="label_upload_format">Image format</resource>
 		<resource name="communication_wait">Communicating with Dropbox. Please wait...</resource>
 	</resources>
 </language>

@@ -11,10 +11,7 @@
     <StackPanel>
         <GroupBox Header="{Binding PhotobucketLanguage.SettingsTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding PhotobucketLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-                </DockPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding PhotobucketConfiguration.UsePageLink}" Content="{Binding PhotobucketLanguage.UsePageLink}"/>
             </StackPanel>
         </GroupBox>

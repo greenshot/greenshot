@@ -28,6 +28,7 @@ using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -46,7 +47,7 @@ namespace Greenshot.Addon.Flickr
 	/// </summary>
 	[IniSection("Flickr")]
 	[Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
+	public interface IFlickrConfiguration : IIniSection, IDestinationFileConfiguration, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
     {
 		[Description("IsPublic.")]
 		[DefaultValue(true)]
@@ -67,14 +68,6 @@ namespace Greenshot.Addon.Flickr
 		[Description("Hidden from search")]
 		[DefaultValue(false)]
 		bool HiddenFromSearch { get; set; }
-
-		[Description("What file type to use for uploading")]
-		[DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
 
 		[Description("After upload send flickr link to clipboard.")]
 		[DefaultValue(true)]

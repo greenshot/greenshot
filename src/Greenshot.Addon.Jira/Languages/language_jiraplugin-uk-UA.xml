@@ -20,7 +20,6 @@
 		<resource name="CANCEL">Скасувати</resource>
 		<resource name="upload_success">Зображення вдало вивантажено на Jira!</resource>
 		<resource name="upload_failure">Відбулась помилка під час вивантаження на Jira:</resource>
-		<resource name="label_upload_format">Формат зображення</resource>
 		<resource name="communication_wait">Передача даних на JIRA, будь ласка, зачекайте...</resource>
 	</resources>
 </language>

@@ -13,7 +13,6 @@
 		<resource name="label_filename">Fichier</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">Filtre JIRA</resource>
-		<resource name="label_upload_format">Format image</resource>
 		<resource name="label_url">Url</resource>
 		<resource name="login_error">Un problème est survenu lors de l'authentification : {0}</resource>
 		<resource name="login_title">Veuillez saisir vos identifiants Jira</resource>

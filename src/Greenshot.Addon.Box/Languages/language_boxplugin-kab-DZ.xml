@@ -5,7 +5,6 @@
 		<resource name="Configure">Swel Box</resource>
 		<resource name="label_AfterUpload">Deffir n usider/asali</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Nɣel aseɣwen ɣef afus</resource>
-		<resource name="label_upload_format">Amasal tugna</resource>
 		<resource name="settings_title">Iɣewwaṛen n usekles s srid</resource>
 		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ɣer usekles s srid :</resource>
 		<resource name="upload_menu_item">Sali ɣer usekles s srid</resource>

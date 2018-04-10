@@ -10,7 +10,6 @@
 		<resource name="label_AfterUploadLinkToClipBoard">Sambung ke papanklip</resource>
 		<resource name="label_HiddenFromSearch">Pencarian form tersembunyi</resource>
 		<resource name="label_SafetyLevel">Tingkat keamanan</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="public">Umum</resource>
 		<resource name="settings_title">Setelan Flickr</resource>
 		<resource name="upload_failure">Kesalahan terjadi ketika mengunggah ke Flickr:</resource>

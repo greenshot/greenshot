@@ -26,7 +26,7 @@
 using System.ComponentModel;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
-using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Core;
 
 #endregion
 
@@ -37,7 +37,7 @@ namespace Greenshot.Addon.Jira
 	/// </summary>
 	[IniSection("Jira")]
     [Description("Greenshot Jira Plugin configuration")]
-	public interface IJiraConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
+	public interface IJiraConfiguration : IIniSection, IDestinationFileConfiguration, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("Base url to Jira system, without anything else")]
 		[DefaultValue("https://jira")]
@@ -46,18 +46,6 @@ namespace Greenshot.Addon.Jira
 		[Description("Session timeout in minutes")]
 		[DefaultValue(30)]
 		int Timeout { get; set; }
-
-		[Description("What file type to use for uploading")]
-	    [DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
-		[Description("Reduce color amount of the uploaded image to 256")]
-		[DefaultValue(false)]
-		bool UploadReduceColors { get; set; }
 
 	    [Description("The maximum number of entries to show in the list")]
 	    [DefaultValue(20)]

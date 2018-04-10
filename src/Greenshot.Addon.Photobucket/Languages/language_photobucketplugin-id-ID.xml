@@ -5,7 +5,6 @@
 		<resource name="CANCEL">Batal</resource>
 		<resource name="communication_wait">Menyambungkan ke Photobucket. Tunggu sebentar...</resource>
 		<resource name="configure">Konfigurasi Photobucket</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="OK">Oke</resource>
 		<resource name="settings_title">Pengaturan Photobucket</resource>
 		<resource name="upload_failure">Kesalahan terjadi ketika mengunggah ke Photobucket:</resource>

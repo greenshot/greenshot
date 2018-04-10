@@ -158,7 +158,6 @@
   <ItemGroup>
     <Compile Include="FlickrDestination.cs" />
     <Compile Include="IFlickrConfiguration.cs" />
-    <Compile Include="FlickrUtils.cs" />
     <Compile Include="IFlickrLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\FlickrConfigViewModel.cs" />
@@ -182,7 +181,25 @@
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Languages\language_flickrplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_flickrplugin-de-DE.xml" />
+    <Resource Include="Languages\language_flickrplugin-fr-FR.xml" />
+    <Resource Include="Languages\language_flickrplugin-id-ID.xml" />
+    <Resource Include="Languages\language_flickrplugin-it-IT.xml" />
+    <Resource Include="Languages\language_flickrplugin-ja-JP.xml" />
+    <Resource Include="Languages\language_flickrplugin-kab-DZ.xml" />
+    <Resource Include="Languages\language_flickrplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_flickrplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_flickrplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_flickrplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_flickrplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_flickrplugin-sr-Cyrl-RS.xml" />
+    <Resource Include="Languages\language_flickrplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_flickrplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_flickrplugin-zh-CN.xml" />
+    <Resource Include="Languages\language_flickrplugin-zh-TW.xml" />
+  </ItemGroup>
   <ItemGroup>
     <Page Include="Views\FlickrConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -198,6 +198,25 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Languages\language_dropboxplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_dropboxplugin-de-DE.xml" />
+    <Resource Include="Languages\language_dropboxplugin-fr-FR.xml" />
+    <Resource Include="Languages\language_dropboxplugin-id-ID.xml" />
+    <Resource Include="Languages\language_dropboxplugin-it-IT.xml" />
+    <Resource Include="Languages\language_dropboxplugin-ja-JP.xml" />
+    <Resource Include="Languages\language_dropboxplugin-kab-DZ.xml" />
+    <Resource Include="Languages\language_dropboxplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_dropboxplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_dropboxplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_dropboxplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_dropboxplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_dropboxplugin-sr-Cyrl-RS.xml" />
+    <Resource Include="Languages\language_dropboxplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_dropboxplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_dropboxplugin-zh-CN.xml" />
+    <Resource Include="Languages\language_dropboxplugin-zh-TW.xml" />
+  </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"

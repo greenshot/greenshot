@@ -10,7 +10,6 @@
 		<resource name="label_AfterUploadLinkToClipBoard">Copier le lien dans le presse-papier</resource>
 		<resource name="label_HiddenFromSearch">Caché dans les recherches</resource>
 		<resource name="label_SafetyLevel">Niveau de sécurité</resource>
-		<resource name="label_upload_format">Format image</resource>
 		<resource name="public">Publique</resource>
 		<resource name="settings_title">Paramètres Flickr</resource>
 		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers Flickr :</resource>

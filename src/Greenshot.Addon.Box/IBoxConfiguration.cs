@@ -28,6 +28,7 @@ using System.Runtime.Serialization;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -39,16 +40,8 @@ namespace Greenshot.Addon.Box
 	/// </summary>
 	[IniSection("Box")]
 	[Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth2Token
+	public interface IBoxConfiguration : IIniSection, IDestinationFileConfiguration, INotifyPropertyChanged, ITransactionalProperties, IOAuth2Token
     {
-		[Description("What file type to use for uploading")]
-		[DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
 		[Description("After upload send Box link to clipboard.")]
 		[DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard { get; set; }

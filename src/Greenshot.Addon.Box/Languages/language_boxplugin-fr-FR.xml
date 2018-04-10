@@ -6,7 +6,6 @@
 		<resource name="Configure">Configurer Box</resource>
 		<resource name="label_AfterUpload">Après téléversement</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Copier le lien dans le presse-papier</resource>
-		<resource name="label_upload_format">Format image</resource>
 		<resource name="settings_title">Paramètres du stockage en ligne</resource>
 		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers le stockage en ligne :</resource>
 		<resource name="upload_menu_item">Téléverser vers le stockage en ligne</resource>

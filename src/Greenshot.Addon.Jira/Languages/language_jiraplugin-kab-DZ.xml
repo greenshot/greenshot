@@ -12,7 +12,6 @@
 		<resource name="label_filename">Afaylu</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">Imzizdeg JIRA</resource>
-		<resource name="label_upload_format">Amasal tugna</resource>
 		<resource name="label_url">Tansa Url</resource>
 		<resource name="login_error">Teḍra-d tucḍa deg usesteb : {0}</resource>
 		<resource name="login_title">Ma ulac aɣilif sekcem isulayen Jira</resource>

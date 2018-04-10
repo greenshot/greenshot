@@ -23,9 +23,6 @@
 		<resource name="upload_failure">
 			Tijdens het uploaden naar Imgur is een fout opgetreden:
 		</resource>
-		<resource name="label_upload_format">
-			Beeld formaat
-		</resource>
 		<resource name="communication_wait">
 			Data overdraging naar Imgur, wachten AUB...
 		</resource>

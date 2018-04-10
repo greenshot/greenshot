@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using Dapplo.HttpExtensions;
@@ -39,7 +38,6 @@ using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 
@@ -143,8 +141,6 @@ namespace Greenshot.Addon.Jira
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var filename = Path.GetFileName(FilenameHelper.GetFilename(_jiraConfiguration.UploadFormat, captureDetails));
-			var outputSettings = new SurfaceOutputSettings(_jiraConfiguration.UploadFormat, _jiraConfiguration.UploadJpegQuality, _jiraConfiguration.UploadReduceColors);
 			if (_jiraIssue != null)
 			{
 				try
@@ -153,8 +149,7 @@ namespace Greenshot.Addon.Jira
 					new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
 						async () =>
 						{
-							var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
-							await _jiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
+							await _jiraConnector.AttachAsync(_jiraIssue.Key, surface).ConfigureAwait(true);
 							surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
 						}
 					);
@@ -180,13 +175,11 @@ namespace Greenshot.Addon.Jira
 						new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
 						    async () =>
 						    {
-						        var attachment = new SurfaceContainer(surface, outputSettings, _jiraViewModel.Filename);
-                                
-						        await _jiraConnector.AttachAsync(_jiraViewModel.JiraIssue.Key, attachment);
+						        await _jiraConnector.AttachAsync(_jiraViewModel.JiraIssue.Key, surface, _jiraViewModel.Filename).ConfigureAwait(true);
 
 						        if (!string.IsNullOrEmpty(_jiraViewModel.Comment))
 						        {
-						            await _jiraConnector.AddCommentAsync(_jiraViewModel.JiraIssue.Key, _jiraViewModel.Comment);
+						            await _jiraConnector.AddCommentAsync(_jiraViewModel.JiraIssue.Key, _jiraViewModel.Comment).ConfigureAwait(true);
 						        }
 						    }
 						);

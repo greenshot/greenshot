@@ -26,9 +26,6 @@
 		<resource name="upload_failure">
 			Si è verificato un errore durante il caricamento su Dropbox:
 		</resource>
-		<resource name="label_upload_format">
-			Formato immagine
-		</resource>
 		<resource name="communication_wait">
 			Comunicazione con Dropbox. Attendere prego...
 		</resource>

@@ -6,7 +6,6 @@
 		<resource name="Configure">Konfigurasi Box</resource>
 		<resource name="label_AfterUpload">Setelah Diunggah</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Sambung ke papanklip</resource>
-		<resource name="label_upload_format">Format gambar</resource>
 		<resource name="settings_title">Setelan Box</resource>
 		<resource name="upload_failure">Kesalahan terjadi ketika mengunggah ke Box:</resource>
 		<resource name="upload_menu_item">Unggah ke Box</resource>

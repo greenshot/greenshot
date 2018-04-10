@@ -47,12 +47,14 @@ namespace Greenshot.Addon.Lutim  {
         private static readonly LogSource Log = new LogSource();
         private readonly ILutimConfiguration _lutimConfiguration;
         private readonly ILutimLanguage _lutimLanguage;
+        private readonly LutimApi _lutimApi;
 
         [ImportingConstructor]
-        public LutimDestination(ILutimConfiguration lutimConfiguration, ILutimLanguage lutimLanguage)
+        public LutimDestination(ILutimConfiguration lutimConfiguration, ILutimLanguage lutimLanguage, LutimApi lutimApi)
         {
             _lutimConfiguration = lutimConfiguration;
             _lutimLanguage = lutimLanguage;
+            _lutimApi = lutimApi;
         }
 
 		public override string Description => _lutimLanguage.UploadMenuItem;
@@ -70,7 +72,7 @@ namespace Greenshot.Addon.Lutim  {
 
         public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            var uploadUrl = await Upload(captureDetails, surface);
+            var uploadUrl = await Upload(surface).ConfigureAwait(true);
 
             var exportInformation = new ExportInformation(Designation, Description)
 		    {
@@ -89,13 +91,11 @@ namespace Greenshot.Addon.Lutim  {
         /// <param name="surfaceToUpload">ISurface</param>
         /// <param name="uploadUrl">out string for the url</param>
         /// <returns>true if the upload succeeded</returns>
-        private async Task<string> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+        private async Task<string> Upload(ISurface surfaceToUpload)
         {
             string uploadUrl;
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_lutimConfiguration.UploadFormat, _lutimConfiguration.UploadJpegQuality, _lutimConfiguration.UploadReduceColors);
             try
             {
-                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_lutimConfiguration.FilenamePattern, _lutimConfiguration.UploadFormat, captureDetails));
                 LutimInfo lutimInfo;
 
                 var cancellationTokenSource = new CancellationTokenSource();
@@ -104,7 +104,7 @@ namespace Greenshot.Addon.Lutim  {
                     pleaseWaitForm.Show();
                     try
                     {
-                        lutimInfo = await LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
+                        lutimInfo = await _lutimApi.UploadToLutim(surfaceToUpload).ConfigureAwait(true);
                         if (lutimInfo != null)
                         {
                             Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}",

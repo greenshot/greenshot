@@ -6,7 +6,6 @@
 		<resource name="Configure">配置Box</resource>
 		<resource name="label_AfterUpload">上传之后</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">复制链接到剪贴板</resource>
-		<resource name="label_upload_format">图片格式</resource>
 		<resource name="settings_title">Box设置</resource>
 		<resource name="upload_failure">上传图片到Box时发生错误：</resource>
 		<resource name="upload_menu_item">上传到Box</resource>

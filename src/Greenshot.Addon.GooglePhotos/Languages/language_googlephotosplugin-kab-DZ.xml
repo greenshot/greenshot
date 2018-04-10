@@ -5,7 +5,6 @@
 		<resource name="Configure">Swel Google Photos</resource>
 		<resource name="label_AfterUpload">Ticki yemmed usali</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">Nɣel aseɣwen ɣef afus</resource>
-		<resource name="label_upload_format">Amsal n tugna</resource>
 		<resource name="settings_title">Iɣewwaṛen Google Photos</resource>
 		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ɣer Google Photos :</resource>
 		<resource name="upload_menu_item">Sali ɣer Google Photos</resource>

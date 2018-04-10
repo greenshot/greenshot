@@ -13,7 +13,6 @@
 		<resource name="label_filename">檔案名稱</resource>
 		<resource name="label_jira">JIRA</resource>
 		<resource name="label_jirafilter">JIRA 篩選</resource>
-		<resource name="label_upload_format">圖片格式</resource>
 		<resource name="label_url">URL</resource>
 		<resource name="login_error">登入期間發生問題: {0}</resource>
 		<resource name="login_title">請輸入您的 JIRA 登入資料</resource>

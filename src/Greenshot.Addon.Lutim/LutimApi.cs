@@ -21,41 +21,50 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Entities;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 
 namespace Greenshot.Addon.Lutim
 {
 	/// <summary>
-	/// A collection of Lutim helper methods
+	/// A collection of Lutim API methods
 	/// </summary>
-	public static class LutimUtils
+	[Export]
+	public class LutimApi
 	{
-		private static readonly LogSource Log = new LogSource();
-		private static readonly ILutimConfiguration Config = IniConfig.Current.Get<ILutimConfiguration>();
+	    private static readonly LogSource Log = new LogSource();
+	    private readonly ILutimConfiguration _lutimConfiguration;
+	    private readonly ICoreConfiguration _coreConfiguration;
+
+        [ImportingConstructor]
+	    public LutimApi(ILutimConfiguration lutimConfiguration, ICoreConfiguration coreConfiguration)
+	    {
+	        _lutimConfiguration = lutimConfiguration;
+	        _coreConfiguration = coreConfiguration;
+	    }
 
 		/// <summary>
 		/// Check if we need to load the history
 		/// </summary>
 		/// <returns></returns>
-		public static bool IsHistoryLoadingNeeded()
+		public bool IsHistoryLoadingNeeded()
 		{
-			Log.Info().WriteLine("Checking if lutim cache loading needed, configuration has {0} lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.RuntimeLutimHistory.Count);
-			return Config.RuntimeLutimHistory.Count != Config.LutimUploadHistory.Count;
+			Log.Info().WriteLine("Checking if lutim cache loading needed, configuration has {0} lutim hashes, loaded are {1} hashes.", _lutimConfiguration.LutimUploadHistory.Count, _lutimConfiguration.RuntimeLutimHistory.Count);
+			return _lutimConfiguration.RuntimeLutimHistory.Count != _lutimConfiguration.LutimUploadHistory.Count;
 		}
 
 		/// <summary>
 		/// Load the complete history of the lutim uploads, with the corresponding information
 		/// </summary>
-		public static void LoadHistory()
+		public void LoadHistory()
 		{
 			if (!IsHistoryLoadingNeeded())
 			{
@@ -63,9 +72,9 @@ namespace Greenshot.Addon.Lutim
 			}
 
 			// Load the ImUr history
-			foreach (string key in Config.LutimUploadHistory.Keys.ToList())
+			foreach (string key in _lutimConfiguration.LutimUploadHistory.Keys.ToList())
 			{
-				if (Config.RuntimeLutimHistory.ContainsKey(key))
+				if (_lutimConfiguration.RuntimeLutimHistory.ContainsKey(key))
 				{
 					// Already loaded
 					continue;
@@ -73,7 +82,7 @@ namespace Greenshot.Addon.Lutim
 
 				try
 				{
-					var value = Config.LutimUploadHistory[key];
+					var value = _lutimConfiguration.LutimUploadHistory[key];
                     // TODO: Read from something
 					//LutimInfo lutimInfo = LutimInfo.FromIniString(key, value);
 					// Config.RuntimeLutimHistory[key] = lutimInfo;
@@ -81,8 +90,8 @@ namespace Greenshot.Addon.Lutim
 				catch (ArgumentException)
 				{
 					Log.Info().WriteLine("Bad format of lutim history item for short {0}", key);
-					Config.LutimUploadHistory.Remove(key);
-					Config.RuntimeLutimHistory.Remove(key);
+				    _lutimConfiguration.LutimUploadHistory.Remove(key);
+				    _lutimConfiguration.RuntimeLutimHistory.Remove(key);
 				}
 				catch (Exception e)
 				{
@@ -96,12 +105,10 @@ namespace Greenshot.Addon.Lutim
 		/// For more details on the available parameters, see: http://api.lutim.com/resources_anon
 		/// </summary>
 		/// <param name="surfaceToUpload">ISurface to upload</param>
-		/// <param name="outputSettings">OutputSettings for the image file format</param>
-		/// <param name="filename">Filename</param>
 		/// <returns>LutimInfo with details</returns>
-		public static async Task<LutimInfo> UploadToLutim(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename)
+		public async Task<LutimInfo> UploadToLutim(ISurface surfaceToUpload)
 		{
-		    var baseUrl = new Uri(Config.LutimUrl);
+		    var baseUrl = new Uri(_lutimConfiguration.LutimUrl);
 
             // TODO: Upload
 		    var result = await baseUrl.PostAsync<AddResult>("");
@@ -112,11 +119,11 @@ namespace Greenshot.Addon.Lutim
 		/// Delete an lutim image, this is done by specifying the delete hash
 		/// </summary>
 		/// <param name="lutimInfo"></param>
-		public static async Task DeleteLutimImage(AddResult lutimInfo)
+		public async Task DeleteLutimImage(AddResult lutimInfo)
 		{
 			Log.Info().WriteLine("Deleting Lutim image for {0}", lutimInfo.LutimInfo.Short);
 
-			var lutimBaseUri = new Uri(Config.LutimUrl);
+			var lutimBaseUri = new Uri(_lutimConfiguration.LutimUrl);
 			var deleteUri = lutimBaseUri.AppendSegments("d", lutimInfo.LutimInfo.RealShort, lutimInfo.LutimInfo.Token).ExtendQuery("format", "json");
 
 			var httpResponse = await deleteUri.GetAsAsync<HttpResponse<string, string>>();
@@ -127,9 +134,9 @@ namespace Greenshot.Addon.Lutim
 			}
 			
 			Log.Info().WriteLine("Delete result: {0}", httpResponse.Response);
-			// Make sure we remove it from the history, if no error occured
-			Config.RuntimeLutimHistory.Remove(lutimInfo.LutimInfo.Short);
-			Config.LutimUploadHistory.Remove(lutimInfo.LutimInfo.Short);
+            // Make sure we remove it from the history, if no error occured
+		    _lutimConfiguration.RuntimeLutimHistory.Remove(lutimInfo.LutimInfo.Short);
+		    _lutimConfiguration.LutimUploadHistory.Remove(lutimInfo.LutimInfo.Short);
 		}
 
 		/// <summary>
@@ -137,7 +144,7 @@ namespace Greenshot.Addon.Lutim
 		/// </summary>
 		/// <param name="nameValues"></param>
 		/// <param name="key"></param>
-		private static void LogHeader(IDictionary<string, string> nameValues, string key)
+		private void LogHeader(IDictionary<string, string> nameValues, string key)
 		{
 			if (nameValues.ContainsKey(key))
 			{
@@ -145,12 +152,12 @@ namespace Greenshot.Addon.Lutim
 			}
 		}
 
-	    public static Task<LutimInfo> RetrieveLutimInfoAsync(string hash, string s, CancellationToken cancellationToken)
+	    public Task<LutimInfo> RetrieveLutimInfoAsync(string hash, string s, CancellationToken cancellationToken)
 	    {
 	        throw new NotImplementedException();
 	    }
 
-	    public static Task RetrieveLutimThumbnailAsync(LutimInfo lutimInfo, CancellationToken cancellationToken)
+	    public Task RetrieveLutimThumbnailAsync(LutimInfo lutimInfo, CancellationToken cancellationToken)
 	    {
 	        throw new NotImplementedException();
 	    }

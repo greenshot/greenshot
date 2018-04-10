@@ -56,9 +56,6 @@
 		<resource name="upload_failure">
 			Ett fel uppstod vid uppladdning till Jira:
 		</resource>
-		<resource name="label_upload_format">
-			Bildformat
-		</resource>
 		<resource name="communication_wait">
 			Överför data till JIRA, vänta...
 		</resource>

@@ -3,32 +3,13 @@
 <!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
 <language>
 	<resources prefix="Box">
-		<resource name="label_AfterUploadLinkToClipBoard">
-			Saistīt ar starpliktuvi
-		</resource>
-		<resource name="label_AfterUpload">
-			Pēc augšupielādes
-		</resource>
-		<resource name="Configure">
-			Box iestatījumi
-		</resource>
-		<resource name="upload_menu_item">
-			Augšupieladēt uz Box
-		</resource>
-		<resource name="settings_title">
-			Box iestatījumi
-		</resource>
-		<resource name="upload_success">
-			Attēls veiksmīgi augšupielādēts uz Box!
-		</resource>
-		<resource name="upload_failure">
-			Kļūda augšupielādējot uz Box:
-		</resource>
-		<resource name="label_upload_format">
-			Attēla formāts
-		</resource>
-		<resource name="communication_wait">
-			Savienojos ar Box. Lūdzu uzgaidiet...
-		</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Saistīt ar starpliktuvi</resource>
+		<resource name="label_AfterUpload">Pēc augšupielādes</resource>
+		<resource name="Configure">Box iestatījumi</resource>
+		<resource name="upload_menu_item">Augšupieladēt uz Box</resource>
+		<resource name="settings_title">Box iestatījumi</resource>
+		<resource name="upload_success">Attēls veiksmīgi augšupielādēts uz Box!</resource>
+		<resource name="upload_failure">Kļūda augšupielādējot uz Box:</resource>
+		<resource name="communication_wait">Savienojos ar Box. Lūdzu uzgaidiet...</resource>
 	</resources>
 </language>

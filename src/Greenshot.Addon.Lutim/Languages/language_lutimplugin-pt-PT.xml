@@ -22,9 +22,6 @@
 		<resource name="upload_failure">
 			Ocorreu um erro ao enviar para Lutim:
 		</resource>
-		<resource name="label_upload_format">
-			Formato da imagem
-		</resource>
 		<resource name="communication_wait">
 			A comunicar com o Lutim. Por favor aguarde...
 		</resource>

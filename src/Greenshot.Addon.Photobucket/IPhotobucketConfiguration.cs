@@ -29,31 +29,19 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
-using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Core;
 
 #endregion
 
 namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
-	///     Description of PhotobucketConfiguration.
+	///     The Photobucket configuration.
 	/// </summary>
 	[IniSection("Photobucket")]
 	[Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
+	public interface IPhotobucketConfiguration : IIniSection, IDestinationFileConfiguration, INotifyPropertyChanged, ITransactionalProperties, IOAuth1Token
     {
-		[Description("What file type to use for uploading")]
-	    [DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-		[Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
-		[Description("Reduce color amount of the uploaded image to 256")]
-		[DefaultValue(false)]
-		bool UploadReduceColors { get; set; }
-
 		[Description("Use pagelink instead of direct link on the clipboard")]
 		[DefaultValue(false)]
 		bool UsePageLink { get; set; }

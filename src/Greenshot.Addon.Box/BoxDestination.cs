@@ -43,8 +43,8 @@ using Greenshot.Addon.Box.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
@@ -106,7 +106,7 @@ namespace Greenshot.Addon.Box
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var uploadUrl = await UploadAsync(captureDetails, surface).ConfigureAwait(true);
+			var uploadUrl = await UploadAsync(surface).ConfigureAwait(true);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -119,7 +119,7 @@ namespace Greenshot.Addon.Box
 	    /// <summary>
 	    ///     This will be called when the menu item in the Editor is clicked
 	    /// </summary>
-	    private async Task<string> UploadAsync(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+	    private async Task<string> UploadAsync(ISurface surfaceToUpload)
 	    {
 	        try
 	        {
@@ -129,7 +129,7 @@ namespace Greenshot.Addon.Box
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    url = await UploadToBoxAsync(captureDetails, surfaceToUpload).ConfigureAwait(true);
+	                    url = await UploadToBoxAsync(surfaceToUpload).ConfigureAwait(true);
 	                }
 	                finally
 	                {
@@ -161,10 +161,9 @@ namespace Greenshot.Addon.Box
         /// <param name="progress">IProgress</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>url to uploaded image</returns>
-        public async Task<string> UploadToBoxAsync(ICaptureDetails captureDetails, ISurface surface, IProgress<int> progress = null, CancellationToken cancellationToken = default)
+        public async Task<string> UploadToBoxAsync(ISurface surface, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
-            var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
+            string filename = surface.GenerateFilename(CoreConfiguration, _boxConfiguration);
 
             var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
             // Use UploadProgress
@@ -185,7 +184,7 @@ namespace Greenshot.Addon.Box
                     Name = "\"parent_id\""
                 };
                 multiPartContent.Add(parentIdContent);
-                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+                surface.WriteToStream(imageStream, CoreConfiguration, _boxConfiguration);
                 imageStream.Position = 0;
 
                 BoxFile response;
@@ -200,7 +199,7 @@ namespace Greenshot.Addon.Box
                     multiPartContent.Add(streamContent);
 
                     oauthHttpBehaviour.MakeCurrent();
-                    response = await UploadFileUri.PostAsync<BoxFile>(multiPartContent, cancellationToken);
+                    response = await UploadFileUri.PostAsync<BoxFile>(multiPartContent, cancellationToken).ConfigureAwait(false);
                 }
 
                 if (response == null)
@@ -221,7 +220,7 @@ namespace Greenshot.Addon.Box
                             }
                         };
                         oauthHttpBehaviour.MakeCurrent();
-                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAccess, cancellationToken);
+                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAccess, cancellationToken).ConfigureAwait(false);
                     }
                     
                     return response.SharedLink.Url;

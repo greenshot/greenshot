@@ -163,8 +163,25 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Resource Include="Languages\language_boxplugin-fr-FR.xml" />
+    <Resource Include="Languages\language_boxplugin-id-ID.xml" />
+    <Resource Include="Languages\language_boxplugin-it-IT.xml" />
+    <Resource Include="Languages\language_boxplugin-ja-JP.xml" />
+    <Resource Include="Languages\language_boxplugin-kab-DZ.xml" />
+    <Resource Include="Languages\language_boxplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_boxplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_boxplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_boxplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_boxplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_boxplugin-sr-Cyrl-RS.xml" />
+    <Resource Include="Languages\language_boxplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_boxplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_boxplugin-zh-CN.xml" />
+    <Resource Include="Languages\language_boxplugin-zh-TW.xml" />
     <None Include="app.config" />
     <EmbeddedResource Include="box.png" />
+    <Resource Include="Languages\language_boxplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_boxplugin-de-DE.xml" />
     <Content Include="Languages\language_boxplugin-en-US.xml" />
     <None Include="packages.config" />
   </ItemGroup>

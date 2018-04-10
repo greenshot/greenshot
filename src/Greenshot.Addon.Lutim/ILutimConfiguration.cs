@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
-using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Lutim {
 	/// <summary>
@@ -31,23 +31,11 @@ namespace Greenshot.Addon.Lutim {
 	/// </summary>
 	[IniSection("Lutim")]
     [Description("Greenshot Lutim Plugin configuration")]
-	public interface ILutimConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
+	public interface ILutimConfiguration : IIniSection, IDestinationFileConfiguration, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Url to Lutim system.")]
 		[DefaultValue("https://lut.im/")]
 		string LutimUrl { get; set; }
-
-		[Description("What file type to use for uploading")]
-	    [DefaultValue(OutputFormats.png)]
-		OutputFormats UploadFormat { get; set; }
-
-	    [Description("JPEG file save quality in %.")]
-		[DefaultValue(80)]
-		int UploadJpegQuality { get; set; }
-
-	    [Description("Reduce color amount of the uploaded image to 256")]
-		[DefaultValue(false)]
-		bool UploadReduceColors { get; set; }
 
 	    [Description("Copy the link, which one is controlled by the UsePageLink, on the clipboard")]
 		[DefaultValue(true)]
@@ -55,10 +43,6 @@ namespace Greenshot.Addon.Lutim {
 		
 		[Description("Lutim upload history (LutimUploadHistory.Short=CreatedAt;DelAtView;Ext;Filename;Limit;RealShort;Token;LutimBaseUri;Thumb(base64))")]
 		IDictionary<string, string> LutimUploadHistory { get; set; }
-
-		[Description("Filename for the Lutim upload")]
-		[DefaultValue("${capturetime:d\"yyyyMMdd-HHmm\"}")]
-		string FilenamePattern { get; set; }
 
 	    [IniPropertyBehavior(Read = false, Write = false)]
         IDictionary<string, Entities.LutimInfo> RuntimeLutimHistory { get; set; }

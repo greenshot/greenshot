@@ -42,8 +42,8 @@ using Dapplo.Utils;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
@@ -103,7 +103,7 @@ namespace Greenshot.Addon.GooglePhotos
 	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploadUrl = await Upload(captureDetails, surface);
+		    var uploadUrl = await Upload(captureDetails, surface).ConfigureAwait(true);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -123,7 +123,7 @@ namespace Greenshot.Addon.GooglePhotos
 	                pleaseWaitForm.Show();
 	                try
 	                {
-	                    url = await UploadToPicasa(surfaceToUpload);
+	                    url = await UploadToPicasa(surfaceToUpload).ConfigureAwait(true);
 	                }
 	                finally
 	                {
@@ -154,9 +154,7 @@ namespace Greenshot.Addon.GooglePhotos
         /// <returns></returns>
         public async Task<string> UploadToPicasa(ISurface surface, IProgress<int> progress = null, CancellationToken token = default)
         {
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(_googlePhotosConfiguration.UploadFormat, surface.CaptureDetails));
-            var outputSettings = new SurfaceOutputSettings(_googlePhotosConfiguration.UploadFormat, _googlePhotosConfiguration.UploadJpegQuality);
-            // Fill the OAuth2Settings
+            string filename = surface.GenerateFilename(CoreConfiguration, _googlePhotosConfiguration);
             
             var oAuthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
 
@@ -175,14 +173,14 @@ namespace Greenshot.Addon.GooglePhotos
             var uploadUri = new Uri("https://picasaweb.google.com/data/feed/api/user").AppendSegments(_googlePhotosConfiguration.UploadUser, "albumid", _googlePhotosConfiguration.UploadAlbum);
             using (var imageStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+                surface.WriteToStream(imageStream, CoreConfiguration, _googlePhotosConfiguration);
                 imageStream.Position = 0;
                 using (var content = new StreamContent(imageStream))
                 {
-                    content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+                    content.Headers.Add("Content-Type", surface.GenerateMimeType(CoreConfiguration, _googlePhotosConfiguration));
 
                     oAuthHttpBehaviour.MakeCurrent();
-                    response = await uploadUri.PostAsync<string>(content, token);
+                    response = await uploadUri.PostAsync<string>(content, token).ConfigureAwait(true);
                 }
             }
 

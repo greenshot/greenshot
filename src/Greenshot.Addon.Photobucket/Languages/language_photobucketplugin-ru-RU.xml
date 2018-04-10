@@ -5,7 +5,6 @@
 		<resource name="CANCEL">Отмена</resource>
 		<resource name="communication_wait">Обмен данными с Photobucket. Подождите...</resource>
 		<resource name="configure">Настройка Photobucket</resource>
-		<resource name="label_upload_format">Формат изображения</resource>
 		<resource name="OK">OK</resource>
 		<resource name="settings_title">Параметры Photobucket</resource>
 		<resource name="upload_failure">Произошла ошибка при загрузке на Photobucket:</resource>
