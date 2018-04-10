@@ -40,7 +40,7 @@ namespace Greenshot.Addons.Core
     /// <summary>
     ///     File configuration.
     /// </summary>
-    public interface IFileConfiguration
+    public interface IFileConfiguration : INotifyPropertyChanged
     {
         [Description("Output file path.")]
         string OutputFilePath { get; set; }

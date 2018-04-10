@@ -194,7 +194,7 @@ namespace Greenshot.Addon.OneDrive
             ISurface surfaceToUpload, IProgress<int> progress = null,
             CancellationToken token = default)
         {
-            var filename = surfaceToUpload.GenerateFilename(_oneDriveConfiguration);
+            var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _oneDriveConfiguration);
             var uploadUri = OneDriveUri.AppendSegments("root:", "Screenshots", filename + ":", "content");
             var localBehaviour = OneDriveHttpBehaviour.ShallowClone();
             if (progress != null)
@@ -204,11 +204,11 @@ namespace Greenshot.Addon.OneDrive
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
             using (var imageStream = new MemoryStream())
             {
-                surfaceToUpload.WriteToStream(_oneDriveConfiguration, imageStream);
+                surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _oneDriveConfiguration);
                 imageStream.Position = 0;
                 using (var content = new StreamContent(imageStream))
                 {
-                    content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(_oneDriveConfiguration));
+                    content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(CoreConfiguration, _oneDriveConfiguration));
                     oauthHttpBehaviour.MakeCurrent();
                     return await uploadUri.PutAsync<OneDriveUploadResponse>(content, token);
                 }

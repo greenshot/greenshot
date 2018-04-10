@@ -53,13 +53,12 @@ namespace Greenshot.Addon.Imgur.ViewModels
         public ImgurHistoryViewModel ImgurHistoryViewModel { get; set; }
 
         [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
         public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
 
         public override void Initialize(IConfig config)
         {
-            FileConfigPartViewModel = new FileConfigPartViewModel(ImgurConfiguration, GreenshotLanguage);
+            // Make sure the destination settings are shown
+            FileConfigPartViewModel.DestinationFileConfiguration = ImgurConfiguration;
 
             // Prepare disposables
             _disposables?.Dispose();

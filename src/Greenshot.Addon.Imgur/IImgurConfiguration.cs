@@ -42,7 +42,7 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection, IFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
+	public interface IImgurConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Url to Imgur system.")]
 		[DefaultValue("https://api.imgur.com/3")]

@@ -37,7 +37,7 @@ namespace Greenshot.Addon.OneDrive
 {
     [IniSection("OneDrive")]
     [Description("Greenshot OneDrive Addon configuration")]
-    public interface IOneDriveConfiguration : IIniSection, IFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
+    public interface IOneDriveConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
     {
         [Description("After upload copy OneDrive link to clipboard.")]
         [DefaultValue("true")]

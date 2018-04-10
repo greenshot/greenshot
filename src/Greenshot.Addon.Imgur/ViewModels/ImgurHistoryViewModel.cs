@@ -53,7 +53,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
 
         [Import]
-        public ImgurDestination ImgurDestination { get; set; }
+        public ImgurApi ImgurApi { get; set; }
 
         [Import]
         public IImgurLanguage ImgurLanguage { get; set; }
@@ -104,10 +104,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
                 }
                 try
                 {
-                    var imgurInfo = await ImgurDestination.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
+                    var imgurInfo = await ImgurApi.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
                     if (imgurInfo != null)
                     {
-                        await ImgurDestination.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
+                        await ImgurApi.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
                         ImgurConfiguration.RuntimeImgurHistory.Add(hash, imgurInfo);
                         // Already loaded, only add it to the view
                         ImgurHistory.Add(imgurInfo);
@@ -131,7 +131,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public async Task Delete()
         {
-            await ImgurDestination.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
+            await ImgurApi.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
         }
 
         public bool CanCopyToClipboard => true;

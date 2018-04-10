@@ -8,9 +8,29 @@
              d:DataContext="{d:DesignInstance viewModels:FileConfigPartViewModel,IsDesignTimeCreatable=False}"
              >
     <StackPanel>
-        <DockPanel LastChildFill="True">
-            <Label Content="{Binding GreenshotLanguage.SettingsPrimaryimageformat}" Width="100" />
-            <ComboBox SelectedValue="{Binding SelectedFormat}" ItemsSource="{Binding Formats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
-        </DockPanel>
+        <StackPanel Visibility="{Binding DestinationFileConfigurationVisiblity}">
+            <CheckBox Content="Use destination settings" IsChecked="{Binding UseOwnSettings}" />
+        </StackPanel>
+        <StackPanel Visibility="{Binding DestinationFileConfigurationVisiblity}" IsEnabled="{Binding UseOwnSettings}">
+            <DockPanel LastChildFill="True">
+                <Label Content="{Binding GreenshotLanguage.SettingsPrimaryimageformat}" Width="100" />
+                <ComboBox SelectedValue="{Binding DestinationSelectedFormat}" ItemsSource="{Binding Formats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+            </DockPanel>
+            <DockPanel LastChildFill="True" Visibility="{Binding DestinationJpegSettingsVisibility}">
+                <Label Content="{Binding GreenshotLanguage.SettingsJpegquality}" Width="100" />
+                <Slider Maximum="100" Value="{Binding DestinationFileConfiguration.OutputFileJpegQuality}"/>
+            </DockPanel>
+        </StackPanel>
+        <Separator Visibility="{Binding DestinationFileConfigurationVisiblity}"/>
+        <StackPanel IsEnabled="{Binding AreGlobalSettingsEnabled}">
+            <DockPanel LastChildFill="True">
+                <Label Content="{Binding GreenshotLanguage.SettingsPrimaryimageformat}" Width="100" />
+                <ComboBox SelectedValue="{Binding SelectedFormat}" ItemsSource="{Binding Formats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+            </DockPanel>
+            <DockPanel LastChildFill="True" Visibility="{Binding GlobalJpegSettingsVisibility}">
+                <Label Content="{Binding GreenshotLanguage.SettingsJpegquality}" Width="100" />
+                <Slider Maximum="100" Value="{Binding FileConfiguration.OutputFileJpegQuality}"/>
+            </DockPanel>
+        </StackPanel>
     </StackPanel>
 </UserControl>

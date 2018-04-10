@@ -1,0 +1,49 @@
+﻿#region Greenshot GNU General License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General License for more details.
+// 
+// You should have received a copy of the GNU General License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
+
+#endregion
+
+namespace Greenshot.Addons.Core
+{
+    /// <summary>
+    ///     File configuration for destinations.
+    /// </summary>
+    public interface IDestinationFileConfiguration : IFileConfiguration
+    {
+        [Description("Specifies if the destination has it's own file output settings")]
+        [DefaultValue(false)]
+        bool UseOwnSettings { get; set; }
+    }
+}

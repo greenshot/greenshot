@@ -22,6 +22,8 @@
 #endregion
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Windows;
 using Caliburn.Micro;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -32,17 +34,65 @@ namespace Greenshot.Addons.ViewModels
     /// <summary>
     /// A view model for showing the file configuration
     /// </summary>
+    [Export]
+    [PartCreationPolicy(CreationPolicy.NonShared)]
     public sealed class FileConfigPartViewModel : Screen
     {
-        public IFileConfiguration FileConfiguration { get; }
-        public IGreenshotLanguage GreenshotLanguage { get; }
+        private IDestinationFileConfiguration _destinationFileConfiguration;
+        private bool _useOwnSettings;
 
-        public FileConfigPartViewModel(IFileConfiguration fileConfiguration, IGreenshotLanguage greenshotLanguage)
+        [Import]
+        public ICoreConfiguration FileConfiguration { get; set; }
+
+        [Import]
+        public IGreenshotLanguage GreenshotLanguage { get; set; }
+
+        /// <summary>
+        /// A NPC wrapper for the UseOwnSettings in the IDestinationFileConfiguration, as this doesn't work when ITransactionalProperties is used
+        /// </summary>
+        public bool UseOwnSettings
         {
-            FileConfiguration = fileConfiguration;
-            GreenshotLanguage = greenshotLanguage;
+            get => _useOwnSettings;
+            set
+            {
+                if (value == _useOwnSettings) return;
+                _useOwnSettings = value;
+                if (_destinationFileConfiguration != null)
+                {
+                    _destinationFileConfiguration.UseOwnSettings = value;
+                }
+                NotifyOfPropertyChange();
+            }
         }
 
+        /// <summary>
+        /// This needs to be set with the IDestinationFileConfiguration to have make local configuration for a destination possible
+        /// </summary>
+        public IDestinationFileConfiguration DestinationFileConfiguration
+        {
+            get => _destinationFileConfiguration;
+            set
+            {
+                if (Equals(value, _destinationFileConfiguration)) return;
+                _destinationFileConfiguration = value;
+                NotifyOfPropertyChange(nameof(DestinationFileConfigurationVisiblity));
+                NotifyOfPropertyChange(nameof(AreGlobalSettingsEnabled));
+            }
+        }
+
+        /// <summary>
+        /// Specifies if the global settings can be modified, which is the case when there are is no DestinationFileConfiguration
+        /// </summary>
+        public bool AreGlobalSettingsEnabled => DestinationFileConfiguration == null;
+
+        /// <summary>
+        /// If there is a DestinationFileConfiguration, the configuration is shown
+        /// </summary>
+        public Visibility DestinationFileConfigurationVisiblity => DestinationFileConfiguration == null ? Visibility.Collapsed : Visibility.Visible;
+
+        /// <summary>
+        /// The globally selected format
+        /// </summary>
         public OutputFormats SelectedFormat
         {
             get => FileConfiguration.OutputFileFormat ;
@@ -50,9 +100,37 @@ namespace Greenshot.Addons.ViewModels
             {
                 FileConfiguration.OutputFileFormat = value;
                 NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(GlobalJpegSettingsVisibility));
             }
         }
 
+        /// <summary>
+        /// The global jpeg quality settings visibility
+        /// </summary>
+        public Visibility GlobalJpegSettingsVisibility => SelectedFormat == OutputFormats.jpg ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// The locally selected format
+        /// </summary>
+        public OutputFormats DestinationSelectedFormat
+        {
+            get => DestinationFileConfiguration.OutputFileFormat;
+            set
+            {
+                DestinationFileConfiguration.OutputFileFormat = value;
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(DestinationJpegSettingsVisibility));
+            }
+        }
+
+        /// <summary>
+        /// The global jpeg quality settings visibility
+        /// </summary>
+        public Visibility DestinationJpegSettingsVisibility => DestinationSelectedFormat == OutputFormats.jpg ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// The formats available, with their translation
+        /// </summary>
         public IDictionary<OutputFormats, string> Formats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

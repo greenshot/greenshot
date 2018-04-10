@@ -52,11 +52,12 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        [Import]
         public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
 
         public override void Initialize(IConfig config)
         {
-            FileConfigPartViewModel = new FileConfigPartViewModel(OneDriveConfiguration, GreenshotLanguage);
+            FileConfigPartViewModel.DestinationFileConfiguration = OneDriveConfiguration;
             // Prepare disposables
             _disposables?.Dispose();
             
@@ -90,7 +91,7 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             }
         }
 
-        public IDictionary<OneDriveLinkType, string> LinkTypes => GreenshotLanguage.TranslationValuesForEnum<OneDriveLinkType>();
+        public IDictionary<OneDriveLinkType, string> LinkTypes => OneDriveLanguage.TranslationValuesForEnum<OneDriveLinkType>();
 
         public bool CanResetCredentials => OneDriveConfiguration.HasToken();
 
