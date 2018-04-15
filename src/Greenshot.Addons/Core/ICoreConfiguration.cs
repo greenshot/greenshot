@@ -214,6 +214,10 @@ namespace Greenshot.Addons.Core
         [Description("Comma separated list of destinations which should be disabled.")]
         IList<string> ExcludeDestinations { get; set; }
 
+        [Description("Should Greenshot check for updates?")]
+        [DefaultValue(true)]
+        bool CheckForUpdates { get; set; }
+
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]
         int UpdateCheckInterval { get; set; }

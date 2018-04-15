@@ -265,6 +265,9 @@
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\OutputConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\NetworkConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\GeneralConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\DestinationPickerConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\DestinationsConfigNodeViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\CaptureConfigNodeViewModel.cs" />
@@ -486,6 +489,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Ui\Configuration\Views\CaptureConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Ui\Configuration\Views\OutputConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Ui\Configuration\Views\NetworkConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Ui\Configuration\Views\GeneralConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

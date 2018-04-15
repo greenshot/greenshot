@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="Greenshot.Ui.Configuration.Views.NetworkConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:NetworkConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <CheckBox Content="Allow auto redirect" IsChecked="{Binding NetworkConfiguration.AllowAutoRedirect}" />
+        <CheckBox Content="Allow pipelining" IsChecked="{Binding NetworkConfiguration.AllowPipelining}" />
+        <CheckBox Content="Ignore SSL certificate errors" IsChecked="{Binding NetworkConfiguration.IgnoreSslCertificateErrors}" />
+        <CheckBox Content="Pre authenticate" IsChecked="{Binding NetworkConfiguration.PreAuthenticate}" />
+        <CheckBox Content="Expect 100 continue" IsChecked="{Binding NetworkConfiguration.Expect100Continue}" />
+        <CheckBox Content="Use cookies" IsChecked="{Binding NetworkConfiguration.UseCookies}" />
+        <CheckBox Content="Use default credentials" IsChecked="{Binding NetworkConfiguration.UseDefaultCredentials}" />
+        <CheckBox Content="Use default proxy" IsChecked="{Binding NetworkConfiguration.UseDefaultProxy}" />
+        <CheckBox Content="Use proxy" IsChecked="{Binding NetworkConfiguration.UseProxy}" />
+        <CheckBox Content="Use default credentials for proxy" IsChecked="{Binding NetworkConfiguration.UseDefaultCredentialsForProxy}" />
+        <DockPanel LastChildFill="True">
+            <Label Content="DefaultUseAgent" Width="100" />
+            <TextBox Text="{Binding NetworkConfiguration.DefaultUserAgent}"></TextBox>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

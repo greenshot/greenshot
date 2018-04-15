@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Greenshot.Ui.Configuration.Views.GeneralConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:GeneralConfigViewModel,IsDesignTimeCreatable=False}"
+>
+    <StackPanel>
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsCheckperiod}" IsChecked="{Binding CoreConfiguration.CheckForUpdates}"></CheckBox>
+        <DockPanel LastChildFill="True">
+            <Label Content="{Binding GreenshotLanguage.SettingsCheckperiod}" Width="100" />
+            <TextBox Text="{Binding CoreConfiguration.UpdateCheckInterval}"/>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

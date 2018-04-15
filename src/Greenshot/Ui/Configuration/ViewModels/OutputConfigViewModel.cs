@@ -21,22 +21,19 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Extensions;
-using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.ViewModels;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class CaptureConfigViewModel : SimpleConfigScreen
+    public sealed class OutputConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -52,13 +49,13 @@ namespace Greenshot.Ui.Configuration.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        [Import]
+        public FileConfigPartViewModel FileConfigPartViewModel { get; set; }
+
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
             _disposables?.Dispose();
-
-            // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Capture);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(CoreConfiguration);
@@ -66,9 +63,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // automatically update the DisplayName
             _disposables = new CompositeDisposable
             {
-                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsCapture))
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsOutput))
             };
-            
+
             base.Initialize(config);
         }
 
@@ -77,31 +74,5 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
-
-
-        public WindowCaptureModes SelectedWindowCaptureMode
-        {
-            get => CoreConfiguration.WindowCaptureMode;
-            set
-            {
-                CoreConfiguration.WindowCaptureMode = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<WindowCaptureModes, string> WindowCaptureModes => GreenshotLanguage.TranslationValuesForEnum<WindowCaptureModes>();
-
-
-        public ScreenCaptureMode SelectedScreenCaptureMode
-        {
-            get => CoreConfiguration.ScreenCaptureMode;
-            set
-            {
-                CoreConfiguration.ScreenCaptureMode = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public IDictionary<ScreenCaptureMode, string> ScreenCaptureModes => GreenshotLanguage.TranslationValuesForEnum<ScreenCaptureMode>();
     }
 }

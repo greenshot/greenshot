@@ -210,6 +210,7 @@
     <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\Enums\WindowCaptureModes.cs" />
+    <Compile Include="Core\INetworkConfiguration.cs" />
     <Compile Include="Core\IDestinationFileConfiguration.cs" />
     <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InteropWindowExtensions.cs" />

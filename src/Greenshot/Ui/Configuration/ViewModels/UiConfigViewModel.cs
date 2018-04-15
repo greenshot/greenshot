@@ -100,7 +100,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
         {
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             AvailableThemeAccents.Clear();
             foreach (var themeAccent in Enum.GetValues(typeof(ThemeAccents)).Cast<ThemeAccents>())
@@ -123,10 +122,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
             config.Register(MetroConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(greenshotLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle))
+            };
 
             base.Initialize(config);
         }

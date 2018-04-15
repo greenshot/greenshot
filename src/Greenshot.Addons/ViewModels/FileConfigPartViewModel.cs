@@ -42,10 +42,11 @@ namespace Greenshot.Addons.ViewModels
         private bool _useOwnSettings;
 
         [Import]
-        public ICoreConfiguration FileConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; set; }
 
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
+
 
         /// <summary>
         /// A NPC wrapper for the UseOwnSettings in the IDestinationFileConfiguration, as this doesn't work when ITransactionalProperties is used
@@ -62,8 +63,17 @@ namespace Greenshot.Addons.ViewModels
                     _destinationFileConfiguration.UseOwnSettings = value;
                 }
                 NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(AreSettingsEnabled));
+                NotifyOfPropertyChange(nameof(FileConfiguration));
+                NotifyOfPropertyChange(nameof(SelectedFormat));
+                NotifyOfPropertyChange(nameof(JpegSettingsVisibility));
             }
         }
+
+        public IFileConfiguration FileConfiguration => 
+            DestinationFileConfiguration?.UseOwnSettings == true
+            ? (IFileConfiguration)DestinationFileConfiguration
+            : CoreConfiguration;
 
         /// <summary>
         /// This needs to be set with the IDestinationFileConfiguration to have make local configuration for a destination possible
@@ -73,10 +83,13 @@ namespace Greenshot.Addons.ViewModels
             get => _destinationFileConfiguration;
             set
             {
-                if (Equals(value, _destinationFileConfiguration)) return;
+                if (Equals(value, _destinationFileConfiguration))
+                {
+                    return;
+                }
                 _destinationFileConfiguration = value;
-                NotifyOfPropertyChange(nameof(DestinationFileConfigurationVisiblity));
-                NotifyOfPropertyChange(nameof(AreGlobalSettingsEnabled));
+                NotifyOfPropertyChange(nameof(AreSettingsEnabled));
+                NotifyOfPropertyChange(nameof(FileConfiguration));
                 NotifyOfPropertyChange(nameof(OwnSettingsVisibility));
             }
         }
@@ -84,7 +97,7 @@ namespace Greenshot.Addons.ViewModels
         /// <summary>
         /// Specifies if the global settings can be modified, which is the case when there are is no DestinationFileConfiguration
         /// </summary>
-        public bool AreGlobalSettingsEnabled => DestinationFileConfiguration == null;
+        public bool AreSettingsEnabled => DestinationFileConfiguration == null || DestinationFileConfiguration.UseOwnSettings;
 
         /// <summary>
         /// If there is a DestinationFileConfiguration, the checkbox is shown
@@ -92,52 +105,23 @@ namespace Greenshot.Addons.ViewModels
         public Visibility OwnSettingsVisibility => DestinationFileConfiguration != null? Visibility.Visible : Visibility.Collapsed;
 
         /// <summary>
-        /// If there is a DestinationFileConfiguration and use own settings is set the configuration is shown
-        /// </summary>
-        public Visibility DestinationFileConfigurationVisiblity => DestinationFileConfiguration != null && _useOwnSettings ? Visibility.Visible : Visibility.Collapsed;
-
-        /// <summary>
-        /// If there is a DestinationFileConfiguration, the global configuration is not shown
-        /// </summary>
-        public Visibility GlobalFileConfigurationVisiblity => AreGlobalSettingsEnabled || !_useOwnSettings ? Visibility.Visible : Visibility.Collapsed;
-
-        /// <summary>
         /// The globally selected format
         /// </summary>
         public OutputFormats SelectedFormat
         {
-            get => FileConfiguration.OutputFileFormat ;
+            get => FileConfiguration.OutputFileFormat;
             set
             {
                 FileConfiguration.OutputFileFormat = value;
                 NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(GlobalJpegSettingsVisibility));
+                NotifyOfPropertyChange(nameof(JpegSettingsVisibility));
             }
         }
 
         /// <summary>
         /// The global jpeg quality settings visibility
         /// </summary>
-        public Visibility GlobalJpegSettingsVisibility => SelectedFormat == OutputFormats.jpg ? Visibility.Visible : Visibility.Collapsed;
-
-        /// <summary>
-        /// The locally selected format
-        /// </summary>
-        public OutputFormats DestinationSelectedFormat
-        {
-            get => DestinationFileConfiguration.OutputFileFormat;
-            set
-            {
-                DestinationFileConfiguration.OutputFileFormat = value;
-                NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(DestinationJpegSettingsVisibility));
-            }
-        }
-
-        /// <summary>
-        /// The global jpeg quality settings visibility
-        /// </summary>
-        public Visibility DestinationJpegSettingsVisibility => DestinationSelectedFormat == OutputFormats.jpg ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility JpegSettingsVisibility => SelectedFormat == OutputFormats.jpg ? Visibility.Visible : Visibility.Collapsed;
 
         /// <summary>
         /// The formats available, with their translation
