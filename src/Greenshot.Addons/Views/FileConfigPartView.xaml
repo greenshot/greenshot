@@ -8,7 +8,7 @@
              d:DataContext="{d:DesignInstance viewModels:FileConfigPartViewModel,IsDesignTimeCreatable=False}"
              >
     <StackPanel>
-        <StackPanel Visibility="{Binding DestinationFileConfigurationVisiblity}">
+        <StackPanel Visibility="{Binding OwnSettingsVisibility}">
             <CheckBox Content="Use destination settings" IsChecked="{Binding UseOwnSettings}" />
         </StackPanel>
         <StackPanel Visibility="{Binding DestinationFileConfigurationVisiblity}" IsEnabled="{Binding UseOwnSettings}">
@@ -21,8 +21,7 @@
                 <Slider Maximum="100" Value="{Binding DestinationFileConfiguration.OutputFileJpegQuality}"/>
             </DockPanel>
         </StackPanel>
-        <Separator Visibility="{Binding DestinationFileConfigurationVisiblity}"/>
-        <StackPanel IsEnabled="{Binding AreGlobalSettingsEnabled}">
+        <StackPanel IsEnabled="{Binding AreGlobalSettingsEnabled}" Visibility="{Binding GlobalFileConfigurationVisiblity}">
             <DockPanel LastChildFill="True">
                 <Label Content="{Binding GreenshotLanguage.SettingsPrimaryimageformat}" Width="100" />
                 <ComboBox SelectedValue="{Binding SelectedFormat}" ItemsSource="{Binding Formats}" SelectedValuePath="Key" DisplayMemberPath="Value" />

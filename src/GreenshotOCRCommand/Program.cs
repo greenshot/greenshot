@@ -86,13 +86,15 @@ namespace GreenshotOCRCommand
 							{
 								foreach (var word in ToEnumerable(layout.Words))
 								{
-									if (word.Rects != null)
-									{
-										foreach (var rect in ToEnumerable(word.Rects))
-										{
-											Debug.WriteLine($"Rect {rect.Left},{rect.Top},{rect.Right},{rect.Bottom} - Word {word.Text} : Confidence: {word.RecognitionConfidence}");
-										}
-									}
+								    if (word.Rects == null)
+								    {
+								        continue;
+								    }
+
+								    foreach (var rect in ToEnumerable(word.Rects))
+								    {
+								        Debug.WriteLine($"Rect {rect.Left},{rect.Top},{rect.Right},{rect.Bottom} - Word {word.Text} : Confidence: {word.RecognitionConfidence}");
+								    }
 								}
 							}
 #endif

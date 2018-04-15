@@ -77,6 +77,7 @@ namespace Greenshot.Addons.ViewModels
                 _destinationFileConfiguration = value;
                 NotifyOfPropertyChange(nameof(DestinationFileConfigurationVisiblity));
                 NotifyOfPropertyChange(nameof(AreGlobalSettingsEnabled));
+                NotifyOfPropertyChange(nameof(OwnSettingsVisibility));
             }
         }
 
@@ -86,9 +87,19 @@ namespace Greenshot.Addons.ViewModels
         public bool AreGlobalSettingsEnabled => DestinationFileConfiguration == null;
 
         /// <summary>
-        /// If there is a DestinationFileConfiguration, the configuration is shown
+        /// If there is a DestinationFileConfiguration, the checkbox is shown
         /// </summary>
-        public Visibility DestinationFileConfigurationVisiblity => DestinationFileConfiguration == null ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility OwnSettingsVisibility => DestinationFileConfiguration != null? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// If there is a DestinationFileConfiguration and use own settings is set the configuration is shown
+        /// </summary>
+        public Visibility DestinationFileConfigurationVisiblity => DestinationFileConfiguration != null && _useOwnSettings ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// If there is a DestinationFileConfiguration, the global configuration is not shown
+        /// </summary>
+        public Visibility GlobalFileConfigurationVisiblity => AreGlobalSettingsEnabled || !_useOwnSettings ? Visibility.Visible : Visibility.Collapsed;
 
         /// <summary>
         /// The globally selected format

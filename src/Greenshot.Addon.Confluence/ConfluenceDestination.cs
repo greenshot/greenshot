@@ -169,7 +169,7 @@ namespace Greenshot.Addon.Confluence
 			{
                 // TODO: Create content
 				new PleaseWaitForm().ShowAndWait(Description, _confluenceLanguage.CommunicationWait,
-				    () => _confluenceClient.Attachment.AttachAsync(""+page.Id, surfaceToUpload, filename, null, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower())
+				    () => _confluenceClient.Attachment.AttachAsync(page.Id, surfaceToUpload, filename, null, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower())
 				);
 				Log.Debug().WriteLine("Uploaded to Confluence.");
 				if (!_confluenceConfiguration.CopyWikiMarkupForImageToClipboard)
