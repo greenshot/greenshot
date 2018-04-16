@@ -27,12 +27,11 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class OutputConfigViewModel : SimpleConfigScreen
+    public sealed class PrintConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -45,9 +44,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; set; }
-
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -59,7 +55,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // automatically update the DisplayName
             _disposables = new CompositeDisposable
             {
-                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsOutput))
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsPrinter))
             };
 
             base.Initialize(config);

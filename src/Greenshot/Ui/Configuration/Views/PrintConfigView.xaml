@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="Greenshot.Ui.Configuration.Views.PrintConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:PrintConfigViewModel,IsDesignTimeCreatable=False}"
+>
+    <StackPanel>
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsAllowenlarge}" IsChecked="{Binding CoreConfiguration.OutputPrintAllowEnlarge}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsAllowcenter}" IsChecked="{Binding CoreConfiguration.OutputPrintCenter}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsAllowshrink}" IsChecked="{Binding CoreConfiguration.OutputPrintAllowShrink}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsAllowrotate}" IsChecked="{Binding CoreConfiguration.OutputPrintAllowRotate}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsPrintgrayscale}" IsChecked="{Binding CoreConfiguration.OutputPrintGrayscale}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsPrintmonochrome}" IsChecked="{Binding CoreConfiguration.OutputPrintMonochrome}" />
+        <CheckBox Content="{Binding GreenshotLanguage.PrintoptionsInverted}" IsChecked="{Binding CoreConfiguration.OutputPrintInverted}" />
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsPrintoptions}" IsChecked="{Binding CoreConfiguration.OutputPrintPromptOptions}" />
+    </StackPanel>
+</UserControl>

@@ -179,5 +179,8 @@ namespace Greenshot.Addons
         string LatestVersion { get; }
         [DefaultValue("Current version")]
         string CurrentVersion { get; }
+
+        [DefaultValue("I know what I am doing! (expert mode)")]
+        string Expert { get; }
     }
 }

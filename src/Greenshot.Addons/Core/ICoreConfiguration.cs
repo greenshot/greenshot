@@ -358,5 +358,8 @@ namespace Greenshot.Addons.Core
         [IniPropertyBehavior(Read = false, Write = false)]
         [DefaultValue(false)]
         bool IsPortable { get; set; }
+
+        [Description("The permissions for Greenshot functionality")]
+        ISet<string> Permissions { get; set; }
     }
 }

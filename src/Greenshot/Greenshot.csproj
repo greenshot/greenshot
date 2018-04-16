@@ -198,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Components\AuthenticationProvider.cs" />
     <Compile Include="Components\CommandlineParser.cs" />
     <Compile Include="Components\GreenshotUiStartupOrder.cs" />
     <Compile Include="Components\MainFormStartup.cs" />
@@ -265,6 +266,7 @@
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\PrintConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\OutputConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\NetworkConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\GeneralConfigViewModel.cs" />
@@ -489,6 +491,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Ui\Configuration\Views\CaptureConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Ui\Configuration\Views\PrintConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

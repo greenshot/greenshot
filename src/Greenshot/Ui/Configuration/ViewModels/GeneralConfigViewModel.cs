@@ -25,9 +25,10 @@ using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.CaliburnMicro.Security;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Configuration;
+using Greenshot.Components;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
@@ -43,10 +44,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public ICoreConfiguration CoreConfiguration { get; set; }
 
         [Import]
-        public IConfigTranslations ConfigTranslations { get; set; }
-
-        [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
+
+        [Import(typeof(IAuthenticationProvider))]
+        public AuthenticationProvider AuthenticationProvider { get; set; }
 
         public override void Initialize(IConfig config)
         {
@@ -69,6 +70,31 @@ namespace Greenshot.Ui.Configuration.ViewModels
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
+        }
+
+        /// <summary>
+        /// Change the expert mode
+        /// </summary>
+        public bool Expert
+        {
+            get => AuthenticationProvider?.HasPermissions(new[] { "Expert" }) == true;
+            set
+            {
+                if (AuthenticationProvider == null)
+                {
+                    return;
+                }
+                if (value)
+                {
+                    AuthenticationProvider.AddPermission("Expert");
+                }
+                else
+                {
+                    AuthenticationProvider.RemovePermission("Expert");
+                }
+                NotifyOfPropertyChange();
+            }
+
         }
     }
 }

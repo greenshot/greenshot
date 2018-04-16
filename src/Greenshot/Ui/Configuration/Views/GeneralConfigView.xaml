@@ -8,7 +8,8 @@
              d:DataContext="{d:DesignInstance viewModels:GeneralConfigViewModel,IsDesignTimeCreatable=False}"
 >
     <StackPanel>
-        <CheckBox Content="{Binding GreenshotLanguage.SettingsCheckperiod}" IsChecked="{Binding CoreConfiguration.CheckForUpdates}"></CheckBox>
+        <CheckBox Content="{Binding GreenshotLanguage.Expert}" IsChecked="{Binding Expert}"/>
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsCheckperiod}" IsChecked="{Binding CoreConfiguration.CheckForUpdates}"/>
         <DockPanel LastChildFill="True">
             <Label Content="{Binding GreenshotLanguage.SettingsCheckperiod}" Width="100" />
             <TextBox Text="{Binding CoreConfiguration.UpdateCheckInterval}"/>

@@ -27,14 +27,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Windows;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using GongSolutions.Wpf.DragDrop;
 using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Extensions;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
@@ -63,7 +60,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
         {
             // Prepare disposables
             _disposables?.Dispose();
-            _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Destinations);
@@ -72,10 +68,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
             config.Register(CoreConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationPicker));
-
-            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(greenshotLanguageBinding);
+            _disposables = new CompositeDisposable
+            {
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationPicker))
+            };
 
             UsedDestinations.Clear();
             if (CoreConfiguration.PickerDestinations.Any())

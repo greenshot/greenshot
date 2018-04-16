@@ -9,12 +9,12 @@
              >
     <StackPanel>
         <DockPanel>
-            <Label x:Name="ConfigTranslations_Theme" Width="50" />
+            <Label Content="{Binding ConfigTranslations.Theme}" Width="50" />
             <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding MetroConfiguration.Theme}"/>
             <ComboBox ItemsSource="{Binding AvailableThemeAccents}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding MetroConfiguration.ThemeAccent}"/>
         </DockPanel>
         <DockPanel LastChildFill="True">
-            <Label x:Name="CoreTranslations_Language" Width="100" />
+            <Label Content="{Binding GreenshotLanguage.SettingsLanguage}" Width="100" />
             <ComboBox x:Name="AvailableLanguages" SelectedValuePath="Key" DisplayMemberPath="Value"
                       SelectedValue="{Binding CoreConfiguration.Language}" />
         </DockPanel>

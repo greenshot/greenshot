@@ -23,15 +23,17 @@
 
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
+using System.Windows;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.CaliburnMicro.Security;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class NetworkConfigViewModel : SimpleConfigScreen
+    public sealed class NetworkConfigViewModel : AuthenticatedConfigNode<Visibility>
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -51,6 +53,8 @@ namespace Greenshot.Ui.Configuration.ViewModels
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(NetworkConfiguration);
+
+            this.VisibleOnPermissions("Expert");
 
             // automatically update the DisplayName
             _disposables = new CompositeDisposable
