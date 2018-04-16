@@ -57,15 +57,20 @@ namespace Greenshot.Addon.Box
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
+	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
         private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
         [ImportingConstructor]
-		public BoxDestination(IBoxConfiguration boxConfiguration, IBoxLanguage boxLanguage)
+		public BoxDestination(
+            IBoxConfiguration boxConfiguration,
+            IBoxLanguage boxLanguage,
+            INetworkConfiguration networkConfiguration)
 	    {
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
+	        _networkConfiguration = networkConfiguration;
 
 	        _oauth2Settings = new OAuth2Settings
 	        {
@@ -166,6 +171,8 @@ namespace Greenshot.Addon.Box
             string filename = surface.GenerateFilename(CoreConfiguration, _boxConfiguration);
 
             var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
+            // Use the network settings
+            oauthHttpBehaviour.HttpSettings = _networkConfiguration;
             // Use UploadProgress
             if (progress != null)
             {

@@ -65,7 +65,10 @@ namespace Greenshot.Addon.Dropbox
 	    private IHttpBehaviour _oAuthHttpBehaviour;
 
 	    [ImportingConstructor]
-	    public DropboxDestination(IDropboxConfiguration dropboxPluginConfiguration, IDropboxLanguage dropboxLanguage)
+	    public DropboxDestination(
+	        IDropboxConfiguration dropboxPluginConfiguration,
+	        IDropboxLanguage dropboxLanguage,
+	        INetworkConfiguration networkConfiguration)
 	    {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
 	        _dropboxLanguage = dropboxLanguage;
@@ -89,10 +92,14 @@ namespace Greenshot.Addon.Dropbox
 	            RedirectUrl = "http://localhost:47336",
 	            Token = dropboxPluginConfiguration
             };
-	        _oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
+	        var httpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings) as IChangeableHttpBehaviour;
+
+	        _oAuthHttpBehaviour = httpBehaviour;
+            // Use the default network settings
+	        httpBehaviour.HttpSettings = networkConfiguration;
         }
 
-		public override Bitmap DisplayIcon
+        public override Bitmap DisplayIcon
 		{
 			get
 			{

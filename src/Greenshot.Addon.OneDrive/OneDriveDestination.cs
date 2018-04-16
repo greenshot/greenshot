@@ -66,13 +66,13 @@ namespace Greenshot.Addon.OneDrive
         private static readonly Uri OneDriveUri = GraphUri.AppendSegments("v1.0", "me", "drive");
         private static readonly Uri OAuth2Uri = new Uri("https://login.microsoftonline.com").AppendSegments("common", "oauth2", "v2.0");
 
-        private static readonly HttpBehaviour OneDriveHttpBehaviour = new HttpBehaviour
-        {
-            JsonSerializer = new JsonNetJsonSerializer()
-        };
+        private readonly HttpBehaviour _oneDriveHttpBehaviour;
 
         [ImportingConstructor]
-        public OneDriveDestination(IOneDriveConfiguration oneDriveConfiguration, IOneDriveLanguage oneDriveLanguage)
+        public OneDriveDestination(
+            IOneDriveConfiguration oneDriveConfiguration,
+            IOneDriveLanguage oneDriveLanguage,
+            INetworkConfiguration networkConfiguration)
         {
             _oneDriveConfiguration = oneDriveConfiguration;
             _oneDriveLanguage = oneDriveLanguage;
@@ -95,6 +95,11 @@ namespace Greenshot.Addon.OneDrive
                 RedirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient",
                 AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
                 Token = oneDriveConfiguration
+            };
+            _oneDriveHttpBehaviour = new HttpBehaviour
+            {
+                HttpSettings = networkConfiguration,
+                JsonSerializer = new JsonNetJsonSerializer()
             };
         }
 
@@ -196,7 +201,7 @@ namespace Greenshot.Addon.OneDrive
         {
             var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _oneDriveConfiguration);
             var uploadUri = OneDriveUri.AppendSegments("root:", "Screenshots", filename + ":", "content");
-            var localBehaviour = OneDriveHttpBehaviour.ShallowClone();
+            var localBehaviour = _oneDriveHttpBehaviour.ShallowClone();
             if (progress != null)
             {
                 localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
@@ -219,7 +224,7 @@ namespace Greenshot.Addon.OneDrive
             string imageId, OneDriveLinkType oneDriveLinkType)
         {
             var sharableLink = OneDriveUri.AppendSegments("items", imageId, "createLink");
-            var localBehaviour = OneDriveHttpBehaviour.ShallowClone();
+            var localBehaviour = _oneDriveHttpBehaviour.ShallowClone();
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
             oauthHttpBehaviour.MakeCurrent();
             var body = new OneDriveGetLinkRequest();

@@ -65,13 +65,17 @@ namespace Greenshot.Addon.Jira
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
 		[ImportingConstructor]
-		public JiraConnector(IJiraConfiguration jiraConfiguration, JiraMonitor jiraMonitor, ICoreConfiguration coreConfiguration)
+		public JiraConnector(
+		    IJiraConfiguration jiraConfiguration,
+		    JiraMonitor jiraMonitor,
+		    ICoreConfiguration coreConfiguration,
+		    INetworkConfiguration networkConfiguration)
 		{
 		    jiraConfiguration.Url = jiraConfiguration.Url.Replace(DefaultPostfix, "");
 		    _jiraConfiguration = jiraConfiguration;
 		    _jiraMonitor = jiraMonitor;
 		    _coreConfiguration = coreConfiguration;
-		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url));
+		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url), networkConfiguration);
 		}
 
 		public Bitmap FavIcon { get; private set; }

@@ -43,7 +43,6 @@ using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
@@ -61,6 +60,7 @@ namespace Greenshot.Addon.Photobucket
         private readonly string _albumPath;
 		private readonly IPhotobucketConfiguration _photobucketConfiguration;
 	    private readonly IPhotobucketLanguage _photobucketLanguage;
+	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private IList<string> _albumsCache;
@@ -71,12 +71,16 @@ namespace Greenshot.Addon.Photobucket
         /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
         /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
         [ImportingConstructor]
-        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage)
+        public PhotobucketDestination(
+            IPhotobucketConfiguration photobucketConfiguration,
+            IPhotobucketLanguage photobucketLanguage,
+            INetworkConfiguration networkConfiguration)
 	    {
 	        _photobucketConfiguration = photobucketConfiguration;
 	        _photobucketLanguage = photobucketLanguage;
+	        _networkConfiguration = networkConfiguration;
 
-            _oAuthSettings = new OAuth1Settings
+	        _oAuthSettings = new OAuth1Settings
             {
                 Token = photobucketConfiguration,
                 ClientId = photobucketConfiguration.ClientId,
@@ -99,6 +103,7 @@ namespace Greenshot.Addon.Photobucket
                 CheckVerifier = false
             };
             var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
+            oAuthHttpBehaviour.HttpSettings = networkConfiguration;
             // Store the leftover values
             oAuthHttpBehaviour.OnAccessTokenValues = values =>
             {
@@ -140,7 +145,7 @@ namespace Greenshot.Addon.Photobucket
         /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
         /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
         /// <param name="albumPath">path to the album, null for default</param>
-        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage, string albumPath) : this (photobucketConfiguration, photobucketLanguage)
+        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage, INetworkConfiguration networkConfiguration, string albumPath) : this (photobucketConfiguration, photobucketLanguage, networkConfiguration)
 		{
 			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
@@ -193,7 +198,7 @@ namespace Greenshot.Addon.Photobucket
 			}
 			foreach (var album in albums)
 			{
-				yield return new PhotobucketDestination(_photobucketConfiguration, _photobucketLanguage, album);
+				yield return new PhotobucketDestination(_photobucketConfiguration, _photobucketLanguage, _networkConfiguration, album);
 			}
 		}
 
