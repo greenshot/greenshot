@@ -78,14 +78,14 @@
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.28\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.8.32.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.32\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.8.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.34\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.32.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.32\lib\net45\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.34\lib\net45\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.32.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.32\lib\net45\Dapplo.HttpExtensions.OAuth.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.34\lib\net45\Dapplo.HttpExtensions.OAuth.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.24\lib\net45\Dapplo.Ini.dll</HintPath>
@@ -93,8 +93,8 @@
     <Reference Include="Dapplo.InterfaceImpl, Version=0.2.12.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.12\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Jira, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Jira.0.7.7\lib\net45\Dapplo.Jira.dll</HintPath>
+    <Reference Include="Dapplo.Jira, Version=0.7.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Jira.0.7.10\lib\net45\Dapplo.Jira.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Language, Version=0.5.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Language.0.5.24\lib\net45\Dapplo.Language.dll</HintPath>

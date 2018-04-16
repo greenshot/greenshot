@@ -12,11 +12,14 @@ namespace Greenshot.Tests
     /// </summary>
     public class BlurTests
     {
-        [Fact]
-        public void Test_Blur()
+        [Theory]
+        [InlineData(PixelFormat.Format24bppRgb)]
+        [InlineData(PixelFormat.Format32bppRgb)]
+        [InlineData(PixelFormat.Format32bppArgb)]
+        public void Test_Blur(PixelFormat pixelFormat)
         {
-            using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, backgroundColor: Color.White))
-            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, backgroundColor: Color.White))
+            using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
+            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmapNew))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -37,11 +40,14 @@ namespace Greenshot.Tests
             }
         }
 
-        [Fact]
-        public void Test_Blur_Span()
+        [Theory]
+        [InlineData(PixelFormat.Format24bppRgb)]
+        [InlineData(PixelFormat.Format32bppRgb)]
+        [InlineData(PixelFormat.Format32bppArgb)]
+        public void Test_Blur_Span(PixelFormat pixelFormat)
         {
-            using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, backgroundColor: Color.White))
-            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, backgroundColor: Color.White))
+            using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
+            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmapNew))
                 using (var pen = new SolidBrush(Color.Blue))

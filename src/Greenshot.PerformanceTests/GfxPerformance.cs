@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
+using BenchmarkDotNet.Order;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Experimental;
 using Greenshot.Gfx.Quantizer;
@@ -13,6 +14,7 @@ namespace Greenshot.PerformanceTests
     /// This defines the benchmarks which can be done
     /// </summary>
     [MinColumn, MaxColumn, MemoryDiagnoser]
+    [OrderProvider(SummaryOrderPolicy.FastestToSlowest)]
     public class GfxPerformance
     {
         //[Benchmark]
@@ -34,9 +36,12 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void Blur()
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void Blur(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -48,9 +53,12 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void BlurSpan()
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void BlurSpan(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -62,9 +70,12 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void BlurOld()
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void BlurOld(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -76,9 +87,12 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void Scale()
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void Scale(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
