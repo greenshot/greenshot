@@ -56,13 +56,18 @@ namespace Greenshot.Addon.GooglePhotos
 	    private static readonly LogSource Log = new LogSource();
         private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 	    private readonly IGooglePhotosLanguage _googlePhotosLanguage;
+	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly OAuth2Settings _oAuth2Settings;
 
 	    [ImportingConstructor]
-        public GooglePhotosDestination(IGooglePhotosConfiguration googlePhotosConfiguration, IGooglePhotosLanguage googlePhotosLanguage)
+        public GooglePhotosDestination(
+	        IGooglePhotosConfiguration googlePhotosConfiguration,
+	        IGooglePhotosLanguage googlePhotosLanguage,
+	        INetworkConfiguration networkConfiguration)
 	    {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	        _googlePhotosLanguage = googlePhotosLanguage;
+	        _networkConfiguration = networkConfiguration;
 
 	        _oAuth2Settings = new OAuth2Settings
 	        {
@@ -157,7 +162,7 @@ namespace Greenshot.Addon.GooglePhotos
             string filename = surface.GenerateFilename(CoreConfiguration, _googlePhotosConfiguration);
             
             var oAuthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
-
+            oAuthHttpBehaviour.HttpSettings = _networkConfiguration;
             // Use UploadProgress
             if (progress != null)
             {

@@ -61,7 +61,10 @@ namespace Greenshot.Addon.Imgur
 	    private HttpBehaviour Behaviour { get; }
 
         [ImportingConstructor]
-		public ImgurApi(IImgurConfiguration imgurConfiguration, ICoreConfiguration coreConfiguration)
+		public ImgurApi(
+            IImgurConfiguration imgurConfiguration,
+            ICoreConfiguration coreConfiguration,
+            INetworkConfiguration networkConfiguration)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _coreConfiguration = coreConfiguration;
@@ -87,7 +90,8 @@ namespace Greenshot.Addon.Imgur
 
 		    Behaviour = new HttpBehaviour
 		    {
-		        JsonSerializer = new JsonNetJsonSerializer(),
+                HttpSettings = networkConfiguration,
+                JsonSerializer = new JsonNetJsonSerializer(),
 		        OnHttpClientCreated = httpClient =>
 		        {
 		            httpClient.SetAuthorization("Client-ID", _imgurConfiguration.ClientId);

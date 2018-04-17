@@ -76,7 +76,8 @@ namespace Greenshot.Addon.Flickr
 	    });
 
         [ImportingConstructor]
-        public FlickrDestination(IFlickrConfiguration flickrConfiguration, IFlickrLanguage flickrLanguage)
+        public FlickrDestination(IFlickrConfiguration flickrConfiguration,
+            IFlickrLanguage flickrLanguage, INetworkConfiguration networkConfiguration)
 	    {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;
@@ -105,7 +106,9 @@ namespace Greenshot.Addon.Flickr
 
 	        _oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
 	        _oAuthHttpBehaviour.ValidateResponseContentType = false;
-        }
+            // Use the default network settings
+	        _oAuthHttpBehaviour.HttpSettings = networkConfiguration;
+	    }
 
 		public override string Description => _flickrLanguage.UploadMenuItem;
 
