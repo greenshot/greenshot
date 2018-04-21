@@ -23,18 +23,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Net.Mime;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotImgurPlugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 
 namespace GreenshotLutimPlugin
 {
     /// <summary>
-    /// This is the ImgurPlugin code
+    /// This is the LutimPlugin code
     /// </summary>
     public class LutimPlugin : IGreenshotPlugin
     {
@@ -92,11 +90,11 @@ namespace GreenshotLutimPlugin
 
             // Get configuration
             _config = IniConfig.GetIniSection<LutimConfiguration>();
-            _resources = new ComponentResourceManager(typeof(ImgurPlugin));
+            _resources = new ComponentResourceManager(typeof(LutimPlugin));
 
             ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Lutim")
             {
-                Image = (MediaTypeNames.Image)_resources.GetObject("Lutim")
+                Image = (Image)_resources.GetObject("Lutim")
             };
 
             _historyMenuItem = new ToolStripMenuItem(Language.GetString("lutim", LangKey.history))
@@ -104,7 +102,7 @@ namespace GreenshotLutimPlugin
                 Tag = _host
             };
             _historyMenuItem.Click += delegate {
-                LutimHistory.ShowHistory();
+                //LutimHistory.ShowHistory(); //TODO add 
             };
             itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
@@ -199,8 +197,8 @@ namespace GreenshotLutimPlugin
                         if (lutimInfo != null && _config.AnonymousAccess)
                         {
                             Log.InfoFormat("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Hash, lutimInfo.DeleteHash);
-                            _config.ImgurUploadHistory.Add(lutimInfo.Hash, lutimInfo.DeleteHash);
-                            _config.runtimeImgurHistory.Add(lutimInfo.Hash, lutimInfo);
+                            _config.LutimUploadHistory.Add(lutimInfo.Hash, lutimInfo.DeleteHash);
+                            _config.runtimeLutimHistory.Add(lutimInfo.Hash, lutimInfo);
                             UpdateHistoryMenuItem();
                         }
                     }
@@ -209,7 +207,7 @@ namespace GreenshotLutimPlugin
                 if (lutimInfo != null)
                 {
                     // TODO: Optimize a second call for export
-                    using (MediaTypeNames.Image tmpImage = surfaceToUpload.GetImageForExport())
+                    using (Image tmpImage = surfaceToUpload.GetImageForExport())
                     {
                         lutimInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
                     }

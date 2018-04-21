@@ -47,8 +47,10 @@ namespace GreenshotLutimPlugin
         /// <returns></returns>
         public static bool IsHistoryLoadingNeeded()
         {
-            Log.InfoFormat("Checking if Lutim cache loading needed, configuration has {0} Lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.runtimeLutimHistory.Count);
-            return Config.runtimeLutimHistory.Count != Config.LutimUploadHistory.Count;
+            return false; //TODO reactivate this
+
+            //Log.InfoFormat("Checking if Lutim cache loading needed, configuration has {0} Lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.runtimeLutimHistory.Count);
+            //return Config.runtimeLutimHistory.Count != Config.LutimUploadHistory.Count;
         }
 
         /// <summary>
@@ -75,11 +77,11 @@ namespace GreenshotLutimPlugin
                 try
                 {
                     var deleteHash = Config.LutimUploadHistory[hash];
-                    LutimInfo LutimInfo = RetrieveLutimInfo(hash, deleteHash);
-                    if (LutimInfo != null)
+                    LutimInfo lutimInfo = RetrieveLutimInfo(hash, deleteHash);
+                    if (lutimInfo != null)
                     {
-                        RetrieveLutimThumbnail(LutimInfo);
-                        Config.runtimeLutimHistory[hash] = LutimInfo;
+                        RetrieveLutimThumbnail(lutimInfo);
+                        Config.runtimeLutimHistory[hash] = lutimInfo;
                     }
                     else
                     {
@@ -127,15 +129,7 @@ namespace GreenshotLutimPlugin
             }
         }
 
-        /// <summary>
-        /// Use this to make sure Lutim knows from where the upload comes.
-        /// </summary>
-        /// <param name="webRequest"></param>
-        private static void SetClientId(HttpWebRequest webRequest)
-        {
-            webRequest.Headers.Add("Authorization", "Client-ID " + LutimCredentials.CONSUMER_KEY);
-        }
-
+       
         /// <summary>
         /// Do the actual upload to Lutim
         /// For more details on the available parameters, see: http://api.Lutim.com/resources_anon
@@ -167,7 +161,6 @@ namespace GreenshotLutimPlugin
                 webRequest.ContentType = "image/" + outputSettings.Format;
                 webRequest.ServicePoint.Expect100Continue = false;
 
-                SetClientId(webRequest);
                 try
                 {
                     using (var requestStream = webRequest.GetRequestStream())
@@ -203,8 +196,6 @@ namespace GreenshotLutimPlugin
                     TokenUrl = TokenUrl,
                     RedirectUrl = "https://Lutim.com",
                     CloudServiceName = "Lutim",
-                    ClientId = LutimCredentials.CONSUMER_KEY,
-                    ClientSecret = LutimCredentials.CONSUMER_SECRET,
                     AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
                     BrowserSize = new Size(680, 880),
                     RefreshToken = Config.RefreshToken,
@@ -243,28 +234,29 @@ namespace GreenshotLutimPlugin
         /// <summary>
         /// Retrieve the thumbnail of an Lutim image
         /// </summary>
-        /// <param name="LutimInfo"></param>
-        public static void RetrieveLutimThumbnail(LutimInfo LutimInfo)
+        /// <param name="lutimInfo"></param>
+        public static void RetrieveLutimThumbnail(LutimInfo lutimInfo)
         {
-            if (LutimInfo.SmallSquare == null)
-            {
-                Log.Warn("Lutim URL was null, not retrieving thumbnail.");
-                return;
-            }
-            Log.InfoFormat("Retrieving Lutim image for {0} with url {1}", LutimInfo.Hash, LutimInfo.SmallSquare);
-            HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, LutimInfo.Hash), HTTPMethod.GET);
-            webRequest.ServicePoint.Expect100Continue = false;
-            // Not for getting the thumbnail, in anonymous modus
-            //SetClientId(webRequest);
-            using (WebResponse response = webRequest.GetResponse())
-            {
-                LogRateLimitInfo(response);
-                Stream responseStream = response.GetResponseStream();
-                if (responseStream != null)
-                {
-                    LutimInfo.Image = ImageHelper.FromStream(responseStream);
-                }
-            }
+            //TODO see if relevant
+            //if (lutimInfo.SmallSquare == null)
+            //{
+            //    Log.Warn("Lutim URL was null, not retrieving thumbnail.");
+            //    return;
+            //}
+            //Log.InfoFormat("Retrieving Lutim image for {0} with url {1}", lutimInfo.Hash, lutimInfo.SmallSquare);
+            //HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, lutimInfo.Hash), HTTPMethod.GET);
+            //webRequest.ServicePoint.Expect100Continue = false;
+            //// Not for getting the thumbnail, in anonymous modus
+            ////SetClientId(webRequest);
+            //using (WebResponse response = webRequest.GetResponse())
+            //{
+            //    LogRateLimitInfo(response);
+            //    Stream responseStream = response.GetResponseStream();
+            //    if (responseStream != null)
+            //    {
+            //        lutimInfo.Image = ImageHelper.FromStream(responseStream);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -279,7 +271,6 @@ namespace GreenshotLutimPlugin
             Log.InfoFormat("Retrieving Lutim info for {0} with url {1}", hash, url);
             HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
             webRequest.ServicePoint.Expect100Continue = false;
-            SetClientId(webRequest);
             string responseString = null;
             try
             {
@@ -307,30 +298,29 @@ namespace GreenshotLutimPlugin
                 }
                 throw;
             }
-            LutimInfo LutimInfo = null;
+            LutimInfo lutimInfo = null;
             if (responseString != null)
             {
                 Log.Debug(responseString);
-                LutimInfo = LutimInfo.ParseResponse(responseString);
-                LutimInfo.DeleteHash = deleteHash;
+                lutimInfo = LutimInfo.ParseResponse(responseString);
+                lutimInfo.DeleteHash = deleteHash;
             }
-            return LutimInfo;
+            return lutimInfo;
         }
 
         /// <summary>
         /// Delete an Lutim image, this is done by specifying the delete hash
         /// </summary>
-        /// <param name="LutimInfo"></param>
-        public static void DeleteLutimImage(LutimInfo LutimInfo)
+        /// <param name="lutimInfo"></param>
+        public static void DeleteLutimImage(LutimInfo lutimInfo)
         {
-            Log.InfoFormat("Deleting Lutim image for {0}", LutimInfo.DeleteHash);
+            Log.InfoFormat("Deleting Lutim image for {0}", lutimInfo.DeleteHash);
 
             try
             {
-                string url = Config.LutimApi3Url + "/image/" + LutimInfo.DeleteHash + ".xml";
+                string url = Config.LutimApi3Url + "/image/" + lutimInfo.DeleteHash + ".xml";
                 HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.DELETE);
                 webRequest.ServicePoint.Expect100Continue = false;
-                SetClientId(webRequest);
                 string responseString = null;
                 using (WebResponse response = webRequest.GetResponse())
                 {
@@ -358,9 +348,9 @@ namespace GreenshotLutimPlugin
                 }
             }
             // Make sure we remove it from the history, if no error occured
-            Config.runtimeLutimHistory.Remove(LutimInfo.Hash);
-            Config.LutimUploadHistory.Remove(LutimInfo.Hash);
-            LutimInfo.Image = null;
+            Config.runtimeLutimHistory.Remove(lutimInfo.Hash);
+            Config.LutimUploadHistory.Remove(lutimInfo.Hash);
+            lutimInfo.Image = null;
         }
 
         /// <summary>
