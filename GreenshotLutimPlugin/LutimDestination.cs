@@ -39,7 +39,7 @@ namespace GreenshotLutimPlugin
 
         public override string Designation => "Lutim";
 
-        public override string Description => Language.GetString("Lutim", LangKey.upload_menu_item);
+        public override string Description => Language.GetString("lutim", LangKey.upload_menu_item);
 
         public override Image DisplayIcon
         {
