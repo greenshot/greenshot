@@ -40,5 +40,6 @@ namespace GreenshotLutimPlugin {
 		private void ButtonHistoryClick(object sender, EventArgs e) {
 			LutimHistory.ShowHistory();
 		}
-	}
+
+    }
 }

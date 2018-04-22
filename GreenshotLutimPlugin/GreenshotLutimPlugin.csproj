@@ -88,6 +88,9 @@
     <None Include="Resources\Lutim.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LutimPlugin.resx" />
   </ItemGroup>
   <ItemGroup />
