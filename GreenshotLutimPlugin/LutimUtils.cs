@@ -298,17 +298,17 @@ namespace GreenshotLutimPlugin
         /// <param name="lutimInfo"></param>
         public static void DeleteLutimImage(LutimInfo lutimInfo)
         {
-            //TODO implement deletion
-
             Log.InfoFormat("Deleting Lutim image for {0}", lutimInfo.DeleteHash);
 
             try
             {
-                string url = Config.LutimApi3Url + "/image/" + lutimInfo.DeleteHash + ".xml";
-                HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.DELETE);
-                webRequest.ServicePoint.Expect100Continue = false;
+                //TODO take this from settings
+                var hash = lutimInfo.Hash.Split('/')[0];
+                var url = $"https://framapic.org/d/{hash}/{lutimInfo.DeleteHash}?format=json";
+                var webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+                //webRequest.ServicePoint.Expect100Continue = false;
                 string responseString = null;
-                using (WebResponse response = webRequest.GetResponse())
+                using (var response = webRequest.GetResponse())
                 {
                     LogRateLimitInfo(response);
                     var responseStream = response.GetResponseStream();

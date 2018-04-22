@@ -141,9 +141,10 @@ namespace GreenshotLutimPlugin
             try
             {
                 var data = JsonConvert.DeserializeObject<JsonData>(response).msg;
-                lutimInfo.Hash = data.real_short;
+                lutimInfo.Hash = data.shorter;
                 lutimInfo.ImageType = data.ext;
                 lutimInfo.Title = data.filename;
+                lutimInfo.DeleteHash = data.token;
 
                 double secondsSince;
                 if (double.TryParse(data.created_at, out secondsSince))
