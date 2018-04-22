@@ -20,13 +20,16 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using LutimPlugin;
 
 namespace GreenshotLutimPlugin
 {
@@ -129,7 +132,7 @@ namespace GreenshotLutimPlugin
             }
         }
 
-       
+
         /// <summary>
         /// Do the actual upload to Lutim
         /// For more details on the available parameters, see: http://api.Lutim.com/resources_anon
@@ -155,31 +158,32 @@ namespace GreenshotLutimPlugin
             string responseString = null;
             if (Config.AnonymousAccess)
             {
-                // add key, we only use the other parameters for the AnonymousAccess
-                //otherParameters.Add("key", Lutim_ANONYMOUS_API_KEY);
-                HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(Config.LutimApi3Url + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters), HTTPMethod.POST);
-                webRequest.ContentType = "image/" + outputSettings.Format;
-                webRequest.ServicePoint.Expect100Continue = false;
+                var url = "https://framapic.org";
+                //var fileName = @"F:\PicturesNico\795264.jpg";
+                Image image;
+                ImageOutput.CreateImageFromSurface(surfaceToUpload, outputSettings, out image);
 
                 try
                 {
-                    using (var requestStream = webRequest.GetRequestStream())
+
+                    //using (var stream = File.Open(filename, FileMode.Open))k
+                    using (var stream = image.ToStream(ConvertFormat(outputSettings.Format)))
                     {
-                        ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
+                        var files = new[] {
+                            new UploadFile
+                        {
+                            Name = "file",
+                            Filename = Path.GetFileName(filename),
+                            ContentType = "text/plain",
+                            Stream = stream
+                        }
+                    };
+
+                        var values = new NameValueCollection { { "format", "json" } };
+                        var result = UploadFile.UploadFiles(url, files, values);
+                        responseString = System.Text.Encoding.Default.GetString(result);
                     }
 
-                    using (WebResponse response = webRequest.GetResponse())
-                    {
-                        LogRateLimitInfo(response);
-                        var responseStream = response.GetResponseStream();
-                        if (responseStream != null)
-                        {
-                            using (StreamReader reader = new StreamReader(responseStream, true))
-                            {
-                                responseString = reader.ReadToEnd();
-                            }
-                        }
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -189,46 +193,36 @@ namespace GreenshotLutimPlugin
             }
             else
             {
-
-                var oauth2Settings = new OAuth2Settings
-                {
-                    AuthUrlPattern = AuthUrlPattern,
-                    TokenUrl = TokenUrl,
-                    RedirectUrl = "https://Lutim.com",
-                    CloudServiceName = "Lutim",
-                    AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
-                    BrowserSize = new Size(680, 880),
-                    RefreshToken = Config.RefreshToken,
-                    AccessToken = Config.AccessToken,
-                    AccessTokenExpires = Config.AccessTokenExpires
-                };
-
-                // Copy the settings from the config, which is kept in memory and on the disk
-
-                try
-                {
-                    var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.LutimApi3Url + "/upload.xml", oauth2Settings);
-                    otherParameters["image"] = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-                    NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
-
-                    responseString = NetworkHelper.GetResponseAsString(webRequest);
-                }
-                finally
-                {
-                    // Copy the settings back to the config, so they are stored.
-                    Config.RefreshToken = oauth2Settings.RefreshToken;
-                    Config.AccessToken = oauth2Settings.AccessToken;
-                    Config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-                    Config.IsDirty = true;
-                    IniConfig.Save();
-                }
+                throw new NotImplementedException();
             }
+
             if (string.IsNullOrEmpty(responseString))
             {
                 return null;
             }
             return LutimInfo.ParseResponse(responseString);
+        }
+
+        private static Stream ToStream(this Image image, ImageFormat format)
+        {
+            var stream = new System.IO.MemoryStream();
+            image.Save(stream, format);
+            stream.Position = 0;
+            return stream;
+        }
+
+        private static ImageFormat ConvertFormat(OutputFormat format)
+        {
+            switch (format)
+            {
+                case OutputFormat.bmp: return ImageFormat.Bmp;
+                case OutputFormat.gif: return ImageFormat.Gif;
+                case OutputFormat.jpg: return ImageFormat.Jpeg;
+                case OutputFormat.png: return ImageFormat.Png;
+                case OutputFormat.tiff: return ImageFormat.Tiff;
+                case OutputFormat.ico: return ImageFormat.Icon;
+                default: throw new Exception("Not supported format"); 
+            }
         }
 
         /// <summary>

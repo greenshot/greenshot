@@ -21,6 +21,7 @@
 using System;
 using System.Drawing;
 using System.Xml;
+using Newtonsoft.Json;
 
 namespace GreenshotLutimPlugin
 {
@@ -44,7 +45,7 @@ namespace GreenshotLutimPlugin
             set
             {
                 _deleteHash = value;
-                DeletePage = "https://Lutim.com/delete/" + value;
+                DeletePage = "https://imgur.com/delete/" + value;
             }
         }
 
@@ -96,6 +97,7 @@ namespace GreenshotLutimPlugin
             set;
         }
 
+
         private Image _image;
         public Image Image
         {
@@ -130,89 +132,105 @@ namespace GreenshotLutimPlugin
             }
             _image = null;
         }
+
         public static LutimInfo ParseResponse(string response)
         {
             Log.Debug(response);
-            // This is actually a hack for BUG-1695
-            // The problem is the (C) sign, we send it HTML encoded "&reg;" to Lutim and get it HTML encoded in the XML back 
-            // Added all the encodings I found quickly, I guess these are not all... but it should fix the issue for now.
-            response = response.Replace("&cent;", "&#162;");
-            response = response.Replace("&pound;", "&#163;");
-            response = response.Replace("&yen;", "&#165;");
-            response = response.Replace("&euro;", "&#8364;");
-            response = response.Replace("&copy;", "&#169;");
-            response = response.Replace("&reg;", "&#174;");
 
-            LutimInfo LutimInfo = new LutimInfo();
+            
+
+            LutimInfo lutimInfo = new LutimInfo();
             try
             {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(response);
-                XmlNodeList nodes = doc.GetElementsByTagName("id");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Hash = nodes.Item(0)?.InnerText;
-                }
-                nodes = doc.GetElementsByTagName("hash");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Hash = nodes.Item(0)?.InnerText;
-                }
-                nodes = doc.GetElementsByTagName("deletehash");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.DeleteHash = nodes.Item(0)?.InnerText;
-                }
-                nodes = doc.GetElementsByTagName("type");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.ImageType = nodes.Item(0)?.InnerText;
-                }
-                nodes = doc.GetElementsByTagName("title");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Title = nodes.Item(0)?.InnerText;
-                }
-                nodes = doc.GetElementsByTagName("datetime");
-                if (nodes.Count > 0)
-                {
-                    // Version 3 has seconds since Epoch
-                    double secondsSince;
-                    if (double.TryParse(nodes.Item(0)?.InnerText, out secondsSince))
-                    {
-                        var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-                        LutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
-                    }
-                }
-                nodes = doc.GetElementsByTagName("original");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                }
-                // Version 3 API only has Link
-                nodes = doc.GetElementsByTagName("link");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                }
-                nodes = doc.GetElementsByTagName("Lutim_page");
-                if (nodes.Count > 0)
-                {
-                    LutimInfo.Page = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                }
-                else
-                {
-                    // Version 3 doesn't have a page link in the response
-                    LutimInfo.Page = $"https://Lutim.com/{LutimInfo.Hash}";
-                }
-                nodes = doc.GetElementsByTagName("small_square");
-                LutimInfo.SmallSquare = nodes.Count > 0 ? nodes.Item(0)?.InnerText : $"http://i.Lutim.com/{LutimInfo.Hash}s.png";
+                var json = JsonConvert.DeserializeObject<JsonData>(response);
+
+                //XmlNodeList nodes = doc.GetElementsByTagName("id");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Hash = nodes.Item(0)?.InnerText;
+                //}
+                //nodes = doc.GetElementsByTagName("hash");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Hash = nodes.Item(0)?.InnerText;
+                //}
+                //nodes = doc.GetElementsByTagName("deletehash");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.DeleteHash = nodes.Item(0)?.InnerText;
+                //}
+                //nodes = doc.GetElementsByTagName("type");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.ImageType = nodes.Item(0)?.InnerText;
+                //}
+                //nodes = doc.GetElementsByTagName("title");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Title = nodes.Item(0)?.InnerText;
+                //}
+                //nodes = doc.GetElementsByTagName("datetime");
+                //if (nodes.Count > 0)
+                //{
+                //    // Version 3 has seconds since Epoch
+                //    double secondsSince;
+                //    if (double.TryParse(nodes.Item(0)?.InnerText, out secondsSince))
+                //    {
+                //        var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                //        lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
+                //    }
+                //}
+                //nodes = doc.GetElementsByTagName("original");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
+                //}
+                //// Version 3 API only has Link
+                //nodes = doc.GetElementsByTagName("link");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
+                //}
+                //nodes = doc.GetElementsByTagName("Lutim_page");
+                //if (nodes.Count > 0)
+                //{
+                //    lutimInfo.Page = nodes.Item(0)?.InnerText.Replace("http:", "https:");
+                //}
+                //else
+                //{
+                //    // Version 3 doesn't have a page link in the response
+                //    lutimInfo.Page = $"https://Lutim.com/{lutimInfo.Hash}";
+                //}
+                //nodes = doc.GetElementsByTagName("small_square");
+                //lutimInfo.SmallSquare = nodes.Count > 0 ? nodes.Item(0)?.InnerText : $"http://i.Lutim.com/{lutimInfo.Hash}s.png";
             }
             catch (Exception e)
             {
                 Log.ErrorFormat("Could not parse Lutim response due to error {0}, response was: {1}", e.Message, response);
             }
-            return LutimInfo;
+            return lutimInfo;
         }
     }
+}
+
+// ReSharper disable InconsistentNaming
+public class JsonData
+{
+    public JsonMessage msg { get; set; }
+    public bool success { get; set; }
+}
+
+public class JsonMessage
+{
+    public bool del_at_view { get; set; }
+    public string thumb { get; set; }
+
+    [JsonProperty(PropertyName = "short")]
+    public string shorter { get; set; }
+    public string real_short { get; set; }
+    public string created_at { get; set; }
+    public string filename { get; set; }
+    public string limit { get; set; }
+    public string token { get; set; }
+    public string ext { get; set; }
 }
