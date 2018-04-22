@@ -20,8 +20,8 @@
  */
 using System;
 using System.Drawing;
-using System.Xml;
 using Newtonsoft.Json;
+using Greenshot.IniFile;
 
 namespace GreenshotLutimPlugin
 {
@@ -31,6 +31,7 @@ namespace GreenshotLutimPlugin
     public class LutimInfo : IDisposable
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimInfo));
+        private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
 
         public string Hash
         {
@@ -153,8 +154,8 @@ namespace GreenshotLutimPlugin
                     lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
                 }
 
-                lutimInfo.Original = $"https://framapic.org/{data.shorter}.{data.ext}";
-                lutimInfo.Page = $"https://framapic.org/gallery#{data.shorter}.{data.ext}";
+                lutimInfo.Original = $"{Config.LutimApiUrl}/{data.shorter}.{data.ext}";
+                lutimInfo.Page = $"{Config.LutimApiUrl}/gallery#{data.shorter}.{data.ext}";
 
                 //XmlNodeList nodes = doc.GetElementsByTagName("id");
                 //if (nodes.Count > 0)

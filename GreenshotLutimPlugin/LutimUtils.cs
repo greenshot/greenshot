@@ -155,8 +155,6 @@ namespace GreenshotLutimPlugin
             }
 
             string responseString = null;
-            var url = "https://framapic.org";
-            
             try
             {
                 Image image;
@@ -175,7 +173,7 @@ namespace GreenshotLutimPlugin
                     };
 
                     var values = new NameValueCollection { { "format", "json" } };
-                    var result = UploadFile.UploadFiles(url, files, values);
+                    var result = UploadFile.UploadFiles(Config.LutimApiUrl, files, values);
                     responseString = System.Text.Encoding.Default.GetString(result);
                 }
 
@@ -251,44 +249,44 @@ namespace GreenshotLutimPlugin
         /// <returns>LutimInfo</returns>
         public static LutimInfo RetrieveLutimInfo(string hash, string deleteHash)
         {
-            string url = Config.LutimApi3Url + "/image/" + hash + ".xml";
-            Log.InfoFormat("Retrieving Lutim info for {0} with url {1}", hash, url);
-            HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-            webRequest.ServicePoint.Expect100Continue = false;
-            string responseString = null;
-            //try
-            //{
-            //    using (WebResponse response = webRequest.GetResponse())
-            //    {
-            //        LogRateLimitInfo(response);
-            //        var responseStream = response.GetResponseStream();
-            //        if (responseStream != null)
-            //        {
-            //            using (StreamReader reader = new StreamReader(responseStream, true))
-            //            {
-            //                responseString = reader.ReadToEnd();
-            //            }
-            //        }
-            //    }
-            //}
-            //catch (WebException wE)
-            //{
-            //    if (wE.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
-            //        {
-            //            return null;
-            //        }
-            //    }
-            //    throw;
-            //}
+            //string url = Config.LutimApiUrl + "/image/" + hash + ".xml";
+            //Log.InfoFormat("Retrieving Lutim info for {0} with url {1}", hash, url);
+            //HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+            //webRequest.ServicePoint.Expect100Continue = false;
+            //string responseString = null;
+            ////try
+            ////{
+            ////    using (WebResponse response = webRequest.GetResponse())
+            ////    {
+            ////        LogRateLimitInfo(response);
+            ////        var responseStream = response.GetResponseStream();
+            ////        if (responseStream != null)
+            ////        {
+            ////            using (StreamReader reader = new StreamReader(responseStream, true))
+            ////            {
+            ////                responseString = reader.ReadToEnd();
+            ////            }
+            ////        }
+            ////    }
+            ////}
+            ////catch (WebException wE)
+            ////{
+            ////    if (wE.Status == WebExceptionStatus.ProtocolError)
+            ////    {
+            ////        if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
+            ////        {
+            ////            return null;
+            ////        }
+            ////    }
+            ////    throw;
+            ////}
             LutimInfo lutimInfo = null;
-            if (responseString != null)
-            {
-                Log.Debug(responseString);
-                lutimInfo = LutimInfo.ParseResponse(responseString);
-                lutimInfo.DeleteHash = deleteHash;
-            }
+            //if (responseString != null)
+            //{
+            //    Log.Debug(responseString);
+            //    lutimInfo = LutimInfo.ParseResponse(responseString);
+            //    lutimInfo.DeleteHash = deleteHash;
+            //}
             return lutimInfo;
         }
 
@@ -304,7 +302,7 @@ namespace GreenshotLutimPlugin
             {
                 //TODO take this from settings
                 var hash = lutimInfo.Hash.Split('/')[0];
-                var url = $"https://framapic.org/d/{hash}/{lutimInfo.DeleteHash}?format=json";
+                var url = $"{Config.LutimApiUrl}/d/{hash}/{lutimInfo.DeleteHash}?format=json";
                 var webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
                 //webRequest.ServicePoint.Expect100Continue = false;
                 string responseString = null;

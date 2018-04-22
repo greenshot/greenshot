@@ -33,8 +33,8 @@ namespace GreenshotLutimPlugin
     [IniSection("Lutim", Description = "Greenshot Lutim Plugin configuration")]
     public class LutimConfiguration : IniSection
     {
-        [IniProperty("LutimApi3Url", Description = "Url to Lutim system.", DefaultValue = "https://api.Lutim.com/3")]
-        public string LutimApi3Url { get; set; }
+        [IniProperty("LutimApiUrl", Description = "Url to Lutim system.", DefaultValue = "https://framapic.org")]
+        public string LutimApiUrl { get; set; }
 
         [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
         public OutputFormat UploadFormat { get; set; }
@@ -100,11 +100,9 @@ namespace GreenshotLutimPlugin
         /// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog()
         {
-            return true;
-            
-            //SettingsForm settingsForm = new SettingsForm();
-            //DialogResult result = settingsForm.ShowDialog();
-            //return result == DialogResult.OK;
+            SettingsForm settingsForm = new SettingsForm();
+            DialogResult result = settingsForm.ShowDialog();
+            return result == DialogResult.OK;
         }
     }
 }

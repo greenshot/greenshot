@@ -59,7 +59,7 @@ namespace GreenshotLutimPlugin {
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "Lutim.OK";
+			this.buttonOK.LanguageKey = "lutim.OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 88);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -70,7 +70,7 @@ namespace GreenshotLutimPlugin {
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "Lutim.CANCEL";
+			this.buttonCancel.LanguageKey = "lutim.CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 88);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -90,7 +90,7 @@ namespace GreenshotLutimPlugin {
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "Lutim.label_upload_format";
+			this.label_upload_format.LanguageKey = "lutim.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 10);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(150, 20);
@@ -99,7 +99,7 @@ namespace GreenshotLutimPlugin {
 			// historyButton
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.historyButton.LanguageKey = "Lutim.history";
+			this.historyButton.LanguageKey = "lutim.history";
 			this.historyButton.Location = new System.Drawing.Point(13, 88);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
@@ -110,7 +110,7 @@ namespace GreenshotLutimPlugin {
 			// checkbox_anonymous_access
 			// 
 			this.checkbox_anonymous_access.AutoSize = true;
-			this.checkbox_anonymous_access.LanguageKey = "Lutim.anonymous_access";
+			this.checkbox_anonymous_access.LanguageKey = "lutim.anonymous_access";
 			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 38);
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
 			this.checkbox_anonymous_access.PropertyName = "AnonymousAccess";
@@ -122,7 +122,7 @@ namespace GreenshotLutimPlugin {
 			// checkbox_usepagelink
 			// 
 			this.checkbox_usepagelink.AutoSize = true;
-			this.checkbox_usepagelink.LanguageKey = "Lutim.use_page_link";
+			this.checkbox_usepagelink.LanguageKey = "lutim.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 57);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = "UsePageLink";
@@ -144,7 +144,7 @@ namespace GreenshotLutimPlugin {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "Lutim.settings_title";
+			this.LanguageKey = "lutim.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
