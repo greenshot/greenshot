@@ -153,6 +153,7 @@ namespace GreenshotLutimPlugin
                 }
 
                 lutimInfo.Original = $"https://framapic.org/{data.shorter}.{data.ext}";
+                lutimInfo.Page = $"https://framapic.org/gallery#{data.shorter}.{data.ext}";
 
                 //XmlNodeList nodes = doc.GetElementsByTagName("id");
                 //if (nodes.Count > 0)

@@ -48,6 +48,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\LutimForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LutimHistory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LutimHistory.Designer.cs">
+      <DependentUpon>LutimHistory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="LutimConfiguration.cs" />
     <Compile Include="LutimDestination.cs" />
@@ -75,6 +90,7 @@
   <ItemGroup>
     <EmbeddedResource Include="LutimPlugin.resx" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

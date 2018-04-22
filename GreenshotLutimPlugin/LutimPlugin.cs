@@ -102,7 +102,7 @@ namespace GreenshotLutimPlugin
                 Tag = _host
             };
             _historyMenuItem.Click += delegate {
-                //LutimHistory.ShowHistory(); //TODO add 
+                LutimHistory.ShowHistory(); 
             };
             itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 

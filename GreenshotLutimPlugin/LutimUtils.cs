@@ -50,10 +50,8 @@ namespace GreenshotLutimPlugin
         /// <returns></returns>
         public static bool IsHistoryLoadingNeeded()
         {
-            return false; //TODO reactivate this
-
-            //Log.InfoFormat("Checking if Lutim cache loading needed, configuration has {0} Lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.runtimeLutimHistory.Count);
-            //return Config.runtimeLutimHistory.Count != Config.LutimUploadHistory.Count;
+            Log.InfoFormat("Checking if Lutim cache loading needed, configuration has {0} Lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.runtimeLutimHistory.Count);
+            return Config.runtimeLutimHistory.Count != Config.LutimUploadHistory.Count;
         }
 
         /// <summary>
@@ -258,32 +256,32 @@ namespace GreenshotLutimPlugin
             HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
             webRequest.ServicePoint.Expect100Continue = false;
             string responseString = null;
-            try
-            {
-                using (WebResponse response = webRequest.GetResponse())
-                {
-                    LogRateLimitInfo(response);
-                    var responseStream = response.GetResponseStream();
-                    if (responseStream != null)
-                    {
-                        using (StreamReader reader = new StreamReader(responseStream, true))
-                        {
-                            responseString = reader.ReadToEnd();
-                        }
-                    }
-                }
-            }
-            catch (WebException wE)
-            {
-                if (wE.Status == WebExceptionStatus.ProtocolError)
-                {
-                    if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return null;
-                    }
-                }
-                throw;
-            }
+            //try
+            //{
+            //    using (WebResponse response = webRequest.GetResponse())
+            //    {
+            //        LogRateLimitInfo(response);
+            //        var responseStream = response.GetResponseStream();
+            //        if (responseStream != null)
+            //        {
+            //            using (StreamReader reader = new StreamReader(responseStream, true))
+            //            {
+            //                responseString = reader.ReadToEnd();
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (WebException wE)
+            //{
+            //    if (wE.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
+            //        {
+            //            return null;
+            //        }
+            //    }
+            //    throw;
+            //}
             LutimInfo lutimInfo = null;
             if (responseString != null)
             {
@@ -300,6 +298,8 @@ namespace GreenshotLutimPlugin
         /// <param name="lutimInfo"></param>
         public static void DeleteLutimImage(LutimInfo lutimInfo)
         {
+            //TODO implement deletion
+
             Log.InfoFormat("Deleting Lutim image for {0}", lutimInfo.DeleteHash);
 
             try
