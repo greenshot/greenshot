@@ -137,12 +137,22 @@ namespace GreenshotLutimPlugin
         {
             Log.Debug(response);
 
-            
-
             LutimInfo lutimInfo = new LutimInfo();
             try
             {
-                var json = JsonConvert.DeserializeObject<JsonData>(response);
+                var data = JsonConvert.DeserializeObject<JsonData>(response).msg;
+                lutimInfo.Hash = data.real_short;
+                lutimInfo.ImageType = data.ext;
+                lutimInfo.Title = data.filename;
+
+                double secondsSince;
+                if (double.TryParse(data.created_at, out secondsSince))
+                {
+                    var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
+                }
+
+                lutimInfo.Original = $"https://framapic.org/{data.shorter}.{data.ext}";
 
                 //XmlNodeList nodes = doc.GetElementsByTagName("id");
                 //if (nodes.Count > 0)
