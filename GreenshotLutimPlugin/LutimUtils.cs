@@ -155,21 +155,18 @@ namespace GreenshotLutimPlugin
             {
                 otherParameters["name"] = filename;
             }
+
             string responseString = null;
-            if (Config.AnonymousAccess)
+            var url = "https://framapic.org";
+            
+            try
             {
-                var url = "https://framapic.org";
-                //var fileName = @"F:\PicturesNico\795264.jpg";
                 Image image;
                 ImageOutput.CreateImageFromSurface(surfaceToUpload, outputSettings, out image);
-
-                try
+                var format = ConvertFormat(outputSettings.Format);
+                using (var stream = image.ToStream(format))
                 {
-
-                    //using (var stream = File.Open(filename, FileMode.Open))k
-                    using (var stream = image.ToStream(ConvertFormat(outputSettings.Format)))
-                    {
-                        var files = new[] {
+                    var files = new[] {
                             new UploadFile
                         {
                             Name = "file",
@@ -179,21 +176,16 @@ namespace GreenshotLutimPlugin
                         }
                     };
 
-                        var values = new NameValueCollection { { "format", "json" } };
-                        var result = UploadFile.UploadFiles(url, files, values);
-                        responseString = System.Text.Encoding.Default.GetString(result);
-                    }
+                    var values = new NameValueCollection { { "format", "json" } };
+                    var result = UploadFile.UploadFiles(url, files, values);
+                    responseString = System.Text.Encoding.Default.GetString(result);
+                }
 
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Upload to Lutim gave an exeption: ", ex);
-                    throw;
-                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new NotImplementedException();
+                Log.Error("Upload to Lutim gave an exeption: ", ex);
+                throw;
             }
 
             if (string.IsNullOrEmpty(responseString))
@@ -221,7 +213,7 @@ namespace GreenshotLutimPlugin
                 case OutputFormat.png: return ImageFormat.Png;
                 case OutputFormat.tiff: return ImageFormat.Tiff;
                 case OutputFormat.ico: return ImageFormat.Icon;
-                default: throw new Exception("Not supported format"); 
+                default: throw new Exception("Not supported format");
             }
         }
 
