@@ -66,7 +66,7 @@ namespace GreenshotLutimPlugin
 
             bool saveNeeded = false;
 
-            // Load the ImUr history
+            // Load the lutim history
             foreach (string hash in Config.LutimUploadHistory.Keys.ToList())
             {
                 if (Config.runtimeLutimHistory.ContainsKey(hash))
@@ -77,8 +77,8 @@ namespace GreenshotLutimPlugin
 
                 try
                 {
-                    var deleteHash = Config.LutimUploadHistory[hash];
-                    LutimInfo lutimInfo = RetrieveLutimInfo(hash, deleteHash);
+                    var savedIds = Config.LutimUploadHistory[hash];
+                    LutimInfo lutimInfo = RetrieveLutimInfo(hash, savedIds);
                     if (lutimInfo != null)
                     {
                         RetrieveLutimThumbnail(lutimInfo);
@@ -86,7 +86,7 @@ namespace GreenshotLutimPlugin
                     }
                     else
                     {
-                        Log.InfoFormat("Deleting unknown Lutim {0} from config, delete hash was {1}.", hash, deleteHash);
+                        Log.InfoFormat("Deleting unknown Lutim {0} from config.", hash);
                         Config.LutimUploadHistory.Remove(hash);
                         Config.runtimeLutimHistory.Remove(hash);
                         saveNeeded = true;
@@ -219,25 +219,25 @@ namespace GreenshotLutimPlugin
         /// <param name="lutimInfo"></param>
         public static void RetrieveLutimThumbnail(LutimInfo lutimInfo)
         {
-            //TODO see if relevant
-            //if (lutimInfo.SmallSquare == null)
+            //var url = $"{Config.LutimApiUrl}/{lutimInfo.Hash}.{lutimInfo.ImageType}?width=100";
+
+            //try
             //{
-            //    Log.Warn("Lutim URL was null, not retrieving thumbnail.");
-            //    return;
-            //}
-            //Log.InfoFormat("Retrieving Lutim image for {0} with url {1}", lutimInfo.Hash, lutimInfo.SmallSquare);
-            //HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, lutimInfo.Hash), HTTPMethod.GET);
-            //webRequest.ServicePoint.Expect100Continue = false;
-            //// Not for getting the thumbnail, in anonymous modus
-            ////SetClientId(webRequest);
-            //using (WebResponse response = webRequest.GetResponse())
-            //{
-            //    LogRateLimitInfo(response);
-            //    Stream responseStream = response.GetResponseStream();
-            //    if (responseStream != null)
+            //    var webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+            //    webRequest.Timeout = 2500;
+            //    using (WebResponse response = webRequest.GetResponse())
             //    {
-            //        lutimInfo.Image = ImageHelper.FromStream(responseStream);
+            //        LogRateLimitInfo(response);
+            //        Stream responseStream = response.GetResponseStream();
+            //        if (responseStream != null)
+            //        {
+            //            lutimInfo.Image = ImageHelper.FromStream(responseStream);
+            //        }
             //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Log.Error("Error getting Lutim image!", e);
             //}
         }
 
@@ -245,49 +245,62 @@ namespace GreenshotLutimPlugin
         /// Retrieve information on an Lutim image
         /// </summary>
         /// <param name="hash"></param>
-        /// <param name="deleteHash"></param>
+        /// <param name="savedIds"></param>
         /// <returns>LutimInfo</returns>
-        public static LutimInfo RetrieveLutimInfo(string hash, string deleteHash)
+        public static LutimInfo RetrieveLutimInfo(string hash, string savedIds)
         {
-            //string url = Config.LutimApiUrl + "/image/" + hash + ".xml";
-            //Log.InfoFormat("Retrieving Lutim info for {0} with url {1}", hash, url);
-            //HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-            //webRequest.ServicePoint.Expect100Continue = false;
-            //string responseString = null;
-            ////try
-            ////{
-            ////    using (WebResponse response = webRequest.GetResponse())
-            ////    {
-            ////        LogRateLimitInfo(response);
-            ////        var responseStream = response.GetResponseStream();
-            ////        if (responseStream != null)
-            ////        {
-            ////            using (StreamReader reader = new StreamReader(responseStream, true))
-            ////            {
-            ////                responseString = reader.ReadToEnd();
-            ////            }
-            ////        }
-            ////    }
-            ////}
-            ////catch (WebException wE)
-            ////{
-            ////    if (wE.Status == WebExceptionStatus.ProtocolError)
-            ////    {
-            ////        if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
-            ////        {
-            ////            return null;
-            ////        }
-            ////    }
-            ////    throw;
-            ////}
-            LutimInfo lutimInfo = null;
-            //if (responseString != null)
-            //{
-            //    Log.Debug(responseString);
-            //    lutimInfo = LutimInfo.ParseResponse(responseString);
-            //    lutimInfo.DeleteHash = deleteHash;
-            //}
+            var lutimData = GetPartialLutimInfo(hash, savedIds);
+            if (lutimData == null) return null;
+
+            var lutimInfo = LutimInfo.ParseFromData(lutimData);
             return lutimInfo;
+
+            //var url = $"{Config.LutimApiUrl}/{hash}.{lutimInfo.ImageType}?width=100";
+            //var request = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+            //request.Timeout = 2500;
+            //request.Method = "HEAD";
+
+            //bool exists;
+            //try
+            //{
+            //    request.GetResponse();
+            //    exists = true;
+            //}
+            //catch
+            //{
+            //    exists = false;
+            //}
+
+            //return exists ? lutimInfo : null;
+        }
+
+        private static string SpecialSeparator = "§|";
+        public static string GetLutimIds(LutimInfo lutimInfo)
+        {
+            return $"{lutimInfo.DeleteHash}{SpecialSeparator}{lutimInfo.ImageType}{SpecialSeparator}{lutimInfo.Title}";
+        }
+
+        public static LutimData GetPartialLutimInfo(string hash, string ids)
+        {
+            string[] parsedIds = null;
+            try
+            {
+                parsedIds = ids.Split(new[] {SpecialSeparator}, StringSplitOptions.RemoveEmptyEntries);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            if (parsedIds.Length != 3) return null;
+
+            return new LutimData()
+            {
+                Hash = hash,
+                DeleteHash = parsedIds[0],
+                ImageType = parsedIds[1],
+                Filename = parsedIds[2]
+            };
         }
 
         /// <summary>
@@ -300,11 +313,9 @@ namespace GreenshotLutimPlugin
 
             try
             {
-                //TODO take this from settings
                 var hash = lutimInfo.Hash.Split('/')[0];
                 var url = $"{Config.LutimApiUrl}/d/{hash}/{lutimInfo.DeleteHash}?format=json";
                 var webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-                //webRequest.ServicePoint.Expect100Continue = false;
                 string responseString = null;
                 using (var response = webRequest.GetResponse())
                 {

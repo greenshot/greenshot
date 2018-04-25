@@ -197,7 +197,7 @@ namespace GreenshotLutimPlugin
                         if (lutimInfo != null && _config.AnonymousAccess)
                         {
                             Log.InfoFormat("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Hash, lutimInfo.DeleteHash);
-                            _config.LutimUploadHistory.Add(lutimInfo.Hash, lutimInfo.DeleteHash);
+                            _config.LutimUploadHistory.Add(lutimInfo.Hash, LutimUtils.GetLutimIds(lutimInfo));
                             _config.runtimeLutimHistory.Add(lutimInfo.Hash, lutimInfo);
                             UpdateHistoryMenuItem();
                         }

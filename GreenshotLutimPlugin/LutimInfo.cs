@@ -20,6 +20,7 @@
  */
 using System;
 using System.Drawing;
+using System.Globalization;
 using Newtonsoft.Json;
 using Greenshot.IniFile;
 
@@ -46,7 +47,6 @@ namespace GreenshotLutimPlugin
             set
             {
                 _deleteHash = value;
-                DeletePage = "https://imgur.com/delete/" + value;
             }
         }
 
@@ -91,13 +91,6 @@ namespace GreenshotLutimPlugin
             get;
             set;
         }
-
-        public string DeletePage
-        {
-            get;
-            set;
-        }
-
 
         private Image _image;
         public Image Image
@@ -151,71 +144,11 @@ namespace GreenshotLutimPlugin
                 if (double.TryParse(data.created_at, out secondsSince))
                 {
                     var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-                    lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
+                    lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime.ToLocalTime();
                 }
 
                 lutimInfo.Original = $"{Config.LutimApiUrl}/{data.shorter}.{data.ext}";
                 lutimInfo.Page = $"{Config.LutimApiUrl}/gallery#{data.shorter}.{data.ext}";
-
-                //XmlNodeList nodes = doc.GetElementsByTagName("id");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Hash = nodes.Item(0)?.InnerText;
-                //}
-                //nodes = doc.GetElementsByTagName("hash");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Hash = nodes.Item(0)?.InnerText;
-                //}
-                //nodes = doc.GetElementsByTagName("deletehash");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.DeleteHash = nodes.Item(0)?.InnerText;
-                //}
-                //nodes = doc.GetElementsByTagName("type");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.ImageType = nodes.Item(0)?.InnerText;
-                //}
-                //nodes = doc.GetElementsByTagName("title");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Title = nodes.Item(0)?.InnerText;
-                //}
-                //nodes = doc.GetElementsByTagName("datetime");
-                //if (nodes.Count > 0)
-                //{
-                //    // Version 3 has seconds since Epoch
-                //    double secondsSince;
-                //    if (double.TryParse(nodes.Item(0)?.InnerText, out secondsSince))
-                //    {
-                //        var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-                //        lutimInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
-                //    }
-                //}
-                //nodes = doc.GetElementsByTagName("original");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                //}
-                //// Version 3 API only has Link
-                //nodes = doc.GetElementsByTagName("link");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                //}
-                //nodes = doc.GetElementsByTagName("Lutim_page");
-                //if (nodes.Count > 0)
-                //{
-                //    lutimInfo.Page = nodes.Item(0)?.InnerText.Replace("http:", "https:");
-                //}
-                //else
-                //{
-                //    // Version 3 doesn't have a page link in the response
-                //    lutimInfo.Page = $"https://Lutim.com/{lutimInfo.Hash}";
-                //}
-                //nodes = doc.GetElementsByTagName("small_square");
-                //lutimInfo.SmallSquare = nodes.Count > 0 ? nodes.Item(0)?.InnerText : $"http://i.Lutim.com/{lutimInfo.Hash}s.png";
             }
             catch (Exception e)
             {
@@ -223,10 +156,35 @@ namespace GreenshotLutimPlugin
             }
             return lutimInfo;
         }
+
+        public static LutimInfo ParseFromData(LutimData data)
+        {
+            var lutimInfo = new LutimInfo();
+
+            lutimInfo.Hash = data.Hash;
+            lutimInfo.ImageType = data.ImageType;
+            lutimInfo.Title = data.Filename;
+            lutimInfo.DeleteHash = data.DeleteHash;
+            lutimInfo.Original = $"{Config.LutimApiUrl}/{data.Hash}.{data.ImageType}";
+            lutimInfo.Page = $"{Config.LutimApiUrl}/gallery#{data.Hash}.{data.ImageType}";
+
+            DateTime.TryParseExact(data.Filename.Split('.')[0], "yyyyMMdd-HHmm", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var parsedData);
+            lutimInfo.Timestamp = parsedData;
+            
+            return lutimInfo;
+        }
     }
 }
 
 // ReSharper disable InconsistentNaming
+public class LutimData
+{
+    public string Hash { get; set; }
+    public string DeleteHash { get; set; }
+    public string ImageType { get; set; }
+    public string Filename { get; set; }
+}
+
 public class JsonData
 {
     public JsonMessage msg { get; set; }

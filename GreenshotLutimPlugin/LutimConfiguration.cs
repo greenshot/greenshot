@@ -69,6 +69,9 @@ namespace GreenshotLutimPlugin
         [IniProperty("FilenamePattern", Description = "Filename for the Lutim upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
         public string FilenamePattern { get; set; }
 
+        /// <summary>
+        /// hash => delecte hash, ext, filename
+        /// </summary>
         [IniProperty("LutimUploadHistory", Description = "Lutim upload history (LutimUploadHistory.hash=deleteHash)")]
         public Dictionary<string, string> LutimUploadHistory { get; set; }
 
