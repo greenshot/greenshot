@@ -39,10 +39,9 @@ namespace GreenshotLutimPlugin
     public static class LutimUtils
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimUtils));
-        private const string SmallUrlPattern = "http://i.Lutim.com/{0}s.jpg";
         private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
-        private const string AuthUrlPattern = "https://api.Lutim.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}";
-        private const string TokenUrl = "https://api.Lutim.com/oauth2/token";
+        private const string SpecialSeparator = "§|";
+
 
         /// <summary>
         /// Check if we need to load the history
@@ -191,14 +190,25 @@ namespace GreenshotLutimPlugin
             return LutimInfo.ParseResponse(responseString);
         }
 
+        /// <summary>
+        /// Get a stream from image
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
         private static Stream ToStream(this Image image, ImageFormat format)
         {
-            var stream = new System.IO.MemoryStream();
+            var stream = new MemoryStream();
             image.Save(stream, format);
             stream.Position = 0;
             return stream;
         }
 
+        /// <summary>
+        /// Get Image format from OutputFormat
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
         private static ImageFormat ConvertFormat(OutputFormat format)
         {
             switch (format)
@@ -219,8 +229,8 @@ namespace GreenshotLutimPlugin
         /// <param name="lutimInfo"></param>
         public static void RetrieveLutimThumbnail(LutimInfo lutimInfo)
         {
+            //TODO find why it doesn't work
             //var url = $"{Config.LutimApiUrl}/{lutimInfo.Hash}.{lutimInfo.ImageType}?width=100";
-
             //try
             //{
             //    var webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
@@ -249,12 +259,13 @@ namespace GreenshotLutimPlugin
         /// <returns>LutimInfo</returns>
         public static LutimInfo RetrieveLutimInfo(string hash, string savedIds)
         {
-            var lutimData = GetPartialLutimInfo(hash, savedIds);
+            var lutimData = GetLutimData(hash, savedIds);
             if (lutimData == null) return null;
 
             var lutimInfo = LutimInfo.ParseFromData(lutimData);
             return lutimInfo;
 
+            //TODO find why it doesn't work
             //var url = $"{Config.LutimApiUrl}/{hash}.{lutimInfo.ImageType}?width=100";
             //var request = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
             //request.Timeout = 2500;
@@ -274,13 +285,23 @@ namespace GreenshotLutimPlugin
             //return exists ? lutimInfo : null;
         }
 
-        private static string SpecialSeparator = "§|";
-        public static string GetLutimIds(LutimInfo lutimInfo)
+        /// <summary>
+        /// Convert Lutim minimal data into string
+        /// </summary>
+        /// <param name="lutimInfo"></param>
+        /// <returns></returns>
+        public static string GetLutimData(LutimInfo lutimInfo)
         {
             return $"{lutimInfo.DeleteHash}{SpecialSeparator}{lutimInfo.ImageType}{SpecialSeparator}{lutimInfo.Title}";
         }
 
-        public static LutimData GetPartialLutimInfo(string hash, string ids)
+        /// <summary>
+        /// Retrieve Lutim minimal data
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public static LutimData GetLutimData(string hash, string ids)
         {
             string[] parsedIds = null;
             try

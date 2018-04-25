@@ -46,22 +46,7 @@ namespace GreenshotLutimPlugin
         public bool CopyLinkToClipboard { get; set; }
         [IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
         public bool UsePageLink { get; set; }
-        [IniProperty("AnonymousAccess", Description = "Use anonymous access to Lutim", DefaultValue = "true")]
-        public bool AnonymousAccess { get; set; }
-
-        [IniProperty("RefreshToken", Description = "Lutim refresh Token", Encrypted = true, ExcludeIfNull = true)]
-        public string RefreshToken { get; set; }
-
-        /// <summary>
-        /// AccessToken, not stored
-        /// </summary>
-        public string AccessToken { get; set; }
-
-        /// <summary>
-        /// AccessTokenExpires, not stored
-        /// </summary>
-        public DateTimeOffset AccessTokenExpires { get; set; }
-
+       
         [IniProperty("AddTitle", Description = "Is the title passed on to Lutim", DefaultValue = "False")]
         public bool AddTitle { get; set; }
         [IniProperty("AddFilename", Description = "Is the filename passed on to Lutim", DefaultValue = "False")]

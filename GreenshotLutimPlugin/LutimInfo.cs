@@ -34,63 +34,13 @@ namespace GreenshotLutimPlugin
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimInfo));
         private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
 
-        public string Hash
-        {
-            get;
-            set;
-        }
-
-        private string _deleteHash;
-        public string DeleteHash
-        {
-            get { return _deleteHash; }
-            set
-            {
-                _deleteHash = value;
-            }
-        }
-
-        public string Title
-        {
-            get;
-            set;
-        }
-
-        public string ImageType
-        {
-            get;
-            set;
-        }
-
-        public DateTime Timestamp
-        {
-            get;
-            set;
-        }
-
-        public string Original
-        {
-            get;
-            set;
-        }
-
-        public string Page
-        {
-            get;
-            set;
-        }
-
-        public string SmallSquare
-        {
-            get;
-            set;
-        }
-
-        public string LargeThumbnail
-        {
-            get;
-            set;
-        }
+        public string Hash { get; set; }
+        public string DeleteHash { get; set; }
+        public string Title { get; set; }
+        public string ImageType { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string Original { get; set; }
+        public string Page { get; set; }
 
         private Image _image;
         public Image Image
