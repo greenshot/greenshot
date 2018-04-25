@@ -108,8 +108,8 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						Log.Error().WriteLine(ex);
 						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-					}
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(GreenshotLanguage.DestinationExportFailed, Description));
+                    }
 				}
 			}
 			else
@@ -148,7 +148,7 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						Log.Error().WriteLine(ex);
 						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(GreenshotLanguage.DestinationExportFailed, Description));
 					}
 				}
 			}

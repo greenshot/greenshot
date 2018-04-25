@@ -17,10 +17,13 @@ namespace Greenshot.PerformanceTests
     [OrderProvider(SummaryOrderPolicy.FastestToSlowest)]
     public class GfxPerformance
     {
-        //[Benchmark]
-        public void WuQuantizer()
+        [Benchmark]
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void WuQuantizer(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))

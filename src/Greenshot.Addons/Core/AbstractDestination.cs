@@ -55,6 +55,7 @@ namespace Greenshot.Addons.Core
 
         [Import]
         protected IGreenshotLanguage GreenshotLanguage { get; set; }
+
         [Import]
         protected ICoreConfiguration CoreConfiguration { get; set; }
 

@@ -182,5 +182,8 @@ namespace Greenshot.Addons
 
         [DefaultValue("I know what I am doing! (expert mode)")]
         string Expert { get; }
+
+        [DefaultValue("Error while exporting to {0}. Please try again.")]
+        string DestinationExportFailed { get; }
     }
 }
