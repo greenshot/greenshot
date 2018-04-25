@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 EndProject
@@ -49,6 +49,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Gfx.Experimental", "Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj", "{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.OneDrive", "Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj", "{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Tfs", "Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj", "{8B3643A5-AFED-49FF-8D66-6348FB102EB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -222,6 +224,14 @@ Global
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Release|x86.ActiveCfg = Release|x86
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Release|x86.Build.0 = Release|x86
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Debug|x86.ActiveCfg = Debug|x86
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Debug|x86.Build.0 = Debug|x86
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|x86.ActiveCfg = Release|x86
+		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

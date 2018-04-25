@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+    <resources prefix="Tfs">
+        <resource name="communication_wait">Communicating with TFS. Please wait...</resource>
+        <resource name="label_link_type">Link Type</resource>
+        <resource name="settings_title">TFS settings</resource>
+        <resource name="upload_failure">An error occured while uploading to TFS:</resource>
+        <resource name="upload_menu_item">Upload to TFS</resource>
+        <resource name="label_url">Url</resource>
+        <resource name="label_apikey">Api Key</resource>
+    </resources>
+</language>
