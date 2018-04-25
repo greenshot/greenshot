@@ -68,7 +68,8 @@ namespace Greenshot.Destinations
 				// Make sure there is some kind of "mail" name
 				if (_mapiClient == null)
 				{
-					_mapiClient = Language.GetString(LangKey.editor_email);
+                    // TODO: Change language
+				    _mapiClient = "Email";  //GreenshotLanguage.editor_email;
 				}
 				return _mapiClient;
 			}

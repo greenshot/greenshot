@@ -126,16 +126,20 @@ namespace Greenshot.Addon.Jira
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
-		{
+	    IEnumerable<IDestination> DynamicDestinations()
+        {
 			if (_jiraConnector == null || !_jiraConnector.IsLoggedIn)
 			{
 				yield break;
 			}
 			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraConfiguration, _jiraLanguage, _jiraConnector, jiraDetails.JiraIssue, _windowManager);
-			}
+				yield return new JiraDestination(_jiraConfiguration, _jiraLanguage, _jiraConnector, jiraDetails.JiraIssue, _windowManager)
+				{
+				    CoreConfiguration = CoreConfiguration,
+				    GreenshotLanguage = GreenshotLanguage
+				};
+            }
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
