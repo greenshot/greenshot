@@ -126,7 +126,7 @@ namespace Greenshot.Addon.Jira
 			}
 		}
 
-	    IEnumerable<IDestination> DynamicDestinations()
+	    public override IEnumerable<IDestination> DynamicDestinations()
         {
 			if (_jiraConnector == null || !_jiraConnector.IsLoggedIn)
 			{

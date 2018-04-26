@@ -190,6 +190,7 @@
     <Compile Include="ViewModels\JiraViewModel.cs" />
     <Compile Include="ViewModels\JiraConfigViewModel.cs" />
     <None Include="app.config" />
+    <EmbeddedResource Include="jira.svgz" />
     <None Include="Languages\language_jiraplugin-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

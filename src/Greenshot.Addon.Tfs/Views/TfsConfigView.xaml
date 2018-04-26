@@ -4,6 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Addon.Tfs.ViewModels"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:behaviours="http://metro.mahapps.com/winfx/xaml/shared"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:TfsConfigViewModel,IsDesignTimeCreatable=False}"
              >
@@ -13,12 +15,12 @@
                 <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding TfsConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding TfsLanguage.UsePageLink}"/>
                 <DockPanel LastChildFill="True">
-                    <Label Content="{Binding TfsLanguage.LabelUrl}" Width="100" />
-                    <TextBox Text="{Binding TfsConfiguration.TfsUri}" />
+                    <Label Content="{Binding TfsLanguage.LabelUrl}" Width="100"/>
+                    <TextBox Text="{Binding TfsConfiguration.TfsUri}" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.Watermark="TFS Url"/>
                 </DockPanel>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding TfsLanguage.LabelApiKey}" Width="100" />
-                    <TextBox Text="{Binding TfsConfiguration.ApiKey}" />
+                    <PasswordBox behaviours:PasswordBoxBindingBehavior.Password="{Binding TfsConfiguration.ApiKey}" mah:PasswordBoxHelper.RevealButtonContent="{Binding TfsConfiguration.ApiKey}" />
                 </DockPanel>
             </StackPanel>
         </GroupBox>

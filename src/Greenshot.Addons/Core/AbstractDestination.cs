@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -64,12 +65,16 @@ namespace Greenshot.Addons.Core
             Designation = GetType().GetDesignation();
         }
 
+        /// <inheritdoc />
         public virtual string Designation { get; }
 
+        /// <inheritdoc />
         public abstract string Description { get; }
 
+        /// <inheritdoc />
         public virtual Bitmap DisplayIcon { get; set; }
 
+        /// <inheritdoc />
         public virtual BitmapSource DisplayIconWpf => DisplayIcon?.ToBitmapSource() ?? GetDisplayIcon(DpiHandler.DefaultScreenDpi).ToBitmapSource();
 
         public virtual Bitmap GetDisplayIcon(double dpi)
@@ -81,9 +86,33 @@ namespace Greenshot.Addons.Core
 
         public virtual Keys EditorShortcutKeys => Keys.None;
 
+        /// <summary>
+        /// Give a destination a preparation possibility before showing the toolstrip items
+        /// </summary>
+        /// <param name="destinationToolStripMenuItem">ToolStripMenuItem</param>
+        /// <returns>Task</returns>
+        protected virtual Task PrepareDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
+        {
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Get the Dynamic destinations
+        /// </summary>
+        /// <returns>IEnumerable of IDestination</returns>
         public virtual IEnumerable<IDestination> DynamicDestinations()
         {
-            yield break;
+            return Enumerable.Empty<IDestination>();
+        }
+
+        /// <summary>
+        /// Give a destination the possibility to clean up after showing the toolstrip item
+        /// </summary>
+        /// <param name="destinationToolStripMenuItem">ToolStripMenuItem</param>
+        /// <returns>Task</returns>
+        protected virtual Task AfterDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
+        {
+            return Task.FromResult(true);
         }
 
         public void Dispose()
@@ -91,12 +120,16 @@ namespace Greenshot.Addons.Core
             Dispose(true);
         }
 
+        /// <inheritdoc />
         public virtual bool IsDynamic => false;
 
+        /// <inheritdoc />
         public virtual bool UseDynamicsOnly => false;
 
+        /// <inheritdoc />
         public virtual bool IsLinkable => false;
 
+        /// <inheritdoc />
         public virtual bool IsActive => true;
 
         protected virtual ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -140,12 +173,15 @@ namespace Greenshot.Addons.Core
 
             if (IsDynamic && addDynamics)
             {
-                basisMenuItem.DropDownOpening += (sender, args) =>
+                basisMenuItem.DropDownOpening += async (sender, args) =>
                 {
                     if (basisMenuItem.DropDownItems.Count != 0)
                     {
                         return;
                     }
+
+                    // Give the destination a chance to prepare for the destinations
+                    await PrepareDynamicDestinations(basisMenuItem).ConfigureAwait(true);
 
                     var subDestinations = new List<IDestination>();
                     // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
@@ -157,7 +193,7 @@ namespace Greenshot.Addons.Core
                     {
                         Log.Error().WriteLine("Skipping {0}, due to the following error: {1}", Description, ex.Message);
                     }
-
+                    await AfterDynamicDestinations(basisMenuItem).ConfigureAwait(true);
                     if (subDestinations.Count <= 0)
                     {
                         return;
@@ -184,6 +220,7 @@ namespace Greenshot.Addons.Core
                             AddTagEvents(destinationMenuItem, menu, subDestination.Description);
                             basisMenuItem.DropDownItems.Add(destinationMenuItem);
                         }
+                        basisMenuItem.ShowDropDown();
                     }
                 };
             }

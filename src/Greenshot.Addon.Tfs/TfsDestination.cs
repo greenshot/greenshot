@@ -65,19 +65,35 @@ namespace Greenshot.Addon.Tfs
             _tfsConfiguration = tfsConfiguration;
             _tfsLanguage = tfsLanguage;
             _tfsClient = tfsClient;
-            var ignoreTask = _tfsClient.UpdateWorkItems();
         }
 
         public TfsDestination(
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
-            TfsClient tfsClient, WorkItem workItem) : this(tfsConfiguration, tfsLanguage, tfsClient)
+            TfsClient tfsClient, WorkItem workItem)
         {
+            _tfsConfiguration = tfsConfiguration;
+            _tfsLanguage = tfsLanguage;
+            _tfsClient = tfsClient;
             _workItem = workItem;
         }
 
         public override bool IsActive => base.IsActive && _tfsClient.CanUpdate;
+
+        public override bool UseDynamicsOnly => true;
+
         public override bool IsDynamic => true;
+
+        protected override async Task PrepareDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
+        {
+            if (!destinationToolStripMenuItem.HasDropDownItems)
+            {
+                var oldColor = destinationToolStripMenuItem.BackColor;
+                destinationToolStripMenuItem.BackColor = Color.DarkGray;
+                await _tfsClient.UpdateWorkItems();
+                destinationToolStripMenuItem.BackColor = oldColor;
+            }
+        }
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {
@@ -96,7 +112,6 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
-
         public override string Description
         {
             get
@@ -106,7 +121,8 @@ namespace Greenshot.Addon.Tfs
                     return _tfsLanguage.UploadMenuItem;
                 }
                 // Format the title of this destination
-                return _workItem.Id + ": " + _workItem.Fields.Title.Substring(0, Math.Min(20, _workItem.Fields.Title.Length));
+                // TODO: substring?
+                return $"{_workItem.Fields.WorkItemType} {_workItem.Id}: {_workItem.Fields.Title}";
             }
         }
 
@@ -123,8 +139,7 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
-        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface,
-            ICaptureDetails captureDetails)
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             if (_workItem == null)
             {
@@ -157,7 +172,7 @@ namespace Greenshot.Addon.Tfs
                 Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("OneDrive plug-in", _tfsLanguage.CommunicationWait,
+                using (var pleaseWaitForm = new PleaseWaitForm("TFS plug-in", _tfsLanguage.CommunicationWait,
                     cancellationTokenSource))
                 {
                     pleaseWaitForm.Show();

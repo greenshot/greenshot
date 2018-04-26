@@ -23,13 +23,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.ContentConverter;
 using Dapplo.HttpExtensions.Factory;
 using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Addon.Tfs.Entities;
@@ -59,11 +59,16 @@ namespace Greenshot.Addon.Tfs
             _coreConfiguration = coreConfiguration;
             _tfsConfiguration = tfsConfiguration;
 
+#if DEBUG
+            // Set json log threshold high
+            DefaultJsonHttpContentConverter.Instance.Value.LogThreshold = 0;
+#endif
             _tfsHttpBehaviour = new HttpBehaviour
             {
                 HttpSettings = networkConfiguration,
                 JsonSerializer = new JsonNetJsonSerializer()
             };
+
         }
 
         public bool CanUpdate => _tfsConfiguration.TfsUri != null && !string.IsNullOrEmpty(_tfsConfiguration.ApiKey);
@@ -75,7 +80,7 @@ namespace Greenshot.Addon.Tfs
             {
                 return;
             }
-            var workItems = await GetOwnWorkitems();
+            var workItems = await GetOwnWorkitems().ConfigureAwait(false);
             foreach (var workItem in workItems.Items)
             {
                 WorkItems[workItem.Id] = workItem;
@@ -95,14 +100,14 @@ namespace Greenshot.Addon.Tfs
 
             var wiql = new JObject { { "query", "Select [System.Id] FROM WorkItems WHERE [System.AssignedTo] = @me" } };
 
-            var queryResult = await client.PostAsync<HttpResponse<WorkItemQueryResult, string>>(workitemsQueryUri, wiql);
+            var queryResult = await client.PostAsync<HttpResponse<WorkItemQueryResult, string>>(workitemsQueryUri, wiql).ConfigureAwait(false);
             if (queryResult.HasError)
             {
                 throw new Exception(queryResult.ErrorResponse);
             }
 
             var workItemsUri = apiUri.AppendSegments("wit", "workItems").ExtendQuery("ids", string.Join(",",queryResult.Response.Items.Select(item => item.Id)));
-            var result = await client.GetAsAsync<HttpResponse<WorkItemList, string>>(workItemsUri);
+            var result = await client.GetAsAsync<HttpResponse<WorkItemList, string>>(workItemsUri).ConfigureAwait(false);
             if (result.HasError)
             {
                 throw new Exception(result.ErrorResponse);
@@ -132,7 +137,7 @@ namespace Greenshot.Addon.Tfs
                 using (var content = new StreamContent(imageStream))
                 {
                     content.SetContentType("application/octet-stream");
-                    var createAttachmentresult = await client.PostAsync<HttpResponse<CreateAttachmentResult, string>>(attachmentUri, content);
+                    var createAttachmentresult = await client.PostAsync<HttpResponse<CreateAttachmentResult, string>>(attachmentUri, content).ConfigureAwait(false);
                     if (createAttachmentresult.HasError)
                     {
                         throw new Exception(createAttachmentresult.ErrorResponse);
@@ -176,7 +181,7 @@ namespace Greenshot.Addon.Tfs
 
             var content = HttpContentFactory.Create(linkAttachmentRequest);
             content.SetContentType("application/json-patch+json");
-            var result = await client.PatchAsync<HttpResponse<string, string>>(linkAttachmentUri, content);
+            var result = await client.PatchAsync<HttpResponse<string, string>>(linkAttachmentUri, content).ConfigureAwait(false);
             if (result.HasError)
             {
                 throw new Exception(result.ErrorResponse);

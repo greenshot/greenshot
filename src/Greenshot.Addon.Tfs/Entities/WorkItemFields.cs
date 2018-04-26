@@ -34,5 +34,8 @@ namespace Greenshot.Addon.Tfs.Entities
 
         [JsonProperty("System.WorkItemType")]
         public string WorkItemType { get; set; }
+
+        [JsonProperty("System.State")]
+        public string State { get; set; }
     }
 }

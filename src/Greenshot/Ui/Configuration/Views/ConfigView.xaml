@@ -29,28 +29,28 @@
             <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-            <TextBox x:Name="Filter" />
-            <TreeView x:Name="TreeItems"
-                      cal:Message.Attach="[Event SelectedItemChanged] = [Action ActivateChildView($this.SelectedItem)]">
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBox x:Name="Filter" Grid.Row="0" mah:TextBoxHelper.ClearTextButton="True" />
+            <TreeView x:Name="TreeItems" Grid.Row="1" cal:Message.Attach="[Event SelectedItemChanged] = [Action ActivateChildView($this.SelectedItem)]">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                         <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
                         <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Converter={StaticResource AuthenticationTargetPropertyConverter}}"
-                                         Value="{x:Static security:AuthenticationTargetProperties.Visibility}">
+                            <DataTrigger Binding="{Binding Converter={StaticResource AuthenticationTargetPropertyConverter}}" Value="{x:Static security:AuthenticationTargetProperties.Visibility}">
                                 <Setter Property="security:AuthenticationVisibility.Permissions" Value="{Binding Permissions}" />
                                 <Setter Property="security:AuthenticationVisibility.WhenPermissions" Value="{Binding WhenPermission}" />
-                                <Setter Property="security:AuthenticationVisibility.WhenPermissionsMissing"
-                                        Value="{Binding WhenPermissionMissing}" />
+                                <Setter Property="security:AuthenticationVisibility.WhenPermissionsMissing" Value="{Binding WhenPermissionMissing}" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Converter={StaticResource AuthenticationTargetPropertyConverter}}"
                                          Value="{x:Static security:AuthenticationTargetProperties.IsEnabled}">
                                 <Setter Property="security:AuthenticationEnabled.Permissions" Value="{Binding Permissions}" />
                                 <Setter Property="security:AuthenticationEnabled.WhenPermissions" Value="{Binding WhenPermission}" />
-                                <Setter Property="security:AuthenticationEnabled.WhenPermissionsMissing"
-                                        Value="{Binding WhenPermissionMissing}" />
+                                <Setter Property="security:AuthenticationEnabled.WhenPermissionsMissing" Value="{Binding WhenPermissionMissing}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -61,7 +61,7 @@
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-        </StackPanel>
+        </Grid>
         <ContentControl x:Name="ActiveItem" Grid.Column="1" Grid.Row="0"/>
         <UniformGrid Grid.Column="1" Grid.Row="1" Rows="1" Columns="2">
             <Button x:Name="Cancel" Content="{Binding GreenshotLanguage.Cancel}" />
