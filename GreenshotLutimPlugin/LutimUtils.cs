@@ -26,10 +26,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using LutimPlugin;
+using Newtonsoft.Json;
 
 namespace GreenshotLutimPlugin
 {
@@ -263,26 +265,33 @@ namespace GreenshotLutimPlugin
             if (lutimData == null) return null;
 
             var lutimInfo = LutimInfo.ParseFromData(lutimData);
+            var url = $"{Config.LutimApiUrl}/c?short={hash.Split('/')[0]}&token={lutimInfo.DeleteHash}";
+            var request = NetworkHelper.CreateWebRequest(url, HTTPMethod.POST);
+
+            try
+            {
+                using (var response = request.GetResponse())
+                {
+                    using (var stream = response.GetResponseStream())
+                    {
+                        var reader = new StreamReader(stream, Encoding.UTF8);
+                        var responseString = reader.ReadToEnd();
+                        var result = JsonConvert.DeserializeObject<LutimStatus>(responseString);
+                        if (!result.enabled) //Has been deleted or expired
+                        {
+                            lutimInfo = null;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Retrieving lutim info failed.", e);
+                return null;
+            }
+
             return lutimInfo;
-
-            //TODO find why it doesn't work
-            //var url = $"{Config.LutimApiUrl}/{hash}.{lutimInfo.ImageType}?width=100";
-            //var request = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-            //request.Timeout = 2500;
-            //request.Method = "HEAD";
-
-            //bool exists;
-            //try
-            //{
-            //    request.GetResponse();
-            //    exists = true;
-            //}
-            //catch
-            //{
-            //    exists = false;
-            //}
-
-            //return exists ? lutimInfo : null;
         }
 
         /// <summary>
@@ -306,7 +315,7 @@ namespace GreenshotLutimPlugin
             string[] parsedIds = null;
             try
             {
-                parsedIds = ids.Split(new[] {SpecialSeparator}, StringSplitOptions.RemoveEmptyEntries);
+                parsedIds = ids.Split(new[] { SpecialSeparator }, StringSplitOptions.RemoveEmptyEntries);
             }
             catch (Exception)
             {
@@ -411,5 +420,13 @@ namespace GreenshotLutimPlugin
                 Config.Credits = credits;
             }
         }
+    }
+
+    // ReSharper disable InconsistentNaming
+    public class LutimStatus
+    {
+        public int counter { get; set; }
+        public bool enabled { get; set; }
+        public bool success { get; set; }
     }
 }
