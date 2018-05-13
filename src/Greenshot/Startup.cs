@@ -23,6 +23,7 @@
 
 #region Usings
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
@@ -31,6 +32,7 @@ using System.Windows;
 using System.Windows.Forms;
 using Autofac;
 using Caliburn.Micro;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
 using Dapplo.Language;
@@ -54,7 +56,7 @@ namespace Greenshot
         ///     Start Greenshot application
         /// </summary>
         [STAThread]
-        public static async Task<int> Main(string[] arguments)
+        public static int Main(string[] arguments)
         {
             // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
@@ -84,12 +86,22 @@ namespace Greenshot
 
             RegisterErrorHandlers(application);
 
+            var scanDirectories = new List<string>
+            {
+                FileLocations.StartupDirectory,
+#if DEBUG
+#else
+#endif
+            };
+
             // Load the assemblies, and run the application
-            application.Bootstrapper.FindAndLoadAssemblies("Dapplo.*");
+            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Dapplo.*.dll"));
             // Make sure the non-plugin DLLs are also loaded, so exports are available.
-            application.Bootstrapper.FindAndLoadAssemblies("Greenshot*");
-            application.Bootstrapper.FindAndLoadAssemblies("Greenshot*.gsp");
+            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot*.dll"));
+            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot*.gsp"));
+/*
             await application.Bootstrapper.StartupAsync();
+*/
             application.Run();
             return 0;
         }

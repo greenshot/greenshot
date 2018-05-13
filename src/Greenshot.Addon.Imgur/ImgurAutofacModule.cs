@@ -20,7 +20,7 @@ namespace Greenshot.Addon.Imgur
                 .SingleInstance();
             builder
                 .RegisterType<ImgurApi>()
-                .As<IConfigScreen>()
+                .AsSelf()
                 .SingleInstance();
         }
     }

@@ -86,7 +86,9 @@ namespace Greenshot.Forms
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
-        public MainForm(ICoreConfiguration coreConfiguration, IWindowManager windowManager, ConfigViewModel configViewModel, SettingsForm settingsForm, IEnumerable<IDestination> destinations)
+        public MainForm(ICoreConfiguration coreConfiguration,
+            IWindowManager windowManager,
+            ConfigViewModel configViewModel, SettingsForm settingsForm, IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
