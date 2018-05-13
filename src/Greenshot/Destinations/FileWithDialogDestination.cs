@@ -23,9 +23,9 @@
 
 #region Usings
 
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -42,15 +42,13 @@ namespace Greenshot.Destinations
 
     public class FileWithDialogDestination : AbstractDestination
 	{
-	    private readonly ICoreConfiguration _coreConfiguration;
-
-	    [ImportingConstructor]
-	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration)
+	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
 	    {
-	        _coreConfiguration = coreConfiguration;
 	    }
 
-	    public override string Description => Language.GetString(LangKey.settings_destination_fileas);
+        public override string Description => Language.GetString(LangKey.settings_destination_fileas);
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.S;
 
@@ -66,7 +64,7 @@ namespace Greenshot.Destinations
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;
 				captureDetails.Filename = savedTo;
-			    _coreConfiguration.OutputFileAsFullpath = savedTo;
+			    CoreConfiguration.OutputFileAsFullpath = savedTo;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

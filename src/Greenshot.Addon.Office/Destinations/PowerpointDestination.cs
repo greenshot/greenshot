@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Office.OfficeExport;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -51,8 +52,11 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _presentationName;
 
 
-		public PowerpointDestination()
-		{
+		public PowerpointDestination(
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		) : base(coreConfiguration, greenshotLanguage)
+        {
 		    _exePath = PluginUtils.GetExePath("POWERPNT.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
@@ -60,7 +64,9 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public PowerpointDestination(string presentationName) : this()
+		public PowerpointDestination(string presentationName,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage) : this(coreConfiguration, greenshotLanguage)
 		{
 			_presentationName = presentationName;
 		}
@@ -93,7 +99,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName));
+			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName, CoreConfiguration, GreenshotLanguage));
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -117,10 +123,13 @@ namespace Greenshot.Addon.Office.Destinations
 					var presentations = PowerpointExporter.GetPowerpointPresentations();
 					if (presentations != null && presentations.Count > 0)
 					{
-						var destinations = new List<IDestination> {new PowerpointDestination()};
+						var destinations = new List<IDestination>
+						{
+						    new PowerpointDestination(CoreConfiguration, GreenshotLanguage)
+						};
 						foreach (var presentation in presentations)
 						{
-							destinations.Add(new PowerpointDestination(presentation));
+							destinations.Add(new PowerpointDestination(presentation, CoreConfiguration, GreenshotLanguage));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);

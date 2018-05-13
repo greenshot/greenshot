@@ -22,14 +22,12 @@
 #endregion
 
 using System;
-using System.ComponentModel.Composition;
 
 namespace Greenshot.Addons.Components
 {
     /// <summary>
     /// This can be used to store the main handle
     /// </summary>
-    [Export]
     public class WindowHandle
     {
         /// <summary>

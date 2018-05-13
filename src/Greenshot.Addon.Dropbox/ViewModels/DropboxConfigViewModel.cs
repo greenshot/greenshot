@@ -21,17 +21,14 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Dropbox.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class DropboxConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -39,14 +36,22 @@ namespace Greenshot.Addon.Dropbox.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
         public IDropboxConfiguration DropboxConfiguration { get; set; }
 
-        [Import]
         public IDropboxLanguage DropboxLanguage { get; set; }
 
-        [Import]
         public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+
+        public DropboxConfigViewModel(
+            IDropboxConfiguration dropboxConfiguration,
+            IDropboxLanguage dropboxLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel
+        )
+        {
+            DropboxConfiguration = dropboxConfiguration;
+            DropboxLanguage = dropboxLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

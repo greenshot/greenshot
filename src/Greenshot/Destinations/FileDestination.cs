@@ -28,6 +28,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -46,7 +47,13 @@ namespace Greenshot.Destinations
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
+	    public FileDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
+	    public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 

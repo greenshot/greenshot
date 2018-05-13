@@ -25,20 +25,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -57,17 +56,22 @@ namespace Greenshot.Addon.GooglePhotos
         private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 	    private readonly IGooglePhotosLanguage _googlePhotosLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth2Settings _oAuth2Settings;
 
-	    [ImportingConstructor]
         public GooglePhotosDestination(
 	        IGooglePhotosConfiguration googlePhotosConfiguration,
 	        IGooglePhotosLanguage googlePhotosLanguage,
-	        INetworkConfiguration networkConfiguration)
-	    {
+	        INetworkConfiguration networkConfiguration,
+	        IResourceProvider resourceProvider,
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage
+            ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	        _googlePhotosLanguage = googlePhotosLanguage;
 	        _networkConfiguration = networkConfiguration;
+	        _resourceProvider = resourceProvider;
 
 	        _oAuth2Settings = new OAuth2Settings
 	        {
@@ -96,9 +100,8 @@ namespace Greenshot.Addon.GooglePhotos
 		{
 			get
 			{
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*GooglePhotos\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by caching
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "GooglePhotos.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

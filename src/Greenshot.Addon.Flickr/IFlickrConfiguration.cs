@@ -29,7 +29,6 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 
 #endregion
 

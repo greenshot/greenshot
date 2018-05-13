@@ -25,21 +25,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Dropbox.Entities;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -61,17 +60,22 @@ namespace Greenshot.Addon.Dropbox
 
         private readonly IDropboxConfiguration _dropboxPluginConfiguration;
 	    private readonly IDropboxLanguage _dropboxLanguage;
+	    private readonly IResourceProvider _resourceProvider;
 	    private OAuth2Settings _oAuth2Settings;
 	    private IHttpBehaviour _oAuthHttpBehaviour;
 
-	    [ImportingConstructor]
 	    public DropboxDestination(
 	        IDropboxConfiguration dropboxPluginConfiguration,
 	        IDropboxLanguage dropboxLanguage,
-	        INetworkConfiguration networkConfiguration)
-	    {
+	        INetworkConfiguration networkConfiguration,
+	        IResourceProvider resourceProvider,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
 	        _dropboxLanguage = dropboxLanguage;
+	        _resourceProvider = resourceProvider;
 
 	        _oAuth2Settings = new OAuth2Settings
 	        {
@@ -103,9 +107,8 @@ namespace Greenshot.Addon.Dropbox
 		{
 			get
 			{
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Dropbox\.gif").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by caching
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Dropbox.gif"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }
@@ -172,13 +175,14 @@ namespace Greenshot.Addon.Dropbox
 	    }
 
         /// <summary>
-		///     Upload the HttpContent to dropbox
-		/// </summary>
-		/// <param name="filename">Name of the file</param>
-		/// <param name="content">HttpContent</param>
-		/// <param name="cancellationToken">CancellationToken</param>
-		/// <returns>Url as string</returns>
-		private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        ///     Upload the HttpContent to dropbox
+        /// </summary>
+        /// <param name="filename">Name of the file</param>
+        /// <param name="content">HttpContent</param>
+        /// <param name="progress">IProgress</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Url as string</returns>
+        private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
             // Use UploadProgress

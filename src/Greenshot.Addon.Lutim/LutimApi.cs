@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -37,14 +36,12 @@ namespace Greenshot.Addon.Lutim
 	/// <summary>
 	/// A collection of Lutim API methods
 	/// </summary>
-	[Export]
 	public class LutimApi
 	{
 	    private static readonly LogSource Log = new LogSource();
 	    private readonly ILutimConfiguration _lutimConfiguration;
 	    private readonly ICoreConfiguration _coreConfiguration;
 
-        [ImportingConstructor]
 	    public LutimApi(ILutimConfiguration lutimConfiguration, ICoreConfiguration coreConfiguration)
 	    {
 	        _lutimConfiguration = lutimConfiguration;

@@ -62,7 +62,7 @@ namespace Greenshot.Addons.Extensions
         /// <param name="destinations">IEnumerable of IDestination</param>
         /// <param name="destination">destination</param>
         /// <returns>IDestination or null</returns>
-        public static IDestination Find(this IEnumerable<Lazy<IDestination, IDestinationMetadata>> destinations, string destination)
+        public static IDestination Find(this IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations, string destination)
         {
             return destinations.FirstOrDefault(p => p.Metadata.Designation == destination && p.Value.IsActive)?.Value;
         }
@@ -73,7 +73,7 @@ namespace Greenshot.Addons.Extensions
         /// <param name="destinations">IEnumerable of IDestination</param>
         /// <param name="destinationType">destination type</param>
         /// <returns>IDestination or null</returns>
-        public static IDestination Find(this IEnumerable<Lazy<IDestination, IDestinationMetadata>> destinations, Type destinationType)
+        public static IDestination Find(this IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations, Type destinationType)
         {
             return destinations.FirstOrDefault(p => p.Metadata.Designation == destinationType.GetDesignation() && p.Value.IsActive)?.Value;
         }

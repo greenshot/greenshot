@@ -21,10 +21,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
-using Dapplo.Log;
 using Greenshot.Addon.LegacyEditor.Forms;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -35,22 +34,19 @@ namespace Greenshot.Addon.LegacyEditor
     /// <summary>
     /// This provides a way to find and create the editors
     /// </summary>
-    [Export]
     public class EditorFactory
     {
-        private static readonly LogSource Log = new LogSource();
         private readonly IEditorConfiguration _editorConfiguration;
-        private readonly ExportFactory<ImageEditorForm> _imageEditorExportFactory;
+        private readonly Func<ImageEditorForm> _imageEditorFactory;
         private readonly IList<ImageEditorForm> _editorList = new List<ImageEditorForm>();
 
-        [ImportingConstructor]
         public EditorFactory(
             IEditorConfiguration editorConfiguration,
-            ExportFactory<ImageEditorForm> imageEditorExportFactory,
-            ExportFactory<ISurface> surfaceExportFactory)
+            Func<ImageEditorForm> imageEditorFactory,
+            Func<ISurface> surfaceExportFactory)
         {
             _editorConfiguration = editorConfiguration;
-            _imageEditorExportFactory = imageEditorExportFactory;
+            _imageEditorFactory = imageEditorFactory;
             // Factory for surface objects
             ImageOutput.SurfaceFactory = surfaceExportFactory;
         }
@@ -88,8 +84,7 @@ namespace Greenshot.Addon.LegacyEditor
                 }
             }
 
-            var editorExport = _imageEditorExportFactory.CreateExport();
-            editorToReturn = editorExport.Value;
+            editorToReturn = _imageEditorFactory();
             editorToReturn.Surface = surface;
             _editorList.Add(editorToReturn);
             if (!string.IsNullOrEmpty(captureDetails?.Filename))

@@ -23,22 +23,20 @@
 
 #region Usings
 
-using System.ComponentModel.Composition;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Forms;
 
 #endregion
 
 namespace Greenshot.Ui.Misc.ViewModels
 {
-    //[Export(typeof(IShell))]
     public class SplashViewModel : Screen, IShell
     {
-        private readonly IGreenshotHost _mainForm;
+        private readonly MainForm _mainForm;
 
-        [ImportingConstructor]
-        public SplashViewModel(IGreenshotHost mainForm)
+        public SplashViewModel(MainForm mainForm)
         {
             _mainForm = mainForm;
         }
@@ -46,7 +44,7 @@ namespace Greenshot.Ui.Misc.ViewModels
         protected override void OnActivate()
         {
             base.OnActivate();
-            _mainForm.GreenshotForm.Show();
+            _mainForm.Show();
         }
     }
 }

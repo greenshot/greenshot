@@ -21,9 +21,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -35,7 +33,6 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.OneDrive.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class OneDriveConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -43,18 +40,23 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IOneDriveConfiguration OneDriveConfiguration { get; set; }
+        public IOneDriveConfiguration OneDriveConfiguration { get; }
+        public IOneDriveLanguage OneDriveLanguage { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public IOneDriveLanguage OneDriveLanguage { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
-
+        public OneDriveConfigViewModel(
+            IOneDriveConfiguration oneDriveConfiguration,
+            IOneDriveLanguage oneDriveLanguage,
+            IGreenshotLanguage greenshotLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel
+        )
+        {
+            OneDriveConfiguration = oneDriveConfiguration;
+            OneDriveLanguage = oneDriveLanguage;
+            GreenshotLanguage = greenshotLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = OneDriveConfiguration;

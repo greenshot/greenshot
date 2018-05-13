@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -43,14 +42,12 @@ namespace Greenshot.Addon.Tfs
     /// <summary>
     /// This capsulates the TFS api calls
     /// </summary>
-    [Export]
     public class TfsClient
     {
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly ITfsConfiguration _tfsConfiguration;
         private readonly HttpBehaviour _tfsHttpBehaviour;
 
-        [ImportingConstructor]
         public TfsClient(
             ICoreConfiguration coreConfiguration,
             ITfsConfiguration tfsConfiguration,

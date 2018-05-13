@@ -26,8 +26,10 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using Autofac;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
@@ -52,7 +54,7 @@ namespace Greenshot
         ///     Start Greenshot application
         /// </summary>
         [STAThread]
-        public static void Main(string[] arguments)
+        public static async Task<int> Main(string[] arguments)
         {
             // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
@@ -77,7 +79,7 @@ namespace Greenshot
                 ShowInstances();
                 // Don't start the dapplication, exit with 0
                 application.Shutdown(0);
-                return;
+                return -1;
             }
 
             RegisterErrorHandlers(application);
@@ -86,8 +88,10 @@ namespace Greenshot
             application.Bootstrapper.FindAndLoadAssemblies("Dapplo.*");
             // Make sure the non-plugin DLLs are also loaded, so exports are available.
             application.Bootstrapper.FindAndLoadAssemblies("Greenshot*");
-            application.Bootstrapper.FindAndLoadAssemblies("Greenshot*", extensions: new[] { "gsp" });
+            application.Bootstrapper.FindAndLoadAssemblies("Greenshot*.gsp");
+            await application.Bootstrapper.StartupAsync();
             application.Run();
+            return 0;
         }
 
         /// <summary>
@@ -96,19 +100,19 @@ namespace Greenshot
         /// <param name="application">Dapplication</param>
         private static void RegisterErrorHandlers(Dapplication application)
         {
-            application.OnUnhandledAppDomainException += (exception, b) => DisplayErrorViewModel(exception);
-            application.OnUnhandledDispatcherException += DisplayErrorViewModel;
-            application.OnUnhandledTaskException += DisplayErrorViewModel;
+            application.OnUnhandledAppDomainException += (exception, b) => DisplayErrorViewModel(application, exception);
+            application.OnUnhandledDispatcherException += exception => DisplayErrorViewModel(application, exception);
+            application.OnUnhandledTaskException += exception => DisplayErrorViewModel(application, exception);
         }
 
         /// <summary>
         /// Show the exception
         /// </summary>
         /// <param name="exception">Exception</param>
-        private static void DisplayErrorViewModel(Exception exception)
+        private static void DisplayErrorViewModel(Dapplication application, Exception exception)
         {
-            var windowManager = Dapplication.Current.Bootstrapper.GetExport<IWindowManager>().Value;
-            var errorViewModel = Dapplication.Current.Bootstrapper.GetExport<ErrorViewModel>().Value;
+            var windowManager = application.Bootstrapper.Container.Resolve<IWindowManager>();
+            var errorViewModel = application.Bootstrapper.Container.Resolve<ErrorViewModel>();
             if (windowManager == null || errorViewModel == null)
             {
                 return;

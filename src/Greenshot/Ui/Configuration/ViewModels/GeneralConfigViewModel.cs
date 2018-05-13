@@ -21,18 +21,15 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.CaliburnMicro.Security;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Components;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class GeneralConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -40,14 +37,22 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import(typeof(IAuthenticationProvider))]
-        public AuthenticationProvider AuthenticationProvider { get; set; }
+        public AuthenticationProvider AuthenticationProvider { get; }
+
+        public GeneralConfigViewModel(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            AuthenticationProvider authenticationProvider
+            )
+        {
+            CoreConfiguration = coreConfiguration;
+            GreenshotLanguage = greenshotLanguage;
+            AuthenticationProvider = authenticationProvider;
+        }
 
         public override void Initialize(IConfig config)
         {

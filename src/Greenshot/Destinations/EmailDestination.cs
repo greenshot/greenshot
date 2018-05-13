@@ -26,10 +26,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 
 #endregion
@@ -61,7 +61,13 @@ namespace Greenshot.Destinations
 			}
 		}
 
-		public override string Description
+	    public EmailDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
+	    public override string Description
 		{
 			get
 			{

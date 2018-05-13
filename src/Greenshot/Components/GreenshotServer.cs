@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -52,8 +51,8 @@ namespace Greenshot.Components
     /// This startup action starts the Greenshot "server", which allows to open files etc.
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    [StartupAction(StartupOrder = (int)GreenshotStartupOrder.Server), ShutdownAction]
-    public class GreenshotServerAction : IGreenshotContract, IAsyncStartupAction, IAsyncShutdownAction
+    [StartupOrder((int)GreenshotStartupOrder.Server)]
+    public class GreenshotServerAction : IGreenshotContract, IStartupAsync, IShutdownAsync
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
@@ -72,8 +71,7 @@ namespace Greenshot.Components
         }
         public static string EndPoint => $"net.pipe://localhost/Greenshot/Greenshot_{Identity}";
 
-        [ImportingConstructor]
-        public GreenshotServerAction(ICoreConfiguration coreConfiguration, MainForm mainForm, HotkeyHandler hotkeyHandler, [ImportMany] IEnumerable<IDestination> destinations)
+        public GreenshotServerAction(ICoreConfiguration coreConfiguration, MainForm mainForm, HotkeyHandler hotkeyHandler, IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;

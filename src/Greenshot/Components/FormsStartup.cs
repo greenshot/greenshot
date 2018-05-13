@@ -32,8 +32,8 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action starts Windows.Forms
     /// </summary>
-    [StartupAction(StartupOrder = (int)GreenshotStartupOrder.Forms)]
-    public class FormsStartup : IStartupAction
+    [StartupOrder((int)GreenshotStartupOrder.Forms)]
+    public class FormsStartup : IStartup
     {
         private static readonly LogSource Log = new LogSource();
 

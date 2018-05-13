@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -31,7 +30,6 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Photobucket.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class PhotobucketConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -39,17 +37,22 @@ namespace Greenshot.Addon.Photobucket.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IPhotobucketConfiguration PhotobucketConfiguration { get; set; }
+        public IPhotobucketConfiguration PhotobucketConfiguration { get; }
+        public IPhotobucketLanguage PhotobucketLanguage { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public IPhotobucketLanguage PhotobucketLanguage { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public PhotobucketConfigViewModel(
+            IPhotobucketConfiguration photobucketConfiguration,
+            IPhotobucketLanguage photobucketLanguage,
+            IGreenshotLanguage greenshotLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel)
+        {
+            PhotobucketConfiguration = photobucketConfiguration;
+            PhotobucketLanguage = photobucketLanguage;
+            GreenshotLanguage = greenshotLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

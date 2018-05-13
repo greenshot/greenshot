@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
@@ -46,8 +45,7 @@ namespace Greenshot.Addon.Jira
 	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
-	[UiStartupAction, Export, UiShutdownAction]
-	public class JiraMonitor : IUiStartupAction, IUiShutdownAction
+	public class JiraMonitor : IUiStartup, IUiShutdown
 	{
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private static readonly LogSource Log = new LogSource();
@@ -58,7 +56,6 @@ namespace Greenshot.Addon.Jira
 		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
-        [ImportingConstructor]
 		public JiraMonitor(IJiraConfiguration jiraConfiguration)
 		{
 		    _jiraConfiguration = jiraConfiguration;

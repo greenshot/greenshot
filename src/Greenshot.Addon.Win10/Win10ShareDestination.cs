@@ -33,6 +33,7 @@ using Windows.Storage.Streams;
 using Dapplo.Log;
 using Dapplo.Windows.Messages;
 using Greenshot.Addon.Win10.Native;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -51,7 +52,13 @@ namespace Greenshot.Addon.Win10
 	{
 	    private static readonly LogSource Log = new LogSource();
 
-		public override string Description { get; } = "Windows 10 share";
+	    public Win10ShareDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
+	    public override string Description { get; } = "Windows 10 share";
 
 		/// <summary>
 		/// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml

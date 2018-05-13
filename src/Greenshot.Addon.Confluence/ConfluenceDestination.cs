@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -33,6 +32,7 @@ using System.Windows;
 using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -55,7 +55,7 @@ namespace Greenshot.Addon.Confluence
 	    private readonly IConfluenceConfiguration _confluenceConfiguration;
 	    private readonly IConfluenceLanguage _confluenceLanguage;
 	    private IConfluenceClient _confluenceClient;
-	    private Content  _page;
+	    private readonly Content _page;
 
 		static ConfluenceDestination()
 		{
@@ -76,14 +76,27 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-        [ImportingConstructor]
-		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, IConfluenceLanguage confluenceLanguage)
+		public ConfluenceDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+		    IConfluenceConfiguration confluenceConfiguration,
+		    IConfluenceLanguage confluenceLanguage) : base(coreConfiguration, greenshotLanguage)
         {
             _confluenceConfiguration = confluenceConfiguration;
             _confluenceLanguage = confluenceLanguage;
         }
 
-		public static bool IsInitialized { get; private set; }
+	    protected ConfluenceDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage,
+	        IConfluenceConfiguration confluenceConfiguration,
+	        IConfluenceLanguage confluenceLanguage,
+	        Content page) : this(coreConfiguration, greenshotLanguage, confluenceConfiguration, confluenceLanguage)
+	    {
+	        _page = page;
+	    }
+
+        public static bool IsInitialized { get; private set; }
 
 	    public override string Description
 		{
@@ -112,7 +125,7 @@ namespace Greenshot.Addon.Confluence
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(_confluenceConfiguration, _confluenceLanguage);
+				yield return new ConfluenceDestination(CoreConfiguration, GreenshotLanguage, _confluenceConfiguration, _confluenceLanguage, currentPage);
 			}
 		}
 

@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -54,14 +53,13 @@ namespace Greenshot.Addons.Core
     {
         private static readonly LogSource Log = new LogSource();
 
-        [Import]
-        protected IGreenshotLanguage GreenshotLanguage { get; set; }
+        protected IGreenshotLanguage GreenshotLanguage { get; }
+        protected ICoreConfiguration CoreConfiguration { get; }
 
-        [Import]
-        protected ICoreConfiguration CoreConfiguration { get; set; }
-
-        protected AbstractDestination()
+        protected AbstractDestination(ICoreConfiguration coreConfiguration, IGreenshotLanguage greenshotLanguage)
         {
+            CoreConfiguration = coreConfiguration;
+            GreenshotLanguage = greenshotLanguage;
             Designation = GetType().GetDesignation();
         }
 

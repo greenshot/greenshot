@@ -23,18 +23,17 @@
 
 using System;
 using System.ComponentModel.Composition;
-using Dapplo.Addons;
 
 namespace Greenshot.Addons.Addons
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class DestinationAttribute : ModuleAttribute, IDestinationMetadata
+    public class DestinationAttribute : Attribute
     {
         /// <summary>
         ///     Default constructor
         /// </summary>
-        public DestinationAttribute() : base(typeof(IDestination))
+        public DestinationAttribute()
         {
         }
 
@@ -42,7 +41,7 @@ namespace Greenshot.Addons.Addons
         ///     Use a specific contract name for the Destination
         /// </summary>
         /// <param name="designation">string</param>
-        public DestinationAttribute(string designation) : base(typeof(IDestination))
+        public DestinationAttribute(string designation)
         {
             Designation = designation;
         }
@@ -52,7 +51,7 @@ namespace Greenshot.Addons.Addons
         /// </summary>
         /// <param name="designation">string</param>
         /// <param name="priority">int</param>
-        public DestinationAttribute(string designation, int priority) : base(typeof(IDestination))
+        public DestinationAttribute(string designation, int priority)
         {
             Designation = designation;
             Priority = priority;

@@ -22,7 +22,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Windows;
 using Caliburn.Micro;
 using Greenshot.Addons.Core;
@@ -34,19 +33,23 @@ namespace Greenshot.Addons.ViewModels
     /// <summary>
     /// A view model for showing the file configuration
     /// </summary>
-    [Export]
-    [PartCreationPolicy(CreationPolicy.NonShared)]
     public sealed class FileConfigPartViewModel : Screen
     {
         private IDestinationFileConfiguration _destinationFileConfiguration;
         private bool _useOwnSettings;
 
-        [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
+        public FileConfigPartViewModel(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage
+            )
+        {
+            CoreConfiguration = coreConfiguration;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         /// <summary>
         /// A NPC wrapper for the UseOwnSettings in the IDestinationFileConfiguration, as this doesn't work when ITransactionalProperties is used

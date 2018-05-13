@@ -32,6 +32,7 @@ using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.OfficeInterop;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -59,8 +60,11 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
 
-		public OutlookDestination()
-		{
+		public OutlookDestination(
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : base(coreConfiguration, greenshotLanguage)
+        {
 		    if (EmailConfigHelper.HasOutlook())
 		    {
 		        _isActiveFlag = true;
@@ -76,7 +80,12 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-	    public OutlookDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) : this()
+	    public OutlookDestination(
+	        string outlookInspectorCaption,
+	        OlObjectClass outlookInspectorType,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	        ) : this(coreConfiguration, greenshotLanguage)
 		{
             _outlookInspectorCaption = outlookInspectorCaption;
 			_outlookInspectorType = outlookInspectorType;
@@ -113,7 +122,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			foreach (var inspectorCaption in inspectorCaptions.Keys)
 			{
-				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
+				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], CoreConfiguration, GreenshotLanguage);
 			}
 		}
 
@@ -166,11 +175,11 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						var destinations = new List<IDestination>
 						{
-							new OutlookDestination()
+							new OutlookDestination(CoreConfiguration, GreenshotLanguage)
 						};
 						foreach (var inspectorCaption in inspectorCaptions.Keys)
 						{
-							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
+							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], CoreConfiguration, GreenshotLanguage));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);

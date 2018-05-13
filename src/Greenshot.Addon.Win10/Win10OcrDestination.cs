@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -51,8 +52,11 @@ namespace Greenshot.Addon.Win10
 		/// <summary>
 		/// Constructor, this is only debug information
 		/// </summary>
-		public Win10OcrDestination()
-		{
+		public Win10OcrDestination(
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		) : base(coreConfiguration, greenshotLanguage)
+        {
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{

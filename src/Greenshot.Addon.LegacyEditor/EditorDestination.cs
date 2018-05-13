@@ -25,10 +25,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Linq;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -44,24 +44,31 @@ namespace Greenshot.Addon.LegacyEditor
     [Destination("Editor", 1)]
     public class EditorDestination : AbstractDestination
 	{
+	    private readonly EditorFactory _editorFactory;
 	    private readonly IEditorLanguage _editorLanguage;
 	    private static readonly LogSource Log = new LogSource();
 		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 	    private readonly IImageEditor _editor;
 
-	    [Import(AllowRecomposition = true, AllowDefault = true)]
-	    private EditorFactory _editorFactory;
-
         /// <summary>
         /// Default constructor so we can initiate this from MEF
         /// </summary>
-        [ImportingConstructor]
-	    public EditorDestination(IEditorLanguage editorLanguage)
+	    public EditorDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            EditorFactory editorFactory,
+            IEditorLanguage editorLanguage) : base(coreConfiguration, greenshotLanguage)
         {
+            _editorFactory = editorFactory;
             _editorLanguage = editorLanguage;
         }
 
-        public EditorDestination(EditorFactory editorFactory, IEditorLanguage editorLanguage, IImageEditor editor) : this(editorLanguage)
+        public EditorDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            EditorFactory editorFactory,
+            IEditorLanguage editorLanguage,
+            IImageEditor editor) : this(coreConfiguration, greenshotLanguage, editorFactory, editorLanguage)
 		{
 		    _editorFactory = editorFactory;
 		    _editor = editor;
@@ -85,7 +92,7 @@ namespace Greenshot.Addon.LegacyEditor
 
 	    public override IEnumerable<IDestination> DynamicDestinations()
 		{
-		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(_editorFactory, _editorLanguage, someEditor));
+		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(CoreConfiguration, GreenshotLanguage, _editorFactory, _editorLanguage, someEditor));
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

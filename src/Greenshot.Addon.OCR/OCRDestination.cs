@@ -24,13 +24,13 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -54,8 +54,11 @@ namespace Greenshot.Addon.OCR
         private readonly IOCRConfiguration _ocrConfiguration;
 	    private readonly string _ocrCommand;
 
-	    [ImportingConstructor]
-        public OcrDestination(IOCRConfiguration ocrConfiguration)
+        public OcrDestination(
+            IOCRConfiguration ocrConfiguration,
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage
+            ) : base(coreConfiguration, greenshotLanguage)
 		{
 			_ocrConfiguration = ocrConfiguration;
 

@@ -1,0 +1,108 @@
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Dapplo.Addons;
+using Dapplo.Log;
+using Greenshot.Addons;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+
+#endregion
+
+namespace Greenshot.Addon.ExternalCommand
+{
+    /// <summary>
+    ///     TODO: Somehow generate the external command destinations
+    /// </summary>
+    public sealed class ExternalCommandStartup : IStartup
+	{
+		private static readonly LogSource Log = new LogSource();
+		private readonly IExternalCommandConfiguration _externalCommandConfig;
+	    private readonly ICoreConfiguration _coreConfiguration;
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+
+	    public ExternalCommandStartup(IExternalCommandConfiguration externalCommandConfiguration,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage)
+	    {
+	        _externalCommandConfig = externalCommandConfiguration;
+	        _coreConfiguration = coreConfiguration;
+	        _greenshotLanguage = greenshotLanguage;
+	    }
+
+        public IEnumerable<IDestination> Destinations()
+		{
+		    return _externalCommandConfig.Commands.Select(command => new ExternalCommandDestination(command, _coreConfiguration, _greenshotLanguage));
+		}
+
+
+		/// <summary>
+		///     Check and eventually fix the command settings
+		/// </summary>
+		/// <param name="command"></param>
+		/// <returns>false if the command is not correctly configured</returns>
+		private bool IsCommandValid(string command)
+		{
+			if (!_externalCommandConfig.RunInbackground.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing runInbackground for {0}", command);
+				// Fix it
+				_externalCommandConfig.RunInbackground.Add(command, true);
+			}
+			if (!_externalCommandConfig.Argument.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing argument for {0}", command);
+				// Fix it
+				_externalCommandConfig.Argument.Add(command, "{0}");
+			}
+			if (!_externalCommandConfig.Commandline.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing commandline for {0}", command);
+				return false;
+			}
+			var commandline = FilenameHelper.FillVariables(_externalCommandConfig.Commandline[command], true);
+			commandline = FilenameHelper.FillCmdVariables(commandline, true);
+
+			if (File.Exists(commandline))
+			{
+				return true;
+			}
+			Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", _externalCommandConfig.Commandline[command], command);
+			return false;
+		}
+
+	    public void Start()
+	    {
+	        // Check configuration & cleanup
+	        foreach (var command in _externalCommandConfig.Commands.Where(command => !IsCommandValid(command)).ToList())
+	        {
+	            _externalCommandConfig.Delete(command);
+	        }
+        }
+	}
+}

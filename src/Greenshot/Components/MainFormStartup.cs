@@ -23,9 +23,9 @@
 
 #region Usings
 using System;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Addons.Components;
@@ -39,15 +39,14 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action starts the MainForm
     /// </summary>
-    [UiStartupAction(StartupOrder = (int)GreenshotUiStartupOrder.TrayIcon), UiShutdownAction]
-    public class MainFormStartup : IUiStartupAction, IUiShutdownAction
+    [StartupOrder((int)GreenshotUiStartupOrder.TrayIcon)]
+    public class MainFormStartup : IUiStartup, IUiShutdown
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly MainForm _mainForm;
         private readonly WindowHandle _windowHandle;
 
-        [ImportingConstructor]
         public MainFormStartup(ICoreConfiguration coreConfiguration, MainForm mainForm, WindowHandle windowHandle)
         {
             _coreConfiguration = coreConfiguration;

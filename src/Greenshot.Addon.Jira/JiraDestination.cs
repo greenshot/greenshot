@@ -25,19 +25,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using Caliburn.Micro;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
 using Greenshot.Addon.Jira.ViewModels;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -54,26 +55,41 @@ namespace Greenshot.Addon.Jira
 	    private readonly JiraConnector _jiraConnector;
 	    private readonly IWindowManager _windowManager;
 	    private readonly JiraViewModel _jiraViewModel;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly IJiraLanguage _jiraLanguage;
 
-	    [ImportingConstructor]
-	    public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, IWindowManager windowManager, JiraViewModel jiraViewModel)
+	    public JiraDestination(
+	        IJiraConfiguration jiraConfiguration,
+	        IJiraLanguage jiraLanguage,
+	        JiraConnector jiraConnector,
+	        JiraViewModel jiraViewModel,
+	        IWindowManager windowManager,
+            IResourceProvider resourceProvider,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
         {
             _jiraConfiguration = jiraConfiguration;
             _jiraLanguage = jiraLanguage;
             _jiraConnector = jiraConnector;
             _windowManager = windowManager;
             _jiraViewModel = jiraViewModel;
+            _resourceProvider = resourceProvider;
         }
 
-		public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, Issue jiraIssue, IWindowManager windowManager)
+		protected JiraDestination(IJiraConfiguration jiraConfiguration,
+		    IJiraLanguage jiraLanguage,
+		    JiraConnector jiraConnector,
+		    JiraViewModel jiraViewModel,
+		    IWindowManager windowManager,
+		    IResourceProvider resourceProvider,
+		    Issue jiraIssue,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModel, windowManager, resourceProvider, coreConfiguration, greenshotLanguage)
 		{
-		    _jiraConfiguration = jiraConfiguration;
-		    _jiraLanguage = jiraLanguage;
-		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
-		    _windowManager = windowManager;
 		}
 
 		public override string Description
@@ -119,8 +135,10 @@ namespace Greenshot.Addon.Jira
 				}
 				if (displayIcon == null)
 				{
-					var resources = new ComponentResourceManager(typeof(JiraPlugin));
-					displayIcon = (Bitmap) resources.GetObject("Jira");
+				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "jira.svgz"))
+				    {
+				        displayIcon = BitmapHelper.FromStream(bitmapStream);
+				    }
 				}
 				return displayIcon;
 			}
@@ -134,12 +152,10 @@ namespace Greenshot.Addon.Jira
 			}
 			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraConfiguration, _jiraLanguage, _jiraConnector, jiraDetails.JiraIssue, _windowManager)
-				{
-				    CoreConfiguration = CoreConfiguration,
-				    GreenshotLanguage = GreenshotLanguage
-				};
-            }
+			    yield return new JiraDestination(
+			        _jiraConfiguration, _jiraLanguage, _jiraConnector, _jiraViewModel,
+			        _windowManager, _resourceProvider, jiraDetails.JiraIssue, CoreConfiguration, GreenshotLanguage);
+			}
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

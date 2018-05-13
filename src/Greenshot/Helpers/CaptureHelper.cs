@@ -438,7 +438,7 @@ namespace Greenshot.Helpers
                             if (filename.ToLower().EndsWith("." + OutputFormats.greenshot))
                             {
 
-                                var surface = ImageOutput.SurfaceFactory.CreateExport().Value;
+                                var surface = ImageOutput.SurfaceFactory();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
                                 _destinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Wait();
@@ -676,7 +676,7 @@ namespace Greenshot.Helpers
             }
 
             // Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-            var surface = ImageOutput.SurfaceFactory.CreateExport().Value;
+            var surface = ImageOutput.SurfaceFactory();
             surface.SetCapture(_capture);
             surface.Modified = !outputMade;
 

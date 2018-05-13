@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Reflection;
 using System.Resources;
@@ -42,8 +41,8 @@ namespace Greenshot.Components
 	///     Create to fix the sometimes wrongly played sample, especially after first start from IDE
 	///     See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
-	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Sound), ShutdownAction]
-	public class SoundHelper : IStartupAction, IShutdownAction
+	[StartupOrder((int)GreenshotStartupOrder.Sound)]
+	public class SoundHelper : IStartup, IShutdown
 	{
 	    private readonly ICoreConfiguration _coreConfiguration;
 	    private static readonly LogSource Log = new LogSource();
@@ -52,7 +51,6 @@ namespace Greenshot.Components
 
 	    private static SoundHelper _instance;
 
-	    [ImportingConstructor]
         public SoundHelper(ICoreConfiguration coreConfiguration)
 	    {
 	        _coreConfiguration = coreConfiguration;

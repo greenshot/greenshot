@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -53,7 +52,6 @@ namespace Greenshot.Forms
 	/// <summary>
 	///     Description of SettingsForm.
 	/// </summary>
-	[Export]
 	public partial class SettingsForm : BaseForm
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -61,14 +59,14 @@ namespace Greenshot.Forms
 		private int _daysbetweencheckPreviousValue;
 		private bool _inHotkey;
 
-	    [ImportMany(AllowRecomposition = true)]
-	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
+	    private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations = null;
 
-        public SettingsForm()
-		{
-			// Make sure the store isn't called to early, that's why we do it manually
+        public SettingsForm(IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations)
+        {
+            _destinations = destinations;
+            // Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
-		}
+        }
 
 	    public void Initialize()
 	    {

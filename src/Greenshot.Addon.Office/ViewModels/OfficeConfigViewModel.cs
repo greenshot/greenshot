@@ -22,7 +22,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -33,7 +32,6 @@ using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Office.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class OfficeConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -41,14 +39,19 @@ namespace Greenshot.Addon.Office.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IOfficeConfiguration OfficeConfiguration { get; set; }
+        public IOfficeConfiguration OfficeConfiguration { get; }
+        public IOfficeLanguage OfficeLanguage { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import]
-        public IOfficeLanguage OfficeLanguage { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public OfficeConfigViewModel(
+            IOfficeConfiguration officeConfiguration,
+            IOfficeLanguage officeLanguage,
+            IGreenshotLanguage greenshotLanguage)
+        {
+            OfficeConfiguration = officeConfiguration;
+            OfficeLanguage = officeLanguage;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         public override void Initialize(IConfig config)
         {

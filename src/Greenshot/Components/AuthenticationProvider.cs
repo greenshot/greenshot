@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Security;
@@ -35,11 +34,15 @@ namespace Greenshot.Components
     ///     This exports a IAuthenticationProvider which manages the rights in the configuration
     ///     This is used to show or hide elements in the UI depending on the available rights
     /// </summary>
-    [Export(typeof(IAuthenticationProvider))]
     public class AuthenticationProvider : PropertyChangedBase, IAuthenticationProvider
     {
-        [Import]
-        private ICoreConfiguration CoreConfiguration { get; set; }
+        private readonly ICoreConfiguration _coreConfiguration;
+
+        public AuthenticationProvider(
+            ICoreConfiguration coreConfiguration)
+        {
+            _coreConfiguration = coreConfiguration;
+        }
 
         public bool HasPermissions(IEnumerable<string> neededPermissions, PermissionOperations permissionOperation = PermissionOperations.Or)
         {
@@ -49,7 +52,7 @@ namespace Greenshot.Components
                 throw new ArgumentNullException(nameof(neededPermissions));
             }
 
-            if (CoreConfiguration.Permissions== null || CoreConfiguration.Permissions.Count == 0)
+            if (_coreConfiguration.Permissions== null || _coreConfiguration.Permissions.Count == 0)
             {
                 return false;
             }
@@ -59,9 +62,9 @@ namespace Greenshot.Components
 
             if (permissionOperation == PermissionOperations.Or)
             {
-                return permissionsToCompare.Any(permission => CoreConfiguration.Permissions.Contains(permission));
+                return permissionsToCompare.Any(permission => _coreConfiguration.Permissions.Contains(permission));
             }
-            return permissionsToCompare.All(permission => CoreConfiguration.Permissions.Contains(permission));
+            return permissionsToCompare.All(permission => _coreConfiguration.Permissions.Contains(permission));
         }
 
         /// <summary>
@@ -75,7 +78,7 @@ namespace Greenshot.Components
                 throw new ArgumentNullException(nameof(permission));
             }
             var newPermission = permission.Trim().ToLowerInvariant();
-            CoreConfiguration.Permissions.Add(newPermission);
+            _coreConfiguration.Permissions.Add(newPermission);
             NotifyOfPropertyChange(nameof(HasPermissions));
         }
 
@@ -90,7 +93,7 @@ namespace Greenshot.Components
                 throw new ArgumentNullException(nameof(permission));
             }
             var removingPermission = permission.Trim().ToLowerInvariant();
-            CoreConfiguration.Permissions.Remove(removingPermission);
+            _coreConfiguration.Permissions.Remove(removingPermission);
             NotifyOfPropertyChange(nameof(HasPermissions));
         }
     }

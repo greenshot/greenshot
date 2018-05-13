@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -31,29 +30,36 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Tfs.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class TfsConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
+        
+        public ITfsConfiguration TfsConfiguration { get; }
+        
+        public ITfsLanguage TfsLanguage { get; }
+        
+        public IGreenshotLanguage GreenshotLanguage { get; }
+        
+        public TfsClient TfsClient { get; }
 
-        [Import]
-        public ITfsConfiguration TfsConfiguration { get; set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public ITfsLanguage TfsLanguage { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
-        [Import]
-        public TfsClient TfsClient { get; private set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
-
+        public TfsConfigViewModel(
+            ITfsConfiguration tfsConfiguration,
+            ITfsLanguage tfsLanguage,
+            IGreenshotLanguage greenshotLanguage,
+            TfsClient tfsClient,
+            FileConfigPartViewModel fileConfigPartViewModel)
+        {
+            TfsConfiguration = tfsConfiguration;
+            TfsLanguage = tfsLanguage;
+            GreenshotLanguage = greenshotLanguage;
+            TfsClient = tfsClient;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = TfsConfiguration;

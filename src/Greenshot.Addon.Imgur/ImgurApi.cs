@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -50,7 +49,6 @@ namespace Greenshot.Addon.Imgur
     /// <summary>
     ///     This contains the Imgur Api which is used by the destination and the history viewmodel
     /// </summary>
-    [Export]
     public class ImgurApi
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -60,7 +58,6 @@ namespace Greenshot.Addon.Imgur
 
 	    private HttpBehaviour Behaviour { get; }
 
-        [ImportingConstructor]
 		public ImgurApi(
             IImgurConfiguration imgurConfiguration,
             ICoreConfiguration coreConfiguration,

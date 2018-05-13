@@ -21,18 +21,15 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class ImgurConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -40,21 +37,30 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IImgurConfiguration ImgurConfiguration { get; set; }
+        public IImgurConfiguration ImgurConfiguration { get; }
 
-        [Import]
-        public IImgurLanguage ImgurLanguage { get; set; }
+        public IImgurLanguage ImgurLanguage { get; }
 
-        [Import]
-        public IWindowManager WindowManager { get; set; }
+        public IWindowManager WindowManager { get; }
 
-        [Import]
-        public ImgurHistoryViewModel ImgurHistoryViewModel { get; set; }
+        public ImgurHistoryViewModel ImgurHistoryViewModel { get;}
 
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
+        public ImgurConfigViewModel(
+            IImgurConfiguration imgurConfiguration,
+            IImgurLanguage imgurLanguage ,
+            IWindowManager windowManager,
+            ImgurHistoryViewModel imgurHistoryViewModel,
+            FileConfigPartViewModel fileConfigPartViewModel
+            )
+        {
+            ImgurConfiguration = imgurConfiguration;
+            ImgurLanguage = imgurLanguage;
+            WindowManager = windowManager;
+            ImgurHistoryViewModel = imgurHistoryViewModel;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
         public override void Initialize(IConfig config)
         {
             // Make sure the destination settings are shown

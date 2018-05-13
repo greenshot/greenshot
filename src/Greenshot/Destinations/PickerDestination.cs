@@ -25,13 +25,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 
 #endregion
 
@@ -43,11 +41,18 @@ namespace Greenshot.Destinations
     [Destination("Picker", 1)]
     public class PickerDestination : AbstractDestination
 	{
-	    public override string Description => GreenshotLanguage.SettingsDestinationPicker;
-	    private readonly string _pickerDesignation = typeof(PickerDestination).GetDesignation();
+	    private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations;
 
-        [ImportMany(AllowRecomposition = true)]
-	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
+	    public override string Description => GreenshotLanguage.SettingsDestinationPicker;
+
+        public PickerDestination(
+	        IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations,
+            ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	        ) : base(coreConfiguration, greenshotLanguage)
+	    {
+	        _destinations = destinations;
+	    }
 
         /// <summary>
         ///     Export the capture with the destination picker

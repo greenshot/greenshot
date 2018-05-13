@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -63,7 +62,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms
     /// <summary>
     ///     Description of ImageEditorForm.
     /// </summary>
-    [Export]
     public partial class ImageEditorForm : BaseForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
@@ -82,20 +80,19 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
         private readonly EditorFactory _editorFactory;
+        private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations;
         private CompositeDisposable _disposables;
 
-        [ImportMany(AllowRecomposition = true)]
-        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations;
-
-        [ImportingConstructor]
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
             IEditorLanguage editorLanguage,
-            EditorFactory editorFactory)
+            EditorFactory editorFactory,
+            IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations)
         {
             _editorConfiguration = editorConfiguration;
             _editorLanguage = editorLanguage;
             _editorFactory = editorFactory;
+            _destinations = destinations;
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //

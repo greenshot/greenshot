@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -55,10 +54,8 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
-using Action = System.Action;
 using LangKey = Greenshot.Configuration.LangKey;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
@@ -70,9 +67,7 @@ namespace Greenshot.Forms
     /// <summary>
     ///     Description of MainForm.
     /// </summary>
-    [Export(typeof(IGreenshotHost))]
-    [Export]
-    public partial class MainForm : BaseForm, IGreenshotHost
+    public partial class MainForm : BaseForm
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
@@ -91,8 +86,7 @@ namespace Greenshot.Forms
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
-        [ImportingConstructor]
-        public MainForm(ICoreConfiguration coreConfiguration, IWindowManager windowManager, ConfigViewModel configViewModel, SettingsForm settingsForm, [ImportMany] IEnumerable<IDestination> destinations)
+        public MainForm(ICoreConfiguration coreConfiguration, IWindowManager windowManager, ConfigViewModel configViewModel, SettingsForm settingsForm, IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
@@ -168,14 +162,7 @@ namespace Greenshot.Forms
 
         public static MainForm Instance { get; set; }
 
-        public Form GreenshotForm => Instance;
-
         public NotifyIcon NotifyIcon => notifyIcon;
-
-        /// <summary>
-        ///     Main context menu
-        /// </summary>
-        public ContextMenuStrip MainMenu => contextMenu;
 
         private void BalloonTipClicked(object sender, EventArgs e)
         {
@@ -745,7 +732,7 @@ namespace Greenshot.Forms
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke(new Action(() => CaptureHelper.CaptureClipboard()));
+            BeginInvoke(new System.Action(() => CaptureHelper.CaptureClipboard()));
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)

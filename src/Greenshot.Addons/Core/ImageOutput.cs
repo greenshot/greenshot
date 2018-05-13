@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -65,7 +64,9 @@ namespace Greenshot.Addons.Core
 	    {
 	        BitmapHelper.StreamConverters["greenshot"] = (stream, s) =>
 	        {
-	            var surface = SurfaceFactory.CreateExport().Value;
+                // TODO: Create surface from stream
+	            var surface = SurfaceFactory();
+                surface.LoadElementsFromStream(stream);
 	            return surface.GetBitmapForExport();
 	        };
 	    }
@@ -73,7 +74,7 @@ namespace Greenshot.Addons.Core
 	    /// <summary>
 	    ///     This is a factory method to create a surface, set from the Greenshot main project
 	    /// </summary>
-	    public static ExportFactory<ISurface> SurfaceFactory { get; set; }
+	    public static Func<ISurface> SurfaceFactory { get; set; }
 
         /// <summary>
         ///     Creates a PropertyItem (Metadata) to store with the image.

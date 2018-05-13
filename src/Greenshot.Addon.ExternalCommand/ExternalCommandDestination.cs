@@ -32,6 +32,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -54,8 +55,11 @@ namespace Greenshot.Addon.ExternalCommand
 		private static readonly IExternalCommandConfiguration Config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private readonly string _presetCommand;
 
-		public ExternalCommandDestination(string commando)
-		{
+		public ExternalCommandDestination(string commando,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		) : base(coreConfiguration, greenshotLanguage)
+        {
 			_presetCommand = commando;
 		}
 

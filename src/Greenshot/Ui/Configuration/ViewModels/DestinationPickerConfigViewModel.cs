@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
@@ -36,26 +35,34 @@ using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class DestinationPickerConfigViewModel : SimpleConfigScreen
     {
+        private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _allDestinations;
+
+
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; }
 
-        [Import]
-        public IConfigTranslations ConfigTranslations { get; set; }
+        public IConfigTranslations ConfigTranslations { get; }
 
-        [ImportMany(AllowRecomposition = true)]
-        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> AllDestinations = null;
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
+        public DestinationPickerConfigViewModel(
+            ICoreConfiguration coreConfiguration,
+            IConfigTranslations configTranslations,
+            IGreenshotLanguage greenshotLanguage,
+            IEnumerable<Lazy<IDestination, DestinationAttribute>> allDestinations
+            )
+        {
+            _allDestinations = allDestinations;
+            ConfigTranslations = configTranslations;
+            GreenshotLanguage = greenshotLanguage;
+            CoreConfiguration = coreConfiguration;
+        }
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -78,7 +85,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             {
                 foreach (var outputDestination in CoreConfiguration.PickerDestinations)
                 {
-                    var pickerDestination = AllDestinations
+                    var pickerDestination = _allDestinations
                         .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
                         .Where(destination => destination.Value.IsActive)
                         .Where(destination => outputDestination == destination.Value.Designation)
@@ -92,7 +99,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             }
             else
             {
-                foreach (var pickerDestination in AllDestinations
+                foreach (var pickerDestination in _allDestinations
                     .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
                     .Where(destination => destination.Value.IsActive)
                     .OrderBy(destination => destination.Metadata.Priority)
@@ -103,7 +110,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
                 }
             }
             AvailableDestinations.Clear();
-            foreach (var destination in AllDestinations
+            foreach (var destination in _allDestinations
                 .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
                 .Where(destination => destination.Value.IsActive)
                 .Where(destination => UsedDestinations.All(pickerDestination => pickerDestination.Designation != destination.Value.Designation))

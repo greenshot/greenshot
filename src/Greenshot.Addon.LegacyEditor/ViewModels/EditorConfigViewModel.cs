@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -29,7 +28,6 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.LegacyEditor.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class EditorConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -37,11 +35,17 @@ namespace Greenshot.Addon.LegacyEditor.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IEditorConfiguration EditorConfiguration { get; set; }
+        public IEditorConfiguration EditorConfiguration { get; }
 
-        [Import]
-        public IEditorLanguage EditorLanguage { get; set; }
+        public IEditorLanguage EditorLanguage { get; }
+
+        public EditorConfigViewModel(
+            IEditorConfiguration editorConfiguration,
+            IEditorLanguage editorLanguage)
+        {
+            EditorConfiguration = editorConfiguration;
+            EditorLanguage = editorLanguage;
+        }
 
         public override void Initialize(IConfig config)
         {
