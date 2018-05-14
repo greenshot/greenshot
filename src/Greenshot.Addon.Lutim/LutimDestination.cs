@@ -28,7 +28,7 @@ using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -36,7 +36,7 @@ using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Lutim  {
     /// <summary>
-    /// Description of LutimDestination.
+    /// This is the destination for Lutim
     /// </summary>
     [Destination("Lutim")]
     public class LutimDestination : AbstractDestination

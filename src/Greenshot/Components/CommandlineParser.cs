@@ -28,7 +28,7 @@ using System.Text;
 using CommonServiceLocator;
 using Dapplo.Log;
 using Dapplo.Windows.Kernel32;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 
 namespace Greenshot.Components

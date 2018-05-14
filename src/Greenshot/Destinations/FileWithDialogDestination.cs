@@ -26,7 +26,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
@@ -38,7 +38,7 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of FileWithDialog.
     /// </summary>
-    [Destination("FileDialog", 0)]
+    [Destination("FileDialog", DestinationOrder.FileDialog)]
 
     public class FileWithDialogDestination : AbstractDestination
 	{

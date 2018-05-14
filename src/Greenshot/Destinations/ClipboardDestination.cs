@@ -27,7 +27,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
@@ -39,7 +39,7 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of ClipboardDestination.
     /// </summary>
-    [Destination("Clipboard",2)]
+    [Destination("Clipboard", DestinationOrder.Clipboard)]
     public class ClipboardDestination : AbstractDestination
 	{
 	    public ClipboardDestination(

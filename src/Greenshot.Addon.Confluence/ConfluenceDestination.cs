@@ -33,7 +33,7 @@ using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;

@@ -31,7 +31,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;

@@ -39,7 +39,7 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Box.Entities;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;

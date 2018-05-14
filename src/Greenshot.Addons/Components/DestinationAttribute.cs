@@ -24,28 +24,16 @@
 using System;
 using System.ComponentModel.Composition;
 
-namespace Greenshot.Addons.Addons
+namespace Greenshot.Addons.Components
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class DestinationAttribute : Attribute
     {
-        /// <summary>
-        ///     Default constructor
-        /// </summary>
         public DestinationAttribute()
         {
-        }
 
-        /// <summary>
-        ///     Use a specific contract name for the Destination
-        /// </summary>
-        /// <param name="designation">string</param>
-        public DestinationAttribute(string designation)
-        {
-            Designation = designation;
         }
-
         /// <summary>
         ///     Use a specific contract name for the Destination
         /// </summary>
@@ -55,6 +43,20 @@ namespace Greenshot.Addons.Addons
         {
             Designation = designation;
             Priority = priority;
+        }
+
+        /// <summary>
+        ///     Use a specific contract name for the Destination
+        /// </summary>
+        /// <param name="designation">string</param>
+        /// <param name="priority">object</param>
+        public DestinationAttribute(string designation, object priority = null)
+        {
+            Designation = designation;
+            if (priority != null)
+            {
+                Priority = Convert.ToInt32(priority);
+            }
         }
 
         public string Designation { get; set; }

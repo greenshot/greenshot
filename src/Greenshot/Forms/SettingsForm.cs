@@ -35,7 +35,7 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.DesktopWindowsManager;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -54,16 +54,15 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class SettingsForm : BaseForm
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly DestinationHolder _destinationHolder;
+	    private static readonly LogSource Log = new LogSource();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private int _daysbetweencheckPreviousValue;
 		private bool _inHotkey;
 
-	    private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations = null;
-
-        public SettingsForm(IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations)
+        public SettingsForm(DestinationHolder destinationHolder)
         {
-            _destinations = destinations;
+            _destinationHolder = destinationHolder;
             // Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
         }
@@ -372,9 +371,7 @@ namespace Greenshot.Forms
 			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			var imageNr = -1;
-			foreach (var currentDestination in _destinations.Where(d => d.Value.IsActive)
-			    .OrderBy(destination => destination.Metadata.Priority).ThenBy(d => d.Value.Description)
-			    .Select(d => d.Value))
+			foreach (var currentDestination in _destinationHolder.SortedActiveDestinations)
 			{
 				var destinationImage = currentDestination.GetDisplayIcon(DpiHandler.Dpi);
 				if (destinationImage != null)

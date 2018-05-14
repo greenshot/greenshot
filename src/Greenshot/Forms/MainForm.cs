@@ -48,7 +48,7 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -73,12 +73,14 @@ namespace Greenshot.Forms
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IWindowManager _windowManager;
         private readonly ConfigViewModel _configViewModel;
-        private readonly IEnumerable<IDestination> _destinations;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
         // Make sure we have only one settings form
         private readonly SettingsForm _settingsForm;
+
+        private readonly DestinationHolder _destinationHolder;
+
         // Make sure we have only one about form
         private AboutForm _aboutForm;
         // Thumbnail preview
@@ -88,13 +90,14 @@ namespace Greenshot.Forms
 
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
-            ConfigViewModel configViewModel, SettingsForm settingsForm, IEnumerable<IDestination> destinations)
+            ConfigViewModel configViewModel, SettingsForm settingsForm,
+            DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
             _configViewModel = configViewModel;
             _settingsForm = settingsForm;
-            _destinations = destinations;
+            _destinationHolder = destinationHolder;
             Instance = this;
         }
 
@@ -275,7 +278,7 @@ namespace Greenshot.Forms
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find("Editor"));
+                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinationHolder.SortedActiveDestinations.Find("Editor"));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:
@@ -957,7 +960,7 @@ namespace Greenshot.Forms
                     Text = Language.GetString(LangKey.settings_destination)
                 };
                 // Working with IDestination:
-                foreach (var destination in _destinations)
+                foreach (var destination in _destinationHolder.SortedActiveDestinations)
                 {
                     selectList.AddItem(destination.Description, destination, _coreConfiguration.OutputDestinations.Contains(destination.Designation));
                 }

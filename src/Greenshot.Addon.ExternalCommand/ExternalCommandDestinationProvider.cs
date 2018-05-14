@@ -23,13 +23,14 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 
 #endregion
@@ -37,27 +38,31 @@ using Greenshot.Addons.Core;
 namespace Greenshot.Addon.ExternalCommand
 {
     /// <summary>
-    ///     TODO: Somehow generate the external command destinations
+    ///     Generate the external command destinations
     /// </summary>
-    public sealed class ExternalCommandStartup : IStartup
+    public sealed class ExternalCommandDestinationProvider : IStartup, IDestinationProvider
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly IExternalCommandConfiguration _externalCommandConfig;
 	    private readonly ICoreConfiguration _coreConfiguration;
 	    private readonly IGreenshotLanguage _greenshotLanguage;
 
-	    public ExternalCommandStartup(IExternalCommandConfiguration externalCommandConfiguration,
+	    public ExternalCommandDestinationProvider(
+	        IExternalCommandConfiguration externalCommandConfiguration,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage)
 	    {
 	        _externalCommandConfig = externalCommandConfiguration;
 	        _coreConfiguration = coreConfiguration;
 	        _greenshotLanguage = greenshotLanguage;
+
+            externalCommandConfiguration.AfterLoad();
 	    }
 
-        public IEnumerable<IDestination> Destinations()
+        public IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide()
 		{
-		    return _externalCommandConfig.Commands.Select(command => new ExternalCommandDestination(command, _coreConfiguration, _greenshotLanguage));
+		    return _externalCommandConfig.Commands
+		        .Select(command => new Lazy<IDestination, DestinationAttribute>(() => new ExternalCommandDestination(command, _coreConfiguration, _greenshotLanguage), new DestinationAttribute(command)));
 		}
 
 

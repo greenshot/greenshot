@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 
 namespace Greenshot.Addons.Extensions
 {

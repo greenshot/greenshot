@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Dapplo.CaliburnMicro.Configuration;
 using Greenshot.Addon.Imgur.ViewModels;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 
 namespace Greenshot.Addon.Imgur
 {

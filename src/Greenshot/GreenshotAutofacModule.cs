@@ -3,7 +3,6 @@ using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Security;
-using Greenshot.Addons.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Components;

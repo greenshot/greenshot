@@ -2,7 +2,7 @@
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Greenshot.Addon.ExternalCommand.ViewModels;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -12,8 +12,9 @@ namespace Greenshot.Addon.ExternalCommand
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ExternalCommandStartup>()
+                .RegisterType<ExternalCommandDestinationProvider>()
                 .As<IStartup>()
+                .As<IDestinationProvider>()
                 .SingleInstance();
             builder
                 .RegisterType<ExternalCommandConfigViewModel>()

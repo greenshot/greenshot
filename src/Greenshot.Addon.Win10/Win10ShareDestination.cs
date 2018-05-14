@@ -34,7 +34,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Messages;
 using Greenshot.Addon.Win10.Native;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;

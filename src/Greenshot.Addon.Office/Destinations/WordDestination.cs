@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -44,7 +44,7 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of EmailDestination.
     /// </summary>
-    [Destination("Word", 4)]
+    [Destination("Word", DestinationOrder.Word)]
     public class WordDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;

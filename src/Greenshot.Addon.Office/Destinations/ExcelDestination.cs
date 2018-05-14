@@ -29,7 +29,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -41,7 +41,7 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of PowerpointDestination.
     /// </summary>
-    [Destination("Excel", 5)]
+    [Destination("Excel", DestinationOrder.Excel)]
     public class ExcelDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -61,7 +61,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public ExcelDestination(string workbookName,
+		protected ExcelDestination(string workbookName,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage
 	    ) : this(coreConfiguration, greenshotLanguage)

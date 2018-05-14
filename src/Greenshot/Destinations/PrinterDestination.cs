@@ -29,7 +29,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
@@ -42,7 +42,7 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of PrinterDestination.
     /// </summary>
-    [Destination("Printer", 2)]
+    [Destination("Printer", DestinationOrder.Printer)]
     public class PrinterDestination : AbstractDestination
 	{
 		private readonly string _printerName;

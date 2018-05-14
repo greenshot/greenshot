@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 
 namespace Greenshot.Addon.OCR
 {

@@ -45,7 +45,7 @@ using Greenshot.Addon.LegacyEditor.Controls;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -80,19 +80,19 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
         private readonly EditorFactory _editorFactory;
-        private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations;
+        private readonly DestinationHolder _destinationHolder;
         private CompositeDisposable _disposables;
 
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
             IEditorLanguage editorLanguage,
             EditorFactory editorFactory,
-            IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations)
+            DestinationHolder destinationHolder)
         {
             _editorConfiguration = editorConfiguration;
             _editorLanguage = editorLanguage;
             _editorFactory = editorFactory;
-            _destinations = destinations;
+            _destinationHolder = destinationHolder;
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -378,7 +378,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             await Task.Run(() =>
             {
                 // Create export buttons 
-                foreach (var destination in _destinations
+                foreach (var destination in _destinationHolder.AllDestinations
                     .Where(destination => destination.Metadata.Priority > 2 && !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
                     .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
                     .Select(d => d.Value))
@@ -519,7 +519,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             ClearItems(fileStripMenuItem.DropDownItems);
 
             // Add the destinations
-            foreach (var destination in _destinations
+            foreach (var destination in _destinationHolder.AllDestinations
                 .Where(destination => !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
                 .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
                 .Select(d => d.Value))
@@ -1239,12 +1239,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 destinationDesignation = "FileDialog";
             }
-            _destinations.Find(destinationDesignation)?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+            _destinationHolder.AllDestinations.Find(destinationDesignation)?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            _destinations.Find("Clipboard")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+            _destinationHolder.AllDestinations.Find("Clipboard")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
@@ -1252,7 +1252,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             // The BeginInvoke is a solution for the printdialog not having focus
             BeginInvoke((MethodInvoker) delegate
             {
-                _destinations.Find("Printer")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+                _destinationHolder.AllDestinations.Find("Printer")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
             });
         }
 
@@ -1708,9 +1708,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             // Go through the destinations to check the EditorShortcut Keys
             // this way the menu entries don't need to be enabled.
             // This also fixes bugs #3526974 & #3527020
-            foreach (var destination in _destinations.Where(destination => destination.Value.IsActive)
-                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
-                .Select(d => d.Value))
+            foreach (var destination in _destinationHolder.SortedActiveDestinations)
             {
                 if (destination.EditorShortcutKeys != keys)
                 {

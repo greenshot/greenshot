@@ -43,7 +43,7 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action registers the hotkeys
     /// </summary>
-    [StartupOrder((int)GreenshotUiStartupOrder.Hotkeys), ShutdownOrder(int.MinValue)]
+    [ServiceOrder(GreenshotUiStartupOrder.Hotkeys, int.MinValue)]
     public class HotkeyHandler : IUiStartup, IUiShutdown
     {
         private static readonly LogSource Log = new LogSource();

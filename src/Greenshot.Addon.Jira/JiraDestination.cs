@@ -35,7 +35,7 @@ using Dapplo.Jira.Entities;
 using Dapplo.Log;
 using Greenshot.Addon.Jira.ViewModels;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;

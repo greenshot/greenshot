@@ -41,7 +41,7 @@ namespace Greenshot.Components
 	///     Create to fix the sometimes wrongly played sample, especially after first start from IDE
 	///     See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
-	[StartupOrder((int)GreenshotStartupOrder.Sound)]
+	[ServiceOrder(GreenshotStartupOrder.Sound)]
 	public class SoundHelper : IStartup, IShutdown
 	{
 	    private readonly ICoreConfiguration _coreConfiguration;

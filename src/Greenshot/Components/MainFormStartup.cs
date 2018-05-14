@@ -39,7 +39,7 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action starts the MainForm
     /// </summary>
-    [StartupOrder((int)GreenshotUiStartupOrder.TrayIcon)]
+    [ServiceOrder(GreenshotUiStartupOrder.TrayIcon)]
     public class MainFormStartup : IUiStartup, IUiShutdown
     {
         private static readonly LogSource Log = new LogSource();

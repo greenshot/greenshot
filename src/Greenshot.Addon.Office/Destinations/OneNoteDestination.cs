@@ -33,7 +33,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.OfficeInterop;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 
@@ -41,7 +41,7 @@ using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Office.Destinations
 {
-    [Destination("OneNote", 4)]
+    [Destination("OneNote", DestinationOrder.OneNote)]
     public class OneNoteDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -61,7 +61,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public OneNoteDestination(OneNotePage page,
+		protected OneNoteDestination(OneNotePage page,
 		    ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage
 	    ) : this(coreConfiguration, greenshotLanguage)

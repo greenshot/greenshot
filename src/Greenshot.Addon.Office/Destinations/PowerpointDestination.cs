@@ -30,7 +30,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -42,7 +42,7 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of PowerpointDestination.
     /// </summary>
-    [Destination("Powerpoint", 4)]
+    [Destination("Powerpoint", DestinationOrder.Powerpoint)]
     public class PowerpointDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;

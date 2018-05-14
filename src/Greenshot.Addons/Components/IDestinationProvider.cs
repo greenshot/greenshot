@@ -21,34 +21,16 @@
 
 #endregion
 
-using System.Windows.Forms;
-using Dapplo.Addons;
-using Dapplo.Log;
-using System.Windows.Forms.Integration;
-using Greenshot.Addons.Core;
+using System;
+using System.Collections.Generic;
 
-namespace Greenshot.Components
+namespace Greenshot.Addons.Components
 {
     /// <summary>
-    /// This startup action starts Windows.Forms
+    /// Implement this interface to provide last-minute or dynamic IDestinations
     /// </summary>
-    [ServiceOrder(GreenshotStartupOrder.Forms)]
-    public class FormsStartup : IStartup
+    public interface IDestinationProvider
     {
-        private static readonly LogSource Log = new LogSource();
-
-        public void Start()
-        {
-            Log.Debug().WriteLine("Starting Windows.Forms");
-
-            // Make sure we can use forms
-            WindowsFormsHost.EnableWindowsFormsInterop();
-            // Other small fixes
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            // BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
-            Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
-        }
+        IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide();
     }
 }
