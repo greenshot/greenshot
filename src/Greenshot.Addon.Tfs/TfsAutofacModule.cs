@@ -18,6 +18,10 @@ namespace Greenshot.Addon.Tfs
                 .RegisterType<TfsConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
+            builder
+                .RegisterType<TfsClient>()
+                .AsSelf()
+                .SingleInstance();
         }
     }
 }

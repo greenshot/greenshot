@@ -48,8 +48,22 @@ namespace Greenshot.Gfx
 		public SvgBitmap(Stream stream)
 		{
 			_svgDocument = SvgDocument.Open<SvgDocument>(stream);
-			Height = (int) _svgDocument.ViewBox.Height;
-			Width = (int) _svgDocument.ViewBox.Width;
+		    if ((int) _svgDocument.ViewBox.Height == 0)
+		    {
+		        Height = (int)_svgDocument.Height;
+            }
+		    else
+		    {
+		        Height = (int)_svgDocument.ViewBox.Height;
+            }
+		    if ((int)_svgDocument.ViewBox.Width == 0)
+		    {
+		        Width = (int)_svgDocument.Width;
+		    }
+		    else
+		    {
+		        Width = (int)_svgDocument.ViewBox.Width;
+		    }
 		}
 
 		/// <summary>

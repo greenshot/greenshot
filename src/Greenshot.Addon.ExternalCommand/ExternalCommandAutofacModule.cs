@@ -12,10 +12,6 @@ namespace Greenshot.Addon.ExternalCommand
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ExternalCommandDestination>()
-                .As<IDestination>()
-                .SingleInstance();
-            builder
                 .RegisterType<ExternalCommandStartup>()
                 .As<IStartup>()
                 .SingleInstance();

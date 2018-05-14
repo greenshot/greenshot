@@ -19,6 +19,10 @@ namespace Greenshot.Addon.Imgur
                 .As<IConfigScreen>()
                 .SingleInstance();
             builder
+                .RegisterType<ImgurHistoryViewModel>()
+                .AsSelf()
+                .SingleInstance();
+            builder
                 .RegisterType<ImgurApi>()
                 .AsSelf()
                 .SingleInstance();

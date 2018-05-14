@@ -21,17 +21,17 @@
 
 #endregion
 
-#region Usings
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using Autofac;
+using Autofac.Extras.CommonServiceLocator;
 using Caliburn.Micro;
+using CommonServiceLocator;
 using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
@@ -43,7 +43,7 @@ using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Ui.Misc.ViewModels;
 using Point = System.Drawing.Point;
-#endregion
+
 
 namespace Greenshot
 {
@@ -99,9 +99,12 @@ namespace Greenshot
             // Make sure the non-plugin DLLs are also loaded, so exports are available.
             application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot*.dll"));
             application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot*.gsp"));
-/*
-            await application.Bootstrapper.StartupAsync();
-*/
+
+            application.Bootstrapper.OnContainerCreated += container =>
+            {
+                var autofacServiceLocator = new AutofacServiceLocator(container);
+                ServiceLocator.SetLocatorProvider(() => autofacServiceLocator);
+            };
             application.Run();
             return 0;
         }

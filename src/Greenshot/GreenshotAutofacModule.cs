@@ -53,14 +53,14 @@ namespace Greenshot
 
             // Configuration
             builder
-                .RegisterAssemblyTypes()
+                .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IConfigScreen>()
                 .As<IConfigScreen>()
                 .SingleInstance();
 
             // Startup and Shutdown
             builder
-                .RegisterAssemblyTypes()
+                .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IStartupMarker>()
                 .As<IStartupMarker>()
                 .SingleInstance();
@@ -77,7 +77,7 @@ namespace Greenshot
 
             // Destinations
             builder
-                .RegisterAssemblyTypes()
+                .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IDestination>()
                 .As<IDestination>()
                 .SingleInstance();

@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO.Compression;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using Dapplo.Addons;
@@ -137,8 +138,12 @@ namespace Greenshot.Addon.Jira
 				{
 				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "jira.svgz"))
 				    {
-				        displayIcon = BitmapHelper.FromStream(bitmapStream);
-				    }
+				        using (var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress))
+				        {
+				            displayIcon = SvgBitmap.FromStream(gzStream).Bitmap;
+				        }
+                        //displayIcon = BitmapHelper.FromStream(bitmapStream);
+                    }
 				}
 				return displayIcon;
 			}

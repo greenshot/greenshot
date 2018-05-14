@@ -18,6 +18,10 @@ namespace Greenshot.Addon.Lutim
                 .RegisterType<LutimConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
+            builder
+                .RegisterType<LutimApi>()
+                .AsSelf()
+                .SingleInstance();
         }
     }
 }
