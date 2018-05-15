@@ -93,12 +93,15 @@ namespace Greenshot
 #else
 #endif
             };
+            application.Bootstrapper.AddScanDirectories(scanDirectories);
 
             // Load the assemblies, and run the application
-            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Dapplo.Caliburn*.dll"));
+            application.Bootstrapper.FindAndLoadAssemblies("Dapplo.Caliburn*.dll");
+            // Load the assemblies, and run the application
+            application.Bootstrapper.FindAndLoadAssemblies("Dapplo.Addons.Config.dll");
             // Make sure the non-plugin DLLs are also loaded, so exports are available.
-            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot.Addon*.dll"));
-            application.Bootstrapper.LoadAssemblies(FileLocations.Scan(scanDirectories, "Greenshot.Addon*.gsp"));
+            application.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*.dll");
+            application.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*.gsp");
 
             application.Bootstrapper.OnContainerCreated += container =>
             {

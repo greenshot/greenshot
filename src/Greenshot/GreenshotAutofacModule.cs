@@ -60,8 +60,8 @@ namespace Greenshot
             // Startup and Shutdown
             builder
                 .RegisterAssemblyTypes(ThisAssembly)
-                .AssignableTo<IStartupMarker>()
-                .As<IStartupMarker>()
+                .AssignableTo<IService>()
+                .As<IService>()
                 .SingleInstance();
 
             builder
