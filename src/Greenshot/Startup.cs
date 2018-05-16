@@ -90,24 +90,25 @@ namespace Greenshot
             {
                 FileLocations.StartupDirectory,
 #if DEBUG
+                // Test directories?
 #else
+                Others?
 #endif
             };
-            application.Bootstrapper.AddScanDirectories(scanDirectories);
+            application.Bootstrapper
+                .AddScanDirectories(scanDirectories)
+                // Load the assemblies, and run the application
+                .FindAndLoadAssemblies("Dapplo.Caliburn*")
+                // Load the assemblies, and run the application
+                .FindAndLoadAssemblies("Dapplo.Addons.Config")
+                // Make sure the non-plugin DLLs are also loaded, so exports are available.
+                .FindAndLoadAssemblies("Greenshot.Addon*", new []{".dll", ".gsp"})
 
-            // Load the assemblies, and run the application
-            application.Bootstrapper.FindAndLoadAssemblies("Dapplo.Caliburn*.dll");
-            // Load the assemblies, and run the application
-            application.Bootstrapper.FindAndLoadAssemblies("Dapplo.Addons.Config.dll");
-            // Make sure the non-plugin DLLs are also loaded, so exports are available.
-            application.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*.dll");
-            application.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*.gsp");
-
-            application.Bootstrapper.OnContainerCreated += container =>
-            {
-                var autofacServiceLocator = new AutofacServiceLocator(container);
-                ServiceLocator.SetLocatorProvider(() => autofacServiceLocator);
-            };
+                .OnContainerCreated += container =>
+                {
+                    var autofacServiceLocator = new AutofacServiceLocator(container);
+                    ServiceLocator.SetLocatorProvider(() => autofacServiceLocator);
+                };
             application.Run();
             return 0;
         }
