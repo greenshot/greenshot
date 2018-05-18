@@ -28,7 +28,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons.Controls;
-using Greenshot.Addons.Core;
 using Greenshot.Gfx.Effects;
 
 #endregion
@@ -41,15 +40,15 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 	public partial class ResizeSettingsForm : BaseForm
 	{
 		private readonly ResizeEffect _effect;
-		private readonly string _valuePercent;
+	    private readonly string _valuePercent;
 		private double _newWidth, _newHeight;
 
-		public ResizeSettingsForm(ResizeEffect effect)
+		public ResizeSettingsForm(ResizeEffect effect, IEditorLanguage editorLanguage)
 		{
 			_effect = effect;
-			InitializeComponent();
-			var valuePixel = Language.GetString("editor_resize_pixel");
-			_valuePercent = Language.GetString("editor_resize_percent");
+		    InitializeComponent();
+			var valuePixel = editorLanguage.EditorResizePixel;
+			_valuePercent = editorLanguage.EditorResizePercent;
 			combobox_width.Items.Add(valuePixel);
 			combobox_width.Items.Add(_valuePercent);
 			combobox_width.SelectedItem = valuePixel;
