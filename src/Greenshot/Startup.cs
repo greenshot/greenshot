@@ -30,6 +30,7 @@ using System.Windows;
 using System.Windows.Forms;
 using Autofac;
 using Autofac.Extras.CommonServiceLocator;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using CommonServiceLocator;
 using Dapplo.Addons.Bootstrapper.Resolving;
@@ -132,14 +133,16 @@ namespace Greenshot
         private static void DisplayErrorViewModel(Dapplication application, Exception exception)
         {
             var windowManager = application.Bootstrapper.Container.Resolve<IWindowManager>();
-            var errorViewModel = application.Bootstrapper.Container.Resolve<ErrorViewModel>();
-            if (windowManager == null || errorViewModel == null)
+            using (var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>())
             {
-                return;
+                if (windowManager == null || errorViewModel == null)
+                {
+                    return;
+                }
+                errorViewModel.Value.SetExceptionToDisplay(exception);
+                windowManager.ShowDialog(errorViewModel.Value);
             }
 
-            errorViewModel.SetExceptionToDisplay(exception);
-            windowManager.ShowWindow(errorViewModel);
         }
 
         /// <summary>

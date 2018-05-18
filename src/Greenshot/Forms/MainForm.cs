@@ -33,6 +33,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
@@ -77,12 +78,10 @@ namespace Greenshot.Forms
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
         // Make sure we have only one settings form
-        private readonly SettingsForm _settingsForm;
+        private readonly Func<Owned<SettingsForm>> _settingsFormFactory;
+        private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
         private readonly DestinationHolder _destinationHolder;
-
-        // Make sure we have only one about form
-        private AboutForm _aboutForm;
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
@@ -90,13 +89,16 @@ namespace Greenshot.Forms
 
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
-            ConfigViewModel configViewModel, SettingsForm settingsForm,
+            ConfigViewModel configViewModel,
+            Func<Owned<SettingsForm>> settingsFormFactory,
+            Func<Owned<AboutForm>> aboutFormFactory,
             DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
             _configViewModel = configViewModel;
-            _settingsForm = settingsForm;
+            _settingsFormFactory = settingsFormFactory;
+            _aboutFormFactory = aboutFormFactory;
             _destinationHolder = destinationHolder;
             Instance = this;
         }
@@ -109,7 +111,6 @@ namespace Greenshot.Forms
             //
             try
             {
-                _settingsForm.Initialize();
                 InitializeComponent();
                 SetupBitmapScaleHandler();
             }
@@ -848,19 +849,14 @@ namespace Greenshot.Forms
                 _windowManager.ShowDialog(_configViewModel);
             }
 
-            if (Application.OpenForms.OfType<SettingsForm>().Any())
+            using (var settingsForm = _settingsFormFactory())
             {
-                // TODO: Await?
-                InteropWindowFactory.CreateFor(_settingsForm.Handle).ToForegroundAsync();
-            }
-            else
-            {
-                if (_settingsForm.ShowDialog() == DialogResult.OK)
+                settingsForm.Value.Initialize();
+                if (settingsForm.Value.ShowDialog() == DialogResult.OK)
                 {
                     InitializeQuickSettingsMenu();
                 }
             }
-
         }
 
         /// <summary>
@@ -875,24 +871,9 @@ namespace Greenshot.Forms
 
         public void ShowAbout()
         {
-            if (_aboutForm != null)
+            using (var aboutForm = _aboutFormFactory())
             {
-                // TODO: Await?
-                InteropWindowFactory.CreateFor(_aboutForm.Handle).ToForegroundAsync();
-            }
-            else
-            {
-                try
-                {
-                    using (_aboutForm = new AboutForm())
-                    {
-                        _aboutForm.ShowDialog(this);
-                    }
-                }
-                finally
-                {
-                    _aboutForm = null;
-                }
+                aboutForm.Value.ShowDialog(this);
             }
         }
 

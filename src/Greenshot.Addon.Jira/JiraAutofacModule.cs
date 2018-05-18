@@ -21,8 +21,7 @@ namespace Greenshot.Addon.Jira
                 .SingleInstance();
             builder
                 .RegisterType<JiraViewModel>()
-                .AsSelf()
-                .SingleInstance();
+                .AsSelf();
             builder
                 .RegisterType<JiraConnector>()
                 .AsSelf()

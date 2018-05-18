@@ -49,8 +49,9 @@ namespace Greenshot.Forms
 	/// </summary>
 	public sealed partial class AboutForm : AnimatingBaseForm
 	{
+	    private static readonly LogSource Log = new LogSource();
 		// Variables are used to define the location of the dots
-		private const int w = 13;
+        private const int w = 13;
 		private const int p1 = 7;
 		private const int p2 = p1 + w;
 		private const int p3 = p2 + w;
@@ -58,7 +59,6 @@ namespace Greenshot.Forms
 		private const int p5 = p4 + w;
 		private const int p6 = p5 + w;
 		private const int p7 = p6 + w;
-		private static readonly LogSource Log = new LogSource();
 		private readonly Color _backColor = Color.FromArgb(61, 61, 61);
 		private readonly ColorAnimator _backgroundAnimation;
 		private readonly IList<Color> _colorFlow = new List<Color>();

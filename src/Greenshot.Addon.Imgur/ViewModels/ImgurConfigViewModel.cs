@@ -21,7 +21,9 @@
 
 #endregion
 
+using System;
 using System.Reactive.Disposables;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -30,6 +32,9 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
+    /// <summary>
+    /// The imgure config VM
+    /// </summary>
     public sealed class ImgurConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -43,7 +48,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public IWindowManager WindowManager { get; }
 
-        public ImgurHistoryViewModel ImgurHistoryViewModel { get;}
+        public Func<Owned<ImgurHistoryViewModel>> ImgurHistoryViewModelFactory { get;}
 
         public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
@@ -51,14 +56,14 @@ namespace Greenshot.Addon.Imgur.ViewModels
             IImgurConfiguration imgurConfiguration,
             IImgurLanguage imgurLanguage ,
             IWindowManager windowManager,
-            ImgurHistoryViewModel imgurHistoryViewModel,
+            Func<Owned<ImgurHistoryViewModel>> imgurHistoryViewModelFactory,
             FileConfigPartViewModel fileConfigPartViewModel
             )
         {
             ImgurConfiguration = imgurConfiguration;
             ImgurLanguage = imgurLanguage;
             WindowManager = windowManager;
-            ImgurHistoryViewModel = imgurHistoryViewModel;
+            ImgurHistoryViewModelFactory = imgurHistoryViewModelFactory;
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
         public override void Initialize(IConfig config)
@@ -92,7 +97,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public void ShowHistory()
         {
-            WindowManager.ShowWindow(ImgurHistoryViewModel);
+            using (var imgurHistoryViewModel = ImgurHistoryViewModelFactory())
+            {
+                WindowManager.ShowDialog(imgurHistoryViewModel.Value);
+            }
         }
     }
 }
