@@ -18,7 +18,7 @@
 	
     <link href='//fonts.googleapis.com/css?family=Lato|Bangers' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ '/css/font-awesome-4.7.0/css/font-awesome.min.css' | prepend: site.baseurl }}">
     <link rel="shortcut icon" href="/favicon.ico" sizes="16x16">
 
    
@@ -33,6 +33,7 @@
     <script type="text/javascript">
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-30035814-1']);
+        _gaq.push (['_gat._anonymizeIp']);
         _gaq.push(['_trackPageview']);
         (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
