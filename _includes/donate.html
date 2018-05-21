@@ -1,5 +1,5 @@
 <p>
-	Greenshot is free for you, but not for us. Maintaining and improving software not only costs a lot of time, but money as well. 
+	Greenshot is free for you, but not for us. Maintaining and improving software not only costs a lot of time, but money as well.
 	For example, there are hardware and software costs, telecommunication costs and more. This project is not backed by a company,
 	so there is no fixed funding and every minute we spend on it is taken from our spare time.
 </p>
@@ -58,7 +58,6 @@ jQuery('ul.tabs-nav a:first').click();
 var lang = (navigator.language || navigator.userLanguage).toLowerCase();
 console.log(lang);
 if(lang.indexOf('de') == 0) {
-jQuery('#amazon2').insertBefore(jQuery('#amazon1'));
 jQuery('#tabs-moneytransfer #germany').insertBefore(jQuery('#tabs-moneytransfer #international'));
 }
 });
@@ -66,19 +65,67 @@ jQuery('#tabs-moneytransfer #germany').insertBefore(jQuery('#tabs-moneytransfer 
 <div class="tabs">
 <ul class="tabs-nav">
 <li class="active"><a href="#tabs-paypal"><img src="/assets/wp-content/uploads/2012/11/logo_paypal.gif" title="Paypal" /></a></li>
-<li class="active"><a href="#tabs-moneytransfer">Transfer</a></li>
-<li><a href="#tabs-bitcoin"><img src="/assets/wp-content/uploads/2012/11/logo_bitcoin.png" title="Bitcoin" /></a></li>
+<li><a href="#tabs-moneytransfer">Transfer</a></li>
+<!--<li><a href="#tabs-bitcoin"><img src="/assets/wp-content/uploads/2012/11/logo_bitcoin.png" title="Bitcoin" /></a></li>-->
 <li><a href="#tabs-amazon"><img src="/assets/wp-content/uploads/2012/11/logo_amazon.gif" title="Amazon" /></a></li>
 <li><a href="#tabs-flattr"><img src="/assets/wp-content/uploads/2012/11/logo_flattr.gif" title="Flattr" /></a></li>
+<!--<li><a href="#tabs-coinhive">Do Nothing</a></li>-->
 </ul>
 <div class="clearer"></div>
 <div id="tabs-paypal" class="tabs-content">
+
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="YE4BNSK7XJM8E"><input type="submit" style="width: 50px;" name="submit" value="1$"> (Ten hours of electricity for one developer PC)<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="923PU3Z5D5F76"><input type="submit" style="width: 50px;" name="submit" value="5$"> (One day webserver hosting)<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="GLFCAFMVMLF72"><input type="submit" style="width: 50px;" name="submit" value="10$"> (5% of our monthly telecommunication costs)<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="459WZLUKFZBN6"><input type="submit" style="width: 50px;" name="submit" value="25$"> (A quarter of a hard-drive)<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="DDQEUANL5BVDS"><input type="submit" style="width: 50px;" name="submit" value="50$"> (5% of one MS Visual Studio license)<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="BJX9D7UQSU7KW"><input type="submit" style="width: 50px;" name="submit" value="..."> Of course, you can donate any amount you regard appropriate.<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form></p>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="BJX9D7UQSU7KW"><input type="submit" style="width: 50px;" name="submit" value="..."> Of course, you can donate any amount you regard appropriate.<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>
+
+<br><br>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+	<b>Not in the US?</b><br>
+	Select your currency:
+	<select name="currency_code">
+		<option value="AUD">AUD $</option>
+		<option value="BRL">BRL R$</option>
+		<option value="CAD">CAD $</option>
+		<option value="CHF">CHF Fr.</option>
+		<option value="CZK">CZK Kč</option>
+		<option value="DKK">DKK kr.</option>
+		<option value="EUR" selected>EUR €</option>
+		<option value="GBP">GBP £</option>
+		<option value="HKD">HKD $</option>
+		<option value="HUF">HUF Ft</option>
+		<option value="ILS">ILS ₪</option>
+		<option value="JPY">JPY ‎¥‎</option>
+		<option value="MXN">‎MXN $‎</option>
+		<option value="MYR">MYR RM</option>
+		<option value="NOK">NOK kr</option>
+		<option value="NZD">NZD $</option>
+		<option value="PHP">‎PHP ₱</option>
+		<option value="PLN">PLN gr</option>
+		<option value="RUB">RUB ₽</option>
+		<option value="SEK">SEK kr</option>
+		<option value="SGD">SGD $</option>
+		<option value="THB">THB ฿</option>
+		<option value="TWD">TWD $</option>
+		<option value="USD">USD $</option>
+	</select>
+	<br>
+
+	<input type="hidden" name="cmd" value="_donations">
+	<input type="hidden" name="business" value="getgreenshot@gmail.com">
+	<input type="hidden" name="lc" value="IE">
+	<input type="hidden" name="item_name" value="Greenshot">
+	<input type="hidden" name="no_note" value="0">
+	<input type="hidden" name="bn" value="PP-DonationsBF:btn_donate_SM.gif:NonHostedGuest">
+	<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+	<img alt="" border="0" src="https://i1.wp.com/www.paypalobjects.com/en_US/i/scr/pixel.gif?resize=1%2C1&#038;ssl=1"  data-recalc-dims="1">
+
+</form>
+
+
+</p>
 <p>
 We hope you get an idea of all the things we have to pay for in order to create free screenshot software for you.
 Additionally, if only our hardware costs were covered, we still work for nothing.</p>
@@ -110,20 +157,9 @@ You can send us donations directly via money transfer. Please use the account de
 </table>
 </div>
 <div id="tabs-amazon" class="tabs-content">
-<div id="amazon1">
-<p>We are taking part in the amazon affiliate program, support us by clicking the advertising links below before your next shopping tour at Amazon. Greenshot will be rewarded a few percent for everything you buy within 24 hours after clicking one of the Amazon ads on this website. Of course, this is anonymous - Amazon does not tell us who has ordered something after clicking one of the links.<br/>
-The best thing is: there are no additional costs for you :)</p>
-<p>Please choose your amazon store:<br/>
-<em>[Advertisement]</em></p>
-<p><a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.com%2F&amp;tag=greenshot-20&amp;linkCode=ur2&amp;camp=1789&amp;creative=9325" class="icon amazon"><img width="16" height="11" title="us" alt="us" src="/assets/flags/us.gif"> amazon.com</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.com/e/ir?t=greenshot-20&amp;l=ur2&amp;o=1" style="border: medium none ! important; margin: 0px ! important;"/><br>
-<a rel="nofollow" href="http://www.amazon.co.uk/?_encoding=UTF8&tag=greenshot-21&linkCode=ur2&camp=1634&creative=6738" class="icon amazon"><img width="16" height="11" title="uk" alt="uk" src="/assets/flags/gb.gif"> amazon.co.uk</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.co.uk/e/ir?t=greenshot-21&amp;l=ur2&amp;o=2" style="border: medium none ! important; margin: 0px ! important;"/><br>
-<a rel="nofollow" href="http://www.amazon.de/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.de%2F&amp;site-redirect=de&amp;tag=greenshot2-21&amp;linkCode=ur2&amp;camp=1638&amp;creative=6742" class="icon amazon"><img width="16" height="11" title="de" alt="de" src="/assets/flags/de.gif"> amazon.de</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.de/e/ir?t=greenshot2-21&amp;l=ur2&amp;o=3" style="border: medium none ! important; margin: 0px ! important;"/></p>
-</div>
-<div id="amazon2">
 <p><strong>
 <span lang="de"><img width="16" height="11" title="de" alt="de" src="/assets/flags/de.gif"> Kunden von Amazon.de können uns gerne unterstützem, indem Sie uns etwas von unserer <a href="http://www.amazon.de/registry/wishlist/14V0E5HW3WQ9Z" target="_blank">Wunschliste</a> kaufen (Gutscheine sind immer willkommen :) bitte verwenden Sie getgreenshot@gmail.com als Empfängeradresse).</span><br>
 (Amazon.de customers may support us by buying us something from our <a href="http://www.amazon.de/registry/wishlist/14V0E5HW3WQ9Z" target="_blank">wish list</a> (gift coupons are always welcome :) please use getgreenshot@gmail.com as recipient address).)</strong></p>
-</div>
 </div>
 
 <div id="tabs-flattr" class="tabs-content">
@@ -151,9 +187,45 @@ The best thing is: there are no additional costs for you :)</p>
 </div>
 
 
+<!--<div id="tabs-coinhive" class="tabs-content">
+	<p>
+	Just click "start mining" and leave this page open.
+	</p>
+	<script src="https://authedmine.com/lib/simple-ui.min.js" async></script>
+	<div class="coinhive-miner"
+		style="width: 256px; height: 310px"
+		data-key="HSJ0fo69lzIQB5tGfizcDS5WK2p9gyoO"
+		data-autostart="false"
+		data-whitelabel="true"
+		data-background="#000000"
+		data-text="#eeeeee"
+		data-action="#00ff00"
+		data-graph="#555555"
+		data-threads="2"
+		data-throttle="0.7">
+		<em>Loading...</em>
+	</div>
+
+	<p>
+	This will support our work with a bit of the processing power of your computer.
+	You can leave this page open as long as you like to support us.
+	</p>
+	<p>
+	No personal data is transferred, no costs for you. Only your computer will do a little bit of math to generate some crypto money for us.
+	You can also tune the parameters so they fit an appropriate CPU usage. The default is relatively low.
+	</p>
+	<p>
+		If you like to support us regularly this way, you can also use the following page as your browser's homepage and supoort us every day.
+		<br><br>
+		<a href="https://authedmine.com/media/miner.html?key=HSJ0fo69lzIQB5tGfizcDS5WK2p9gyoO" target="_blank"><b>Open the Greenshot miner</b></a>
+	</p>
+
+
+</div>-->
+
 <div id="tabs-bitcoin" class="tabs-content">
 <p>If you like to donate some Bitcoin, please use this Wallet:</p>
-<p>1GT551YLV1rQbfc6TnsvU27JktkQQektVw</p>
+<p>1EQvrcA1FQ5M6wyBZU6RbpRFFuC8Z9gb23</p>
 <p><img src="/assets/bitcoin-qrcode.png"></p>
 </div>
 

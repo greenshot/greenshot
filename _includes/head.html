@@ -8,7 +8,9 @@
     <meta name="description" content="{% if page.metadescription %}{{ page.metadescription }}{% else %}{{ site.description }}{% endif %}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="{{ '/css/main.css?v=4' | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ '/css/main.css?v=6' | prepend: site.baseurl }}">
+	<link href="/feed" rel="alternate" type="application/rss+xml" title="Greenshot RSS feed" />
+	<link href="/feed" rel="alternate" type="application/atom+xml" title="Greenshot Atom feed" />
 
     {% if page.tags contains "uses_alerts" %}
     <link rel="stylesheet" href="{{ '/css/alerts.css' | prepend: site.baseurl }}">
@@ -16,18 +18,22 @@
 	
     <link href='//fonts.googleapis.com/css?family=Lato|Bangers' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ '/css/font-awesome-4.7.0/css/font-awesome.min.css' | prepend: site.baseurl }}">
     <link rel="shortcut icon" href="/favicon.ico" sizes="16x16">
 
    
     <script src="{{ '/js/vendor/jquery-3.1.1.min.js' | prepend: site.baseurl }}"></script>
     <script src="{{ '/js/vendor/jquery.slides.min.js' | prepend: site.baseurl }}"></script>
+
+    <script src="{{ '/js/vendor/blockadblock.js' | prepend: site.baseurl }}"></script>
+    <script src="{{ '/js/main.js?v=2' | prepend: site.baseurl }}"></script>
 	
     <link rel="canonical" href="{{ site.url }}{{ page.url | replace:'index.html','' }}">
     
     <script type="text/javascript">
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-30035814-1']);
+        _gaq.push (['_gat._anonymizeIp']);
         _gaq.push(['_trackPageview']);
         (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;

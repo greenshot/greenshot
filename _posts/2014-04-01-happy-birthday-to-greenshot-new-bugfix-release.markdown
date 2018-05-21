@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Happy Birthday to Greenshot + New Bugfix Release 1.1.8
-
 tags:
+- windows
 - release
 - '1.1'
 

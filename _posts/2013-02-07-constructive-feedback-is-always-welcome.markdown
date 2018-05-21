@@ -3,17 +3,15 @@ layout: post
 status: publish
 published: true
 title: Constructive feedback is always welcome
-
 tags:
 - bugs
 - support
-
 ---
 <p>Dear Greenshot users,</p>
 <p>When you encounter problems with Greenshot or need any assistance, we are happy to help out as much as we can. However, to ensure that we can actually be helpful, we kindly ask you to provide the following details with your bug report / support request:</p>
 <ol>
 <li>Operating system and its version on which you are facing the issue.</li>
-<li>The version of Greenshot and where you downloaded it, espcially if it wasn't from <a href="http://getgreenshot.org">getgreenshot.org</a> or <a href="http://sourceforge.net">sourceforge.net</a>.</li>
+<li>The version of Greenshot and where you downloaded it, espcially if it wasn't from <a href="https://getgreenshot.org">getgreenshot.org</a>.</li>
 <li>A detailed description of your problem, what happened, and what did you expect to happen instead, please also include a step-by-step guide how the problem can be reproduced.</li>
 <li>If you have found a solution (or workaround) for the problem, please update the ticket and tell us (and the other users) about the rescue.</li>
 <li>Please be polite and patient. We know that it can be nagging if software does not work as expected, but be sure that it isn't our intention to make this software as annoying as possible for you.</li>

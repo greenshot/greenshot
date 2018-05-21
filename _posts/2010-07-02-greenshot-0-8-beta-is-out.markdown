@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Greenshot 0.8 beta is out
-
 tags:
+- windows
 - '0.8'
 - release
 - features

@@ -3,15 +3,14 @@ layout: post
 status: publish
 published: true
 title: Greenshot now available in Swedish, Finnish, Greek and Hebrew language
-
 tags:
+- windows
 - translation
 - internationalization
 - greek
 - hebrew
 - finnish
 - swedish
-
 ---
 <p>We have received a bunch of new translations from friendly users :)</p>
 <p>We are happy to announce that Greenshot translation files are now available for Swedish (Tack, Eric F.), Finnish (Kiitos, Jari Majaniemi), Greek (Χάρη, ΓΙΩΡΓΟ ΣΚΟΥΝΤΖΗ) and Hebrew (תודה, רן ששון).<br />

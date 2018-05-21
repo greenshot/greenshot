@@ -56,4 +56,4 @@ This website uses Google Analytics, a web analytics service provided by Google, 
 <p><br> </p>
 <p>
 <strong>Amazon</strong><br><br><br />
-getgreenshot.org is a participant in the Amazon EU Associates Programme, an affiliate advertising programme designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.co.uk / Aamzon.com / Amazon.de.</p>
+getgreenshot.org is a participant in the Amazon EU Associates Programme, an affiliate advertising programme designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.co.uk / Amazon.com / Amazon.de.</p>

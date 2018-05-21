@@ -3,12 +3,11 @@ layout: post
 status: publish
 published: true
 title: Greenshot 1.1.6 is ready for download
-
 tags:
+- windows
 - release
 - bugfix
 - '1.1'
-
 ---
 <p><a href="http://getgreenshot.org/2013/10/16/current-development-status-future-plans/" title="Current Development Status and Plans for the Future">Not so long ago we have announced</a> that Greenshot 1.1.6 is near, today it is here :)</p>
 <p>It includes a few new features/improvements but is mainly a bugfix release, fixing some issues that have been reported for the previous version, especially for those who were having problems with Greenshot "forgetting" their settings now and then and for two problems that occurring when exporting screenshots to Microsoft Office.</p>

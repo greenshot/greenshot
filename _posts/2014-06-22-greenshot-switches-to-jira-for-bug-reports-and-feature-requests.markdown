@@ -3,13 +3,11 @@ layout: post
 status: publish
 published: true
 title: Greenshot Switches to JIRA for Bug Reports and Feature Requests
-
 tags:
 - website
 - sourceforge
 - jira
 - tickets
-
 ---
 <p>The difference between good and great software often originates from the developers closely listening to the users. As your ideas and comments are valuable input for us, we think that you need be able to easily report bugs and request features, as well as to quickly find information on problems/suggestions that have already been reported by other users.</p>
 <p>For a long time, we have used the Sourceforge ticketing system for this, and although it worked for us many years we always thought it wasn't perfect for our needs. As every member of the Greenshot team also has experience with another ticketing tool, which we all like a lot, it is now time for a change.</p>

@@ -3,11 +3,10 @@ layout: post
 status: publish
 published: true
 title: Working towards Greenshot 1.0
-
 tags:
+- windows
 - release
 - '1.0'
-
 ---
 <p>If you have been following the published <a href="/version-history/">unstable versions and release candidates of Greenshot</a> you might be wondering "What has happened to Version 0.8.1? There have been several release candidates some time ago... when will it finally be released?"</p>
 <p>Well, there's bad news and good news. The bad news is that there won't be a 0.8.1 release at all. The good news... no... the really awesome news is: we will release <strong>Greenshot 1.0</strong> soon! Yay!</p>

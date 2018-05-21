@@ -10,308 +10,433 @@ comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
 
-<small>Version 0.8 Nederlanse vertaling van de help door Jurjen Ladenius</small>
+<small>Versie 1.2.9 - Nederlandse vertaling door Jurjen Ladenius en Stephan Paternotte</small>
 
 <h2>Inhoud</h2>
 <ol>
-<li><a href="#screenshot">Een screenshot maken</a></li>
-<ol>
-<li><a href="#capture-region">Regio vastleggen</a></li>
-<li><a href="#capture-last-region">Laast gebruikte regio vastleggen</a></li>
-<li><a href="#capture-window">Window vangen</a></li>
-<li><a href="#capture-fullscreen">Gehele beeldscherm vastleggen</a></li>
-</ol>
+	<li><a href="#screenshot">Een schermopname maken</a></li>
+	<ol>
+		<li><a href="#capture-region">Interactief kader</a></li>
+		<li><a href="#capture-last-region">Laaste schermopname herhalen</a></li>
+		<li><a href="#capture-window">Actief vensteropname</a></li>
+		<li><a href="#capture-fullscreen">Volledige schermopname</a></li>
+		<li><a href="#capture-ie">Internet Explorer schermopname</a></li>
+	</ol>
 
-<li><a href="#editor">Using the image editor</a></li>
-<ol>
-<li><a href="#editor-shapes">Drawing shapes</a></li>
-<li><a href="#editor-text">Adding text</a></li>
-<li><a href="#editor-highlight">Highlighting things</a></li>
-<li><a href="#editor-obfuscate">Obfuscating things</a></li>
-<li><a href="#editor-crop">Cropping the screenshot</a></li>
-<li><a href="#editor-reuse-elements">Re-using drawn elements</a></li>
-<li><a href="#editor-export">Exporting the screenshot</a></li>
-</ol>
-<li><a href="#settings">The settings dialog</a></li>
-<ol>
-<li><a href="#settings-general">General settings</a></li>
-<li><a href="#settings-output">Output settings</a></li>
-<li><a href="#settings-printer">Printer settings</a></li>
-</ol>
-<li><a href="#help">Want to help?</a></li>
-<ol>
-<li><a href="#help-donate">Consider a donation</a></li>
-<li><a href="#help-spread">Spread the word</a></li>
-<li><a href="#help-translate">Submit a translation</a></li>
-</ol>
+	<li><a href="#editor">De beeldbewerker gebruiken</a></li>
+	<ol>
+		<li><a href="#editor-shapes">Vormen tekenen</a></li>
+		<li><a href="#editor-text">Tekst toevoegen</a></li>
+		<li><a href="#editor-highlight">Markeren</a></li>
+		<li><a href="#editor-obfuscate">Maskeren</a></li>
+		<li><a href="#editor-effects">Effecten toepassen</a></li>
+		<li><a href="#editor-crop">Schermopname bijsnijden</a></li>
+		<li><a href="#editor-adding-graphics">Afbeeldingen aan een schermopname toevoegen</a></li>
+		<li><a href="#editor-reuse-elements">Getekende elementen hergebruiken</a></li>
+		<li><a href="#editor-export">Schermopname exporteren</a></li>
+	</ol>
+	<li><a href="#settings">Het instellingenvenster</a></li>
+	<ol>
+		<li><a href="#settings-general">Algemene instellingen</a></li>
+		<li><a href="#settings-capture">Schermopname-instellingen</a></li>
+		<li><a href="#settings-output">Resultaat-instellingen</a></li>
+		<li><a href="#settings-destination">Bestemmingsinstellingen</a></li>
+		<li><a href="#settings-printer">Printer-instellingen</a></li>
+		<li><a href="#settings-expert">Expert-instellingen</a></li>
+	</ol>
+	<li><a href="#help">Wilt u helpen?</a></li>
+	<ol>
+		<li><a href="#help-donate">Overweeg een donatie</a></li>
+		<li><a href="#help-spread">Vertel het door</a></li>
+		<li><a href="#help-translate">Draag bij met een vertaling</a></li>
+	</ol>
 </ol>
 
 <a name="screenshot"></a>
-<h2>Een screenshot maken</h2>
+<h2>Een schermopname maken</h2>
 <p>
-U kunt een screenshot maken door de <kbd>Print</kbd> toets van uw keyboard te drukken of
-rechts op het Greenshot icon in de systray te klikken<br>
-Er zijn meerdere mogelijkheden om een screenshot te maken:
+	U kunt een schermopname maken door op uw toetsenbord de <kbd>Print</kbd>-toets te drukken of
+	door middel van een rechtermuisklik op het Greenshot-icoon in het systeemvak.</br>
+	Er zijn meerdere mogelijkheden om een schermopname te maken:
 </p>
 
 <a name="capture-region"></a>
-<h3>Regio vastleggen <kbd>Print</kbd></h3>
+<h3>Interactief kader <kbd>Print</kbd></h3>
 <p>
-De "regio vastleggen" modus maakt het mogelijk om een gebied van het beeldscherm te markeren voor een screenshot.<br>
-Nadat de regio vastlegen modus gestart wordt verandert de mouse-cursor in een kruis.
-Stuur de muis naar een hoek van het gebied waarvan u een screenshot wilt hebben en
-druk op de linker muisknop en hou deze gedrukt. Beweeg nu de muis naar de tegenovergestelde hoek
-van uw doelgebied, tijdens het bewegen ziet u een groeiende groene rechthoek.
-Op het moment dat u de linker muisknop los laat word het gehele groene gebied vastgelegd.
+	Deze "regio"-opnamemodus maakt het mogelijk om een gebied van het beeldscherm te selecteren voor een schermopname.</br>
+	Bij het vastleggen van het opnamegebied verandert de mouse-cursor in een haarkruis.
+	Positioneer de muis naar een hoek van het gebied waarvan u een schermopname wilt maken en
+	druk op de linkermuisknop en houd deze ingedrukt. Beweeg nu de muis naar de diagonale hoek
+	van uw doelgebied. Tijdens het bewegen ontstaat een groeiende groene rechthoek.
+	Op het moment dat u de linkermuisknop loslaat wordt van het groene gebied een schermopname gemaakt.
 </p>
 <p class="hint">
-U kunt de <kbd>spatie</kbd> toets gebruiken om tussen de "regio vastleggen" en de
-<a href="#capture-window">window</a> modus te wisselen. De Esc-toets breekt het vastleggen af.
+	Met de <kbd>spatie</kbd>-balk kunt u wisselen tussen de modi "Interactief kader" en 
+	<a href="#capture-window">Actief vensteropname</a>. Met <kbd>Esc</kbd> breekt u de schermopname af.
 </p>
 <p class="hint">
-Als u een zeer exact gebied wilt vastleggen is het misschen eenvoudiger om eerst een groter
-gebied te nemen en dan de screeshot <a href="#editor-crop">bij te snijden</a> in de
-Greenshot beeld bewerking.
+	Als u een zeer exact gebied wilt vastleggen is het misschien eenvoudiger om eerst van een groter
+	gebied een schermopname te maken en deze vervolgens in de Greenshot beeldbewerker 
+	<a href="#editor-crop">bij te snijden</a>.
 </p>
 
 <a name="capture-last-region"></a>
-<h3>Laast gebruikte regio vastleggen <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+<h3>Laatste schermopname herhalen <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
 <p>
-Als u al een keer een <a href="#capture-region">regio</a> of een <a href="#capture-window">window</a>
-vastgelegt heeft, heeft u met deze optie de mogelijkheid nog een keer de zelfde regio vast te leggen. 
+	Als u al een keer een schermopname heeft gemaakt van een <a href="#capture-region">Interactief kader</a> 
+	of een <a href="#capture-window">Actief venster</a>, dan kunt u met deze optie hetzelfde gebied nog eens vastleggen. 
 </p>
 
 <a name="capture-window"></a>
-<h3>Window vangen <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+<h3>Actief vensteropname <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
 <p>
-Maakt een screenshot van het aktive window.
+	Maakt een schermopname van het aktieve venster.
 </p>
 <p class="hint">
-In de <a href="#settings">voorkeursinstellingen</a> is een optie om niet
-het aktive window te vangen, maar om een window interaktiv uit te kiezen.
-Als deze optie aan staat kunt u een window selekteren door erop te klikken.
-(net als in de <a href="#capture-region">regio vastleggen</a> modus tekent Greenshot
-een groene rechhoek om het window wat gekozen wordt.)<br>
-Als u gedeeltes van een window wilt vangen, bijvoorbeeld het zichtbare gedeelte
-van de website die op dit moment in Internet Explorer getoont word, dan beweeg de muis
-over het window een druk de <kbd>PgDown</kbd> toets. Op dit moment is het mogelijk
-om kleinere gedeeltes van het window te selekteren en te vangen.
+	Gebruik bij Windows 7 of Vista de Schermopname-instellingen om te bepalen
+	hoe Greenshot omgaat met transparante (Aero) vensterranden, door bijv. transparanties 
+	te vervangen door een vaste kleur.
+</p>
+<p class="hint">
+	De <a href="#settings">instellingendialoog</a> biedt de mogelijkheid om niet direct 
+	het actieve venster te fotograferen, maar een venster interactief te selecteren.
+	Als deze optie geactiveerd is, kunt u een venster selecteren door het te klikken. Net als bij 
+	<a href="#capture-region">Interactief kader</a>, zal Greenshot  het te fotograferen
+	gebied markeren.</br> Wilt u een deelvenster fotograferen, zoals bijv. een browservenster
+	zonder menu of gereedschapsbalk of een enkel onderdeel in een webpagina, 
+	positioneer dan de muis over het deelvenster en druk de <kbd>Page Down</kbd>-toets. Hierna 
+	kunt u de specifieke vensterelementen selecteren voor de schermopname.
+</p>
+<p class="hint">
+	Schermopnamen van contextmenu's zijn lastig te maken: bij gebruik van de sneltoets voor een 
+	"Venster"-schermopname zal het contextmenu verdwijnen en dat zal ook gebeuren als u
+	Greenshot's contextmenu gebruikt om de schermopname te maken. Wilt u een 
+	schermopname maken van een contextmenu dat u zojuist met een rechtermuisklik hebt geopend,
+	gebruik dan eenvoudig "Interactief kader" <kbd>Print</kbd> en druk dan de <kbd>spatie</kbd>-balk.
 </p>
 
 <a name="capture-fullscreen"></a>
-<h3>Gehele beeldscherm vastleggen <kbd>Control</kbd> + <kbd>Print</kbd></h3>
+<h3>Volledige schermopname <kbd>Ctrl</kbd> + <kbd>Print</kbd></h3>
 <p>
-Maakt een screenshot van het gehele beeldscherm, ook als er meerdere monitoren gebruikt worden.
+	Greenshot maakt een schermopname van het gehele scherm.
 </p>
 
-<a name="editor"></a>
-<h2>De Greenshot beeld bewerking gebruiken</h2>
+<a name="capture-ie"></a>
+<h3>Internet Explorer schermopname <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
 <p>
-Greenshot komt met een eenvoudig te gebruiken beeld bewerking die verschillende handige werktuigen heeft en het
-mogelijk maakt om vormen en annotaties op een screenshot te maken. Het is zelfs mogelijk om bepaalde delen van
-uw screenshot onherkenbaar te maken of te markeren waardoor het beter opvalt.
+	Deze funcie maakt op eenvoudige wijze een schermopname van een webpagina die geopend is in Internet Explorer. 
+	Gebruik Greenshot's contextmenu om de tab in Internet Explorer te selecteren voor schermopname, of druk 
+	<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd> om een schermopname te maken van de actieve tab.
+</p>
+
+
+<a name="editor"></a>
+<h2>De Greenshot beeldbewerker gebruiken</h2>
+<p>
+	Greenshot heeft een eenvoudig te gebruiken beeldbewerkingsprogramma met verschillende handige functies en 
+	mogelijkheden om een schermopname te voorzien van vormen en annotaties. Het biedt ook mogelijkheden om 
+	delen van een schermopname onherkenbaar te maken of te markeren zodat het beter opvalt.
 </p>
 <p class="hint">
-De Greenshot beeld bewerking kan niet alleen voor screenshot maar ook voor andere beelden uit bestanden of het klembord gebruikt worden.
-Klik hiervoor met de rechter muis knop op het Greenshot icon in de systray en selekteer <em>Open beeld uit bestand</em> 
-of <em>Laad beeld van het klembord</em>.
+	De Greenshot beeldbewerker is niet alleen handig voor schermopnamen, maar is ook te gebruiken voor andere 
+	afbeeldingen uit bestanden of het klembord. Klik hiervoor met de rechter muisknop op het Greenshot-icoon 
+	in het systeemvak en selecteer <em>Afbeeldingsbestand openen</em> of 
+	<em>Afbeelding van het klembord laden</em>.
 </p>
 <p class="hint">
-By default, the image editor will be opened whenever a screenshot is
-captured. If you do not want to use the image editor, you can disable this
-behavior in the <a href="#settings">settings dialog</a>.
+	Na het maken van een schermopname, wordt de afbeelding standaard in de beeldbewerker geopend.
+	Indien u dit niet wenst, kunt u dit gedrag bij de <a href="#settings">Instellingen</a>
+	afschakelen.
 </p>
 
 
 <a name="editor-shapes"></a>
-<h3>Drawing shapes</h3>
+<h3>Vormen tekenen</h3>
 <p>
-Select one of the shape drawing tools from the toolbar on the left hand side
-of the image editor or from the <em>Object</em> menu. There is also a key assigned
-to each tool for your convenience.<br>
-Available shapes are: rectangle <kbd>R</kbd>, ellipse <kbd>E</kbd>, line <kbd>L</kbd>
-and arrow <kbd>A</kbd>.<br>
-Click, hold down the mouse button and drag to define position and size of the shape. 
-Release the mouse button when you are done.
+	Kies een van de vormen in de gereedschapsbalk aan de linkerzijde van de beeldbewerker 
+	of van het menu <em>Object</em>. Aan elke toets is tevens een sneltoets gekoppeld 
+	voor snelle toegang via het toetsenbord.</br>
+	Beschikbare vormen zijn: rechthoek <kbd>R</kbd>, ellips <kbd>E</kbd>, lijn <kbd>L</kbd>
+	pijl <kbd>A</kbd> en vrije vorm <kbd>F</kbd>.</br>
+	Klik en sleep de muis om de positie en de grootte van de vorm te bepalen.
+	Laat de muisknop los als de vorm van de juiste afmetingen is.
 </p>
 <p>
-You can move or resize existing shapes after selecting the selection tool 
-<kbd>ESC</kbd> from the toolbar.<br>For every element type there is a specific 
-set of options available to change the look of the element (e.g. line thickness, 
-line color, fill color). You can change the options for an existing element after
-selecting it, but also for the next element to be drawn after selecting a drawing tool.
+	Getekende vormen kunnen worden verplaatst en vergroot met behulp van de knop <em>Selectie</em>
+	<kbd>ESC</kbd> op de gereedschapsbalk.</br>Voor elk vormtype zijn specifieke 
+	opties beschikbaar om de karakteristieken aan te passen (bijv. lijndikte, 
+	lijnkleur, vulkleur). U kunt het uiterlijk veranderen voor een bestaand geselecteerd object, 
+	maar u kunt ook de eigenschappen instellen voor de volgende te tekenen vorm.
 </p>
 <p class="hint">
-You can select multiple elements for editing at a time. In order to select multiple
-elements, hold down the <kbd>Shift</kbd> key while clicking the elements.
+	Op elk moment kunnen meerdere elementen worden geselecteerd door tijdens het maken van de selectie 
+	de <kbd>Shift</kbd>-toets ingedrukt te houden.
+</p>
+<p class="hint">
+	Wilt u een symmetrische vorm tekenen (bijv. een vierkant of een cirkel)? Houd dan tijdens het tekenen
+	de <kbd>Shift</kbd>-toets ingedrukt. Bij het tekenen van pijlen, beperkt de <kbd>Shift</kbd>-toets
+	de mogelijke hoeken tot veelvouden van 15°.</br>
+	Bij het vergroten van een bestaand object zorgt de <kbd>Shift</kbd>-toets ervoor dat de verhoudingen behouden blijven. 
+</p>
+<p class="hint">
+	Bij het tekenen of het vergroten kunt u de <kbd>Ctrl</kbd>-toets ingedrukt houden om het object
+	in het geometrische centrum te fixeren. Zo kan een object ook in tegenovergestelde richting worden vergroot.
+	(Dit kan erg handig zijn om een ellips aan een schermafdruk toe te voegen.)
 </p>
 
 <a name="editor-text"></a>
-<h3>Adding text</h3>
+<h3>Tekst toevoegen</h3>
 <p>
-Usage of the text tool <kbd>T</kbd> is similar to the usage of the 
-<a href="#editor-shapes">shape</a> tools. Just draw the text element to the desired
-size, then type in the text.<br>
-Double click an existing text element to edit the text.
+	Het gebruik van de Tekst-functie <kbd>T</kbd> is vergelijkbaar met dat van
+	<a href="#editor-shapes">Vormen</a> toevoegen. Plaats een tekstkader van de gewenste grootte
+	en typ de tekst.</br>
+	Dubbelklik een bestaande tekst om deze te bewerken.</br>
+	Gebruik <kbd>Return</kbd> of <kbd>Enter</kbd> als u klaar bent met bewerken.
+</p>
+<p class="hint">
+	Gebruik <kbd>Shift</kbd> + <kbd>Return</kbd> of <kbd>Shift</kbd> + <kbd>Enter</kbd>
+	om binnen een tekstkader een nieuwe regel te beginnen.
 </p>
 
 <a name="editor-highlight"></a>
-<h3>Highlighting things</h3>
+<h3>Markeren</h3>
 <p>
-After selecting the highlight tool <kbd>H</kbd>, you can define the area to be 
-highlighted exactly like you would draw a <a href="#editor-shapes">shape</a>.<br>
-There are several options for highlighting, which you can choose from by clicking
-the leftmost button in the toolbar on top:
+	Met de Markeer-functie <kbd>H</kbd>, kunt u een gebied markeren op precies dezelfde wijze 
+	als waarmee u een vorm <a href="#editor-shapes">shape</a> tekent.</br>
+	De volgende opties bij het markeren zijn beschilbaar via de meest linkse knop 
+	in de gereedschapsbalk:
 </p>
 <ul>
-<li><em>Highlight text</em>: highlights an area by applying a bright color to it, like
-an office text highlighter</li>
-<li><em>Highlight area</em>: blurs<a href="#hint-blur">*</a> and darkens everything outside the selected area</li>
-<li><em>Grayscale</em>: everything outside the selected area will be turned to grayscale</li>
-<li><em>Magnify</em>: the selected area will be displayed magnified</li>
+	<li><em>Tekst markeren</em>: Een gebied markeren met een heldere kleur, zoals een markeerstift</li>
+
+	<li><em>Gebied oplichten</em>: Alles buiten het geselecteerde gebied vervagen<a href="#hint-blur">*</a> en donkerder maken</li>
+	<li><em>Grijstinten</em>: Alles buiten het geselecteerde gebied wordt omgezet naar grijstinten</li>
+	<li><em>Vergroten</em>: Het geselecteerde gebied wordt vergroot weergegeven</li>
 </ul>
 
 <a name="editor-obfuscate"></a>
-<h3>Obfuscating things</h3>
+<h3>Maskeren</h3>
 <p>
-Obfuscating parts of a screenshot is a good idea if it contains data which is not
-intended for other people to see, e.g. bank account data, names, passwords or faces on images.<br>
-Use the obfuscate tool <kbd>O</kbd> exactly like the <a href="#editor-highlight">highlight</a> 
-tool.<br>
-Available options for obfuscation are:
+	Delen van een schermopname maskeren is een goed gebruik wanneer persoonlijke gegevens in beeld zijn 
+	die beter privé kunnen blijven, zoals bijv. bankgegevens, namen, wachtwoorden of herkenbare personen.</br>
+	De functie Maskeren <kbd>O</kbd> gebruikt u net als het <a href="#editor-highlight">Markeren</a>.</br>
+
+	Beschikbare opties voor Maskeren zijn:
 </p>
 <ul>
-<li><em>Pixelize</em>: increases the pixel size for the selected area</li>
-<li><em>Blur</em><a href="#hint-blur">*</a>: blurs the selected area</li>
+	<li><em>Pixeleren</em>: Vergroot de pixels in het geselecteerde gebied</li>
+	<li><em>Vervagen</em><a href="#hint-blur">*</a>: Vervaagt het beeld in het geselecteerde gebied</li>
 </ul>
 <a name="hint-blur"></a>
 <p class="hint">
-* Depeding on the performance of your computer, applying a blur effect might slow down 
-Greenshot's image editor. If you feel the image editor reacting slowly as soon as a 
-blur is applied, try reducing the value for <em>Preview quality</em> in the toolbar or 
-decrease the value for <em>Blur radius</em>.<br>
-If the blur performance is still too bad for you to work with, you might prefer
-to use the pixelize effect instead.
+	* Afhankelijk van uw computer kan het vervagingseffect de werking van Greenshot's beeldbewerker 
+	trager maken. Merkt u dat de beeldbewerker bij de toepassing van Vervagen traag en sloom wordt, 
+	probeer dan de <em>kwaliteit van de voorvertoning</em> in de gereedschapsbalk te verminderen of
+	verlaag de waarde voor de <em>Vervagings-radius</em>.</br>
+	Blijft de functie Vervagen traag reageren, probeer dan de functie Pixeleren te gebuiken.
+
+</p>
+<a name="editor-effects"></a>
+<h3>Effecten toepassen</h3>
+<p>
+	U kunt op uw schermopname verschillende effecten toepassen. Zo kunt u de afbeelding meer nadruk te geven door 
+	bijvoorbeeld een lijst of een schaduw of het effect van gescheurde randen toe te voegen.
+	De effecten Grijstinten en Negatief zijn met name nuttig voor het afdrukken en de besparing van inkt of toner bij 
+	kleurrijke of donkere schermopnames.
 </p>
 
 <a name="editor-crop"></a>
-<h3>Cropping the screenshot</h3>
+<h3>Schermopname bijsnijden</h3>
 <p>
-If you only need a part of the screenshot you have captured, use the crop tool <kbd>C</kbd>
-to crop it to the desired area.<br>
-After selecting the crop tool, draw a rectangle for the area of the screenshot you want
-to keep. You can resize the selected area like any other element.<br>
-When you are content with your selection, use the confirm button in the toolbar or hit
-the <kbd>Enter</kbd> key. You can cancel cropping by clicking the cancel button or hitting 
-<kbd>ESC</kbd>.
+	Als u maar een deel van de schermopname nodig hebt, gebruik dan de functie bijsnijden <kbd>C</kbd>
+	om overtollige delen weg te snijden.</br>
+	Teken hiertoe een rechthoek om het gebied van de schermopname dat behouden moet worden. 
+	U kunt de afmetingen van het geselecteerde gebied naar wens aanpassen.</br>
+	Bent u tevreden over het geselecteerde gebied, bevestig het bijsnijden dan in de gereedschapsbalk of toets <kbd>Enter</kbd>. 
+	U kunt het bijsnijden afbreken met de toets <kbd>ESC</kbd>.
+
+</p>
+<p class="hint">
+	<em>Automatisch bijsnijden</em>: Als u een schermopname wilt bijsnijden tot een rand of vlakke achtergrondkleur,
+	gebruik dan <em>Automatisch bijsnijden</em> in het menu <em>Bewerken</em> en Greenshot zal het bij te snijden gebied 
+	automatisch bepalen.
+</p>
+
+<a name="editor-rotate"></a>
+<p class="hint">
+	Gebruik de functie Draaien om een schermopname linksom of rechtsom te roteren.
+</p>
+
+<a name="editor-adding-graphics"></a>
+<h3>Afbeeldingen aan een schermopname toevoegen</h3>
+<p>
+	U kunt eenvoudig afbeeldingen aan een schermopname toevoegen door een afbeeldingsbestand in 
+	het venster van de beeldbewerker te slepen. U kunt ook schermopnames van andere vensters invoegen met behulp van 
+	de functie <em>Venster invoegen</em> in het menu <em>Bewerken</em>. Een lijst van alle geopende vensters biedt u 
+	de mogelijkheid er een te kiezen om in te voegen.
 </p>
 
 <a name="editor-reuse-elements"></a>
-<h3>Re-using drawn elements</h3>
+<h3>Eerder getekende elementen hergebruiken</h3>
 <p>
-If you find yourself using the same or similar elements on most of your screenshots
-(e.g. a textfield containing browser type and version, or obfuscating the same
-element on several screenshots) you can re-use elements.<br>
-Select <em>Save objects to file</em> from the <em>Object</em> menu to save the current
-set of elements for re-using it later. <em>Load objects from file</em> applies the
-same elements to another screenshot.
+	Als u regelmatig dezelfde elementen toepast in de bewerking van uw schermopnamen
+	(bijv. een tekstkader met browsertype en versienummer, of het maskeren van hetzelfde 
+	element in verschillende schermopnamen) dan kunt u deze elementen hergebruiken.</br>
+	Kies in het menu <em>Objecten</em>, <em>Objecten opslaan</em> om de huidige elementen op te slaan
+	voor later gebruik. <em>Objecten laden</em> past deze eerder opgeslagen elementen toe 
+	op een andere schermopname.
 </p>
 
 <a name="editor-export"></a>
-<h3>Exporting the screenshot</h3>
+<h3>Schermopname exporteren</h3>
 <p>
-After editing the screenshot, you can export the result for different purposes,
-depending on your needs. You can access all export options through the <em>File</em>
-menu, the topmost toolbar or via shortcuts:
+	Na het bewerken van de schermopname, kunt u het resultaat naar believen 
+	opslaan voor later gebruik. Alle opties voor het exporteren zijn beschikbaar via het menu <em>Bestand</em>,
+	de bovenste gereedschapsbalk of via de sneltoetsen:
 </p>
 <ul>
-<li><em>Save</em> <kbd>Control</kbd> + <kbd>S</kbd>: saves the image to a file (if the image has already been saved, else displays <em>Save as...</em> dialog</li>
-<li><em>Save as...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: lets you choose location, filename and image format for the file to save</li>
-<li><em>Copy image to clipboard</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: puts a copy of the image into the clipboard, allowing to paste into other programs</li>
-<li><em>Print...</em> <kbd>Control</kbd> + <kbd>P</kbd>: sends the image to a printer</li>
-<li><em>E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: opens a new message in your default e-mail client, adding the image as attachment</li>
+	<li><em>Opslaan</em> <kbd>Ctrl</kbd> + <kbd>S</kbd>: slaat de afbeelding op naar een bestand (als het bestand nog niet is opgeslagen wordt <em>Opslaan als…</em> getoond)</li>
+	<li><em>Opslaan als…</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: laat u een locatie, bestandsnaam en afbeeldingsformaat kiezen voor het opslaan van het bestand</li>
+	<li><em>Afbeelding naar klembord kopiëren</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: plaatst een kopie van de afbeelding op het klembord, zodat u het vervolgens in een ander programma kunt kopiëren</li>
+	<li><em>Afdrukken…</em> <kbd>Ctrl</kbd> + <kbd>P</kbd>: stuurt de afbeelding naar een printer</li>
+	<li><em>E-mail</em> <kbd>Ctrl</kbd> + <kbd>E</kbd>: opent een nieuw bericht in uw standaard e-mailprogramma met de afbeelding als bijlage</li>
 </ul>
+<p> 
+	Er zijn plugins om schermopnamen te exporteren naar andere bestemmingen, zoals DropBox, Picasa, Flickr. 
+	Selecteer de gewenste plugins tijdens de installatie van Greenshot.
+</p>
 <p class="hint">
-After saving an image from the editor, right-click the status bar at the bottom of
-the editor window to either copy the file path into the clipboard or open the
-containing directory in Windows Explorer.
+	Klik, nadat u de afbeelding hebt opgeslagen, de statusbalk onderaan de beeldbewerker
+	om het bestandspad naar het klembord te kopiëren of de betreffende map met 
+	Windows Explorer te openen.
 </p>
 
 
 <a name="settings"></a>
-<h2>The settings dialog</h2>
+<h2>Het instellingenvenster</h2>
 
 <a name="settings-general"></a>
-<h3>General settings</h3>
+<h3>Algemene instellingen</h3>
 <ul>
-<li><em>Language</em>: The language you prefer to be used.<br>
-You can download additional language files for Greenshot <a href="#">here</a>. </li>
-<li><em>Register hotkeys</em>: If checked, Greenshot can be used with the <kbd>Print</kbd> key.</li>
-<li><em>Launch Greenshot on startup</em>: Start the program when the system has been booted.</li>
-<li><em>Show flashlight</em>: Visual feedback when doing a capture</li>
-<li><em>Play camera sound</em>: Audible feedback when doing a capture</li>
-<li><em>Capture mousepointer</em>: If checked, the mousepointer will be captured. The pointer is handled is a separate element in the editor, so that you can move or remove it later.</li>
-<li><em>Use interactive window capture mode</em>: Instead of capturing the active window right away, interactive mode
-allows you to select the window to capture. It is also possible to capture child windows, see <a href="#capture-window">window capture</a>.</li>
+	<li><em>Taal</em>: De taal waarin Greenshot wordt weergegeven.</br>
+		Aanvullende taalbestanden zijn te downloaden van de <a target="_blank" href="http://getgreenshot.org/downloads/">Greenshot website</a>. </li>
+	<li><em>Greenshot met Windows opstarten</em>: Start het programma als de PC wordt opgestart.</li>
+	<li><em>Sneltoetsen</em>: Hier kunt u de sneltoetsen voor het maken van schermopnames aanpassen.</li>
+	<li><em>Standaard systeem-proxy gebruiken</em>: Greenshot gebruikt de systeem-proxy instelllingen bij het zoeken naar updates.</li>
+	<li><em>Controleren op nieuwe versies [dagen]</em>: Greenshot controleert automatisch op nieuwe versies. Gebruik deze instelling om het 
+		interval in dagen aan te passen of gebruik 0 om de versiecontrole af te schakelen.</li>
+</ul>
+
+<a name="settings-capture"></a>
+<h3>Schermopname-instellingen</h3>
+<ul>
+	<li><em>Muisaanwijzer opnemen</em>: De muisaanwijzer wordt in de schermopname meegenomen. De muisaanwijzer is een apart element in the beeldbewerker, dus u kunt deze later nog verplaatsen of verwijderen.</li>
+	<li><em>Camerageluid afspelen</em>: Bij de schermopname wordt een geluidseffect afgespeeld.</li>
+	<li><em>Vertragingstijd voor de schermopname [ms]</em>: Een instelbare tijdsvertraging welke wordt toegepast voor de schermopname.</li>
+	<li><em>Vensteropname-modus</em>: In plaats van direct een opname te maken van het actieve venster, biedt de interactieve modus 
+		de mogelijkheid om een venster te selecteren voor de opname. Ook is het mogelijk een opname te maken van een deelvenster. Zie ook <a href="#capture-window">Actieve vensteropname</a>.</li>
+	<li>
+		<em>Aero schermopname (alleen Windows Vista/7)</em>: Als u Greenshot gebruikt bij Windows Vista of Windows 7 met aero geactiveerd, dan kunt u 
+		aangeven hoe transparante vensterranden moeten worden behandeld bij het maken van de schermopname. Gebruik deze instelling om te voorkomen dat elementen 
+		in de achtergrond met de transparante vensterranden mee worden gefotografeerd.
+		<ul>
+			<li><em>Automatisch</em>: Laat Greenshot bepalen hoe om te gaan met transparantie.</li>
+			<li><em>Zoals weergegeven</em>: Transparante randen worden opgenomen zoals deze op het scherm worden weergegeven.</li>
+			<li><em>Standaardkleur gebruiken</em>: De transparantie wordt vervangen door een solide standaardkleur.</li>
+			<li><em>Aangepaste kleur gebruiken</em>: Selecteer een kleur die wordt gebruikt ter vervanging van transparanties.</li>
+			<li><em>Transparantie behouden</em>: Vensterranden worden opgenomen met behoud van hun transparantie, waarbij objecten in de achtergrond worden geneerd. 
+				(Opm.: transparante gebied worden in de beeldbewerker weergegeven met een geblokt patroon. Dit blokpatroon wordt niet bij het opslaan van de afbeeelding niet geëxporteerd. 
+				Sla de afbeelding op als PNG voor volledige ondersteuning van transparanties.)</li>
+		</ul>
+	</li>
+	<li><em>Internet Explorer schermopname</em>: Maakt op eenvoudige wijze schermopnames mogelijk van webpagina's in Internet Explorer.</li>
+	<li><em>Beeldbewerker-venster aanpassen op schermopname</em>: Indien geactiveerd, past de beeldbewerker automatisch het venster aan op de afmetingen van de schermopname.</li>
+
 </ul>
 
 <a name="settings-output"></a>
-<h3>Output settings</h3>
+<h3>Uitvoer</h3>
 <ul>
-<li><em>Screenshot destination</em>: Allows you to choose the destination(s) for your screenshot right after capturing it.</li>
-<li><em>Preferred output file settings</em>: Directory and filename to be used when saving directly or to be suggested when saving (using the save-as dialog). Click the <em>?</em> button to learn more about the placeholders that can be used as filename pattern.</li>
-<li><em>JPEG settings</em>: Quality to be used when saving JPEG files</li>
+	<li><em>Opslaglocatie</em>: Hier kunt u opgeven naar welke locatie(s) de schermopnamen moeten worden opgeslagen.</li>
+	<li><em>Bestandsnaam</em>: Hier specificeert u de map en het patroon van de bstandsnamen welke worden gebruikt bij de opslag van de schermopnamen. Klik de knop <em>?</em> voor meer informatie over het construeren van een patroon voor de bestandsnaam.</li>
+	<li><em>JPEG-instellingen</em>: De kwaliteit waarmee de afbeeldingen worden opgeslagen als JPEG-bestand.</li>
 </ul>
 
+<a name="settings-destination"></a>
+<h3>Bestemming</h3>
+<p>
+	Na de schermopname vertoont Greenshot een eenvoudig menu waarmee u zelf een bestemmingsmap kunt kiezen.
+	Heeft u geen behoefte om deze aan te passen, dan kunt Greenshot instellen de schermopnames direct naar 
+	meerdrere bestemmingen op te slaan, zonder tussenkomst van het keuzemenu.<br/>
+	Opmerking: Net als bij het <a href="#editor-export">exporteren van schermopnamen</a>, 
+	zullen beschikbare bestemmingen afhangen van de plugins welke met Greenshot zijn geïnstalleerd.
+</p>
+
 <a name="settings-printer"></a>
-<h3>Printer settings</h3>
+<h3>Printer-instellingen</h3>
 <ul>
-<li><em>Shrink printout to fit paper size</em>: If the image would exceed paper size, it will be shrinked to fit on the page.</li>
-<li><em>Enlarge printout to fit paper size</em>: If the image is smaller than the paper size, it will be scaled to be printed as large as possible without exceeding paper size.</li>
-<li><em>Rotate printout to page orientation</em>: Will rotate a landscape format image by 90° for printing.</li>
+	<li><em>Afdruk verkleinen tot papiergrootte</em>: Wanneer de afbeelding te groot zou zijn voor het papier, wordt deze verkleind zodat deze past op de pagina.</li>
+	<li><em>Afdruk vergroten tot papiergrootte</em>: Wanneer de afbeelding kleiner is dan de papiergrootte, wordt deze vergroot zodat de pagina vult.</li>
+	<li><em>Afdruk draaien en aanpassen aan het papier</em>: Afbeeldingen met horizontale oriëntatie worden 90&deg; gedraaid voor een afdruk op papier met verticale oriëntatie.</li>
+	<li><em>Afdrukken in negatief-kleuren</em>: De afbeelding wordt in kleur-negatief afgedrukt. Bijvoorbeeld handig bij het afdrukken van een afbeelding met witte tekst tegen een donkere achtergrond (besparing toner/inkt).</li>
+	<li><em>Grijstinten forceren</em>: Kleuren in de afbeelding worden voor de afdruk omgezet naar grijstinten.</li>
 </ul>
+
+<a name="settings-plugins"></a>
+<h3>Plugin-instellingen</h3>
+<p>
+	Hier wordt de lijst met geïnstalleerde Greenshot-plugins weergegeven. Selecteer een plugin van de lijst en klik <em>Instellingen</em>
+	om de instellingen van de plugin aan te passen.
+</p>
+
+<a name="settings-expert"></a>
+<h3>Expert-instellingen</h3>
+<p>
+	Serieus: Als u geen idee heeft wat u doet en welke gevolgen het kan hebben, verander dan niets aan deze instellingen.
+</p>
 
 
 <a name="help"></a>
 <h2>U wilt helpen?</h2>
 
 <p>
-Op dit moment zoeken we geen hulp voor de ontwikkeling. Maar u kunt meerdere dingen doen om
-het Greenshot ontwikkelteam te ondersteunen.<br>
-Bij voorbaat dank :)
+	Op dit moment zoeken we geen hulp bij de ontwikkeling. 
+	Maar dit betekent niet dat u niets kunt doen om het Greenshot ontwikkelteam te ondersteunen.</br>
+	Bij voorbaat dank :)
 </p>
 
 <a name="help-donate"></a>
 <h3>Overweeg een donatie</h3>
 <p>
-We stoppen een hoop tijd en werk in Greenshot om goede software gratis en open tot uw beschiking te stellen!
-Als u het gevoel heeft dat Greenshot u meer produktief maakt, u of uw firma een hoop tijd en geld bespaard
-of als u eenvoudig Greenshot en het idee van open source software goed vindt:
-Overweeg een donatie ter eren van onze inspanningen.<br>
-Kijk AUB op onze home page om te lezen hoe u het Greenshot ontwikkelteam kunt ondersteunen:<br>
-<a href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+	Wij verrichten een hoop werk aan Greenshot en besteden nogal wat tijd om 
+	goede software gratis en vrij toegankelijk te houden. Als Greenshot 
+	u helpt in uw werkzaamheden, als het u (of uw bedrijf) 
+	tijd en geld bespaart, of u vindt het gewoon een fijn programma en 
+	u staat positief tegenover het concept van open source software: Ondersteun ons werk dan met een donatie.</br>
+	Bezoek onze website en lees daar hoe u het Greenshot-team kunt ondersteunen:</br>
+	<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
 </p>
 
 <a name="help-spread"></a>
 <h3>Vertel het door</h3>
 <p>
-Als u Greenshot goed vind, vertel het door: vertel uw vrienden en kollegas over Greenshot.
-Uw aanhang en achterban ook! :)<br>
-Geef Greenshot goede kritiek in software portals of verlink Greenshot in uw blog of website.
+	Bevalt Greenshot u? Vertel het dan door: vertel uw vrienden en collega's over Greenshot.
+	En ook uw aanhang en achterban ! :)</br>
+	Bespreek Greenshot met goede kritieken op software portals of plaats een verwijzing naar Greenshot in uw blog of op uw website.
 </p>
 
 <a name="help-translate"></a>
 <h3>Maak een vertaling</h3>
 <p>
-Greenshot is niet in uw favorite taal vertaald? Als u denkt dat u software kunt vertalen dan bent u welkom!
-Als u een geregisteerde gebruiker bij sourceforge.net bent kunt u uw vertaling in onze 
-<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> bekent maken.<br>
-Voordat u begin is het verstandig om te kijken of Greenshot niet al in de taal vertaalt is, zie de 
-<a href="#">downloads pagina</a>. Ook kunt u op onze <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> kijken,
-het zou kunnen dat al iemand aan de vertaling werkt of misschien hierover een diskussie heeft.<br>
-
-Een belangrijk punt is dat we vertalingen alleen op onze website zetten als het door iemand vertaalt is die
-ook een sourceforge.net gebruiker is. Omdat we zeer waarschijnlijk de vertaling niet begrijpen is het nodig
-dat we de gebruiker kunnen vinden, alleen dan kunnen we bij nieuwe Greenshot versies ook deze taal weer uitleveren.
-</p>
+	Is Greenshot niet beschikbaar in uw favoriete taal en u denkt dat u software kunt vertalen dan bent u van harte welkom!
+	Als geregisteerde gebruiker bij sourceforge.net kunt u uw vertaling in onze 
+	<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> aanmelden.</br>
+	Voordat u begint is het verstandig om te kijken of Greenshot niet al in de taal vertaald is, zie de 
+	<a href="#">downloads pagina</a>. Ook kunt u op onze <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> kijken.
+	Het zou namelijk kunnen zijn dat iemand al aan de vertaling werkt of misschien hierover heeft gecommuniceerd.</br>
 	
+	Merk op dat vertalingen alleen kunnen worden geaccepteerd als ze afkomstig zijn van een geregistreerde 
+	sourceforge.net-gebruiker. Wij kunnen niet elke vertaling doorgronden en daarom is het belangrijk dat we 
+	de vertaler kunnen bereiken. Alleen op deze manier kunnen we bij nieuwe versies	van Greenshot deze taal 
+	laten bijwerken en weer uitleveren.
+</p>	

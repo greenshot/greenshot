@@ -3,7 +3,6 @@ layout: post
 status: publish
 published: true
 title: New domain, new look
-
 tags:
 - website
 - relaunch

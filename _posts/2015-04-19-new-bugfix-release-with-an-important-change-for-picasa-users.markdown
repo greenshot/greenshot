@@ -3,14 +3,12 @@ layout: post
 status: publish
 published: true
 title: ! 'New Bugfix Release with an Important Change for Picasa Users'
-
-
+release_version: 1.2.6.7
 tags:
+- windows
 - 1.2
 - bugfix
 - release
-
-
 ---
 <p>So here is another bugfix release, important especially for those using Greenshot’s Picasa plugin to send screenshots directly to Picasa. Google is deprecating the OAuth 1.x authentication API on the 20th of April, which means that the Picasa plugin released with Greenshot 1.2.5 will no longer work – we have changed the plugin to work with the new API as of Greenshot 1.2.6.</p>
 <p>There is also a bug fix for the Box plugin, there were problems authenticating to box.com, this should be fixed with 1.2.6.<br />

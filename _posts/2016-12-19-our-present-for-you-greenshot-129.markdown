@@ -2,15 +2,17 @@
 layout: post
 status: publish
 published: true
+release_version: 1.2.9.103
 title: ! 'Our present for you: Greenshot 1.2.9 brings a lot of improvements and fixes'
 tags:
+- windows
 - 1.2
 - bugfix
 - release
 ---
-Admittedly, we're a bit early with our gift. But as a piece of software cannot be wrapped and align beautifully with fancy boxes under the tree, we rather hand it over to you right now, so that you can start having fun with the new version before spending time with your beloved friends and family.
+Admittedly, we're a bit early with our gift. But as a piece of software cannot be wrapped and aligned beautifully with fancy boxes under the tree, we rather hand it over to you right now, so that you can start having fun with the new version before spending time with your beloved friends and family.
 
-So, what's new in this version? We have improved window screenshots in Windows 10 (which suffered a little cropping in prior versions), also there's an optimization to reduce the problems with uploading to Imgur, which some of you have encountered (actually caused by a per-user rate limiting applied by Imgur).
+So, what's new in this version? More than 500 hours of work went into it - we have improved window screenshots in Windows 10 (which suffered a little cropping in prior versions), also there's an optimization to reduce the problems with uploading to Imgur, which some of you have encountered (actually caused by a per-user rate limiting applied by Imgur).
 
 If you used to use Greenshot for uploading screenshots to Jira: good news, Greenshot's Jira plugin is now compatible with Jira 7, and a lot faster. It also got some convenient improvements, e.g. it remembers the last viewed issues. 
 

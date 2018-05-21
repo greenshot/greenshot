@@ -43,6 +43,16 @@
 			.clearfix:after { content: " "; display: table; }
 			.clearfix:after { clear: both; }
 			.clearfix       { *zoom: 1; }
+			
+			/* wordpress theme compatibility */
+			img.alignleft {
+				float: left;
+				padding: 4px 10px 4px 0;	
+			}
+			img.alignright {
+				float: right;
+				padding: 4px 0 4px 10px;			
+			}
 
 
 			/**********************************************/
@@ -108,6 +118,26 @@
 			}
 			.servicelinks a {
 				color:#666;
+			}
+
+                        /* blog prev/next */
+			ul.pager {
+				list-style-type: none;
+				margin:0;
+				padding:0;
+			}
+			ul.pager i.fa {
+				font-family: 'FontAwesome'
+			}
+			ul.pager li.previous {
+				display:inline;
+			}
+			ul.pager li.next {
+				display:inline;
+				float:right
+			}
+			ul.pager a {
+				text-decoration: none;
 			}
 			
 			
@@ -213,31 +243,31 @@
 			/* ADS */
 			/**********************************************/
 
-			.ad-skyscraper {
+			.ga-skscrpr {
 				display: inline-block;
 				float: right;
 			}
 			
-			.ad-skyscraper .ad-skyscraper-wrapper {
+			.ga-skscrpr .ga-skscrpr-wrapper {
 				width: 160px;
 				height: 600px;
 				display: inline-block;
 			}
 			
-			.ad-skyscraper .ad-skyscraper-text {
+			.ga-skscrpr .ga-skscrpr-text {
 				text-align: right;
 				color: #3d3d3d;
 				font-size: 10px;
 			}
 			
-			.ad-leaderboard {
+			.ga-ldrbrd {
 				display: inline-block;
 				margin-bottom: 3em;
 				width: 100%;
 				max-width: 728px;
 			}
 			
-			.ad-leaderboard img {
+			.ga-ldrbrd img {
 				 width: 728px;
 				 height: 90px;
 			}

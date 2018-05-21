@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Greenshot 1.1.9 Bugfix Release
-
 tags:
+- windows
 - release
 - '1.1'
 

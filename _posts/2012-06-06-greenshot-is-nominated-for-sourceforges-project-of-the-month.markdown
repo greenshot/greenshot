@@ -2,11 +2,9 @@
 layout: post
 status: publish
 published: true
-
 tags:
 - sourceforge
 - voting
-
 ---
 <p>Sourceforge.net has nominated Greenshot as among eight projects for the <a href="http://sourceforge.net/blog/vote-july-2012-potm/">Project of the Month</a>. We are proud to enter the voting together with popular software like Liferay Portal, KeePass Password Safe and SugarCRM.</p>
 <p>The voting is open for everyone, the only thing you need is a Twitter account, since the poll is created with Twtpoll. <del datetime="2012-07-06T19:37:36+00:00">We'd be happy if you <a href="http://twtpoll.com/b0zo1b">took part in the election</a> and voted for your favorite candidate.</del> [<strong>Update</strong>: Voting finished, see below.]</p>
