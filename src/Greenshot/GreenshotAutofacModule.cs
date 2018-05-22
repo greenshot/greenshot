@@ -35,7 +35,7 @@ using Greenshot.Ui.Misc.ViewModels;
 namespace Greenshot
 {
     /// <inheritdoc />
-    public class GreenshotAutofacModule : Module
+    public class GreenshotAutofacModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -104,6 +104,8 @@ namespace Greenshot
                 .AssignableTo<IDestination>()
                 .As<IDestination>()
                 .SingleInstance();
+
+            base.Load(builder);
         }
     }
 }

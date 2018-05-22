@@ -22,6 +22,7 @@
 #endregion
 
 using Autofac;
+using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Forms;
@@ -32,7 +33,7 @@ using Greenshot.Addons.Interfaces;
 namespace Greenshot.Addon.LegacyEditor
 {
     /// <inheritdoc />
-    public class EditorAutofacModule : Module
+    public class EditorAutofacModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -63,6 +64,8 @@ namespace Greenshot.Addon.LegacyEditor
             builder
                 .RegisterType<Surface>()
                 .As<ISurface>();
+
+            base.Load(builder);
         }
     }
 }

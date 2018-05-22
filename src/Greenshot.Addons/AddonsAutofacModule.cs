@@ -22,13 +22,14 @@
 #endregion
 
 using Autofac;
+using Dapplo.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addons
 {
     /// <inheritdoc />
-    public class AddonsAutofacModule : Module
+    public class AddonsAutofacModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -39,6 +40,7 @@ namespace Greenshot.Addons
                 .RegisterType<DestinationHolder>()
                 .AsSelf();
 
+            base.Load(builder);
         }
     }
 }
