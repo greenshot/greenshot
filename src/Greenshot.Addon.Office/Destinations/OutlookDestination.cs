@@ -28,7 +28,6 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.OfficeInterop;

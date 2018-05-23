@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
@@ -33,7 +32,7 @@ using Autofac.Extras.CommonServiceLocator;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using CommonServiceLocator;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
 using Dapplo.Language;
@@ -69,8 +68,13 @@ namespace Greenshot
             // Initialize a debug logger for Dapplo packages
             LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #endif
+            var applicationConfig = ApplicationConfig.Create()
+                .WithApplicationName("Greenshot")
+                .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
+                .WithAssemblyNames("Dapplo.Addons.Config")
+                .WithAssemblyPatterns("Greenshot.Addon*");
 
-            var application = new Dapplication("Greenshot", "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
+            var application = new Dapplication(applicationConfig)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown
             };
@@ -87,25 +91,7 @@ namespace Greenshot
 
             RegisterErrorHandlers(application);
 
-            var scanDirectories = new List<string>
-            {
-                FileLocations.StartupDirectory,
-#if DEBUG
-                // Test directories?
-#else
-                Others?
-#endif
-            };
-            application.Bootstrapper
-                .AddScanDirectories(scanDirectories)
-                // Load the assemblies, and run the application
-                .FindAndLoadAssemblies("Dapplo.Caliburn*")
-                // Load the assemblies, and run the application
-                .FindAndLoadAssemblies("Dapplo.Addons.Config")
-                // Make sure the non-plugin DLLs are also loaded, so exports are available.
-                .FindAndLoadAssemblies("Greenshot.Addon*", new []{".dll", ".gsp"})
-
-                .OnContainerCreated += container =>
+            application.Bootstrapper.OnContainerCreated += container =>
                 {
                     var autofacServiceLocator = new AutofacServiceLocator(container);
                     ServiceLocator.SetLocatorProvider(() => autofacServiceLocator);

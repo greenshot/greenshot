@@ -96,7 +96,7 @@ namespace Greenshot.Addon.Dropbox
 	            RedirectUrl = "http://localhost:47336",
 	            Token = dropboxPluginConfiguration
             };
-	        var httpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings) as IChangeableHttpBehaviour;
+	        var httpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
 
 	        _oAuthHttpBehaviour = httpBehaviour;
             // Use the default network settings
@@ -169,7 +169,7 @@ namespace Greenshot.Addon.Dropbox
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e);
-	            MessageBox.Show(_dropboxLanguage.UploadFailure + " " + e.Message);
+	            MessageBox.Show(_dropboxLanguage.UploadFailure + @" " + e.Message);
 	        }
             return dropboxUrl;
 	    }

@@ -178,7 +178,7 @@ namespace Greenshot.Addon.Flickr
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
-	            MessageBox.Show(_flickrLanguage.UploadFailure + " " + e.Message);
+	            MessageBox.Show(_flickrLanguage.UploadFailure + @" " + e.Message);
 	        }
 	        return uploadUrl;
 	    }

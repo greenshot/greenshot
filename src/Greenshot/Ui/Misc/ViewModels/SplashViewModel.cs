@@ -25,7 +25,6 @@
 
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Forms;
 
 #endregion

@@ -154,7 +154,7 @@ namespace Greenshot.Addon.Box
 	        catch (Exception ex)
 	        {
 	            Log.Error().WriteLine(ex, "Error uploading.");
-	            MessageBox.Show(_boxLanguage.UploadFailure + " " + ex.Message);
+	            MessageBox.Show(_boxLanguage.UploadFailure + @" " + ex.Message);
 	            return null;
 	        }
 	    }

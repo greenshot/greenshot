@@ -63,7 +63,7 @@ namespace Greenshot.Addon.ExternalCommand
 			}
 			else
 			{
-				textBox_arguments.Text = "\"{0}\"";
+				textBox_arguments.Text = @"""{0}""";
 			}
 			OkButtonState();
 		}
