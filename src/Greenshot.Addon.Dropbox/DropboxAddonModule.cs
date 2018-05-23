@@ -23,22 +23,25 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Configuration;
+using Greenshot.Addon.Dropbox.ViewModels;
 using Greenshot.Addons.Components;
-using Greenshot.Addons.ViewModels;
 
-namespace Greenshot.Addons
+namespace Greenshot.Addon.Dropbox
 {
     /// <inheritdoc />
-    public class AddonsAutofacModule : AddonModule
+    public class DropboxAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<FileConfigPartViewModel>()
-                .AsSelf();
+                .RegisterType<DropboxDestination>()
+                .As<IDestination>()
+                .SingleInstance();
             builder
-                .RegisterType<DestinationHolder>()
-                .AsSelf();
+                .RegisterType<DropboxConfigViewModel>()
+                .As<IConfigScreen>()
+                .SingleInstance();
 
             base.Load(builder);
         }

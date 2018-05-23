@@ -24,6 +24,7 @@
 #region Usings
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Log;
@@ -90,7 +91,7 @@ namespace Greenshot.Forms
 		        return;
 		    }
 
-		    comboBoxLanguage.SelectedValue = Language.SupportedLanguages[0].Ietf;
+		    comboBoxLanguage.SelectedValue = Language.SupportedLanguages.Keys.FirstOrDefault();
 		    Language.CurrentLanguage = SelectedLanguage;
 		    _properOkPressed = true;
 		    Close();

@@ -23,29 +23,24 @@
 
 using Autofac;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.ExternalCommand.ViewModels;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.ViewModels;
 
-namespace Greenshot.Addon.ExternalCommand
+namespace Greenshot.Addons
 {
     /// <inheritdoc />
-    public class ExternalCommandAutofacModule : AddonModule
+    public class AddonsModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ExternalCommandDestinationProvider>()
-                .As<IStartup>()
-                .As<IDestinationProvider>()
-                .SingleInstance();
+                .RegisterType<FileConfigPartViewModel>()
+                .AsSelf();
             builder
-                .RegisterType<ExternalCommandConfigViewModel>()
-                .As<IConfigScreen>()
-                .SingleInstance();
+                .RegisterType<DestinationHolder>()
+                .AsSelf();
 
             base.Load(builder);
         }
-
     }
 }

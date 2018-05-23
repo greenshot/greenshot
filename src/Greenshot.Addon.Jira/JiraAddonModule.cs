@@ -23,24 +23,38 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Flickr.ViewModels;
+using Greenshot.Addon.Jira.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Flickr
+namespace Greenshot.Addon.Jira
 {
     /// <inheritdoc />
-    public class FlickrAutofacModule : AddonModule
+    public class JiraAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<FlickrDestination>()
+                .RegisterType<JiraDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<FlickrConfigViewModel>()
+                .RegisterType<JiraConfigViewModel>()
                 .As<IConfigScreen>()
+                .SingleInstance();
+            builder
+                .RegisterType<JiraViewModel>()
+                .AsSelf();
+            builder
+                .RegisterType<JiraConnector>()
+                .AsSelf()
+                .SingleInstance();
+            builder
+                .RegisterType<JiraMonitor>()
+                .As<IUiStartup>()
+                .As<IUiShutdown>()
+                .AsSelf()
                 .SingleInstance();
 
             base.Load(builder);

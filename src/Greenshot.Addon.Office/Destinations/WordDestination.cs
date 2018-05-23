@@ -65,7 +65,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public WordDestination(string wordCaption,
+		protected WordDestination(string wordCaption,
 		    ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage) : this(coreConfiguration, greenshotLanguage)
 		{

@@ -23,19 +23,24 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Configuration;
+using Greenshot.Addon.Confluence.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.OCR
+namespace Greenshot.Addon.Confluence
 {
     /// <inheritdoc />
-    public class PhotobucketAutofacModule : AddonModule
+    public class ConfluenceAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: Check for MODI
             builder
-                .RegisterType<OcrDestination>()
+                .RegisterType<ConfluenceDestination>()
                 .As<IDestination>()
+                .SingleInstance();
+            builder
+                .RegisterType<ConfluenceConfigViewModel>()
+                .As<IConfigScreen>()
                 .SingleInstance();
 
             base.Load(builder);

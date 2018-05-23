@@ -23,37 +23,30 @@
 
 using Autofac;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Jira.ViewModels;
+using Greenshot.Addon.Imgur.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Jira
+namespace Greenshot.Addon.Imgur
 {
     /// <inheritdoc />
-    public class JiraAutofacModule : AddonModule
+    public class ImgurAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<JiraDestination>()
+                .RegisterType<ImgurDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<JiraConfigViewModel>()
+                .RegisterType<ImgurConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
             builder
-                .RegisterType<JiraViewModel>()
+                .RegisterType<ImgurHistoryViewModel>()
                 .AsSelf();
             builder
-                .RegisterType<JiraConnector>()
-                .AsSelf()
-                .SingleInstance();
-            builder
-                .RegisterType<JiraMonitor>()
-                .As<IUiStartup>()
-                .As<IUiShutdown>()
+                .RegisterType<ImgurApi>()
                 .AsSelf()
                 .SingleInstance();
 

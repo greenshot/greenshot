@@ -24,46 +24,28 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.LegacyEditor.Drawing;
-using Greenshot.Addon.LegacyEditor.Forms;
-using Greenshot.Addon.LegacyEditor.ViewModels;
+using Greenshot.Addon.Tfs.ViewModels;
 using Greenshot.Addons.Components;
-using Greenshot.Addons.Interfaces;
 
-namespace Greenshot.Addon.LegacyEditor
+namespace Greenshot.Addon.Tfs
 {
     /// <inheritdoc />
-    public class EditorAutofacModule : AddonModule
+    public class TfsAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<EditorDestination>()
+                .RegisterType<TfsDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<EditorConfigViewModel>()
+                .RegisterType<TfsConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
             builder
-                .RegisterType<EditorFactory>()
+                .RegisterType<TfsClient>()
                 .AsSelf()
                 .SingleInstance();
-            builder
-                .RegisterType<ResizeSettingsForm>()
-                .AsSelf();
-            builder
-                .RegisterType<TornEdgeSettingsForm>()
-                .AsSelf();
-            builder
-                .RegisterType<DropShadowSettingsForm>()
-                .AsSelf();
-            builder
-                .RegisterType<ImageEditorForm>()
-                .AsSelf();
-            builder
-                .RegisterType<Surface>()
-                .As<ISurface>();
 
             base.Load(builder);
         }

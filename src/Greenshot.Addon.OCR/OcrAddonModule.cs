@@ -21,32 +21,50 @@
 
 #endregion
 
+using System.Diagnostics;
+using System.IO;
 using Autofac;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Lutim.ViewModels;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Lutim
+namespace Greenshot.Addon.OCR
 {
     /// <inheritdoc />
-    public class LutimAutofacModule : AddonModule
+    public class OcrAddonModule : AddonModule
     {
+        private bool HasModi()
+        {
+            var ocrCommand = Path.Combine(FileTools.NormalizeDirectory("."), "greenshotocrcommand.exe");
+            try
+            {
+                using (var process = Process.Start(ocrCommand, "-c"))
+                {
+                    if (process != null)
+                    {
+                        process.WaitForExit();
+                        return process.ExitCode == 0;
+                    }
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc />
         protected override void Load(ContainerBuilder builder)
         {
-            builder
-                .RegisterType<LutimDestination>()
-                .As<IDestination>()
-                .SingleInstance();
-            builder
-                .RegisterType<LutimConfigViewModel>()
-                .As<IConfigScreen>()
-                .SingleInstance();
-            builder
-                .RegisterType<LutimApi>()
-                .AsSelf()
-                .SingleInstance();
-
+            if (HasModi())
+            {
+                builder
+                    .RegisterType<OcrDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
             base.Load(builder);
         }
     }

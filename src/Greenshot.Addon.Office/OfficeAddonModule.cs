@@ -24,22 +24,43 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Box.ViewModels;
+using Greenshot.Addon.Office.Destinations;
+using Greenshot.Addon.Office.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Box
+namespace Greenshot.Addon.Office
 {
     /// <inheritdoc />
-    public class BoxAutofacModule : AddonModule
+    public class OfficeAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<BoxDestination>()
+                .RegisterType<ExcelDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<WordDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<PowerpointDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<OneNoteDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<OutlookDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<BoxConfigViewModel>()
+                .RegisterType<OfficeConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
 

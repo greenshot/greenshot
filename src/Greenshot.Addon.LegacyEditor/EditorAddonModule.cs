@@ -24,24 +24,46 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.GooglePhotos.ViewModels;
+using Greenshot.Addon.LegacyEditor.Drawing;
+using Greenshot.Addon.LegacyEditor.Forms;
+using Greenshot.Addon.LegacyEditor.ViewModels;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Interfaces;
 
-namespace Greenshot.Addon.GooglePhotos
+namespace Greenshot.Addon.LegacyEditor
 {
     /// <inheritdoc />
-    public class GooglePhotosAutofacModule : AddonModule
+    public class EditorAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<GooglePhotosDestination>()
+                .RegisterType<EditorDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<GooglePhotosConfigViewModel>()
+                .RegisterType<EditorConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
+            builder
+                .RegisterType<EditorFactory>()
+                .AsSelf()
+                .SingleInstance();
+            builder
+                .RegisterType<ResizeSettingsForm>()
+                .AsSelf();
+            builder
+                .RegisterType<TornEdgeSettingsForm>()
+                .AsSelf();
+            builder
+                .RegisterType<DropShadowSettingsForm>()
+                .AsSelf();
+            builder
+                .RegisterType<ImageEditorForm>()
+                .AsSelf();
+            builder
+                .RegisterType<Surface>()
+                .As<ISurface>();
 
             base.Load(builder);
         }

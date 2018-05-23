@@ -24,22 +24,22 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Dropbox.ViewModels;
+using Greenshot.Addon.Photobucket.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Photobucket
 {
     /// <inheritdoc />
-    public class DropboxAutofacModule : AddonModule
+    public class PhotobucketAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<DropboxDestination>()
+                .RegisterType<PhotobucketDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<DropboxConfigViewModel>()
+                .RegisterType<PhotobucketConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
 

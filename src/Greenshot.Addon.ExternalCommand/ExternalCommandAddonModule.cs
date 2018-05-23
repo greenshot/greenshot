@@ -24,30 +24,28 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Tfs.ViewModels;
+using Greenshot.Addon.ExternalCommand.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Tfs
+namespace Greenshot.Addon.ExternalCommand
 {
     /// <inheritdoc />
-    public class TfsAutofacModule : AddonModule
+    public class ExternalCommandAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<TfsDestination>()
-                .As<IDestination>()
+                .RegisterType<ExternalCommandDestinationProvider>()
+                .As<IStartup>()
+                .As<IDestinationProvider>()
                 .SingleInstance();
             builder
-                .RegisterType<TfsConfigViewModel>()
+                .RegisterType<ExternalCommandConfigViewModel>()
                 .As<IConfigScreen>()
-                .SingleInstance();
-            builder
-                .RegisterType<TfsClient>()
-                .AsSelf()
                 .SingleInstance();
 
             base.Load(builder);
         }
+
     }
 }

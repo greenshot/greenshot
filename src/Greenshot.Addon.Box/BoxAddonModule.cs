@@ -24,22 +24,22 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.OneDrive.ViewModels;
+using Greenshot.Addon.Box.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.OneDrive
+namespace Greenshot.Addon.Box
 {
     /// <inheritdoc />
-    public class OneDriveAutofacModule : AddonModule
+    public class BoxAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<OneDriveDestination>()
+                .RegisterType<BoxDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<OneDriveConfigViewModel>()
+                .RegisterType<BoxConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
 

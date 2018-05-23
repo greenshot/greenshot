@@ -66,7 +66,7 @@ namespace Greenshot.Destinations
 			catch (Exception)
 			{
 				// TODO: Change to general logic in ProcessExport
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, "Error"); //GreenshotLanguage.editorclipboardfailed);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

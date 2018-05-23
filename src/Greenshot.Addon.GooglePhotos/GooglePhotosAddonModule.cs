@@ -24,22 +24,22 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Confluence.ViewModels;
+using Greenshot.Addon.GooglePhotos.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Confluence
+namespace Greenshot.Addon.GooglePhotos
 {
     /// <inheritdoc />
-    public class ConfluenceAutofacModule : AddonModule
+    public class GooglePhotosAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ConfluenceDestination>()
+                .RegisterType<GooglePhotosDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<ConfluenceConfigViewModel>()
+                .RegisterType<GooglePhotosConfigViewModel>()
                 .As<IConfigScreen>()
                 .SingleInstance();
 

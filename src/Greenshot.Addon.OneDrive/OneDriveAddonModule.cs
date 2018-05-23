@@ -24,30 +24,23 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.Imgur.ViewModels;
+using Greenshot.Addon.OneDrive.ViewModels;
 using Greenshot.Addons.Components;
 
-namespace Greenshot.Addon.Imgur
+namespace Greenshot.Addon.OneDrive
 {
     /// <inheritdoc />
-    public class ImgurAutofacModule : AddonModule
+    public class OneDriveAddonModule : AddonModule
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ImgurDestination>()
+                .RegisterType<OneDriveDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder
-                .RegisterType<ImgurConfigViewModel>()
+                .RegisterType<OneDriveConfigViewModel>()
                 .As<IConfigScreen>()
-                .SingleInstance();
-            builder
-                .RegisterType<ImgurHistoryViewModel>()
-                .AsSelf();
-            builder
-                .RegisterType<ImgurApi>()
-                .AsSelf()
                 .SingleInstance();
 
             base.Load(builder);
