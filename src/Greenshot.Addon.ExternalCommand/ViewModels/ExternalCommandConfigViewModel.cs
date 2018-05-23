@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -30,7 +29,6 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.ExternalCommand.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class ExternalCommandConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -38,14 +36,21 @@ namespace Greenshot.Addon.ExternalCommand.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IExternalCommandConfiguration ExternalCommandConfiguration { get; set; }
+        public IExternalCommandConfiguration ExternalCommandConfiguration { get; }
 
-        [Import]
-        public IExternalCommandLanguage ExternalCommandLanguage { get; set; }
+        public IExternalCommandLanguage ExternalCommandLanguage { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
+
+        public ExternalCommandConfigViewModel(
+            IExternalCommandConfiguration externalCommandConfiguration,
+            IExternalCommandLanguage externalCommandLanguage,
+            IGreenshotLanguage greenshotLanguage)
+        {
+            ExternalCommandConfiguration = externalCommandConfiguration;
+            ExternalCommandLanguage = externalCommandLanguage;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         public override void Initialize(IConfig config)
         {

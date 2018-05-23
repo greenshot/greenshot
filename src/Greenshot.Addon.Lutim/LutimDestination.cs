@@ -20,26 +20,23 @@
  */
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Entities;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Lutim  {
     /// <summary>
-    /// Description of LutimDestination.
+    /// This is the destination for Lutim
     /// </summary>
     [Destination("Lutim")]
     public class LutimDestination : AbstractDestination
@@ -48,22 +45,28 @@ namespace Greenshot.Addon.Lutim  {
         private readonly ILutimConfiguration _lutimConfiguration;
         private readonly ILutimLanguage _lutimLanguage;
         private readonly LutimApi _lutimApi;
+        private readonly IResourceProvider _resourceProvider;
 
-        [ImportingConstructor]
-        public LutimDestination(ILutimConfiguration lutimConfiguration, ILutimLanguage lutimLanguage, LutimApi lutimApi)
+        public LutimDestination(ILutimConfiguration lutimConfiguration,
+            ILutimLanguage lutimLanguage,
+            LutimApi lutimApi,
+            IResourceProvider resourceProvider,
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _lutimConfiguration = lutimConfiguration;
             _lutimLanguage = lutimLanguage;
             _lutimApi = lutimApi;
+            _resourceProvider = resourceProvider;
         }
 
 		public override string Description => _lutimLanguage.UploadMenuItem;
 
 		public override Bitmap DisplayIcon {
 			get {
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Lutim\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by caching
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Lutim.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

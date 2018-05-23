@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
@@ -32,12 +31,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
     /// <summary>
     /// This represents a node in the config
     /// </summary>
-    [Export(typeof(IConfigScreen))]
     public sealed class CaptureConfigNodeViewModel : ConfigNode
     {
         public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [ImportingConstructor]
         public CaptureConfigNodeViewModel(IGreenshotLanguage greenshotLanguage)
         {
             GreenshotLanguage = greenshotLanguage;

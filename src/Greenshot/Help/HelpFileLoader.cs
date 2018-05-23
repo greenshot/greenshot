@@ -42,7 +42,7 @@ namespace Greenshot.Help
 
 		public static void LoadHelp()
 		{
-			var uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
+			var uri = FindOnlineHelpUrl(Language.CurrentLanguage);// ?? Language.HelpFilePath;
 			Process.Start(uri);
 		}
 

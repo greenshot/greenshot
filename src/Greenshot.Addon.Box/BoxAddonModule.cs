@@ -21,29 +21,29 @@
 
 #endregion
 
-#region Usings
+using Autofac;
+using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Configuration;
+using Greenshot.Addon.Box.ViewModels;
+using Greenshot.Addons.Components;
 
-using System.ComponentModel;
-
-#endregion
-
-namespace Greenshot.Addons.Addons
+namespace Greenshot.Addon.Box
 {
-	/// <summary>
-	///     Metadata for the IDestination exports
-	/// </summary>
-	public interface IDestinationMetadata
-	{
-		/// <summary>
-		///     Simple "designation" like "File", "Editor" etc, used to store the configuration
-		/// </summary>
-		string Designation { get; }
+    /// <inheritdoc />
+    public class BoxAddonModule : AddonModule
+    {
+        protected override void Load(ContainerBuilder builder)
+        {
+            builder
+                .RegisterType<BoxDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+            builder
+                .RegisterType<BoxConfigViewModel>()
+                .As<IConfigScreen>()
+                .SingleInstance();
 
-		/// <summary>
-		///     Priority, used for sorting
-		/// </summary>
-		/// 
-		[DefaultValue(10)]
-		int Priority { get; }
-	}
+            base.Load(builder);
+        }
+    }
 }

@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using System.Windows;
 using Dapplo.CaliburnMicro.Configuration;
@@ -32,7 +31,6 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class NetworkConfigViewModel : AuthenticatedConfigNode<Visibility>
     {
         /// <summary>
@@ -40,11 +38,18 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public INetworkConfiguration NetworkConfiguration { get; set; }
+        public INetworkConfiguration NetworkConfiguration { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
+
+        public NetworkConfigViewModel(
+            INetworkConfiguration networkConfiguration,
+            IGreenshotLanguage greenshotLanguage
+            )
+        {
+            NetworkConfiguration = networkConfiguration;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         public override void Initialize(IConfig config)
         {

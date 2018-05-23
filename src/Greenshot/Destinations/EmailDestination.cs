@@ -26,10 +26,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 
 #endregion
@@ -39,7 +39,7 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of EmailDestination.
     /// </summary>
-    [Destination("EMail", 3)]
+    [Destination("EMail", DestinationOrder.Email)]
     public class EmailDestination : AbstractDestination
 	{
 		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
@@ -61,7 +61,13 @@ namespace Greenshot.Destinations
 			}
 		}
 
-		public override string Description
+	    public EmailDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
+	    public override string Description
 		{
 			get
 			{

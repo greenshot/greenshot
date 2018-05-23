@@ -22,7 +22,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -33,7 +32,6 @@ using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Confluence.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class ConfluenceConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -41,14 +39,19 @@ namespace Greenshot.Addon.Confluence.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IConfluenceConfiguration ConfluenceConfiguration { get; set; }
+        public IConfluenceConfiguration ConfluenceConfiguration { get; }
+        public IConfluenceLanguage ConfluenceLanguage { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import]
-        public IConfluenceLanguage ConfluenceLanguage { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public ConfluenceConfigViewModel(
+            IConfluenceConfiguration confluenceConfiguration,
+            IConfluenceLanguage confluenceLanguage,
+            IGreenshotLanguage greenshotLanguage)
+        {
+            ConfluenceConfiguration = confluenceConfiguration;
+            ConfluenceLanguage = confluenceLanguage;
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         public override void Initialize(IConfig config)
         {

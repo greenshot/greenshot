@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -30,7 +29,6 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.GooglePhotos.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class GooglePhotosConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -38,14 +36,19 @@ namespace Greenshot.Addon.GooglePhotos.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IGooglePhotosConfiguration GooglePhotosConfiguration { get; set; }
+        public IGooglePhotosConfiguration GooglePhotosConfiguration { get; }
+        public IGooglePhotosLanguage GooglePhotosLanguage { get; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public IGooglePhotosLanguage GooglePhotosLanguage { get; set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public GooglePhotosConfigViewModel(
+            IGooglePhotosConfiguration googlePhotosConfiguration,
+            IGooglePhotosLanguage googlePhotosLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel)
+        {
+            GooglePhotosConfiguration = googlePhotosConfiguration;
+            GooglePhotosLanguage = googlePhotosLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

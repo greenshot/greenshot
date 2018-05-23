@@ -43,7 +43,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
@@ -71,14 +71,14 @@ namespace Greenshot.Helpers
         // TODO: when we get the screen capture code working correctly, this needs to be enabled
         //private static ScreenCaptureHelper screenCapture = null;
         private IList<IInteropWindow> _windows = new List<IInteropWindow>();
-        private readonly IEnumerable<IDestination> _destinations;
+        private readonly DestinationHolder _destinationHolder;
         private readonly IEnumerable<IProcessor> _processors;
 
         public CaptureHelper(CaptureMode captureMode)
         {
             _captureMode = captureMode;
             _capture = new Capture();
-            _destinations = ServiceLocator.Current.GetAllInstances<IDestination>();
+            _destinationHolder = ServiceLocator.Current.GetInstance<DestinationHolder>();
             _processors = ServiceLocator.Current.GetAllInstances<IProcessor>();
         }
 
@@ -412,13 +412,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find("Editor"));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find("Editor"));
                         }
                         HandleCapture();
                     }
@@ -438,10 +438,10 @@ namespace Greenshot.Helpers
                             if (filename.ToLower().EndsWith("." + OutputFormats.greenshot))
                             {
 
-                                var surface = ImageOutput.SurfaceFactory.CreateExport().Value;
+                                var surface = ImageOutput.SurfaceFactory();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                _destinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Wait();
+                                _destinationHolder.SortedActiveDestinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Wait();
                                 break;
                             }
                         }
@@ -477,13 +477,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find("Editor"));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
+                            _capture.CaptureDetails.AddDestination(_destinationHolder.SortedActiveDestinations.Find("Editor"));
                         }
                         HandleCapture();
                     }
@@ -553,7 +553,7 @@ namespace Greenshot.Helpers
         {
             foreach (var destinationDesignation in CoreConfig.OutputDestinations)
             {
-                var destination = _destinations.Find(destinationDesignation);
+                var destination = _destinationHolder.SortedActiveDestinations.Find(destinationDesignation);
                 if (destination != null)
                 {
                     _capture.CaptureDetails.AddDestination(destination);
@@ -676,7 +676,7 @@ namespace Greenshot.Helpers
             }
 
             // Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-            var surface = ImageOutput.SurfaceFactory.CreateExport().Value;
+            var surface = ImageOutput.SurfaceFactory();
             surface.SetCapture(_capture);
             surface.Modified = !outputMade;
 
@@ -705,7 +705,7 @@ namespace Greenshot.Helpers
 
             if (captureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
             {
-                _destinations.Find(typeof(PickerDestination))?.ExportCaptureAsync(false, surface, captureDetails).Wait();
+                _destinationHolder.SortedActiveDestinations.Find(typeof(PickerDestination))?.ExportCaptureAsync(false, surface, captureDetails).Wait();
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }

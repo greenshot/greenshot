@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Disposables;
 using Caliburn.Micro;
@@ -39,7 +38,6 @@ using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class UiConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -69,20 +67,31 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public bool CanChangeLanguage
             => !string.IsNullOrWhiteSpace(CoreConfiguration.Language) && CoreConfiguration.Language != LanguageLoader.Current.CurrentLanguage;
 
-        [Import]
-        public IMetroConfiguration MetroConfiguration { get; set; }
+        public IMetroConfiguration MetroConfiguration { get; }
 
-        [Import]
-        public IConfigTranslations ConfigTranslations { get; set; }
+        public IConfigTranslations ConfigTranslations { get; }
 
-        [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import(typeof(IWindowManager))]
-        private MetroWindowManager MetroWindowManager { get; set; }
+        private MetroWindowManager MetroWindowManager { get; }
+
+        public UiConfigViewModel(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            IConfigTranslations configTranslations,
+            IMetroConfiguration metroConfiguration,
+            MetroWindowManager metroWindowManager
+
+            )
+        {
+            CoreConfiguration = coreConfiguration;
+            GreenshotLanguage = greenshotLanguage;
+            ConfigTranslations = configTranslations;
+            MetroConfiguration = metroConfiguration;
+            MetroWindowManager = metroWindowManager;
+        }
 
         public override void Commit()
         {

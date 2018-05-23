@@ -23,39 +23,40 @@
 
 using System;
 using System.ComponentModel.Composition;
-using Dapplo.Addons;
 
-namespace Greenshot.Addons.Addons
+namespace Greenshot.Addons.Components
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class DestinationAttribute : ModuleAttribute, IDestinationMetadata
+    public class DestinationAttribute : Attribute
     {
-        /// <summary>
-        ///     Default constructor
-        /// </summary>
-        public DestinationAttribute() : base(typeof(IDestination))
+        public DestinationAttribute()
         {
-        }
 
-        /// <summary>
-        ///     Use a specific contract name for the Destination
-        /// </summary>
-        /// <param name="designation">string</param>
-        public DestinationAttribute(string designation) : base(typeof(IDestination))
-        {
-            Designation = designation;
         }
-
         /// <summary>
         ///     Use a specific contract name for the Destination
         /// </summary>
         /// <param name="designation">string</param>
         /// <param name="priority">int</param>
-        public DestinationAttribute(string designation, int priority) : base(typeof(IDestination))
+        public DestinationAttribute(string designation, int priority)
         {
             Designation = designation;
             Priority = priority;
+        }
+
+        /// <summary>
+        ///     Use a specific contract name for the Destination
+        /// </summary>
+        /// <param name="designation">string</param>
+        /// <param name="priority">object</param>
+        public DestinationAttribute(string designation, object priority = null)
+        {
+            Designation = designation;
+            if (priority != null)
+            {
+                Priority = Convert.ToInt32(priority);
+            }
         }
 
         public string Designation { get; set; }

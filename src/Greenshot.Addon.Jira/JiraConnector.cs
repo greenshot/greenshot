@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -50,7 +49,6 @@ namespace Greenshot.Addon.Jira
 	/// <summary>
 	///     This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
 	/// </summary>
-	[Export]
 	public class JiraConnector : IDisposable
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -64,7 +62,6 @@ namespace Greenshot.Addon.Jira
 		private readonly IJiraClient _jiraClient;
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
-		[ImportingConstructor]
 		public JiraConnector(
 		    IJiraConfiguration jiraConfiguration,
 		    JiraMonitor jiraMonitor,

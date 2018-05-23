@@ -32,7 +32,8 @@ using System.Runtime.InteropServices;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.OfficeInterop;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 
@@ -40,7 +41,7 @@ using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Office.Destinations
 {
-    [Destination("OneNote", 4)]
+    [Destination("OneNote", DestinationOrder.OneNote)]
     public class OneNoteDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -48,8 +49,11 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _exePath;
 		private readonly OneNotePage _page;
 
-		public OneNoteDestination()
-		{
+		public OneNoteDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
+        {
 		    _exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
@@ -57,7 +61,10 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public OneNoteDestination(OneNotePage page) : this()
+		protected OneNoteDestination(OneNotePage page,
+		    ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : this(coreConfiguration, greenshotLanguage)
         {
 			_page = page;
 		}
@@ -87,7 +94,7 @@ namespace Greenshot.Addon.Office.Destinations
 		{
 			try
 			{
-				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage));
+				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage, CoreConfiguration, GreenshotLanguage));
 			}
 			catch (COMException cEx)
 			{

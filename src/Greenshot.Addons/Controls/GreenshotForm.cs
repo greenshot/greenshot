@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -122,41 +121,6 @@ namespace Greenshot.Addons.Controls
 		/// <summary>
 		///     Code to initialize the language etc during design time
 		/// </summary>
-		protected void InitializeForDesigner()
-		{
-			if (DesignMode)
-			{
-				_designTimeControls = new Dictionary<string, Control>();
-				_designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
-				try
-				{
-					var typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
-
-					// Add a hard-path if you are using SharpDevelop
-					// Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
-
-					// this "type"
-					var currentAssembly = GetType().Assembly;
-					if (typeResService != null)
-					{
-						var assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-						var assemblyDirectory = Path.GetDirectoryName(assemblyPath);
-						if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\")))
-						{
-							Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
-						}
-						if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\")))
-						{
-							Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show(ex.Message);
-				}
-			}
-		}
 
 		/// <summary>
 		///     This override is only for the design-time of the form
@@ -195,13 +159,6 @@ namespace Greenshot.Addons.Controls
 				}
 				FillFields();
 				base.OnLoad(e);
-			}
-			else
-			{
-				Log.Info().WriteLine("OnLoad called from designer.");
-				InitializeForDesigner();
-				base.OnLoad(e);
-				ApplyLanguage();
 			}
 		}
 

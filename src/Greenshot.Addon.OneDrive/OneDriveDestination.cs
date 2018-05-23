@@ -25,27 +25,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.OneDrive.Entities;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
@@ -61,6 +59,7 @@ namespace Greenshot.Addon.OneDrive
         private static readonly LogSource Log = new LogSource();
         private readonly IOneDriveConfiguration _oneDriveConfiguration;
         private readonly IOneDriveLanguage _oneDriveLanguage;
+        private readonly IResourceProvider _resourceProvider;
         private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri GraphUri = new Uri("https://graph.microsoft.com");
         private static readonly Uri OneDriveUri = GraphUri.AppendSegments("v1.0", "me", "drive");
@@ -68,14 +67,18 @@ namespace Greenshot.Addon.OneDrive
 
         private readonly HttpBehaviour _oneDriveHttpBehaviour;
 
-        [ImportingConstructor]
         public OneDriveDestination(
             IOneDriveConfiguration oneDriveConfiguration,
             IOneDriveLanguage oneDriveLanguage,
-            INetworkConfiguration networkConfiguration)
+            INetworkConfiguration networkConfiguration,
+            IResourceProvider resourceProvider,
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _oneDriveConfiguration = oneDriveConfiguration;
             _oneDriveLanguage = oneDriveLanguage;
+            _resourceProvider = resourceProvider;
             // Configure the OAuth2 settings for OneDrive communication
             _oauth2Settings = new OAuth2Settings
             {
@@ -109,9 +112,8 @@ namespace Greenshot.Addon.OneDrive
         {
             get
             {
-                // TODO: Optimize this
-                var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*onedrive\.png").FirstOrDefault();
-                using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by caching
+                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "onedrive.png"))
                 {
                     return BitmapHelper.FromStream(bitmapStream);
                 }

@@ -24,8 +24,6 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -36,7 +34,7 @@ using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -52,14 +50,14 @@ namespace Greenshot.Components
     /// This startup action starts the Greenshot "server", which allows to open files etc.
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    [StartupAction(StartupOrder = (int)GreenshotStartupOrder.Server), ShutdownAction]
-    public class GreenshotServerAction : IGreenshotContract, IAsyncStartupAction, IAsyncShutdownAction
+    [ServiceOrder(GreenshotStartupOrder.Server)]
+    public class GreenshotServerAction : IGreenshotContract, IStartupAsync, IShutdownAsync
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly MainForm _mainForm;
         private readonly HotkeyHandler _hotkeyHandler;
-        private readonly IEnumerable<IDestination> _destinations;
+        private readonly DestinationHolder _destinationHolder;
         private ServiceHost _host;
 
         public static string Identity
@@ -72,13 +70,16 @@ namespace Greenshot.Components
         }
         public static string EndPoint => $"net.pipe://localhost/Greenshot/Greenshot_{Identity}";
 
-        [ImportingConstructor]
-        public GreenshotServerAction(ICoreConfiguration coreConfiguration, MainForm mainForm, HotkeyHandler hotkeyHandler, [ImportMany] IEnumerable<IDestination> destinations)
+        public GreenshotServerAction(
+            ICoreConfiguration coreConfiguration,
+            MainForm mainForm,
+            HotkeyHandler hotkeyHandler,
+            DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;
             _hotkeyHandler = hotkeyHandler;
-            _destinations = destinations;
+            _destinationHolder = destinationHolder;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -162,7 +163,7 @@ namespace Greenshot.Components
             // Fallback-Destination
 
             var designation = _coreConfiguration.OutputDestinations.FirstOrDefault();
-            var destination = _destinations.FirstOrDefault(d => d.Designation == designation && d.IsActive);
+            var destination = _destinationHolder.SortedActiveDestinations.FirstOrDefault(d => d.Designation == designation);
 
             switch (captureMode.ToLower())
             {

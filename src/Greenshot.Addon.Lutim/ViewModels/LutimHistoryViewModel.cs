@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Threading;
@@ -37,27 +36,31 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Lutim.ViewModels
 {
-    [Export]
     public sealed class LutimHistoryViewModel : Screen
     {
         private static readonly LogSource Log = new LogSource();
+        private readonly LutimApi _lutimApi;
 
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
         public ILutimConfiguration LutimConfiguration { get; set; }
-
-        [Import]
         public ILutimLanguage LutimLanguage { get; set; }
-
-        [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
-        [Import]
-        private LutimApi _lutimApi;
 
+        public LutimHistoryViewModel(
+            ILutimConfiguration lutimConfiguration,
+            ILutimLanguage lutimLanguage,
+            LutimApi lutimApi,
+            IGreenshotLanguage greenshotLanguage)
+        {
+            _lutimApi = lutimApi;
+            LutimConfiguration = lutimConfiguration;
+            LutimLanguage = lutimLanguage;
+            GreenshotLanguage = greenshotLanguage;
+        }
         /// <summary>
         /// The list of Lutim items
         /// </summary>

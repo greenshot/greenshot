@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -54,7 +53,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	/// <summary>
 	///     Description of Surface.
 	/// </summary>
-	[Export(typeof(ISurface))]
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();

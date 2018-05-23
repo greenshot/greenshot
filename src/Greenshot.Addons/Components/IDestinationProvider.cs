@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,36 +21,16 @@
 
 #endregion
 
-#region Usings
+using System;
+using System.Collections.Generic;
 
-using System.Windows.Forms;
-using Dapplo.Windows.Dpi;
-
-#endregion
-
-namespace Greenshot.Addons.Interfaces.Plugin
+namespace Greenshot.Addons.Components
 {
-	/// <summary>
-	///     This interface is the GreenshotPluginHost, that which "Hosts" the plugin.
-	///     For Greenshot this is implmented in the PluginHelper
-	/// </summary>
-	public interface IGreenshotHost
-	{
-		ContextMenuStrip MainMenu { get; }
-
-		// This is a reference to the MainForm, can be used for Invoking on the UI thread.
-		Form GreenshotForm { get; }
-
-		NotifyIcon NotifyIcon { get; }
-
-		/// <summary>
-		/// The DPI handler for the context menu, which should be used for the plugins too
-		/// </summary>
-		DpiHandler ContextMenuDpiHandler { get; }
-
-        /// <summary>
-        /// Initialize the form
-        /// </summary>
-	    void Initialize();
-	}
+    /// <summary>
+    /// Implement this interface to provide last-minute or dynamic IDestinations
+    /// </summary>
+    public interface IDestinationProvider
+    {
+        IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide();
+    }
 }

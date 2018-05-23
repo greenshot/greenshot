@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,7 +39,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
     ///     The settings view model is, well... for the settings :)
     ///     It is a conductor where only one item is active.
     /// </summary>
-    [Export]
     public sealed class ConfigViewModel : Config<IConfigScreen>, IHaveIcon
     {
         /// <summary>
@@ -63,9 +61,8 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         public IConfigTranslations ConfigTranslations { get; }
 
-        [ImportingConstructor]
         public ConfigViewModel(
-            [ImportMany] IEnumerable<Lazy<IConfigScreen>> configScreens,
+            IEnumerable<Lazy<IConfigScreen>> configScreens,
             IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations)
         {

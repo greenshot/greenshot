@@ -194,7 +194,7 @@ EndSelection:<<<<<<<4
 					}
 					else
 					{
-						messageText = Language.GetString("clipboard_error");
+						messageText = Language.GetString("Core","clipboard_error");
 					}
 					Log.Error().WriteLine(clipboardSetException, messageText);
 				}
@@ -227,7 +227,7 @@ EndSelection:<<<<<<<4
 							}
 							else
 							{
-								messageText = Language.GetString("clipboard_error");
+								messageText = Language.GetString("Core", "clipboard_error");
 							}
 							Log.Error().WriteLine(ee, messageText);
 						}

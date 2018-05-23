@@ -23,15 +23,7 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
-using Dapplo.Windows.Common.Structs;
-using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Interfaces;
 
 #endregion
 

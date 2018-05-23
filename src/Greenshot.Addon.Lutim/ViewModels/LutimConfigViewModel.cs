@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -33,7 +32,6 @@ namespace Greenshot.Addon.Lutim.ViewModels
     /// <summary>
     /// The ViewModel for the Lutim configuration
     /// </summary>
-    [Export(typeof(IConfigScreen))]
     public sealed class LutimConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -41,14 +39,19 @@ namespace Greenshot.Addon.Lutim.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public ILutimConfiguration LutimConfiguration { get; set; }
+        public ILutimConfiguration LutimConfiguration { get; }
+        public ILutimLanguage LutimLanguage { get; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public ILutimLanguage LutimLanguage { get; set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public LutimConfigViewModel(
+            ILutimConfiguration lutimConfiguration,
+            ILutimLanguage lutimLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel)
+        {
+            LutimConfiguration = lutimConfiguration;
+            LutimLanguage = lutimLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

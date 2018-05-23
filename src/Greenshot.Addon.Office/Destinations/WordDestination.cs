@@ -31,7 +31,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -43,7 +44,7 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of EmailDestination.
     /// </summary>
-    [Destination("Word", 4)]
+    [Destination("Word", DestinationOrder.Word)]
     public class WordDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -52,8 +53,11 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _exePath;
 		private readonly string _documentCaption;
 
-		public WordDestination()
-		{
+		public WordDestination(
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : base(coreConfiguration, greenshotLanguage)
+        {
 		    _exePath = PluginUtils.GetExePath("WINWORD.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
@@ -61,7 +65,9 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public WordDestination(string wordCaption) : this()
+		protected WordDestination(string wordCaption,
+		    ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : this(coreConfiguration, greenshotLanguage)
 		{
 			_documentCaption = wordCaption;
 		}
@@ -79,7 +85,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption));
+			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage));
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -121,11 +127,11 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						var destinations = new List<IDestination>
 						{
-							new WordDestination()
+							new WordDestination(CoreConfiguration, GreenshotLanguage)
 						};
 						foreach (var document in documents)
 						{
-							destinations.Add(new WordDestination(document));
+							destinations.Add(new WordDestination(document, CoreConfiguration, GreenshotLanguage));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);

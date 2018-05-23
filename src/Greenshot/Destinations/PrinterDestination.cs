@@ -28,7 +28,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
@@ -41,16 +42,21 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of PrinterDestination.
     /// </summary>
-    [Destination("Printer", 2)]
+    [Destination("Printer", DestinationOrder.Printer)]
     public class PrinterDestination : AbstractDestination
 	{
 		private readonly string _printerName;
 
-	    public PrinterDestination()
+	    public PrinterDestination(ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ): base(coreConfiguration, greenshotLanguage)
 	    {
 	    }
 
-        public PrinterDestination(string printerName)
+        protected PrinterDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            string printerName) : this(coreConfiguration, greenshotLanguage)
 		{
 			_printerName = printerName;
 		}
@@ -101,7 +107,7 @@ namespace Greenshot.Destinations
 			});
 			foreach (var printer in printers)
 			{
-				yield return new PrinterDestination(printer);
+				yield return new PrinterDestination(CoreConfiguration, GreenshotLanguage, printer);
 			}
 		}
 

@@ -31,7 +31,6 @@ using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 
 #endregion
 

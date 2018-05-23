@@ -21,7 +21,6 @@
 
 #endregion
 
-using System;
 using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities

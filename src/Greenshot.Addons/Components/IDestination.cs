@@ -34,7 +34,7 @@ using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace Greenshot.Addons.Addons
+namespace Greenshot.Addons.Components
 {
 	/// <summary>
 	///     Description of IDestination.

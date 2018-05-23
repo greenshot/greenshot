@@ -21,7 +21,6 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -30,7 +29,6 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Jira.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class JiraConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -38,14 +36,22 @@ namespace Greenshot.Addon.Jira.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IJiraConfiguration JiraConfiguration { get; set; }
+        public IJiraConfiguration JiraConfiguration { get; }
 
-        [Import]
-        public IJiraLanguage JiraLanguage { get; set; }
+        public IJiraLanguage JiraLanguage { get; }
 
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
+
+        public JiraConfigViewModel(
+            IJiraConfiguration jiraConfiguration,
+            IJiraLanguage jiraLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel
+            )
+        {
+            JiraConfiguration = jiraConfiguration;
+            JiraLanguage = jiraLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

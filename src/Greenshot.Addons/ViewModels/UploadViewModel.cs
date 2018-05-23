@@ -21,18 +21,16 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 
 namespace Greenshot.Addons.ViewModels
 {
     /// <summary>
     /// A view model for showing uploads
     /// </summary>
-    [Export]
     public sealed class UploadViewModel : Conductor<IDestination>.Collection.AllActive
     {
         /// <summary>
@@ -40,8 +38,12 @@ namespace Greenshot.Addons.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
+
+        public UploadViewModel(IGreenshotLanguage greenshotLanguage)
+        {
+            GreenshotLanguage = greenshotLanguage;
+        }
 
         protected override void OnActivate()
         {

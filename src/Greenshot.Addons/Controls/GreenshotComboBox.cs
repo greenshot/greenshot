@@ -102,13 +102,12 @@ namespace Greenshot.Addons.Controls
 
 			foreach (Enum enumValue in availableValues)
 			{
-				var enumKey = enumTypeName + "." + enumValue;
-			    if (!Language.HasKey(enumKey))
+			    if (!Language.HasKey(enumTypeName, enumValue))
 			    {
 			        continue;
 			    }
 
-			    var translation = Language.GetString(enumTypeName + "." + enumValue);
+			    var translation = Language.GetString(enumTypeName,enumValue);
 			    if (translation.Equals(selectedValue))
 			    {
 			        returnValue = enumValue;

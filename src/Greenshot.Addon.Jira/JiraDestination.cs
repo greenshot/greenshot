@@ -25,19 +25,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO.Compression;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
 using Greenshot.Addon.Jira.ViewModels;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -53,27 +56,42 @@ namespace Greenshot.Addon.Jira
 		private readonly Issue _jiraIssue;
 	    private readonly JiraConnector _jiraConnector;
 	    private readonly IWindowManager _windowManager;
-	    private readonly JiraViewModel _jiraViewModel;
+	    private readonly Func<Owned<JiraViewModel>> _jiraViewModelFactory;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly IJiraLanguage _jiraLanguage;
 
-	    [ImportingConstructor]
-	    public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, IWindowManager windowManager, JiraViewModel jiraViewModel)
+	    public JiraDestination(
+	        IJiraConfiguration jiraConfiguration,
+	        IJiraLanguage jiraLanguage,
+	        JiraConnector jiraConnector,
+	        Func<Owned<JiraViewModel>> jiraViewModelFactory,
+	        IWindowManager windowManager,
+            IResourceProvider resourceProvider,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
         {
             _jiraConfiguration = jiraConfiguration;
             _jiraLanguage = jiraLanguage;
             _jiraConnector = jiraConnector;
             _windowManager = windowManager;
-            _jiraViewModel = jiraViewModel;
+            _jiraViewModelFactory = jiraViewModelFactory;
+            _resourceProvider = resourceProvider;
         }
 
-		public JiraDestination(IJiraConfiguration jiraConfiguration, IJiraLanguage jiraLanguage, JiraConnector jiraConnector, Issue jiraIssue, IWindowManager windowManager)
+		protected JiraDestination(IJiraConfiguration jiraConfiguration,
+		    IJiraLanguage jiraLanguage,
+		    JiraConnector jiraConnector,
+		    Func<Owned<JiraViewModel>> jiraViewModelFactory,
+		    IWindowManager windowManager,
+		    IResourceProvider resourceProvider,
+		    Issue jiraIssue,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModelFactory, windowManager, resourceProvider, coreConfiguration, greenshotLanguage)
 		{
-		    _jiraConfiguration = jiraConfiguration;
-		    _jiraLanguage = jiraLanguage;
-		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
-		    _windowManager = windowManager;
 		}
 
 		public override string Description
@@ -119,8 +137,14 @@ namespace Greenshot.Addon.Jira
 				}
 				if (displayIcon == null)
 				{
-					var resources = new ComponentResourceManager(typeof(JiraPlugin));
-					displayIcon = (Bitmap) resources.GetObject("Jira");
+				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "jira.svgz"))
+				    {
+				        using (var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress))
+				        {
+				            displayIcon = SvgBitmap.FromStream(gzStream).Bitmap;
+				        }
+                        //displayIcon = BitmapHelper.FromStream(bitmapStream);
+                    }
 				}
 				return displayIcon;
 			}
@@ -134,12 +158,10 @@ namespace Greenshot.Addon.Jira
 			}
 			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraConfiguration, _jiraLanguage, _jiraConnector, jiraDetails.JiraIssue, _windowManager)
-				{
-				    CoreConfiguration = CoreConfiguration,
-				    GreenshotLanguage = GreenshotLanguage
-				};
-            }
+			    yield return new JiraDestination(
+			        _jiraConfiguration, _jiraLanguage, _jiraConnector, _jiraViewModelFactory,
+			        _windowManager, _resourceProvider, jiraDetails.JiraIssue, CoreConfiguration, GreenshotLanguage);
+			}
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -170,33 +192,36 @@ namespace Greenshot.Addon.Jira
 			{
                 // TODO: set filename
 			    // _jiraViewModel.SetFilename(filename);
-			    if (_windowManager.ShowDialog(_jiraViewModel) == true)
+			    using (var jiraViewModel = _jiraViewModelFactory())
 			    {
-					try
-					{
-						surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraViewModel.JiraIssue.Key).AbsoluteUri;
-						// Run upload in the background
-						new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
-						    async () =>
-						    {
-						        await _jiraConnector.AttachAsync(_jiraViewModel.JiraIssue.Key, surface, _jiraViewModel.Filename).ConfigureAwait(true);
+			        if (_windowManager.ShowDialog(jiraViewModel.Value) == true)
+			        {
+			            try
+			            {
+			                surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraViewModel.Value.JiraIssue.Key).AbsoluteUri;
+			                // Run upload in the background
+			                new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
+			                    async () =>
+			                    {
+			                        await _jiraConnector.AttachAsync(jiraViewModel.Value.JiraIssue.Key, surface, jiraViewModel.Value.Filename).ConfigureAwait(true);
 
-						        if (!string.IsNullOrEmpty(_jiraViewModel.Comment))
-						        {
-						            await _jiraConnector.AddCommentAsync(_jiraViewModel.JiraIssue.Key, _jiraViewModel.Comment).ConfigureAwait(true);
-						        }
-						    }
-						);
-						Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraViewModel.JiraIssue.Key);
-						exportInformation.ExportMade = true;
-						exportInformation.Uri = surface.UploadUrl;
-					}
-					catch (Exception e)
-					{
-						MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
-					}
-				}
-			}
+			                        if (!string.IsNullOrEmpty(jiraViewModel.Value.Comment))
+			                        {
+			                            await _jiraConnector.AddCommentAsync(jiraViewModel.Value.JiraIssue.Key, jiraViewModel.Value.Comment).ConfigureAwait(true);
+			                        }
+			                    }
+			                );
+			                Log.Debug().WriteLine("Uploaded to Jira {0}", jiraViewModel.Value.JiraIssue.Key);
+			                exportInformation.ExportMade = true;
+			                exportInformation.Uri = surface.UploadUrl;
+			            }
+			            catch (Exception e)
+			            {
+			                MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
+			            }
+			        }
+                }
+            }
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

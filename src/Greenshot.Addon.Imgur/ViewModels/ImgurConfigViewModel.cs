@@ -21,18 +21,20 @@
 
 #endregion
 
-using System.ComponentModel.Composition;
+using System;
 using System.Reactive.Disposables;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
+    /// <summary>
+    /// The imgure config VM
+    /// </summary>
     public sealed class ImgurConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -40,21 +42,30 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IImgurConfiguration ImgurConfiguration { get; set; }
+        public IImgurConfiguration ImgurConfiguration { get; }
 
-        [Import]
-        public IImgurLanguage ImgurLanguage { get; set; }
+        public IImgurLanguage ImgurLanguage { get; }
 
-        [Import]
-        public IWindowManager WindowManager { get; set; }
+        public IWindowManager WindowManager { get; }
 
-        [Import]
-        public ImgurHistoryViewModel ImgurHistoryViewModel { get; set; }
+        public Func<Owned<ImgurHistoryViewModel>> ImgurHistoryViewModelFactory { get;}
 
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
+        public ImgurConfigViewModel(
+            IImgurConfiguration imgurConfiguration,
+            IImgurLanguage imgurLanguage ,
+            IWindowManager windowManager,
+            Func<Owned<ImgurHistoryViewModel>> imgurHistoryViewModelFactory,
+            FileConfigPartViewModel fileConfigPartViewModel
+            )
+        {
+            ImgurConfiguration = imgurConfiguration;
+            ImgurLanguage = imgurLanguage;
+            WindowManager = windowManager;
+            ImgurHistoryViewModelFactory = imgurHistoryViewModelFactory;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
         public override void Initialize(IConfig config)
         {
             // Make sure the destination settings are shown
@@ -86,7 +97,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public void ShowHistory()
         {
-            WindowManager.ShowWindow(ImgurHistoryViewModel);
+            using (var imgurHistoryViewModel = ImgurHistoryViewModelFactory())
+            {
+                WindowManager.ShowDialog(imgurHistoryViewModel.Value);
+            }
         }
     }
 }

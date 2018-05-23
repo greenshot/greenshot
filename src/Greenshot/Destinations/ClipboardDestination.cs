@@ -26,7 +26,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
@@ -38,9 +39,16 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of ClipboardDestination.
     /// </summary>
-    [Destination("Clipboard",2)]
+    [Destination("Clipboard", DestinationOrder.Clipboard)]
     public class ClipboardDestination : AbstractDestination
 	{
+	    public ClipboardDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	        ) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
 	    public override string Description => GreenshotLanguage.SettingsDestinationClipboard;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
@@ -58,7 +66,7 @@ namespace Greenshot.Destinations
 			catch (Exception)
 			{
 				// TODO: Change to general logic in ProcessExport
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, "Error"); //GreenshotLanguage.editorclipboardfailed);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

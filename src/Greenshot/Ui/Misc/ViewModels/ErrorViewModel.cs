@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
@@ -37,16 +36,13 @@ namespace Greenshot.Ui.Misc.ViewModels
     /// <summary>
     /// 
     /// </summary>
-    [Export]
     public class ErrorViewModel : Screen
     {
         public IGreenshotLanguage GreenshotLanguage { get; }
         public IVersionProvider VersionProvider { get; }
 
-        [ImportingConstructor]
         public ErrorViewModel(IGreenshotLanguage greenshotLanguage,
-            [Import(AllowDefault = true)]
-            IVersionProvider versionProvider)
+            IVersionProvider versionProvider = null)
         {
             GreenshotLanguage = greenshotLanguage;
             VersionProvider = versionProvider;

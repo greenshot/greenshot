@@ -32,7 +32,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -41,10 +42,10 @@ using Greenshot.Addons.Interfaces.Plugin;
 
 namespace Greenshot.Addon.ExternalCommand
 {
-	/// <summary>
-	///     Description of OCRDestination.
-	/// </summary>
-	public class ExternalCommandDestination : AbstractDestination
+    /// <summary>
+    ///     ExternalCommandDestination provides a destination to export to an external command
+    /// </summary>
+    public class ExternalCommandDestination : AbstractDestination
 	{
 		private static readonly LogSource Log = new LogSource();
 
@@ -54,8 +55,11 @@ namespace Greenshot.Addon.ExternalCommand
 		private static readonly IExternalCommandConfiguration Config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private readonly string _presetCommand;
 
-		public ExternalCommandDestination(string commando)
-		{
+		public ExternalCommandDestination(string commando,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		) : base(coreConfiguration, greenshotLanguage)
+        {
 			_presetCommand = commando;
 		}
 
@@ -79,41 +83,43 @@ namespace Greenshot.Addon.ExternalCommand
 			var outputSettings = new SurfaceOutputSettings();
 			outputSettings.PreventGreenshotFormat();
 
-			if (_presetCommand != null)
-			{
-				if (!Config.RunInbackground.ContainsKey(_presetCommand))
-				{
-					Config.RunInbackground.Add(_presetCommand, true);
-				}
-				var runInBackground = Config.RunInbackground[_presetCommand];
-				var fullPath = captureDetails.Filename;
-				if (fullPath == null)
-				{
-					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
-				}
+		    if (_presetCommand == null)
+		    {
+		        return exportInformation;
+		    }
 
-			    if (runInBackground)
-				{
-					var commandThread = new Thread(() =>
-					{
-					    CallExternalCommand(exportInformation, fullPath, out _, out _);
-					    ProcessExport(exportInformation, surface);
-					})
-					{
-						Name = "Running " + _presetCommand,
-						IsBackground = true
-					};
-					commandThread.SetApartmentState(ApartmentState.STA);
-					commandThread.Start();
-					exportInformation.ExportMade = true;
-				}
-				else
-				{
-					CallExternalCommand(exportInformation, fullPath, out _, out _);
-					ProcessExport(exportInformation, surface);
-				}
-			}
-			return exportInformation;
+		    if (!Config.RunInbackground.ContainsKey(_presetCommand))
+		    {
+		        Config.RunInbackground.Add(_presetCommand, true);
+		    }
+		    var runInBackground = Config.RunInbackground[_presetCommand];
+		    var fullPath = captureDetails.Filename;
+		    if (fullPath == null)
+		    {
+		        fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+		    }
+
+		    if (runInBackground)
+		    {
+		        var commandThread = new Thread(() =>
+		        {
+		            CallExternalCommand(exportInformation, fullPath, out _, out _);
+		            ProcessExport(exportInformation, surface);
+		        })
+		        {
+		            Name = "Running " + _presetCommand,
+		            IsBackground = true
+		        };
+		        commandThread.SetApartmentState(ApartmentState.STA);
+		        commandThread.Start();
+		        exportInformation.ExportMade = true;
+		    }
+		    else
+		    {
+		        CallExternalCommand(exportInformation, fullPath, out _, out _);
+		        ProcessExport(exportInformation, surface);
+		    }
+		    return exportInformation;
 		}
 
 		/// <summary>
@@ -133,24 +139,29 @@ namespace Greenshot.Addon.ExternalCommand
 				if (CallExternalCommand(_presetCommand, fullPath, out output, out error) == 0)
 				{
 					exportInformation.ExportMade = true;
-					if (!string.IsNullOrEmpty(output))
-					{
-						var uriMatches = UriRegexp.Matches(output);
-						// Place output on the clipboard before the URI, so if one is found this overwrites
-						if (Config.OutputToClipboard)
-						{
-							ClipboardHelper.SetClipboardData(output);
-						}
-						if (uriMatches.Count > 0)
-						{
-							exportInformation.Uri = uriMatches[0].Groups[1].Value;
-							Log.Info().WriteLine("Got URI : {0} ", exportInformation.Uri);
-							if (Config.UriToClipboard)
-							{
-								ClipboardHelper.SetClipboardData(exportInformation.Uri);
-							}
-						}
-					}
+				    if (string.IsNullOrEmpty(output))
+				    {
+				        return;
+				    }
+
+				    var uriMatches = UriRegexp.Matches(output);
+				    // Place output on the clipboard before the URI, so if one is found this overwrites
+				    if (Config.OutputToClipboard)
+				    {
+				        ClipboardHelper.SetClipboardData(output);
+				    }
+
+				    if (uriMatches.Count <= 0)
+				    {
+				        return;
+				    }
+
+				    exportInformation.Uri = uriMatches[0].Groups[1].Value;
+				    Log.Info().WriteLine("Got URI : {0} ", exportInformation.Uri);
+				    if (Config.UriToClipboard)
+				    {
+				        ClipboardHelper.SetClipboardData(exportInformation.Uri);
+				    }
 				}
 				else
 				{
@@ -217,56 +228,57 @@ namespace Greenshot.Addon.ExternalCommand
 			var arguments = Config.Argument[commando];
 			output = null;
 			error = null;
-			if (!string.IsNullOrEmpty(commandline))
-			{
-				using (var process = new Process())
-				{
-					// Fix variables
-					commandline = FilenameHelper.FillVariables(commandline, true);
-					commandline = FilenameHelper.FillCmdVariables(commandline);
+		    if (string.IsNullOrEmpty(commandline))
+		    {
+		        return -1;
+		    }
 
-					arguments = FilenameHelper.FillVariables(arguments, false);
-					arguments = FilenameHelper.FillCmdVariables(arguments, false);
+		    using (var process = new Process())
+		    {
+		        // Fix variables
+		        commandline = FilenameHelper.FillVariables(commandline, true);
+		        commandline = FilenameHelper.FillCmdVariables(commandline);
 
-					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline);
-					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
-					process.StartInfo.UseShellExecute = false;
-					if (Config.RedirectStandardOutput)
-					{
-						process.StartInfo.RedirectStandardOutput = true;
-					}
-					if (Config.RedirectStandardError)
-					{
-						process.StartInfo.RedirectStandardError = true;
-					}
-					if (verb != null)
-					{
-						process.StartInfo.Verb = verb;
-					}
-					Log.Info().WriteLine("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-					process.Start();
-					process.WaitForExit();
-					if (Config.RedirectStandardOutput)
-					{
-						output = process.StandardOutput.ReadToEnd();
-						if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
-						{
-							Log.Info().WriteLine("Output:\n{0}", output);
-						}
-					}
-					if (Config.RedirectStandardError)
-					{
-						error = process.StandardError.ReadToEnd();
-						if (error.Trim().Length > 0)
-						{
-							Log.Warn().WriteLine("Error:\n{0}", error);
-						}
-					}
-					Log.Info().WriteLine("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-					return process.ExitCode;
-				}
-			}
-			return -1;
+		        arguments = FilenameHelper.FillVariables(arguments, false);
+		        arguments = FilenameHelper.FillCmdVariables(arguments, false);
+
+		        process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline);
+		        process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
+		        process.StartInfo.UseShellExecute = false;
+		        if (Config.RedirectStandardOutput)
+		        {
+		            process.StartInfo.RedirectStandardOutput = true;
+		        }
+		        if (Config.RedirectStandardError)
+		        {
+		            process.StartInfo.RedirectStandardError = true;
+		        }
+		        if (verb != null)
+		        {
+		            process.StartInfo.Verb = verb;
+		        }
+		        Log.Info().WriteLine("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+		        process.Start();
+		        process.WaitForExit();
+		        if (Config.RedirectStandardOutput)
+		        {
+		            output = process.StandardOutput.ReadToEnd();
+		            if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
+		            {
+		                Log.Info().WriteLine("Output:\n{0}", output);
+		            }
+		        }
+		        if (Config.RedirectStandardError)
+		        {
+		            error = process.StandardError.ReadToEnd();
+		            if (error.Trim().Length > 0)
+		            {
+		                Log.Warn().WriteLine("Error:\n{0}", error);
+		            }
+		        }
+		        Log.Info().WriteLine("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+		        return process.ExitCode;
+		    }
 		}
 
 		public static string FormatArguments(string arguments, string fullpath)

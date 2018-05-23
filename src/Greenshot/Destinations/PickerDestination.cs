@@ -23,15 +23,12 @@
 
 #region Usings
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 
 #endregion
 
@@ -40,14 +37,21 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
     /// </summary>
-    [Destination("Picker", 1)]
+    [Destination("Picker", DestinationOrder.Picker)]
     public class PickerDestination : AbstractDestination
 	{
-	    public override string Description => GreenshotLanguage.SettingsDestinationPicker;
-	    private readonly string _pickerDesignation = typeof(PickerDestination).GetDesignation();
+	    private readonly DestinationHolder _destinationHolder;
 
-        [ImportMany(AllowRecomposition = true)]
-	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
+	    public override string Description => GreenshotLanguage.SettingsDestinationPicker;
+
+        public PickerDestination(
+	        DestinationHolder destinationHolder,
+            ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	        ) : base(coreConfiguration, greenshotLanguage)
+        {
+            _destinationHolder = destinationHolder;
+        }
 
         /// <summary>
         ///     Export the capture with the destination picker
@@ -64,11 +68,8 @@ namespace Greenshot.Destinations
 		    {
 		        foreach (var outputDestination in CoreConfiguration.PickerDestinations)
 		        {
-		            var pickerDestination = _destinations
-                        .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
-		                .Where(destination => destination.Value.IsActive)
-		                .Where(destination => outputDestination == destination.Value.Designation)
-		                .Select(d => d.Value).FirstOrDefault();
+		            var pickerDestination = _destinationHolder.SortedActiveDestinations
+		                .FirstOrDefault(destination => outputDestination == destination.Designation);
 
 		            if (pickerDestination != null)
 		            {
@@ -78,12 +79,8 @@ namespace Greenshot.Destinations
 		    }
 		    else
 		    {
-		        foreach (var pickerDestination in _destinations
-                    .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
-		            .Where(destination => destination.Value.IsActive)
-		            .OrderBy(destination => destination.Metadata.Priority)
-		            .ThenBy(destination => destination.Value.Description)
-		            .Select(d => d.Value))
+		        foreach (var pickerDestination in _destinationHolder.SortedActiveDestinations
+                    .Where(destination => !"Picker".Equals(destination.Designation)))
 		        {
 		            pickerDestinations.Add(pickerDestination);
 		        }

@@ -25,21 +25,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
@@ -61,24 +60,24 @@ namespace Greenshot.Addon.Photobucket
 		private readonly IPhotobucketConfiguration _photobucketConfiguration;
 	    private readonly IPhotobucketLanguage _photobucketLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private IList<string> _albumsCache;
 
-        /// <summary>
-        ///     Create a Photobucket destination
-        /// </summary>
-        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
-        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
-        [ImportingConstructor]
         public PhotobucketDestination(
             IPhotobucketConfiguration photobucketConfiguration,
             IPhotobucketLanguage photobucketLanguage,
-            INetworkConfiguration networkConfiguration)
-	    {
+            INetworkConfiguration networkConfiguration,
+            IResourceProvider resourceProvider,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _photobucketConfiguration = photobucketConfiguration;
 	        _photobucketLanguage = photobucketLanguage;
 	        _networkConfiguration = networkConfiguration;
+	        _resourceProvider = resourceProvider;
 
 	        _oAuthSettings = new OAuth1Settings
             {
@@ -139,13 +138,14 @@ namespace Greenshot.Addon.Photobucket
             _oAuthHttpBehaviour = oAuthHttpBehaviour;
         }
 
-        /// <summary>
-        ///     Create a Photobucket destination, which also has the path to the album in it
-        /// </summary>
-        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
-        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
-        /// <param name="albumPath">path to the album, null for default</param>
-        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage, INetworkConfiguration networkConfiguration, string albumPath) : this (photobucketConfiguration, photobucketLanguage, networkConfiguration)
+	    protected PhotobucketDestination(
+	        IPhotobucketConfiguration photobucketConfiguration,
+	        IPhotobucketLanguage photobucketLanguage,
+	        INetworkConfiguration networkConfiguration,
+	        IResourceProvider resourceProvider,
+	        string albumPath,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : this(photobucketConfiguration, photobucketLanguage, networkConfiguration, resourceProvider, coreConfiguration, greenshotLanguage)
 		{
 			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
@@ -167,9 +167,8 @@ namespace Greenshot.Addon.Photobucket
 		{
 			get
 			{
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*photobucket-logo\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "photobucket-logo.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }
@@ -198,7 +197,14 @@ namespace Greenshot.Addon.Photobucket
 			}
 			foreach (var album in albums)
 			{
-				yield return new PhotobucketDestination(_photobucketConfiguration, _photobucketLanguage, _networkConfiguration, album);
+				yield return new PhotobucketDestination(
+				    _photobucketConfiguration,
+				    _photobucketLanguage,
+				    _networkConfiguration,
+				    _resourceProvider,
+				    album,
+				    CoreConfiguration,
+				    GreenshotLanguage);
 			}
 		}
 

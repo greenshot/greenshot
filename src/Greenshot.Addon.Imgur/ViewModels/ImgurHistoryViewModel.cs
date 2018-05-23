@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -38,7 +37,6 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
-    [Export]
     public sealed class ImgurHistoryViewModel : Screen
     {
         private static readonly LogSource Log = new LogSource();
@@ -48,19 +46,26 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IImgurConfiguration ImgurConfiguration { get; set; }
+        public IImgurConfiguration ImgurConfiguration { get; }
 
+        public ImgurApi ImgurApi { get; }
 
-        [Import]
-        public ImgurApi ImgurApi { get; set; }
+        public IImgurLanguage ImgurLanguage { get; }
 
-        [Import]
-        public IImgurLanguage ImgurLanguage { get; set; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
-
+        public ImgurHistoryViewModel(
+            IImgurConfiguration imgurConfiguration,
+            ImgurApi imgurApi,
+            IImgurLanguage imgurLanguage,
+            IGreenshotLanguage greenshotLanguage
+            )
+        {
+            ImgurConfiguration = imgurConfiguration;
+            ImgurApi = imgurApi;
+            ImgurLanguage = imgurLanguage;
+            GreenshotLanguage = greenshotLanguage;
+        }
         /// <summary>
         /// The list of imgur items
         /// </summary>

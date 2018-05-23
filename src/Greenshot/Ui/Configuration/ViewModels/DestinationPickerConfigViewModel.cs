@@ -21,40 +21,46 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
+    /// <summary>
+    /// The ViewModel for the DestinationPicket configuration
+    /// </summary>
     public sealed class DestinationPickerConfigViewModel : SimpleConfigScreen
     {
+        private readonly DestinationHolder _destinationHolder;
+
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; }
+        public IConfigTranslations ConfigTranslations { get; }
+        public IGreenshotLanguage GreenshotLanguage { get; }
 
-        [Import]
-        public IConfigTranslations ConfigTranslations { get; set; }
-
-        [ImportMany(AllowRecomposition = true)]
-        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> AllDestinations = null;
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public DestinationPickerConfigViewModel(
+            ICoreConfiguration coreConfiguration,
+            IConfigTranslations configTranslations,
+            IGreenshotLanguage greenshotLanguage,
+            DestinationHolder destinationHolder
+            )
+        {
+            _destinationHolder = destinationHolder;
+            ConfigTranslations = configTranslations;
+            GreenshotLanguage = greenshotLanguage;
+            CoreConfiguration = coreConfiguration;
+        }
 
         public override void Initialize(IConfig config)
         {
@@ -78,11 +84,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
             {
                 foreach (var outputDestination in CoreConfiguration.PickerDestinations)
                 {
-                    var pickerDestination = AllDestinations
-                        .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
-                        .Where(destination => destination.Value.IsActive)
-                        .Where(destination => outputDestination == destination.Value.Designation)
-                        .Select(d => d.Value).FirstOrDefault();
+                    var pickerDestination = _destinationHolder.SortedActiveDestinations
+                        .Where(destination => !"Picker".Equals(destination.Designation))
+                        .FirstOrDefault(destination => outputDestination == destination.Designation);
 
                     if (pickerDestination != null)
                     {
@@ -92,23 +96,16 @@ namespace Greenshot.Ui.Configuration.ViewModels
             }
             else
             {
-                foreach (var pickerDestination in AllDestinations
-                    .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
-                    .Where(destination => destination.Value.IsActive)
-                    .OrderBy(destination => destination.Metadata.Priority)
-                    .ThenBy(destination => destination.Value.Description)
-                    .Select(d => d.Value))
+                foreach (var pickerDestination in _destinationHolder.SortedActiveDestinations
+                    .Where(destination => !"Picker".Equals(destination.Designation)))
                 {
                     UsedDestinations.Add(pickerDestination);
                 }
             }
             AvailableDestinations.Clear();
-            foreach (var destination in AllDestinations
-                .Where(destination => !"Picker".Equals(destination.Metadata.Designation))
-                .Where(destination => destination.Value.IsActive)
-                .Where(destination => UsedDestinations.All(pickerDestination => pickerDestination.Designation != destination.Value.Designation))
-                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
-                .Select(d => d.Value))
+            foreach (var destination in _destinationHolder.SortedActiveDestinations
+                .Where(destination => !"Picker".Equals(destination.Designation))
+                .Where(destination => UsedDestinations.All(pickerDestination => pickerDestination.Designation != destination.Designation)))
             {
                 AvailableDestinations.Add(destination);
             }

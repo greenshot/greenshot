@@ -24,18 +24,17 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Extensions;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addon.Imgur.ViewModels;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -49,7 +48,6 @@ namespace Greenshot.Addon.Imgur
     ///     Description of ImgurDestination.
     /// </summary>
     [Destination("Imgur")]
-    [Export]
     public class ImgurDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -57,14 +55,22 @@ namespace Greenshot.Addon.Imgur
 	    private readonly IImgurLanguage _imgurLanguage;
 	    private readonly ImgurApi _imgurApi;
 	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
+	    private readonly IResourceProvider _resourceProvider;
 
-	    [ImportingConstructor]
-		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage, ImgurApi imgurApi, ImgurHistoryViewModel imgurHistoryViewModel)
+		public ImgurDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+		    IImgurConfiguration imgurConfiguration,
+	        IImgurLanguage imgurLanguage,
+	        ImgurApi imgurApi,
+	        ImgurHistoryViewModel imgurHistoryViewModel,
+	        IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
 		    _imgurApi = imgurApi;
 		    _imgurHistoryViewModel = imgurHistoryViewModel;
+		    _resourceProvider = resourceProvider;
 		}
 
 		public override string Description => _imgurLanguage.UploadMenuItem;
@@ -73,9 +79,8 @@ namespace Greenshot.Addon.Imgur
 		{
 			get
 			{
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Imgur\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    // TODO: Optimize this, by caching
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Imgur.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

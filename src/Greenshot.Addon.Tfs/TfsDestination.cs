@@ -25,16 +25,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Tfs.Entities;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -54,27 +53,32 @@ namespace Greenshot.Addon.Tfs
         private readonly ITfsConfiguration _tfsConfiguration;
         private readonly ITfsLanguage _tfsLanguage;
         private readonly TfsClient _tfsClient;
+        private readonly IResourceProvider _resourceProvider;
         private readonly WorkItem _workItem;
 
-        [ImportingConstructor]
         public TfsDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
-            TfsClient tfsClient)
+            TfsClient tfsClient,
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
         {
             _tfsConfiguration = tfsConfiguration;
             _tfsLanguage = tfsLanguage;
             _tfsClient = tfsClient;
+            _resourceProvider = resourceProvider;
         }
 
-        public TfsDestination(
+        protected TfsDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
-            TfsClient tfsClient, WorkItem workItem)
+            TfsClient tfsClient,
+            IResourceProvider resourceProvider,
+            WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, resourceProvider)
         {
-            _tfsConfiguration = tfsConfiguration;
-            _tfsLanguage = tfsLanguage;
-            _tfsClient = tfsClient;
             _workItem = workItem;
         }
 
@@ -104,11 +108,7 @@ namespace Greenshot.Addon.Tfs
             }
             foreach (var workitem in workitems)
             {
-                yield return new TfsDestination(_tfsConfiguration, _tfsLanguage, _tfsClient, workitem)
-                {
-                    CoreConfiguration = CoreConfiguration,
-                    GreenshotLanguage = GreenshotLanguage
-                };
+                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _resourceProvider, workitem);
             }
         }
 
@@ -130,9 +130,8 @@ namespace Greenshot.Addon.Tfs
         {
             get
             {
-                // TODO: Optimize this
-                var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*vsts\.png").FirstOrDefault();
-                using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by using a cache
+                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "vsts.png"))
                 {
                     return BitmapHelper.FromStream(bitmapStream);
                 }

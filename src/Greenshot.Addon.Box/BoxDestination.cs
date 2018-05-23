@@ -25,22 +25,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Box.Entities;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -58,19 +57,23 @@ namespace Greenshot.Addon.Box
         private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
         private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
-        [ImportingConstructor]
 		public BoxDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
             IBoxConfiguration boxConfiguration,
             IBoxLanguage boxLanguage,
-            INetworkConfiguration networkConfiguration)
+            INetworkConfiguration networkConfiguration,
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 	    {
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
 	        _networkConfiguration = networkConfiguration;
+	        _resourceProvider = resourceProvider;
 
 	        _oauth2Settings = new OAuth2Settings
 	        {
@@ -100,8 +103,7 @@ namespace Greenshot.Addon.Box
 			get
 			{
                 // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*box\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "box.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }
@@ -152,7 +154,7 @@ namespace Greenshot.Addon.Box
 	        catch (Exception ex)
 	        {
 	            Log.Error().WriteLine(ex, "Error uploading.");
-	            MessageBox.Show(_boxLanguage.UploadFailure + " " + ex.Message);
+	            MessageBox.Show(_boxLanguage.UploadFailure + @" " + ex.Message);
 	            return null;
 	        }
 	    }

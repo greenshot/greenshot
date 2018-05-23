@@ -28,7 +28,8 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Office.OfficeExport;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of PowerpointDestination.
     /// </summary>
-    [Destination("Excel", 5)]
+    [Destination("Excel", DestinationOrder.Excel)]
     public class ExcelDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -48,8 +49,11 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _exePath;
 		private readonly string _workbookName;
 
-		public ExcelDestination()
-		{
+		public ExcelDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
+        {
 		    _exePath = PluginUtils.GetExePath("EXCEL.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
@@ -57,8 +61,11 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public ExcelDestination(string workbookName) : this()
-		{
+		protected ExcelDestination(string workbookName,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : this(coreConfiguration, greenshotLanguage)
+        {
 			_workbookName = workbookName;
 		}
 
@@ -77,7 +84,7 @@ namespace Greenshot.Addon.Office.Destinations
 		{
 			foreach (var workbookName in ExcelExporter.GetWorkbooks())
 			{
-				yield return new ExcelDestination(workbookName);
+				yield return new ExcelDestination(workbookName, CoreConfiguration, GreenshotLanguage);
 			}
 		}
 

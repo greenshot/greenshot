@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -34,6 +33,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
@@ -49,16 +49,14 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
-using Action = System.Action;
 using LangKey = Greenshot.Configuration.LangKey;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
@@ -70,35 +68,38 @@ namespace Greenshot.Forms
     /// <summary>
     ///     Description of MainForm.
     /// </summary>
-    [Export(typeof(IGreenshotHost))]
-    [Export]
-    public partial class MainForm : BaseForm, IGreenshotHost
+    public partial class MainForm : BaseForm
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IWindowManager _windowManager;
         private readonly ConfigViewModel _configViewModel;
-        private readonly IEnumerable<IDestination> _destinations;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
         // Make sure we have only one settings form
-        private readonly SettingsForm _settingsForm;
-        // Make sure we have only one about form
-        private AboutForm _aboutForm;
+        private readonly Func<Owned<SettingsForm>> _settingsFormFactory;
+        private readonly Func<Owned<AboutForm>> _aboutFormFactory;
+
+        private readonly DestinationHolder _destinationHolder;
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
-        [ImportingConstructor]
-        public MainForm(ICoreConfiguration coreConfiguration, IWindowManager windowManager, ConfigViewModel configViewModel, SettingsForm settingsForm, [ImportMany] IEnumerable<IDestination> destinations)
+        public MainForm(ICoreConfiguration coreConfiguration,
+            IWindowManager windowManager,
+            ConfigViewModel configViewModel,
+            Func<Owned<SettingsForm>> settingsFormFactory,
+            Func<Owned<AboutForm>> aboutFormFactory,
+            DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
             _configViewModel = configViewModel;
-            _settingsForm = settingsForm;
-            _destinations = destinations;
+            _settingsFormFactory = settingsFormFactory;
+            _aboutFormFactory = aboutFormFactory;
+            _destinationHolder = destinationHolder;
             Instance = this;
         }
 
@@ -110,7 +111,6 @@ namespace Greenshot.Forms
             //
             try
             {
-                _settingsForm.Initialize();
                 InitializeComponent();
                 SetupBitmapScaleHandler();
             }
@@ -168,14 +168,7 @@ namespace Greenshot.Forms
 
         public static MainForm Instance { get; set; }
 
-        public Form GreenshotForm => Instance;
-
         public NotifyIcon NotifyIcon => notifyIcon;
-
-        /// <summary>
-        ///     Main context menu
-        /// </summary>
-        public ContextMenuStrip MainMenu => contextMenu;
 
         private void BalloonTipClicked(object sender, EventArgs e)
         {
@@ -286,7 +279,7 @@ namespace Greenshot.Forms
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find("Editor"));
+                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinationHolder.SortedActiveDestinations.Find("Editor"));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:
@@ -745,7 +738,7 @@ namespace Greenshot.Forms
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke(new Action(() => CaptureHelper.CaptureClipboard()));
+            BeginInvoke(new System.Action(() => CaptureHelper.CaptureClipboard()));
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
@@ -856,19 +849,14 @@ namespace Greenshot.Forms
                 _windowManager.ShowDialog(_configViewModel);
             }
 
-            if (Application.OpenForms.OfType<SettingsForm>().Any())
+            using (var settingsForm = _settingsFormFactory())
             {
-                // TODO: Await?
-                InteropWindowFactory.CreateFor(_settingsForm.Handle).ToForegroundAsync();
-            }
-            else
-            {
-                if (_settingsForm.ShowDialog() == DialogResult.OK)
+                settingsForm.Value.Initialize();
+                if (settingsForm.Value.ShowDialog() == DialogResult.OK)
                 {
                     InitializeQuickSettingsMenu();
                 }
             }
-
         }
 
         /// <summary>
@@ -883,24 +871,9 @@ namespace Greenshot.Forms
 
         public void ShowAbout()
         {
-            if (_aboutForm != null)
+            using (var aboutForm = _aboutFormFactory())
             {
-                // TODO: Await?
-                InteropWindowFactory.CreateFor(_aboutForm.Handle).ToForegroundAsync();
-            }
-            else
-            {
-                try
-                {
-                    using (_aboutForm = new AboutForm())
-                    {
-                        _aboutForm.ShowDialog(this);
-                    }
-                }
-                finally
-                {
-                    _aboutForm = null;
-                }
+                aboutForm.Value.ShowDialog(this);
             }
         }
 
@@ -968,7 +941,7 @@ namespace Greenshot.Forms
                     Text = Language.GetString(LangKey.settings_destination)
                 };
                 // Working with IDestination:
-                foreach (var destination in _destinations)
+                foreach (var destination in _destinationHolder.SortedActiveDestinations)
                 {
                     selectList.AddItem(destination.Description, destination, _coreConfiguration.OutputDestinations.Contains(destination.Designation));
                 }

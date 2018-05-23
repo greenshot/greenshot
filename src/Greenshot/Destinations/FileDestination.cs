@@ -28,7 +28,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -41,12 +42,18 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of FileSaveAsDestination.
     /// </summary>
-    [Destination("FileNoDialog", 0)]
+    [Destination("FileNoDialog", DestinationOrder.FileNoDialog)]
     public class FileDestination : AbstractDestination
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
+	    public FileDestination(
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	    {
+	    }
+
+	    public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 

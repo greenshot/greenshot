@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,16 +43,14 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action registers the hotkeys
     /// </summary>
-    [UiStartupAction(StartupOrder = (int)GreenshotUiStartupOrder.Hotkeys), ShutdownAction(ShutdownOrder = int.MinValue)]
-    [Export]
-    public class HotkeyHandler : IUiStartupAction, IUiShutdownAction
+    [ServiceOrder(GreenshotUiStartupOrder.Hotkeys, int.MinValue)]
+    public class HotkeyHandler : IUiStartup, IUiShutdown
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly WindowHandle _windowHandle;
         private static HotkeyHandler _instance;
 
-        [ImportingConstructor]
         public HotkeyHandler(ICoreConfiguration coreConfiguration, WindowHandle windowHandle)
         {
             _instance = this;

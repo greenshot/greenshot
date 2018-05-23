@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -35,19 +34,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Dapplo.Addons.Bootstrapper.Resolving;
-using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.Listener;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
@@ -61,6 +59,7 @@ namespace Greenshot.Addon.Flickr
 	    private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
         private readonly IFlickrConfiguration _flickrConfiguration;
 	    private readonly IFlickrLanguage _flickrLanguage;
+	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private const string FlickrFarmUrl = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
@@ -75,14 +74,20 @@ namespace Greenshot.Addon.Flickr
 	        }
 	    });
 
-        [ImportingConstructor]
-        public FlickrDestination(IFlickrConfiguration flickrConfiguration,
-            IFlickrLanguage flickrLanguage, INetworkConfiguration networkConfiguration)
-	    {
+        public FlickrDestination(
+            IFlickrConfiguration flickrConfiguration,
+            IFlickrLanguage flickrLanguage,
+            INetworkConfiguration networkConfiguration,
+            IResourceProvider resourceProvider,
+            ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	    ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;
+	        _resourceProvider = resourceProvider;
 
-            _oAuthSettings = new OAuth1Settings
+	        _oAuthSettings = new OAuth1Settings
 	        {
 	            Token = flickrConfiguration,
 	            ClientId = flickrConfiguration.ClientId,
@@ -116,9 +121,8 @@ namespace Greenshot.Addon.Flickr
 		{
 			get
 			{
-			    // TODO: Optimize this
-			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*flickr\.png").FirstOrDefault();
-			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+                // TODO: Optimize this by caching
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "flickr.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }
@@ -174,7 +178,7 @@ namespace Greenshot.Addon.Flickr
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
-	            MessageBox.Show(_flickrLanguage.UploadFailure + " " + e.Message);
+	            MessageBox.Show(_flickrLanguage.UploadFailure + @" " + e.Message);
 	        }
 	        return uploadUrl;
 	    }

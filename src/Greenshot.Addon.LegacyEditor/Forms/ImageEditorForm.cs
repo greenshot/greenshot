@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -33,6 +32,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
@@ -46,7 +46,7 @@ using Greenshot.Addon.LegacyEditor.Controls;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -63,15 +63,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms
     /// <summary>
     ///     Description of ImageEditorForm.
     /// </summary>
-    [Export]
     public partial class ImageEditorForm : BaseForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
         private static readonly List<string> IgnoreDestinations = new List<string> { "Picker", "Editor"};
+        private static readonly string[] SupportedClipboardFormats = { typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName };
         private readonly IEditorConfiguration _editorConfiguration;
         private readonly IEditorLanguage _editorLanguage;
-
-        private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
@@ -82,20 +80,29 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
         private readonly EditorFactory _editorFactory;
+        private readonly DestinationHolder _destinationHolder;
+        private readonly Func<ResizeEffect, Owned<ResizeSettingsForm>> _resizeSettingsFormFactory;
+        private readonly Func<TornEdgeEffect, Owned<TornEdgeSettingsForm>> _tornEdgeSettingsFormFactory;
+        private readonly Func<DropShadowEffect, Owned<DropShadowSettingsForm>> _dropShadowSettingsFormFactory;
         private CompositeDisposable _disposables;
 
-        [ImportMany(AllowRecomposition = true)]
-        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations;
-
-        [ImportingConstructor]
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
             IEditorLanguage editorLanguage,
-            EditorFactory editorFactory)
+            EditorFactory editorFactory,
+            DestinationHolder destinationHolder,
+            Func<ResizeEffect, Owned<ResizeSettingsForm>> resizeSettingsFormFactory,
+            Func<TornEdgeEffect, Owned<TornEdgeSettingsForm>> tornEdgeSettingsFormFactory,
+            Func<DropShadowEffect, Owned<DropShadowSettingsForm>> dropShadowSettingsFormFactory
+            )
         {
             _editorConfiguration = editorConfiguration;
             _editorLanguage = editorLanguage;
             _editorFactory = editorFactory;
+            _destinationHolder = destinationHolder;
+            _resizeSettingsFormFactory = resizeSettingsFormFactory;
+            _tornEdgeSettingsFormFactory = tornEdgeSettingsFormFactory;
+            _dropShadowSettingsFormFactory = dropShadowSettingsFormFactory;
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -381,7 +388,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             await Task.Run(() =>
             {
                 // Create export buttons 
-                foreach (var destination in _destinations
+                foreach (var destination in _destinationHolder.AllDestinations
                     .Where(destination => destination.Metadata.Priority > 2 && !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
                     .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
                     .Select(d => d.Value))
@@ -522,7 +529,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             ClearItems(fileStripMenuItem.DropDownItems);
 
             // Add the destinations
-            foreach (var destination in _destinations
+            foreach (var destination in _destinationHolder.AllDestinations
                 .Where(destination => !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
                 .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
                 .Select(d => d.Value))
@@ -1082,8 +1089,11 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     apply = true;
                     break;
                 case MouseButtons.Right:
-                    var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-                    apply = result == DialogResult.OK;
+                    using (var dropShadowSettingsForm = _dropShadowSettingsFormFactory(dropShadowEffect))
+                    {
+                        var result = dropShadowSettingsForm.Value.ShowDialog(this);
+                        apply = result == DialogResult.OK;
+                    }
                     break;
                 default:
                     return;
@@ -1100,16 +1110,19 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         /// <summary>
         ///     Open the resize settings from, and resize if ok was pressed
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">object</param>
+        /// <param name="e">EventArgs</param>
         private void BtnResizeClick(object sender, EventArgs e)
         {
             var resizeEffect = new ResizeEffect(_surface.Screenshot.Width, _surface.Screenshot.Height, true);
-            var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
-            if (result == DialogResult.OK)
+            using (var resizeSettingsForm = _resizeSettingsFormFactory(resizeEffect))
             {
-                _surface.ApplyBitmapEffect(resizeEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                var result = resizeSettingsForm.Value.ShowDialog(this);
+                if (result == DialogResult.OK)
+                {
+                    _surface.ApplyBitmapEffect(resizeEffect);
+                    UpdateUndoRedoSurfaceDependencies();
+                }
             }
         }
 
@@ -1128,8 +1141,11 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     apply = true;
                     break;
                 case MouseButtons.Right:
-                    var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-                    apply = result == DialogResult.OK;
+                    using (var ownedForm = _tornEdgeSettingsFormFactory(tornEdgeEffect))
+                    {
+                        var result = ownedForm.Value.ShowDialog(this);
+                        apply = result == DialogResult.OK;
+                    }                    
                     break;
                 default:
                     return;
@@ -1242,12 +1258,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 destinationDesignation = "FileDialog";
             }
-            _destinations.Find(destinationDesignation)?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+            _destinationHolder.AllDestinations.Find(destinationDesignation)?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            _destinations.Find("Clipboard")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+            _destinationHolder.AllDestinations.Find("Clipboard")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
@@ -1255,7 +1271,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             // The BeginInvoke is a solution for the printdialog not having focus
             BeginInvoke((MethodInvoker) delegate
             {
-                _destinations.Find("Printer")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+                _destinationHolder.AllDestinations.Find("Printer")?.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
             });
         }
 
@@ -1711,9 +1727,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             // Go through the destinations to check the EditorShortcut Keys
             // this way the menu entries don't need to be enabled.
             // This also fixes bugs #3526974 & #3527020
-            foreach (var destination in _destinations.Where(destination => destination.Value.IsActive)
-                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
-                .Select(d => d.Value))
+            foreach (var destination in _destinationHolder.SortedActiveDestinations)
             {
                 if (destination.EditorShortcutKeys != keys)
                 {

@@ -22,7 +22,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -32,7 +31,6 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Flickr.ViewModels
 {
-    [Export(typeof(IConfigScreen))]
     public sealed class FlickrConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -40,14 +38,21 @@ namespace Greenshot.Addon.Flickr.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        [Import]
-        public IFlickrConfiguration FlickrConfiguration { get; set; }
+        public IFlickrConfiguration FlickrConfiguration { get; }
+        
+        public IFlickrLanguage FlickrLanguage { get; }
+        
+        public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
-        [Import]
-        public IFlickrLanguage FlickrLanguage { get; set; }
-
-        [Import]
-        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public FlickrConfigViewModel(
+            IFlickrConfiguration flickrConfiguration,
+            IFlickrLanguage flickrLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel)
+        {
+            FlickrConfiguration = flickrConfiguration;
+            FlickrLanguage = flickrLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+        }
 
         public override void Initialize(IConfig config)
         {

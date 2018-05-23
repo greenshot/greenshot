@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,37 +21,29 @@
 
 #endregion
 
-#region Usings
+using Autofac;
+using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Configuration;
+using Greenshot.Addon.GooglePhotos.ViewModels;
+using Greenshot.Addons.Components;
 
-using System;
-using System.Collections.Generic;
-using Greenshot.Addons.Addons;
-
-#endregion
-
-namespace Greenshot.Addons.Interfaces.Plugin
+namespace Greenshot.Addon.GooglePhotos
 {
-	public interface IGreenshotPlugin : IDisposable
-	{
-		/// <summary>
-		///     Is called after the plugin is instanciated
-		/// </summary>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		bool Initialize();
+    /// <inheritdoc />
+    public class GooglePhotosAddonModule : AddonModule
+    {
+        protected override void Load(ContainerBuilder builder)
+        {
+            builder
+                .RegisterType<GooglePhotosDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+            builder
+                .RegisterType<GooglePhotosConfigViewModel>()
+                .As<IConfigScreen>()
+                .SingleInstance();
 
-		/// <summary>
-		///     Unload of the plugin
-		/// </summary>
-		void Shutdown();
-
-		/// <summary>
-		///     Return IDestination's, if the plugin wants to
-		/// </summary>
-		IEnumerable<IDestination> Destinations();
-
-		/// <summary>
-		///     Return IProcessor's, if the plugin wants to
-		/// </summary>
-		IEnumerable<IProcessor> Processors();
-	}
+            base.Load(builder);
+        }
+    }
 }

@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -36,7 +35,7 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.DesktopWindowsManager;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -53,22 +52,20 @@ namespace Greenshot.Forms
 	/// <summary>
 	///     Description of SettingsForm.
 	/// </summary>
-	[Export]
 	public partial class SettingsForm : BaseForm
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly DestinationHolder _destinationHolder;
+	    private static readonly LogSource Log = new LogSource();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private int _daysbetweencheckPreviousValue;
 		private bool _inHotkey;
 
-	    [ImportMany(AllowRecomposition = true)]
-	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
-
-        public SettingsForm()
-		{
-			// Make sure the store isn't called to early, that's why we do it manually
+        public SettingsForm(DestinationHolder destinationHolder)
+        {
+            _destinationHolder = destinationHolder;
+            // Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
-		}
+        }
 
 	    public void Initialize()
 	    {
@@ -374,9 +371,7 @@ namespace Greenshot.Forms
 			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			var imageNr = -1;
-			foreach (var currentDestination in _destinations.Where(d => d.Value.IsActive)
-			    .OrderBy(destination => destination.Metadata.Priority).ThenBy(d => d.Value.Description)
-			    .Select(d => d.Value))
+			foreach (var currentDestination in _destinationHolder.SortedActiveDestinations)
 			{
 				var destinationImage = currentDestination.GetDisplayIcon(DpiHandler.Dpi);
 				if (destinationImage != null)

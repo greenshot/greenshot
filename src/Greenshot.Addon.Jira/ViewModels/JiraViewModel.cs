@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows;
@@ -33,22 +32,30 @@ using Dapplo.Jira.Entities;
 
 namespace Greenshot.Addon.Jira.ViewModels
 {
-    [Export]
     public sealed class JiraViewModel : Screen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
+        
+        public IJiraConfiguration JiraConfiguration { get; }
 
-        [Import]
-        public IJiraConfiguration JiraConfiguration { get; set; }
+        public IJiraLanguage JiraLanguage { get; }
 
-        [Import]
-        public IJiraLanguage JiraLanguage { get; set; }
+        public JiraConnector JiraConnector { get; }
 
-        [Import]
-        public JiraConnector JiraConnector { get; set; }
+
+        public JiraViewModel(
+            IJiraConfiguration jiraConfiguration,
+            IJiraLanguage jiraLanguage,
+            JiraConnector jiraConnector
+            )
+        {
+            JiraConfiguration = jiraConfiguration;
+            JiraLanguage = jiraLanguage;
+            JiraConnector = jiraConnector;
+        }
 
         public IList<Filter> Filters { get; private set; }
 

@@ -28,11 +28,11 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.OfficeInterop;
-using Greenshot.Addons.Addons;
+using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -44,24 +44,29 @@ namespace Greenshot.Addon.Office.Destinations
     /// <summary>
     ///     Description of OutlookDestination.
     /// </summary>
-    [Destination("Outlook", 3)]
+    [Destination("Outlook", DestinationOrder.Outlook)]
     public class OutlookDestination : AbstractDestination
 	{
-		private const int IconApplication = 0;
+	    private const int IconApplication = 0;
 		private const int IconMeeting = 2;
 		private const string MapiClient = "Microsoft Outlook";
 		private static readonly LogSource Log = new LogSource();
 
+	    private readonly IOfficeConfiguration _officeConfiguration;
 		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
-		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
 		private readonly string _exePath;
 		private readonly bool _isActiveFlag;
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
 
-		public OutlookDestination()
-		{
-		    if (EmailConfigHelper.HasOutlook())
+		public OutlookDestination(
+            IOfficeConfiguration officeConfiguration,
+		    ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : base(coreConfiguration, greenshotLanguage)
+        {
+            _officeConfiguration = officeConfiguration;
+            if (EmailConfigHelper.HasOutlook())
 		    {
 		        _isActiveFlag = true;
 		    }
@@ -76,7 +81,13 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-	    public OutlookDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) : this()
+	    protected OutlookDestination(
+	        string outlookInspectorCaption,
+	        OlObjectClass outlookInspectorType,
+            IOfficeConfiguration officeConfiguration,
+	        ICoreConfiguration coreConfiguration,
+	        IGreenshotLanguage greenshotLanguage
+	        ) : this(officeConfiguration, coreConfiguration, greenshotLanguage)
 		{
             _outlookInspectorCaption = outlookInspectorCaption;
 			_outlookInspectorType = outlookInspectorType;
@@ -113,7 +124,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			foreach (var inspectorCaption in inspectorCaptions.Keys)
 			{
-				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
+				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage);
 			}
 		}
 
@@ -166,11 +177,11 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						var destinations = new List<IDestination>
 						{
-							new OutlookDestination()
+							new OutlookDestination(_officeConfiguration, CoreConfiguration, GreenshotLanguage)
 						};
 						foreach (var inspectorCaption in inspectorCaptions.Keys)
 						{
-							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
+							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
@@ -178,9 +189,9 @@ namespace Greenshot.Addon.Office.Destinations
 				}
 				else
 				{
-					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-						FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
-						OfficeConfig.EmailBCC, null);
+					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(_officeConfiguration.OutlookEmailFormat, tmpFile,
+						FilenameHelper.FillPattern(_officeConfiguration.EmailSubjectPattern, captureDetails, false), attachmentName, _officeConfiguration.EmailTo, _officeConfiguration.EmailCC,
+					    _officeConfiguration.EmailBCC, null);
 				}
 			}
 			ProcessExport(exportInformation, surface);
