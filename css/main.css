@@ -30,6 +30,10 @@
 				font-weight: normal;
 			}
 			
+			h3 {
+				color: #6cb711;
+			}
+			
 			a {
 				color:#000;
 			}
@@ -114,10 +118,10 @@
 				padding-right:200px;
 				text-align: right;
 				font-size:12px;
-				color:#999;
+				color:#666;
 			}
 			.servicelinks a {
-				color:#666;
+				color:#999;
 			}
 
                         /* blog prev/next */
