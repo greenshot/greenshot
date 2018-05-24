@@ -7,8 +7,6 @@ categories: []
 comments: []
 tags: []
 ---
-# Privacy Policy
-
 First of all: We, the Greenshot development team, are not interested in your data. We do neither collect, store, process nor sell any personal data from our users.
 That said: as a small group of developers who are running this free software project in their spare time, of course we depend on third party services e.g. to run this website, manage our codebase or receive donations. Depending on your usage of these services (like anything else you visit or use on the internet), those parties can collect data about you.
 
