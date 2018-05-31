@@ -84,7 +84,7 @@ namespace Greenshot.Destinations
 			}
 			if (CoreConfiguration.OutputFilePromptQuality)
 			{
-				var qualityDialog = new QualityDialog(outputSettings);
+				var qualityDialog = new QualityDialog(outputSettings, CoreConfiguration, GreenshotLanguage);
 				qualityDialog.ShowDialog();
 			}
 

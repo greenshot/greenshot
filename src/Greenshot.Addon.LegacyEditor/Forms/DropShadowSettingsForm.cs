@@ -26,6 +26,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Gfx.Effects;
 
@@ -33,11 +34,11 @@ using Greenshot.Gfx.Effects;
 
 namespace Greenshot.Addon.LegacyEditor.Forms
 {
-	public partial class DropShadowSettingsForm : BaseForm
+	public partial class DropShadowSettingsForm : GreenshotForm
 	{
 		private readonly DropShadowEffect _effect;
 
-		public DropShadowSettingsForm(DropShadowEffect effect)
+		public DropShadowSettingsForm(DropShadowEffect effect, IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
 			_effect = effect;
 			InitializeComponent();

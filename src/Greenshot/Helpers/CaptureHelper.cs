@@ -1100,7 +1100,7 @@ namespace Greenshot.Helpers
             //	}
             //}
 
-            using (var captureForm = new CaptureForm(_capture, _windows))
+            using (var captureForm = new CaptureForm(CoreConfig, _capture, _windows))
             {
                 // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
                 DialogResult result;

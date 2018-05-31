@@ -36,6 +36,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Controls;
@@ -137,7 +138,8 @@ namespace Greenshot.Addons.Core
 						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
 						if (CoreConfig.OutputFilePromptQuality)
 						{
-							var qualityDialog = new QualityDialog(outputSettings);
+                            // TODO: Resolve
+							var qualityDialog = new QualityDialog(outputSettings, CoreConfig, LanguageLoader.Current.Get<IGreenshotLanguage>());
 							qualityDialog.ShowDialog();
 						}
 						// TODO: For now we always overwrite, should be changed

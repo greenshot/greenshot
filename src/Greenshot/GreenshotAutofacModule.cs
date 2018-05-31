@@ -70,11 +70,6 @@ namespace Greenshot
                 .RegisterType<AboutForm>()
                 .AsSelf();
 
-            // TODO: Should be removed
-            builder
-                .RegisterType<SettingsForm>()
-                .AsSelf();
-
             // Configuration
             builder
                 .RegisterAssemblyTypes(ThisAssembly)

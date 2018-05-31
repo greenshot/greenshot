@@ -49,6 +49,7 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
+using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -68,7 +69,7 @@ namespace Greenshot.Forms
     /// <summary>
     ///     Description of MainForm.
     /// </summary>
-    public partial class MainForm : BaseForm
+    public partial class MainForm : GreenshotForm
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
@@ -77,8 +78,6 @@ namespace Greenshot.Forms
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
-        // Make sure we have only one settings form
-        private readonly Func<Owned<SettingsForm>> _settingsFormFactory;
         private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
         private readonly DestinationHolder _destinationHolder;
@@ -89,15 +88,14 @@ namespace Greenshot.Forms
 
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
+            IGreenshotLanguage greenshotLanguage,
             ConfigViewModel configViewModel,
-            Func<Owned<SettingsForm>> settingsFormFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
-            DestinationHolder destinationHolder)
+            DestinationHolder destinationHolder) : base(greenshotLanguage)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
             _configViewModel = configViewModel;
-            _settingsFormFactory = settingsFormFactory;
             _aboutFormFactory = aboutFormFactory;
             _destinationHolder = destinationHolder;
             Instance = this;
@@ -394,7 +392,7 @@ namespace Greenshot.Forms
                 {
                     case DpiChangeEventTypes.Before:
                         // Change the ImageScalingSize before setting the bitmaps
-                        var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, info.NewDpi);
+                        var width = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, info.NewDpi);
                         var size = new Size(width, width);
                         contextMenu.SuspendLayout();
                         contextMenu.ImageScalingSize = size;
@@ -489,7 +487,7 @@ namespace Greenshot.Forms
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
-            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
+            contextmenu_capturelastregion.Enabled = _coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // IE context menu code
             try
@@ -848,15 +846,7 @@ namespace Greenshot.Forms
             {
                 _windowManager.ShowDialog(_configViewModel);
             }
-
-            using (var settingsForm = _settingsFormFactory())
-            {
-                settingsForm.Value.Initialize();
-                if (settingsForm.Value.ShowDialog() == DialogResult.OK)
-                {
-                    InitializeQuickSettingsMenu();
-                }
-            }
+            InitializeQuickSettingsMenu();
         }
 
         /// <summary>

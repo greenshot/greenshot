@@ -30,6 +30,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 
 #endregion
@@ -39,7 +40,7 @@ namespace Greenshot.Addon.ExternalCommand
 	/// <summary>
 	///     Description of SettingsFormDetail.
 	/// </summary>
-	public partial class SettingsFormDetail : ExternalCommandForm
+	public partial class SettingsFormDetail : GreenshotForm
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfig.Current.Get<IExternalCommandConfiguration>();
@@ -47,7 +48,7 @@ namespace Greenshot.Addon.ExternalCommand
 
 		private readonly string _commando;
 
-		public SettingsFormDetail(string commando)
+		public SettingsFormDetail(string commando, IExternalCommandLanguage externalCommandLanguage): base(externalCommandLanguage)
 		{
 			InitializeComponent();
 			AcceptButton = buttonOk;

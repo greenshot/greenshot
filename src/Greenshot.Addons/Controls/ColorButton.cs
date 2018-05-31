@@ -28,6 +28,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 
 #endregion
 
@@ -38,11 +39,13 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class ColorButton : Button, IGreenshotLanguageBindable
 	{
-		private Color _selectedColor = Color.White;
+	    private readonly Func<Owned<ColorDialog>> _colorDialogFactory;
+	    private Color _selectedColor = Color.White;
 
-		public ColorButton()
+		public ColorButton(Func<Owned<ColorDialog>> colorDialogFactory)
 		{
-			Click += ColorButtonClick;
+		    _colorDialogFactory = colorDialogFactory;
+		    Click += ColorButtonClick;
 		}
 
 		/// <summary>
@@ -82,22 +85,23 @@ namespace Greenshot.Addons.Controls
 
 		private void ColorButtonClick(object sender, EventArgs e)
 		{
-			var colorDialog = new ColorDialog
-			{
-				Color = SelectedColor
-			};
-			// Using the parent to make sure the dialog doesn't show on another window
-			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult == DialogResult.Cancel)
-			{
-				return;
-			}
-			if (colorDialog.Color.Equals(SelectedColor))
-			{
-				return;
-			}
-			SelectedColor = colorDialog.Color;
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
+            using (var ownedColorDialog = _colorDialogFactory())
+            {
+                var colorDialog = ownedColorDialog.Value;
+                colorDialog.Color = SelectedColor;
+                // Using the parent to make sure the dialog doesn't show on another window
+                colorDialog.ShowDialog(Parent.Parent);
+                if (colorDialog.DialogResult == DialogResult.Cancel)
+                {
+                    return;
+                }
+                if (colorDialog.Color.Equals(SelectedColor))
+                {
+                    return;
+                }
+                SelectedColor = colorDialog.Color;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
+            };
 		}
 	}
 }

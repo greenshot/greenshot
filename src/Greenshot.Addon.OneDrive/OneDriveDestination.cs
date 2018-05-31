@@ -113,7 +113,7 @@ namespace Greenshot.Addon.OneDrive
             get
             {
                 // TODO: Optimize this by caching
-                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "onedrive.png"))
+                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "onedrive.png"))
                 {
                     return BitmapHelper.FromStream(bitmapStream);
                 }

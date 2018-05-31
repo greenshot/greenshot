@@ -38,7 +38,7 @@ namespace Greenshot.Addons.Controls
 	/// <summary>
 	///     Description of ColorDialog.
 	/// </summary>
-	public partial class ColorDialog : BaseForm
+	public partial class ColorDialog : GreenshotForm
 	{
 
 		private readonly IList<Button> _colorButtons = new List<Button>();
@@ -46,7 +46,7 @@ namespace Greenshot.Addons.Controls
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress;
 
-		public ColorDialog()
+		public ColorDialog(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
 			SuspendLayout();
 			InitializeComponent();

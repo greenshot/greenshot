@@ -34,7 +34,6 @@ using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -57,14 +56,14 @@ namespace Greenshot.Forms
     public sealed partial class CaptureForm : AnimatingForm
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
         private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
         private static readonly Brush ScrollingOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.GreenYellow));
         private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
-        private static CaptureForm _currentForm;
+
+        private readonly ICoreConfiguration _coreConfiguration;
         private static readonly Brush BackgroundBrush;
         private readonly ICapture _capture;
-        private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
+        private readonly bool _isZoomerTransparent;
         private readonly IList<IInteropWindow> _windows;
         private NativeRect _captureRect = NativeRect.Empty;
         private NativePoint _cursorPos;
@@ -93,24 +92,18 @@ namespace Greenshot.Forms
         /// <summary>
         ///     This creates the capture form
         /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="capture">ICapture</param>
         /// <param name="windows">IList of IInteropWindow</param>
-        public CaptureForm(ICapture capture, IList<IInteropWindow> windows)
+        public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows) : base(coreConfiguration, null)
         {
-            if (_currentForm != null)
-            {
-                Log.Warn().WriteLine("Found currentForm, Closing already opened CaptureForm");
-                _currentForm.Close();
-                _currentForm = null;
-                Application.DoEvents();
-            }
-            _currentForm = this;
+            _coreConfiguration = coreConfiguration;
+            _isZoomerTransparent = _coreConfiguration.ZoomerOpacity < 1;
+            ManualLanguageApply = true;
+            ManualStoreFields = true;
 
             // Enable the AnimatingForm
             EnableAnimation = true;
-
-            // clean up
-            FormClosed += ClosedHandler;
 
             _capture = capture;
             _windows = windows;
@@ -136,7 +129,7 @@ namespace Greenshot.Forms
             }
 
             // Set the zoomer animation
-            InitializeZoomer(Conf.ZoomerEnabled);
+            InitializeZoomer(_coreConfiguration.ZoomerEnabled);
 
             SuspendLayout();
             Bounds = capture.ScreenBounds;
@@ -179,12 +172,6 @@ namespace Greenshot.Forms
                 createParams.ExStyle |= 0x02000000;
                 return createParams;
             }
-        }
-
-        private void ClosedHandler(object sender, EventArgs e)
-        {
-            Log.Debug().WriteLine("Remove CaptureForm from currentForm");
-            _currentForm = null;
         }
 
         private void ClosingHandler(object sender, EventArgs e)
@@ -293,8 +280,8 @@ namespace Greenshot.Forms
                     if (UsedCaptureMode == CaptureMode.Region)
                     {
                         // Toggle zoom
-                        Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
-                        InitializeZoomer(Conf.ZoomerEnabled);
+                        _coreConfiguration.ZoomerEnabled = !_coreConfiguration.ZoomerEnabled;
+                        InitializeZoomer(_coreConfiguration.ZoomerEnabled);
                         Invalidate();
                     }
                     break;
@@ -326,7 +313,7 @@ namespace Greenshot.Forms
                             // "Fade out" window
                             _windowAnimator.ChangeDestination(new NativeRect(_cursorPos, NativeSize.Empty), FramesForMillis(700));
                             // Fade in zoom
-                            InitializeZoomer(Conf.ZoomerEnabled);
+                            InitializeZoomer(_coreConfiguration.ZoomerEnabled);
                             _captureRect = Rectangle.Empty;
                             Invalidate();
                             break;
@@ -574,7 +561,7 @@ namespace Greenshot.Forms
                 if (UsedCaptureMode == CaptureMode.Window)
                 {
                     // Recreate the WindowScroller, if this is enabled, so we can detect if we can scroll
-                    if (Conf.IsScrollingCaptureEnabled)
+                    if (_coreConfiguration.IsScrollingCaptureEnabled)
                     {
                         WindowScroller = SelectedCaptureWindow.GetWindowScroller(ScrollBarTypes.Vertical);
                         if (WindowScroller == null)
@@ -702,7 +689,7 @@ namespace Greenshot.Forms
                 invalidateRectangle = _zoomAnimator.Current.Offset(lastPos);
                 Invalidate(invalidateRectangle);
                 // Only verify if we are really showing the zoom, not the outgoing animation
-                if (Conf.ZoomerEnabled && UsedCaptureMode != CaptureMode.Window)
+                if (_coreConfiguration.ZoomerEnabled && UsedCaptureMode != CaptureMode.Window)
                 {
                     VerifyZoomAnimation(_cursorPos, false);
                 }
@@ -799,7 +786,7 @@ namespace Greenshot.Forms
                 //create a color matrix object to change the opacy
                 var opacyMatrix = new ColorMatrix
                 {
-                    Matrix33 = Conf.ZoomerOpacity
+                    Matrix33 = _coreConfiguration.ZoomerOpacity
                 };
                 attributes = new ImageAttributes();
                 attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
@@ -829,7 +816,7 @@ namespace Greenshot.Forms
                         attributes);
                 }
             }
-            var alpha = (int) (255 * Conf.ZoomerOpacity);
+            var alpha = (int) (255 * _coreConfiguration.ZoomerOpacity);
             var opacyWhite = Color.FromArgb(alpha, 255, 255, 255);
             var opacyBlack = Color.FromArgb(alpha, 0, 0, 0);
 

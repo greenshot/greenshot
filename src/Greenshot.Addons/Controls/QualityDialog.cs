@@ -38,11 +38,15 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm
 	{
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private readonly ICoreConfiguration _coreConfiguration;
 
-		public QualityDialog(SurfaceOutputSettings outputSettings)
+		public QualityDialog(
+		    SurfaceOutputSettings outputSettings,
+            ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
-			Settings = outputSettings;
+		    _coreConfiguration = coreConfiguration;
+            Settings = outputSettings;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -67,9 +71,9 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    conf.OutputFileJpegQuality = Settings.JPGQuality;
-		    conf.OutputFilePromptQuality = false;
-		    conf.OutputFileReduceColors = Settings.ReduceColors;
+		    _coreConfiguration.OutputFileJpegQuality = Settings.JPGQuality;
+		    _coreConfiguration.OutputFilePromptQuality = false;
+		    _coreConfiguration.OutputFileReduceColors = Settings.ReduceColors;
 		}
 
 		private void TrackBarJpegQualityScroll(object sender, EventArgs e)

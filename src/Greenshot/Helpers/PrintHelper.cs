@@ -28,10 +28,10 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
@@ -50,19 +50,27 @@ namespace Greenshot.Helpers
 	public class PrintHelper : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-		private readonly ICaptureDetails _captureDetails;
+		private readonly ICoreConfiguration _coreConfig;
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly ICaptureDetails _captureDetails;
 		private PrintDialog _printDialog = new PrintDialog();
 		private PrintDocument _printDocument = new PrintDocument();
 
 		private ISurface _surface;
 
-		public PrintHelper(ISurface surface, ICaptureDetails captureDetails)
+		public PrintHelper(
+		    ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+		    ISurface surface,
+		    ICaptureDetails captureDetails)
 		{
-			_surface = surface;
+		    _coreConfig = coreConfiguration;
+		    _greenshotLanguage = greenshotLanguage;
+
+		    _surface = surface;
 			_captureDetails = captureDetails;
 			_printDialog.UseEXDialog = true;
-			_printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
+			_printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, captureDetails);
 			_printDocument.PrintPage += DrawImageForPrint;
 			_printDialog.Document = _printDocument;
 		}
@@ -168,7 +176,7 @@ namespace Greenshot.Helpers
 
 		private bool IsColorPrint()
 		{
-			return !CoreConfig.OutputPrintGrayscale && !CoreConfig.OutputPrintMonochrome;
+			return !_coreConfig.OutputPrintGrayscale && !_coreConfig.OutputPrintMonochrome;
 		}
 
 		/// <summary>
@@ -177,15 +185,15 @@ namespace Greenshot.Helpers
 		/// <returns>result of the print dialog, or null if the dialog has not been displayed by config</returns>
 		private DialogResult? ShowPrintOptionsDialog()
 		{
-			DialogResult? ret = null;
-			if (CoreConfig.OutputPrintPromptOptions)
-			{
-				using (var printOptionsDialog = new PrintOptionsDialog())
-				{
-					ret = printOptionsDialog.ShowDialog();
-				}
-			}
-			return ret;
+		    if (!_coreConfig.OutputPrintPromptOptions)
+		    {
+		        return null;
+		    }
+
+		    using (var printOptionsDialog = new PrintOptionsDialog(_coreConfig, _greenshotLanguage))
+		    {
+		        return printOptionsDialog.ShowDialog();
+		    }
 		}
 
 		private void DrawImageForPrint(object sender, PrintPageEventArgs e)
@@ -198,15 +206,15 @@ namespace Greenshot.Helpers
 		    var disposeImage = ImageOutput.CreateBitmapFromSurface(_surface, printOutputSettings, out var bitmap);
 			try
 			{
-				var alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
+				var alignment = _coreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
 				// prepare timestamp
 				float footerStringWidth = 0;
 				float footerStringHeight = 0;
 				string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-				if (CoreConfig.OutputPrintFooter)
+				if (_coreConfig.OutputPrintFooter)
 				{
-					footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false);
+					footerString = FilenameHelper.FillPattern(_coreConfig.OutputPrintFooterPattern, _captureDetails, false);
 					using (var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular))
 					{
 						footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
@@ -229,7 +237,7 @@ namespace Greenshot.Helpers
 				var gu = GraphicsUnit.Pixel;
 				var imageRect = bitmap.GetBounds(ref gu);
 				// rotate the image if it fits the page better
-				if (CoreConfig.OutputPrintAllowRotate)
+				if (_coreConfig.OutputPrintAllowRotate)
 				{
 					if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)
 					{
@@ -244,10 +252,10 @@ namespace Greenshot.Helpers
 			    NativeSizeFloat size = imageRect.Size;
 				var printRect = new NativeRect(0, 0, size.Round());
 				// scale the image to fit the page better
-				if (CoreConfig.OutputPrintAllowEnlarge || CoreConfig.OutputPrintAllowShrink)
+				if (_coreConfig.OutputPrintAllowEnlarge || _coreConfig.OutputPrintAllowShrink)
 				{
 					var resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
-					if (CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width)
+					if (_coreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || _coreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width)
 					{
 					    printRect = printRect.Resize(resizedRect.Round());
 					}
@@ -255,7 +263,7 @@ namespace Greenshot.Helpers
 
 				// align the image
 				printRect = ScaleHelper.GetAlignedRectangle(printRect, new NativeRect(0, 0, new NativeSizeFloat(pageRect.Width, pageRect.Height).Round()), alignment).Round();
-				if (CoreConfig.OutputPrintFooter)
+				if (_coreConfig.OutputPrintFooter)
 				{
 					//printRect = new NativeRect(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
 					using (var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular))
@@ -278,15 +286,15 @@ namespace Greenshot.Helpers
 		{
 			// TODO:
 			// add effects here
-			if (CoreConfig.OutputPrintMonochrome)
+			if (_coreConfig.OutputPrintMonochrome)
 			{
-				var threshold = CoreConfig.OutputPrintMonochromeThreshold;
+				var threshold = _coreConfig.OutputPrintMonochromeThreshold;
 				printOutputSettings.Effects.Add(new MonochromeEffect(threshold));
 				printOutputSettings.ReduceColors = true;
 			}
 
 			// the invert effect should probably be the last
-			if (CoreConfig.OutputPrintInverted)
+			if (_coreConfig.OutputPrintInverted)
 			{
 				printOutputSettings.Effects.Add(new InvertEffect());
 			}

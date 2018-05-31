@@ -46,6 +46,7 @@ using Greenshot.Addon.LegacyEditor.Controls;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding;
+using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -63,13 +64,15 @@ namespace Greenshot.Addon.LegacyEditor.Forms
     /// <summary>
     ///     Description of ImageEditorForm.
     /// </summary>
-    public partial class ImageEditorForm : BaseForm, IImageEditor
+    public partial class ImageEditorForm : GreenshotForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
         private static readonly List<string> IgnoreDestinations = new List<string> { "Picker", "Editor"};
         private static readonly string[] SupportedClipboardFormats = { typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName };
         private readonly IEditorConfiguration _editorConfiguration;
         private readonly IEditorLanguage _editorLanguage;
+        private readonly ICoreConfiguration _coreConfiguration;
+        private readonly IGreenshotLanguage _greenshotLanguage;
 
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
@@ -89,15 +92,19 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
             IEditorLanguage editorLanguage,
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
             EditorFactory editorFactory,
             DestinationHolder destinationHolder,
             Func<ResizeEffect, Owned<ResizeSettingsForm>> resizeSettingsFormFactory,
             Func<TornEdgeEffect, Owned<TornEdgeSettingsForm>> tornEdgeSettingsFormFactory,
             Func<DropShadowEffect, Owned<DropShadowSettingsForm>> dropShadowSettingsFormFactory
-            )
+            ) : base(editorLanguage)
         {
             _editorConfiguration = editorConfiguration;
             _editorLanguage = editorLanguage;
+            _coreConfiguration = coreConfiguration;
+            _greenshotLanguage = greenshotLanguage;
             _editorFactory = editorFactory;
             _destinationHolder = destinationHolder;
             _resizeSettingsFormFactory = resizeSettingsFormFactory;
@@ -152,7 +159,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 {
                     case DpiChangeEventTypes.Before:
                         // Change the ImageScalingSize before setting the bitmaps
-                        var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, info.NewDpi);
+                        var width = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, info.NewDpi);
                         var size = new Size(width, width);
                         SuspendLayout();
                         toolsToolStrip.ImageScalingSize = size;
@@ -321,10 +328,10 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private void UpdateUi()
         {
             // Disable access to the settings, for feature #3521446
-            preferencesToolStripMenuItem.Visible = !coreConfiguration.DisableSettings;
-            toolStripSeparator12.Visible = !coreConfiguration.DisableSettings;
-            toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
-            btnSettings.Visible = !coreConfiguration.DisableSettings;
+            preferencesToolStripMenuItem.Visible = !_coreConfiguration.DisableSettings;
+            toolStripSeparator12.Visible = !_coreConfiguration.DisableSettings;
+            toolStripSeparator11.Visible = !_coreConfiguration.DisableSettings;
+            btnSettings.Visible = !_coreConfiguration.DisableSettings;
 
             // Make sure Double-buffer is enabled
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
@@ -904,7 +911,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             var saveFileDialog = new SaveFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
+                FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(_coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
             };
             var dialogResult = saveFileDialog.ShowDialog();
             if (!dialogResult.Equals(DialogResult.OK))
@@ -1064,7 +1071,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             NativeRect cropRectangle;
             using (var tmpImage = GetImageForExport())
             {
-                cropRectangle = tmpImage.FindAutoCropRectangle(coreConfiguration.AutoCropDifference);
+                cropRectangle = tmpImage.FindAutoCropRectangle(_coreConfiguration.AutoCropDifference);
             }
             if (!_surface.IsCropPossible(ref cropRectangle))
             {
@@ -1592,7 +1599,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             _surface.Dispose();
 
             GC.Collect();
-            if (coreConfiguration.MinimizeWorkingSetSize)
+            if (_coreConfiguration.MinimizeWorkingSetSize)
             {
                 PsApi.EmptyWorkingSet();
             }

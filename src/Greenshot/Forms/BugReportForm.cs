@@ -26,26 +26,31 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
-using Greenshot.Addons.Core;
-using Greenshot.Configuration;
 
 #endregion
 
 namespace Greenshot.Forms
 {
-	public partial class BugReportForm : BaseForm
+    /// <summary>
+    /// 
+    /// </summary>
+	public partial class BugReportForm : GreenshotForm
 	{
-		private BugReportForm()
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+
+	    private BugReportForm(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
-			//
+		    _greenshotLanguage = greenshotLanguage;
+		    //
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			ToFront = true;
 		}
 
-		public BugReportForm(string bugText) : this()
+		public BugReportForm(string bugText, IGreenshotLanguage greenshotLanguage) : this(greenshotLanguage)
 		{
 			textBoxDescription.Text = bugText;
 		}
@@ -64,7 +69,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception)
 			{
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
+				MessageBox.Show(string.Format(_greenshotLanguage.ErrorOpenlink, link.Text), _greenshotLanguage.Error);
 			}
 		}
 	}

@@ -32,11 +32,13 @@ using System.Drawing.Imaging;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Windows.Forms;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Dapplo.Windows.Dpi;
+using Greenshot.Addons;
 using Greenshot.Addons.Animation;
+using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
 
@@ -47,8 +49,10 @@ namespace Greenshot.Forms
 	/// <summary>
 	///     The about form
 	/// </summary>
-	public sealed partial class AboutForm : AnimatingBaseForm
+	public sealed partial class AboutForm : AnimatingForm
 	{
+	    private readonly IGreenshotLanguage _greenshotlanguage;
+
 	    private static readonly LogSource Log = new LogSource();
 		// Variables are used to define the location of the dots
         private const int w = 13;
@@ -62,6 +66,7 @@ namespace Greenshot.Forms
 		private readonly Color _backColor = Color.FromArgb(61, 61, 61);
 		private readonly ColorAnimator _backgroundAnimation;
 		private readonly IList<Color> _colorFlow = new List<Color>();
+	    private readonly IDisposable _dpiSubscription;
 
 		//     0  1  2  3  4
 		//  5  6
@@ -130,9 +135,10 @@ namespace Greenshot.Forms
 		/// <summary>
 		///     Constructor
 		/// </summary>
-		public AboutForm()
+		public AboutForm(ICoreConfiguration coreConfiguration, IGreenshotLanguage greenshotlanguage) : base(coreConfiguration, greenshotlanguage)
 		{
-			// Make sure our resources are removed again.
+		    _greenshotlanguage = greenshotlanguage;
+		    // Make sure our resources are removed again.
 			Disposed += Cleanup;
 			FormClosing += Cleanup;
 
@@ -146,7 +152,14 @@ namespace Greenshot.Forms
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
 			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor);
 			pictureBox1.Image = _bitmap;
-			var v = Assembly.GetExecutingAssembly().GetName().Version;
+
+		    _dpiSubscription = DpiHandler.OnDpiChangeInfo.Subscribe(info =>
+		        {
+		            pictureBox1.Width = DpiHandler.ScaleWithDpi(90, info.NewDpi);
+		            pictureBox1.Height = DpiHandler.ScaleWithDpi(90, info.NewDpi);
+                });
+
+            var v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
 			lblTitle.Text = $"Greenshot {v.Major}.{v.Minor}.{v.Build} Build {v.Revision}{(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
@@ -216,7 +229,9 @@ namespace Greenshot.Forms
 				_bitmap.Dispose();
 				_bitmap = null;
 			}
-		}
+		    _dpiSubscription.Dispose();
+
+        }
 
 		/// <summary>
 		///     This is called when a link is clicked
@@ -236,7 +251,7 @@ namespace Greenshot.Forms
 		    }
 		    catch (Exception)
 		    {
-		        MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+                MessageBox.Show(string.Format(_greenshotlanguage.ErrorOpenlink, linkLabel.Text), _greenshotlanguage.Error);
 		    }
 		}
 

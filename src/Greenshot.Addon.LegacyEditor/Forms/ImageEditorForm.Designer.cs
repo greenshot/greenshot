@@ -153,8 +153,8 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.areaHighlightMenuItem = new GreenshotToolStripMenuItem();
 			this.grayscaleHighlightMenuItem = new GreenshotToolStripMenuItem();
 			this.magnifyMenuItem = new GreenshotToolStripMenuItem();
-			this.btnFillColor = new ToolStripColorButton();
-			this.btnLineColor = new ToolStripColorButton();
+			this.btnFillColor = new ToolStripColorButton(_greenshotLanguage);
+			this.btnLineColor = new ToolStripColorButton(_greenshotLanguage);
 			this.lineThicknessLabel = new GreenshotToolStripLabel();
 			this.lineThicknessUpDown = new ToolStripNumericUpDown();
 			this.counterLabel = new GreenshotToolStripLabel();

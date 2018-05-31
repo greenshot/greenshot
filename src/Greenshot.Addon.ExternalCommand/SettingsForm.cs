@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Ini;
+using Greenshot.Addons.Controls;
 using Greenshot.Gfx;
 
 #endregion
@@ -37,13 +37,16 @@ namespace Greenshot.Addon.ExternalCommand
 	/// <summary>
 	///     External Command settings form
 	/// </summary>
-	public partial class SettingsForm : ExternalCommandForm
+	public partial class SettingsForm : GreenshotForm
 	{
-		private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfig.Current.Get<IExternalCommandConfiguration>();
+	    private readonly IExternalCommandLanguage _externalCommandLanguage;
+	    private readonly IExternalCommandConfiguration _externalCommandConfiguration;
 		private readonly IList<Image> _images = new List<Image>();
-		public SettingsForm()
+		public SettingsForm(IExternalCommandConfiguration externalCommandConfiguration, IExternalCommandLanguage externalCommandLanguage) : base(externalCommandLanguage)
 		{
-			//
+		    _externalCommandConfiguration = externalCommandConfiguration;
+            _externalCommandLanguage = externalCommandLanguage;
+		    //
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
@@ -59,7 +62,7 @@ namespace Greenshot.Addon.ExternalCommand
 
 		private void ButtonAddClick(object sender, EventArgs e)
 		{
-			var form = new SettingsFormDetail(null);
+			var form = new SettingsFormDetail(null, _externalCommandLanguage);
 			form.ShowDialog();
 
 			UpdateView();
@@ -71,7 +74,7 @@ namespace Greenshot.Addon.ExternalCommand
 			{
 				var commando = item.Tag as string;
 
-				ExternalCommandConfig.Delete(commando);
+				_externalCommandConfiguration.Delete(commando);
 			}
 			UpdateView();
 		}
@@ -90,13 +93,13 @@ namespace Greenshot.Addon.ExternalCommand
 		{
 			listView.Items.Clear();
 			DisposeImages();
-			if (ExternalCommandConfig.Commands != null)
+			if (_externalCommandConfiguration.Commands != null)
 			{
 				listView.ListViewItemSorter = new ListviewComparer();
 				var imageList = new ImageList();
 				listView.SmallImageList = imageList;
 				var imageNr = 0;
-				foreach (var commando in ExternalCommandConfig.Commands)
+				foreach (var commando in _externalCommandConfiguration.Commands)
 				{
 					ListViewItem item;
 					var iconForExe = IconCache.IconForCommand(commando, DpiHandler.Dpi > 100);
@@ -143,7 +146,7 @@ namespace Greenshot.Addon.ExternalCommand
 			}
 			var commando = listView.SelectedItems[0].Tag as string;
 
-			var form = new SettingsFormDetail(commando);
+			var form = new SettingsFormDetail(commando, _externalCommandLanguage);
 			form.ShowDialog();
 
 			UpdateView();

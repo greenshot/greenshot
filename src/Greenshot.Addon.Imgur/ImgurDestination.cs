@@ -80,7 +80,7 @@ namespace Greenshot.Addon.Imgur
 			get
 			{
 			    // TODO: Optimize this, by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Imgur.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Imgur.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

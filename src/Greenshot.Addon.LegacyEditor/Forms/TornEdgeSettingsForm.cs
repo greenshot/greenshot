@@ -26,6 +26,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Gfx.Effects;
 
@@ -33,11 +34,11 @@ using Greenshot.Gfx.Effects;
 
 namespace Greenshot.Addon.LegacyEditor.Forms
 {
-	public partial class TornEdgeSettingsForm : BaseForm
+	public partial class TornEdgeSettingsForm : GreenshotForm
 	{
 		private readonly TornEdgeEffect _effect;
 
-		public TornEdgeSettingsForm(TornEdgeEffect effect)
+		public TornEdgeSettingsForm(TornEdgeEffect effect, IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
 			_effect = effect;
 			InitializeComponent();

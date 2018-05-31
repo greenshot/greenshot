@@ -26,7 +26,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Greenshot.Addons.Core;
+using Dapplo.Language;
 
 #endregion
 
@@ -34,12 +34,14 @@ namespace Greenshot.Addons.Controls
 {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable
 	{
-		private Type _enumType;
+	    private readonly ILanguage _language;
+	    private Type _enumType;
 		private Enum _selectedEnum;
 
-		public GreenshotComboBox()
+		public GreenshotComboBox(ILanguage language)
 		{
-			SelectedIndexChanged += (sender, args) => StoreSelectedEnum();
+		    _language = language;
+		    SelectedIndexChanged += (sender, args) => StoreSelectedEnum();
 		}
 
 		[Category("Greenshot")]
@@ -60,7 +62,16 @@ namespace Greenshot.Addons.Controls
 		    }
 
 		    _selectedEnum = currentValue;
-		    SelectedItem = Language.Translate(currentValue);
+
+		    var key = ToKey(currentValue);
+		    if (_language.Keys().Contains(key))
+		    {
+		        SelectedItem = _language[key];
+		    }
+		    else
+		    {
+		        SelectedItem = currentValue.ToString();
+		    }
 		}
 
 		/// <summary>
@@ -77,9 +88,23 @@ namespace Greenshot.Addons.Controls
 			Items.Clear();
 			foreach (var enumValue in availableValues)
 			{
-				Items.Add(Language.Translate((Enum) enumValue));
+			    var key = ToKey(enumValue);
+			    if (_language.Keys().Contains(key))
+			    {
+			        Items.Add(_language[key]);
+                }
+			    else
+			    {
+			        Items.Add(key);
+                }
 			}
 		}
+
+	    private string ToKey(object enumValue)
+	    {
+	        var typename = enumValue.GetType().Name;
+	        return typename + "." + enumValue;
+        }
 
 		/// <summary>
 		///     Store the selected value internally
@@ -102,12 +127,14 @@ namespace Greenshot.Addons.Controls
 
 			foreach (Enum enumValue in availableValues)
 			{
-			    if (!Language.HasKey(enumTypeName, enumValue))
+			    var key = enumValue.ToString();
+
+                if (!_language.Keys().Contains(key))
 			    {
 			        continue;
 			    }
 
-			    var translation = Language.GetString(enumTypeName,enumValue);
+			    var translation = _language[key];
 			    if (translation.Equals(selectedValue))
 			    {
 			        returnValue = enumValue;

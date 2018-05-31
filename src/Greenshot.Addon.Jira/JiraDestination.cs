@@ -137,7 +137,7 @@ namespace Greenshot.Addon.Jira
 				}
 				if (displayIcon == null)
 				{
-				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "jira.svgz"))
+				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "jira.svgz"))
 				    {
 				        using (var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress))
 				        {

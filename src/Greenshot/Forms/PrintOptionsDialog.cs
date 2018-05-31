@@ -25,7 +25,9 @@
 
 using System;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
 
 #endregion
 
@@ -34,11 +36,17 @@ namespace Greenshot.Forms
 	/// <summary>
 	///     Description of PrintOptionsDialog.
 	/// </summary>
-	public partial class PrintOptionsDialog : BaseForm
+	public partial class PrintOptionsDialog : GreenshotForm
 	{
-		public PrintOptionsDialog()
+	    private readonly ICoreConfiguration _coreConfiguration;
+
+	    public PrintOptionsDialog(
+            ICoreConfiguration coreConfiguration,
+		    IGreenshotLanguage greenshotLanguage
+		    ) : base(greenshotLanguage)
 		{
-			//
+		    _coreConfiguration = coreConfiguration;
+		    //
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
@@ -48,8 +56,8 @@ namespace Greenshot.Forms
 
 		private void Button_okClick(object sender, EventArgs e)
 		{
-			// update config
-			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
+            // update config
+		    _coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			DialogResult = DialogResult.OK;
 		}
 

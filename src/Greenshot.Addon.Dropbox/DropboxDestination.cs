@@ -108,7 +108,7 @@ namespace Greenshot.Addon.Dropbox
 			get
 			{
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Dropbox.gif"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Dropbox.gif"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

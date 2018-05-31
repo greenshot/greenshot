@@ -27,6 +27,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Language;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 
@@ -64,7 +65,7 @@ namespace Greenshot.Forms
 			}
 		}
 
-		protected void FormLoad(object sender, EventArgs e)
+	    private void FormLoad(object sender, EventArgs e)
 		{
 			// Initialize the Language ComboBox
 			comboBoxLanguage.DisplayMember = "Description";
@@ -72,12 +73,14 @@ namespace Greenshot.Forms
 
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			comboBoxLanguage.DataSource = Language.SupportedLanguages;
+			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages;
 
-			if (Language.CurrentLanguage != null)
+		    var currentLanguage = LanguageLoader.Current.CurrentLanguage;
+
+            if (currentLanguage != null)
 			{
-				Log.Debug().WriteLine("Selecting {0}", Language.CurrentLanguage);
-				comboBoxLanguage.SelectedValue = Language.CurrentLanguage;
+				Log.Debug().WriteLine("Selecting {0}", currentLanguage);
+				comboBoxLanguage.SelectedValue = currentLanguage;
 			}
 			else
 			{
@@ -86,13 +89,14 @@ namespace Greenshot.Forms
 
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
-		    if (Language.SupportedLanguages.Count != 1)
+		    if (LanguageLoader.Current.AvailableLanguages.Count != 1)
 		    {
 		        return;
 		    }
 
-		    comboBoxLanguage.SelectedValue = Language.SupportedLanguages.Keys.FirstOrDefault();
-		    Language.CurrentLanguage = SelectedLanguage;
+		    comboBoxLanguage.SelectedValue = LanguageLoader.Current.AvailableLanguages.Keys.FirstOrDefault();
+            // TODO: Check
+		    var ignoreTask = LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
 		    _properOkPressed = true;
 		    Close();
 		}

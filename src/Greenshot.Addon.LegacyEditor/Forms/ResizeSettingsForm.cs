@@ -27,6 +27,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Gfx.Effects;
 
@@ -37,13 +38,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 	/// <summary>
 	///     A form to set the resize settings
 	/// </summary>
-	public partial class ResizeSettingsForm : BaseForm
+	public partial class ResizeSettingsForm : GreenshotForm
 	{
 		private readonly ResizeEffect _effect;
 	    private readonly string _valuePercent;
 		private double _newWidth, _newHeight;
 
-		public ResizeSettingsForm(ResizeEffect effect, IEditorLanguage editorLanguage)
+		public ResizeSettingsForm(ResizeEffect effect, IEditorLanguage editorLanguage, IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
 			_effect = effect;
 		    InitializeComponent();

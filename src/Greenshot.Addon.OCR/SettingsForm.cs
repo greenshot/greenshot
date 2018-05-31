@@ -24,6 +24,7 @@
 #region Usings
 
 using System;
+using Greenshot.Addons.Controls;
 
 #endregion
 
@@ -32,11 +33,11 @@ namespace Greenshot.Addon.OCR
 	/// <summary>
 	///     Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : OcrForm
+	public partial class SettingsForm : GreenshotForm
 	{
 		private readonly IOCRConfiguration config;
 
-		public SettingsForm(string[] languages, IOCRConfiguration config)
+		public SettingsForm(string[] languages, IOcrLanguage ocrLanguage, IOCRConfiguration config) : base(ocrLanguage)
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

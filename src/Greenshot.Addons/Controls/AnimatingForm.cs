@@ -25,10 +25,12 @@
 
 using System;
 using System.Windows.Forms;
+using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
+using Greenshot.Addons.Core;
 
 #endregion
 
@@ -39,7 +41,8 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-		private const int DefaultVerticalRefresh = 60;
+	    private readonly ICoreConfiguration _coreConfiguration;
+	    private const int DefaultVerticalRefresh = 60;
 		private static readonly LogSource Log = new LogSource();
 		private Timer _timer;
 		private int _vRefresh;
@@ -47,9 +50,10 @@ namespace Greenshot.Addons.Controls
 		/// <summary>
 		///     Initialize the animation
 		/// </summary>
-		protected AnimatingForm()
+		protected AnimatingForm(ICoreConfiguration coreConfiguration, ILanguage language) : base(language)
 		{
-            Load += (sender, args) =>
+		    _coreConfiguration = coreConfiguration;
+		    Load += (sender, args) =>
             {
                 DoubleBuffered = true;
                 if (!EnableAnimation)
@@ -102,7 +106,7 @@ namespace Greenshot.Addons.Controls
 		/// <summary>
 		///     Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool IsTerminalServerSession => !coreConfiguration.DisableRDPOptimizing && (coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
+		protected bool IsTerminalServerSession => !_coreConfiguration.DisableRDPOptimizing && (_coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
 
 		/// <summary>
 		///     Calculate the amount of frames that an animation takes

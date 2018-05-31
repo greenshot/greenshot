@@ -66,7 +66,7 @@ namespace Greenshot.Addon.Lutim  {
 		public override Bitmap DisplayIcon {
 			get {
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "Lutim.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Lutim.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

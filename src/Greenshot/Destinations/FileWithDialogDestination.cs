@@ -42,13 +42,16 @@ namespace Greenshot.Destinations
 
     public class FileWithDialogDestination : AbstractDestination
 	{
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+
 	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage
 	    ) : base(coreConfiguration, greenshotLanguage)
 	    {
+	        _greenshotLanguage = greenshotLanguage;
 	    }
 
-        public override string Description => Language.GetString(LangKey.settings_destination_fileas);
+        public override string Description => _greenshotLanguage.SettingsDestinationFileas;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.S;
 

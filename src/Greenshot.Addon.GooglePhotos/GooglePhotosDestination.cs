@@ -101,7 +101,7 @@ namespace Greenshot.Addon.GooglePhotos
 			get
 			{
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "GooglePhotos.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "GooglePhotos.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }
@@ -148,7 +148,7 @@ namespace Greenshot.Addon.GooglePhotos
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
-	            MessageBox.Show(_googlePhotosLanguage.UploadFailure + " " + e.Message);
+	            MessageBox.Show(_googlePhotosLanguage.UploadFailure + @" " + e.Message);
 	        }
 	        return null;
 	    }

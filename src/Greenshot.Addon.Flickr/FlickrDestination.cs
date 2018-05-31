@@ -122,7 +122,7 @@ namespace Greenshot.Addon.Flickr
 			get
 			{
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "flickr.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "flickr.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

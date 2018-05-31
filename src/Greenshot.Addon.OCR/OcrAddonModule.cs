@@ -35,7 +35,7 @@ namespace Greenshot.Addon.OCR
     {
         private bool HasModi()
         {
-            var ocrCommand = Path.Combine(FileTools.NormalizeDirectory("."), "greenshotocrcommand.exe");
+            var ocrCommand = Path.Combine(FileTools.NormalizeDirectory(Path.GetDirectoryName(GetType().Assembly.Location)), "greenshotocrcommand.exe");
             try
             {
                 using (var process = Process.Start(ocrCommand, "-c"))

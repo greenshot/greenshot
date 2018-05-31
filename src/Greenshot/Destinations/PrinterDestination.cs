@@ -45,12 +45,14 @@ namespace Greenshot.Destinations
     [Destination("Printer", DestinationOrder.Printer)]
     public class PrinterDestination : AbstractDestination
 	{
-		private readonly string _printerName;
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly string _printerName;
 
 	    public PrinterDestination(ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage
 	    ): base(coreConfiguration, greenshotLanguage)
 	    {
+	        _greenshotLanguage = greenshotLanguage;
 	    }
 
         protected PrinterDestination(
@@ -65,11 +67,12 @@ namespace Greenshot.Destinations
 		{
 			get
 			{
+			    var printerDestination = _greenshotLanguage.SettingsDestinationPicker;
 				if (_printerName != null)
 				{
-					return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
+                    return printerDestination + " - " + _printerName;
 				}
-				return Language.GetString(LangKey.settings_destination_printer);
+				return printerDestination;
 			}
 		}
 
@@ -124,7 +127,7 @@ namespace Greenshot.Destinations
 			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(_printerName))
 			{
-				using (var printHelper = new PrintHelper(surface, captureDetails))
+				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage,surface, captureDetails))
 				{
 					printerSettings = printHelper.PrintTo(_printerName);
 				}
@@ -132,14 +135,14 @@ namespace Greenshot.Destinations
 			else if (!manuallyInitiated)
 			{
 				var settings = new PrinterSettings();
-				using (var printHelper = new PrintHelper(surface, captureDetails))
+				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage, surface, captureDetails))
 				{
 					printerSettings = printHelper.PrintTo(settings.PrinterName);
 				}
 			}
 			else
 			{
-				using (var printHelper = new PrintHelper(surface, captureDetails))
+				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage, surface, captureDetails))
 				{
 					printerSettings = printHelper.PrintWithDialog();
 				}

@@ -237,9 +237,6 @@
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\AnimatingBaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\LanguageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -257,12 +254,6 @@
     </Compile>
     <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
       <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ToolStripMenuSelectList.cs">
       <SubType>Component</SubType>
@@ -306,9 +297,6 @@
     <Compile Include="Helpers\StartupHelper.cs" />
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SettingsForm.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />

@@ -168,7 +168,7 @@ namespace Greenshot.Addon.Photobucket
 			get
 			{
                 // TODO: Optimize this
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "photobucket-logo.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "photobucket-logo.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

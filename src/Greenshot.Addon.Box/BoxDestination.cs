@@ -103,7 +103,7 @@ namespace Greenshot.Addon.Box
 			get
 			{
                 // TODO: Optimize this
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "box.png"))
+			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "box.png"))
 			    {
 			        return BitmapHelper.FromStream(bitmapStream);
 			    }

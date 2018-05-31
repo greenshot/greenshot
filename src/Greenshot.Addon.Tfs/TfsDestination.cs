@@ -131,7 +131,7 @@ namespace Greenshot.Addon.Tfs
             get
             {
                 // TODO: Optimize this by using a cache
-                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType(), "vsts.png"))
+                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "vsts.png"))
                 {
                     return BitmapHelper.FromStream(bitmapStream);
                 }

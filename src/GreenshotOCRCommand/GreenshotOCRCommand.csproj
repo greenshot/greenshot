@@ -79,11 +79,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\Greenshot.Addon.OCR"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\Greenshot.Addon.OCR"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\Greenshot.Addon.OCR
-</PostBuildEvent>
+    <PostBuildEvent>copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>

@@ -28,6 +28,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Greenshot.Addons;
 using Greenshot.Addons.Controls;
 using ColorDialog = Greenshot.Addons.Controls.ColorDialog;
 
@@ -37,11 +38,13 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 {
 	public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable
 	{
-		private Color _selectedColor = Color.Transparent;
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private Color _selectedColor = Color.Transparent;
 
-		public ToolStripColorButton()
+		public ToolStripColorButton(IGreenshotLanguage greenshotLanguage)
 		{
-			Click += ColorButtonClick;
+		    _greenshotLanguage = greenshotLanguage;
+		    Click += ColorButtonClick;
 		}
 
 		public Color SelectedColor
@@ -86,7 +89,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 
 		private void ColorButtonClick(object sender, EventArgs e)
 		{
-			var colorDialog = new ColorDialog
+			var colorDialog = new ColorDialog(_greenshotLanguage)
 			{
 				Color = SelectedColor
 			};
