@@ -74,11 +74,11 @@ namespace Greenshot.Forms
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IWindowManager _windowManager;
-        private readonly ConfigViewModel _configViewModel;
+        private readonly Func<Owned<ConfigViewModel>> _configViewModelFactory;
+        private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
-        private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
         private readonly DestinationHolder _destinationHolder;
         // Thumbnail preview
@@ -89,13 +89,13 @@ namespace Greenshot.Forms
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
             IGreenshotLanguage greenshotLanguage,
-            ConfigViewModel configViewModel,
+            Func<Owned<ConfigViewModel>> configViewModelFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
             DestinationHolder destinationHolder) : base(greenshotLanguage)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
-            _configViewModel = configViewModel;
+            _configViewModelFactory = configViewModelFactory;
             _aboutFormFactory = aboutFormFactory;
             _destinationHolder = destinationHolder;
             Instance = this;
@@ -365,17 +365,7 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
-            if (UpdateHelper.IsUpdateCheckNeeded())
-            {
-                Log.Debug().WriteLine("BackgroundWorkerTimerTick checking for update");
-                // Start update check in the background
-                var backgroundTask = new Thread(UpdateHelper.CheckAndAskForUpdate)
-                {
-                    Name = "Update check",
-                    IsBackground = true
-                };
-                backgroundTask.Start();
-            }
+            
         }
 
 
@@ -841,10 +831,9 @@ namespace Greenshot.Forms
         /// </summary>
         public void ShowSetting()
         {
-            // The new MVVM Configuration
-            if (!_configViewModel.IsActive)
+            using(var ownedConfigViewModel = _configViewModelFactory())
             {
-                _windowManager.ShowDialog(_configViewModel);
+                _windowManager.ShowDialog(ownedConfigViewModel.Value);
             }
             InitializeQuickSettingsMenu();
         }

@@ -41,7 +41,6 @@ namespace Greenshot.Forms
 	public partial class LanguageDialog : Form
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static LanguageDialog _uniqueInstance;
 		private bool _properOkPressed;
 
 		private LanguageDialog()
@@ -107,11 +106,6 @@ namespace Greenshot.Forms
 			// Fix for Bug #3431100 
 			Language.CurrentLanguage = SelectedLanguage;
 			Close();
-		}
-
-		public static LanguageDialog GetInstance()
-		{
-		    return _uniqueInstance ?? (_uniqueInstance = new LanguageDialog());
 		}
 	}
 }

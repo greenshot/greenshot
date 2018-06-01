@@ -103,6 +103,7 @@ namespace Greenshot.Addons.Core
         /// <summary>
         ///     Supply values we can't put as defaults
         /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="property">The property to return a default for</param>
         /// <returns>object with the default value for the supplied property</returns>
         public static object GetDefault(this ICoreConfiguration coreConfiguration, string property)

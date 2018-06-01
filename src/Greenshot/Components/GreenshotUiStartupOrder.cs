@@ -29,7 +29,7 @@ namespace Greenshot.Components
     public enum GreenshotUiStartupOrder
     {
         TrayIcon = 100,
-        Plugins = 200,
+        Addons = 200,
         Hotkeys = 300
     }
 }

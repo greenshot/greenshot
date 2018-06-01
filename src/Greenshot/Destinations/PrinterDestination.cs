@@ -28,11 +28,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 
 #endregion
@@ -46,19 +46,23 @@ namespace Greenshot.Destinations
     public class PrinterDestination : AbstractDestination
 	{
 	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly Func<ISurface, ICaptureDetails, Owned<PrintHelper>> _printHelperFactory;
 	    private readonly string _printerName;
 
 	    public PrinterDestination(ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ): base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        Func<ISurface, ICaptureDetails, Owned<PrintHelper>> printHelperFactory
+        ) : base(coreConfiguration, greenshotLanguage)
 	    {
 	        _greenshotLanguage = greenshotLanguage;
+	        _printHelperFactory = printHelperFactory;
 	    }
 
         protected PrinterDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
-            string printerName) : this(coreConfiguration, greenshotLanguage)
+            Func<ISurface, ICaptureDetails, Owned<PrintHelper>> printHelperFactory,
+            string printerName) : this(coreConfiguration, greenshotLanguage, printHelperFactory)
 		{
 			_printerName = printerName;
 		}
@@ -110,7 +114,7 @@ namespace Greenshot.Destinations
 			});
 			foreach (var printer in printers)
 			{
-				yield return new PrinterDestination(CoreConfiguration, GreenshotLanguage, printer);
+				yield return new PrinterDestination(CoreConfiguration, GreenshotLanguage, _printHelperFactory, printer);
 			}
 		}
 
@@ -127,25 +131,26 @@ namespace Greenshot.Destinations
 			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(_printerName))
 			{
-				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage,surface, captureDetails))
+				using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
 				{
-					printerSettings = printHelper.PrintTo(_printerName);
+					printerSettings = ownedPrintHelper.Value.PrintTo(_printerName);
 				}
 			}
 			else if (!manuallyInitiated)
 			{
 				var settings = new PrinterSettings();
-				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage, surface, captureDetails))
-				{
-					printerSettings = printHelper.PrintTo(settings.PrinterName);
-				}
+
+			    using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
+			    {
+			        printerSettings = ownedPrintHelper.Value.PrintTo(settings.PrinterName);
+			    }
 			}
 			else
 			{
-				using (var printHelper = new PrintHelper(CoreConfiguration, GreenshotLanguage, surface, captureDetails))
-				{
-					printerSettings = printHelper.PrintWithDialog();
-				}
+			    using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
+			    {
+			        printerSettings = ownedPrintHelper.Value.PrintWithDialog();
+                }
 			}
 			if (printerSettings != null)
 			{

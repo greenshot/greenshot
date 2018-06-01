@@ -36,7 +36,6 @@ namespace Greenshot.Components
 
         public static void Capture(string parameters)
         {
-          
             using (var factory = ChannelFactory)
             {
                 var client = factory.CreateChannel();

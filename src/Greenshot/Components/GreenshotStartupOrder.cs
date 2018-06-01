@@ -34,6 +34,7 @@ namespace Greenshot.Components
         /// Start the forms initialization before the shell is initialized!
         /// </summary>
         Forms = CaliburnStartOrder.Shell-1,
+        User = CaliburnStartOrder.User,
         Server = CaliburnStartOrder.User + 100,
         Sound = CaliburnStartOrder.User + 200
     }

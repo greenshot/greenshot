@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+	<channel>
+		<title>Greenshot</title>
+		<link>https://getgreenshot.org</link>
+		<description>Greenshot update feed</description>
+		<item>
+			<title>Greenshot-INSTALLER-1.2.9.129-RELEASE.exe</title>
+			<link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.2.9.129-RELEASE.exe/download</link>
+			<pubDate>Sat, 28 Jan 2017 15:59:07 +0000</pubDate>
+			<description></description>
+		</item>
+	    <item>
+	        <title>Greenshot-INSTALLER-1.2.10.6-RELEASE.exe</title>
+	        <link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.2.10.6-RELEASE.exe/download</link>
+	        <pubDate>Wed, 09 Aug 2017 15:35:30 +0000</pubDate>
+	        <description></description>
+	    </item>
+		<item>
+			<title>Greenshot-INSTALLER-1.2.9.112-RELEASE.exe</title>
+			<link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.2.9.112-RELEASE.exe/download</link>
+			<pubDate>Fri, 30 Dec 2016 21:39:18 +0000</pubDate>
+			<description></description>
+		</item>
+		<item>
+			<title>Greenshot-INSTALLER-1.2.9.104-RELEASE.exe</title>
+			<link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.2.9.104-RELEASE.exe/download</link>
+			<pubDate>Thu, 15 Dec 2016 19:35:59 +0000</pubDate>
+			<description></description>
+		</item>
+		<item>
+			<title>Greenshot-INSTALLER-1.3.0.14-BETA.exe</title>
+			<link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.3.0.0-BETA.exe/download</link>
+			<pubDate>Thu, 03 Nov 2016 20:59:15 +0000</pubDate>
+			<description></description>
+		</item>
+		<item>
+			<title>Greenshot-INSTALLER-1.2.8.12-RELEASE.exe</title>
+			<link>http://sourceforge/projects/greenshot/files/release/Greenshot/Greenshot-INSTALLER-1.2.8.12-RELEASE.exe/download</link>
+			<pubDate>Tue, 10 Nov 2015 10:58:37 +0000</pubDate>
+			<description></description>
+		</item>
+		<item>
+			<title>Greenshot-INSTALLER-1.2.10.6-RELEASE.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RELEASE-1.2.10.6/Greenshot-INSTALLER-1.2.10.6-RELEASE.exe</link>
+			<pubDate>Wed, 09 Aug 2017 15:35:30 +0000</pubDate>
+			<description></description>
+		</item><item>
+			<title>Greenshot-INSTALLER-1.2.9.129-RELEASE.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RELEASE-1.2.9.129/Greenshot-INSTALLER-1.2.9.129-RELEASE.exe</link>
+			<pubDate>Sat, 28 Jan 2017 15:59:07 +0000</pubDate>
+			<description></description>
+		</item><item>
+			<title>Greenshot-INSTALLER-1.2.9.112-RELEASE.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RELEASE-1.2.9.112/Greenshot-INSTALLER-1.2.9.112-RELEASE.exe</link>
+			<pubDate>Fri, 30 Dec 2016 21:39:18 +0000</pubDate>
+			<description></description>
+		</item><item>
+			<title>Greenshot-INSTALLER-1.2.9.104-RELEASE.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RELEASE-1.2.9.104/Greenshot-INSTALLER-1.2.9.104-RELEASE.exe</link>
+			<pubDate>Thu, 15 Dec 2016 19:35:59 +0000</pubDate>
+			<description></description>
+		</item><item>
+			<title>Greenshot-INSTALLER-1.2.20.99-RC1.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RC1-1.2.20.99/Greenshot-INSTALLER-1.2.20.99-RC1.exe</link>
+			<pubDate>Thu, 03 Nov 2016 20:59:15 +0000</pubDate>
+			<description></description>
+		</item><item>
+			<title>Greenshot-INSTALLER-1.2.8.12-RELEASE.exe</title>
+			<link>https://github.com/greenshot/greenshot/releases/download/Greenshot-RELEASE-1.2.8.12/Greenshot-INSTALLER-1.2.8.12-RELEASE.exe</link>
+			<pubDate>Tue, 10 Nov 2015 10:58:37 +0000</pubDate>
+			<description></description>
+		</item>
+	</channel>
+</rss>

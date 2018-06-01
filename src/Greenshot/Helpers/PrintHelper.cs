@@ -27,6 +27,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Greenshot.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -52,6 +53,7 @@ namespace Greenshot.Helpers
 		private static readonly LogSource Log = new LogSource();
 		private readonly ICoreConfiguration _coreConfig;
 	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly Func<Owned<PrintOptionsDialog>> _printOptionsDialogFactory;
 	    private readonly ICaptureDetails _captureDetails;
 		private PrintDialog _printDialog = new PrintDialog();
 		private PrintDocument _printDocument = new PrintDocument();
@@ -61,11 +63,13 @@ namespace Greenshot.Helpers
 		public PrintHelper(
 		    ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+            Func<Owned<PrintOptionsDialog>> printOptionsDialogFactory,
 		    ISurface surface,
 		    ICaptureDetails captureDetails)
 		{
 		    _coreConfig = coreConfiguration;
 		    _greenshotLanguage = greenshotLanguage;
+		    _printOptionsDialogFactory = printOptionsDialogFactory;
 
 		    _surface = surface;
 			_captureDetails = captureDetails;
@@ -83,16 +87,6 @@ namespace Greenshot.Helpers
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/**
-		 * Destructor
-		 */
-
-		~PrintHelper()
-		{
-			Dispose(false);
 		}
 
 		/**
@@ -149,29 +143,30 @@ namespace Greenshot.Helpers
 		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
 		public PrinterSettings PrintWithDialog()
 		{
-			PrinterSettings returnPrinterSettings = null;
-			if (_printDialog.ShowDialog() == DialogResult.OK)
-			{
-				var printOptionsResult = ShowPrintOptionsDialog();
-				try
-				{
-					if (printOptionsResult == null || printOptionsResult == DialogResult.OK)
-					{
-						if (!IsColorPrint())
-						{
-							_printDocument.DefaultPageSettings.Color = false;
-						}
-						_printDocument.Print();
-						returnPrinterSettings = _printDialog.PrinterSettings;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error().WriteLine(e, "An error ocurred while trying to print");
-					MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
-				}
-			}
-			return returnPrinterSettings;
+		    if (_printDialog.ShowDialog() != DialogResult.OK)
+		    {
+		        return null;
+		    }
+		    PrinterSettings returnPrinterSettings = null;
+            var printOptionsResult = ShowPrintOptionsDialog();
+		    try
+		    {
+		        if (printOptionsResult == null || printOptionsResult == DialogResult.OK)
+		        {
+		            if (!IsColorPrint())
+		            {
+		                _printDocument.DefaultPageSettings.Color = false;
+		            }
+		            _printDocument.Print();
+		            returnPrinterSettings = _printDialog.PrinterSettings;
+		        }
+		    }
+		    catch (Exception e)
+		    {
+		        Log.Error().WriteLine(e, "An error ocurred while trying to print");
+		        MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+		    }
+		    return returnPrinterSettings;
 		}
 
 		private bool IsColorPrint()
@@ -190,9 +185,9 @@ namespace Greenshot.Helpers
 		        return null;
 		    }
 
-		    using (var printOptionsDialog = new PrintOptionsDialog(_coreConfig, _greenshotLanguage))
+		    using (var ownedPrintOptionsDialog = _printOptionsDialogFactory())
 		    {
-		        return printOptionsDialog.ShowDialog();
+		        return ownedPrintOptionsDialog.Value.ShowDialog();
 		    }
 		}
 

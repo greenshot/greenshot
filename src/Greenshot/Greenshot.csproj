@@ -289,7 +289,7 @@
     <Compile Include="Help\HelpFileLoader.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
-    <Compile Include="Helpers\UpdateHelper.cs" />
+    <Compile Include="Components\UpdateService.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />

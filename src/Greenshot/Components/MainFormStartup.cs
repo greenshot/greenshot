@@ -25,6 +25,7 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
@@ -45,12 +46,18 @@ namespace Greenshot.Components
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly MainForm _mainForm;
+        private readonly Func<Owned<LanguageDialog>> _languageDialogFactory;
         private readonly WindowHandle _windowHandle;
 
-        public MainFormStartup(ICoreConfiguration coreConfiguration, MainForm mainForm, WindowHandle windowHandle)
+        public MainFormStartup(
+            ICoreConfiguration coreConfiguration,
+            MainForm mainForm,
+            Func<Owned<LanguageDialog>> languageDialogFactory,
+            WindowHandle windowHandle)
         {
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;
+            _languageDialogFactory = languageDialogFactory;
             _windowHandle = windowHandle;
         }
 
@@ -61,9 +68,11 @@ namespace Greenshot.Components
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_coreConfiguration.Language))
             {
-                var languageDialog = LanguageDialog.GetInstance();
-                languageDialog.ShowDialog();
-                _coreConfiguration.Language = languageDialog.SelectedLanguage;
+                using (var ownedLanguageDialog = _languageDialogFactory())
+                {
+                    ownedLanguageDialog.Value.ShowDialog();
+                    _coreConfiguration.Language = ownedLanguageDialog.Value.SelectedLanguage;
+                }
             }
 
             // This makes sure the MainForm can initialize, calling show first would create the "Handle" and causing e.g. the DPI Handler to be to late.

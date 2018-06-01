@@ -29,6 +29,7 @@ using Dapplo.CaliburnMicro.Security;
 using Greenshot.Addons.Components;
 using Greenshot.Components;
 using Greenshot.Forms;
+using Greenshot.Helpers;
 using Greenshot.Ui.Configuration.ViewModels;
 using Greenshot.Ui.Misc.ViewModels;
 
@@ -41,8 +42,8 @@ namespace Greenshot
         {
             builder
                 .RegisterType<ConfigViewModel>()
-                .AsSelf()
-                .SingleInstance();
+                .AsSelf();
+
             builder
                 .RegisterType<AuthenticationProvider>()
                 .As<IAuthenticationProvider>()
@@ -53,6 +54,18 @@ namespace Greenshot
                 .AsSelf()
                 .SingleInstance();
 
+            builder
+                .RegisterType<PrintHelper>()
+                .AsSelf();
+
+            builder
+                .RegisterType<PrintOptionsDialog>()
+                .AsSelf();
+
+            builder
+                .RegisterType<LanguageDialog>()
+                .AsSelf();
+            
             builder
                 .RegisterType<HotkeyHandler>()
                 .As<IUiStartup>()
@@ -83,7 +96,7 @@ namespace Greenshot
                 .AssignableTo<IService>()
                 .As<IService>()
                 .SingleInstance();
-
+            
             builder
                 .RegisterType<ErrorViewModel>()
                 .AsSelf();

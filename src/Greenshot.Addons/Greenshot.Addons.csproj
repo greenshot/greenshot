@@ -363,7 +363,6 @@
     <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
     <Compile Include="Core\PluginUtils.cs" />
-    <Compile Include="Core\RssHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Interfaces\ICaptureDetails.cs" />
     <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
