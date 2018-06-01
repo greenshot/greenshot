@@ -376,7 +376,7 @@ namespace Greenshot.Forms
         {
             ContextMenuDpiHandler = contextMenu.AttachDpiHandler();
 
-            var dpiChangeSubscription = DpiHandler.OnDpiChangeInfo.Subscribe(info =>
+            var dpiChangeSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
             {
                 switch (info.DpiChangeEventType)
                 {

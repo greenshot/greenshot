@@ -30,6 +30,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 
 #endregion
 
@@ -40,27 +41,42 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public partial class ColorDialog : GreenshotForm
 	{
-
-		private readonly IList<Button> _colorButtons = new List<Button>();
-		private readonly IList<Button> _recentColorButtons = new List<Button>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress;
+	    private readonly IDisposable _dpiSubscription;
 
-		public ColorDialog(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
+        public ColorDialog(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
-			SuspendLayout();
-			InitializeComponent();
-			SuspendLayout();
-			CreateColorPalette(5, 5, 15, 15);
-			CreateLastUsedColorButtonRow(5, 190, 15, 15);
-			ResumeLayout();
-			//UpdateRecentColorsButtonRow();
-		}
+		    SuspendLayout();
+		    InitializeComponent();
+		    ResumeLayout();
+
+		    _dpiSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
+		    {
+		        Redraw();
+		    });
+		    Redraw();
+            //UpdateRecentColorsButtonRow();
+        }
+
+        private void Redraw()
+	    {
+	        int pos = FormDpiHandler.ScaleWithCurrentDpi(5);
+            int size = FormDpiHandler.ScaleWithCurrentDpi(15);
+	        int lastColorY = FormDpiHandler.ScaleWithCurrentDpi(190);
+	        var buttons = CreateColorPalette(pos, pos, size, size);
+	        var lastUsedButtons = CreateLastUsedColorButtonRow(pos, lastColorY, size, size);
+	        SuspendLayout();
+	        Controls.Clear();
+            Controls.AddRange(buttons.ToArray());
+	        Controls.AddRange(lastUsedButtons.ToArray());
+            ResumeLayout();
+        }
 
 		public Color Color
 		{
-			get { return colorPanel.BackColor; }
-			set { PreviewColor(value, this); }
+			get => colorPanel.BackColor;
+		    set => PreviewColor(value, this);
 		}
 
 		#region helper functions
@@ -88,46 +104,47 @@ namespace Greenshot.Addons.Controls
 
 		#region user interface generation
 
-		private void CreateColorPalette(int x, int y, int w, int h)
+		private IList<Control> CreateColorPalette(int x, int y, int w, int h)
 		{
-			CreateColorButtonColumn(255, 0, 0, x, y, w, h, 11);
+		    IList<Control> colorButtons = new List<Control>();
+            CreateColorButtonColumn(colorButtons, 255, 0, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 255 / 2, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255, 255 / 2, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 255, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255, 255, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255 / 2, 255, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255 / 2, 255, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 0, 255, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 0, 255, 255 / 2, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 0, 255, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255 / 2, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 0, 255 / 2, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 0, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 0, 0, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255 / 2, 0, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255 / 2, 0, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 0, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255, 0, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 0, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255, 0, 255 / 2, x, y, w, h, 11);
 			x += w + 5;
-			CreateColorButtonColumn(255 / 2, 255 / 2, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(colorButtons, 255 / 2, 255 / 2, 255 / 2, x, y, w, h, 11);
 
-			Controls.AddRange(_colorButtons.ToArray());
+		    return colorButtons;
 		}
 
-		private void CreateColorButtonColumn(int red, int green, int blue, int x, int y, int w, int h, int shades)
+		private void CreateColorButtonColumn(IList<Control> colorButtons, int red, int green, int blue, int x, int y, int w, int h, int shades)
 		{
 			var shadedColorsNum = (shades - 1) / 2;
 			for (var i = 0; i <= shadedColorsNum; i++)
 			{
-				_colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
+				colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
 				if (i > 0)
 				{
-					_colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum, blue + (255 - blue) * i / shadedColorsNum,
+					colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum, blue + (255 - blue) * i / shadedColorsNum,
 						x, y + (i + shadedColorsNum) * h, w, h));
 				}
 			}
@@ -154,16 +171,19 @@ namespace Greenshot.Addons.Controls
 			return b;
 		}
 
-		private void CreateLastUsedColorButtonRow(int x, int y, int w, int h)
+		private IList<Control> CreateLastUsedColorButtonRow(int x, int y, int w, int h)
 		{
-			for (var i = 0; i < 12; i++)
+		    IList<Control> recentColorButtons = new List<Control>();
+
+            for (var i = 0; i < 12; i++)
 			{
 				var b = CreateColorButton(Color.Transparent, x, y, w, h);
 				b.Enabled = false;
-				_recentColorButtons.Add(b);
+				recentColorButtons.Add(b);
 				x += w;
 			}
-			Controls.AddRange(_recentColorButtons.ToArray());
+
+		    return recentColorButtons;
 		}
 
 		#endregion

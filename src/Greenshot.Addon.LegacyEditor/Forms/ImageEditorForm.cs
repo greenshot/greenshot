@@ -151,9 +151,9 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private void SetupBitmapScaleHandler()
         {
             // Create a BitmapScaleHandler which knows how to locate the icons for the destinations
-            _destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(DpiHandler, (destination, dpi) => destination.GetDisplayIcon(dpi), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            _destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(FormDpiHandler, (destination, dpi) => destination.GetDisplayIcon(dpi), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
-            DpiHandler.OnDpiChangeInfo.Subscribe(info =>
+            FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
             {
                 switch (info.DpiChangeEventType)
                 {
@@ -428,13 +428,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             }
             if (toolstripDestination.IsDynamic)
             {
-                var icon = toolstripDestination.GetDisplayIcon(DpiHandler.Dpi);
+                var icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
                 var destinationButton = new ToolStripSplitButton
                 {
-                    DropDownButtonWidth = DpiHandler.ScaleWithDpi(8, DpiHandler.Dpi),
+                    DropDownButtonWidth = FormDpiHandler.ScaleWithCurrentDpi(8),
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Text = toolstripDestination.Description,
-                    Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi)
+                    Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
                 };
 
                 if (!Equals(icon, destinationButton.Image))
@@ -447,12 +447,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 
                 //ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 
-                icon = toolstripDestination.GetDisplayIcon(DpiHandler.Dpi);
+                icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
                 var defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Tag = toolstripDestination,
-                    Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi)
+                    Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
                 };
                 if (!Equals(icon, defaultItem.Image))
                 {
@@ -471,7 +471,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 
                     foreach (var subDestination in toolstripDestination.DynamicDestinations().OrderBy(destination => destination.Description))
                     {
-                        icon = subDestination.GetDisplayIcon(DpiHandler.Dpi);
+                        icon = subDestination.GetDisplayIcon(FormDpiHandler.Dpi);
                         var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                         {
                             Tag = subDestination,
@@ -495,12 +495,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             }
             else
             {
-                var icon = toolstripDestination.GetDisplayIcon(DpiHandler.Dpi);
+                var icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
                 var destinationButton = new ToolStripButton
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Text = toolstripDestination.Description,
-                    Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi)
+                    Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
                 };
                 destinationButton.Click += async (sender, args) => await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
                 if (!Equals(icon, destinationButton.Image))
@@ -547,9 +547,9 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                     continue;
                 }
 
-                var icon = destination.GetDisplayIcon(DpiHandler.Dpi);
+                var icon = destination.GetDisplayIcon(FormDpiHandler.Dpi);
                 item.Text = destination.Description;
-                item.Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi);
+                item.Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi);
                 item.ShortcutKeys = destination.EditorShortcutKeys;
                 fileStripMenuItem.DropDownItems.Add(item);
             }
@@ -754,13 +754,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             var stepLabels = _surface.CountStepLabels(null);
             if (stepLabels <= 20)
             {
-                ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel{stepLabels:00}.Image", DpiHandler.Dpi > 0);
-                ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel{stepLabels:00}.Image", DpiHandler.Dpi > 0);
+                ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel{stepLabels:00}.Image", FormDpiHandler.Dpi > 0);
+                ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel{stepLabels:00}.Image", FormDpiHandler.Dpi > 0);
             }
             else
             {
-                ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel20+.Image", DpiHandler.Dpi > 0);
-                ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", DpiHandler.Dpi > 0);
+                ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel20+.Image", FormDpiHandler.Dpi > 0);
+                ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", FormDpiHandler.Dpi > 0);
             }
 
             var props = _surface.FieldAggregator;

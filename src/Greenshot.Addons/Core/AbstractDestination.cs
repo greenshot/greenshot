@@ -411,7 +411,7 @@ namespace Greenshot.Addons.Core
             }
             // Close
             menu.Items.Add(new ToolStripSeparator());
-            var closeItem = new ToolStripMenuItem(GreenshotLanguage.Close)
+            var closeItem = new ToolStripMenuItem(GreenshotLanguage.ContextmenuExit)
             {
                 Image = GreenshotResources.GetBitmap("Close.Image")
             };

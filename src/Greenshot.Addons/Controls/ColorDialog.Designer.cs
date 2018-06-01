@@ -37,6 +37,7 @@ namespace Greenshot.Addons.Controls {
 					components.Dispose();
 				}
 			}
+            _dpiSubscription.Dispose();
 			base.Dispose(disposing);
 		}
 		
@@ -77,10 +78,10 @@ namespace Greenshot.Addons.Controls {
 			this.btnTransparent.Text = "Transparent";
 			this.btnTransparent.UseVisualStyleBackColor = false;
 			this.btnTransparent.Click += new System.EventHandler(this.BtnTransparentClick);
-			// 
-			// colorPanel
-			// 
-			this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            // 
+            // colorPanel
+            // 
+            this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.colorPanel.Location = new System.Drawing.Point(213, 30);
 			this.colorPanel.Name = "colorPanel";
 			this.colorPanel.Size = new System.Drawing.Size(33, 23);
@@ -203,10 +204,10 @@ namespace Greenshot.Addons.Controls {
 			this.labelAlpha.Size = new System.Drawing.Size(78, 18);
 			this.labelAlpha.TabIndex = 11;
 			this.labelAlpha.Text = "Alpha";
-			// 
-			// btnApply
-			// 
-			this.btnApply.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // btnApply
+            // 
+            this.btnApply.BackColor = System.Drawing.Color.Transparent;
 			this.btnApply.LanguageKey = "colorpicker_apply";
 			this.btnApply.Location = new System.Drawing.Point(210, 191);
 			this.btnApply.Name = "btnApply";

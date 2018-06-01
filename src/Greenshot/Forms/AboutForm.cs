@@ -153,10 +153,10 @@ namespace Greenshot.Forms
 			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor);
 			pictureBox1.Image = _bitmap;
 
-		    _dpiSubscription = DpiHandler.OnDpiChangeInfo.Subscribe(info =>
+		    _dpiSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
 		        {
-		            pictureBox1.Width = DpiHandler.ScaleWithDpi(90, info.NewDpi);
-		            pictureBox1.Height = DpiHandler.ScaleWithDpi(90, info.NewDpi);
+		            pictureBox1.Width = FormDpiHandler.ScaleWithCurrentDpi(90);
+		            pictureBox1.Height = FormDpiHandler.ScaleWithCurrentDpi(90);
                 });
 
             var v = Assembly.GetExecutingAssembly().GetName().Version;
