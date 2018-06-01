@@ -43,23 +43,17 @@ namespace Greenshot.Addons.Controls
 	{
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress;
-	    private readonly IDisposable _dpiSubscription;
 
         public ColorDialog(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
-		    SuspendLayout();
-		    InitializeComponent();
-		    ResumeLayout();
-
-		    _dpiSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
-		    {
-		        Redraw();
-		    });
-		    Redraw();
+            SuspendLayout();
+            InitializeComponent();
+            ResumeLayout();
             //UpdateRecentColorsButtonRow();
+		    Load += (sender, args) => DrawButtons();
         }
 
-        private void Redraw()
+        private void DrawButtons()
 	    {
 	        int pos = FormDpiHandler.ScaleWithCurrentDpi(5);
             int size = FormDpiHandler.ScaleWithCurrentDpi(15);
@@ -67,7 +61,6 @@ namespace Greenshot.Addons.Controls
 	        var buttons = CreateColorPalette(pos, pos, size, size);
 	        var lastUsedButtons = CreateLastUsedColorButtonRow(pos, lastColorY, size, size);
 	        SuspendLayout();
-	        Controls.Clear();
             Controls.AddRange(buttons.ToArray());
 	        Controls.AddRange(lastUsedButtons.ToArray());
             ResumeLayout();

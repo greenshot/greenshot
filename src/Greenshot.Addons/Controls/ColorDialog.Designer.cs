@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Windows.Dpi;
+
 namespace Greenshot.Addons.Controls {
 	public partial class ColorDialog {
 		/// <summary>
@@ -37,7 +39,6 @@ namespace Greenshot.Addons.Controls {
 					components.Dispose();
 				}
 			}
-            _dpiSubscription.Dispose();
 			base.Dispose(disposing);
 		}
 		
@@ -48,6 +49,8 @@ namespace Greenshot.Addons.Controls {
 		/// </summary>
 		private void InitializeComponent()
 		{
+			float fontSize = (float) DpiHandler.ScaleWithDpi(11d, DpiHandler.DefaultScreenDpi);
+
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
 			this.btnTransparent = new GreenshotButton();
 			this.colorPanel = new System.Windows.Forms.Panel();
@@ -89,7 +92,7 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// labelHtmlColor
 			// 
-			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
 			this.labelHtmlColor.Location = new System.Drawing.Point(210, 57);
 			this.labelHtmlColor.Name = "labelHtmlColor";
@@ -110,7 +113,7 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// labelRed
 			// 
-			this.labelRed.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelRed.Font = new System.Drawing.Font("Tahoma", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelRed.LanguageKey = "colorpicker_red";
 			this.labelRed.Location = new System.Drawing.Point(210, 98);
 			this.labelRed.Name = "labelRed";
@@ -120,7 +123,7 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// labelGreen
 			// 
-			this.labelGreen.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelGreen.Font = new System.Drawing.Font("Tahoma", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelGreen.LanguageKey = "colorpicker_green";
 			this.labelGreen.Location = new System.Drawing.Point(210, 122);
 			this.labelGreen.Name = "labelGreen";
@@ -130,7 +133,7 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// labelBlue
 			// 
-			this.labelBlue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelBlue.Font = new System.Drawing.Font("Tahoma", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelBlue.LanguageKey = "colorpicker_blue";
 			this.labelBlue.Location = new System.Drawing.Point(210, 146);
 			this.labelBlue.Name = "labelBlue";
@@ -197,7 +200,7 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// labelAlpha
 			// 
-			this.labelAlpha.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+			this.labelAlpha.Font = new System.Drawing.Font("Tahoma", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
 			this.labelAlpha.LanguageKey = "colorpicker_alpha";
 			this.labelAlpha.Location = new System.Drawing.Point(210, 170);
 			this.labelAlpha.Name = "labelAlpha";
