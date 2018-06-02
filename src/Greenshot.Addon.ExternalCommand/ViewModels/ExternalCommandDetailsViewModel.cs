@@ -21,34 +21,24 @@
 
 #endregion
 
-using Autofac;
-using Dapplo.Addons;
-using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.ExternalCommand.ViewModels;
-using Greenshot.Addons.Components;
+using Caliburn.Micro;
+using Greenshot.Addon.ExternalCommand.Entities;
 
-namespace Greenshot.Addon.ExternalCommand
+namespace Greenshot.Addon.ExternalCommand.ViewModels
 {
-    /// <inheritdoc />
-    public class ExternalCommandAddonModule : AddonModule
+    /// <summary>
+    /// This is used to display the external command settings
+    /// </summary>
+    public class ExternalCommandDetailsViewModel : Screen
     {
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder
-                .RegisterType<ExternalCommandDestinationProvider>()
-                .As<IStartup>()
-                .As<IDestinationProvider>()
-                .SingleInstance();
-            builder
-                .RegisterType<ExternalCommandConfigViewModel>()
-                .As<IConfigScreen>()
-                .SingleInstance();
-            builder
-                .RegisterType<ExternalCommandMasterViewModel>()
-                .AsSelf()
-                .SingleInstance();
-            base.Load(builder);
-        }
+        /// <summary>
+        /// The definition to show the details of or edit
+        /// </summary>
+        public ExternalCommandDefinition Definition { get; }
 
+        public ExternalCommandDetailsViewModel(ExternalCommandDefinition definition)
+        {
+            Definition = definition;
+        }
     }
 }

@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addon.ExternalCommand.Entities;
+using Greenshot.Addons.Core;
 
 #endregion
 
@@ -37,34 +39,10 @@ namespace Greenshot.Addon.ExternalCommand
 	/// </summary>
 	[IniSection("ExternalCommand")]
 	[Description("Greenshot ExternalCommand Plugin configuration")]
-	public interface IExternalCommandConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
+	public interface IExternalCommandConfiguration : IIniSection, IDestinationFileConfiguration, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("The commands that are available.")]
 		IList<string> Commands { get; set; }
-
-		[Description("Redirect the standard error of all external commands, used to output as warning to the greenshot.log.")]
-	    [DefaultValue(true)]
-		bool RedirectStandardError { get; set; }
-
-		[Description("Redirect the standard output of all external commands, used for different other functions (more below).")]
-		[DefaultValue(true)]
-		bool RedirectStandardOutput { get; set; }
-
-		[Description("Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.")]
-		[DefaultValue(false)]
-		bool ShowStandardOutputInLog { get; set; }
-
-		[Description("Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.")]
-	    [DefaultValue(true)]
-		bool ParseOutputForUri { get; set; }
-
-		[Description("Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.")]
-		[DefaultValue(false)]
-		bool OutputToClipboard { get; set; }
-
-		[Description("Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)")]
-		[DefaultValue(true)]
-		bool UriToClipboard { get; set; }
 
 		[Description("The commandline for the output command.")]
 		IDictionary<string, string> Commandline { get; set; }
@@ -72,10 +50,13 @@ namespace Greenshot.Addon.ExternalCommand
 		[Description("The arguments for the output command.")]
 		IDictionary<string, string> Argument { get; set; }
 
-		[Description("Should the command be started in the background.")]
+		[Description("Should the command be started in the background. (obsolete)")]
 		IDictionary<string, bool> RunInbackground { get; set; }
 
-		[Description("If a build in command was deleted manually, it should not be recreated.")]
+	    [Description("Command behaviors.")]
+	    IDictionary<string, CommandBehaviors> Behaviors { get; set; }
+
+        [Description("If a build in command was deleted manually, it should not be recreated.")]
 		IList<string> DeletedBuildInCommands { get; set; }
 	}
 }

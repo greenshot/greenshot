@@ -21,34 +21,28 @@
 
 #endregion
 
-using Autofac;
-using Dapplo.Addons;
-using Dapplo.CaliburnMicro.Configuration;
-using Greenshot.Addon.ExternalCommand.ViewModels;
-using Greenshot.Addons.Components;
-
-namespace Greenshot.Addon.ExternalCommand
+namespace Greenshot.Addon.ExternalCommand.Entities
 {
-    /// <inheritdoc />
-    public class ExternalCommandAddonModule : AddonModule
+    public class ExternalCommandDefinition
     {
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder
-                .RegisterType<ExternalCommandDestinationProvider>()
-                .As<IStartup>()
-                .As<IDestinationProvider>()
-                .SingleInstance();
-            builder
-                .RegisterType<ExternalCommandConfigViewModel>()
-                .As<IConfigScreen>()
-                .SingleInstance();
-            builder
-                .RegisterType<ExternalCommandMasterViewModel>()
-                .AsSelf()
-                .SingleInstance();
-            base.Load(builder);
-        }
+        /// <summary>
+        /// Name of the command
+        /// </summary>
+        public string Name { get; set; }
 
+        /// <summary>
+        /// The command itself
+        /// </summary>
+        public string Command { get; set; }
+
+        /// <summary>
+        /// The arguments for the command
+        /// </summary>
+        public string Arguments { get; set; }
+
+        /// <summary>
+        /// The behavior or mode of the command
+        /// </summary>
+        public CommandBehaviors CommandBehavior { get; set; } = CommandBehaviors.Default;
     }
 }

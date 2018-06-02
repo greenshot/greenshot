@@ -62,7 +62,7 @@ namespace Greenshot.Addon.ExternalCommand
         public IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide()
 		{
 		    return _externalCommandConfig.Commands
-		        .Select(command => new Lazy<IDestination, DestinationAttribute>(() => new ExternalCommandDestination(command, _coreConfiguration, _greenshotLanguage), new DestinationAttribute(command)));
+		        .Select(command => new Lazy<IDestination, DestinationAttribute>(() => new ExternalCommandDestination(command, _externalCommandConfig, _coreConfiguration, _greenshotLanguage), new DestinationAttribute(command)));
 		}
 
 
@@ -108,6 +108,8 @@ namespace Greenshot.Addon.ExternalCommand
 	        {
 	            _externalCommandConfig.Delete(command);
 	        }
+
+            _externalCommandConfig.AfterLoad();
         }
 	}
 }

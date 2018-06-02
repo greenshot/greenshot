@@ -23,10 +23,14 @@
 
 using System;
 using System.IO;
+using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.ExternalCommand
 {
+    /// <summary>
+    /// Helper extensions for the external command configuration
+    /// </summary>
     public static class ExternalCommandConfigurationExtensions
     {
         private const string MsPaint = "MS Paint";
@@ -60,6 +64,57 @@ namespace Greenshot.Addon.ExternalCommand
         }
 
         /// <summary>
+        /// Read a definition
+        /// </summary>
+        /// <param name="externalCommandConfiguration">IExternalCommandConfiguration</param>
+        /// <param name="command">string</param>
+        /// <returns>ExternalCommandDefinition</returns>
+        public static ExternalCommandDefinition Read(this IExternalCommandConfiguration externalCommandConfiguration,
+            string command)
+        {
+            var definition = new ExternalCommandDefinition
+            {
+                Name = command,
+                Command = externalCommandConfiguration.Commandline[command]
+            };
+            if (externalCommandConfiguration.Argument.ContainsKey(command))
+            {
+                definition.Arguments = externalCommandConfiguration.Argument[command];
+            }
+            if (externalCommandConfiguration.Behaviors.ContainsKey(command))
+            {
+                definition.CommandBehavior = externalCommandConfiguration.Behaviors[command];
+            }
+
+            // Convert old values
+            if (externalCommandConfiguration.RunInbackground.ContainsKey(command))
+            {
+                var runInBackground = externalCommandConfiguration.RunInbackground[command];
+                if (runInBackground)
+                {
+                    definition.CommandBehavior |= CommandBehaviors.DeleteOnExit | CommandBehaviors.ProcessReturncode;
+                }
+            }
+
+            return definition;
+        }
+
+        /// <summary>
+        /// Read a definition
+        /// </summary>
+        /// <param name="externalCommandConfiguration">IExternalCommandConfiguration</param>
+        /// <param name="definition">ExternalCommandDefinition</param>
+        public static void Write(this IExternalCommandConfiguration externalCommandConfiguration, ExternalCommandDefinition definition)
+        {
+            externalCommandConfiguration.Delete(definition.Name);
+            externalCommandConfiguration.Commands.Add(definition.Name);
+            externalCommandConfiguration.Commandline[definition.Name] = definition.Command;
+            externalCommandConfiguration.Argument[definition.Name] = definition.Arguments;
+            externalCommandConfiguration.Behaviors[definition.Name] = definition.CommandBehavior;
+
+        }
+
+        /// <summary>
         ///     Delete the configuration for the specified command
         /// </summary>
         /// <param name="configuration"></param>
@@ -73,6 +128,7 @@ namespace Greenshot.Addon.ExternalCommand
             configuration.Commands.Remove(command);
             configuration.Commandline.Remove(command);
             configuration.Argument.Remove(command);
+            configuration.Behaviors.Remove(command);
             configuration.RunInbackground.Remove(command);
             if (!MsPaint.Equals(command) && !PaintDotNet.Equals(command))
             {
@@ -95,9 +151,9 @@ namespace Greenshot.Addon.ExternalCommand
             if (HasPaint && !configuration.Commands.Contains(MsPaint) && !configuration.DeletedBuildInCommands.Contains(MsPaint))
             {
                 configuration.Commands.Add(MsPaint);
-                configuration.Commandline.Add(MsPaint, PaintPath);
-                configuration.Argument.Add(MsPaint, "\"{0}\"");
-                configuration.RunInbackground.Add(MsPaint, true);
+                configuration.Commandline[MsPaint] = PaintPath;
+                configuration.Argument[MsPaint] = "\"{0}\"";
+                configuration.Behaviors[MsPaint] = CommandBehaviors.Default;
             }
 
             // Check if we need to add Paint.NET
@@ -108,9 +164,9 @@ namespace Greenshot.Addon.ExternalCommand
             }
 
             configuration.Commands.Add(PaintDotNet);
-            configuration.Commandline.Add(PaintDotNet, PaintDotNetPath);
-            configuration.Argument.Add(PaintDotNet, "\"{0}\"");
-            configuration.RunInbackground.Add(PaintDotNet, true);
+            configuration.Commandline[PaintDotNet] = PaintDotNetPath;
+            configuration.Argument[PaintDotNet] = "\"{0}\"";
+            configuration.Behaviors[PaintDotNet] = CommandBehaviors.Default;
         }
     }
 }

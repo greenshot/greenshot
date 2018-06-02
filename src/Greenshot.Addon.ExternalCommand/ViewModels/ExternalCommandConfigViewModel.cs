@@ -26,6 +26,7 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.ExternalCommand.ViewModels
 {
@@ -42,18 +43,26 @@ namespace Greenshot.Addon.ExternalCommand.ViewModels
 
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
+        public ExternalCommandMasterViewModel ExternalCommandMasterViewModel { get; }
+
         public ExternalCommandConfigViewModel(
             IExternalCommandConfiguration externalCommandConfiguration,
             IExternalCommandLanguage externalCommandLanguage,
-            IGreenshotLanguage greenshotLanguage)
+            IGreenshotLanguage greenshotLanguage,
+            FileConfigPartViewModel fileConfigPartViewModel,
+            ExternalCommandMasterViewModel externalCommandMasterViewModel)
         {
             ExternalCommandConfiguration = externalCommandConfiguration;
             ExternalCommandLanguage = externalCommandLanguage;
             GreenshotLanguage = greenshotLanguage;
+            FileConfigPartViewModel = fileConfigPartViewModel;
+            ExternalCommandMasterViewModel = externalCommandMasterViewModel;
         }
 
         public override void Initialize(IConfig config)
         {
+            FileConfigPartViewModel.DestinationFileConfiguration = ExternalCommandConfiguration;
             // Prepare disposables
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();

@@ -29,6 +29,9 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Dropbox.ViewModels
 {
+    /// <summary>
+    /// This defines the view model for the dropbox configuration
+    /// </summary>
     public sealed class DropboxConfigViewModel : SimpleConfigScreen
     {
         /// <summary>

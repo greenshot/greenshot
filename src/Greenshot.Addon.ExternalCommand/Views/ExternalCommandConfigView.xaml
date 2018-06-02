@@ -7,10 +7,12 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:ExternalCommandConfigViewModel,IsDesignTimeCreatable=False}"
              >
-
     <StackPanel>
         <GroupBox Header="{Binding ExternalCommandLanguage.SettingsTitle}">
-            
+            <StackPanel>
+                <ContentControl x:Name="FileConfigPartViewModel"/>
+                <ContentControl x:Name="ExternalCommandMasterViewModel"/>
+            </StackPanel>
         </GroupBox>
     </StackPanel>
 </UserControl>

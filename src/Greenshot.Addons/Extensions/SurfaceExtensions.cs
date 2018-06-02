@@ -73,5 +73,17 @@ namespace Greenshot.Addons.Extensions
         {
             ImageOutput.SaveToStream(surface, stream, surface.GenerateOutputSettings(fileConfiguration.Choose(destinationFileConfiguration)));
         }
+
+        /// <summary>
+        /// Write the ISurface to the specified stream by using the supplied IFileConfiguration
+        /// </summary>
+        /// <param name="surface">ISurface</param>
+        /// <param name="fileConfiguration">IFileConfiguration</param>
+        /// <param name="destinationFileConfiguration">IDestinationFileConfiguration</param>
+        public static string SaveNamedTmpFile(this ISurface surface, IFileConfiguration fileConfiguration, IDestinationFileConfiguration destinationFileConfiguration = null)
+        {
+            var outputSettings = surface.GenerateOutputSettings(fileConfiguration.Choose(destinationFileConfiguration));
+            return ImageOutput.SaveNamedTmpFile(surface, surface.CaptureDetails, outputSettings);
+        }
     }
 }
