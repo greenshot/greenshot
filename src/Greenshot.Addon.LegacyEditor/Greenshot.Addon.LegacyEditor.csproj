@@ -144,6 +144,15 @@
     <Compile Include="Controls\BindableToolStripDropDownButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\CustomProfessionalColorTable.cs" />
     <Compile Include="Controls\CustomToolStripProfessionalRenderer.cs" />
     <Compile Include="Controls\FontFamilyComboBox.cs">
@@ -153,6 +162,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\NonJumpingPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\ToolStripColorButton.cs">
@@ -266,6 +278,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Controls\ColorDialog.resx">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
       <SubType>Designer</SubType>

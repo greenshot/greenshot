@@ -31,10 +31,11 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.SafeHandles;
+using Greenshot.Addons.Controls;
 
 #endregion
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Addon.LegacyEditor.Controls
 {
 	/// <summary>
 	///     This code was supplied by Hi-Coder as a patch for Greenshot

@@ -24,6 +24,7 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Greenshot.Addon.LegacyEditor.Controls;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Forms;
 using Greenshot.Addon.LegacyEditor.ViewModels;
@@ -61,6 +62,11 @@ namespace Greenshot.Addon.LegacyEditor
             builder
                 .RegisterType<ImageEditorForm>()
                 .AsSelf();
+
+            builder
+                .RegisterType<ColorDialog>()
+                .AsSelf();
+
             builder
                 .RegisterType<Surface>()
                 .As<ISurface>();

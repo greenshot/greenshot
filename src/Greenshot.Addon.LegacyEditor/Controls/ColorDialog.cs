@@ -30,26 +30,31 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Dpi;
+using Greenshot.Addons;
+using Greenshot.Addons.Controls;
 
 #endregion
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Addon.LegacyEditor.Controls
 {
 	/// <summary>
 	///     Description of ColorDialog.
 	/// </summary>
 	public partial class ColorDialog : GreenshotForm
 	{
-		private readonly ToolTip _toolTip = new ToolTip();
+	    private readonly IEditorConfiguration _editorConfiguration;
+	    private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress;
+	    private IList<Control> _recentColorButtons;
 
-        public ColorDialog(IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
+        public ColorDialog(
+            IEditorConfiguration editorConfiguration,
+            IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
-            SuspendLayout();
+		    _editorConfiguration = editorConfiguration;
+		    SuspendLayout();
             InitializeComponent();
             ResumeLayout();
-            //UpdateRecentColorsButtonRow();
 		    Load += (sender, args) => DrawButtons();
         }
 
@@ -57,12 +62,13 @@ namespace Greenshot.Addons.Controls
 	    {
 	        int pos = FormDpiHandler.ScaleWithCurrentDpi(5);
             int size = FormDpiHandler.ScaleWithCurrentDpi(15);
-	        int lastColorY = FormDpiHandler.ScaleWithCurrentDpi(190);
 	        var buttons = CreateColorPalette(pos, pos, size, size);
-	        var lastUsedButtons = CreateLastUsedColorButtonRow(pos, lastColorY, size, size);
-	        SuspendLayout();
+	        int lastColorY = FormDpiHandler.ScaleWithCurrentDpi(185);
+	        _recentColorButtons = CreateLastUsedColorButtonRow(pos, lastColorY, size, size);
+	        UpdateRecentColorsButtonRow();
+            SuspendLayout();
             Controls.AddRange(buttons.ToArray());
-	        Controls.AddRange(lastUsedButtons.ToArray());
+	        Controls.AddRange(_recentColorButtons.ToArray());
             ResumeLayout();
         }
 
@@ -183,14 +189,14 @@ namespace Greenshot.Addons.Controls
 
 		#region update user interface
 
-/*		private void UpdateRecentColorsButtonRow()
+		private void UpdateRecentColorsButtonRow()
 		{
-			for (var i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++)
+			for (var i = 0; i < _editorConfiguration.RecentColors.Count && i < 12; i++)
 			{
-				_recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
+				_recentColorButtons[i].BackColor = _editorConfiguration.RecentColors[i];
 				_recentColorButtons[i].Enabled = true;
 			}
-		}*/
+		}
 
 		private void PreviewColor(Color colorToPreview, Control trigger)
 		{
@@ -210,20 +216,16 @@ namespace Greenshot.Addons.Controls
 			_updateInProgress = false;
 		}
 
-        // TODO: Fix recent colors
-/*
- 
 		private void AddToRecentColors(Color c)
 		{
-			EditorConfig.RecentColors.Remove(c);
-			EditorConfig.RecentColors.Insert(0, c);
-			if (EditorConfig.RecentColors.Count > 12)
+		    _editorConfiguration.RecentColors.Remove(c);
+		    _editorConfiguration.RecentColors.Insert(0, c);
+			if (_editorConfiguration.RecentColors.Count > 12)
 			{
-				EditorConfig.RecentColors = EditorConfig.RecentColors.Skip(EditorConfig.RecentColors.Count - 12).ToList();
+			    _editorConfiguration.RecentColors = _editorConfiguration.RecentColors.Skip(_editorConfiguration.RecentColors.Count - 12).ToList();
 			}
 			UpdateRecentColorsButtonRow();
 		}
-*/
 
 		#endregion
 
@@ -279,7 +281,7 @@ namespace Greenshot.Addons.Controls
 		{
 			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter)
 			{
-				//AddToRecentColors(colorPanel.BackColor);
+				AddToRecentColors(colorPanel.BackColor);
 			}
 		}
 
@@ -302,7 +304,7 @@ namespace Greenshot.Addons.Controls
 		{
 			DialogResult = DialogResult.OK;
 			Hide();
-			//AddToRecentColors(colorPanel.BackColor);
+			AddToRecentColors(colorPanel.BackColor);
 		}
 
 		#endregion

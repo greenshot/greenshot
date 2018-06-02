@@ -29,10 +29,12 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
+using Greenshot.Addons.Controls;
+using ColorDialog = Greenshot.Addon.LegacyEditor.Controls.ColorDialog;
 
 #endregion
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Addon.LegacyEditor.Controls
 {
 	/// <summary>
 	///     Description of ColorButton.

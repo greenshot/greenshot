@@ -25,7 +25,6 @@ using Autofac;
 using Dapplo.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.ViewModels;
-using Greenshot.Addons.Controls;
 
 namespace Greenshot.Addons
 {
@@ -39,9 +38,6 @@ namespace Greenshot.Addons
                 .AsSelf();
             builder
                 .RegisterType<DestinationHolder>()
-                .AsSelf();
-            builder
-                .RegisterType<ColorDialog>()
                 .AsSelf();
             
             base.Load(builder);

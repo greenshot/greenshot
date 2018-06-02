@@ -45,7 +45,7 @@ namespace Greenshot.Addons.Controls
 	/// <summary>
 	///     This form is used for automatically binding the elements of the form to the language
 	/// </summary>
-	public abstract class GreenshotForm : DpiAwareForm, IGreenshotLanguageBindable
+	public class GreenshotForm : DpiAwareForm, IGreenshotLanguageBindable
 	{
 	    private static readonly LogSource Log = new LogSource();
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
@@ -53,6 +53,12 @@ namespace Greenshot.Addons.Controls
 		
 		protected readonly BitmapScaleHandler<string> ScaleHandler;
 
+#if DEBUG
+        public GreenshotForm()
+	    {
+
+	    }
+#endif
         /// <summary>
         /// Default constructor, for default functionality like DPI awareness
         /// </summary>
