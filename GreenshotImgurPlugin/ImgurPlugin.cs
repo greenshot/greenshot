@@ -123,9 +123,14 @@ namespace GreenshotImgurPlugin {
 		}
 
 		private void UpdateHistoryMenuItem() {
-			try {
+		    if (_historyMenuItem == null)
+		    {
+		        return;
+		    }
+			try
+            {
 				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
-					if (_config.ImgurUploadHistory.Count > 0) {
+					if (_config.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0) {
 						_historyMenuItem.Enabled = true;
 					} else {
 						_historyMenuItem.Enabled = false;

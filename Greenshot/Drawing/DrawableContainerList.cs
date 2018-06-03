@@ -104,8 +104,8 @@ namespace Greenshot.Drawing {
 				return null;
 			}
 			set {
-				ParentID = value.ID;
-				foreach(var drawableContainer in this) {
+				ParentID = value?.ID ?? Guid.NewGuid();
+				foreach (var drawableContainer in this) {
 					var dc = (DrawableContainer) drawableContainer;
 					dc.Parent = value;
 				}

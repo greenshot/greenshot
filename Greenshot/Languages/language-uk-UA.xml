@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
-		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
-		<resource name="about_host">Greenshot is розташовується на GitHub</resource>
-		<resource name="about_icons">Набір іконок Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
+		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
+		<resource name="about_host">Greenshot розташовується на GitHub</resource>
+		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
 		<resource name="about_license">Авторство © 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
+Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
 		<resource name="application_title">Greenshot – революційна утиліта для отримання знімків екрану</resource>
@@ -37,12 +37,12 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="colorpicker_red">Червоний</resource>
 		<resource name="colorpicker_title">Вибір кольору</resource>
 		<resource name="colorpicker_transparent">Прозорий</resource>
-		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Зайкрийте діалогове вікно та спробуйте знову.</resource>
+		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Закрийте діалогове вікно та спробуйте знову.</resource>
 		<resource name="com_rejected_title">Доступ Greenshot відхилено</resource>
 		<resource name="config_unauthorizedaccess_write">Неможливо зберегти файл налаштувань Greenshot. Будь ласка, перевірте доступ до „{0}“.</resource>
 		<resource name="contextmenu_about">Про Greenshot</resource>
-		<resource name="contextmenu_capturearea">Захоплення області</resource>
-		<resource name="contextmenu_captureclipboard">Відкрити зображення з буферу обміну</resource>
+		<resource name="contextmenu_capturearea">Захопити область</resource>
+		<resource name="contextmenu_captureclipboard">Відкрити зображення з буфера обміну</resource>
 		<resource name="contextmenu_capturefullscreen">Захопити весь екран</resource>
 		<resource name="contextmenu_capturefullscreen_all">все</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">знизу</resource>
@@ -51,8 +51,8 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="contextmenu_capturefullscreen_top">згори</resource>
 		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
 		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
-		<resource name="contextmenu_capturelastregion">Захоплення останньої області</resource>
-		<resource name="contextmenu_capturewindow">Захоплення вікна</resource>
+		<resource name="contextmenu_capturelastregion">Захопити останню область</resource>
+		<resource name="contextmenu_capturewindow">Захопити вікно</resource>
 		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
@@ -61,7 +61,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="contextmenu_openrecentcapture">Відкрити місце збереження останнього знімку</resource>
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
-		<resource name="destination_exportfailed">Помилка експорту {0}. Будь ласка, спробуйте ще.</resource>
+		<resource name="destination_exportfailed">Помилка експорту до {0}. Спробуйте знову.</resource>
 		<resource name="editor_align_bottom">Знизу</resource>
 		<resource name="editor_align_center">По центру</resource>
 		<resource name="editor_align_horizontal">Горизонтальне вирівнювання</resource>
@@ -130,11 +130,11 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_obfuscate_mode">Режим затемнення</resource>
 		<resource name="editor_obfuscate_pixelize">Пікселізація</resource>
 		<resource name="editor_object">Об’єкт</resource>
-		<resource name="editor_opendirinexplorer">Відкрити катлог у Провіднику Windows</resource>
+		<resource name="editor_opendirinexplorer">Відкрити каталог у Провіднику Windows</resource>
 		<resource name="editor_pastefromclipboard">Вставити</resource>
-		<resource name="editor_pixel_size">Розмір піксела</resource>
-		<resource name="editor_preview_quality">Якість попереднього перегляду</resource>
-		<resource name="editor_print">Роздрукувати</resource>
+		<resource name="editor_pixel_size">Розмір пікселя</resource>
+		<resource name="editor_preview_quality">Якість перегляду</resource>
+		<resource name="editor_print">Друк</resource>
 		<resource name="editor_redo">Повторити {0}</resource>
 		<resource name="editor_resetsize">Скинути розмір</resource>
 		<resource name="editor_resize_percent">відсотків</resource>
@@ -144,7 +144,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="editor_save">Зберегти</resource>
 		<resource name="editor_save_objects">Зберегти об’єкти в файл</resource>
 		<resource name="editor_saveas">Зберегти як...</resource>
-		<resource name="editor_selectall">Виділити все</resource>
+		<resource name="editor_selectall">Вибрати все</resource>
 		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
 		<resource name="editor_shadow">Тінь</resource>
 		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
@@ -164,6 +164,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="error_openfile">Неможливо відкрити файл „{0}“.</resource>
 		<resource name="error_openlink">Неможливо відкрити посилання „{0}“.</resource>
 		<resource name="error_save">Неможливо зберегти знімок. Будь ласка, знайдіть відповідне місце.</resource>
+    <resource name="error_save_invalid_chars">Згенерована назва файла чи теки неприпустима. Будь ласка, виправте шаблон назви файла та спробуйте ще.</resource>
 		<resource name="expertsettings">Експертні</resource>
 		<resource name="expertsettings_autoreducecolors">Створити 8-бітне зображення, якщо більш ніж 8-бітне має менше 256 кольорів</resource>
 		<resource name="expertsettings_checkunstableupdates">Перевірити наявність нестабільних оновлень</resource>
@@ -238,7 +239,8 @@ ${hostname} назва комп’ютера
 
 Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
 Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).</resource>
+створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному
+часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).</resource>
 		<resource name="settings_network">Мережа та оновлення</resource>
 		<resource name="settings_output">Виведення</resource>
 		<resource name="settings_playsound">Відтворити звук камери</resource>
@@ -273,9 +275,9 @@ ${hostname} назва комп’ютера
 		<resource name="update_found">Доступна новіша версія Greenshot! Чи хочете Ви завантажити Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Будь ласка, зачекайте поки захоплюється сторінка в Internet Explorer...</resource>
 		<resource name="warning">Попередження</resource>
-		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
+		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою {1}! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
-Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.</resource>
+Всі функції Greenshot досі працюють безпосередньо з контекстного меню піктограми в системні панелі без застосування гарячих клавіш.</resource>
 		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
@@ -307,7 +309,7 @@ ${hostname} назва комп’ютера
     <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
     <resource name="editor_resize_width">Ширина</resource>
     <resource name="editor_resize_height">Висота</resource>
-	<resource name="settings_iconsize">Розмір іконки</resource>
+	<resource name="settings_iconsize">Розмір піктограми</resource>
     
   </resources>
 </language>

@@ -10,6 +10,23 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Bugs fixed:
+* [BUG-2235] - Imgur authentication issues due to imgur api change
+* [BUG-2227] - NullReferenceException when accessing the Imgur History
+* [BUG-2225] - NullReferenceException when changing the color of text
+* [BUG-2219] - Korean is spelled incorrectly in the installer
+* [BUG-2213] - NullReferenceException in the Freehand tool
+* [BUG-2203] - ArgumentNullException in the Freehand tool
+* [BUG-2141] - Imgur authentication issues due to old embedded IE
+* [BUG-2172] - NullReferenceException when using the speech bubble
+* [BUG-2246] - Login issues with the Atlassian Jira Cloud
+
+Features:
+* [FEATURE-1064] - Added CTRL+Backspace & CTRL+A to the text tool
+ 
+
+Greenshot 1.2.9.129-569de71 RELEASE
+
+Bugs fixed:
 * [BUG-2051] - Scroll-lock button not usable as hotkey
 * [BUG-2056] - Cannot export to external command Paint.NET if .greenshot format is used
 * [BUG-2081] - Canvas resize (Ctrl + / Ctrl -) only works via numpad keys
