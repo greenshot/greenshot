@@ -22,6 +22,7 @@
 #endregion
 
 using System.Reactive.Disposables;
+using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
@@ -30,6 +31,9 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.ExternalCommand.ViewModels
 {
+    /// <summary>
+    /// Configuration for the external commands
+    /// </summary>
     public sealed class ExternalCommandConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -82,10 +86,22 @@ namespace Greenshot.Addon.ExternalCommand.ViewModels
             base.Initialize(config);
         }
 
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+            ExternalCommandMasterViewModel.ActivateWith(this);
+        }
+
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
+        }
+
+        public override void Commit()
+        {
+            ExternalCommandMasterViewModel.Store();
+            base.Commit();
         }
     }
 }

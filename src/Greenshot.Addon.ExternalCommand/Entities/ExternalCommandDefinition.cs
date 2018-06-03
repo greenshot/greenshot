@@ -44,5 +44,10 @@ namespace Greenshot.Addon.ExternalCommand.Entities
         /// The behavior or mode of the command
         /// </summary>
         public CommandBehaviors CommandBehavior { get; set; } = CommandBehaviors.Default;
+
+        /// <summary>
+        /// Validates if this command definition is valid
+        /// </summary>
+        public bool IsValid => !string.IsNullOrEmpty(Command);
     }
 }

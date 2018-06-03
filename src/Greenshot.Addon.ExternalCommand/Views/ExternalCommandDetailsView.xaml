@@ -8,7 +8,28 @@
         xmlns:viewModels="clr-namespace:Greenshot.Addon.ExternalCommand.ViewModels"
         d:DataContext="{d:DesignInstance viewModels:ExternalCommandDetailsViewModel,IsDesignTimeCreatable=False}"
         mc:Ignorable="d">
-    <StackPanel>
-        <Label></Label>
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+ 
+        <Label Content="{Binding ExternalCommandLanguage.LabelName}" Grid.Column="0" Grid.Row="0"/>
+        <TextBox Text="{Binding Definition.Name}" Grid.Column="1" Grid.Row="0"/>
+
+        <Label Content="{Binding ExternalCommandLanguage.LabelCommand}" Grid.Column="0" Grid.Row="1"/>
+        <TextBox Text="{Binding Definition.Command}" Grid.Column="1" Grid.Row="1"/>
+
+        <Label Content="{Binding ExternalCommandLanguage.LabelArgument}" Grid.Column="0" Grid.Row="2"/>
+        <TextBox Text="{Binding Definition.Arguments}" Grid.Column="1" Grid.Row="2"/>
+
+        <Label Content="{Binding ExternalCommandLanguage.LabelInformation}" Grid.Column="0" Grid.Row="3"/>
+        <TextBox Text="{Binding Definition.CommandBehavior}" Grid.Column="1" Grid.Row="3"/>
+    </Grid>
 </UserControl>

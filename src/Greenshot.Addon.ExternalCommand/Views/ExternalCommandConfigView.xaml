@@ -9,10 +9,14 @@
              >
     <StackPanel>
         <GroupBox Header="{Binding ExternalCommandLanguage.SettingsTitle}">
-            <StackPanel>
-                <ContentControl x:Name="FileConfigPartViewModel"/>
-                <ContentControl x:Name="ExternalCommandMasterViewModel"/>
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ContentControl x:Name="FileConfigPartViewModel" Grid.Row="0"/>
+                <ContentControl x:Name="ExternalCommandMasterViewModel" Grid.Row="1" VerticalContentAlignment="Stretch"/>
+            </Grid>
         </GroupBox>
     </StackPanel>
 </UserControl>

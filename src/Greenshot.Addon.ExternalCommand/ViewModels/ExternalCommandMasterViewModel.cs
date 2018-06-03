@@ -23,21 +23,78 @@
 
 using System.Linq;
 using Caliburn.Micro;
+using Greenshot.Addon.ExternalCommand.Entities;
 
 namespace Greenshot.Addon.ExternalCommand.ViewModels
 {
     /// <summary>
     /// This is the master view of the external command config editor
     /// </summary>
-    public class ExternalCommandMasterViewModel : Conductor<IScreen>.Collection.OneActive
+    public class ExternalCommandMasterViewModel : Conductor<ExternalCommandDetailsViewModel>.Collection.OneActive
     {
-        public ExternalCommandMasterViewModel(IExternalCommandConfiguration externalCommandConfiguration)
+        /// <summary>
+        /// Used in the view
+        /// </summary>
+        public IExternalCommandConfiguration ExternalCommandConfiguration { get; }
+
+        /// <summary>
+        /// Used in the view
+        /// </summary>
+        public IExternalCommandLanguage ExternalCommandLanguage { get; }
+
+        public ExternalCommandMasterViewModel(
+            IExternalCommandConfiguration externalCommandConfiguration,
+            IExternalCommandLanguage externalCommandLanguage)
         {
-            var items = externalCommandConfiguration.Commands
-                .Select(externalCommandConfiguration.Read)
-                .Select(definition => new ExternalCommandDetailsViewModel(definition));
+            ExternalCommandConfiguration = externalCommandConfiguration;
+            ExternalCommandLanguage = externalCommandLanguage;
+        }
+
+        /// <inheritdoc />
+        protected override void OnActivate()
+        {
+            Items.Clear();
+            var items = ExternalCommandConfiguration.Commands
+                .Select(ExternalCommandConfiguration.Read)
+                .OrderBy(definition => definition.Name)
+                .Select(definition => new ExternalCommandDetailsViewModel(definition, ExternalCommandLanguage));
 
             Items.AddRange(items);
+
+            base.OnActivate();
+        }
+
+        /// <inheritdoc />
+        protected override void OnDeactivate(bool close)
+        {
+            Items.Clear();
+            base.OnDeactivate(close);
+        }
+
+        /// <summary>
+        /// This adds an item
+        /// </summary>
+        public void Add()
+        {
+            Items.Add(new ExternalCommandDetailsViewModel(new ExternalCommandDefinition
+            {
+                Name = "New command " + Items.Count
+            }, ExternalCommandLanguage));
+        }
+
+        /// <summary>
+        /// This stores all items
+        /// </summary>
+        public void Store()
+        {
+            foreach (var item in Items)
+            {
+                if (item.Definition?.IsValid != true)
+                {
+                    continue;
+                }
+                ExternalCommandConfiguration.Write(item.Definition);
+            }
         }
     }
 }

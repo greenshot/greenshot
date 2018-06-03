@@ -36,9 +36,15 @@ namespace Greenshot.Addon.ExternalCommand.ViewModels
         /// </summary>
         public ExternalCommandDefinition Definition { get; }
 
-        public ExternalCommandDetailsViewModel(ExternalCommandDefinition definition)
+        /// <summary>
+        /// The translations
+        /// </summary>
+        public IExternalCommandLanguage ExternalCommandLanguage { get; }
+
+        public ExternalCommandDetailsViewModel(ExternalCommandDefinition definition, IExternalCommandLanguage externalCommandLanguage)
         {
             Definition = definition;
+            ExternalCommandLanguage = externalCommandLanguage;
         }
     }
 }
