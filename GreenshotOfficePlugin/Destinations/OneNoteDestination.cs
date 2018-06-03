@@ -99,7 +99,8 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            base.SetDefaults(surface);
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
 
 			if (page == null) {
 				try {

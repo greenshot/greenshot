@@ -72,8 +72,9 @@ namespace Greenshot {
 			ie_hotkeyControl.Leave += LeaveHotkeyControl;
 			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
 			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
-			// Changes for BUG-2077
-			numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
+            this.btnEffectBorderColor.PropertyChanged += BtnEffectBorderColor_PropertyChanged;
+            // Changes for BUG-2077
+            numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
 
 			_daysbetweencheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
 			DisplayPluginTab();
@@ -83,12 +84,17 @@ namespace Greenshot {
 			CheckSettings();
 		}
 
-		/// <summary>
-		/// This makes sure the check cannot be set to 1-6
-		/// </summary>
-		/// <param name="sender">object</param>
-		/// <param name="eventArgs">EventArgs</param>
-		private void NumericUpDownDaysbetweencheckOnValueChanged(object sender, EventArgs eventArgs)
+        private void BtnEffectBorderColor_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            this.btnEffectBorderColor.BackColor= this.btnEffectBorderColor.SelectedColor;
+        }
+
+        /// <summary>
+        /// This makes sure the check cannot be set to 1-6
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">EventArgs</param>
+        private void NumericUpDownDaysbetweencheckOnValueChanged(object sender, EventArgs eventArgs)
 		{
 			int currentValue = (int)numericUpDown_daysbetweencheck.Value;
 
@@ -424,7 +430,19 @@ namespace Greenshot {
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
 			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width /16 * 16;
-			CheckDestinationSettings();
+
+            if (!string.IsNullOrEmpty(coreConfiguration.DestinationDefaultBorderEffect?.Trim()))
+            {
+                var defaultBorderEffect = Newtonsoft.Json.JsonConvert.DeserializeObject<DefaultBorderEffect>(coreConfiguration.DestinationDefaultBorderEffect);
+                if (null != defaultBorderEffect)
+                {
+                    this.txtEffectBorderWidth.Value = defaultBorderEffect.Width;
+                    this.btnEffectBorderColor.SelectedColor = defaultBorderEffect.Color;
+                    this.btnEffectBorderColor.BackColor = this.btnEffectBorderColor.SelectedColor;
+                }
+            }
+
+            CheckDestinationSettings();
 		}
 
 		private void SaveSettings() {
@@ -470,7 +488,12 @@ namespace Greenshot {
 
 			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 
-			try {
+            coreConfiguration.DestinationDefaultBorderEffect = Newtonsoft.Json.JsonConvert.SerializeObject(new DefaultBorderEffect() {
+                Width= (int)this.txtEffectBorderWidth.Value,
+                Color= this.btnEffectBorderColor.SelectedColor
+            });
+
+            try {
 				if (checkbox_autostartshortcut.Checked) {
 					// It's checked, so we set the RunUser if the RunAll isn't set.
 					// Do this every time, so the executable is correct.
@@ -654,9 +677,9 @@ namespace Greenshot {
 		private void radiobutton_CheckedChanged(object sender, EventArgs e) {
 			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
 		}
-	}
+    }
 
-	public class ListviewWithDestinationComparer : IComparer {
+    public class ListviewWithDestinationComparer : IComparer {
 		public int Compare(object x, object y) {
 			if (!(x is ListViewItem)) {
 				return 0;

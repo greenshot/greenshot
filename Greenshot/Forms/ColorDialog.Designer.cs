@@ -46,218 +46,236 @@ namespace Greenshot {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
-			this.btnTransparent = new GreenshotPlugin.Controls.GreenshotButton();
-			this.colorPanel = new System.Windows.Forms.Panel();
-			this.labelHtmlColor = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxHtmlColor = new System.Windows.Forms.TextBox();
-			this.labelRed = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelGreen = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelBlue = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxRed = new System.Windows.Forms.TextBox();
-			this.textBoxGreen = new System.Windows.Forms.TextBox();
-			this.textBoxBlue = new System.Windows.Forms.TextBox();
-			this.labelRecentColors = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxAlpha = new System.Windows.Forms.TextBox();
-			this.labelAlpha = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.btnApply = new GreenshotPlugin.Controls.GreenshotButton();
-			this.pipette = new Greenshot.Controls.Pipette();
-			this.SuspendLayout();
-			// 
-			// btnTransparent
-			// 
-			this.btnTransparent.BackColor = System.Drawing.Color.Transparent;
-			this.btnTransparent.LanguageKey = "colorpicker_transparent";
-			this.btnTransparent.Location = new System.Drawing.Point(210, 4);
-			this.btnTransparent.Name = "btnTransparent";
-			this.btnTransparent.Size = new System.Drawing.Size(78, 23);
-			this.btnTransparent.TabIndex = 0;
-			this.btnTransparent.TabStop = false;
-			this.btnTransparent.Text = "Transparent";
-			this.btnTransparent.UseVisualStyleBackColor = false;
-			this.btnTransparent.Click += new System.EventHandler(this.BtnTransparentClick);
-			// 
-			// colorPanel
-			// 
-			this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.colorPanel.Location = new System.Drawing.Point(213, 30);
-			this.colorPanel.Name = "colorPanel";
-			this.colorPanel.Size = new System.Drawing.Size(33, 23);
-			this.colorPanel.TabIndex = 1;
-			// 
-			// labelHtmlColor
-			// 
-			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
-			this.labelHtmlColor.Location = new System.Drawing.Point(210, 57);
-			this.labelHtmlColor.Name = "labelHtmlColor";
-			this.labelHtmlColor.Size = new System.Drawing.Size(78, 17);
-			this.labelHtmlColor.TabIndex = 2;
-			this.labelHtmlColor.Text = "HTML color";
-			// 
-			// textBoxHtmlColor
-			// 
-			this.textBoxHtmlColor.Location = new System.Drawing.Point(210, 71);
-			this.textBoxHtmlColor.Name = "textBoxHtmlColor";
-			this.textBoxHtmlColor.Size = new System.Drawing.Size(78, 20);
-			this.textBoxHtmlColor.TabIndex = 1;
-			this.textBoxHtmlColor.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxHtmlColor.TextChanged += new System.EventHandler(this.TextBoxHexadecimalTextChanged);
-			this.textBoxHtmlColor.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxHtmlColor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// labelRed
-			// 
-			this.labelRed.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelRed.LanguageKey = "colorpicker_red";
-			this.labelRed.Location = new System.Drawing.Point(210, 98);
-			this.labelRed.Name = "labelRed";
-			this.labelRed.Size = new System.Drawing.Size(78, 18);
-			this.labelRed.TabIndex = 4;
-			this.labelRed.Text = "Red";
-			// 
-			// labelGreen
-			// 
-			this.labelGreen.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelGreen.LanguageKey = "colorpicker_green";
-			this.labelGreen.Location = new System.Drawing.Point(210, 122);
-			this.labelGreen.Name = "labelGreen";
-			this.labelGreen.Size = new System.Drawing.Size(78, 18);
-			this.labelGreen.TabIndex = 5;
-			this.labelGreen.Text = "Green";
-			// 
-			// labelBlue
-			// 
-			this.labelBlue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelBlue.LanguageKey = "colorpicker_blue";
-			this.labelBlue.Location = new System.Drawing.Point(210, 146);
-			this.labelBlue.Name = "labelBlue";
-			this.labelBlue.Size = new System.Drawing.Size(78, 18);
-			this.labelBlue.TabIndex = 6;
-			this.labelBlue.Text = "Blue";
-			// 
-			// textBoxRed
-			// 
-			this.textBoxRed.Location = new System.Drawing.Point(258, 95);
-			this.textBoxRed.Name = "textBoxRed";
-			this.textBoxRed.Size = new System.Drawing.Size(30, 20);
-			this.textBoxRed.TabIndex = 2;
-			this.textBoxRed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.textBoxRed.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
-			this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxRed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// textBoxGreen
-			// 
-			this.textBoxGreen.Location = new System.Drawing.Point(258, 119);
-			this.textBoxGreen.Name = "textBoxGreen";
-			this.textBoxGreen.Size = new System.Drawing.Size(30, 20);
-			this.textBoxGreen.TabIndex = 3;
-			this.textBoxGreen.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.textBoxGreen.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
-			this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxGreen.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// textBoxBlue
-			// 
-			this.textBoxBlue.Location = new System.Drawing.Point(258, 143);
-			this.textBoxBlue.Name = "textBoxBlue";
-			this.textBoxBlue.Size = new System.Drawing.Size(30, 20);
-			this.textBoxBlue.TabIndex = 4;
-			this.textBoxBlue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.textBoxBlue.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
-			this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxBlue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// labelRecentColors
-			// 
-			this.labelRecentColors.LanguageKey = "colorpicker_recentcolors";
-			this.labelRecentColors.Location = new System.Drawing.Point(3, 175);
-			this.labelRecentColors.Name = "labelRecentColors";
-			this.labelRecentColors.Size = new System.Drawing.Size(148, 13);
-			this.labelRecentColors.TabIndex = 10;
-			this.labelRecentColors.Text = "Recently used colors";
-			// 
-			// textBoxAlpha
-			// 
-			this.textBoxAlpha.Location = new System.Drawing.Point(258, 167);
-			this.textBoxAlpha.Name = "textBoxAlpha";
-			this.textBoxAlpha.Size = new System.Drawing.Size(30, 20);
-			this.textBoxAlpha.TabIndex = 5;
-			this.textBoxAlpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.textBoxAlpha.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
-			this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxAlpha.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// labelAlpha
-			// 
-			this.labelAlpha.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelAlpha.LanguageKey = "colorpicker_alpha";
-			this.labelAlpha.Location = new System.Drawing.Point(210, 170);
-			this.labelAlpha.Name = "labelAlpha";
-			this.labelAlpha.Size = new System.Drawing.Size(78, 18);
-			this.labelAlpha.TabIndex = 11;
-			this.labelAlpha.Text = "Alpha";
-			// 
-			// btnApply
-			// 
-			this.btnApply.BackColor = System.Drawing.Color.Transparent;
-			this.btnApply.LanguageKey = "colorpicker_apply";
-			this.btnApply.Location = new System.Drawing.Point(210, 191);
-			this.btnApply.Name = "btnApply";
-			this.btnApply.Size = new System.Drawing.Size(78, 23);
-			this.btnApply.TabIndex = 12;
-			this.btnApply.TabStop = false;
-			this.btnApply.Text = "Apply";
-			this.btnApply.UseVisualStyleBackColor = false;
-			this.btnApply.Click += new System.EventHandler(this.BtnApplyClick);
-			// 
-			// pipette
-			// 
-			this.pipette.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.pipette.Cursor = System.Windows.Forms.Cursors.Arrow;
-			this.pipette.Image = ((System.Drawing.Image)(resources.GetObject("pipette.Image")));
-			this.pipette.Location = new System.Drawing.Point(255, 30);
-			this.pipette.Name = "pipette";
-			this.pipette.Size = new System.Drawing.Size(33, 23);
-			this.pipette.TabIndex = 13;
-			this.pipette.PipetteUsed += new System.EventHandler<Greenshot.Controls.PipetteUsedArgs>(this.PipetteUsed);
-			// 
-			// ColorDialog
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(292, 218);
-			this.Controls.Add(this.pipette);
-			this.Controls.Add(this.btnApply);
-			this.Controls.Add(this.textBoxAlpha);
-			this.Controls.Add(this.labelAlpha);
-			this.Controls.Add(this.labelRecentColors);
-			this.Controls.Add(this.textBoxBlue);
-			this.Controls.Add(this.textBoxGreen);
-			this.Controls.Add(this.textBoxRed);
-			this.Controls.Add(this.labelBlue);
-			this.Controls.Add(this.labelGreen);
-			this.Controls.Add(this.labelRed);
-			this.Controls.Add(this.textBoxHtmlColor);
-			this.Controls.Add(this.labelHtmlColor);
-			this.Controls.Add(this.colorPanel);
-			this.Controls.Add(this.btnTransparent);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "colorpicker_title";
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "ColorDialog";
-			this.ShowIcon = false;
-			this.ShowInTaskbar = false;
-			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.Text = "Color picker";
-			this.ResumeLayout(false);
-			this.PerformLayout();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
+            this.btnTransparent = new GreenshotPlugin.Controls.GreenshotButton();
+            this.colorPanel = new System.Windows.Forms.Panel();
+            this.labelHtmlColor = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.textBoxHtmlColor = new System.Windows.Forms.TextBox();
+            this.labelRed = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.labelGreen = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.labelBlue = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.textBoxRed = new System.Windows.Forms.TextBox();
+            this.textBoxGreen = new System.Windows.Forms.TextBox();
+            this.textBoxBlue = new System.Windows.Forms.TextBox();
+            this.labelRecentColors = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.textBoxAlpha = new System.Windows.Forms.TextBox();
+            this.labelAlpha = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.btnApply = new GreenshotPlugin.Controls.GreenshotButton();
+            this.pipette = new Greenshot.Controls.Pipette();
+            this.SuspendLayout();
+            // 
+            // btnTransparent
+            // 
+            this.btnTransparent.BackColor = System.Drawing.Color.Transparent;
+            this.btnTransparent.LanguageKey = "colorpicker_transparent";
+            this.btnTransparent.Location = new System.Drawing.Point(262, 5);
+            this.btnTransparent.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnTransparent.Name = "btnTransparent";
+            this.btnTransparent.Size = new System.Drawing.Size(98, 29);
+            this.btnTransparent.TabIndex = 0;
+            this.btnTransparent.TabStop = false;
+            this.btnTransparent.Text = "Transparent";
+            this.btnTransparent.UseVisualStyleBackColor = false;
+            this.btnTransparent.Click += new System.EventHandler(this.BtnTransparentClick);
+            // 
+            // colorPanel
+            // 
+            this.colorPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.colorPanel.Location = new System.Drawing.Point(266, 38);
+            this.colorPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.colorPanel.Name = "colorPanel";
+            this.colorPanel.Size = new System.Drawing.Size(41, 28);
+            this.colorPanel.TabIndex = 1;
+            // 
+            // labelHtmlColor
+            // 
+            this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
+            this.labelHtmlColor.Location = new System.Drawing.Point(262, 71);
+            this.labelHtmlColor.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelHtmlColor.Name = "labelHtmlColor";
+            this.labelHtmlColor.Size = new System.Drawing.Size(98, 21);
+            this.labelHtmlColor.TabIndex = 2;
+            this.labelHtmlColor.Text = "HTML color";
+            // 
+            // textBoxHtmlColor
+            // 
+            this.textBoxHtmlColor.Location = new System.Drawing.Point(262, 89);
+            this.textBoxHtmlColor.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxHtmlColor.Name = "textBoxHtmlColor";
+            this.textBoxHtmlColor.Size = new System.Drawing.Size(96, 25);
+            this.textBoxHtmlColor.TabIndex = 1;
+            this.textBoxHtmlColor.Click += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxHtmlColor.TextChanged += new System.EventHandler(this.TextBoxHexadecimalTextChanged);
+            this.textBoxHtmlColor.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxHtmlColor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // labelRed
+            // 
+            this.labelRed.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.labelRed.LanguageKey = "colorpicker_red";
+            this.labelRed.Location = new System.Drawing.Point(262, 122);
+            this.labelRed.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelRed.Name = "labelRed";
+            this.labelRed.Size = new System.Drawing.Size(98, 22);
+            this.labelRed.TabIndex = 4;
+            this.labelRed.Text = "Red";
+            // 
+            // labelGreen
+            // 
+            this.labelGreen.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.labelGreen.LanguageKey = "colorpicker_green";
+            this.labelGreen.Location = new System.Drawing.Point(262, 152);
+            this.labelGreen.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelGreen.Name = "labelGreen";
+            this.labelGreen.Size = new System.Drawing.Size(98, 22);
+            this.labelGreen.TabIndex = 5;
+            this.labelGreen.Text = "Green";
+            // 
+            // labelBlue
+            // 
+            this.labelBlue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.labelBlue.LanguageKey = "colorpicker_blue";
+            this.labelBlue.Location = new System.Drawing.Point(262, 182);
+            this.labelBlue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelBlue.Name = "labelBlue";
+            this.labelBlue.Size = new System.Drawing.Size(98, 22);
+            this.labelBlue.TabIndex = 6;
+            this.labelBlue.Text = "Blue";
+            // 
+            // textBoxRed
+            // 
+            this.textBoxRed.Location = new System.Drawing.Point(322, 119);
+            this.textBoxRed.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxRed.Name = "textBoxRed";
+            this.textBoxRed.Size = new System.Drawing.Size(36, 25);
+            this.textBoxRed.TabIndex = 2;
+            this.textBoxRed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxRed.Click += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
+            this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxRed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // textBoxGreen
+            // 
+            this.textBoxGreen.Location = new System.Drawing.Point(322, 149);
+            this.textBoxGreen.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxGreen.Name = "textBoxGreen";
+            this.textBoxGreen.Size = new System.Drawing.Size(36, 25);
+            this.textBoxGreen.TabIndex = 3;
+            this.textBoxGreen.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxGreen.Click += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
+            this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxGreen.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // textBoxBlue
+            // 
+            this.textBoxBlue.Location = new System.Drawing.Point(322, 179);
+            this.textBoxBlue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxBlue.Name = "textBoxBlue";
+            this.textBoxBlue.Size = new System.Drawing.Size(36, 25);
+            this.textBoxBlue.TabIndex = 4;
+            this.textBoxBlue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxBlue.Click += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
+            this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxBlue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // labelRecentColors
+            // 
+            this.labelRecentColors.LanguageKey = "colorpicker_recentcolors";
+            this.labelRecentColors.Location = new System.Drawing.Point(4, 219);
+            this.labelRecentColors.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelRecentColors.Name = "labelRecentColors";
+            this.labelRecentColors.Size = new System.Drawing.Size(185, 16);
+            this.labelRecentColors.TabIndex = 10;
+            this.labelRecentColors.Text = "Recently used colors";
+            // 
+            // textBoxAlpha
+            // 
+            this.textBoxAlpha.Location = new System.Drawing.Point(322, 209);
+            this.textBoxAlpha.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxAlpha.Name = "textBoxAlpha";
+            this.textBoxAlpha.Size = new System.Drawing.Size(36, 25);
+            this.textBoxAlpha.TabIndex = 5;
+            this.textBoxAlpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxAlpha.Click += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
+            this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
+            this.textBoxAlpha.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // labelAlpha
+            // 
+            this.labelAlpha.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.labelAlpha.LanguageKey = "colorpicker_alpha";
+            this.labelAlpha.Location = new System.Drawing.Point(262, 212);
+            this.labelAlpha.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelAlpha.Name = "labelAlpha";
+            this.labelAlpha.Size = new System.Drawing.Size(98, 22);
+            this.labelAlpha.TabIndex = 11;
+            this.labelAlpha.Text = "Alpha";
+            // 
+            // btnApply
+            // 
+            this.btnApply.BackColor = System.Drawing.Color.Transparent;
+            this.btnApply.LanguageKey = "colorpicker_apply";
+            this.btnApply.Location = new System.Drawing.Point(262, 239);
+            this.btnApply.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(98, 29);
+            this.btnApply.TabIndex = 12;
+            this.btnApply.TabStop = false;
+            this.btnApply.Text = "Apply";
+            this.btnApply.UseVisualStyleBackColor = false;
+            this.btnApply.Click += new System.EventHandler(this.BtnApplyClick);
+            // 
+            // pipette
+            // 
+            this.pipette.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pipette.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.pipette.Image = ((System.Drawing.Image)(resources.GetObject("pipette.Image")));
+            this.pipette.Location = new System.Drawing.Point(319, 38);
+            this.pipette.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.pipette.Name = "pipette";
+            this.pipette.Size = new System.Drawing.Size(41, 28);
+            this.pipette.TabIndex = 13;
+            this.pipette.PipetteUsed += new System.EventHandler<Greenshot.Controls.PipetteUsedArgs>(this.PipetteUsed);
+            // 
+            // ColorDialog
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(365, 272);
+            this.Controls.Add(this.pipette);
+            this.Controls.Add(this.btnApply);
+            this.Controls.Add(this.textBoxAlpha);
+            this.Controls.Add(this.labelAlpha);
+            this.Controls.Add(this.labelRecentColors);
+            this.Controls.Add(this.textBoxBlue);
+            this.Controls.Add(this.textBoxGreen);
+            this.Controls.Add(this.textBoxRed);
+            this.Controls.Add(this.labelBlue);
+            this.Controls.Add(this.labelGreen);
+            this.Controls.Add(this.labelRed);
+            this.Controls.Add(this.textBoxHtmlColor);
+            this.Controls.Add(this.labelHtmlColor);
+            this.Controls.Add(this.colorPanel);
+            this.Controls.Add(this.btnTransparent);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.LanguageKey = "colorpicker_title";
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "ColorDialog";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Color picker";
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
 		}
 		private GreenshotPlugin.Controls.GreenshotLabel labelRed;

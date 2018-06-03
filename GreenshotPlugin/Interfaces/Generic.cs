@@ -263,5 +263,7 @@ namespace Greenshot.Plugin
 		int Height { get; }
 
 		void MakeUndoable(IMemento memento, bool allowMerge);
+
+        bool HasDefaultEffect { get; set; }
 	}
 }

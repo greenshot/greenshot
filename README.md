@@ -1,24 +1,34 @@
-Greenshot - a free screenshot tool optimized for productivity
-=============================================================
+# Greenshot #
 
-Welcome to the source repository for Greenshot
+这是一款强大的桌面截图工具，可以自由地设置导出方式，比如：导出至MS Office、剪贴板、画板、Greenshot图片编辑器、自定义命令、打印等。没有任何广告信息，完全免费哦。
 
-What is Greenshot?
-------------------
-
-Greenshot is a light-weight screenshot software tool for Windows with the following key features:
-
-* Quickly create screenshots of a selected region, window or fullscreen; you can even capture complete (scrolling) web pages from Internet Explorer.
-* Easily annotate, highlight or obfuscate parts of the screenshot.
-* Export the screenshot in various ways: save to file, send to printer, copy to clipboard, attach to e-mail, send Office programs or upload to photo sites like Flickr or Picasa, and others.
-and a lot more options simplyfying creation of and work with screenshots every day.
-
-Being easy to understand and configurable, Greenshot is an efficient tool for project managers, software developers, technical writers, testers and anyone else creating screenshots.
+**原始项目地址：**https://github.com/greenshot/greenshot
+> 感谢原项目的贡献者们！
 
 
-[If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](http://getgreenshot.org/support/)
+# 主要功能 #
+
+1. 截取屏幕的一部分
+2. 截取窗体
+3. 截取整个屏幕
+4. 从IE中截取
+5. 截图直接输出Office、剪贴板、画板、Greenshot图片编辑器、自定义命令、打印等
+
+![](https://raw.githubusercontent.com/xucongli1989/greenshot/master/2.jpg)
 
 
-About this repository
----------------------
-This repository is for Greenshot 1.2.9, which is a bugfix of 1.2.8
+# 我的改进 #
+
+1. 去掉了一些不常用的输出项，比如：Confluence/Dropbox/Flickr等
+2. 添加默认边框的配置，在截图完成时，可以使用默认的边框设置为图片自动加上边框（特别是在图片边界留白时，非常有用，这样可以使图片的轮廓更清晰）
+
+![](https://raw.githubusercontent.com/xucongli1989/greenshot/master/1.jpg)
+
+# 后话 #
+
+使用了三年的【红******】截图工具，如今在高分屏中截图有问题，因此升级到最新版，升级后该问题完美解决。但是，我的天啊，全是广告，满天飞。去官网找，看能不能付费过滤广告，很可惜，没有。所有的广告，就是让你领上面虚拟物品，然后做任务，赚积分之类的。故花了几个小时，在google上面搜索截图软件，一个一个地安装与操作，最终发现该软件非常不错，而且还是开源的。
+
+> 有这么一种软件，想尽办法弹广告让用户花时间做任务赚积分来变现，却不知有些用户更希望直接了当地付费来提升体验。
+
+
+

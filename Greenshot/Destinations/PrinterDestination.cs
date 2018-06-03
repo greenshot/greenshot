@@ -116,7 +116,8 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            base.SetDefaults(surface);
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(printerName)) {
 				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {

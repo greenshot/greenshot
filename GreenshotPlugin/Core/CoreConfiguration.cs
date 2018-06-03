@@ -54,14 +54,21 @@ namespace GreenshotPlugin.Core {
 		SHOW_CONTEXT_MENU
 	}
 
-	/// <summary>
-	/// Description of CoreConfiguration.
-	/// </summary>
-	[IniSection("Core", Description="Greenshot core configuration")]
+    [Serializable]
+    public class DefaultBorderEffect
+    {
+        public int Width { get; set; }
+        public System.Drawing.Color Color { get; set; }
+    }
+
+    /// <summary>
+    /// Description of CoreConfiguration.
+    /// </summary>
+    [IniSection("Core", Description="Greenshot core configuration")]
 	public class CoreConfiguration : IniSection, INotifyPropertyChanged {
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		[IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
+        [IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
 		public string Language { get; set; }
 
 		[IniProperty("RegionHotkey", Description="Hotkey for starting the region capture", DefaultValue="PrintScreen")]
@@ -79,7 +86,11 @@ namespace GreenshotPlugin.Core {
 		public bool IsFirstLaunch { get; set; }
 		[IniProperty("Destinations", Separator=",", Description="Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker", DefaultValue="Picker")]
 		public List<string> OutputDestinations { get; set; } = new List<string>();
-		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB", DefaultValue="PNG,DIB")]
+
+        [IniProperty("DestinationDefaultBorderEffect", Description = "The default border  effect when capture done.")]
+        public string DestinationDefaultBorderEffect { get; set; }
+
+        [IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB", DefaultValue="PNG,DIB")]
 		public List<ClipboardFormat> ClipboardFormats { get; set; } = new List<ClipboardFormat>();
 
 		[IniProperty("CaptureMousepointer", Description="Should the mouse be captured?", DefaultValue="true")]

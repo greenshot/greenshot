@@ -47,6 +47,7 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+            base.SetDefaults(surface);
 			List<IDestination> destinations = new List<IDestination>();
 			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 				if ("Picker".Equals(destination.Designation)) {
