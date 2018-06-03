@@ -78,7 +78,6 @@
     </Compile>
     <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EditorDestination.cs" />
-    <Compile Include="Destinations\EmailDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
