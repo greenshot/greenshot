@@ -89,6 +89,8 @@ namespace Greenshot.Addon.ExternalCommand.ViewModels
         {
             foreach (var item in Items)
             {
+                // Remove before
+                ExternalCommandConfiguration.Delete(item.Definition.Name);
                 if (item.Definition?.IsValid != true)
                 {
                     continue;

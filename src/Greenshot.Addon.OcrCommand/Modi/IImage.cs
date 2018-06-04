@@ -21,27 +21,22 @@
 
 #endregion
 
-#region Usings
-
-using System.Collections;
-
-#endregion
-
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
 	/// <summary>
-	///     Use the Images accessor property of the Document object to return an Images collection.
-	///     Use the Item property of the Images collection to return an Image object and gain access to its OCR Layout
-	///     (including recognized Text and Words), the properties that describe its dimensions and format (BitsPerPixel,
-	///     Compression, PixelHeight, PixelWidth, XDPI, and YDPI),
-	///     and its Picture and Thumbnail images.
+	///     Describes the page in a scan
 	/// </summary>
-	public interface IImages : ICommon, IEnumerable
+	public interface IImage : ICommon
 	{
-		int Count { get; }
+		ILayout Layout { get; }
 
-		IImage this[int index] { get; }
-
-		new IEnumerator GetEnumerator();
+		long BitsPerPixel { get; }
+		CompressionLevel Compression { get; }
+		//IPictureDisp Picture { get; }
+		int PixelHeight { get; }
+		int PixelWidth { get; }
+		//IPictureDisp Thumbnail { get; }
+		int XDPI { get; }
+		int YDPI { get; }
 	}
 }

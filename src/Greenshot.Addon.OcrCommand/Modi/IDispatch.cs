@@ -23,21 +23,22 @@
 
 #region Usings
 
-using System.Collections;
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.CustomMarshalers;
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	/// <summary>
-	///     The Words collection recognized in the text during an optical character recognition (OCR) operation.
-	/// </summary>
-	public interface IWords : ICommon, IEnumerable
+	[ComImport]
+	[Guid("00020400-0000-0000-C000-000000000046")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IDispatch
 	{
-		int Count { get; }
+		void Reserved();
 
-		IWord this[int index] { get; }
-
-		new IEnumerator GetEnumerator();
+		[PreserveSig]
+		int GetTypeInfo(uint nInfo, int lcid, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TypeToTypeInfoMarshaler))] out Type typeInfo);
 	}
 }

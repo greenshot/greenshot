@@ -21,19 +21,13 @@
 
 #endregion
 
-#region Usings
-
-using System;
-
-#endregion
-
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	/// <summary>
-	///     Base class for the common properties of the Modi interfaces
-	/// </summary>
-	public interface ICommon : IDisposable
+	public enum FileFormat
 	{
-		IDocument Application { get; }
+		miFILE_FORMAT_DEFAULTVALUE = -1,
+		miFILE_FORMAT_TIFF = 1,
+		miFILE_FORMAT_TIFF_LOSSLESS = 2,
+		miFILE_FORMAT_MDI = 4
 	}
 }

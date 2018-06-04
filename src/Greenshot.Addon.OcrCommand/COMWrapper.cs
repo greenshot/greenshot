@@ -33,7 +33,7 @@ using System.Runtime.Remoting.Proxies;
 
 #endregion
 
-namespace GreenshotOCRCommand
+namespace Greenshot.Addon.OcrCommand
 {
 	/// <summary>
 	///     Wraps a late-bound COM server.

@@ -23,26 +23,16 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using CliWrap;
-using CliWrap.Models;
-using Dapplo.Ini;
-using Dapplo.Log;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons;
-using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 
@@ -53,52 +43,48 @@ namespace Greenshot.Addon.ExternalCommand
     /// </summary>
     public class ExternalCommandDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
-
 		private static readonly Regex UriRegexp = new Regex(
 				@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)", RegexOptions.Compiled);
 
-		private static readonly IExternalCommandConfiguration Config = IniConfig.Current.Get<IExternalCommandConfiguration>();
-		private readonly string _presetCommand;
+		private readonly ExternalCommandDefinition _externalCommandDefinition;
 	    private readonly IExternalCommandConfiguration _externalCommandConfiguration;
 
-	    public ExternalCommandDestination(string commando,
+	    public ExternalCommandDestination(ExternalCommandDefinition defintion,
             IExternalCommandConfiguration externalCommandConfiguration,
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage
 		) : base(coreConfiguration, greenshotLanguage)
 	    {
-	        _presetCommand = commando;
+	        _externalCommandDefinition = defintion;
 	        _externalCommandConfiguration = externalCommandConfiguration;
 	    }
 
-		public override string Designation => "External " + _presetCommand.Replace(',', '_');
+		public override string Designation => "External " + _externalCommandDefinition.Name.Replace(',', '_');
 
-		public override string Description => _presetCommand;
+		public override string Description => _externalCommandDefinition.Name;
 
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
-			return IconCache.IconForCommand(_presetCommand, dpi > 100);
+			return IconCache.IconForCommand(_externalCommandDefinition, dpi > 100);
 		}
 
 	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 	    {
 	        var exportInformation = new ExportInformation(Designation, Description);
 
-	        var definition = _externalCommandConfiguration.Read(_presetCommand);
 	        var fullPath = captureDetails.Filename;
 	        if (fullPath == null)
 	        {
 	            fullPath = surface.SaveNamedTmpFile(CoreConfiguration, _externalCommandConfiguration);
 	        }
 
-	        using (var cli = new Cli(definition.Command))
+	        using (var cli = new Cli(_externalCommandDefinition.Command))
 	        {
-	            var arguments = string.Format(definition.Arguments, fullPath);
+	            var arguments = string.Format(_externalCommandDefinition.Arguments, fullPath);
 	            // Execute
 	            var output = await cli.ExecuteAsync(arguments);
 
-	            if (definition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
+	            if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
 	            {
 	                var uriMatches = UriRegexp.Matches(output.StandardOutput);
 	                if (uriMatches.Count > 0)
@@ -109,7 +95,7 @@ namespace Greenshot.Addon.ExternalCommand
 	                }
 	            }
 
-	            if (definition.CommandBehavior.HasFlag(CommandBehaviors.DeleteOnExit))
+	            if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.DeleteOnExit))
 	            {
                     File.Delete(fullPath);
 	            }

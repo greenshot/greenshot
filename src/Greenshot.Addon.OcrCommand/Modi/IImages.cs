@@ -21,12 +21,27 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+#region Usings
+
+using System.Collections;
+
+#endregion
+
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	public enum CompressionLevel
+	/// <summary>
+	///     Use the Images accessor property of the Document object to return an Images collection.
+	///     Use the Item property of the Images collection to return an Image object and gain access to its OCR Layout
+	///     (including recognized Text and Words), the properties that describe its dimensions and format (BitsPerPixel,
+	///     Compression, PixelHeight, PixelWidth, XDPI, and YDPI),
+	///     and its Picture and Thumbnail images.
+	/// </summary>
+	public interface IImages : ICommon, IEnumerable
 	{
-		miCOMP_LEVEL_LOW = 0,
-		miCOMP_LEVEL_MEDIUM = 1,
-		miCOMP_LEVEL_HIGH = 2
+		int Count { get; }
+
+		IImage this[int index] { get; }
+
+		new IEnumerator GetEnumerator();
 	}
 }

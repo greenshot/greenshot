@@ -21,13 +21,12 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	public enum FileFormat
+	public enum CompressionLevel
 	{
-		miFILE_FORMAT_DEFAULTVALUE = -1,
-		miFILE_FORMAT_TIFF = 1,
-		miFILE_FORMAT_TIFF_LOSSLESS = 2,
-		miFILE_FORMAT_MDI = 4
+		miCOMP_LEVEL_LOW = 0,
+		miCOMP_LEVEL_MEDIUM = 1,
+		miCOMP_LEVEL_HIGH = 2
 	}
 }

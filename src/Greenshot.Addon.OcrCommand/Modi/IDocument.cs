@@ -25,7 +25,7 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
 	/// <summary>
 	///     The MODI Document object represents an ordered collection of document images saved as a single file.

@@ -21,31 +21,23 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+#region Usings
+
+using System.Collections;
+
+#endregion
+
+namespace Greenshot.Addon.OcrCommand.Modi
 {
 	/// <summary>
-	///     Represents a bounding rectangle in the optical character recognition (OCR) layout.
+	///     The Words collection recognized in the text during an optical character recognition (OCR) operation.
 	/// </summary>
-	public interface IMiRect : ICommon
+	public interface IWords : ICommon, IEnumerable
 	{
-		/// <summary>
-		///     The Bottom property represent the distance in pixels from the top edge of the containing image.
-		/// </summary>
-		int Bottom { get; }
+		int Count { get; }
 
-		/// <summary>
-		///     The Left property represent the distance in pixels from the left edge of the containing image.
-		/// </summary>
-		int Left { get; }
+		IWord this[int index] { get; }
 
-		/// <summary>
-		///     The Right property represent the distance in pixels from the left edge of the containing image.
-		/// </summary>
-		int Right { get; }
-
-		/// <summary>
-		///     The Top property represent the distance in pixels from the top edge of the containing image.
-		/// </summary>
-		int Top { get; }
+		new IEnumerator GetEnumerator();
 	}
 }

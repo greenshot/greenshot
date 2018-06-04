@@ -26,8 +26,8 @@
 using System;
 using System.Drawing;
 using System.IO;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons.Core;
 
 #endregion
@@ -39,33 +39,32 @@ namespace Greenshot.Addon.ExternalCommand
 	/// </summary>
 	public static class IconCache
 	{
-		private static readonly IExternalCommandConfiguration Config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private static readonly LogSource Log = new LogSource();
 
         /// <summary>
         /// Retrieve the icon for a command
         /// </summary>
-        /// <param name="commandName">string</param>
+        /// <param name="externalCommandDefinition">string</param>
         /// <param name="useLargeIcons">true to use the large icon</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap IconForCommand(string commandName, bool useLargeIcons)
+        public static Bitmap IconForCommand(ExternalCommandDefinition externalCommandDefinition, bool useLargeIcons)
 		{
 		    Bitmap icon = null;
-			if (commandName == null)
+			if (externalCommandDefinition == null)
 			{
 				return null;
 			}
-			if (!Config.Commandline.ContainsKey(commandName) || !File.Exists(Config.Commandline[commandName]))
+			if (!File.Exists(externalCommandDefinition.Command))
 			{
 				return null;
 			}
 			try
 			{
-				icon = PluginUtils.GetCachedExeIcon(Config.Commandline[commandName], 0, useLargeIcons);
+				icon = PluginUtils.GetCachedExeIcon(externalCommandDefinition.Command, 0, useLargeIcons);
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex, "Problem loading icon for " + Config.Commandline[commandName]);
+				Log.Warn().WriteLine(ex, "Problem loading icon for " + externalCommandDefinition.Command);
 			}
 			return icon;
 		}

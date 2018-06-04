@@ -21,24 +21,37 @@
 
 #endregion
 
-#region Usings
-
-using System;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.CustomMarshalers;
-
-#endregion
-
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	[ComImport]
-	[Guid("00020400-0000-0000-C000-000000000046")]
-	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IDispatch
+	/// <summary>
+	///     Layout of the IImage
+	/// </summary>
+	public interface ILayout : ICommon
 	{
-		void Reserved();
+		/// <summary>
+		///     Returns the recognized text as a Unicode string.
+		/// </summary>
+		string Text { get; }
 
-		[PreserveSig]
-		int GetTypeInfo(uint nInfo, int lcid, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TypeToTypeInfoMarshaler))] out Type typeInfo);
+		/// <summary>
+		///     An accessor property that returns the Words collection recognized in the text during an optical character
+		///     recognition (OCR) operation.
+		/// </summary>
+		IWords Words { get; }
+
+		/// <summary>
+		///     Returns the number of characters in the recognized text.
+		/// </summary>
+		int NumChars { get; }
+
+		/// <summary>
+		///     Returns the number of words in the recognized text.
+		/// </summary>
+		int NumWords { get; }
+
+		/// <summary>
+		///     Returns the language identifier for the recognized text. Read-only Long.
+		/// </summary>
+		ModiLanguage Language { get; }
 	}
 }

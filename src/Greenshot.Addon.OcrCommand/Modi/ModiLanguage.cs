@@ -21,37 +21,31 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
-	/// <summary>
-	///     Layout of the IImage
-	/// </summary>
-	public interface ILayout : ICommon
+	public enum ModiLanguage
 	{
-		/// <summary>
-		///     Returns the recognized text as a Unicode string.
-		/// </summary>
-		string Text { get; }
-
-		/// <summary>
-		///     An accessor property that returns the Words collection recognized in the text during an optical character
-		///     recognition (OCR) operation.
-		/// </summary>
-		IWords Words { get; }
-
-		/// <summary>
-		///     Returns the number of characters in the recognized text.
-		/// </summary>
-		int NumChars { get; }
-
-		/// <summary>
-		///     Returns the number of words in the recognized text.
-		/// </summary>
-		int NumWords { get; }
-
-		/// <summary>
-		///     Returns the language identifier for the recognized text. Read-only Long.
-		/// </summary>
-		ModiLanguage Language { get; }
+		CHINESE_SIMPLIFIED = 2052,
+		CHINESE_TRADITIONAL = 1028,
+		CZECH = 5,
+		DANISH = 6,
+		DUTCH = 19,
+		ENGLISH = 9,
+		FINNISH = 11,
+		FRENCH = 12,
+		GERMAN = 7,
+		GREEK = 8,
+		HUNGARIAN = 14,
+		ITALIAN = 16,
+		JAPANESE = 17,
+		KOREAN = 18,
+		NORWEGIAN = 20,
+		POLISH = 21,
+		PORTUGUESE = 22,
+		RUSSIAN = 25,
+		SPANISH = 10,
+		SWEDISH = 29,
+		TURKISH = 31,
+		SYSDEFAULT = 2048
 	}
 }

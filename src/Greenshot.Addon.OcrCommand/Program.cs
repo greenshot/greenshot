@@ -27,11 +27,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using GreenshotOCRCommand.Modi;
+using Greenshot.Addon.OcrCommand.Modi;
 
 #endregion
 
-namespace GreenshotOCRCommand
+namespace Greenshot.Addon.OcrCommand
 {
 	public static class Program
 	{

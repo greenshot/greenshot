@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+namespace Greenshot.Addon.OcrCommand.Modi
 {
 	/// <summary>
 	///     Represents a word recognized in the text during an optical character recognition (OCR) operation.

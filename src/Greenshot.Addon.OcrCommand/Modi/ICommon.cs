@@ -21,22 +21,19 @@
 
 #endregion
 
-namespace GreenshotOCRCommand.Modi
+#region Usings
+
+using System;
+
+#endregion
+
+namespace Greenshot.Addon.OcrCommand.Modi
 {
 	/// <summary>
-	///     Describes the page in a scan
+	///     Base class for the common properties of the Modi interfaces
 	/// </summary>
-	public interface IImage : ICommon
+	public interface ICommon : IDisposable
 	{
-		ILayout Layout { get; }
-
-		long BitsPerPixel { get; }
-		CompressionLevel Compression { get; }
-		//IPictureDisp Picture { get; }
-		int PixelHeight { get; }
-		int PixelWidth { get; }
-		//IPictureDisp Thumbnail { get; }
-		int XDPI { get; }
-		int YDPI { get; }
+		IDocument Application { get; }
 	}
 }
