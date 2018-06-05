@@ -24,6 +24,7 @@
 using Autofac;
 using Dapplo.Addons;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Controls;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addons
@@ -38,6 +39,10 @@ namespace Greenshot.Addons
                 .AsSelf();
             builder
                 .RegisterType<DestinationHolder>()
+                .AsSelf();
+
+            builder
+                .RegisterType<PleaseWaitForm>()
                 .AsSelf();
             
             base.Load(builder);

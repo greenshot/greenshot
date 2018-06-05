@@ -74,6 +74,7 @@ namespace Greenshot.Forms
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IWindowManager _windowManager;
+        private readonly IGreenshotLanguage _greenshotLanguage;
         private readonly Func<Owned<ConfigViewModel>> _configViewModelFactory;
         private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
@@ -95,6 +96,7 @@ namespace Greenshot.Forms
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
+            _greenshotLanguage = greenshotLanguage;
             _configViewModelFactory = configViewModelFactory;
             _aboutFormFactory = aboutFormFactory;
             _destinationHolder = destinationHolder;
@@ -148,8 +150,7 @@ namespace Greenshot.Forms
                 {
                     notifyIcon.BalloonTipClicked += BalloonTipClicked;
                     notifyIcon.BalloonTipClosed += BalloonTipClosed;
-                    notifyIcon.ShowBalloonTip(2000, "Greenshot",
-                        Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+                    notifyIcon.ShowBalloonTip(2000, "Greenshot", string.Format(_greenshotLanguage.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
                 }
                 catch (Exception ex)
                 {
@@ -602,7 +603,7 @@ namespace Greenshot.Forms
             }
             var allScreensBounds = WindowCapture.GetScreenBounds();
 
-            var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+            var captureScreenItem = new ToolStripMenuItem(_greenshotLanguage.ContextmenuCapturefullscreenAll);
             captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen)));
             captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
             foreach (var screen in Screen.AllScreens)
@@ -611,19 +612,19 @@ namespace Greenshot.Forms
                 var deviceAlignment = "";
                 if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+                    deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenTop;
                 }
                 else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+                    deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenBottom;
                 }
                 if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+                    deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenLeft;
                 }
                 else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+                    deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenRight;
                 }
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
                 captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureRegion(false, screenToCapture.Bounds)));
@@ -903,7 +904,7 @@ namespace Greenshot.Forms
                 // For the capture mousecursor option
                 var captureMouseItem = new ToolStripMenuSelectListItem
                 {
-                    Text = Language.GetString("settings_capture_mousepointer"),
+                    Text = _greenshotLanguage.SettingsCaptureMousepointer,
                     Checked = _coreConfiguration.CaptureMousepointer,
                     CheckOnClick = true
                 };
@@ -917,7 +918,7 @@ namespace Greenshot.Forms
                 // screenshot destination
                 selectList = new ToolStripMenuSelectList("destinations", true)
                 {
-                    Text = Language.GetString(LangKey.settings_destination)
+                    Text = _greenshotLanguage.SettingsDestination
                 };
                 // Working with IDestination:
                 foreach (var destination in _destinationHolder.SortedActiveDestinations)
@@ -933,7 +934,7 @@ namespace Greenshot.Forms
                 // Capture Modes
                 selectList = new ToolStripMenuSelectList("capturemodes", false)
                 {
-                    Text = Language.GetString(LangKey.settings_window_capture_mode)
+                    Text = _greenshotLanguage.SettingsWindowCaptureMode
                 };
                 var enumTypeName = typeof(WindowCaptureModes).Name;
                 foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes)))
@@ -947,7 +948,7 @@ namespace Greenshot.Forms
             // print options
             selectList = new ToolStripMenuSelectList("printoptions", true)
             {
-                Text = Language.GetString(LangKey.settings_printoptions)
+                Text = _greenshotLanguage.SettingsPrintoptions
             };
 
             foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint") && value.ValueType == typeof(bool) && !_coreConfiguration.IsWriteProtected(value.PropertyName)))
@@ -967,7 +968,7 @@ namespace Greenshot.Forms
             // effects
             selectList = new ToolStripMenuSelectList("effects", true)
             {
-                Text = Language.GetString(LangKey.settings_visualization)
+                Text = _greenshotLanguage.SettingsVisualization
             };
 
             var iniValue = _coreConfiguration["PlayCameraSound"];

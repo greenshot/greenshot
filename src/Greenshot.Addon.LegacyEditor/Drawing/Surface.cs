@@ -32,6 +32,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -1999,12 +2000,34 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			if (e.Data.GetDataPresent("Text"))
 			{
 				var possibleUrl = ClipboardHelper.GetText(e.Data);
+			    try
+			    {
+			        if (possibleUrl != null && possibleUrl.StartsWith("http"))
+			        {
+			            var uri = new Uri(possibleUrl);
+
+			            using (var image = uri.GetAsAsync<Bitmap>().Result)
+			            {
+			                if (image != null)
+			                {
+			                    AddImageContainer(image, mouse.X, mouse.Y);
+			                    return;
+			                }
+			            }
+                    }
+			    }
+			    catch (Exception ex)
+			    {
+                    Log.Error().WriteLine(ex, "Couldn't download url {0}", possibleUrl);
+			    }
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http"))
 				{
-					using (var image = NetworkHelper.DownloadBitmap(possibleUrl))
-					{
-						if (image != null)
+				    var uri = new Uri(possibleUrl);
+
+				    using (var image = uri.GetAsAsync<Bitmap>().Result)
+				    {
+					    if (image != null)
 						{
 							AddImageContainer(image, mouse.X, mouse.Y);
 							return;

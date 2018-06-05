@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Extensions;
@@ -55,6 +56,7 @@ namespace Greenshot.Addon.Imgur
 	    private readonly IImgurLanguage _imgurLanguage;
 	    private readonly ImgurApi _imgurApi;
 	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
+	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly IResourceProvider _resourceProvider;
 
 		public ImgurDestination(
@@ -64,12 +66,14 @@ namespace Greenshot.Addon.Imgur
 	        IImgurLanguage imgurLanguage,
 	        ImgurApi imgurApi,
 	        ImgurHistoryViewModel imgurHistoryViewModel,
-	        IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
 		    _imgurApi = imgurApi;
 		    _imgurHistoryViewModel = imgurHistoryViewModel;
+		    _pleaseWaitFormFactory = pleaseWaitFormFactory;
 		    _resourceProvider = resourceProvider;
 		}
 
@@ -114,9 +118,9 @@ namespace Greenshot.Addon.Imgur
 
                 var cancellationTokenSource = new CancellationTokenSource();
                 // TODO: Replace the form
-                using (var pleaseWaitForm = new PleaseWaitForm("Imgur", _imgurLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Imgur", _imgurLanguage.CommunicationWait, cancellationTokenSource))
                 {
-                    pleaseWaitForm.Show();
+                    ownedPleaseWaitForm.Value.Show();
                     try
                     {
                         imgurImage = await _imgurApi.UploadToImgurAsync(surfaceToUpload, captureDetails.Title, null, cancellationTokenSource.Token).ConfigureAwait(true);
@@ -141,7 +145,7 @@ namespace Greenshot.Addon.Imgur
                     }
                     finally
                     {
-                        pleaseWaitForm.Close();
+                        ownedPleaseWaitForm.Value.Close();
                     }
                 }
 

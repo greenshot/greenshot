@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
@@ -61,6 +62,7 @@ namespace Greenshot.Addon.Dropbox
         private readonly IDropboxConfiguration _dropboxPluginConfiguration;
 	    private readonly IDropboxLanguage _dropboxLanguage;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private OAuth2Settings _oAuth2Settings;
 	    private IHttpBehaviour _oAuthHttpBehaviour;
 
@@ -70,14 +72,16 @@ namespace Greenshot.Addon.Dropbox
 	        INetworkConfiguration networkConfiguration,
 	        IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+        ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
 	        _dropboxLanguage = dropboxLanguage;
 	        _resourceProvider = resourceProvider;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
 
-	        _oAuth2Settings = new OAuth2Settings
+            _oAuth2Settings = new OAuth2Settings
 	        {
 	            AuthorizationUri = DropboxApiUri.
 	                AppendSegments("1", "oauth2", "authorize").
@@ -143,9 +147,9 @@ namespace Greenshot.Addon.Dropbox
 	        try
 	        {
 	            var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("Dropbox", _dropboxLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Dropbox", _dropboxLanguage.CommunicationWait, cancellationTokenSource))
 	            {
-	                pleaseWaitForm.Show();
+	                ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
 	                    var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _dropboxPluginConfiguration);
@@ -162,7 +166,7 @@ namespace Greenshot.Addon.Dropbox
 	                }
 	                finally
 	                {
-	                    pleaseWaitForm.Close();
+	                    ownedPleaseWaitForm.Value.Close();
 	                }
 	            }
 	        }

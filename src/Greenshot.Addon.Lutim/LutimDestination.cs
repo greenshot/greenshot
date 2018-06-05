@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Entities;
@@ -46,19 +47,22 @@ namespace Greenshot.Addon.Lutim  {
         private readonly ILutimLanguage _lutimLanguage;
         private readonly LutimApi _lutimApi;
         private readonly IResourceProvider _resourceProvider;
+        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 
         public LutimDestination(ILutimConfiguration lutimConfiguration,
             ILutimLanguage lutimLanguage,
             LutimApi lutimApi,
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage
+            IGreenshotLanguage greenshotLanguage,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
         ) : base(coreConfiguration, greenshotLanguage)
         {
             _lutimConfiguration = lutimConfiguration;
             _lutimLanguage = lutimLanguage;
             _lutimApi = lutimApi;
             _resourceProvider = resourceProvider;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
         }
 
 		public override string Description => _lutimLanguage.UploadMenuItem;
@@ -90,9 +94,7 @@ namespace Greenshot.Addon.Lutim  {
         /// <summary>
         /// Upload the capture to lutim
         /// </summary>
-        /// <param name="captureDetails">ICaptureDetails</param>
         /// <param name="surfaceToUpload">ISurface</param>
-        /// <param name="uploadUrl">out string for the url</param>
         /// <returns>true if the upload succeeded</returns>
         private async Task<string> Upload(ISurface surfaceToUpload)
         {
@@ -102,9 +104,9 @@ namespace Greenshot.Addon.Lutim  {
                 LutimInfo lutimInfo;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("Lutim", _lutimLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Lutim", _lutimLanguage.CommunicationWait, cancellationTokenSource))
                 {
-                    pleaseWaitForm.Show();
+                    ownedPleaseWaitForm.Value.Show();
                     try
                     {
                         lutimInfo = await _lutimApi.UploadToLutim(surfaceToUpload).ConfigureAwait(true);
@@ -121,7 +123,7 @@ namespace Greenshot.Addon.Lutim  {
                     }
                     finally
                     {
-                        pleaseWaitForm.Close();
+                        ownedPleaseWaitForm.Value.Close();
                     }
                 }
 

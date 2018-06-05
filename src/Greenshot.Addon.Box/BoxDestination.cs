@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
@@ -56,6 +57,7 @@ namespace Greenshot.Addon.Box
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
+	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth2Settings _oauth2Settings;
@@ -67,11 +69,13 @@ namespace Greenshot.Addon.Box
             IGreenshotLanguage greenshotLanguage,
             IBoxConfiguration boxConfiguration,
             IBoxLanguage boxLanguage,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 	    {
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
+	        _pleaseWaitFormFactory = pleaseWaitFormFactory;
 	        _networkConfiguration = networkConfiguration;
 	        _resourceProvider = resourceProvider;
 
@@ -131,16 +135,16 @@ namespace Greenshot.Addon.Box
 	        try
 	        {
 	            string url;
-	            using (var pleaseWaitForm = new PleaseWaitForm("Box", _boxLanguage.CommunicationWait))
+	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Box", _boxLanguage.CommunicationWait, default))
 	            {
-	                pleaseWaitForm.Show();
+	                ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
 	                    url = await UploadToBoxAsync(surfaceToUpload).ConfigureAwait(true);
 	                }
 	                finally
 	                {
-	                    pleaseWaitForm.Close();
+	                    ownedPleaseWaitForm.Value.Close();
 	                }
 	            }
 

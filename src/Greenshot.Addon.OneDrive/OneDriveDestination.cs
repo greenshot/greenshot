@@ -31,6 +31,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
@@ -60,6 +61,7 @@ namespace Greenshot.Addon.OneDrive
         private readonly IOneDriveConfiguration _oneDriveConfiguration;
         private readonly IOneDriveLanguage _oneDriveLanguage;
         private readonly IResourceProvider _resourceProvider;
+        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
         private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri GraphUri = new Uri("https://graph.microsoft.com");
         private static readonly Uri OneDriveUri = GraphUri.AppendSegments("v1.0", "me", "drive");
@@ -72,6 +74,7 @@ namespace Greenshot.Addon.OneDrive
             IOneDriveLanguage oneDriveLanguage,
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage
         ) : base(coreConfiguration, greenshotLanguage)
@@ -79,6 +82,7 @@ namespace Greenshot.Addon.OneDrive
             _oneDriveConfiguration = oneDriveConfiguration;
             _oneDriveLanguage = oneDriveLanguage;
             _resourceProvider = resourceProvider;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
             // Configure the OAuth2 settings for OneDrive communication
             _oauth2Settings = new OAuth2Settings
             {
@@ -147,10 +151,9 @@ namespace Greenshot.Addon.OneDrive
                 Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("OneDrive plug-in", _oneDriveLanguage.CommunicationWait,
-                    cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("OneDrive", _oneDriveLanguage.CommunicationWait, cancellationTokenSource))
                 {
-                    pleaseWaitForm.Show();
+                    ownedPleaseWaitForm.Value.Show();
                     try
                     {
                         var oneDriveResponse = await UploadToOneDriveAsync(_oauth2Settings, surfaceToUpload, null, cancellationTokenSource.Token);
@@ -168,7 +171,7 @@ namespace Greenshot.Addon.OneDrive
                     }
                     finally
                     {
-                        pleaseWaitForm.Close();
+                        ownedPleaseWaitForm.Value.Close();
                     }
                 }
 

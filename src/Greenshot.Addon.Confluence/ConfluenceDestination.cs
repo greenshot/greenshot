@@ -29,6 +29,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
@@ -54,6 +55,7 @@ namespace Greenshot.Addon.Confluence
 		private static readonly Bitmap ConfluenceIcon;
 	    private readonly IConfluenceConfiguration _confluenceConfiguration;
 	    private readonly IConfluenceLanguage _confluenceLanguage;
+	    private readonly Func<Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private IConfluenceClient _confluenceClient;
 	    private readonly Content _page;
 
@@ -80,18 +82,22 @@ namespace Greenshot.Addon.Confluence
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
 		    IConfluenceConfiguration confluenceConfiguration,
-		    IConfluenceLanguage confluenceLanguage) : base(coreConfiguration, greenshotLanguage)
+		    IConfluenceLanguage confluenceLanguage,
+            Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory
+            ) : base(coreConfiguration, greenshotLanguage)
         {
             _confluenceConfiguration = confluenceConfiguration;
             _confluenceLanguage = confluenceLanguage;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
         }
 
-	    protected ConfluenceDestination(
+	    private ConfluenceDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        IConfluenceConfiguration confluenceConfiguration,
 	        IConfluenceLanguage confluenceLanguage,
-	        Content page) : this(coreConfiguration, greenshotLanguage, confluenceConfiguration, confluenceLanguage)
+	        Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Content page) : this(coreConfiguration, greenshotLanguage, confluenceConfiguration, confluenceLanguage, pleaseWaitFormFactory)
 	    {
 	        _page = page;
 	    }
@@ -125,7 +131,7 @@ namespace Greenshot.Addon.Confluence
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(CoreConfiguration, GreenshotLanguage, _confluenceConfiguration, _confluenceLanguage, currentPage);
+				yield return new ConfluenceDestination(CoreConfiguration, GreenshotLanguage, _confluenceConfiguration, _confluenceLanguage, _pleaseWaitFormFactory, currentPage);
 			}
 		}
 
@@ -180,10 +186,13 @@ namespace Greenshot.Addon.Confluence
 			errorMessage = null;
 			try
 			{
-                // TODO: Create content
-				new PleaseWaitForm().ShowAndWait(Description, _confluenceLanguage.CommunicationWait,
-				    () => _confluenceClient.Attachment.AttachAsync(page.Id, surfaceToUpload, filename, null, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower())
-				);
+			    // TODO: Create content
+			    using (var ownedPleaseWaitForm = _pleaseWaitFormFactory())
+			    {
+			        ownedPleaseWaitForm.Value.ShowAndWait(Description, _confluenceLanguage.CommunicationWait,
+			            () => _confluenceClient.Attachment.AttachAsync(page.Id, surfaceToUpload, filename, null,
+			                "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower()));
+			    }
 				Log.Debug().WriteLine("Uploaded to Confluence.");
 				if (!_confluenceConfiguration.CopyWikiMarkupForImageToClipboard)
 				{

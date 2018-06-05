@@ -57,6 +57,7 @@ namespace Greenshot.Addon.Jira
 	    private readonly JiraConnector _jiraConnector;
 	    private readonly IWindowManager _windowManager;
 	    private readonly Func<Owned<JiraViewModel>> _jiraViewModelFactory;
+	    private readonly Func<Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly IResourceProvider _resourceProvider;
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly IJiraLanguage _jiraLanguage;
@@ -66,7 +67,8 @@ namespace Greenshot.Addon.Jira
 	        IJiraLanguage jiraLanguage,
 	        JiraConnector jiraConnector,
 	        Func<Owned<JiraViewModel>> jiraViewModelFactory,
-	        IWindowManager windowManager,
+	        Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            IWindowManager windowManager,
             IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage
@@ -77,19 +79,21 @@ namespace Greenshot.Addon.Jira
             _jiraConnector = jiraConnector;
             _windowManager = windowManager;
             _jiraViewModelFactory = jiraViewModelFactory;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
             _resourceProvider = resourceProvider;
         }
 
-		protected JiraDestination(IJiraConfiguration jiraConfiguration,
+	    private JiraDestination(IJiraConfiguration jiraConfiguration,
 		    IJiraLanguage jiraLanguage,
 		    JiraConnector jiraConnector,
 		    Func<Owned<JiraViewModel>> jiraViewModelFactory,
-		    IWindowManager windowManager,
+	        Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            IWindowManager windowManager,
 		    IResourceProvider resourceProvider,
 		    Issue jiraIssue,
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage
-		    ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModelFactory, windowManager, resourceProvider, coreConfiguration, greenshotLanguage)
+		    ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModelFactory, pleaseWaitFormFactory, windowManager, resourceProvider, coreConfiguration, greenshotLanguage)
 		{
 			_jiraIssue = jiraIssue;
 		}
@@ -159,7 +163,7 @@ namespace Greenshot.Addon.Jira
 			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
 			    yield return new JiraDestination(
-			        _jiraConfiguration, _jiraLanguage, _jiraConnector, _jiraViewModelFactory,
+			        _jiraConfiguration, _jiraLanguage, _jiraConnector, _jiraViewModelFactory, _pleaseWaitFormFactory,
 			        _windowManager, _resourceProvider, jiraDetails.JiraIssue, CoreConfiguration, GreenshotLanguage);
 			}
 		}
@@ -169,21 +173,24 @@ namespace Greenshot.Addon.Jira
 			var exportInformation = new ExportInformation(Designation, Description);
 			if (_jiraIssue != null)
 			{
-				try
-				{
-					// Run upload in the background
-					new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
-						async () =>
-						{
-							await _jiraConnector.AttachAsync(_jiraIssue.Key, surface).ConfigureAwait(true);
-							surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
-						}
-					);
-					Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraIssue.Key);
-					exportInformation.ExportMade = true;
-					exportInformation.Uri = surface.UploadUrl;
-				}
-				catch (Exception e)
+			    try
+			    {
+			        // Run upload in the background
+			        using (var ownedPleaseWaitForm = _pleaseWaitFormFactory())
+			        {
+			            ownedPleaseWaitForm.Value.ShowAndWait(Description, _jiraLanguage.CommunicationWait,
+			                async () =>
+			                {
+			                    await _jiraConnector.AttachAsync(_jiraIssue.Key, surface).ConfigureAwait(true);
+			                    surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key)
+			                        .AbsoluteUri;
+			                });
+			        }
+			        Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraIssue.Key);
+			        exportInformation.ExportMade = true;
+			        exportInformation.Uri = surface.UploadUrl;
+                }
+                catch (Exception e)
 				{
 					MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
 				}
@@ -200,17 +207,23 @@ namespace Greenshot.Addon.Jira
 			            {
 			                surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraViewModel.Value.JiraIssue.Key).AbsoluteUri;
 			                // Run upload in the background
-			                new PleaseWaitForm().ShowAndWait(Description, _jiraLanguage.CommunicationWait,
-			                    async () =>
-			                    {
-			                        await _jiraConnector.AttachAsync(jiraViewModel.Value.JiraIssue.Key, surface, jiraViewModel.Value.Filename).ConfigureAwait(true);
-
-			                        if (!string.IsNullOrEmpty(jiraViewModel.Value.Comment))
+			                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory())
+			                {
+			                    ownedPleaseWaitForm.Value.ShowAndWait(Description, _jiraLanguage.CommunicationWait,
+			                        async () =>
 			                        {
-			                            await _jiraConnector.AddCommentAsync(jiraViewModel.Value.JiraIssue.Key, jiraViewModel.Value.Comment).ConfigureAwait(true);
+			                            await _jiraConnector.AttachAsync(jiraViewModel.Value.JiraIssue.Key, surface,
+			                                jiraViewModel.Value.Filename).ConfigureAwait(true);
+
+			                            if (!string.IsNullOrEmpty(jiraViewModel.Value.Comment))
+			                            {
+			                                await _jiraConnector.AddCommentAsync(jiraViewModel.Value.JiraIssue.Key,
+			                                    jiraViewModel.Value.Comment).ConfigureAwait(true);
+			                            }
 			                        }
-			                    }
-			                );
+			                    );
+			                }
+
 			                Log.Debug().WriteLine("Uploaded to Jira {0}", jiraViewModel.Value.JiraIssue.Key);
 			                exportInformation.ExportMade = true;
 			                exportInformation.Uri = surface.UploadUrl;

@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
@@ -52,6 +53,9 @@ using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Flickr
 {
+    /// <summary>
+    /// This defines the flickr destination
+    /// </summary>
     [Destination("Flickr")]
     public class FlickrDestination : AbstractDestination
 	{
@@ -60,6 +64,7 @@ namespace Greenshot.Addon.Flickr
         private readonly IFlickrConfiguration _flickrConfiguration;
 	    private readonly IFlickrLanguage _flickrLanguage;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private const string FlickrFarmUrl = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
@@ -80,14 +85,16 @@ namespace Greenshot.Addon.Flickr
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+        ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;
 	        _resourceProvider = resourceProvider;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
 
-	        _oAuthSettings = new OAuth1Settings
+            _oAuthSettings = new OAuth1Settings
 	        {
 	            Token = flickrConfiguration,
 	            ClientId = flickrConfiguration.ClientId,
@@ -151,16 +158,16 @@ namespace Greenshot.Addon.Flickr
 	        {
 
 	            var cancellationTokenSource = new CancellationTokenSource();
-	            using (var pleaseWaitForm = new PleaseWaitForm("Flickr", _flickrLanguage.CommunicationWait, cancellationTokenSource))
+	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Flickr", _flickrLanguage.CommunicationWait, cancellationTokenSource))
 	            {
-	                pleaseWaitForm.Show();
+	                ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
-	                    uploadUrl = await UploadToFlickrAsync(surface, captureDetails.Title);
+	                    uploadUrl = await UploadToFlickrAsync(surface, captureDetails.Title, cancellationTokenSource.Token);
                     }
 	                finally
 	                {
-	                    pleaseWaitForm.Close();
+	                    ownedPleaseWaitForm.Value.Close();
 	                }
 	            }
                

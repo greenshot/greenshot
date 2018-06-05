@@ -23,8 +23,10 @@
 
 #region Usings
 
+using System;
 using System.Diagnostics;
 using System.Net;
+using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 
@@ -99,15 +101,13 @@ namespace Greenshot.Help
 		{
 			try
 			{
-				var req = NetworkHelper.CreateWebRequest(url);
-				using (var res = (HttpWebResponse) req.GetResponse())
-				{
-					return res.StatusCode;
-				}
+			    var uri = new Uri(url);
+			    var head = uri.HeadAsync().Result;
+			    return HttpStatusCode.OK;
 			}
-			catch (WebException e)
+			catch (Exception e)
 			{
-				return ((HttpWebResponse) e.Response)?.StatusCode;
+			    return HttpStatusCode.NotFound;
 			}
 		}
 	}

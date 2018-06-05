@@ -30,11 +30,11 @@ using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
+using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 
@@ -48,13 +48,18 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
+        private readonly IGreenshotLanguage _greenshotLanguage;
         private readonly WindowHandle _windowHandle;
         private static HotkeyHandler _instance;
 
-        public HotkeyHandler(ICoreConfiguration coreConfiguration, WindowHandle windowHandle)
+        public HotkeyHandler(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            WindowHandle windowHandle)
         {
             _instance = this;
             _coreConfiguration = coreConfiguration;
+            _greenshotLanguage = greenshotLanguage;
             _windowHandle = windowHandle;
         }
 
@@ -263,20 +268,21 @@ namespace Greenshot.Components
         private bool HandleFailedHotkeyRegistration(string failedKeys)
         {
             var success = false;
-            var warningTitle = Language.GetString(LangKey.warning);
-            var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
-            var dr = MessageBox.Show(MainForm.Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-            if (dr == DialogResult.Retry)
+            var warningTitle = _greenshotLanguage.Warning;
+            var message = string.Format(_greenshotLanguage.WarningHotkeys, failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
+            var dialogResult = MessageBox.Show(MainForm.Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+            switch (dialogResult)
             {
-                Log.Debug().WriteLine("Re-trying to register hotkeys");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(false);
-            }
-            else if (dr == DialogResult.Ignore)
-            {
-                Log.Debug().WriteLine("Ignoring failed hotkey registration");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(true);
+                case DialogResult.Retry:
+                    Log.Debug().WriteLine("Re-trying to register hotkeys");
+                    HotkeyControl.UnregisterHotkeys();
+                    success = RegisterHotkeys(false);
+                    break;
+                case DialogResult.Ignore:
+                    Log.Debug().WriteLine("Ignoring failed hotkey registration");
+                    HotkeyControl.UnregisterHotkeys();
+                    success = RegisterHotkeys(true);
+                    break;
             }
             return success;
         }

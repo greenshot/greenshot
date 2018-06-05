@@ -39,7 +39,9 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public sealed partial class PleaseWaitForm : Form
 	{
-		/// <summary>
+	    private readonly IGreenshotLanguage _greenshotLanguage;
+
+	    /// <summary>
 		///     Prevent the close-window button showing
 		/// </summary>
 		private const int CP_NOCLOSE_BUTTON = 0x200;
@@ -49,16 +51,20 @@ namespace Greenshot.Addons.Controls
 	    private readonly CancellationTokenSource _cancellationTokenSource;
 	    private Thread _waitFor;
 
-		public PleaseWaitForm()
+		public PleaseWaitForm(IGreenshotLanguage greenshotLanguage)
 		{
-			//
+		    _greenshotLanguage = greenshotLanguage;
+		    //
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			Icon = GreenshotResources.GetGreenshotIcon();
 		}
 
-	    public PleaseWaitForm(string title, string text, CancellationTokenSource cancellationTokenSource = default) : this()
+	    public PleaseWaitForm(IGreenshotLanguage greenshotLanguage,
+	        string title,
+	        string text,
+	        CancellationTokenSource cancellationTokenSource = default) : this(greenshotLanguage)
 	    {
 	        _title = title;
 	        _cancellationTokenSource = cancellationTokenSource;
@@ -88,7 +94,7 @@ namespace Greenshot.Addons.Controls
 	        _title = title;
 	        Text = title;
 	        label_pleasewait.Text = text;
-	        cancelButton.Text = Language.GetString("CANCEL");
+	        cancelButton.Text = _greenshotLanguage.Cancel;
 
 	        Show();
 	        await executeTask;
@@ -107,10 +113,10 @@ namespace Greenshot.Addons.Controls
 			_title = title;
 			Text = title;
 			label_pleasewait.Text = text;
-			cancelButton.Text = Language.GetString("CANCEL");
+		    cancelButton.Text = _greenshotLanguage.Cancel;
 
-			// Make sure the form is shown.
-			Show();
+            // Make sure the form is shown.
+            Show();
 
 			// Variable to store the exception, if one is generated, from inside the thread.
 			Exception threadException = null;
@@ -140,6 +146,7 @@ namespace Greenshot.Addons.Controls
 				// Wait until finished
 				while (!_waitFor.Join(TimeSpan.FromMilliseconds(100)))
 				{
+                    // TODO: Remove this please!!!!
 					Application.DoEvents();
 				}
 				Log.Debug().WriteLine("Finished {0}", title);

@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Tfs.Entities;
@@ -53,6 +54,7 @@ namespace Greenshot.Addon.Tfs
         private readonly ITfsConfiguration _tfsConfiguration;
         private readonly ITfsLanguage _tfsLanguage;
         private readonly TfsClient _tfsClient;
+        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
         private readonly IResourceProvider _resourceProvider;
         private readonly WorkItem _workItem;
 
@@ -62,11 +64,13 @@ namespace Greenshot.Addon.Tfs
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
             TfsClient tfsClient,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
         {
             _tfsConfiguration = tfsConfiguration;
             _tfsLanguage = tfsLanguage;
             _tfsClient = tfsClient;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
             _resourceProvider = resourceProvider;
         }
 
@@ -76,8 +80,9 @@ namespace Greenshot.Addon.Tfs
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
             TfsClient tfsClient,
+            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider,
-            WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, resourceProvider)
+            WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, pleaseWaitFormFactory, resourceProvider)
         {
             _workItem = workItem;
         }
@@ -108,7 +113,7 @@ namespace Greenshot.Addon.Tfs
             }
             foreach (var workitem in workitems)
             {
-                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _resourceProvider, workitem);
+                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _pleaseWaitFormFactory, _resourceProvider, workitem);
             }
         }
 
@@ -171,10 +176,9 @@ namespace Greenshot.Addon.Tfs
                 Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var pleaseWaitForm = new PleaseWaitForm("TFS plug-in", _tfsLanguage.CommunicationWait,
-                    cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("TFS plug-in", _tfsLanguage.CommunicationWait, cancellationTokenSource))
                 {
-                    pleaseWaitForm.Show();
+                    ownedPleaseWaitForm.Value.Show();
                     try
                     {
                         var result = await _tfsClient.CreateAttachment(surfaceToUpload);
@@ -183,7 +187,7 @@ namespace Greenshot.Addon.Tfs
                     }
                     finally
                     {
-                        pleaseWaitForm.Close();
+                        ownedPleaseWaitForm.Value.Close();
                     }
                 }
 
