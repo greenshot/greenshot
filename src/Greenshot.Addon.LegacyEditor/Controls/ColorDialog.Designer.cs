@@ -65,6 +65,8 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             this.labelAlpha = new Greenshot.Addons.Controls.GreenshotLabel();
             this.btnApply = new Greenshot.Addons.Controls.GreenshotButton();
             this.pipette = new Greenshot.Addon.LegacyEditor.Controls.Pipette();
+            this.panelColors = new System.Windows.Forms.Panel();
+            this.panelRecentColors = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // btnTransparent
@@ -184,7 +186,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             // labelRecentColors
             // 
             this.labelRecentColors.LanguageKey = "colorpicker_recentcolors";
-            this.labelRecentColors.Location = new System.Drawing.Point(0, 335);
+            this.labelRecentColors.Location = new System.Drawing.Point(0, 337);
             this.labelRecentColors.Name = "labelRecentColors";
             this.labelRecentColors.Size = new System.Drawing.Size(411, 30);
             this.labelRecentColors.TabIndex = 10;
@@ -239,11 +241,27 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             this.pipette.TabIndex = 13;
             this.pipette.PipetteUsed += new System.EventHandler<Greenshot.Addon.LegacyEditor.Controls.PipetteUsedArgs>(this.PipetteUsed);
             // 
+            // panelColors
+            // 
+            this.panelColors.Location = new System.Drawing.Point(5, 7);
+            this.panelColors.Name = "panelColors";
+            this.panelColors.Size = new System.Drawing.Size(406, 328);
+            this.panelColors.TabIndex = 14;
+            // 
+            // panelRecentColors
+            // 
+            this.panelRecentColors.Location = new System.Drawing.Point(5, 366);
+            this.panelRecentColors.Name = "panelRecentColors";
+            this.panelRecentColors.Size = new System.Drawing.Size(406, 30);
+            this.panelRecentColors.TabIndex = 15;
+            // 
             // ColorDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 404);
+            this.Controls.Add(this.panelRecentColors);
+            this.Controls.Add(this.panelColors);
             this.Controls.Add(this.pipette);
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.textBoxAlpha);
@@ -289,5 +307,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
 		private System.Windows.Forms.Panel colorPanel;
 		private GreenshotButton btnTransparent;
 		private Pipette pipette;
-	}
+        private System.Windows.Forms.Panel panelColors;
+        private System.Windows.Forms.Panel panelRecentColors;
+    }
 }

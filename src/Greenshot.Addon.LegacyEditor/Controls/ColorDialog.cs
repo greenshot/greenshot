@@ -45,7 +45,6 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 	    private readonly IEditorConfiguration _editorConfiguration;
 	    private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress;
-	    private IList<Control> _recentColorButtons;
 
         public ColorDialog(
             IEditorConfiguration editorConfiguration,
@@ -60,15 +59,16 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 
         private void DrawButtons()
 	    {
-	        int pos = FormDpiHandler.ScaleWithCurrentDpi(5);
             int size = FormDpiHandler.ScaleWithCurrentDpi(15);
-	        var buttons = CreateColorPalette(pos, pos, size, size);
-	        int lastColorY = FormDpiHandler.ScaleWithCurrentDpi(185);
-	        _recentColorButtons = CreateLastUsedColorButtonRow(pos, lastColorY, size, size);
-	        UpdateRecentColorsButtonRow();
+	        var buttons = CreateColorPalette(size, size);
+	        var recentColorButtons = CreateLastUsedColorButtonRow(size, size);
+
             SuspendLayout();
-            Controls.AddRange(buttons.ToArray());
-	        Controls.AddRange(_recentColorButtons.ToArray());
+	        panelColors.Controls.Clear();
+            panelColors.Controls.AddRange(buttons.ToArray());
+	        panelRecentColors.Controls.Clear();
+            panelRecentColors.Controls.AddRange(recentColorButtons.ToArray());
+	        UpdateRecentColorsButtonRow();
             ResumeLayout();
         }
 
@@ -103,9 +103,12 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 
 		#region user interface generation
 
-		private IList<Control> CreateColorPalette(int x, int y, int w, int h)
+		private IList<Control> CreateColorPalette(int w, int h)
 		{
-		    IList<Control> colorButtons = new List<Control>();
+		    int x = 0;
+		    int y = 0;
+
+            IList<Control> colorButtons = new List<Control>();
             CreateColorButtonColumn(colorButtons, 255, 0, 0, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(colorButtons, 255, 255 / 2, 0, x, y, w, h, 11);
@@ -170,9 +173,12 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			return b;
 		}
 
-		private IList<Control> CreateLastUsedColorButtonRow(int x, int y, int w, int h)
+		private IList<Control> CreateLastUsedColorButtonRow(int w, int h)
 		{
-		    IList<Control> recentColorButtons = new List<Control>();
+		    int x = 0;
+		    int y = 0;
+
+            IList<Control> recentColorButtons = new List<Control>();
 
             for (var i = 0; i < 12; i++)
 			{
@@ -193,8 +199,8 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		{
 			for (var i = 0; i < _editorConfiguration.RecentColors.Count && i < 12; i++)
 			{
-				_recentColorButtons[i].BackColor = _editorConfiguration.RecentColors[i];
-				_recentColorButtons[i].Enabled = true;
+				panelRecentColors.Controls[i].BackColor = _editorConfiguration.RecentColors[i];
+			    panelRecentColors.Controls[i].Enabled = true;
 			}
 		}
 
