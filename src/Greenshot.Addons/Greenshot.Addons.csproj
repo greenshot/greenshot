@@ -207,6 +207,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
+    <Compile Include="Extensions\ClipboardBitmapExtensions.cs" />
     <Compile Include="Extensions\ClipboardHtmlExtensions.cs" />
     <Compile Include="Extensions\DestinationExtensions.cs" />
     <Compile Include="Extensions\LanguageExtensions.cs" />
