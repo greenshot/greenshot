@@ -38,6 +38,7 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Language;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core.Enums;
@@ -850,7 +851,11 @@ namespace Greenshot.Addons.Core
 
 			if (copyPathToClipboard)
 			{
-				ClipboardHelper.SetClipboardData(fullPath);
+			    using (var clipboardAccessToken = ClipboardNative.Access())
+			    {
+                    // TODO: File??
+			        clipboardAccessToken.SetAsUnicodeString(fullPath);
+			    }
 			}
 		}
 

@@ -134,7 +134,7 @@ namespace Greenshot.Gfx
 			};
 		}
 
-		public static IDictionary<string, Func<Stream, string, Bitmap>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Bitmap>>();
+		public static IDictionary<string, Func<Stream, string, Bitmap>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Bitmap>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		///     Make sure the image is orientated correctly

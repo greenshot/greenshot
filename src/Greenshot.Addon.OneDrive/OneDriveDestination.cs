@@ -38,6 +38,7 @@ using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.OneDrive.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -177,7 +178,10 @@ namespace Greenshot.Addon.OneDrive
 
                 if (_oneDriveConfiguration.AfterUploadLinkToClipBoard)
                 {
-                    ClipboardHelper.SetClipboardData(response.ToString());
+                    using (var clipboardAccessToken = ClipboardNative.Access())
+                    {
+                        clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
+                    }
                 }
 
                 return response;

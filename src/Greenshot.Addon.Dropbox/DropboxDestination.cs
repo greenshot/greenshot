@@ -38,6 +38,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -131,8 +132,11 @@ namespace Greenshot.Addon.Dropbox
 				exportInformation.ExportMade = true;
 				if (_dropboxPluginConfiguration.AfterUploadLinkToClipBoard)
 				{
-					ClipboardHelper.SetClipboardData(uploadUrl);
-				}
+				    using (var clipboardAccessToken = ClipboardNative.Access())
+				    {
+				        clipboardAccessToken.SetAsUrl(uploadUrl);
+				    }
+                }
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

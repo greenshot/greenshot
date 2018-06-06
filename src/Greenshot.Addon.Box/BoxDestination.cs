@@ -38,6 +38,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Box.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -150,8 +151,11 @@ namespace Greenshot.Addon.Box
 
 	            if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
 	            {
-	                ClipboardHelper.SetClipboardData(url);
-	            }
+	                using (var clipboardAccessToken = ClipboardNative.Access())
+	                {
+	                    clipboardAccessToken.SetAsUrl(url);
+	                }
+                }
 
 	            return url;
 	        }

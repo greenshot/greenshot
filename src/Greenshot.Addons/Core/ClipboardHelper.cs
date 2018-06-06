@@ -262,14 +262,16 @@ EndSelection:<<<<<<<4
 		/// <returns></returns>
 		public static bool ContainsText(IDataObject dataObject)
 		{
-			if (dataObject != null)
-			{
-				if (dataObject.GetDataPresent(DataFormats.Text) || dataObject.GetDataPresent(DataFormats.UnicodeText))
-				{
-					return true;
-				}
-			}
-			return false;
+		    if (dataObject == null)
+		    {
+		        return false;
+		    }
+
+		    if (dataObject.GetDataPresent(DataFormats.Text) || dataObject.GetDataPresent(DataFormats.UnicodeText))
+		    {
+		        return true;
+		    }
+		    return false;
 		}
 
 		/// <summary>
@@ -289,45 +291,50 @@ EndSelection:<<<<<<<4
 		/// <returns>true if an image is there</returns>
 		public static bool ContainsImage(IDataObject dataObject)
 		{
-			if (dataObject != null)
-			{
-				if (dataObject.GetDataPresent(DataFormats.Bitmap)
-				    || dataObject.GetDataPresent(DataFormats.Dib)
-				    || dataObject.GetDataPresent(DataFormats.Tiff)
-				    || dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
-				    || dataObject.GetDataPresent(FORMAT_PNG)
-				    || dataObject.GetDataPresent(FORMAT_17)
-				    || dataObject.GetDataPresent(FORMAT_JPG)
-				    || dataObject.GetDataPresent(FORMAT_GIF))
-				{
-					return true;
-				}
-				var imageFiles = GetImageFilenames(dataObject);
-				if (imageFiles.Any())
-				{
-					return true;
-				}
-				if (dataObject.GetDataPresent(FORMAT_FILECONTENTS))
-				{
-					try
-					{
-						var imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
-						if (IsValidStream(imageStream))
-						{
-							using (BitmapHelper.FromStream(imageStream))
-							{
-								// If we get here, there is an image
-								return true;
-							}
-						}
-					}
-					catch (Exception)
-					{
-						// Ignore
-					}
-				}
-			}
-			return false;
+		    if (dataObject == null)
+		    {
+		        return false;
+		    }
+
+		    if (dataObject.GetDataPresent(DataFormats.Bitmap)
+		        || dataObject.GetDataPresent(DataFormats.Dib)
+		        || dataObject.GetDataPresent(DataFormats.Tiff)
+		        || dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
+		        || dataObject.GetDataPresent(FORMAT_PNG)
+		        || dataObject.GetDataPresent(FORMAT_17)
+		        || dataObject.GetDataPresent(FORMAT_JPG)
+		        || dataObject.GetDataPresent(FORMAT_GIF))
+		    {
+		        return true;
+		    }
+		    var imageFiles = GetImageFilenames(dataObject);
+		    if (imageFiles.Any())
+		    {
+		        return true;
+		    }
+
+		    if (!dataObject.GetDataPresent(FORMAT_FILECONTENTS))
+		    {
+		        return false;
+		    }
+
+		    try
+		    {
+		        var imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
+		        if (IsValidStream(imageStream))
+		        {
+		            using (BitmapHelper.FromStream(imageStream))
+		            {
+		                // If we get here, there is an image
+		                return true;
+		            }
+		        }
+		    }
+		    catch (Exception)
+		    {
+		        // Ignore
+		    }
+		    return false;
 		}
 
 		/// <summary>

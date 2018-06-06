@@ -38,6 +38,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
@@ -145,8 +146,11 @@ namespace Greenshot.Addon.GooglePhotos
 
 	            if (url != null && _googlePhotosConfiguration.AfterUploadLinkToClipBoard)
 	            {
-	                ClipboardHelper.SetClipboardData(url);
-	            }
+	                using (var clipboardAccessToken = ClipboardNative.Access())
+	                {
+	                    clipboardAccessToken.SetAsUrl(url);
+	                }
+                }
 	            return url;
 	        }
 	        catch (Exception e)

@@ -41,6 +41,7 @@ using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.Listener;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
@@ -178,8 +179,11 @@ namespace Greenshot.Addon.Flickr
 	            }
 	            if (_flickrConfiguration.AfterUploadLinkToClipBoard)
 	            {
-	                ClipboardHelper.SetClipboardData(uploadUrl);
-	            }
+	                using (var clipboardAccessToken = ClipboardNative.Access())
+	                {
+	                    clipboardAccessToken.SetAsUrl(uploadUrl);
+	                }
+                }
 	            
 	        }
 	        catch (Exception e)

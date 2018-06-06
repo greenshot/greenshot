@@ -32,11 +32,13 @@ using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Tfs.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
@@ -193,7 +195,10 @@ namespace Greenshot.Addon.Tfs
 
                 if (_tfsConfiguration.AfterUploadLinkToClipBoard)
                 {
-                    ClipboardHelper.SetClipboardData(response.ToString());
+                    using (var clipboardAccessToken = ClipboardNative.Access())
+                    {
+                        clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
+                    }
                 }
 
                 return response;

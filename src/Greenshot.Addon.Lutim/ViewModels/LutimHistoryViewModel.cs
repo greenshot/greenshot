@@ -30,9 +30,11 @@ using System.Threading.Tasks;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Lutim.ViewModels
 {
@@ -144,7 +146,10 @@ namespace Greenshot.Addon.Lutim.ViewModels
         public void CopyToClipboard()
         {
             // TODO: Build url
-            ClipboardHelper.SetClipboardData(SelectedLutim.LutimInfo.Short);
+            using (var clipboardAccessToken = ClipboardNative.Access())
+            {
+                clipboardAccessToken.SetAsUrl(SelectedLutim.LutimInfo.Short);
+            }
         }
 
         public void ClearHistory()

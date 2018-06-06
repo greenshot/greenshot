@@ -27,11 +27,13 @@ using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
@@ -137,7 +139,10 @@ namespace Greenshot.Addon.Lutim  {
                     }
                     try
                     {
-                        ClipboardHelper.SetClipboardData(uploadUrl);
+                        using (var clipboardAccessToken = ClipboardNative.Access())
+                        {
+                            clipboardAccessToken.SetAsUrl(uploadUrl);
+                        }
                     }
                     catch (Exception ex)
                     {

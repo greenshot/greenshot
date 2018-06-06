@@ -28,6 +28,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CliWrap;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
@@ -91,7 +92,10 @@ namespace Greenshot.Addon.ExternalCommand
 	                {
 	                    exportInformation.Uri = uriMatches[0].Groups[1].Value;
 
-	                    ClipboardHelper.SetClipboardData(output.StandardOutput);
+	                    using (var clipboardAccessToken = ClipboardNative.Access())
+	                    {
+	                        clipboardAccessToken.SetAsUrl(exportInformation.Uri);
+	                    }
 	                }
 	            }
 

@@ -31,6 +31,7 @@ using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Extensions;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addon.Imgur.ViewModels;
@@ -38,6 +39,7 @@ using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
@@ -159,8 +161,10 @@ namespace Greenshot.Addon.Imgur
 
                     try
                     {
-                        ClipboardHelper.SetClipboardData(uploadUrl.AbsoluteUri);
-
+                        using (var clipboardAccessToken = ClipboardNative.Access())
+                        {
+                            clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
+                        }
                     }
                     catch (Exception ex)
                     {

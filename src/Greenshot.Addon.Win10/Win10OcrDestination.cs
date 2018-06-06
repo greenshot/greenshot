@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -94,8 +95,11 @@ namespace Greenshot.Addon.Win10
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))
 				{
-					// Place the OCR text on the 
-					ClipboardHelper.SetClipboardData(text);
+				    // Place the OCR text on the clipboard
+				    using (var clipboardAccessToken = ClipboardNative.Access())
+				    {
+				        clipboardAccessToken.SetAsUnicodeString(text);
+				    }
 				}
 				exportInformation.ExportMade = true;
 			}
