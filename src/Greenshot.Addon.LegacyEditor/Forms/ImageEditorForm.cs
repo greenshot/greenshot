@@ -142,7 +142,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             HideToolstripItems();
 
             // Make the clipboard buttons update
-            _clipboardSubscription = ClipboardMonitor.OnUpdate.Subscribe(args =>
+            _clipboardSubscription = ClipboardNative.OnUpdate.Subscribe(args =>
             {
                 UpdateClipboardSurfaceDependencies();
             });
