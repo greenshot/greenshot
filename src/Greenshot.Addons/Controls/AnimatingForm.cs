@@ -47,10 +47,10 @@ namespace Greenshot.Addons.Controls
 		private Timer _timer;
 		private int _vRefresh;
 
-		/// <summary>
-		///     Initialize the animation
-		/// </summary>
-		protected AnimatingForm(ICoreConfiguration coreConfiguration, ILanguage language) : base(language)
+        /// <summary>
+        ///     Initialize the animation
+        /// </summary>
+        protected AnimatingForm(ICoreConfiguration coreConfiguration, ILanguage language) : base(language)
 		{
 		    _coreConfiguration = coreConfiguration;
 		    Load += (sender, args) =>

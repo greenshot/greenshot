@@ -44,6 +44,7 @@ using Dapplo.Log;
 using Timer = System.Timers.Timer;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.App;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
@@ -477,7 +478,10 @@ namespace Greenshot.Forms
 
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
-            contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
+            using (var clipboardAccessToken = ClipboardNative.Access())
+            {
+                contextmenu_captureclipboard.Enabled = clipboardAccessToken.HasImage();
+            }
             contextmenu_capturelastregion.Enabled = _coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // IE context menu code

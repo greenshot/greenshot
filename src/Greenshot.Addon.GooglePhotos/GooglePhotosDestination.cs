@@ -148,7 +148,8 @@ namespace Greenshot.Addon.GooglePhotos
 	            {
 	                using (var clipboardAccessToken = ClipboardNative.Access())
 	                {
-	                    clipboardAccessToken.SetAsUrl(url);
+	                    clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(url);
 	                }
                 }
 	            return url;

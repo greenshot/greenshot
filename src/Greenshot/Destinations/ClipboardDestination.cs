@@ -66,7 +66,12 @@ namespace Greenshot.Destinations
 				using (var clipboardAccessToken = ClipboardNative.Access())
 				{
 					clipboardAccessToken.ClearContents();
-
+                    // TODO: Test if this works
+				    if (!string.IsNullOrEmpty(surface.LastSaveFullPath))
+				    {
+				        clipboardAccessToken.SetAsUnicodeString(surface.LastSaveFullPath);
+                    }
+                    
 				    foreach (var clipboardFormat in CoreConfiguration.ClipboardFormats)
 				    {
 				        switch (clipboardFormat)

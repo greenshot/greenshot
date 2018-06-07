@@ -153,7 +153,8 @@ namespace Greenshot.Addon.Box
 	            {
 	                using (var clipboardAccessToken = ClipboardNative.Access())
 	                {
-	                    clipboardAccessToken.SetAsUrl(url);
+	                    clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(url);
 	                }
                 }
 

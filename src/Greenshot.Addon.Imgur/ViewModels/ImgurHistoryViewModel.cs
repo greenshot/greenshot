@@ -147,6 +147,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
         {
             using (var clipboardAccessToken = ClipboardNative.Access())
             {
+                clipboardAccessToken.ClearContents();
                 clipboardAccessToken.SetAsUrl(SelectedImgur.Data.Link?.AbsoluteUri);
             }
         }

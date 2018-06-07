@@ -163,6 +163,7 @@ namespace Greenshot.Addon.Imgur
                     {
                         using (var clipboardAccessToken = ClipboardNative.Access())
                         {
+                            clipboardAccessToken.ClearContents();
                             clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
                         }
                     }

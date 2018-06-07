@@ -98,7 +98,8 @@ namespace Greenshot.Addon.Win10
 				    // Place the OCR text on the clipboard
 				    using (var clipboardAccessToken = ClipboardNative.Access())
 				    {
-				        clipboardAccessToken.SetAsUnicodeString(text);
+				        clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUnicodeString(text);
 				    }
 				}
 				exportInformation.ExportMade = true;

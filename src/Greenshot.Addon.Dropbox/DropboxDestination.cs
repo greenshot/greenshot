@@ -134,7 +134,8 @@ namespace Greenshot.Addon.Dropbox
 				{
 				    using (var clipboardAccessToken = ClipboardNative.Access())
 				    {
-				        clipboardAccessToken.SetAsUrl(uploadUrl);
+				        clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(uploadUrl);
 				    }
                 }
 			}

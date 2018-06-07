@@ -95,6 +95,7 @@ namespace Greenshot
                 .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IService>()
                 .As<IService>()
+                .AsImplementedInterfaces()
                 .SingleInstance();
             
             builder

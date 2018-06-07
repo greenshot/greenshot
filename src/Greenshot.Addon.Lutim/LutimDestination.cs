@@ -141,6 +141,7 @@ namespace Greenshot.Addon.Lutim  {
                     {
                         using (var clipboardAccessToken = ClipboardNative.Access())
                         {
+                            clipboardAccessToken.ClearContents();
                             clipboardAccessToken.SetAsUrl(uploadUrl);
                         }
                     }

@@ -32,10 +32,10 @@ using System.Drawing.Imaging;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Dapplo.CaliburnMicro;
 using Greenshot.Helpers;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Dpi;
 using Greenshot.Addons;
 using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
@@ -135,7 +135,11 @@ namespace Greenshot.Forms
 		/// <summary>
 		///     Constructor
 		/// </summary>
-		public AboutForm(ICoreConfiguration coreConfiguration, IGreenshotLanguage greenshotlanguage) : base(coreConfiguration, greenshotlanguage)
+		public AboutForm(
+		    ICoreConfiguration coreConfiguration, 
+		    IGreenshotLanguage greenshotlanguage,
+		    IVersionProvider versionProvider
+            ) : base(coreConfiguration, greenshotlanguage)
 		{
 		    _greenshotlanguage = greenshotlanguage;
 		    // Make sure our resources are removed again.
@@ -159,13 +163,14 @@ namespace Greenshot.Forms
 		            pictureBox1.Height = FormDpiHandler.ScaleWithCurrentDpi(90);
                 });
 
-            var v = Assembly.GetExecutingAssembly().GetName().Version;
-
-			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = $"Greenshot {v.Major}.{v.Minor}.{v.Build} Build {v.Revision}{(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
-
+            var versionInfo = $@"Greenshot {versionProvider.CurrentVersion} {(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit)";
+		    if (versionProvider.IsUpdateAvailable)
+		    {
+		        versionInfo += $" latest is: {versionProvider.LatestVersion}";
+		    }
+		    lblTitle.Text = versionInfo;
 			// Number of frames the pixel animation takes
-			var frames = FramesForMillis(2000);
+            var frames = FramesForMillis(2000);
 			// The number of frames the color-cycle waits before it starts
 			_waitFrames = FramesForMillis(6000);
 

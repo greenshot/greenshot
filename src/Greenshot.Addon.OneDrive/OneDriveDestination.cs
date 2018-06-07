@@ -180,6 +180,7 @@ namespace Greenshot.Addon.OneDrive
                 {
                     using (var clipboardAccessToken = ClipboardNative.Access())
                     {
+                        clipboardAccessToken.ClearContents();
                         clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
                     }
                 }

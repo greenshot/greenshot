@@ -853,6 +853,7 @@ namespace Greenshot.Addons.Core
 			{
 			    using (var clipboardAccessToken = ClipboardNative.Access())
 			    {
+                    clipboardAccessToken.ClearContents();
                     // TODO: File??
 			        clipboardAccessToken.SetAsUnicodeString(fullPath);
 			    }

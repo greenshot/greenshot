@@ -197,6 +197,7 @@ namespace Greenshot.Addon.Tfs
                 {
                     using (var clipboardAccessToken = ClipboardNative.Access())
                     {
+                        clipboardAccessToken.ClearContents();
                         clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
                     }
                 }

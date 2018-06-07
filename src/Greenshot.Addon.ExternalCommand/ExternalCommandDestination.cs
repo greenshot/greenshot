@@ -94,7 +94,8 @@ namespace Greenshot.Addon.ExternalCommand
 
 	                    using (var clipboardAccessToken = ClipboardNative.Access())
 	                    {
-	                        clipboardAccessToken.SetAsUrl(exportInformation.Uri);
+	                        clipboardAccessToken.ClearContents();
+                            clipboardAccessToken.SetAsUrl(exportInformation.Uri);
 	                    }
 	                }
 	            }
