@@ -43,7 +43,7 @@ namespace Greenshot.Forms
 		private static readonly LogSource Log = new LogSource();
 		private bool _properOkPressed;
 
-		private LanguageDialog()
+		public LanguageDialog()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -67,12 +67,12 @@ namespace Greenshot.Forms
 	    private void FormLoad(object sender, EventArgs e)
 		{
 			// Initialize the Language ComboBox
-			comboBoxLanguage.DisplayMember = "Description";
-			comboBoxLanguage.ValueMember = "Ietf";
+			comboBoxLanguage.DisplayMember = "Value";
+			comboBoxLanguage.ValueMember = "Key";
 
 			// Set datasource last to prevent problems
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages;
+			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
 
 		    var currentLanguage = LanguageLoader.Current.CurrentLanguage;
 
