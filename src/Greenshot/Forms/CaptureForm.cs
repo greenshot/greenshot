@@ -70,7 +70,7 @@ namespace Greenshot.Forms
         private FixMode _fixMode = FixMode.None;
         private bool _isCtrlPressed;
         private bool _mouseDown;
-        private NativePoint _mouseMovePos = NativePoint.Empty;
+        private NativePoint _mouseMovePos;
 
         private int _mX;
         private int _mY;
@@ -120,7 +120,7 @@ namespace Greenshot.Forms
             FormClosing += ClosingHandler;
 
             // set cursor location
-            _cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+            _cursorPos = _mouseMovePos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 
             // Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
             if (UsedCaptureMode == CaptureMode.Window)
@@ -186,8 +186,11 @@ namespace Greenshot.Forms
         {
             if (isOn)
             {
+                var screenBounds = DisplayInfo.GetBounds(MousePosition);
+                var zoomerSize = CalculateZoomSize(screenBounds);
+
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue, int.MaxValue, NativeSize.Empty), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
+                _zoomAnimator = new RectangleAnimator(new NativeRect(_cursorPos, NativeSize.Empty), new NativeRect(_cursorPos, zoomerSize), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
@@ -713,6 +716,21 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
+        /// Calculate the zoom size
+        /// </summary>
+        /// <param name="screenBounds">NativeRect with the screenbounds</param>
+        /// <returns>NativeSize</returns>
+        private NativeSize CalculateZoomSize(NativeRect screenBounds)
+        {
+            // convert to be relative to top left corner of all screen bounds
+            screenBounds = screenBounds.MoveTo(WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location));
+            var relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;
+            // Make sure the final size is a plural of 4, this makes it look better
+            relativeZoomSize = relativeZoomSize - relativeZoomSize % 4;
+            return new NativeSize(relativeZoomSize, relativeZoomSize);
+        }
+
+        /// <summary>
         ///     Checks if the Zoom area can move there where it wants to go, change direction if not.
         /// </summary>
         /// <param name="pos">preferred destination location for the zoom area</param>
@@ -723,12 +741,7 @@ namespace Greenshot.Forms
         private void VerifyZoomAnimation(NativePoint pos, bool allowZoomOverCaptureRect)
         {
             var screenBounds = DisplayInfo.GetBounds(MousePosition);
-            // convert to be relative to top left corner of all screen bounds
-            screenBounds = screenBounds.MoveTo(WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location));
-            var relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;
-            // Make sure the final size is a plural of 4, this makes it look better
-            relativeZoomSize = relativeZoomSize - relativeZoomSize % 4;
-            var zoomSize = new NativeSize(relativeZoomSize, relativeZoomSize);
+            var zoomSize = CalculateZoomSize(screenBounds);
             var zoomOffset = new NativePoint(20, 20);
 
             var targetRectangle = _zoomAnimator.Final.Offset(pos);
