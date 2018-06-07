@@ -26,10 +26,14 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Configuration;
 
 #endregion
@@ -60,7 +64,13 @@ namespace Greenshot.Destinations
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
-				ClipboardHelper.SetClipboardData(surface);
+				using (var clipboardAccessToken = ClipboardNative.Access())
+				{
+					clipboardAccessToken.ClearContents();
+					
+					//clipboardAccessToken.SetAsDeviceIndependendBitmap(surface);
+					clipboardAccessToken.SetAsFormat17(surface);
+				}
 				exportInformation.ExportMade = true;
 			}
 			catch (Exception)
