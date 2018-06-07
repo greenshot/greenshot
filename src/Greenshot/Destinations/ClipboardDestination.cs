@@ -34,7 +34,6 @@ using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Configuration;
 
 #endregion
 
@@ -67,9 +66,31 @@ namespace Greenshot.Destinations
 				using (var clipboardAccessToken = ClipboardNative.Access())
 				{
 					clipboardAccessToken.ClearContents();
-					
-					//clipboardAccessToken.SetAsDeviceIndependendBitmap(surface);
-					clipboardAccessToken.SetAsFormat17(surface);
+
+				    foreach (var clipboardFormat in CoreConfiguration.ClipboardFormats)
+				    {
+				        switch (clipboardFormat)
+				        {
+                            case ClipboardFormats.DIB:
+                                clipboardAccessToken.SetAsDeviceIndependendBitmap(surface);
+                                break;
+				            case ClipboardFormats.DIBV5:
+				                clipboardAccessToken.SetAsFormat17(surface);
+				                break;
+				            case ClipboardFormats.PNG:
+				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(OutputFormats.png));
+				                break;
+				            case ClipboardFormats.BITMAP:
+				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(OutputFormats.bmp));
+				                break;
+				            case ClipboardFormats.HTML:
+				                clipboardAccessToken.SetAsHtml(surface);
+				                break;
+				            case ClipboardFormats.HTMLDATAURL:
+				                clipboardAccessToken.SetAsEmbeddedHtml(surface);
+				                break;
+				        }
+                    }
 				}
 				exportInformation.ExportMade = true;
 			}

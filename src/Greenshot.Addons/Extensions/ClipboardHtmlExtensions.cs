@@ -152,16 +152,16 @@ EndSelection:<<<<<<<4
         /// Place the bitmap as embedded HTML on the clipboard
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
-        /// <param name="bitmap">Bitmap</param>
-        public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, Bitmap bitmap)
+        /// <param name="surface">ISurface</param>
+        public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface)
         {
             using (var pngStream = new MemoryStream())
             {
                 var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
-                ImageOutput.SaveToStream(bitmap, null, pngStream, pngOutputSettings);
+                ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
                 pngStream.Seek(0, SeekOrigin.Begin);
                 // Set the PNG stream
-                var htmlText = GenerateHtmlDataUrlString(bitmap.Size, pngStream);
+                var htmlText = GenerateHtmlDataUrlString(new NativeSize(surface.Width, surface.Height), pngStream);
                 clipboardAccessToken.SetAsHtml(htmlText);
             }
         }
