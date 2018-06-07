@@ -21,25 +21,24 @@
 
 #endregion
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
-using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     /// <summary>
-    /// The ViewModel for the DestinationPicke4 configuration
+    /// The ViewModel for the ClipboardDestination configuration
     /// </summary>
-    public sealed class DestinationPickerConfigViewModel : SimpleConfigScreen
+    public sealed class ClipboardDestinationConfigViewModel : SimpleConfigScreen
     {
-        private readonly DestinationHolder _destinationHolder;
-
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
@@ -49,14 +48,12 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public IConfigTranslations ConfigTranslations { get; }
         public IGreenshotLanguage GreenshotLanguage { get; }
 
-        public DestinationPickerConfigViewModel(
+        public ClipboardDestinationConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IConfigTranslations configTranslations,
-            IGreenshotLanguage greenshotLanguage,
-            DestinationHolder destinationHolder
+            IGreenshotLanguage greenshotLanguage
             )
         {
-            _destinationHolder = destinationHolder;
             ConfigTranslations = configTranslations;
             GreenshotLanguage = greenshotLanguage;
             CoreConfiguration = coreConfiguration;
@@ -76,45 +73,41 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // automatically update the DisplayName
             _disposables = new CompositeDisposable
             {
-                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationPicker))
+                GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationClipboard))
             };
 
             UsedDestinations.Clear();
-            if (CoreConfiguration.PickerDestinations.Any())
-            {
-                foreach (var outputDestination in CoreConfiguration.PickerDestinations)
-                {
-                    var pickerDestination = _destinationHolder.SortedActiveDestinations
-                        .Where(destination => !"Picker".Equals(destination.Designation))
-                        .FirstOrDefault(destination => outputDestination == destination.Designation);
 
-                    if (pickerDestination != null)
-                    {
-                        UsedDestinations.Add(pickerDestination);
-                    }
-                }
-            }
-            else
+            if (CoreConfiguration.ClipboardFormats.Any())
             {
-                foreach (var pickerDestination in _destinationHolder.SortedActiveDestinations
-                    .Where(destination => !"Picker".Equals(destination.Designation)))
+                foreach (var clipboardFormat in CoreConfiguration.ClipboardFormats)
                 {
-                    UsedDestinations.Add(pickerDestination);
+                    UsedDestinations.Add(clipboardFormat.ToString());
                 }
             }
+            
             AvailableDestinations.Clear();
-            foreach (var destination in _destinationHolder.SortedActiveDestinations
-                .Where(destination => !"Picker".Equals(destination.Designation))
-                .Where(destination => UsedDestinations.All(pickerDestination => pickerDestination.Designation != destination.Designation)))
+            foreach (var clipboardFormat in Enum.GetNames(typeof(ClipboardFormats)))
             {
-                AvailableDestinations.Add(destination);
+                if (clipboardFormat == ClipboardFormats.NONE.ToString())
+                {
+                    continue;
+                }
+                AvailableDestinations.Add(clipboardFormat);
             }
             base.Initialize(config);
         }
 
         public override void Commit()
         {
-            CoreConfiguration.PickerDestinations = UsedDestinations.Select(d => d.Designation).ToList();
+            CoreConfiguration.ClipboardFormats = UsedDestinations.Select(format =>
+            {
+                if (!Enum.TryParse<ClipboardFormats>(format, true, out var clipboardFormat))
+                {
+                    return default;
+                }
+                return clipboardFormat;
+            }).Where(format => format != ClipboardFormats.NONE).ToList();
             base.Commit();
         }
 
@@ -124,9 +117,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.OnDeactivate(close);
         }
 
-        public ObservableCollection<IDestination> AvailableDestinations { get; } = new ObservableCollection<IDestination>();
+        public ObservableCollection<string> AvailableDestinations { get; } = new ObservableCollection<string>();
 
-        public ObservableCollection<IDestination> UsedDestinations { get; } = new ObservableCollection<IDestination>();
+        public ObservableCollection<string> UsedDestinations { get; } = new ObservableCollection<string>();
         
     }
 }

@@ -266,6 +266,7 @@
     </Compile>
     <Compile Include="GreenshotAutofacModule.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\ClipboardDestinationConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\PrintConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\OutputConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\NetworkConfigViewModel.cs" />
@@ -479,6 +480,10 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Ui\Configuration\Views\ClipboardDestinationConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Ui\Configuration\Views\DestinationPickerConfigView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

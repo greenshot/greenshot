@@ -25,6 +25,7 @@ namespace Greenshot.Addons.Core.Enums
 {
 	public enum ClipboardFormats
 	{
+        NONE,
 		PNG,
 		DIB,
 		HTML,
