@@ -28,6 +28,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Dpi;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Interfaces.Drawing.Adorners;
 
@@ -37,11 +39,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 {
 	public class AbstractAdorner : IAdorner
 	{
-		protected Size _size = new Size(4, 4);
+		protected Size _size = new Size(5, 5);
 
 		public AbstractAdorner(IDrawableContainer owner)
 		{
-			Owner = owner;
+		    _size.Width = _size.Height = DpiHandler.ScaleWithDpi(5, DpiHandler.GetDpi(InteropWindowQuery.GetDesktopWindow().Handle));
+            Owner = owner;
 		}
 
 		/// <summary>
@@ -66,12 +69,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <summary>
 		///     Returns the cursor for when the mouse is over the adorner
 		/// </summary>
-		public virtual Cursor Cursor
-		{
-			get { return Cursors.SizeAll; }
-		}
+		public virtual Cursor Cursor => Cursors.SizeAll;
 
-		public virtual IDrawableContainer Owner { get; set; }
+	    public virtual IDrawableContainer Owner { get; set; }
 
 		/// <summary>
 		///     Test if the point is inside the adorner
