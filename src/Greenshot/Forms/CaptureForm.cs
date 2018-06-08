@@ -116,8 +116,11 @@ namespace Greenshot.Forms
 
             Text = "Greenshot capture form";
 
-            // Unregister at close
-            FormClosing += ClosingHandler;
+            // Log at close
+            if (Log.IsDebugEnabled())
+            {
+                FormClosing += (s, e) => Log.Debug().WriteLine("Closing captureform");
+            }
 
             // set cursor location
             _cursorPos = _mouseMovePos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
@@ -131,9 +134,7 @@ namespace Greenshot.Forms
             // Set the zoomer animation
             InitializeZoomer(_coreConfiguration.ZoomerEnabled);
 
-            SuspendLayout();
             Bounds = capture.ScreenBounds;
-            ResumeLayout();
 
             // Fix missing focus
             ToFront = true;
@@ -174,11 +175,6 @@ namespace Greenshot.Forms
             }
         }
 
-        private void ClosingHandler(object sender, EventArgs e)
-        {
-            Log.Debug().WriteLine("Closing captureform");
-        }
-
         /// <summary>
         ///     Create an animation for the zoomer, depending on if it's active or not.
         /// </summary>
@@ -189,8 +185,9 @@ namespace Greenshot.Forms
                 var screenBounds = DisplayInfo.GetBounds(MousePosition);
                 var zoomerSize = CalculateZoomSize(screenBounds);
 
-                // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(new NativeRect(_cursorPos, NativeSize.Empty), new NativeRect(_cursorPos, zoomerSize), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
+                var initialPosition = new NativePoint(20, 20);
+                // Initialize the zoom with an initial position
+                _zoomAnimator = new RectangleAnimator(new NativeRect(initialPosition, NativeSize.Empty), new NativeRect(initialPosition, zoomerSize), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
