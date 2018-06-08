@@ -292,14 +292,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				}
 				// Take a base safetymargin
 				var lineThickness = 5;
-				if (HasField(FieldType.LINE_THICKNESS))
+				if (HasField(FieldTypes.LINE_THICKNESS))
 				{
-					lineThickness += GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+					lineThickness += GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 				}
 				var offset = lineThickness / 2;
 
 				var shadow = 0;
-				if (accountForShadowChange || HasField(FieldType.SHADOW) && GetFieldValueAsBool(FieldType.SHADOW))
+				if (accountForShadowChange || HasField(FieldTypes.SHADOW) && GetFieldValueAsBool(FieldTypes.SHADOW))
 				{
 					accountForShadowChange = false;
 					shadow += 10;
@@ -322,7 +322,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				return;
 			}
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 			if (horizontalAlignment == HorizontalAlignment.Left)
 			{
 				Left = lineThickness / 2;
@@ -644,7 +644,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e)
 		{
 			Log.Debug().WriteLine("Field {0} changed", e.Field.FieldType);
-			if (Equals(e.Field.FieldType, FieldType.SHADOW))
+			if (Equals(e.Field.FieldType, FieldTypes.SHADOW))
 			{
 				accountForShadowChange = true;
 			}

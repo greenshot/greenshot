@@ -677,23 +677,23 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         {
             _disposables = new CompositeDisposable
             {
-                new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
-                new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
-                new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value",DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()),
-                new BidirectionalBinding(pixelSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PIXEL_SIZE), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
-                new BidirectionalBinding(brightnessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BRIGHTNESS), "Value", DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()),
-                new BidirectionalBinding(fontFamilyComboBox, "Text", _surface.FieldAggregator.GetField(FieldType.FONT_FAMILY), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(fontSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.FONT_SIZE), "Value", DecimalFloatConverter.GetInstance(),NotNullValidator.GetInstance()),
-                new BidirectionalBinding(fontBoldButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_BOLD), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(fontItalicButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_ITALIC), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(textHorizontalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
-                new BidirectionalBinding(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
-                new BidirectionalBinding(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldType.SHADOW), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()),
-                new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value"),
-                new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value"),
+                new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldTypes.FILL_COLOR), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldTypes.LINE_COLOR), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
+                new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
+                new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.MAGNIFICATION_FACTOR), "Value",DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()),
+                new BidirectionalBinding(pixelSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.PIXEL_SIZE), "Value", DecimalIntConverter.GetInstance(),NotNullValidator.GetInstance()),
+                new BidirectionalBinding(brightnessUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.BRIGHTNESS), "Value", DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()),
+                new BidirectionalBinding(fontFamilyComboBox, "Text", _surface.FieldAggregator.GetField(FieldTypes.FONT_FAMILY), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(fontSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.FONT_SIZE), "Value", DecimalFloatConverter.GetInstance(),NotNullValidator.GetInstance()),
+                new BidirectionalBinding(fontBoldButton, "Checked", _surface.FieldAggregator.GetField(FieldTypes.FONT_BOLD), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(fontItalicButton, "Checked", _surface.FieldAggregator.GetField(FieldTypes.FONT_ITALIC), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(textHorizontalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
+                new BidirectionalBinding(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.TEXT_VERTICAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
+                new BidirectionalBinding(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldTypes.SHADOW), "Value", NotNullValidator.GetInstance()),
+                new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.PREVIEW_QUALITY), "Value",DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()),
+                new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.PREPARED_FILTER_OBFUSCATE), "Value"),
+                new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.PREPARED_FILTER_HIGHLIGHT), "Value"),
                 new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance())
             };
         }
@@ -707,29 +707,29 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
             {
                 var props = _surface.FieldAggregator;
-                btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
-                btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
-                lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
-                blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
-                previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
-                magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldType.MAGNIFICATION_FACTOR);
-                pixelSizeLabel.Visible = pixelSizeUpDown.Visible = props.HasFieldValue(FieldType.PIXEL_SIZE);
-                brightnessLabel.Visible = brightnessUpDown.Visible = props.HasFieldValue(FieldType.BRIGHTNESS);
-                arrowHeadsLabel.Visible = arrowHeadsDropDownButton.Visible = props.HasFieldValue(FieldType.ARROWHEADS);
-                fontFamilyComboBox.Visible = props.HasFieldValue(FieldType.FONT_FAMILY);
-                fontSizeLabel.Visible = fontSizeUpDown.Visible = props.HasFieldValue(FieldType.FONT_SIZE);
-                fontBoldButton.Visible = props.HasFieldValue(FieldType.FONT_BOLD);
-                fontItalicButton.Visible = props.HasFieldValue(FieldType.FONT_ITALIC);
-                textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-                textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
-                shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                               && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
-                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                         && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                btnFillColor.Visible = props.HasFieldValue(FieldTypes.FILL_COLOR);
+                btnLineColor.Visible = props.HasFieldValue(FieldTypes.LINE_COLOR);
+                lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldTypes.LINE_THICKNESS);
+                blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldTypes.BLUR_RADIUS);
+                previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldTypes.PREVIEW_QUALITY);
+                magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldTypes.MAGNIFICATION_FACTOR);
+                pixelSizeLabel.Visible = pixelSizeUpDown.Visible = props.HasFieldValue(FieldTypes.PIXEL_SIZE);
+                brightnessLabel.Visible = brightnessUpDown.Visible = props.HasFieldValue(FieldTypes.BRIGHTNESS);
+                arrowHeadsLabel.Visible = arrowHeadsDropDownButton.Visible = props.HasFieldValue(FieldTypes.ARROWHEADS);
+                fontFamilyComboBox.Visible = props.HasFieldValue(FieldTypes.FONT_FAMILY);
+                fontSizeLabel.Visible = fontSizeUpDown.Visible = props.HasFieldValue(FieldTypes.FONT_SIZE);
+                fontBoldButton.Visible = props.HasFieldValue(FieldTypes.FONT_BOLD);
+                fontItalicButton.Visible = props.HasFieldValue(FieldTypes.FONT_ITALIC);
+                textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT);
+                textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldTypes.TEXT_VERTICAL_ALIGNMENT);
+                shadowButton.Visible = props.HasFieldValue(FieldTypes.SHADOW);
+                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldTypes.FLAGS)
+                                                               && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
+                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldTypes.FLAGS)
+                                                         && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
 
-                obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
-                highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+                obfuscateModeButton.Visible = props.HasFieldValue(FieldTypes.PREPARED_FILTER_OBFUSCATE);
+                highlightModeButton.Visible = props.HasFieldValue(FieldTypes.PREPARED_FILTER_HIGHLIGHT);
             }
             else
             {
@@ -766,7 +766,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             var props = _surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
             // since we demand confirmation or cancel for confirmable element
-            if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
+            if (props.HasFieldValue(FieldTypes.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
             {
                 // disable most controls
                 if (!_controlsDisabledDueToConfirmable)
@@ -814,7 +814,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 
         private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination) ((ToolStripMenuItem) sender).Tag;
+            _surface.FieldAggregator.GetField(FieldTypes.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination) ((ToolStripMenuItem) sender).Tag;
         }
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
@@ -880,7 +880,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         {
             // in addition to selection, deselection of elements, we need to
             // refresh toolbar if prepared filter mode is changed
-            if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_HIGHLIGHT))
+            if (Equals(e.Field.FieldType, FieldTypes.PREPARED_FILTER_HIGHLIGHT))
             {
                 RefreshFieldControls();
             }

@@ -48,10 +48,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, true);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.Transparent);
+			AddField(GetType(), FieldTypes.SHADOW, true);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode renderMode)
@@ -61,10 +61,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+			var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
 		}
@@ -140,8 +140,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public override bool ClickableAt(int x, int y)
 		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 10;
+			var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
 		}

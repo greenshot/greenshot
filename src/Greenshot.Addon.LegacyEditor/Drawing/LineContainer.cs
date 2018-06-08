@@ -51,9 +51,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, true);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.SHADOW, true);
 		}
 
 		protected override void OnDeserialized(StreamingContext context)
@@ -74,9 +74,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 
 			if (lineThickness > 0)
 			{
@@ -112,7 +112,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public override bool ClickableAt(int x, int y)
 		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 5;
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 5;
 			if (lineThickness > 0)
 			{
 				using (var pen = new Pen(Color.White))

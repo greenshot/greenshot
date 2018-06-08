@@ -50,7 +50,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		protected override void InitializeFields()
 		{
 			base.InitializeFields();
-			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
+			AddField(GetType(), FieldTypes.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
 		}
 
 		protected override void OnDeserialized(StreamingContext context)
@@ -70,7 +70,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				return;
 			}
-			if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_HIGHLIGHT))
+			if (Equals(e.Field.FieldType, FieldTypes.PREPARED_FILTER_HIGHLIGHT))
 			{
 				ConfigurePreparedFilters();
 			}
@@ -78,7 +78,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private void ConfigurePreparedFilters()
 		{
-			var preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+			var preset = (PreparedFilter) GetFieldValue(FieldTypes.PREPARED_FILTER_HIGHLIGHT);
 			while (Filters.Count > 0)
 			{
 				Remove(Filters[0]);

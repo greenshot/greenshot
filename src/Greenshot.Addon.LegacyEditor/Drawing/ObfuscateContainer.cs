@@ -47,7 +47,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		protected override void InitializeFields()
 		{
 			base.InitializeFields();
-			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
+			AddField(GetType(), FieldTypes.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 		}
 
 		protected override void OnDeserialized(StreamingContext context)
@@ -66,7 +66,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			if (sender.Equals(this))
 			{
-				if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE))
+				if (Equals(e.Field.FieldType, FieldTypes.PREPARED_FILTER_OBFUSCATE))
 				{
 					ConfigurePreparedFilters();
 				}
@@ -75,7 +75,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private void ConfigurePreparedFilters()
 		{
-			var preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+			var preset = (PreparedFilter) GetFieldValue(FieldTypes.PREPARED_FILTER_OBFUSCATE);
 			while (Filters.Count > 0)
 			{
 				Remove(Filters[0]);

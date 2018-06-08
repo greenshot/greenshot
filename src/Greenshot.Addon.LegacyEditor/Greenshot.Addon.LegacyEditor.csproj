@@ -15,6 +15,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
@@ -205,6 +211,7 @@
     <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
     <Compile Include="Drawing\Fields\Field.cs" />
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
+    <Compile Include="Drawing\Fields\FieldTypes.cs" />
     <Compile Include="Drawing\Fields\FieldType.cs" />
     <Compile Include="Drawing\FilterContainer.cs" />
     <Compile Include="Drawing\Filters\AbstractFilter.cs" />

@@ -41,7 +41,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	{
         public HighlightFilter(DrawableContainer parent) : base(parent)
 		{
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.Yellow);
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			}
 			using (var fastBitmap = FastBitmapFactory.CreateCloneOf(applyBitmap, area: applyRect))
 			{
-				var highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+				var highlightColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
 			    Parallel.For(fastBitmap.Top, fastBitmap.Bottom, y =>
 			    {
 			        unsafe

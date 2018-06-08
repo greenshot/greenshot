@@ -40,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	{
 		public MagnifierFilter(DrawableContainer parent) : base(parent)
 		{
-			AddField(GetType(), FieldType.MAGNIFICATION_FACTOR, 2);
+			AddField(GetType(), FieldTypes.MAGNIFICATION_FACTOR, 2);
 		}
 
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
@@ -52,7 +52,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 				// nothing to do
 				return;
 			}
-			var magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
+			var magnificationFactor = GetFieldValueAsInt(FieldTypes.MAGNIFICATION_FACTOR);
 			var state = graphics.Save();
 			if (Invert)
 			{

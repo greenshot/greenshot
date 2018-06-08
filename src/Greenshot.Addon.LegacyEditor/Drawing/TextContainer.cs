@@ -95,16 +95,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
         protected override void InitializeFields()
         {
-            AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-            AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-            AddField(GetType(), FieldType.SHADOW, true);
-            AddField(GetType(), FieldType.FONT_ITALIC, false);
-            AddField(GetType(), FieldType.FONT_BOLD, false);
-            AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-            AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
-            AddField(GetType(), FieldType.FONT_SIZE, 11f);
-            AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
-            AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
+            AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+            AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+            AddField(GetType(), FieldTypes.SHADOW, true);
+            AddField(GetType(), FieldTypes.FONT_ITALIC, false);
+            AddField(GetType(), FieldTypes.FONT_BOLD, false);
+            AddField(GetType(), FieldTypes.FILL_COLOR, Color.Transparent);
+            AddField(GetType(), FieldTypes.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
+            AddField(GetType(), FieldTypes.FONT_SIZE, 11f);
+            AddField(GetType(), FieldTypes.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
+            AddField(GetType(), FieldTypes.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         public void FitToText()
         {
             Size textSize = TextRenderer.MeasureText(text, _font);
-            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
             Width = textSize.Width + lineThickness;
             Height = textSize.Height + lineThickness;
         }
@@ -288,7 +288,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             {
                 return;
             }
-            Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            Color lc = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
             if (lc.R > 203 && lc.G > 203 && lc.B > 203)
             {
                 _textBox.BackColor = Color.FromArgb(51, 51, 51);
@@ -323,9 +323,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             int pixelsAfter = rect.Width * rect.Height;
             float factor = pixelsAfter / (float)pixelsBefore;
 
-            float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+            float fontSize = GetFieldValueAsFloat(FieldTypes.FONT_SIZE);
             fontSize *= factor;
-            SetFieldValue(FieldType.FONT_SIZE, fontSize);
+            SetFieldValue(FieldTypes.FONT_SIZE, fontSize);
             UpdateFormat();
         }
 
@@ -382,10 +382,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             {
                 return;
             }
-            string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
-            bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
-            bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
-            float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+            string fontFamily = GetFieldValueAsString(FieldTypes.FONT_FAMILY);
+            bool fontBold = GetFieldValueAsBool(FieldTypes.FONT_BOLD);
+            bool fontItalic = GetFieldValueAsBool(FieldTypes.FONT_ITALIC);
+            float fontSize = GetFieldValueAsFloat(FieldTypes.FONT_SIZE);
             try
             {
                 var newFont = CreateFont(fontFamily, fontBold, fontItalic, fontSize);
@@ -399,7 +399,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                 try
                 {
                     fontFamily = FontFamily.GenericSansSerif.Name;
-                    SetFieldValue(FieldType.FONT_FAMILY, fontFamily);
+                    SetFieldValue(FieldTypes.FONT_FAMILY, fontFamily);
                     var newFont = CreateFont(fontFamily, fontBold, fontItalic, fontSize);
                     _font?.Dispose();
                     _font = newFont;
@@ -421,8 +421,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
         private void UpdateAlignment()
         {
-            _stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-            _stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+            _stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT);
+            _stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldTypes.TEXT_VERTICAL_ALIGNMENT);
         }
 
         /// <summary>
@@ -435,7 +435,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             {
                 return;
             }
-            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 
             int lineWidth = (int)Math.Floor(lineThickness / 2d);
             int correction = (lineThickness + 1) % 2;
@@ -467,7 +467,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             {
                 return;
             }
-            var alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+            var alignment = (StringAlignment)GetFieldValue(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT);
             switch (alignment)
             {
                 case StringAlignment.Near:
@@ -481,7 +481,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                     break;
             }
 
-            var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
             _textBox.ForeColor = lineColor;
         }
 
@@ -546,10 +546,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             }
 
             // we only draw the shadow if there is no background
-            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-            Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            bool shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
+            Color fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
+            int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+            Color lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
             bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
 
             DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);

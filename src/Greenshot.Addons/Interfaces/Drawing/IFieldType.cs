@@ -21,10 +21,14 @@
 
 #endregion
 
+using System;
+
 namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface IFieldType
 	{
-		string Name { get; set; }
+		string Name { get; }
+
+        Type ValueType { get; }
 	}
 }

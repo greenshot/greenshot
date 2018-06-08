@@ -125,9 +125,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
-			AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.DarkRed);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.White);
+			AddField(GetType(), FieldTypes.FLAGS, FieldFlag.COUNTER);
 		}
 
 		/// <summary>
@@ -193,8 +193,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			var text = ((Surface) Parent).CountStepLabels(this).ToString();
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-            var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
 			if (_drawAsRectangle)
 			{
 				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
@@ -215,7 +215,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public override bool ClickableAt(int x, int y)
 		{
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-            var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+            var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
 			if (_drawAsRectangle)
 			{
 				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);

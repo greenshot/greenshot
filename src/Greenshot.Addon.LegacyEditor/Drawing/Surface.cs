@@ -1941,14 +1941,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
 		{
 			var textContainer = new TextContainer(this) {Text = text};
-			textContainer.SetFieldValue(FieldType.FONT_FAMILY, family.Name);
-			textContainer.SetFieldValue(FieldType.FONT_BOLD, bold);
-			textContainer.SetFieldValue(FieldType.FONT_ITALIC, italic);
-			textContainer.SetFieldValue(FieldType.FONT_SIZE, size);
-			textContainer.SetFieldValue(FieldType.FILL_COLOR, fillColor);
-			textContainer.SetFieldValue(FieldType.LINE_COLOR, color);
-			textContainer.SetFieldValue(FieldType.LINE_THICKNESS, borderSize);
-			textContainer.SetFieldValue(FieldType.SHADOW, shadow);
+			textContainer.SetFieldValue(FieldTypes.FONT_FAMILY, family.Name);
+			textContainer.SetFieldValue(FieldTypes.FONT_BOLD, bold);
+			textContainer.SetFieldValue(FieldTypes.FONT_ITALIC, italic);
+			textContainer.SetFieldValue(FieldTypes.FONT_SIZE, size);
+			textContainer.SetFieldValue(FieldTypes.FILL_COLOR, fillColor);
+			textContainer.SetFieldValue(FieldTypes.LINE_COLOR, color);
+			textContainer.SetFieldValue(FieldTypes.LINE_THICKNESS, borderSize);
+			textContainer.SetFieldValue(FieldTypes.SHADOW, shadow);
 			// Make sure the Text fits
 			textContainer.FitToText();
 			// Align to Surface

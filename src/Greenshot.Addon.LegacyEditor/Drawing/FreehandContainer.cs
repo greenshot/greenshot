@@ -58,8 +58,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		}
 
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 3);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 3);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
 		}
 
 		public override void Transform(Matrix matrix)
@@ -183,8 +183,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			Color lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
 			using (var pen = new Pen(lineColor)) {
 				pen.Width = lineThickness;
 			    if (!(pen.Width > 0))
@@ -238,7 +238,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		public override NativeRect DrawingBounds {
 			get {
 				if (!myBounds.IsEmpty) {
-					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
+					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldTypes.LINE_THICKNESS));
 					int safetymargin = 10;
 					return new NativeRect(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
@@ -274,7 +274,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		public override bool ClickableAt(int x, int y) {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
-				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+				int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 				using (var pen = new Pen(Color.White)) {
 					pen.Width = lineThickness + 10;
 				    lock (_freehandPathLock)

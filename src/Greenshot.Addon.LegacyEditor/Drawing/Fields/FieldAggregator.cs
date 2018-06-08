@@ -56,7 +56,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		public FieldAggregator(ISurface parent)
 		{
-			foreach (var fieldType in FieldType.Values)
+			foreach (var fieldType in FieldTypes.Values)
 			{
 				var field = new Field(fieldType, GetType());
 				AddField(field);
@@ -199,7 +199,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 		    return returnFields ?? new List<IField>();
 		}
 
-		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)
+        /// <summary>
+        /// This is called when a property changes
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="propertyChangedEventArgs">PropertyChangedEventArgs</param>
+		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
 		{
 			var field = (IField) sender;
 			if (_internalUpdateRunning || field.Value == null)

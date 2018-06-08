@@ -84,7 +84,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				DisposeImage();
 				DisposeShadow();
 				_bitmap = value.CloneBitmap();
-				var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+				var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 				CheckShadow(shadow);
 				if (!shadow)
 				{
@@ -157,23 +157,25 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.SHADOW, false);
+			AddField(GetType(), FieldTypes.SHADOW, false);
 		}
 
 		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
 		{
-			if (sender.Equals(this))
-			{
-				if (FieldType.SHADOW.Equals(e.Field.FieldType))
-				{
-					ChangeShadowField();
-				}
-			}
+		    if (!sender.Equals(this))
+		    {
+		        return;
+		    }
+
+		    if (FieldTypes.SHADOW.Equals(e.Field.FieldType))
+		    {
+		        ChangeShadowField();
+		    }
 		}
 
 		public void ChangeShadowField()
 		{
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 			if (shadow)
 			{
 				CheckShadow(true);
@@ -246,7 +248,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			if (_bitmap != null)
 			{
-				var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+				var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;

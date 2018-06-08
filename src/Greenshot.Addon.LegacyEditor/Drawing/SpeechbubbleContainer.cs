@@ -60,9 +60,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				if (Status != EditStatus.UNDRAWN)
 				{
-					var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-					var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-					var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+					var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+					var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+					var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 					using (var pen = new Pen(lineColor, lineThickness))
 					{
 						var inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
@@ -84,16 +84,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
-			AddField(GetType(), FieldType.SHADOW, false);
-			AddField(GetType(), FieldType.FONT_ITALIC, false);
-			AddField(GetType(), FieldType.FONT_BOLD, true);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
-			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
-			AddField(GetType(), FieldType.FONT_SIZE, 20f);
-			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
-			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Blue);
+			AddField(GetType(), FieldTypes.SHADOW, false);
+			AddField(GetType(), FieldTypes.FONT_ITALIC, false);
+			AddField(GetType(), FieldTypes.FONT_BOLD, true);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.White);
+			AddField(GetType(), FieldTypes.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
+			AddField(GetType(), FieldTypes.FONT_SIZE, 20f);
+			AddField(GetType(), FieldTypes.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
+			AddField(GetType(), FieldTypes.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
 		}
 
 		/// <summary>
@@ -221,10 +221,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+			var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 
 			var lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
@@ -334,8 +334,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			var clickedPoint = new NativePoint(x, y);
 			if (Status != EditStatus.UNDRAWN)
 			{
-				var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+				var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+				var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
 				using (var pen = new Pen(lineColor, lineThickness))
 				{
 					using (var bubblePath = CreateBubble(lineThickness))

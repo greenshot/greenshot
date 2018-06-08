@@ -59,25 +59,26 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			get
 			{
-				var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				if (lineThickness > 0)
-				{
-					using (var pen = new Pen(Color.White))
-					{
-						pen.Width = lineThickness;
-						SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS), pen);
-						using (var path = new GraphicsPath())
-						{
-							path.AddLine(Left, Top, Left + Width, Top + Height);
-							using (var matrix = new Matrix())
-							{
-								NativeRectFloat drawingBounds = path.GetBounds(matrix, pen);
-								return drawingBounds.Inflate(2, 2).Round();
-							}
-						}
-					}
-				}
-				return NativeRect.Empty;
+				var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			    if (lineThickness <= 0)
+			    {
+			        return NativeRect.Empty;
+			    }
+
+			    using (var pen = new Pen(Color.White))
+			    {
+			        pen.Width = lineThickness;
+			        SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
+			        using (var path = new GraphicsPath())
+			        {
+			            path.AddLine(Left, Top, Left + Width, Top + Height);
+			            using (var matrix = new Matrix())
+			            {
+			                NativeRectFloat drawingBounds = path.GetBounds(matrix, pen);
+			                return drawingBounds.Inflate(2, 2).Round();
+			            }
+			        }
+			    }
 			}
 		}
 
@@ -86,17 +87,17 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, true);
-			AddField(GetType(), FieldType.ARROWHEADS, ArrowHeadCombination.END_POINT);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.Transparent);
+			AddField(GetType(), FieldTypes.SHADOW, true);
+			AddField(GetType(), FieldTypes.ARROWHEADS, ArrowHeadCombination.END_POINT);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)
 		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 
 			if (lineThickness > 0)
 			{
@@ -104,8 +105,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-				var heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
+				var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+				var heads = (ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS);
 				if (lineThickness > 0)
 				{
 					if (shadow)
@@ -155,13 +156,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public override bool ClickableAt(int x, int y)
 		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 10;
 			if (lineThickness > 0)
 			{
 				using (var pen = new Pen(Color.White))
 				{
 					pen.Width = lineThickness;
-					SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS), pen);
+					SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
 					using (var path = new GraphicsPath())
 					{
 						path.AddLine(Left, Top, Left + Width, Top + Height);

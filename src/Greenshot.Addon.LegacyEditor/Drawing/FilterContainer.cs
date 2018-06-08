@@ -65,7 +65,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public PreparedFilter Filter
 		{
-			get { return (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT); }
+			get { return (PreparedFilter) GetFieldValue(FieldTypes.PREPARED_FILTER_HIGHLIGHT); }
 		}
 
 		protected override void OnDeserialized(StreamingContext streamingContext)
@@ -81,16 +81,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, false);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 0);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.SHADOW, false);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)
 		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+			var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 			var lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			if (lineVisible)
 			{

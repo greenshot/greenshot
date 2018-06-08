@@ -45,12 +45,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
     {
         public PixelizationFilter(DrawableContainer parent) : base(parent)
         {
-            AddField(GetType(), FieldType.PIXEL_SIZE, 5);
+            AddField(GetType(), FieldTypes.PIXEL_SIZE, 5);
         }
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
-            var pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
+            var pixelSize = GetFieldValueAsInt(FieldTypes.PIXEL_SIZE);
             BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
             if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0)
             {

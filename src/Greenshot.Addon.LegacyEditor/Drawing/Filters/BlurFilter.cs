@@ -42,8 +42,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 
 		public BlurFilter(DrawableContainer parent) : base(parent)
 		{
-			AddField(GetType(), FieldType.BLUR_RADIUS, 3);
-			AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
+			AddField(GetType(), FieldTypes.BLUR_RADIUS, 3);
+			AddField(GetType(), FieldTypes.PREVIEW_QUALITY, 1.0d);
 		}
 
 		public double PreviewQuality
@@ -58,7 +58,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
-			var blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+			var blurRadius = GetFieldValueAsInt(FieldTypes.BLUR_RADIUS);
 			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 			if (applyRect.Width == 0 || applyRect.Height == 0)
 			{

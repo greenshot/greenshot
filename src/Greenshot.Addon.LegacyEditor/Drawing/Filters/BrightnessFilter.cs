@@ -40,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	{
 		public BrightnessFilter(DrawableContainer parent) : base(parent)
 		{
-			AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
+			AddField(GetType(), FieldTypes.BRIGHTNESS, 0.9d);
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			var brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
+			var brightness = GetFieldValueAsFloat(FieldTypes.BRIGHTNESS);
 			using (var ia = AdjustEffect.CreateAdjustAttributes(brightness, 1f, 1f))
 			{
 				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);

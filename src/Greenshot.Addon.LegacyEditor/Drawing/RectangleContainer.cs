@@ -55,17 +55,17 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		}
 
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
-			AddField(GetType(), FieldType.SHADOW, true);
+			AddField(GetType(), FieldTypes.LINE_THICKNESS, 2);
+			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
+			AddField(GetType(), FieldTypes.FILL_COLOR, Color.Transparent);
+			AddField(GetType(), FieldTypes.SHADOW, true);
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.Red);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
+			Color lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR, Color.Red);
+			Color fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR, Color.Transparent);
+			bool shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
 			DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
@@ -126,8 +126,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		}
 		public override bool ClickableAt(int x, int y) {
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 10;
+			Color fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
 
 			return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
 		}
