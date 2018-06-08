@@ -29,12 +29,19 @@ using System;
 
 namespace Greenshot.Addons.Animation
 {
-	/// <summary>
-	///     Easing logic, to make the animations more "fluent"
-	///		Adapted from <a href="http://www.robertpenner.com/easing/penner_chapter7_tweening.pdf">here</a>
-	/// </summary>
-	public static class Easing
+    /// <summary>
+    ///     Easing logic, to make the animations more "fluent"
+    ///		Adapted from <a href="http://www.robertpenner.com/easing/penner_chapter7_tweening.pdf">here</a>
+    /// </summary>
+    public static class Easing
 	{
+        /// <summary>
+        /// Apply "ease" to ubfirnatuin
+        /// </summary>
+        /// <param name="linearStep">double</param>
+        /// <param name="acceleration">double</param>
+        /// <param name="type">double</param>
+        /// <returns>double</returns>
 		public static double Ease(double linearStep, double acceleration, EasingTypes type)
 		{
 			var easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : linearStep;
@@ -42,6 +49,12 @@ namespace Greenshot.Addons.Animation
 			return (easedStep - linearStep) * Math.Abs(acceleration) + linearStep;
 		}
 
+        /// <summary>
+        /// Apply ease in
+        /// </summary>
+        /// <param name="linearStep">double</param>
+        /// <param name="type">EasingTypes</param>
+        /// <returns>double</returns>
 		public static double EaseIn(double linearStep, EasingTypes type)
 		{
 			switch (type)
@@ -51,24 +64,37 @@ namespace Greenshot.Addons.Animation
 				case EasingTypes.Linear:
 					return linearStep;
 				case EasingTypes.Sine:
-					return Sine.EaseIn(linearStep);
+					return EaseSine.EaseIn(linearStep);
 				case EasingTypes.Quadratic:
-					return Power.EaseIn(linearStep, 2);
+					return EasePower.EaseIn(linearStep, 2);
 				case EasingTypes.Cubic:
-					return Power.EaseIn(linearStep, 3);
+					return EasePower.EaseIn(linearStep, 3);
 				case EasingTypes.Quartic:
-					return Power.EaseIn(linearStep, 4);
+					return EasePower.EaseIn(linearStep, 4);
 				case EasingTypes.Quintic:
-					return Power.EaseIn(linearStep, 5);
+					return EasePower.EaseIn(linearStep, 5);
 			}
 			throw new NotImplementedException();
 		}
 
+        /// <summary>
+        /// Apply ease in-out
+        /// </summary>
+        /// <param name="linearStep">double</param>
+        /// <param name="easeInType">EasingTypes</param>
+        /// <param name="easeOutType">EasingTypes</param>
+        /// <returns>double</returns>
 		public static double EaseInOut(double linearStep, EasingTypes easeInType, EasingTypes easeOutType)
 		{
 			return linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
 		}
 
+        /// <summary>
+        /// Apply easy in out 
+        /// </summary>
+        /// <param name="linearStep">double</param>
+        /// <param name="type">EasingTypes</param>
+        /// <returns>double</returns>
 		public static double EaseInOut(double linearStep, EasingTypes type)
 		{
 			switch (type)
@@ -78,20 +104,26 @@ namespace Greenshot.Addons.Animation
 				case EasingTypes.Linear:
 					return linearStep;
 				case EasingTypes.Sine:
-					return Sine.EaseInOut(linearStep);
+					return EaseSine.EaseInOut(linearStep);
 				case EasingTypes.Quadratic:
-					return Power.EaseInOut(linearStep, 2);
+					return EasePower.EaseInOut(linearStep, 2);
 				case EasingTypes.Cubic:
-					return Power.EaseInOut(linearStep, 3);
+					return EasePower.EaseInOut(linearStep, 3);
 				case EasingTypes.Quartic:
-					return Power.EaseInOut(linearStep, 4);
+					return EasePower.EaseInOut(linearStep, 4);
 				case EasingTypes.Quintic:
-					return Power.EaseInOut(linearStep, 5);
+					return EasePower.EaseInOut(linearStep, 5);
 			}
 			throw new NotImplementedException();
 		}
 
-		public static double EaseOut(double linearStep, EasingTypes type)
+	    /// <summary>
+	    /// Apply easy out 
+	    /// </summary>
+	    /// <param name="linearStep">double</param>
+	    /// <param name="type">EasingTypes</param>
+	    /// <returns>double</returns>
+        public static double EaseOut(double linearStep, EasingTypes type)
 		{
 			switch (type)
 			{
@@ -100,60 +132,17 @@ namespace Greenshot.Addons.Animation
 				case EasingTypes.Linear:
 					return linearStep;
 				case EasingTypes.Sine:
-					return Sine.EaseOut(linearStep);
+					return EaseSine.EaseOut(linearStep);
 				case EasingTypes.Quadratic:
-					return Power.EaseOut(linearStep, 2);
+					return EasePower.EaseOut(linearStep, 2);
 				case EasingTypes.Cubic:
-					return Power.EaseOut(linearStep, 3);
+					return EasePower.EaseOut(linearStep, 3);
 				case EasingTypes.Quartic:
-					return Power.EaseOut(linearStep, 4);
+					return EasePower.EaseOut(linearStep, 4);
 				case EasingTypes.Quintic:
-					return Power.EaseOut(linearStep, 5);
+					return EasePower.EaseOut(linearStep, 5);
 			}
 			throw new NotImplementedException();
-		}
-
-		private static class Sine
-		{
-			public static double EaseIn(double s)
-			{
-				return Math.Sin(s * (Math.PI / 2) - Math.PI / 2) + 1;
-			}
-
-			public static double EaseInOut(double s)
-			{
-				return Math.Sin(s * Math.PI - Math.PI / 2 + 1) / 2;
-			}
-
-			public static double EaseOut(double s)
-			{
-				return Math.Sin(s * (Math.PI / 2));
-			}
-		}
-
-		private static class Power
-		{
-			public static double EaseIn(double s, int power)
-			{
-				return Math.Pow(s, power);
-			}
-
-			public static double EaseInOut(double s, int power)
-			{
-				s *= 2;
-				if (s < 1)
-				{
-					return EaseIn(s, power) / 2;
-				}
-				var sign = power % 2 == 0 ? -1 : 1;
-				return sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2);
-			}
-
-			public static double EaseOut(double s, int power)
-			{
-				var sign = power % 2 == 0 ? -1 : 1;
-				return sign * (Math.Pow(s - 1, power) + sign);
-			}
 		}
 	}
 }

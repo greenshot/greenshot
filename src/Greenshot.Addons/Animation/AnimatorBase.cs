@@ -29,11 +29,11 @@ using System.Collections.Generic;
 
 namespace Greenshot.Addons.Animation
 {
-	/// <summary>
-	///     Base class for the animation logic, this only implements Properties and a constructor
-	/// </summary>
-	/// <typeparam name="T">Type for the animation, like NativePoint/NativeRect/Size</typeparam>
-	public abstract class AnimatorBase<T> : IAnimator
+    /// <summary>
+    ///     Base class for the animation logic, this only implements Properties and a constructor
+    /// </summary>
+    /// <typeparam name="T">Type for the animation, like NativePoint/NativeRectNative/NativeSize</typeparam>
+    public abstract class AnimatorBase<T> : IAnimator
 	{
 		private readonly Queue<AnimationLeg<T>> _queue = new Queue<AnimationLeg<T>>();
 

@@ -21,35 +21,32 @@
 
 #endregion
 
-#region Usings
+#region using
+
+using System;
 
 #endregion
 
 namespace Greenshot.Addons.Animation
 {
-	/// <summary>
-	///     This class is used to store a animation leg
-	/// </summary>
-	internal class AnimationLeg<T>
+    /// <summary>
+    /// This is a supporting class to do Sin calculations for the easing
+    /// </summary>
+    public static class EaseSine
 	{
-        /// <summary>
-        /// The destination for an animation
-        /// </summary>
-		public T Destination { get; set; }
+		public static double EaseIn(double s)
+		{
+			return Math.Sin(s * (Math.PI / 2) - Math.PI / 2) + 1;
+		}
 
-        /// <summary>
-        /// Easing mode to use for this animation
-        /// </summary>
-		public EasingModes EasingMode { get; set; }
+		public static double EaseInOut(double s)
+		{
+			return Math.Sin(s * Math.PI - Math.PI / 2 + 1) / 2;
+		}
 
-        /// <summary>
-        /// Easing type to use for the animation leg
-        /// </summary>
-		public EasingTypes EasingType { get; set; }
-
-        /// <summary>
-        /// Number of frames in the leg
-        /// </summary>
-		public int Frames { get; set; }
+		public static double EaseOut(double s)
+		{
+			return Math.Sin(s * (Math.PI / 2));
+		}
 	}
 }

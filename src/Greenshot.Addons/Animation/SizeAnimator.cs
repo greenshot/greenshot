@@ -23,7 +23,7 @@
 
 #region using
 
-using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -32,18 +32,18 @@ namespace Greenshot.Addons.Animation
 	/// <summary>
 	///     Implementation of the SizeAnimator
 	/// </summary>
-	public class SizeAnimator : AnimatorBase<Size>
+	public class SizeAnimator : AnimatorBase<NativeSize>
 	{
-		public SizeAnimator(Size first, Size last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+		public SizeAnimator(NativeSize first, NativeSize last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
 			: base(first, last, frames, easingType, easingMode)
 		{
 		}
 
-		/// <summary>
-		///     Calculate the next frame values
-		/// </summary>
-		/// <returns>Size</returns>
-		public override Size Next()
+        /// <summary>
+        ///     Calculate the next frame values
+        /// </summary>
+        /// <returns>NativeSize</returns>
+        public override NativeSize Next()
 		{
 			if (!NextFrame)
 			{
@@ -54,7 +54,7 @@ namespace Greenshot.Addons.Animation
 			double dh = Last.Height - First.Height;
 			var width = First.Width + (int) (easingValue * dw);
 			var height = First.Height + (int) (easingValue * dh);
-			Current = new Size(width, height);
+			Current = new NativeSize(width, height);
 			return Current;
 		}
 	}

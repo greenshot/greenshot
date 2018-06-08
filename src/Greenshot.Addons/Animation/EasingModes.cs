@@ -23,6 +23,9 @@
 
 namespace Greenshot.Addons.Animation
 {
+    /// <summary>
+    /// Define the possible easing modes
+    /// </summary>
 	public enum EasingModes
 	{
 		EaseIn,

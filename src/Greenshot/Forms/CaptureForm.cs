@@ -74,7 +74,7 @@ namespace Greenshot.Forms
 
         private int _mX;
         private int _mY;
-        private Point _previousMousePos = Point.Empty;
+        private NativePoint _previousMousePos = NativePoint.Empty;
         // the window which is selected
         private bool _showDebugInfo;
         private RectangleAnimator _windowAnimator;
@@ -423,7 +423,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="currentMouse"></param>
         /// <returns></returns>
-        private Point FixMouseCoordinates(Point currentMouse)
+        private Point FixMouseCoordinates(NativePoint currentMouse)
         {
             switch (_fixMode)
             {
@@ -455,9 +455,10 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            // Make sure the mouse coordinates are fixed, when pressing shift
-            _mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
-            _mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(_mouseMovePos);
+            var cursorLocation = User32Api.GetCursorLocation();
+            var relativeCursorPosition = WindowCapture.GetLocationRelativeToScreenBounds(cursorLocation);
+            // Make sure the mouse coordinates are fixed, e.g. when pressing shift
+            _mouseMovePos = FixMouseCoordinates(relativeCursorPosition);
         }
 
         /// <summary>
@@ -709,7 +710,7 @@ namespace Greenshot.Forms
         /// <param name="paintEventArgs">PaintEventArgs</param>
         protected override void OnPaintBackground(PaintEventArgs paintEventArgs)
         {
-            // Ignore the event, to reduct painting
+            // Ignore the event, to reduce painting
         }
 
         /// <summary>

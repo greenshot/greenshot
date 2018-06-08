@@ -155,6 +155,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation\EasePower.cs" />
+    <Compile Include="Animation\EaseSine.cs" />
     <Compile Include="Components\DestinationAttribute.cs" />
     <Compile Include="Animation\ColorAnimator.cs" />
     <Compile Include="Animation\Easing.cs" />

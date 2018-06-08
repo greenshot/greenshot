@@ -21,35 +21,39 @@
 
 #endregion
 
-#region Usings
+#region using
+
+using System;
 
 #endregion
 
 namespace Greenshot.Addons.Animation
 {
-	/// <summary>
-	///     This class is used to store a animation leg
-	/// </summary>
-	internal class AnimationLeg<T>
+    /// <summary>
+    /// A supporting class to do Pow calculations for easing
+    /// </summary>
+    public static class EasePower
 	{
-        /// <summary>
-        /// The destination for an animation
-        /// </summary>
-		public T Destination { get; set; }
+		public static double EaseIn(double s, int power)
+		{
+			return Math.Pow(s, power);
+		}
 
-        /// <summary>
-        /// Easing mode to use for this animation
-        /// </summary>
-		public EasingModes EasingMode { get; set; }
+		public static double EaseInOut(double s, int power)
+		{
+			s *= 2;
+			if (s < 1)
+			{
+				return EaseIn(s, power) / 2;
+			}
+			var sign = power % 2 == 0 ? -1 : 1;
+			return sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2);
+		}
 
-        /// <summary>
-        /// Easing type to use for the animation leg
-        /// </summary>
-		public EasingTypes EasingType { get; set; }
-
-        /// <summary>
-        /// Number of frames in the leg
-        /// </summary>
-		public int Frames { get; set; }
+		public static double EaseOut(double s, int power)
+		{
+			var sign = power % 2 == 0 ? -1 : 1;
+			return sign * (Math.Pow(s - 1, power) + sign);
+		}
 	}
 }
