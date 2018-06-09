@@ -21,13 +21,30 @@
 
 #endregion
 
-namespace Greenshot.Addons.Core
+using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addons;
+using Greenshot.Addons.Core;
+
+namespace Greenshot.Ui.Configuration
 {
-    public enum ConfigIds
+    /// <summary>
+    /// This represents a node in the config
+    /// </summary>
+    public sealed class AddonDestinationsConfigNode : ConfigNode
     {
-        Ui,
-        Capture,
-        Destinations,
-        InternalDestinations
+        public IGreenshotLanguage GreenshotLanguage { get; }
+
+        public AddonDestinationsConfigNode(IGreenshotLanguage greenshotLanguage)
+        {
+            GreenshotLanguage = greenshotLanguage;
+
+            // automatically update the DisplayName
+            GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestination));
+
+            // automatically update the DisplayName
+            CanActivate = false;
+            Id = nameof(ConfigIds.Destinations);
+        }
     }
 }

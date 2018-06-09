@@ -26,25 +26,25 @@ using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 
-namespace Greenshot.Ui.Configuration.ViewModels
+namespace Greenshot.Ui.Configuration
 {
     /// <summary>
     /// This represents a node in the config
     /// </summary>
-    public sealed class DestinationsConfigNodeViewModel : ConfigNode
+    public sealed class CaptureConfigNode : ConfigNode
     {
         public IGreenshotLanguage GreenshotLanguage { get; }
 
-        public DestinationsConfigNodeViewModel(IGreenshotLanguage greenshotLanguage)
+        public CaptureConfigNode(IGreenshotLanguage greenshotLanguage)
         {
             GreenshotLanguage = greenshotLanguage;
 
             // automatically update the DisplayName
-            GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestination));
+            GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsCapture));
 
             // automatically update the DisplayName
             CanActivate = false;
-            Id = nameof(ConfigIds.Destinations);
+            Id = nameof(ConfigIds.Capture);
         }
     }
 }

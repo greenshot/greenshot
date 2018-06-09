@@ -30,7 +30,9 @@ using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
 using Greenshot.Configuration;
+using Greenshot.Destinations;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
@@ -65,7 +67,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables?.Dispose();
 
             // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Destinations);
+            ParentId = nameof(ConfigIds.InternalDestinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(CoreConfiguration);
@@ -75,6 +77,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             {
                 GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationClipboard))
             };
+            DisplayName = typeof(ClipboardDestination).GetDesignation();
 
             UsedDestinations.Clear();
 

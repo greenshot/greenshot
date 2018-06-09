@@ -68,7 +68,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables?.Dispose();
 
             // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Destinations);
+            ParentId = nameof(ConfigIds.InternalDestinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(CoreConfiguration);

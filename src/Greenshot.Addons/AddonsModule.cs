@@ -46,10 +46,22 @@ namespace Greenshot.Addons
             builder
                 .RegisterType<PleaseWaitForm>()
                 .AsSelf();
-            
-            // REgister the after load, so it's called when the configuration is created
-            IniConfig.Current.AfterLoad<ICoreConfiguration>(coreConfiguration => coreConfiguration.AfterLoad());
+
+            builder.RegisterType<SetupConfig>()
+                .As<IStartable>()
+                .SingleInstance();
+
             base.Load(builder);
+        }
+
+        /// <inheritdoc />
+        private class SetupConfig : IStartable
+        {
+            public void Start()
+            {
+                // Register the after load, so it's called when the configuration is created
+                IniConfig.Current.AfterLoad<ICoreConfiguration>(coreConfiguration => coreConfiguration.AfterLoad());
+            }
         }
     }
 }

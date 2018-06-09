@@ -49,10 +49,20 @@ namespace Greenshot.Addon.ExternalCommand
                 .AsSelf()
                 .SingleInstance();
 
-            IniConfig.Current.AfterLoad<IExternalCommandConfiguration>(externalCommandConfiguration => externalCommandConfiguration.AfterLoad());
+            builder.RegisterType<SetupConfig>()
+                .As<IStartable>()
+                .SingleInstance();
 
             base.Load(builder);
         }
 
+        /// <inheritdoc />
+        private class SetupConfig : IStartable
+        {
+            public void Start()
+            {
+                IniConfig.Current.AfterLoad<IExternalCommandConfiguration>(externalCommandConfiguration => externalCommandConfiguration.AfterLoad());
+            }
+        }
     }
 }
