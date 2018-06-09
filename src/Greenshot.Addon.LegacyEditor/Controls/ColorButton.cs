@@ -30,7 +30,6 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Greenshot.Addons.Controls;
-using ColorDialog = Greenshot.Addon.LegacyEditor.Controls.ColorDialog;
 
 #endregion
 

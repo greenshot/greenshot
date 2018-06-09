@@ -23,7 +23,6 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
 using Greenshot.Addons.Interfaces.Drawing;
 

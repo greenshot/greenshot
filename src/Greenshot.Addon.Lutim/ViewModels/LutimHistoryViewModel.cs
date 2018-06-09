@@ -33,7 +33,6 @@ using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Lutim.ViewModels

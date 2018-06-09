@@ -29,7 +29,6 @@ using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Configuration;
 
 #endregion
 

@@ -34,7 +34,6 @@ using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Imgur.ViewModels

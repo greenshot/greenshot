@@ -3,7 +3,6 @@ using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
-using Dapplo.Log;
 using Greenshot.Components;
 using Xunit;
 

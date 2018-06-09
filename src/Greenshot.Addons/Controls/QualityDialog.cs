@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using Dapplo.Ini;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces.Plugin;

@@ -161,7 +161,6 @@
     <Compile Include="IExternalCommandLanguage.cs" />
     <Compile Include="IconCache.cs" />
     <Compile Include="ExternalCommandAddonModule.cs" />
-    <Compile Include="ListviewComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IExternalCommandConfiguration.cs" />
     <Compile Include="ViewModels\ExternalCommandConfigViewModel.cs" />

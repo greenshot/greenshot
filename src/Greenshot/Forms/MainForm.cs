@@ -31,7 +31,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
@@ -59,7 +58,6 @@ using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
-using LangKey = Greenshot.Configuration.LangKey;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
 
