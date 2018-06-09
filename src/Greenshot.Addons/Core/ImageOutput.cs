@@ -849,6 +849,7 @@ namespace Greenshot.Addons.Core
 				SaveToStream(surface, stream, outputSettings);
 			}
 
+            // TODO: This should not be done here, remove this!!
 			if (copyPathToClipboard)
 			{
 			    using (var clipboardAccessToken = ClipboardNative.Access())

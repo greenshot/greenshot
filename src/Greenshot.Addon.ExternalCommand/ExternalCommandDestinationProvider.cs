@@ -55,8 +55,6 @@ namespace Greenshot.Addon.ExternalCommand
 	        _externalCommandConfig = externalCommandConfiguration;
 	        _coreConfiguration = coreConfiguration;
 	        _greenshotLanguage = greenshotLanguage;
-
-            externalCommandConfiguration.AfterLoad();
 	    }
 
         public IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide()
@@ -109,8 +107,6 @@ namespace Greenshot.Addon.ExternalCommand
 	        {
 	            _externalCommandConfig.Delete(command);
 	        }
-
-            _externalCommandConfig.AfterLoad();
         }
 	}
 }

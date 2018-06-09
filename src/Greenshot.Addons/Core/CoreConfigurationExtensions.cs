@@ -25,12 +25,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using Dapplo.Log;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -42,136 +39,34 @@ namespace Greenshot.Addons.Core
     /// </summary>
     public static class CoreConfigurationExtensions
     {
-        private static readonly LogSource Log = new LogSource();
-
         /// <summary>
-        ///     Validate the OutputFilePath, and if this is not correct it will be set to the default
-        ///     Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is
-        ///     used on a different PC)
+        ///     Validate the values in the ICoreConfiguration, correct them where needed
         /// </summary>
-        public static void ValidateAndCorrectOutputFilePath(this ICoreConfiguration coreConfiguration)
+        public static void ValidateAndCorrect(this ICoreConfiguration coreConfiguration)
         {
+            if (string.IsNullOrEmpty(coreConfiguration.OutputFileFilenamePattern))
+            {
+                coreConfiguration.RestoreToDefault(nameof(ICoreConfiguration.OutputFileFilenamePattern));
+            }
             if (!Directory.Exists(coreConfiguration.OutputFilePath))
             {
-                coreConfiguration.RestoreToDefault("OutputFilePath");
+                coreConfiguration.RestoreToDefault(nameof(ICoreConfiguration.OutputFilePath));
             }
-        }
-
-        /// <summary>
-        ///     Validate the OutputFileAsFullpath, and if this is not correct it will be set to the default
-        ///     Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is
-        ///     used on a different PC)
-        /// </summary>
-        public static void ValidateAndCorrectOutputFileAsFullpath(this ICoreConfiguration coreConfiguration)
-        {
+            if (string.IsNullOrEmpty(coreConfiguration.OutputFilePath))
+            {
+                coreConfiguration.OutputFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            }
             var outputFilePath = Path.GetDirectoryName(coreConfiguration.OutputFileAsFullpath);
             if (outputFilePath == null || !File.Exists(coreConfiguration.OutputFileAsFullpath) && !Directory.Exists(outputFilePath))
             {
-                coreConfiguration.RestoreToDefault("OutputFileAsFullpath");
+                coreConfiguration.RestoreToDefault(nameof(ICoreConfiguration.OutputFileAsFullpath));
             }
         }
 
         /// <summary>
-        ///     Specifies what THIS build is
+        /// This method will be called after reading the configuration, so eventually some corrections can be made
         /// </summary>
-        public static BuildStates BuildState
-        {
-            get
-            {
-                var informationalVersion = Application.ProductVersion;
-                if (informationalVersion == null)
-                {
-                    return BuildStates.RELEASE;
-                }
-
-                if (informationalVersion.ToLowerInvariant().Contains("-rc"))
-                {
-                    return BuildStates.RELEASE_CANDIDATE;
-                }
-                if (informationalVersion.ToLowerInvariant().Contains("-alpha"))
-                {
-                    return BuildStates.ALPHA;
-                }
-                if (informationalVersion.ToLowerInvariant().Contains("-beta"))
-                {
-                    return BuildStates.BETA;
-                }
-                return BuildStates.RELEASE;
-            }
-        }
-
-        /// <summary>
-        ///     Supply values we can't put as defaults
-        /// </summary>
-        /// <param name="coreConfiguration">ICoreConfiguration</param>
-        /// <param name="property">The property to return a default for</param>
-        /// <returns>object with the default value for the supplied property</returns>
-        public static object GetDefault(this ICoreConfiguration coreConfiguration, string property)
-        {
-            switch (property)
-            {
-                case "OutputFileAsFullpath":
-                    if (coreConfiguration.IsPortable)
-                    {
-                        return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
-                    }
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-                case "OutputFilePath":
-                    if (!coreConfiguration.IsPortable)
-                    {
-                        return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                    }
-
-                    var pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
-                    if (!Directory.Exists(pafOutputFilePath))
-                    {
-                        try
-                        {
-                            Directory.CreateDirectory(pafOutputFilePath);
-                            return pafOutputFilePath;
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn().WriteLine(ex);
-                            // Problem creating directory, fallback to Desktop
-                        }
-                    }
-                    else
-                    {
-                        return pafOutputFilePath;
-                    }
-                    return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                case "DWMBackgroundColor":
-                    return Color.Transparent;
-                case "ActiveTitleFixes":
-                    return new List<string> { "Firefox", "IE", "Chrome" };
-                case "TitleFixMatcher":
-                    return new Dictionary<string, string> { { "Firefox", " - Mozilla Firefox.*" }, { "IE", " - (Microsoft|Windows) Internet Explorer.*" }, { "Chrome", " - Google Chrome.*" } };
-                case "TitleFixReplacer":
-                    return new Dictionary<string, string> { { "Firefox", "" }, { "IE", "" }, { "Chrome", "" } };
-            }
-            return null;
-        }
-
-        /// <summary>
-        ///     This method will be called before writing the configuration
-        /// </summary>
-        public static void BeforeSave(this ICoreConfiguration coreConfiguration)
-        {
-            try
-            {
-                // Store version, this can be used later to fix settings after an update
-                coreConfiguration.LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        /// <summary>
-        ///     This method will be called after reading the configuration, so eventually some corrections can be made
-        /// </summary>
+        /// <param name="coreConfiguration"></param>
         public static void AfterLoad(this ICoreConfiguration coreConfiguration)
         {
             // Comment with releases
@@ -298,6 +193,8 @@ namespace Greenshot.Addons.Core
             {
                 coreConfiguration.WebRequestReadWriteTimeout = 100;
             }
+
+            coreConfiguration.ValidateAndCorrect();
         }
     }
 }

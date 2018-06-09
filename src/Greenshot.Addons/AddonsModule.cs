@@ -23,8 +23,10 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Dapplo.Ini;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addons
@@ -45,6 +47,8 @@ namespace Greenshot.Addons
                 .RegisterType<PleaseWaitForm>()
                 .AsSelf();
             
+            // REgister the after load, so it's called when the configuration is created
+            IniConfig.Current.AfterLoad<ICoreConfiguration>(coreConfiguration => coreConfiguration.AfterLoad());
             base.Load(builder);
         }
     }

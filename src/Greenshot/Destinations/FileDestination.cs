@@ -132,13 +132,10 @@ namespace Greenshot.Destinations
 		{
 			string fullPath = null;
 			Log.Info().WriteLine("Creating new filename");
-			var pattern = CoreConfiguration.OutputFileFilenamePattern;
-			if (string.IsNullOrEmpty(pattern))
-			{
-				pattern = "greenshot ${capturetime}";
-			}
-			var filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfiguration.OutputFileFormat, captureDetails);
-		    CoreConfiguration.ValidateAndCorrectOutputFilePath();
+
+		    CoreConfiguration.ValidateAndCorrect();
+
+            var filename = FilenameHelper.GetFilenameFromPattern(CoreConfiguration.OutputFileFilenamePattern, CoreConfiguration.OutputFileFormat, captureDetails);
 			var filepath = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
 			try
 			{

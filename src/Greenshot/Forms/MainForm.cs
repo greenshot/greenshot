@@ -275,7 +275,7 @@ namespace Greenshot.Forms
                     Contextmenu_OpenRecent(this, null);
                     break;
                 case ClickActions.OPEN_LAST_IN_EDITOR:
-                    _coreConfiguration.ValidateAndCorrectOutputFileAsFullpath();
+                    _coreConfiguration.ValidateAndCorrect();
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
@@ -297,8 +297,7 @@ namespace Greenshot.Forms
         /// </summary>
         private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs)
         {
-            _coreConfiguration.ValidateAndCorrectOutputFilePath();
-            _coreConfiguration.ValidateAndCorrectOutputFileAsFullpath();
+            _coreConfiguration.ValidateAndCorrect();
             var path = _coreConfiguration.OutputFileAsFullpath;
             if (!File.Exists(path))
             {

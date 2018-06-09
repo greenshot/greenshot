@@ -24,6 +24,7 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.Ini;
 using Greenshot.Addon.ExternalCommand.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -47,6 +48,9 @@ namespace Greenshot.Addon.ExternalCommand
                 .RegisterType<ExternalCommandMasterViewModel>()
                 .AsSelf()
                 .SingleInstance();
+
+            IniConfig.Current.AfterLoad<IExternalCommandConfiguration>(externalCommandConfiguration => externalCommandConfiguration.AfterLoad());
+
             base.Load(builder);
         }
 

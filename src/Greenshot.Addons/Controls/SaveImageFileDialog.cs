@@ -145,7 +145,7 @@ namespace Greenshot.Addons.Controls
 			string initialDirectory = null;
 			try
 			{
-				conf.ValidateAndCorrectOutputFileAsFullpath();
+				conf.ValidateAndCorrect();
 				initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
 			}
 			catch
