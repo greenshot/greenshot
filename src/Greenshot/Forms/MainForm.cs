@@ -382,7 +382,8 @@ namespace Greenshot.Forms
                     case DpiChangeEventTypes.Before:
                         // Change the ImageScalingSize before setting the bitmaps
                         var width = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, info.NewDpi);
-                        var size = new Size(width, width);
+                        var height = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Height, info.NewDpi);
+                        var size = new Size(width, height);
                         contextMenu.SuspendLayout();
                         contextMenu.ImageScalingSize = size;
                         contextmenu_quicksettings.Size = new Size(170, width + 8);

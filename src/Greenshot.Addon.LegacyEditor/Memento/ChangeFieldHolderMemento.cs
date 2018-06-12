@@ -52,19 +52,17 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-			var other = otherMemento as ChangeFieldHolderMemento;
-			if (other != null)
-			{
-				if (other._drawableContainer.Equals(_drawableContainer))
-				{
-					if (other._fieldToBeChanged.Equals(_fieldToBeChanged))
-					{
-						// Match, do not store anything as the initial state is what we want.
-						return true;
-					}
-				}
-			}
-			return false;
+		    if (!(otherMemento is ChangeFieldHolderMemento other))
+		    {
+		        return false;
+		    }
+
+		    if (!other._drawableContainer.Equals(_drawableContainer))
+		    {
+		        return false;
+		    }
+
+		    return other._fieldToBeChanged.Equals(_fieldToBeChanged);
 		}
 
 		public IMemento Restore()

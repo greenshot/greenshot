@@ -35,13 +35,13 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 	/// </summary>
 	public class TextChangeMemento : IMemento
 	{
-		private readonly string oldText;
-		private TextContainer textContainer;
+		private readonly string _oldText;
+		private TextContainer _textContainer;
 
 		public TextChangeMemento(TextContainer textContainer)
 		{
-			this.textContainer = textContainer;
-			oldText = textContainer.Text;
+			_textContainer = textContainer;
+			_oldText = textContainer.Text;
 		}
 
 		public void Dispose()
@@ -51,26 +51,22 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-			var other = otherMemento as TextChangeMemento;
-			if (other != null)
-			{
-				if (other.textContainer.Equals(textContainer))
-				{
-					// Match, do not store anything as the initial state is what we want.
-					return true;
-				}
-			}
-			return false;
+		    if (!(otherMemento is TextChangeMemento other))
+		    {
+		        return false;
+		    }
+
+		    return other._textContainer.Equals(_textContainer);
 		}
 
 		public IMemento Restore()
 		{
 			// Before
-			textContainer.Invalidate();
-			var oldState = new TextChangeMemento(textContainer);
-			textContainer.ChangeText(oldText, false);
+			_textContainer.Invalidate();
+			var oldState = new TextChangeMemento(_textContainer);
+			_textContainer.ChangeText(_oldText, false);
 			// After
-			textContainer.Invalidate();
+			_textContainer.Invalidate();
 			return oldState;
 		}
 
@@ -78,7 +74,7 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 		{
 			if (disposing)
 			{
-				textContainer = null;
+				_textContainer = null;
 			}
 		}
 	}

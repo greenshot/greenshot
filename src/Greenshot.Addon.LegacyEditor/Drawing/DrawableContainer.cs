@@ -624,7 +624,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		}
 
 		/// <summary>
-		///     This method will be called before a field is changes.
+		///     This method will be called before a field changes.
 		///     Using this makes it possible to invalidate the object as is before changing.
 		/// </summary>
 		/// <param name="fieldToBeChanged">The field to be changed</param>

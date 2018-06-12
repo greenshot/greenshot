@@ -457,24 +457,30 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				throw new InvalidOperationException("Invoking do within an undo/redo action.");
 			}
-			if (memento != null)
-			{
-				var allowPush = true;
-				if (_undoStack.Count > 0 && allowMerge)
-				{
-					// Check if merge is possible
-					allowPush = !_undoStack.Peek().Merge(memento);
-				}
-				if (allowPush)
-				{
-					// Clear the redo-stack and dispose
-					while (_redoStack.Count > 0)
-					{
-						_redoStack.Pop().Dispose();
-					}
-					_undoStack.Push(memento);
-				}
-			}
+
+		    if (memento == null)
+		    {
+		        return;
+		    }
+
+		    var allowPush = true;
+		    if (_undoStack.Count > 0 && allowMerge)
+		    {
+		        // Check if merge is possible
+		        allowPush = !_undoStack.Peek().Merge(memento);
+		    }
+
+		    if (!allowPush)
+		    {
+		        return;
+		    }
+
+		    // Clear the redo-stack and dispose
+		    while (_redoStack.Count > 0)
+		    {
+		        _redoStack.Pop().Dispose();
+		    }
+		    _undoStack.Push(memento);
 		}
 
 		/// <summary>

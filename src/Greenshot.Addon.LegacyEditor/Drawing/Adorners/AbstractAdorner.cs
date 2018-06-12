@@ -39,11 +39,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 {
 	public class AbstractAdorner : IAdorner
 	{
-		protected Size _size = new Size(5, 5);
+		private Size _size = new Size(5, 5);
 
-		public AbstractAdorner(IDrawableContainer owner)
+	    protected AbstractAdorner(IDrawableContainer owner)
 		{
-		    _size.Width = _size.Height = DpiHandler.ScaleWithDpi(5, DpiHandler.GetDpi(InteropWindowQuery.GetDesktopWindow().Handle));
+		    _size.Width = _size.Height = DpiHandler.ScaleWithDpi(5, NativeDpiMethods.GetDpi(InteropWindowQuery.GetDesktopWindow().Handle));
             Owner = owner;
 		}
 

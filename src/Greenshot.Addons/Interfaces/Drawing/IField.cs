@@ -29,6 +29,9 @@ using System.ComponentModel;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+    /// <summary>
+    /// THs interface for a field
+    /// </summary>
 	public interface IField : INotifyPropertyChanged
 	{
 		object Value { get; set; }
