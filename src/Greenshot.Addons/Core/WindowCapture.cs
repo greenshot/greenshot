@@ -102,8 +102,8 @@ namespace Greenshot.Addons.Core
         ///     be different in multiscreen setups. This implementation
         ///     can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
         /// </summary>
-        /// <param name="locationRelativeToScreenOrigin"></param>
-        /// <returns></returns>
+        /// <param name="locationRelativeToScreenOrigin">NativePoint</param>
+        /// <returns>NativePoint</returns>
         public static NativePoint GetLocationRelativeToScreenBounds(NativePoint locationRelativeToScreenOrigin)
         {
             var bounds = GetScreenBounds();
@@ -177,7 +177,7 @@ namespace Greenshot.Addons.Core
         /// </summary>
         /// <param name="method">string with current method</param>
         /// <param name="captureBounds">NativeRect of what we want to capture</param>
-        /// <returns></returns>
+        /// <returns>Exception</returns>
         private static Exception CreateCaptureException(string method, NativeRect captureBounds)
         {
             var exceptionToThrow = User32Api.CreateWin32Exception(method);

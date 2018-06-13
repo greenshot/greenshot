@@ -35,6 +35,7 @@ using Dapplo.CaliburnMicro;
 using Greenshot.Helpers;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons;
 using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
@@ -156,10 +157,9 @@ namespace Greenshot.Forms
 			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor);
 			pictureBox1.Image = _bitmap;
 
-		    _dpiSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
+		    _dpiSubscription = FormDpiHandler.OnDpiChanged.Subscribe(info =>
 		        {
-		            pictureBox1.Width = FormDpiHandler.ScaleWithCurrentDpi(90);
-		            pictureBox1.Height = FormDpiHandler.ScaleWithCurrentDpi(90);
+		            pictureBox1.Size = FormDpiHandler.ScaleWithCurrentDpi(new NativeSize(90,90));
                 });
 
             var versionInfo = $@"Greenshot {versionProvider.CurrentVersion} {(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit)";

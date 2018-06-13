@@ -314,11 +314,9 @@ namespace Greenshot.Addons.Core
                 (destination, dpi) => destination.GetDisplayIcon(dpi),
                 (bitmap, d) => bitmap.ScaleIconForDisplaying(d));
 
-            dpiHandler.OnDpiChanged.Subscribe(dpi =>
+            dpiHandler.OnDpiChanged.Subscribe(dpiChangeInfo =>
             {
-                var width = DpiHandler.ScaleWithDpi(CoreConfiguration.IconSize.Width, dpi);
-                var size = new Size(width, width);
-                menu.ImageScalingSize = size;
+                menu.ImageScalingSize = DpiHandler.ScaleWithDpi(CoreConfiguration.IconSize, dpiChangeInfo.NewDpi);
             });
 
             // Generate an empty ExportInformation object, for when nothing was selected.

@@ -34,6 +34,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Messages;
@@ -41,7 +42,6 @@ using Dapplo.Windows.User32;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.Interop;
 using Greenshot.Gfx;
 using mshtml;
 

@@ -30,8 +30,10 @@ using System.Runtime.InteropServices;
 
 namespace Greenshot.Addons.Interop
 {
-	// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!
-	[ComImport]
+    /// <summary>
+    /// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!
+    /// </summary>
+    [ComImport]
 	[ComVisible(true)]
 	[Guid("6D5140C1-7436-11CE-8034-00AA006009FA")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

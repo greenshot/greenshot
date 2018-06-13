@@ -375,26 +375,18 @@ namespace Greenshot.Forms
         {
             ContextMenuDpiHandler = contextMenu.AttachDpiHandler();
 
-            var dpiChangeSubscription = FormDpiHandler.OnDpiChangeInfo.Subscribe(info =>
+            var dpiChangeSubscription = FormDpiHandler.OnDpiChanged.Subscribe(info =>
             {
-                switch (info.DpiChangeEventType)
-                {
-                    case DpiChangeEventTypes.Before:
-                        // Change the ImageScalingSize before setting the bitmaps
-                        var width = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, info.NewDpi);
-                        var height = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Height, info.NewDpi);
-                        var size = new Size(width, height);
-                        contextMenu.SuspendLayout();
-                        contextMenu.ImageScalingSize = size;
-                        contextmenu_quicksettings.Size = new Size(170, width + 8);
-                        break;
-                    case DpiChangeEventTypes.After:
-                        // Redraw the form
-                        contextMenu.ResumeLayout(true);
-                        contextMenu.Refresh();
-                        notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
-                        break;
-                }
+                // Change the ImageScalingSize before setting the bitmaps
+                var width = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, info.NewDpi);
+                var height = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Height, info.NewDpi);
+                var size = new Size(width, height);
+                contextMenu.SuspendLayout();
+                contextMenu.ImageScalingSize = size;
+                contextmenu_quicksettings.Size = new Size(170, width + 8);
+                contextMenu.ResumeLayout(true);
+                contextMenu.Refresh();
+                notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
             });
 
             var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
