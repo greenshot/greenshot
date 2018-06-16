@@ -28,9 +28,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.SafeHandles;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.SafeHandles;
 using Greenshot.Addons.Controls;
 
 #endregion
@@ -100,10 +101,10 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		{
 			using (var iconHandle = new SafeIconHandle(bitmap.GetHicon()))
 			{
-			    User32Api.GetIconInfo(iconHandle, out var iconInfo);
+			    NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
 				iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
 				iconInfo.IsIcon = false;
-				var icon = User32Api.CreateIconIndirect(ref iconInfo);
+				var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
 				return new Cursor(icon);
 			}
 		}

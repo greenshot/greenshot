@@ -97,35 +97,35 @@
     <Reference Include="Dapplo.Utils, Version=1.0.158.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Utils.1.0.158\lib\net45\Dapplo.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.77\lib\net46\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.5.79\lib\net46\Dapplo.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.77\lib\net46\Dapplo.Windows.Clipboard.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.79\lib\net46\Dapplo.Windows.Clipboard.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.77\lib\net46\Dapplo.Windows.Common.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Common, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Common.0.5.79\lib\net46\Dapplo.Windows.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.77\lib\net46\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
+    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.79\lib\net46\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.77\lib\net46\Dapplo.Windows.Dpi.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.79\lib\net46\Dapplo.Windows.Dpi.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.77\lib\net46\Dapplo.Windows.Gdi32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.79\lib\net46\Dapplo.Windows.Gdi32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.77\lib\net46\Dapplo.Windows.Input.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Input, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Input.0.5.79\lib\net46\Dapplo.Windows.Input.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.77\lib\net46\Dapplo.Windows.Kernel32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.79\lib\net46\Dapplo.Windows.Kernel32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.77\lib\net46\Dapplo.Windows.Messages.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Messages, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.79\lib\net46\Dapplo.Windows.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.77.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.77\lib\net46\Dapplo.Windows.User32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.User32, Version=0.5.79.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.User32.0.5.79\lib\net46\Dapplo.Windows.User32.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
