@@ -213,37 +213,8 @@ namespace Greenshot.Drawing {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
-            if (shadow)
-            {
-                const int basealpha = 100;
-                Rectangle dropShadowRect = rect;
+            EllipseContainer.DrawEllipse(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
 
-                // Draw glow around step label
-                dropShadowRect.Inflate(1, 1);
-                EllipseContainer.DrawEllipse(dropShadowRect, graphics, rm, 0, Color.Transparent, Color.FromArgb(basealpha, 100, 100, 100), false);
-
-                // Draw drop shadow
-                dropShadowRect = rect;
-                int steps = 4;
-                int alpha = basealpha;
-                for (int currentStep = 0; currentStep <= steps; currentStep++)
-                {
-                    dropShadowRect.Offset(1, 1);
-                    EllipseContainer.DrawEllipse(dropShadowRect, graphics, rm, 0, Color.Transparent, Color.FromArgb(alpha, 100, 100, 100), false);
-                    alpha = alpha - basealpha / steps;
-                }
-            }
-
-            if (_drawAsRectangle) {
-				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
-			} else {
-                if (lineThickness > 0)
-                {
-                    EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, lineColor, false);
-                    rect.Inflate(lineThickness * -2, lineThickness * -2);
-                }
-                EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
-			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
 					TextContainer.DrawText(graphics, rect, 0, textColor, false, _stringFormat, text, font);
