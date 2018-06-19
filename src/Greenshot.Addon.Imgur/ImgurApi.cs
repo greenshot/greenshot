@@ -74,14 +74,15 @@ namespace Greenshot.Addon.Imgur
 		                {"response_type", "code"},
 		                {"client_id", "{ClientId}"},
 		                {"redirect_uri", "{RedirectUrl}"},
+                        // TODO: Add version?
 		                {"state", "{State}"}
 		            }),
 		        TokenUrl = new Uri("https://api.imgur.com/oauth2/token"),
 		        CloudServiceName = "Imgur",
 		        ClientId = imgurConfiguration.ClientId,
 		        ClientSecret = imgurConfiguration.ClientSecret,
-		        RedirectUrl = "http://getgreenshot.org",
-		        AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+		        RedirectUrl = "https://getgreenshot.org/oauth/imgur",
+		        AuthorizeMode = AuthorizeModes.OutOfBound,
 		        Token = imgurConfiguration
             };
 

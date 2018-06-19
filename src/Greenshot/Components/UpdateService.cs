@@ -91,7 +91,6 @@ namespace Greenshot.Components
 	        _greenshotLanguage = greenshotLanguage;
 	        LatestVersion = CurrentVersion = GetType().Assembly.GetName().Version;
 	        _coreConfiguration.LastSaveWithVersion = CurrentVersion.ToString();
-
 	    }
 
 	    /// <inheritdoc />
@@ -144,6 +143,11 @@ namespace Greenshot.Components
 	        Log.Info().WriteLine("Finished background task");
         }
 
+        /// <summary>
+        /// Do the actual update check
+        /// </summary>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Task</returns>
 	    private async Task UpdateCheck(CancellationToken cancellationToken = default)
 	    {
 	        Log.Info().WriteLine("Checking for updates");
@@ -160,7 +164,7 @@ namespace Greenshot.Components
 	        {
 	            await UiContext.RunOn(() =>
 	            {
-	                // TODO: Show update
+	                // TODO: Show update more nicely...
 	                MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 	                MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
 	                MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(_greenshotLanguage.UpdateFound, LatestVersion), ToolTipIcon.Info);
@@ -205,12 +209,22 @@ namespace Greenshot.Components
             }
         }
 
+        /// <summary>
+        /// Remove the event handlers
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="e">EventArgs</param>
 		private void CleanupBalloonTipClick(object sender, EventArgs e)
 		{
 			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
 			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
 		}
 
+        /// <summary>
+        /// Handle the click on a balloon
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="e">EventArgs</param>
 		private void HandleBalloonTipClick(object sender, EventArgs e)
 		{
 			try
