@@ -3,6 +3,6 @@ var searchQuery = window.location.search;
 
 if (searchQuery && searchQuery.length >= 1) {
 	var oldTitle = (window.document.title === undefined) ? "" : window.document.title;
-	window.document.title=oldTitle + searchQuery.substring(1);
+	window.document.title=oldTitle + "|" + searchQuery.substring(1);
 }
 </script>
