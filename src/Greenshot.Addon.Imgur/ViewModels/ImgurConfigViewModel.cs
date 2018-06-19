@@ -27,6 +27,7 @@ using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
 
@@ -101,6 +102,14 @@ namespace Greenshot.Addon.Imgur.ViewModels
             {
                 WindowManager.ShowDialog(imgurHistoryViewModel.Value);
             }
+        }
+
+        public bool CanResetCredentials => ImgurConfiguration.HasToken();
+
+        public void ResetCredentials()
+        {
+            ImgurConfiguration.ResetToken();
+            NotifyOfPropertyChange(nameof(CanResetCredentials));
         }
     }
 }

@@ -38,6 +38,7 @@ using Dapplo.Ini.Converters;
 using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
+using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
@@ -70,7 +71,7 @@ namespace Greenshot
 #endif
             var applicationConfig = ApplicationConfig.Create()
                 .WithApplicationName("Greenshot")
-                .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
+                .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", false)
                 .WithAssemblyNames("Dapplo.Addons.Config")
                 .WithAssemblyPatterns("Greenshot.Addon*");
 
@@ -159,7 +160,7 @@ namespace Greenshot
             IGreenshotLanguage language = null;
 
             // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-            using (var multiInstanceForm = new Form
+            using (var multiInstanceForm = new DpiAwareForm
             {
                 Icon = GreenshotResources.GetGreenshotIcon(),
                 ShowInTaskbar = true,
@@ -207,7 +208,7 @@ namespace Greenshot
                 {
                     Text = language.TranslationOrDefault(l => l.BugreportCancel),
                     Dock = DockStyle.Bottom,
-                    Height = 20
+                    Height = 25
                 };
                 flowLayoutPanel.Controls.Add(cancelButton);
                 multiInstanceForm.Controls.Add(flowLayoutPanel);

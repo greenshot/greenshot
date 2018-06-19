@@ -62,5 +62,7 @@ namespace Greenshot.Addon.Imgur
 		string UsePageLink { get; }
 
 	    string AnonymousAccess { get; }
+
+	    string ResetCredentialsButton { get; }
     }
 }

@@ -45,11 +45,11 @@
     <Reference Include="Costura, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.3.0.0\lib\net46\Costura.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Addons, Version=1.0.47.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.1.0.47\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=1.0.50.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.1.0.50\lib\net45\Dapplo.Addons.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=1.0.47.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.1.0.47\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
+    <Reference Include="Dapplo.Addons.Bootstrapper, Version=1.0.50.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.1.0.50\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro, Version=1.0.47.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.1.0.47\lib\net46\Dapplo.CaliburnMicro.dll</HintPath>
