@@ -66,14 +66,15 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-			var other = otherMemento as DrawableContainerBoundsChangeMemento;
-			if (other != null)
+			if (!(otherMemento is DrawableContainerBoundsChangeMemento other))
 			{
-				if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
-				{
-					// Lists are equal, as we have the state already we can ignore the new memento
-					return true;
-				}
+				return false;
+			}
+
+			if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
+			{
+				// Lists are equal, as we have the state already we can ignore the new memento
+				return true;
 			}
 			return false;
 		}

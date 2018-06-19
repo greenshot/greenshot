@@ -42,7 +42,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 	{
 		private NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 		private NativeRectFloat _boundsBeforeResize = NativeRectFloat.Empty;
-
+		private bool _initialMoveAfterMouseDown = true;
 		public MoveAdorner(IDrawableContainer owner, Positions position) : base(owner)
 		{
 			Position = position;
@@ -112,6 +112,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 			EditStatus = EditStatus.RESIZING;
 			_boundsBeforeResize = new NativeRectFloat(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
 			_boundsAfterResize = _boundsBeforeResize;
+			_initialMoveAfterMouseDown = true;
+
 		}
 
 		/// <summary>
@@ -126,10 +128,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 				return;
 			}
 			Owner.Invalidate();
-			Owner.MakeBoundsChangeUndoable(false);
+			// Make merges in this drag, meaning as long as it's not the initial move we merge
+			Owner.MakeBoundsChangeUndoable(!_initialMoveAfterMouseDown);
+			_initialMoveAfterMouseDown = false;
 
-            // reset "workbench" rectangle to current bounds
-		    _boundsAfterResize = _boundsBeforeResize;
+			// reset "workbench" rectangle to current bounds
+			_boundsAfterResize = _boundsBeforeResize;
 
 			// calculate scaled rectangle
 			ScaleHelper.Scale(ref _boundsAfterResize, Position, new NativePointFloat(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
