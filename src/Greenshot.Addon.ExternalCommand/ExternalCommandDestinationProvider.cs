@@ -57,7 +57,8 @@ namespace Greenshot.Addon.ExternalCommand
 	        _greenshotLanguage = greenshotLanguage;
 	    }
 
-        public IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide()
+	    /// <inheritdoc />
+	    public IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide()
 		{
 		    return _externalCommandConfig.Commands
 		        .Select(command => _externalCommandConfig.Read(command))
@@ -90,7 +91,7 @@ namespace Greenshot.Addon.ExternalCommand
 				return false;
 			}
 			var commandline = FilenameHelper.FillVariables(_externalCommandConfig.Commandline[command], true);
-			commandline = FilenameHelper.FillCmdVariables(commandline, true);
+			commandline = FilenameHelper.FillCmdVariables(commandline);
 
 			if (File.Exists(commandline))
 			{

@@ -47,13 +47,23 @@ namespace Greenshot.Addons.Core
 	{
 		private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+	    private static bool _isHooked = false;
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
-		static PluginUtils()
-		{
-			CoreConfig.PropertyChanged += OnIconSizeChanged;
-		}
+        /// <summary>
+        /// TODO: Replace this, as soon as we have fixed the configuration, this should not be done via a static class...
+        /// </summary>
+	    private static void SetupIconResizing()
+	    {
+	        if (!_isHooked)
+	        {
+	            return;
+	        }
+
+	        _isHooked = true;
+	        var coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
+	        coreConfiguration.PropertyChanged += OnIconSizeChanged;
+	    }
 
 		/// <summary>
 		///     Clear icon cache
@@ -130,7 +140,9 @@ namespace Greenshot.Addons.Core
 		    Bitmap returnValue;
 			lock (ExeIconCache)
 			{
-				if (ExeIconCache.TryGetValue(cacheKey, out returnValue))
+			    SetupIconResizing();
+
+                if (ExeIconCache.TryGetValue(cacheKey, out returnValue))
 				{
 					return returnValue;
 				}

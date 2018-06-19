@@ -62,7 +62,7 @@ namespace Greenshot.Addon.OneDrive
         private readonly IOneDriveConfiguration _oneDriveConfiguration;
         private readonly IOneDriveLanguage _oneDriveLanguage;
         private readonly IResourceProvider _resourceProvider;
-        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+        private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
         private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri GraphUri = new Uri("https://graph.microsoft.com");
         private static readonly Uri OneDriveUri = GraphUri.AppendSegments("v1.0", "me", "drive");
@@ -75,7 +75,7 @@ namespace Greenshot.Addon.OneDrive
             IOneDriveLanguage oneDriveLanguage,
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage
         ) : base(coreConfiguration, greenshotLanguage)
@@ -152,8 +152,9 @@ namespace Greenshot.Addon.OneDrive
                 Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("OneDrive", _oneDriveLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
                 {
+                    ownedPleaseWaitForm.Value.SetDetails("OneDrive", _oneDriveLanguage.CommunicationWait);
                     ownedPleaseWaitForm.Value.Show();
                     try
                     {

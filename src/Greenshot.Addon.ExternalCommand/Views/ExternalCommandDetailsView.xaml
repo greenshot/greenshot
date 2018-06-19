@@ -3,8 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Greenshot.Addon.ExternalCommand.Views"
-        xmlns:cal="http://www.caliburnproject.org"
         xmlns:viewModels="clr-namespace:Greenshot.Addon.ExternalCommand.ViewModels"
         d:DataContext="{d:DesignInstance viewModels:ExternalCommandDetailsViewModel,IsDesignTimeCreatable=False}"
         mc:Ignorable="d">

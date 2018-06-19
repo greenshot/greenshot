@@ -56,7 +56,7 @@ namespace Greenshot.Addon.Tfs
         private readonly ITfsConfiguration _tfsConfiguration;
         private readonly ITfsLanguage _tfsLanguage;
         private readonly TfsClient _tfsClient;
-        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+        private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
         private readonly IResourceProvider _resourceProvider;
         private readonly WorkItem _workItem;
 
@@ -66,7 +66,7 @@ namespace Greenshot.Addon.Tfs
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
             TfsClient tfsClient,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
         {
             _tfsConfiguration = tfsConfiguration;
@@ -82,7 +82,7 @@ namespace Greenshot.Addon.Tfs
             ITfsConfiguration tfsConfiguration,
             ITfsLanguage tfsLanguage,
             TfsClient tfsClient,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider,
             WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, pleaseWaitFormFactory, resourceProvider)
         {
@@ -178,8 +178,9 @@ namespace Greenshot.Addon.Tfs
                 Uri response;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("TFS plug-in", _tfsLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
                 {
+                    ownedPleaseWaitForm.Value.SetDetails("TFS plug-in", _tfsLanguage.CommunicationWait);
                     ownedPleaseWaitForm.Value.Show();
                     try
                     {

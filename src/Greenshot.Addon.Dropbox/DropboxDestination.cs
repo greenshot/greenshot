@@ -54,7 +54,7 @@ using Newtonsoft.Json;
 namespace Greenshot.Addon.Dropbox
 {
     [Destination("Dropbox")]
-    public class DropboxDestination : AbstractDestination
+    public sealed class DropboxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
 	    private static readonly Uri DropboxApiUri = new Uri("https://api.dropbox.com");
@@ -63,7 +63,7 @@ namespace Greenshot.Addon.Dropbox
         private readonly IDropboxConfiguration _dropboxPluginConfiguration;
 	    private readonly IDropboxLanguage _dropboxLanguage;
 	    private readonly IResourceProvider _resourceProvider;
-	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private OAuth2Settings _oAuth2Settings;
 	    private IHttpBehaviour _oAuthHttpBehaviour;
 
@@ -74,7 +74,7 @@ namespace Greenshot.Addon.Dropbox
 	        IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
-	        Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+	        Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
         ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
@@ -152,9 +152,10 @@ namespace Greenshot.Addon.Dropbox
 	        try
 	        {
 	            var cancellationTokenSource = new CancellationTokenSource();
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Dropbox", _dropboxLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
 	            {
-	                ownedPleaseWaitForm.Value.Show();
+	                ownedPleaseWaitForm.Value.SetDetails("Dropbox", _dropboxLanguage.CommunicationWait);
+                    ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
 	                    var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _dropboxPluginConfiguration);

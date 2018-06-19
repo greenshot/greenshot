@@ -49,7 +49,7 @@ namespace Greenshot.Addon.Lutim  {
         private readonly ILutimLanguage _lutimLanguage;
         private readonly LutimApi _lutimApi;
         private readonly IResourceProvider _resourceProvider;
-        private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+        private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 
         public LutimDestination(ILutimConfiguration lutimConfiguration,
             ILutimLanguage lutimLanguage,
@@ -57,7 +57,7 @@ namespace Greenshot.Addon.Lutim  {
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
         ) : base(coreConfiguration, greenshotLanguage)
         {
             _lutimConfiguration = lutimConfiguration;
@@ -106,8 +106,9 @@ namespace Greenshot.Addon.Lutim  {
                 LutimInfo lutimInfo;
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Lutim", _lutimLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
                 {
+                    ownedPleaseWaitForm.Value.SetDetails("Lutim", _lutimLanguage.CommunicationWait);
                     ownedPleaseWaitForm.Value.Show();
                     try
                     {

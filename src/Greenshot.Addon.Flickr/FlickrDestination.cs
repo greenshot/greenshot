@@ -58,14 +58,14 @@ namespace Greenshot.Addon.Flickr
     /// This defines the flickr destination
     /// </summary>
     [Destination("Flickr")]
-    public class FlickrDestination : AbstractDestination
+    public sealed class FlickrDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
 	    private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
         private readonly IFlickrConfiguration _flickrConfiguration;
 	    private readonly IFlickrLanguage _flickrLanguage;
 	    private readonly IResourceProvider _resourceProvider;
-	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private const string FlickrFarmUrl = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
@@ -87,7 +87,7 @@ namespace Greenshot.Addon.Flickr
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
         ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _flickrConfiguration = flickrConfiguration;
@@ -159,9 +159,10 @@ namespace Greenshot.Addon.Flickr
 	        {
 
 	            var cancellationTokenSource = new CancellationTokenSource();
-	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Flickr", _flickrLanguage.CommunicationWait, cancellationTokenSource))
+	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
 	            {
-	                ownedPleaseWaitForm.Value.Show();
+	                ownedPleaseWaitForm.Value.SetDetails("Flickr", _flickrLanguage.CommunicationWait);
+                    ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
 	                    uploadUrl = await UploadToFlickrAsync(surface, captureDetails.Title, cancellationTokenSource.Token);
@@ -201,7 +202,6 @@ namespace Greenshot.Addon.Flickr
         /// </summary>
         /// <param name="surfaceToUpload"></param>
         /// <param name="title"></param>
-        /// <param name="progress">IProgres is used to report the progress to</param>
         /// <param name="token"></param>
         /// <returns>url to image</returns>
         public async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, string title, CancellationToken token = default)
@@ -240,9 +240,9 @@ namespace Greenshot.Addon.Flickr
                             Properties = signedParameters
                         });
                         var response = await FlickrUploadUri.PostAsync<XDocument>(streamContent, token).ConfigureAwait(false);
-                        photoId = (from element in response.Root.Elements()
+                        photoId = (from element in response?.Root?.Elements() ?? Enumerable.Empty<XElement>()
                                    where element.Name == "photoid"
-                                   select element.Value).First();
+                                   select element.Value).FirstOrDefault();
                     }
                 }
 

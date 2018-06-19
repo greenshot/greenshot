@@ -52,14 +52,14 @@ using Greenshot.Gfx;
 namespace Greenshot.Addon.GooglePhotos
 {
     [Destination("GooglePhotos")]
-    public class GooglePhotosDestination : AbstractDestination
+    public sealed class GooglePhotosDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
         private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 	    private readonly IGooglePhotosLanguage _googlePhotosLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
-	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly OAuth2Settings _oAuth2Settings;
 
         public GooglePhotosDestination(
@@ -69,7 +69,7 @@ namespace Greenshot.Addon.GooglePhotos
 	        IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
-	        Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
+	        Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
             ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
@@ -116,7 +116,7 @@ namespace Greenshot.Addon.GooglePhotos
 	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploadUrl = await Upload(captureDetails, surface).ConfigureAwait(true);
+		    var uploadUrl = await Upload(surface).ConfigureAwait(true);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -126,17 +126,18 @@ namespace Greenshot.Addon.GooglePhotos
 			return exportInformation;
 		}
 
-	    private async Task<string> Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+	    private async Task<string> Upload(ISurface surfaceToUpload)
 	    {
 	        try
             {
                 string url;
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("GooglePhotos", _googlePhotosLanguage.CommunicationWait, default))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(default))
 	            {
-	                ownedPleaseWaitForm.Value.Show();
+	                ownedPleaseWaitForm.Value.SetDetails("GooglePhotos", _googlePhotosLanguage.CommunicationWait);
+                    ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
-	                    url = await UploadToPicasa(surfaceToUpload).ConfigureAwait(true);
+	                    url = await UploadToGooglePhotos(surfaceToUpload).ConfigureAwait(true);
 	                }
 	                finally
 	                {
@@ -169,7 +170,7 @@ namespace Greenshot.Addon.GooglePhotos
         /// <param name="progress"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        private async Task<string> UploadToPicasa(ISurface surface, IProgress<int> progress = null, CancellationToken token = default)
+        private async Task<string> UploadToGooglePhotos(ISurface surface, IProgress<int> progress = null, CancellationToken token = default)
         {
             string filename = surface.GenerateFilename(CoreConfiguration, _googlePhotosConfiguration);
             
@@ -178,7 +179,7 @@ namespace Greenshot.Addon.GooglePhotos
             // Use UploadProgress
             if (progress != null)
             {
-                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100))); };
+                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
             }
             oAuthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(_oAuth2Settings, oAuthHttpBehaviour, httpMessageHandler);
             if (_googlePhotosConfiguration.AddFilename)

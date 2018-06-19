@@ -58,7 +58,7 @@ namespace Greenshot.Addon.Imgur
 	    private readonly IImgurLanguage _imgurLanguage;
 	    private readonly ImgurApi _imgurApi;
 	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
-	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly IResourceProvider _resourceProvider;
 
 		public ImgurDestination(
@@ -68,7 +68,7 @@ namespace Greenshot.Addon.Imgur
 	        IImgurLanguage imgurLanguage,
 	        ImgurApi imgurApi,
 	        ImgurHistoryViewModel imgurHistoryViewModel,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 		{
 			_imgurConfiguration = imgurConfiguration;
@@ -120,8 +120,9 @@ namespace Greenshot.Addon.Imgur
 
                 var cancellationTokenSource = new CancellationTokenSource();
                 // TODO: Replace the form
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Imgur", _imgurLanguage.CommunicationWait, cancellationTokenSource))
+                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
                 {
+                    ownedPleaseWaitForm.Value.SetDetails("Imgur", _imgurLanguage.CommunicationWait);
                     ownedPleaseWaitForm.Value.Show();
                     try
                     {

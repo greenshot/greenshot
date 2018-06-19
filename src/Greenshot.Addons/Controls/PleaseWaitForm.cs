@@ -44,10 +44,9 @@ namespace Greenshot.Addons.Controls
 	    /// <summary>
 		///     Prevent the close-window button showing
 		/// </summary>
-		private const int CP_NOCLOSE_BUTTON = 0x200;
+		private const int CpNocloseButton = 0x200;
 
 		private static readonly LogSource Log = new LogSource();
-		private string _title;
 	    private readonly CancellationTokenSource _cancellationTokenSource;
 	    private Thread _waitFor;
 
@@ -61,15 +60,9 @@ namespace Greenshot.Addons.Controls
 			Icon = GreenshotResources.GetGreenshotIcon();
 		}
 
-	    public PleaseWaitForm(IGreenshotLanguage greenshotLanguage,
-	        string title,
-	        string text,
-	        CancellationTokenSource cancellationTokenSource = default) : this(greenshotLanguage)
+	    public PleaseWaitForm(IGreenshotLanguage greenshotLanguage, CancellationTokenSource cancellationTokenSource = default) : this(greenshotLanguage)
 	    {
-	        _title = title;
 	        _cancellationTokenSource = cancellationTokenSource;
-	        Text = title;
-	        label_pleasewait.Text = text;
         }
 
         protected override CreateParams CreateParams
@@ -77,10 +70,23 @@ namespace Greenshot.Addons.Controls
 			get
 			{
 				var createParams = base.CreateParams;
-				createParams.ClassStyle = createParams.ClassStyle | CP_NOCLOSE_BUTTON;
+				createParams.ClassStyle = createParams.ClassStyle | CpNocloseButton;
 				return createParams;
 			}
 		}
+
+        /// <summary>
+        /// Set the details
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+	    public PleaseWaitForm SetDetails(string title, string text)
+	    {
+	        Text = title;
+	        label_pleasewait.Text = text;
+	        return this;
+	    }
 
         /// <summary>
         ///     Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
@@ -90,10 +96,8 @@ namespace Greenshot.Addons.Controls
         /// <param name="text">The text in the form</param>
         /// <param name="executeTask">Task</param>
         public async Task ShowAndWait(string title, string text, Task executeTask)
-	    {
-	        _title = title;
-	        Text = title;
-	        label_pleasewait.Text = text;
+        {
+            SetDetails(title, text);
 	        cancelButton.Text = _greenshotLanguage.Cancel;
 
 	        Show();
@@ -110,10 +114,8 @@ namespace Greenshot.Addons.Controls
             /// <param name="waitDelegate">delegate { with your code }</param>
             public void ShowAndWait(string title, string text, ThreadStart waitDelegate)
 		{
-			_title = title;
-			Text = title;
-			label_pleasewait.Text = text;
-		    cancelButton.Text = _greenshotLanguage.Cancel;
+		    SetDetails(title, text);
+            cancelButton.Text = _greenshotLanguage.Cancel;
 
             // Make sure the form is shown.
             Show();
@@ -174,11 +176,10 @@ namespace Greenshot.Addons.Controls
 		/// <param name="e"></param>
 		private void CancelButtonClick(object sender, EventArgs e)
 		{
-			Log.Debug().WriteLine("Cancel clicked on {0}", _title);
+			Log.Debug().WriteLine("Cancel clicked on {0}", Text);
 			cancelButton.Enabled = false;
 			_waitFor?.Abort();
 		    _cancellationTokenSource?.Cancel();
-
         }
 	}
 }

@@ -42,7 +42,7 @@ namespace Greenshot.Addon.ExternalCommand
     /// <summary>
     ///     ExternalCommandDestination provides a destination to export to an external command
     /// </summary>
-    public class ExternalCommandDestination : AbstractDestination
+    public sealed class ExternalCommandDestination : AbstractDestination
 	{
 		private static readonly Regex UriRegexp = new Regex(
 				@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)", RegexOptions.Compiled);
@@ -60,24 +60,24 @@ namespace Greenshot.Addon.ExternalCommand
 	        _externalCommandConfiguration = externalCommandConfiguration;
 	    }
 
-		public override string Designation => "External " + _externalCommandDefinition.Name.Replace(',', '_');
+	    /// <inheritdoc />
+	    public override string Designation => "External " + _externalCommandDefinition.Name.Replace(',', '_');
 
-		public override string Description => _externalCommandDefinition.Name;
+	    /// <inheritdoc />
+	    public override string Description => _externalCommandDefinition.Name;
 
-		public override Bitmap GetDisplayIcon(double dpi)
+	    /// <inheritdoc />
+	    public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return IconCache.IconForCommand(_externalCommandDefinition, dpi > 100);
 		}
 
+	    /// <inheritdoc />
 	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 	    {
 	        var exportInformation = new ExportInformation(Designation, Description);
 
-	        var fullPath = captureDetails.Filename;
-	        if (fullPath == null)
-	        {
-	            fullPath = surface.SaveNamedTmpFile(CoreConfiguration, _externalCommandConfiguration);
-	        }
+	        var fullPath = captureDetails.Filename ?? surface.SaveNamedTmpFile(CoreConfiguration, _externalCommandConfiguration);
 
 	        using (var cli = new Cli(_externalCommandDefinition.Command))
 	        {
@@ -105,7 +105,6 @@ namespace Greenshot.Addon.ExternalCommand
                     File.Delete(fullPath);
 	            }
 	        }
-
 
 	        ProcessExport(exportInformation, surface);
 	        return exportInformation;

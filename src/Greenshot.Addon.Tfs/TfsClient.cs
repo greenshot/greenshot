@@ -56,15 +56,19 @@ namespace Greenshot.Addon.Tfs
             _coreConfiguration = coreConfiguration;
             _tfsConfiguration = tfsConfiguration;
 
-#if DEBUG
-            // Set json log threshold high
-            DefaultJsonHttpContentConverter.Instance.Value.LogThreshold = 0;
-#endif
             _tfsHttpBehaviour = new HttpBehaviour
             {
                 HttpSettings = networkConfiguration,
                 JsonSerializer = new JsonNetJsonSerializer()
             };
+
+#if DEBUG
+            // Set json log threshold high
+            _tfsHttpBehaviour.RequestConfigurations[nameof(DefaultJsonHttpContentConverterConfiguration)] = new DefaultJsonHttpContentConverterConfiguration
+            {
+                LogThreshold = 0
+            };
+#endif
 
         }
 

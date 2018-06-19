@@ -58,7 +58,7 @@ namespace Greenshot.Addon.Box
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
-	    private readonly Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
+	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth2Settings _oauth2Settings;
@@ -70,7 +70,7 @@ namespace Greenshot.Addon.Box
             IGreenshotLanguage greenshotLanguage,
             IBoxConfiguration boxConfiguration,
             IBoxLanguage boxLanguage,
-            Func<string, string, CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
+            Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
 	    {
@@ -136,9 +136,10 @@ namespace Greenshot.Addon.Box
 	        try
 	        {
 	            string url;
-	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory("Box", _boxLanguage.CommunicationWait, default))
+	            using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(default))
 	            {
-	                ownedPleaseWaitForm.Value.Show();
+	                ownedPleaseWaitForm.Value.SetDetails("Box", _boxLanguage.CommunicationWait);
+                    ownedPleaseWaitForm.Value.Show();
 	                try
 	                {
 	                    url = await UploadToBoxAsync(surfaceToUpload).ConfigureAwait(true);

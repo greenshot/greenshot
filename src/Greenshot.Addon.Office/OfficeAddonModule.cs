@@ -27,6 +27,7 @@ using Dapplo.CaliburnMicro.Configuration;
 using Greenshot.Addon.Office.Destinations;
 using Greenshot.Addon.Office.ViewModels;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Office
 {
@@ -35,34 +36,60 @@ namespace Greenshot.Addon.Office
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder
-                .RegisterType<ExcelDestination>()
-                .As<IDestination>()
-                .SingleInstance();
+            var hasDestination = false;
 
-            builder
-                .RegisterType<WordDestination>()
-                .As<IDestination>()
-                .SingleInstance();
+            if (PluginUtils.GetExePath("EXCEL.EXE") != null)
+            {
+                hasDestination = true;
+                builder
+                    .RegisterType<ExcelDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
 
-            builder
-                .RegisterType<PowerpointDestination>()
-                .As<IDestination>()
-                .SingleInstance();
+            if (PluginUtils.GetExePath("WINWORD.EXE") != null)
+            {
+                hasDestination = true;
+                builder
+                    .RegisterType<WordDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
 
-            builder
-                .RegisterType<OneNoteDestination>()
-                .As<IDestination>()
-                .SingleInstance();
+            if (PluginUtils.GetExePath("POWERPNT.EXE") != null)
+            {
+                hasDestination = true;
+                builder
+                    .RegisterType<PowerpointDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
 
-            builder
-                .RegisterType<OutlookDestination>()
-                .As<IDestination>()
-                .SingleInstance();
-            builder
-                .RegisterType<OfficeConfigViewModel>()
-                .As<IConfigScreen>()
-                .SingleInstance();
+            if (PluginUtils.GetExePath("ONENOTE.EXE") != null)
+            {
+                hasDestination = true;
+                builder
+                    .RegisterType<OneNoteDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
+
+            if (PluginUtils.GetExePath("OUTLOOK.EXE") != null)
+            {
+                hasDestination = true;
+                builder
+                    .RegisterType<OutlookDestination>()
+                    .As<IDestination>()
+                    .SingleInstance();
+            }
+
+            if (hasDestination)
+            {
+                builder
+                    .RegisterType<OfficeConfigViewModel>()
+                    .As<IConfigScreen>()
+                    .SingleInstance();
+            }
 
             base.Load(builder);
         }

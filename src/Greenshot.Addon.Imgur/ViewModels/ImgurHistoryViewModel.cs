@@ -38,6 +38,9 @@ using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Imgur.ViewModels
 {
+    /// <summary>
+    /// This is the view model for the history
+    /// </summary>
     public sealed class ImgurHistoryViewModel : Screen
     {
         private static readonly LogSource Log = new LogSource();
@@ -53,6 +56,9 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public IImgurLanguage ImgurLanguage { get; }
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
         public ImgurHistoryViewModel(
@@ -81,7 +87,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             {
                 ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.History))
             };
-            LoadHistory();
+            var ignoringTask = LoadHistory();
         }
 
         protected override void OnDeactivate(bool close)
@@ -96,7 +102,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
         private async Task LoadHistory(CancellationToken cancellationToken = default)
         {
             // Load the ImUr history
-            foreach (string hash in ImgurConfiguration.ImgurUploadHistory.Keys)
+            foreach (var hash in ImgurConfiguration.ImgurUploadHistory.Keys)
             {
                 if (ImgurHistory.Any(imgurInfo => imgurInfo.Data.Id == hash))
                 {
@@ -133,15 +139,27 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public ImgurImage SelectedImgur { get; private set; }
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public bool CanDelete => true;
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public async Task Delete()
         {
             await ImgurApi.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
         }
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public bool CanCopyToClipboard => true;
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public void CopyToClipboard()
         {
             using (var clipboardAccessToken = ClipboardNative.Access())
@@ -151,6 +169,9 @@ namespace Greenshot.Addon.Imgur.ViewModels
             }
         }
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public void ClearHistory()
         {
             ImgurConfiguration.RuntimeImgurHistory.Clear();
@@ -158,6 +179,9 @@ namespace Greenshot.Addon.Imgur.ViewModels
             ImgurHistory.Clear();
         }
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
         public void Show()
         {
             var link = SelectedImgur.Data.Link?.AbsoluteUri;
