@@ -82,7 +82,7 @@ namespace Greenshot.Addon.Imgur
 		        ClientId = imgurConfiguration.ClientId,
 		        ClientSecret = imgurConfiguration.ClientSecret,
 		        RedirectUrl = "https://getgreenshot.org/oauth/imgur",
-		        AuthorizeMode = AuthorizeModes.OutOfBound,
+		        AuthorizeMode = AuthorizeModes.OutOfBoundAuto,
 		        Token = imgurConfiguration
             };
 

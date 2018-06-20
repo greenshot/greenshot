@@ -92,14 +92,14 @@
     <Reference Include="Dapplo.Confluence, Version=0.7.19.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Confluence.0.7.19\lib\net46\Dapplo.Confluence.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.8.41.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.41\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.8.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.42\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions.JsonSimple, Version=0.8.41.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.JsonSimple.0.8.41\lib\net46\Dapplo.HttpExtensions.JsonSimple.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions.JsonSimple, Version=0.8.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.JsonSimple.0.8.42\lib\net46\Dapplo.HttpExtensions.JsonSimple.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.41.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.41\lib\net46\Dapplo.HttpExtensions.OAuth.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.42\lib\net46\Dapplo.HttpExtensions.OAuth.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.28\lib\net45\Dapplo.Ini.dll</HintPath>
