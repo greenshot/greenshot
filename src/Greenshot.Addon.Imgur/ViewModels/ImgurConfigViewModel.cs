@@ -104,7 +104,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             }
         }
 
-        public bool CanResetCredentials => ImgurConfiguration.HasToken();
+        public bool CanResetCredentials => !ImgurConfiguration.AnonymousAccess && ImgurConfiguration.HasToken();
 
         public void ResetCredentials()
         {
