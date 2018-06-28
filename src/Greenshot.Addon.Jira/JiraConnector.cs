@@ -298,7 +298,7 @@ namespace Greenshot.Addon.Jira
 			var searchResult =
 				await _jiraClient.Issue.SearchAsync(filter.Jql,
                 new Page { MaxResults = 20},
-                new[] {"summary", "reporter", "assignee", "created", "issuetype"}, cancellationToken).ConfigureAwait(false);
+                new[] {"summary", "reporter", "assignee", "created", "issuetype"}, cancellationToken:cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 

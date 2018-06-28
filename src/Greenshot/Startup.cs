@@ -38,13 +38,12 @@ using Dapplo.Ini.Converters;
 using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Ui.Misc.ViewModels;
-using Point = System.Drawing.Point;
-
 
 namespace Greenshot
 {
@@ -69,11 +68,14 @@ namespace Greenshot
             // Initialize a debug logger for Dapplo packages
             LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #endif
-            var applicationConfig = ApplicationConfig.Create()
+            var applicationConfig = ApplicationConfigBuilder
+                .Create()
                 .WithApplicationName("Greenshot")
-                .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", false)
-                .WithAssemblyNames("Dapplo.Addons.Config")
-                .WithAssemblyPatterns("Greenshot.Addon*");
+                .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
+                .WithConfigSupport()
+                .WithCaliburnMicro()
+                .WithAssemblyPatterns("Greenshot.Addon*")
+                .BuildApplicationConfig();
 
             var application = new Dapplication(applicationConfig)
             {
@@ -167,7 +169,7 @@ namespace Greenshot
                 MaximizeBox = false,
                 MinimizeBox = false,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
-                Location = new Point(int.MinValue, int.MinValue),
+                Location = new NativePoint(int.MinValue, int.MinValue),
                 Text = language.TranslationOrDefault(l => l.Error),
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
