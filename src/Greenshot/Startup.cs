@@ -63,7 +63,7 @@ namespace Greenshot
             StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
             // Make sure the exceptions in the log are readable, uses Ben.Demystifier
-            LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
+            //LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
             LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);

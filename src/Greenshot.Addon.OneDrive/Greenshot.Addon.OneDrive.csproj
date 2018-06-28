@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.OneDrive</RootNamespace>
     <AssemblyName>Greenshot.Addon.OneDrive</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>

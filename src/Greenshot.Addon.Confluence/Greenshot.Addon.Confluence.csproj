@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.Confluence</RootNamespace>
     <AssemblyName>Greenshot.Addon.Confluence</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>

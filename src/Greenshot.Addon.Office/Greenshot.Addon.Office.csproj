@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.Office</RootNamespace>
     <AssemblyName>Greenshot.Addon.Office</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

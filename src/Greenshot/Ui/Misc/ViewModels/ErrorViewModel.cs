@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Greenshot.Addons;
@@ -58,7 +57,7 @@ namespace Greenshot.Ui.Misc.ViewModels
         /// </summary>
         public void SetExceptionToDisplay(Exception exception)
         {
-            Stacktrace = exception.ToStringDemystified();
+            Stacktrace = exception.ToString(); //ToStringDemystified();
             Message = exception.Message;
         }
 
