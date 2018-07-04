@@ -82,6 +82,7 @@ namespace Greenshot
                 .AssignableTo<IService>()
                 .As<IService>()
                 .AsSelf()
+                .AsImplementedInterfaces()
                 .SingleInstance();
             
             builder
