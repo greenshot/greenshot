@@ -43,8 +43,8 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action registers the hotkeys
     /// </summary>
-    [ServiceOrder(GreenshotUiStartupOrder.Hotkeys, int.MinValue)]
-    public class HotkeyHandler : IUiStartup, IUiShutdown
+    [Service(nameof(HotkeyHandler), nameof(MainFormStartup), TaskSchedulerName = "ui")]
+    public class HotkeyHandler : IStartup, IShutdown
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
@@ -63,7 +63,7 @@ namespace Greenshot.Components
             _windowHandle = windowHandle;
         }
 
-        public void Start()
+        public void Startup()
         {
             Log.Debug().WriteLine("Registering hotkeys");
             // Make sure all hotkeys pass this window!

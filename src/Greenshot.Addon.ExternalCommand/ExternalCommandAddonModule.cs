@@ -37,7 +37,7 @@ namespace Greenshot.Addon.ExternalCommand
         {
             builder
                 .RegisterType<ExternalCommandDestinationProvider>()
-                .As<IStartup>()
+                .As<IService>()
                 .As<IDestinationProvider>()
                 .SingleInstance();
             builder

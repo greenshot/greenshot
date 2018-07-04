@@ -47,7 +47,7 @@ namespace Greenshot.Components
 	/// <summary>
 	///     This processes the information, if there are updates available.
 	/// </summary>
-	[ServiceOrder(GreenshotStartupOrder.User)]
+	[Service(nameof(UpdateService), nameof(MainFormStartup))]
 	public class UpdateService : IStartup, IShutdown, IVersionProvider
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -94,7 +94,7 @@ namespace Greenshot.Components
 	    }
 
 	    /// <inheritdoc />
-	    public void Start()
+	    public void Startup()
 	    {
 	        var ignore = BackgroundTask(() => TimeSpan.FromDays(_coreConfiguration.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
         }
@@ -128,7 +128,7 @@ namespace Greenshot.Components
 	                }
                     try
 	                {
-	                    await Task.WhenAll(Task.Delay(interval, cancellationToken), task(cancellationToken));
+	                    await Task.WhenAll(Task.Delay(interval), task(cancellationToken)).ConfigureAwait(false);
                     }
 	                catch (Exception ex)
 	                {
@@ -139,7 +139,7 @@ namespace Greenshot.Components
 	                    break;
                     }
 	            }
-	        }, cancellationToken);
+	        }, cancellationToken).ConfigureAwait(false);
 	        Log.Info().WriteLine("Finished background task");
         }
 

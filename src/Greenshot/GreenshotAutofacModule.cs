@@ -23,7 +23,6 @@
 
 using Autofac;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Security;
 using Greenshot.Addons.Components;
@@ -65,19 +64,6 @@ namespace Greenshot
             builder
                 .RegisterType<LanguageDialog>()
                 .AsSelf();
-            
-            builder
-                .RegisterType<HotkeyHandler>()
-                .As<IUiStartup>()
-                .As<IUiShutdown>()
-                .AsSelf()
-                .SingleInstance();
-
-            builder
-                .RegisterType<MainFormStartup>()
-                .As<IUiStartup>()
-                .As<IUiShutdown>()
-                .SingleInstance();
 
             builder
                 .RegisterType<AboutForm>()
@@ -95,7 +81,7 @@ namespace Greenshot
                 .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IService>()
                 .As<IService>()
-                .AsImplementedInterfaces()
+                .AsSelf()
                 .SingleInstance();
             
             builder

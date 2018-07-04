@@ -40,6 +40,7 @@ namespace Greenshot.Addon.ExternalCommand
     /// <summary>
     ///     Generate the external command destinations
     /// </summary>
+    [Service(nameof(ExternalCommandDestinationProvider))]
     public sealed class ExternalCommandDestinationProvider : IStartup, IDestinationProvider
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -101,7 +102,7 @@ namespace Greenshot.Addon.ExternalCommand
 			return false;
 		}
 
-	    public void Start()
+	    public void Startup()
 	    {
 	        // Check configuration & cleanup
 	        foreach (var command in _externalCommandConfig.Commands.Where(command => !IsCommandValid(command)).ToList())

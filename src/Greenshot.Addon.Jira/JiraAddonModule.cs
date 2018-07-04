@@ -52,8 +52,7 @@ namespace Greenshot.Addon.Jira
                 .SingleInstance();
             builder
                 .RegisterType<JiraMonitor>()
-                .As<IUiStartup>()
-                .As<IUiShutdown>()
+                .As<IService>()
                 .AsSelf()
                 .SingleInstance();
 

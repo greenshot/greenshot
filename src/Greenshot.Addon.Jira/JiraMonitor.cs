@@ -30,7 +30,7 @@ using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.CaliburnMicro;
+using Dapplo.Addons;
 using Dapplo.Jira;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
@@ -45,7 +45,8 @@ namespace Greenshot.Addon.Jira
 	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
-	public class JiraMonitor : IUiStartup, IUiShutdown
+	[Service(nameof(JiraMonitor), TaskSchedulerName = "ui")]
+	public class JiraMonitor : IStartup, IShutdown
 	{
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private static readonly LogSource Log = new LogSource();
@@ -61,7 +62,7 @@ namespace Greenshot.Addon.Jira
 		    _jiraConfiguration = jiraConfiguration;
 		}
 
-	    public void Start()
+	    public void Startup()
 	    {
             // Subscribe the windows events which tell us a title was changed
 	        _winEventObservable = WinEventHook.WindowTileChangeObservable()

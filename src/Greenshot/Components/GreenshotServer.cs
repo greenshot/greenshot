@@ -50,7 +50,7 @@ namespace Greenshot.Components
     /// This startup action starts the Greenshot "server", which allows to open files etc.
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    [ServiceOrder(GreenshotStartupOrder.Server)]
+    [Service(nameof(GreenshotServerAction), nameof(MainFormStartup))]
     public class GreenshotServerAction : IGreenshotContract, IStartupAsync, IShutdownAsync
     {
         private static readonly LogSource Log = new LogSource();
@@ -82,15 +82,17 @@ namespace Greenshot.Components
             _destinationHolder = destinationHolder;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        public Task StartupAsync(CancellationToken cancellationToken = default)
         {
+            // TODO: Test performance with Startup without async
             Log.Debug().WriteLine("Starting Greenshot server");
-            await Task.Factory.StartNew(() => {
+            return Task.Run(() => {
                 _host = new ServiceHost(this, new Uri("net.pipe://localhost/Greenshot"));
                 _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), "Greenshot_" + Identity);
                 _host.Open();
+                Log.Debug().WriteLine("Started Greenshot server");
             }, cancellationToken);
-            Log.Debug().WriteLine("Started Greenshot server");
         }
 
         public Task ShutdownAsync(CancellationToken cancellationToken = default)
