@@ -168,7 +168,7 @@ namespace Greenshot.Components
 	                MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 	                MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
 	                MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(_greenshotLanguage.UpdateFound, LatestVersion), ToolTipIcon.Info);
-                }, cancellationToken);
+                }, cancellationToken).ConfigureAwait(false);
             }
         }
 

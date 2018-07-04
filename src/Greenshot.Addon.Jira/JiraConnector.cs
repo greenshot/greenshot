@@ -119,13 +119,13 @@ namespace Greenshot.Addon.Jira
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
 			try
 			{
-				await _jiraClient.Session.StartAsync(user, password, cancellationToken);
-				await _jiraMonitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
+				await _jiraClient.Session.StartAsync(user, password, cancellationToken).ConfigureAwait(true);
+				await _jiraMonitor.AddJiraInstanceAsync(_jiraClient, cancellationToken).ConfigureAwait(true);
 
 				var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
 				try
 				{
-					FavIcon = await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken);
+					FavIcon = await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken).ConfigureAwait(true);
 				}
 				catch (Exception ex)
 				{

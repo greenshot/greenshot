@@ -376,7 +376,7 @@ namespace Greenshot.Addons.Core
                         }
                         menu.Tag = clickedDestination.Designation;
                         // Export
-                        exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
+                        exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails).ConfigureAwait(true);
                         if (exportInformation != null && exportInformation.ExportMade)
                         {
                             Log.Info().WriteLine("Export to {0} success, closing menu", exportInformation.DestinationDescription);

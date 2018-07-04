@@ -80,7 +80,7 @@ namespace Greenshot.Addon.Confluence
 						}
 						if (!pageDouble)
 						{
-							var page = await confluenceConnector.Content.GetAsync(pageId);
+							var page = await confluenceConnector.Content.GetAsync(pageId).ConfigureAwait(false);
 							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}

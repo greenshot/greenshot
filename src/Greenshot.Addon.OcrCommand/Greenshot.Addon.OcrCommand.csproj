@@ -75,7 +75,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons"
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

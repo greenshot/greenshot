@@ -105,7 +105,7 @@ namespace Greenshot.Addons.Controls
 			base.OnShown(e);
 			if (ToFront)
 			{
-				await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
+				await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync().ConfigureAwait(false);
 			}
 		}
 
