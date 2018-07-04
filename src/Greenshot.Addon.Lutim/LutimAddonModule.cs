@@ -24,6 +24,9 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.CaliburnMicro.Translations;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addon.Lutim.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -35,7 +38,17 @@ namespace Greenshot.Addon.Lutim
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<LutimDestination>()
+                .Register(context => IniConfig.Current.Get<ILutimConfiguration>())
+                .As<ILutimConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => LanguageLoader.Current.Get<ILutimLanguage>())
+                .As<ILutimLanguage>()
+                .SingleInstance();
+
+            builder
+                 .RegisterType<LutimDestination>()
                 .As<IDestination>()
                 .SingleInstance();
             builder

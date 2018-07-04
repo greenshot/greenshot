@@ -24,6 +24,9 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.CaliburnMicro.Translations;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addon.Flickr.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -34,6 +37,16 @@ namespace Greenshot.Addon.Flickr
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder
+                .Register(context => IniConfig.Current.Get<IFlickrConfiguration>())
+                .As<IFlickrConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => LanguageLoader.Current.Get<IFlickrLanguage>())
+                .As<IFlickrLanguage>()
+                .SingleInstance();
+
             builder
                 .RegisterType<FlickrDestination>()
                 .As<IDestination>()

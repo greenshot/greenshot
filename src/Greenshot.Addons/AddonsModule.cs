@@ -23,7 +23,9 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -36,6 +38,26 @@ namespace Greenshot.Addons
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder
+                .Register(context => IniConfig.Current.Get<IUiConfiguration>())
+                .As<IUiConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => IniConfig.Current.Get<ICoreConfiguration>())
+                .As<ICoreConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => LanguageLoader.Current.Get<IGreenshotLanguage>())
+                .As<IGreenshotLanguage>()
+                .SingleInstance();
+
+            builder
+                .Register(context => IniConfig.Current.Get<INetworkConfiguration>())
+                .As<INetworkConfiguration>()
+                .SingleInstance();
+
             builder
                 .RegisterType<FileConfigPartViewModel>()
                 .AsSelf();

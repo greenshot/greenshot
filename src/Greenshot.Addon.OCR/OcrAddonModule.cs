@@ -26,6 +26,9 @@ using System.IO;
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.CaliburnMicro.Translations;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addons.Components;
 
 namespace Greenshot.Addon.OCR
@@ -61,7 +64,17 @@ namespace Greenshot.Addon.OCR
             if (HasModi())
             {
                 builder
-                    .RegisterType<OcrDestination>()
+                    .Register(context => IniConfig.Current.Get<IOCRConfiguration>())
+                    .As<IOCRConfiguration>()
+                    .SingleInstance();
+
+                builder
+                    .Register(context => LanguageLoader.Current.Get<IOcrLanguage>())
+                    .As<IOcrLanguage>()
+                    .SingleInstance();
+
+                builder
+                     .RegisterType<OcrDestination>()
                     .As<IDestination>()
                     .SingleInstance();
             }

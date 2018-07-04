@@ -25,8 +25,11 @@ using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Security;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addons.Components;
 using Greenshot.Components;
+using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Ui.Configuration.ViewModels;
@@ -39,6 +42,16 @@ namespace Greenshot
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder
+                .Register(context => IniConfig.Current.Get<IMetroConfiguration>())
+                .As<IMetroConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => LanguageLoader.Current.Get<IConfigTranslations>())
+                .As<IConfigTranslations>()
+                .SingleInstance();
+
             builder
                 .RegisterType<ConfigViewModel>()
                 .AsSelf();

@@ -24,6 +24,9 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.CaliburnMicro.Translations;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Greenshot.Addon.Tfs.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -34,6 +37,17 @@ namespace Greenshot.Addon.Tfs
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder
+                .Register(context => IniConfig.Current.Get<ITfsConfiguration>())
+                .As<ITfsConfiguration>()
+                .SingleInstance();
+
+            builder
+                .Register(context => LanguageLoader.Current.Get<ITfsLanguage>())
+                .As<ITfsLanguage>()
+                .SingleInstance();
+
+
             builder
                 .RegisterType<TfsDestination>()
                 .As<IDestination>()
