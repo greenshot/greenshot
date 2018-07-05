@@ -24,7 +24,6 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.CaliburnMicro.Translations;
 using Dapplo.Ini;
 using Dapplo.Language;
 using Greenshot.Addon.Photobucket.ViewModels;

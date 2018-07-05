@@ -46,7 +46,6 @@ using Dapplo.Windows.App;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
-using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;

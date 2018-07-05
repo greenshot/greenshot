@@ -27,7 +27,6 @@ using System.Linq;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;

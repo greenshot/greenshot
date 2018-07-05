@@ -26,7 +26,6 @@ using System.IO;
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.Addons.Bootstrapper.Resolving;
-using Dapplo.CaliburnMicro.Translations;
 using Dapplo.Ini;
 using Dapplo.Language;
 using Greenshot.Addons.Components;

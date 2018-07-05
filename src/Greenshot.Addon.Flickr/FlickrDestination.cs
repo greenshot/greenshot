@@ -38,7 +38,6 @@ using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
-using Dapplo.HttpExtensions.Listener;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
@@ -112,8 +111,9 @@ namespace Greenshot.Addon.Flickr
 	                    {OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
 	                    {OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
 	                }),
+                // TODO: Remove this, use Greenshot redirect like with Imgur, doesn't work anyway
 	            // Create a localhost redirect uri, prefer port 47336, but use the first free found
-	            RedirectUrl = new[] { 47336, 0 }.CreateLocalHostUri().AbsoluteUri,
+	            RedirectUrl = "http://localhost:47336",//new[] { 47336 }.CreateLocalHostUri().AbsoluteUri,
 	            CheckVerifier = true
 	        };
 

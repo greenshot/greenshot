@@ -27,7 +27,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Greenshot.Addons;
