@@ -4,7 +4,7 @@
 	<resources prefix="Core">
 		<resource name="about_bugs">請回報錯誤到以下網址</resource>
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
-		<resource name="about_host">Greenshot 的主機在 GitHub 網址是</resource>
+		<resource name="about_host">Greenshot 的專案由 GitHub 託管，位於：</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
 		<resource name="about_license">
 			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
