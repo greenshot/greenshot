@@ -51,7 +51,7 @@ namespace Greenshot.Tests
         [Fact]
         public void TestLanguageOption()
         {
-            var arguments = new[] { "-language", "de-DE" };
+            var arguments = new[] { "--language", "de-DE" };
 
             CommandlineCaptureOptions captureOptions = null;
             CommandlineOptions commandlineOptions = null;
