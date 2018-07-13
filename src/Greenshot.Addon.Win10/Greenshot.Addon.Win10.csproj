@@ -156,8 +156,9 @@
       <HintPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.Runtime.WindowsRuntime.dll</HintPath>
       <Aliases>global</Aliases>
     </Reference>
-    <Reference Include="Windows">
-      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
+    <Reference Include="Windows, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.17134.0\Windows.winmd</HintPath>
     </Reference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
