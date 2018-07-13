@@ -3,6 +3,10 @@ using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
+using Dapplo.Ini;
+using Dapplo.Language;
+using Greenshot.Addons;
+using Greenshot.Addons.Core;
 using Greenshot.Components;
 using Xunit;
 
@@ -20,7 +24,9 @@ namespace Greenshot.Tests
         [Fact]
         public void UpdateTest()
         {
-            var updateService = new UpdateService(null, null);
+            var testConfig = new IniConfig("GreenShotTest", "testconfig");
+            var testLangLoader = new LanguageLoader("GreenShotTest", "en_US");
+            var updateService = new UpdateService(IniConfig.Current.Get<ICoreConfiguration>(), LanguageLoader.Current.Get<IGreenshotLanguage>());
             using (var reader = XmlReader.Create(@"TestFiles\project-feed.xml"))
             {
                 var feed = SyndicationFeed.Load(reader);
