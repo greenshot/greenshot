@@ -149,15 +149,16 @@
     <Compile Include="Native\WindowMessageMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Windows, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.17134.0\Windows.winmd</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <!-- Light up Windows 10 features -->
     <Reference Include="System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.Runtime.WindowsRuntime.dll</HintPath>
       <Aliases>global</Aliases>
-    </Reference>
-    <Reference Include="Windows">
-      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
     </Reference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
@@ -171,6 +172,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

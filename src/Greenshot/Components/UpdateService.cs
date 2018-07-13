@@ -202,7 +202,8 @@ namespace Greenshot.Components
 	            {
 	                BetaVersion = version;
 	            }
-	            if ("rc".Equals(type, StringComparison.OrdinalIgnoreCase))
+                Regex rcReg = new Regex(@"^rc\d*$",RegexOptions.IgnoreCase);
+	            if (rcReg.IsMatch(type))
                 {
 	                ReleaseCandidateVersion = version;
 	            }
