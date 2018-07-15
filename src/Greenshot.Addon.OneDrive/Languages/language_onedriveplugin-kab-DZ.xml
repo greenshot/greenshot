@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+    <resources prefix="OneDrive">
+        <resource name="communication_wait">
+            Taɣwalt akked OneDrive. Rǧu ma ulac aɣilif...
+        </resource>
+        <resource name="label_link_type">
+            Anaw n useɣwen
+        </resource>
+        <resource name="settings_title">
+            Iɣewwaṛen OneDrive
+        </resource>
+        <resource name="upload_failure">
+            Teḍra-d tuccḍa deg usali ar OneDrive:
+        </resource>
+        <resource name="upload_menu_item">
+            Asali ar OneDrive
+        </resource>
+        <resource name="label_url">
+            Tansa Url
+        </resource>
+        <resource name="reset_credentials_button">
+            Wennez inekcam ar OneDrive
+        </resource>
+    </resources>
+</language>
