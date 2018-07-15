@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+    <resources prefix="Tfs">
+        <resource name="communication_wait">Taɣwalt akked TFS. Rǧu ma ulac aɣilif...</resource>
+        <resource name="label_link_type">Anaw n useɣwen</resource>
+        <resource name="settings_title">Iɣewwaṛen TFS</resource>
+        <resource name="upload_failure">Teḍra-d tuccḍa deg usali ar TFA:</resource>
+        <resource name="upload_menu_item">Sali ar TFS</resource>
+        <resource name="label_url">Tansa Url</resource>
+        <resource name="label_apikey">Tasarut Api</resource>
+    </resources>
+</language>
