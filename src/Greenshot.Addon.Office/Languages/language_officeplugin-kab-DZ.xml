@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources prefix="Office">
+    <resource name="settings_title">
+      Iɣawwaṛen Office
+    </resource>
+    <resource name="word_lockaspect">
+      Sewḥel afmiḍi n wudem n tugna deg usifeḍ Word
+    </resource>
+    <resource name="outlook_allowmeetings">
+      Sireg asifeḍ ad yettwaseggem
+    </resource>
+    <resource name="outlook_subject_pattern">
+      Taneɣruft i usentel Outlook
+    </resource>
+    <resource name="outlook_email_format">
+      Amasal n yimayl i yimaylen yettwarnan melmi kan
+    </resource>
+    <resource name="outlook_email_include_signature">
+      Ger azmul amezwer i yimaylen imaynuten
+    </resource>
+    <resource name="outlook_emailto">
+      Imayl amezwer n tansa I
+    </resource>
+    <resource name="outlook_emailcc">
+      Imayl amezwer n tansa Anɣ.I
+    </resource>
+    <resource name="outlook_emailbcc">
+      Imayl amezwer n tansa Anɣ.Uff.I
+    </resource>
+    <resource name="powerpoint_slide_layout">
+      Taneɣruft n tegri yettwasqedcen i usifeḍ
+    </resource>
+    <resource name="powerpoint_lockaspect">
+      Sewḥel afmiḍi n wudem n tugna deg usifeḍ PowerPoint
+    </resource>
+  </resources>
+</language>
