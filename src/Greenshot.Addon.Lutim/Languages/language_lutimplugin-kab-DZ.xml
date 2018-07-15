@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language>
+	<resources prefix="Lutim">
+		<resource name="upload_menu_item">
+			Sali ar Lutim
+		</resource>
+		<resource name="settings_title">
+			Iɣewwaṛen Lutim
+		</resource>
+		<resource name="label_url">
+			Tansa Url
+		</resource>
+		<resource name="OK">
+			Ih
+		</resource>
+		<resource name="CANCEL">
+			Sefsex
+		</resource>
+		<resource name="upload_success">
+			Tugna tili akken iwata ar Lutim!
+		</resource>
+		<resource name="upload_failure">
+			Teḍra-d tuccḍa deg usali ar Lutim:
+		</resource>
+		<resource name="communication_wait">
+			Taɣwalt akked Lutim. Rǧu ma ulac aɣilif...
+		</resource>
+		<resource name="delete_question">
+			Tebɣiḍ ad tekkseḍ tugna {0} si Lutim?
+		</resource>
+		<resource name="clear_question">
+			Tebɣiḍ ad tekkseḍ amzruy Lutim amiran?
+		</resource>
+		<resource name="delete_title">
+			Kkes Lutim {0}
+		</resource>
+		<resource name="anonymous_access">
+			Seqdec anekcum udrig
+		</resource>
+		<resource name="use_page_link">
+			Seqdec aseɣwen n usebter deg umḍiq n useɣen n tugna ɣef afus
+		</resource>
+		<resource name="history">
+			Amezruy
+		</resource>
+		<resource name="configure">
+			Swel
+		</resource>
+	</resources>
+</language>
