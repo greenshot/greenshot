@@ -1,8 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
-using BenchmarkDotNet.Order;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Experimental;
 using Greenshot.Gfx.Quantizer;
@@ -14,7 +12,6 @@ namespace Greenshot.PerformanceTests
     /// This defines the benchmarks which can be done
     /// </summary>
     [MinColumn, MaxColumn, MemoryDiagnoser]
-    [OrderProvider(SummaryOrderPolicy.FastestToSlowest)]
     public class GfxPerformance
     {
         [Benchmark]

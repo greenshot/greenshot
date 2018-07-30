@@ -29,8 +29,8 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Input;
 using Dapplo.Windows.Input.Enums;
+using Dapplo.Windows.Input.Keyboard;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Addons.Core;
@@ -113,7 +113,7 @@ namespace Greenshot.Helpers
             // Register a keyboard hook to make it possible to ESC the capturing
             var breakScroll = false;
             var keyboardHook = KeyboardHook.KeyboardEvents
-                .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
+                .Where(args => args.Key == VirtualKeyCode.Escape)
                 .Subscribe(args =>
                 {
                     args.Handled = true;

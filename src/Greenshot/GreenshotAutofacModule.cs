@@ -22,6 +22,7 @@
 #endregion
 
 using Autofac;
+using Autofac.Features.AttributeFilters;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Security;
@@ -96,6 +97,7 @@ namespace Greenshot
                 .As<IService>()
                 .AsSelf()
                 .AsImplementedInterfaces()
+                .WithAttributeFiltering()
                 .SingleInstance();
             
             builder

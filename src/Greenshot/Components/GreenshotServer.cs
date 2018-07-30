@@ -56,7 +56,7 @@ namespace Greenshot.Components
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly MainForm _mainForm;
-        private readonly HotkeyHandler _hotkeyHandler;
+        private readonly HotkeyService _hotkeyService;
         private readonly DestinationHolder _destinationHolder;
         private ServiceHost _host;
 
@@ -73,12 +73,12 @@ namespace Greenshot.Components
         public GreenshotServerAction(
             ICoreConfiguration coreConfiguration,
             MainForm mainForm,
-            HotkeyHandler hotkeyHandler,
+            HotkeyService hotkeyService,
             DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;
-            _hotkeyHandler = hotkeyHandler;
+            _hotkeyService = hotkeyService;
             _destinationHolder = destinationHolder;
         }
 
@@ -121,11 +121,6 @@ namespace Greenshot.Components
                 {
                     // Even update language when needed, this should be done automatically :)
                     _mainForm.UpdateUi();
-
-                    // Make sure the current hotkeys are disabled
-                    HotkeyControl.UnregisterHotkeys();
-                    // and registered again (should be automated)
-                    _hotkeyHandler.RegisterHotkeys(true);
                 }));
             }
             catch (Exception ex)

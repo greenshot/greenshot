@@ -22,271 +22,57 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using Dapplo.Addons;
+using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Log;
-using Dapplo.Windows.Common;
-using Greenshot.Addons;
-using Greenshot.Addons.Components;
-using Greenshot.Addons.Controls;
+using Dapplo.Windows.Input.Keyboard;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Forms;
-using Greenshot.Helpers;
 
 namespace Greenshot.Components
 {
     /// <summary>
-    /// This startup action registers the hotkeys
+    /// This handles the hotkey for the region capture
     /// </summary>
-    [Service(nameof(HotkeyHandler), nameof(MainFormStartup), TaskSchedulerName = "ui")]
-    public class HotkeyHandler : IStartup, IShutdown
+    public class HotKeyHandler : KeyCombinationHandler, IDisposable
     {
+        private readonly IDisposable _propertyChangeSubscription;
         private static readonly LogSource Log = new LogSource();
-        private readonly ICoreConfiguration _coreConfiguration;
-        private readonly IGreenshotLanguage _greenshotLanguage;
-        private readonly WindowHandle _windowHandle;
-        private static HotkeyHandler _instance;
-
-        public HotkeyHandler(
-            ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage,
-            WindowHandle windowHandle)
+        public override bool Handle(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            _instance = this;
-            _coreConfiguration = coreConfiguration;
-            _greenshotLanguage = greenshotLanguage;
-            _windowHandle = windowHandle;
-        }
-
-        public void Startup()
-        {
-            Log.Debug().WriteLine("Registering hotkeys");
-            // Make sure all hotkeys pass this window!
-            HotkeyControl.RegisterHotkeyHwnd(_windowHandle.Handle);
-            
-            RegisterHotkeys(false);
-
-            Log.Debug().WriteLine("Started hotkeys");
-        }
-
-        public void Shutdown()
-        {
-            Log.Debug().WriteLine("Stopping hotkeys");
-
-            // Make sure hotkeys are disabled
-            try
-            {
-                HotkeyControl.UnregisterHotkeys();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error unregistering hotkeys!");
-            }
-
-        }
-
-        #region hotkeys
-
-        /// <summary>
-        ///     Helper method to cleanly register a hotkey
-        /// </summary>
-        /// <param name="failedKeys"></param>
-        /// <param name="functionName"></param>
-        /// <param name="hotkeyString"></param>
-        /// <param name="handler"></param>
-        /// <returns></returns>
-        private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler)
-        {
-            var modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
-            var virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
-            if (!Keys.None.Equals(virtualKeyCode))
-            {
-                if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
-                {
-                    Log.Debug().WriteLine("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
-                    if (failedKeys.Length > 0)
-                    {
-                        failedKeys.Append(", ");
-                    }
-                    failedKeys.Append(hotkeyString);
-                    return false;
-                }
-                Log.Debug().WriteLine("Registered {0} to hotkey: {1}", functionName, hotkeyString);
-            }
-            else
-            {
-                Log.Info().WriteLine("Skipping hotkey registration for {0}, no hotkey set!", functionName);
-            }
-            return true;
-        }
-
-        private bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration)
-        {
-            var hotkeyValue = _coreConfiguration[configurationKey];
-            try
-            {
-                var success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
-                if (!success && ignoreFailedRegistration)
-                {
-                    Log.Debug().WriteLine("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
-                    _coreConfiguration[configurationKey].Value = Keys.None.ToString();
-                }
-                return success;
-            }
-            catch (Exception ex)
-            {
-                Log.Warn().WriteLine(ex);
-                Log.Warn().WriteLine("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value,
-                    hotkeyValue.DefaultValue);
-                // when getting an exception the key wasn't found: reset the hotkey value
-                hotkeyValue.ResetToDefault();
-                return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
-            }
+            var result = base.Handle(keyboardHookEventArgs);
+            Log.Debug().WriteLine("{0} - {1} == {2} : {3}- {4}", result, AvailableKeys.Length, AvailableKeys.Count(b => b), string.Join("+", TriggerCombination), keyboardHookEventArgs.ToString());
+            return result;
         }
 
         /// <summary>
-        ///     Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
+        /// Create a RegionHotKeyHandler for the specified VirtualKeyCodes
         /// </summary>
-        /// <returns>
-        ///     Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the
-        ///     user decides to ignore these (i.e. not to register the conflicting hotkey).
-        /// </returns>
-        public static bool RegisterHotkeys()
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="propertyName">string with the property of the ICoreConfiguration to use</param>
+        public HotKeyHandler(ICoreConfiguration coreConfiguration, string propertyName)
         {
-            return _instance.RegisterHotkeys(false);
+            string RetrieveFunc() => coreConfiguration[propertyName].Value as string;
+            _propertyChangeSubscription = coreConfiguration
+                .OnPropertyChanged(propertyName)
+                .Subscribe(pc => UpdateKeyCombination(RetrieveFunc));
+            UpdateKeyCombination(RetrieveFunc);
         }
 
         /// <summary>
-        ///     Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
+        /// This updates the key combination
         /// </summary>
-        /// <param name="ignoreFailedRegistration">
-        ///     if true, a failed hotkey registration will not be reported to the user - the
-        ///     hotkey will simply not be registered
-        /// </param>
-        /// <returns>
-        ///     Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the
-        ///     user decides to ignore these (i.e. not to register the conflicting hotkey).
-        /// </returns>
-        public bool RegisterHotkeys(bool ignoreFailedRegistration)
+        /// <param name="retrieveHotkeyFunc"></param>
+        private void UpdateKeyCombination(Func<string> retrieveHotkeyFunc)
         {
-            var success = true;
-            var failedKeys = new StringBuilder();
-
-            if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey",
-                () =>
-                {
-                    CaptureHelper.CaptureRegion(true);
-
-                }, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", () =>
-            {
-                if (_coreConfiguration.CaptureWindowsInteractive)
-                {
-                    CaptureHelper.CaptureWindowInteractive(true);
-                }
-                else
-                {
-                    CaptureHelper.CaptureWindow(true);
-                }
-            }, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey",
-                () =>  CaptureHelper.CaptureFullscreen(true, _coreConfiguration.ScreenCaptureMode), ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => CaptureHelper.CaptureLastRegion(true), ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (_coreConfiguration.IECapture)
-            {
-                if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", () =>
-                {
-                    if (_coreConfiguration.IECapture)
-                    {
-                        CaptureHelper.CaptureIe(true, null);
-                    }
-                }, ignoreFailedRegistration))
-                {
-                    success = false;
-                }
-            }
-
-            if (!success && !ignoreFailedRegistration)
-            {
-                success = HandleFailedHotkeyRegistration(failedKeys.ToString());
-            }
-
-            return success || ignoreFailedRegistration;
+            var keyCombinationString = retrieveHotkeyFunc();
+            var combination = KeyHelper.VirtualKeyCodesFromString(keyCombinationString);
+            Configure(combination);
         }
 
-        /// <summary>
-        ///     Check if OneDrive is blocking hotkeys
-        /// </summary>
-        /// <returns>true if onedrive has hotkeys turned on</returns>
-        private static bool IsOneDriveBlockingHotkey()
+        /// <inheritdoc />
+        public void Dispose()
         {
-            if (!WindowsVersion.IsWindows10)
-            {
-                return false;
-            }
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var oneDriveSettingsPath = Path.Combine(localAppData, @"Microsoft\OneDrive\settings\Personal");
-            if (!Directory.Exists(oneDriveSettingsPath))
-            {
-                return false;
-            }
-            var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
-            if (oneDriveSettingsFile == null || !File.Exists(oneDriveSettingsFile))
-            {
-                return false;
-            }
-            var screenshotSetting = File.ReadAllLines(oneDriveSettingsFile).Skip(1).Take(1).First();
-            return "2".Equals(screenshotSetting);
+            _propertyChangeSubscription.Dispose();
         }
-
-        /// <summary>
-        ///     Displays a dialog for the user to choose how to handle hotkey registration failures:
-        ///     retry (allowing to shut down the conflicting application before),
-        ///     ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to
-        ///     register it again on next startup)
-        ///     abort (do nothing about it)
-        /// </summary>
-        /// <param name="failedKeys">comma separated list of the hotkeys that could not be registered, for display in dialog text</param>
-        /// <returns></returns>
-        private bool HandleFailedHotkeyRegistration(string failedKeys)
-        {
-            var success = false;
-            var warningTitle = _greenshotLanguage.Warning;
-            var message = string.Format(_greenshotLanguage.WarningHotkeys, failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
-            var dialogResult = MessageBox.Show(MainForm.Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-            switch (dialogResult)
-            {
-                case DialogResult.Retry:
-                    Log.Debug().WriteLine("Re-trying to register hotkeys");
-                    HotkeyControl.UnregisterHotkeys();
-                    success = RegisterHotkeys(false);
-                    break;
-                case DialogResult.Ignore:
-                    Log.Debug().WriteLine("Ignoring failed hotkey registration");
-                    HotkeyControl.UnregisterHotkeys();
-                    success = RegisterHotkeys(true);
-                    break;
-            }
-            return success;
-        }
-
-        #endregion
-
     }
 }
