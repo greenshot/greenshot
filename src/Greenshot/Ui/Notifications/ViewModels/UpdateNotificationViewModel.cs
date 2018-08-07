@@ -50,8 +50,7 @@ namespace Greenshot.Ui.Notifications.ViewModels
 
         public string Message => string.Format(_greenshotLanguage.UpdateFound, LatestVersion);
 
-        public ImageSource Icon => GreenshotResources.GreenshotIconAsBitmapSource();
-
+        public ImageSource GreenshotIcon => GreenshotResources.GreenshotIconAsBitmapSource();
 
         /// <summary>
         /// Handle the click

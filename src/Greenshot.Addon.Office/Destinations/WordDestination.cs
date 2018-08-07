@@ -58,7 +58,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
 		    ExportNotification exportNotification
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _exePath = PluginUtils.GetExePath("WINWORD.EXE");
@@ -162,8 +162,8 @@ namespace Greenshot.Addon.Office.Destinations
 					}
 				}
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

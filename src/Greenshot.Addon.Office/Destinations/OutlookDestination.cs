@@ -65,7 +65,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
         {
             _officeConfiguration = officeConfiguration;
             _exportNotification = exportNotification;
@@ -198,8 +198,8 @@ namespace Greenshot.Addon.Office.Destinations
 					    _officeConfiguration.EmailBCC, null);
 				}
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

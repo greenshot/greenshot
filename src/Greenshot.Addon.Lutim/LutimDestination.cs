@@ -49,6 +49,7 @@ namespace Greenshot.Addon.Lutim  {
         private readonly ILutimLanguage _lutimLanguage;
         private readonly LutimApi _lutimApi;
         private readonly IResourceProvider _resourceProvider;
+        private readonly ExportNotification _exportNotification;
         private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 
         public LutimDestination(ILutimConfiguration lutimConfiguration,
@@ -59,12 +60,13 @@ namespace Greenshot.Addon.Lutim  {
             IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _lutimConfiguration = lutimConfiguration;
             _lutimLanguage = lutimLanguage;
             _lutimApi = lutimApi;
             _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
         }
 
@@ -89,8 +91,8 @@ namespace Greenshot.Addon.Lutim  {
 		        ExportMade = uploadUrl != null,
 		        Uri = uploadUrl
 		    };
-		    ProcessExport(exportInformation, surface);
-			return exportInformation;
+            _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 

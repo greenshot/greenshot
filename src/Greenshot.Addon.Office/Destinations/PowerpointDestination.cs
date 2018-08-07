@@ -57,7 +57,7 @@ namespace Greenshot.Addon.Office.Destinations
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
 		    ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _exePath = PluginUtils.GetExePath("POWERPNT.EXE");
@@ -144,8 +144,8 @@ namespace Greenshot.Addon.Office.Destinations
 					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 				}
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

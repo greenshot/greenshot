@@ -42,13 +42,15 @@ namespace Greenshot.Destinations
     public class FileWithDialogDestination : AbstractDestination
 	{
 	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly ExportNotification _exportNotification;
 
 	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
 	    {
 	        _greenshotLanguage = greenshotLanguage;
+	        _exportNotification = exportNotification;
 	    }
 
         public override string Description => _greenshotLanguage.SettingsDestinationFileas;
@@ -69,8 +71,8 @@ namespace Greenshot.Destinations
 				captureDetails.Filename = savedTo;
 			    CoreConfiguration.OutputFileAsFullpath = savedTo;
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

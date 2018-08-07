@@ -56,7 +56,8 @@ namespace Greenshot.Addon.Box
     public class BoxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
-        private readonly IBoxConfiguration _boxConfiguration;
+	    private readonly ExportNotification _exportNotification;
+	    private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly INetworkConfiguration _networkConfiguration;
@@ -73,8 +74,9 @@ namespace Greenshot.Addon.Box
             IBoxLanguage boxLanguage,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             INetworkConfiguration networkConfiguration,
-            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage, exportNotification)
-	    {
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+        {
+	        _exportNotification = exportNotification;
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
 	        _pleaseWaitFormFactory = pleaseWaitFormFactory;
@@ -125,7 +127,7 @@ namespace Greenshot.Addon.Box
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;
 			}
-			ProcessExport(exportInformation, surface);
+            _exportNotification.NotifyOfExport(this, exportInformation, surface);
 			return exportInformation;
 		}
 

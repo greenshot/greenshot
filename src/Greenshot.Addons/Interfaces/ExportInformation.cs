@@ -36,7 +36,13 @@ namespace Greenshot.Addons.Interfaces
 			ExportMade = exportMade;
 		}
 
-		public string DestinationDesignation { get; }
+	    public bool IsError => !string.IsNullOrEmpty(ErrorMessage);
+	    public bool IsOk => string.IsNullOrEmpty(ErrorMessage);
+
+        public bool IsFileExport => !string.IsNullOrEmpty(Filepath);
+	    public bool IsCloudExport => !string.IsNullOrEmpty(Uri);
+
+        public string DestinationDesignation { get; }
 
 		public string DestinationDescription { get; set; }
 

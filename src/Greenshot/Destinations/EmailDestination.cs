@@ -42,7 +42,8 @@ namespace Greenshot.Destinations
     [Destination("EMail", DestinationOrder.Email)]
     public class EmailDestination : AbstractDestination
 	{
-		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
+	    private readonly ExportNotification _exportNotification;
+	    private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
 		private static bool _isActiveFlag;
 		private static string _mapiClient;
 
@@ -64,8 +65,9 @@ namespace Greenshot.Destinations
 	    public EmailDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
-	        ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage, exportNotification)
+	        ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage)
 	    {
+	        _exportNotification = exportNotification;
 	    }
 
 	    public override string Description
@@ -112,8 +114,8 @@ namespace Greenshot.Destinations
 			var exportInformation = new ExportInformation(Designation, Description);
 			MapiMailMessage.SendImage(surface, captureDetails);
 			exportInformation.ExportMade = true;
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

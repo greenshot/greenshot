@@ -63,6 +63,7 @@ namespace Greenshot.Addon.Dropbox
         private readonly IDropboxConfiguration _dropboxPluginConfiguration;
 	    private readonly IDropboxLanguage _dropboxLanguage;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private OAuth2Settings _oAuth2Settings;
 	    private IHttpBehaviour _oAuthHttpBehaviour;
@@ -76,11 +77,12 @@ namespace Greenshot.Addon.Dropbox
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification,
 	        Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
 	        _dropboxLanguage = dropboxLanguage;
 	        _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
 
             _oAuth2Settings = new OAuth2Settings
@@ -140,7 +142,7 @@ namespace Greenshot.Addon.Dropbox
 				    }
                 }
 			}
-			ProcessExport(exportInformation, surface);
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
 			return exportInformation;
 		}
 

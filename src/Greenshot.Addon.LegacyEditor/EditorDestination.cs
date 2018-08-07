@@ -59,7 +59,7 @@ namespace Greenshot.Addon.LegacyEditor
             IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification,
             EditorFactory editorFactory,
-            IEditorLanguage editorLanguage) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            IEditorLanguage editorLanguage) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _editorFactory = editorFactory;
@@ -129,10 +129,10 @@ namespace Greenshot.Addon.LegacyEditor
 		        _editorFactory.CreateOrReuse(surface, captureDetails);
 		        exportInformation.ExportMade = true;
             }
-			
-			ProcessExport(exportInformation, surface);
-			// Workaround for the modified flag when using the editor.
-			surface.Modified = modified;
+
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            // Workaround for the modified flag when using the editor.
+            surface.Modified = modified;
 			return exportInformation;
 		}
 	}

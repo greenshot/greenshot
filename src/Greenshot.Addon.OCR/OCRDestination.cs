@@ -59,8 +59,8 @@ namespace Greenshot.Addon.OCR
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
-		{
+            ) : base(coreConfiguration, greenshotLanguage)
+        {
 			_ocrConfiguration = ocrConfiguration;
 
 		    var ocrDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

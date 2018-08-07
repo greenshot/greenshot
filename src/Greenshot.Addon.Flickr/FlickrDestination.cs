@@ -64,6 +64,7 @@ namespace Greenshot.Addon.Flickr
         private readonly IFlickrConfiguration _flickrConfiguration;
 	    private readonly IFlickrLanguage _flickrLanguage;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
@@ -88,11 +89,12 @@ namespace Greenshot.Addon.Flickr
 	        IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;
 	        _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
 
             _oAuthSettings = new OAuth1Settings
@@ -147,8 +149,8 @@ namespace Greenshot.Addon.Flickr
 	            ExportMade = flickrUri != null,
 	            Uri = flickrUri
 	        };
-	        ProcessExport(exportInformation, surface);
-			return exportInformation;
+	        _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 

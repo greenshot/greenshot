@@ -54,7 +54,7 @@ namespace Greenshot.Addon.Office.Destinations
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _exePath = PluginUtils.GetExePath("ONENOTE.EXE");

@@ -86,7 +86,7 @@ namespace Greenshot.Addon.Confluence
 		    IConfluenceConfiguration confluenceConfiguration,
 		    IConfluenceLanguage confluenceLanguage,
             Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _confluenceConfiguration = confluenceConfiguration;
@@ -180,8 +180,8 @@ namespace Greenshot.Addon.Confluence
 					exportInformation.ErrorMessage = errorMessage;
 				}
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 		private bool Upload(ISurface surfaceToUpload, Content page, string filename, out string errorMessage)

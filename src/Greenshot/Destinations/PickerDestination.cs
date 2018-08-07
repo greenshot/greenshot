@@ -49,7 +49,7 @@ namespace Greenshot.Destinations
             ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
         {
             _destinationHolder = destinationHolder;
         }

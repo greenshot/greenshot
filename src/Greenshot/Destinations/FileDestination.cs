@@ -45,13 +45,15 @@ namespace Greenshot.Destinations
     [Destination("FileNoDialog", DestinationOrder.FileNoDialog)]
     public class FileDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly ExportNotification _exportNotification;
+	    private static readonly LogSource Log = new LogSource();
 
 	    public FileDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
-	        ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage, exportNotification)
+	        ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage)
 	    {
+	        _exportNotification = exportNotification;
 	    }
 
 	    public override string Description => GreenshotLanguage.QuicksettingsDestinationFile;
@@ -125,8 +127,8 @@ namespace Greenshot.Destinations
 			    CoreConfiguration.OutputFileAsFullpath = fullPath;
 			}
 
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 		private string CreateNewFilename(ICaptureDetails captureDetails)

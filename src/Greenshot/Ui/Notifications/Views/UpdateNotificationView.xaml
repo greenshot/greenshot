@@ -18,7 +18,7 @@
             <ColumnDefinition Width="64" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Image Source="{Binding Icon}" Width="64" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0"/>
+        <Image Source="{Binding GreenshotIcon}" Width="64" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0"/>
         <TextBlock Text="{Binding Message}" VerticalAlignment="Center" FontWeight="Light" Foreground="{DynamicResource IdealForegroundColorBrush}" TextWrapping="WrapWithOverflow" Grid.Row="0" Grid.Column="1" />
         <Button Style="{DynamicResource SquareButtonStyle}" Focusable="False" cal:Message.Attach="[Action OpenDownloads()]" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
             <TextBlock>

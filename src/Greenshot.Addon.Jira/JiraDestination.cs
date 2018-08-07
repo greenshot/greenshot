@@ -74,7 +74,7 @@ namespace Greenshot.Addon.Jira
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _jiraConfiguration = jiraConfiguration;
             _jiraLanguage = jiraLanguage;
@@ -239,8 +239,8 @@ namespace Greenshot.Addon.Jira
 			        }
                 }
             }
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

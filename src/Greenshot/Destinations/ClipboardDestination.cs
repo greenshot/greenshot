@@ -45,12 +45,15 @@ namespace Greenshot.Destinations
     [Destination("Clipboard", DestinationOrder.Clipboard)]
     public class ClipboardDestination : AbstractDestination
 	{
+	    private readonly ExportNotification _exportNotification;
+
 	    public ClipboardDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
 	    {
+	        _exportNotification = exportNotification;
 	    }
 
 	    public override string Description => GreenshotLanguage.SettingsDestinationClipboard;
@@ -105,8 +108,8 @@ namespace Greenshot.Destinations
 				// TODO: Change to general logic in ProcessExport
 				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, "Error"); //GreenshotLanguage.editorclipboardfailed);
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+	        _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

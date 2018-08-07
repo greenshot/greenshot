@@ -54,7 +54,7 @@ namespace Greenshot.Addon.Office.Destinations
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
             _exportNotification = exportNotification;
             _exePath = PluginUtils.GetExePath("EXCEL.EXE");
@@ -111,9 +111,9 @@ namespace Greenshot.Addon.Office.Destinations
 				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Screenshot.Size);
 			}
 			exportInformation.ExportMade = true;
-			ProcessExport(exportInformation, surface);
-			// Cleanup imageFile if we created it here, so less tmp-files are generated and left
-			if (createdFile)
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            // Cleanup imageFile if we created it here, so less tmp-files are generated and left
+            if (createdFile)
 			{
 				ImageOutput.DeleteNamedTmpFile(imageFile);
 			}

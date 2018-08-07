@@ -21,8 +21,14 @@
 
 #endregion
 
+using System;
+using System.Diagnostics;
+using System.Windows.Media;
 using Dapplo.CaliburnMicro.Toasts.ViewModels;
+using Dapplo.Log;
+using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addons.ViewModels
@@ -30,13 +36,52 @@ namespace Greenshot.Addons.ViewModels
     /// <inheritdoc />
     public class ExportNotificationViewModel : ToastBaseViewModel
     {
-        public ExportNotificationViewModel(IDestination source, ExportInformation exportInformation)
+        private static readonly LogSource Log = new LogSource();
+        public ExportNotificationViewModel(IDestination source, ExportInformation exportInformation, ISurface exportedSurface)
         {
             Information = exportInformation;
             Source = source;
+
+            using (var bitmap = exportedSurface.GetBitmapForExport())
+            {
+                ExportBitmapSource = bitmap.ToBitmapSource();
+            }
         }
+
+        public ImageSource GreenshotIcon => GreenshotResources.GreenshotIconAsBitmapSource();
+
+        public ImageSource ExportBitmapSource { get; }
+
         public IDestination Source { get; }
 
         public ExportInformation Information { get; }
+
+        /// <summary>
+        /// Handle the click
+        /// </summary>
+        public void OpenExport()
+        {
+            try
+            {
+                if (Information.IsFileExport)
+                {
+                    ExplorerHelper.OpenInExplorer(Information.Filepath);
+                    return;
+                }
+
+                if (Information.IsCloudExport)
+                {
+                    Process.Start(Information.Uri);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error().WriteLine(ex,"While opening {0}", Information.Uri);
+            }
+            finally
+            {
+                Close();
+            }
+        }
     }
 }

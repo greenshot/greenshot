@@ -54,7 +54,8 @@ namespace Greenshot.Addon.Imgur
     public class ImgurDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
-        private readonly IImgurConfiguration _imgurConfiguration;
+	    private readonly ExportNotification _exportNotification;
+	    private readonly IImgurConfiguration _imgurConfiguration;
 	    private readonly IImgurLanguage _imgurLanguage;
 	    private readonly ImgurApi _imgurApi;
 	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
@@ -70,9 +71,10 @@ namespace Greenshot.Addon.Imgur
 	        ImgurApi imgurApi,
 	        ImgurHistoryViewModel imgurHistoryViewModel,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
-            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage, exportNotification)
-		{
-			_imgurConfiguration = imgurConfiguration;
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+        {
+            _exportNotification = exportNotification;
+            _imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
 		    _imgurApi = imgurApi;
 		    _imgurHistoryViewModel = imgurHistoryViewModel;
@@ -103,8 +105,8 @@ namespace Greenshot.Addon.Imgur
 		        ExportMade = uploadUrl != null,
 		        Uri = uploadUrl?.AbsoluteUri
 		    };
-		    ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
         /// <summary>

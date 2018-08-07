@@ -74,7 +74,7 @@ namespace Greenshot.Addon.Photobucket
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+        ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _photobucketConfiguration = photobucketConfiguration;
 	        _photobucketLanguage = photobucketLanguage;
@@ -230,8 +230,8 @@ namespace Greenshot.Addon.Photobucket
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploaded.Original;
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 

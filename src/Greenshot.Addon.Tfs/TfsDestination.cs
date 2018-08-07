@@ -69,7 +69,7 @@ namespace Greenshot.Addon.Tfs
             TfsClient tfsClient,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider,
-            ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage)
         {
             _tfsConfiguration = tfsConfiguration;
             _tfsLanguage = tfsLanguage;
@@ -165,7 +165,7 @@ namespace Greenshot.Addon.Tfs
                 ExportMade = uploadUrl != null,
                 Uri = uploadUrl?.AbsoluteUri
             };
-            ProcessExport(exportInformation, surface);
+            _exportNotification.NotifyOfExport(this, exportInformation, surface);
             return exportInformation;
         }
 

@@ -50,17 +50,19 @@ namespace Greenshot.Addon.ExternalCommand
 
 		private readonly ExternalCommandDefinition _externalCommandDefinition;
 	    private readonly IExternalCommandConfiguration _externalCommandConfiguration;
+	    private readonly ExportNotification _exportNotification;
 
 	    public ExternalCommandDestination(ExternalCommandDefinition defintion,
             IExternalCommandConfiguration externalCommandConfiguration,
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
-	    {
+        ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _externalCommandDefinition = defintion;
 	        _externalCommandConfiguration = externalCommandConfiguration;
-	    }
+            _exportNotification = exportNotification;
+        }
 
 	    /// <inheritdoc />
 	    public override string Designation => "External " + _externalCommandDefinition.Name.Replace(',', '_');
@@ -108,8 +110,8 @@ namespace Greenshot.Addon.ExternalCommand
 	            }
 	        }
 
-	        ProcessExport(exportInformation, surface);
-	        return exportInformation;
+	        _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 	    }
 	}
 }

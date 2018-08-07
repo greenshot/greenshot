@@ -59,6 +59,7 @@ namespace Greenshot.Addon.GooglePhotos
 	    private readonly IGooglePhotosLanguage _googlePhotosLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly OAuth2Settings _oAuth2Settings;
 
@@ -71,12 +72,13 @@ namespace Greenshot.Addon.GooglePhotos
             IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification,
 	        Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
+            ) : base(coreConfiguration, greenshotLanguage)
         {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	        _googlePhotosLanguage = googlePhotosLanguage;
 	        _networkConfiguration = networkConfiguration;
 	        _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
 
             _oAuth2Settings = new OAuth2Settings
@@ -123,8 +125,8 @@ namespace Greenshot.Addon.GooglePhotos
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;
 			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 
 	    private async Task<string> Upload(ISurface surfaceToUpload)

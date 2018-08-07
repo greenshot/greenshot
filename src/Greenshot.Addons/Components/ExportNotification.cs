@@ -39,12 +39,12 @@ namespace Greenshot.Addons.Components
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IEventAggregator _eventAggregator;
-        private readonly Func<IDestination, ExportInformation, Owned<ExportNotificationViewModel>> _toastFactory;
+        private readonly Func<IDestination, ExportInformation, ISurface, Owned<ExportNotificationViewModel>> _toastFactory;
 
         public ExportNotification(
             ICoreConfiguration coreConfiguration,
             IEventAggregator eventAggregator,
-            Func<IDestination, ExportInformation, Owned<ExportNotificationViewModel>> toastFactory)
+            Func<IDestination, ExportInformation, ISurface, Owned<ExportNotificationViewModel>> toastFactory)
         {
             _coreConfiguration = coreConfiguration;
             _eventAggregator = eventAggregator;
@@ -56,15 +56,16 @@ namespace Greenshot.Addons.Components
         /// </summary>
         /// <param name="source">IDestination</param>
         /// <param name="exportInformation">ExportInformation</param>
-        public void NotifyOfExport(IDestination source, ExportInformation exportInformation)
+        /// <param name="exportedSurface">ISurface</param>
+        public void NotifyOfExport(IDestination source, ExportInformation exportInformation, ISurface exportedSurface)
         {
-            if (exportInformation == null || !_coreConfiguration.ShowTrayNotification || !exportInformation.ExportMade)
+            if (exportInformation == null || !_coreConfiguration.ShowTrayNotification)
             {
-                Log.Info().WriteLine("No notification due to ShowTrayNotification = {0} - or export made = {1}", _coreConfiguration.ShowTrayNotification, exportInformation?.ExportMade);
+                Log.Info().WriteLine("No notification due to ShowTrayNotification = {0} - or export made = {1}", _coreConfiguration.ShowTrayNotification);
                 return;
             }
             // Create the ViewModel "part"
-            var message = _toastFactory(source, exportInformation);
+            var message = _toastFactory(source, exportInformation, exportedSurface);
             // Prepare to dispose the view model parts automatically if it's finished
             void DisposeHandler(object sender, DeactivationEventArgs args)
             {

@@ -54,8 +54,8 @@ namespace Greenshot.Destinations
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification,
 	        Func<ISurface, ICaptureDetails, Owned<PrintHelper>> printHelperFactory
-        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
-	    {
+        ) : base(coreConfiguration, greenshotLanguage)
+        {
 	        _greenshotLanguage = greenshotLanguage;
 	        _exportNotification = exportNotification;
 	        _printHelperFactory = printHelperFactory;
@@ -161,8 +161,8 @@ namespace Greenshot.Destinations
 				exportInformation.ExportMade = true;
 			}
 
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

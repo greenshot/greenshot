@@ -31,8 +31,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using Autofac.Features.OwnedInstances;
-using Caliburn.Micro;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -42,7 +40,6 @@ using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Addons.ViewModels;
 using Greenshot.Gfx;
 
 #endregion
@@ -54,9 +51,6 @@ namespace Greenshot.Addons.Core
     /// </summary>
     public abstract class AbstractDestination : IDestination
     {
-        private readonly ExportNotification _exportNotification;
-        private readonly IEventAggregator _eventAggregator;
-        private readonly Func<IDestination, Owned<ExportNotificationViewModel>> _toastFactory;
         private static readonly LogSource Log = new LogSource();
 
         protected IGreenshotLanguage GreenshotLanguage { get; }
@@ -64,10 +58,8 @@ namespace Greenshot.Addons.Core
 
         protected AbstractDestination(
             ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage,
-            ExportNotification exportNotification)
+            IGreenshotLanguage greenshotLanguage)
         {
-            _exportNotification = exportNotification;
             CoreConfiguration = coreConfiguration;
             GreenshotLanguage = greenshotLanguage;
             Designation = GetType().GetDesignation();
@@ -239,39 +231,6 @@ namespace Greenshot.Addons.Core
         protected virtual void Dispose(bool disposing)
         {
             //if (disposing) {}
-        }
-
-        /// <summary>
-        ///     A small helper method to perform some default destination actions, like inform the surface of the export
-        /// </summary>
-        /// <param name="exportInformation"></param>
-        /// <param name="surface"></param>
-        public void ProcessExport(ExportInformation exportInformation, ISurface surface)
-        {
-            _exportNotification.NotifyOfExport(this, exportInformation);
-            if (exportInformation != null && exportInformation.ExportMade)
-            {
-                if (!string.IsNullOrEmpty(exportInformation.Uri))
-                {
-                    surface.UploadUrl = exportInformation.Uri;
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
-                }
-                else if (!string.IsNullOrEmpty(exportInformation.Filepath))
-                {
-                    surface.LastSaveFullPath = exportInformation.Filepath;
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
-                }
-                else
-                {
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription));
-                }
-                surface.Modified = false;
-            }
-            else if (!string.IsNullOrEmpty(exportInformation?.ErrorMessage))
-            {
-                surface.SendMessageEvent(this, SurfaceMessageTyp.Error,
-                    string.Format(GreenshotLanguage.ExportedTo, exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
-            }
         }
 
         public override string ToString()

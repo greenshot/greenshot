@@ -560,78 +560,7 @@ namespace Greenshot.Helpers
                 }
             }
         }
-
-        /// <summary>
-        ///     If a balloon tip is show for a taken capture, this handles the click on it
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenCaptureOnClick(object sender, EventArgs e)
-        {
-            if (!(MainForm.Instance.NotifyIcon.Tag is SurfaceMessageEventArgs eventArgs))
-            {
-                Log.Warn().WriteLine("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-                RemoveEventHandler(sender, e);
-                return;
-            }
-            var surface = eventArgs.Surface;
-            if (surface != null)
-            {
-                switch (eventArgs.MessageType)
-                {
-                    case SurfaceMessageTyp.FileSaved:
-                        ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
-                        break;
-                    case SurfaceMessageTyp.UploadedUri:
-                        Process.Start(surface.UploadUrl);
-                        break;
-                }
-            }
-            Log.Debug().WriteLine("Deregistering the BalloonTipClicked");
-            RemoveEventHandler(sender, e);
-        }
-
-        private void RemoveEventHandler(object sender, EventArgs e)
-        {
-            MainForm.Instance.NotifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
-            MainForm.Instance.NotifyIcon.BalloonTipClosed -= RemoveEventHandler;
-            MainForm.Instance.NotifyIcon.Tag = null;
-        }
-
-        /// <summary>
-        ///     This is the SufraceMessageEvent receiver
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
-        private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
-        {
-            if (string.IsNullOrEmpty(eventArgs?.Message))
-            {
-                return;
-            }
-            if (MainForm.Instance == null)
-            {
-                return;
-            }
-            switch (eventArgs.MessageType)
-            {
-                case SurfaceMessageTyp.Error:
-                    MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
-                    break;
-                case SurfaceMessageTyp.Info:
-                    MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-                    break;
-                case SurfaceMessageTyp.FileSaved:
-                case SurfaceMessageTyp.UploadedUri:
-                    // Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
-                    MainForm.Instance.NotifyIcon.BalloonTipClicked += OpenCaptureOnClick;
-                    MainForm.Instance.NotifyIcon.BalloonTipClosed += RemoveEventHandler;
-                    // Store for later usage
-                    MainForm.Instance.NotifyIcon.Tag = eventArgs;
-                    MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-                    break;
-            }
-        }
+      
 
         /// <summary>
         /// Process the actuall capture
@@ -680,11 +609,6 @@ namespace Greenshot.Helpers
             surface.SetCapture(_capture);
             surface.Modified = !outputMade;
 
-            // Register notify events if this is wanted			
-            if (CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon)
-            {
-                surface.SurfaceMessage += SurfaceMessageReceived;
-            }
             // Let the processors do their job
             foreach (var processor in _processors)
             {
