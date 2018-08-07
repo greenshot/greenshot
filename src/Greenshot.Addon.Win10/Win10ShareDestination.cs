@@ -50,12 +50,15 @@ namespace Greenshot.Addon.Win10
     [Destination("WIN10Share")]
     public class Win10ShareDestination : AbstractDestination
 	{
+	    private readonly ExportNotification _exportNotification;
 	    private static readonly LogSource Log = new LogSource();
 
 	    public Win10ShareDestination(
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage)
 	    {
+	        _exportNotification = exportNotification;
 	    }
 
 	    public override string Description { get; } = "Windows 10 share";
@@ -78,6 +81,7 @@ namespace Greenshot.Addon.Win10
             public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>();
 	        public bool IsDataRequested { get; set; }
 	    }
+
 		/// <summary>
 		/// Share the screenshot with a windows app
 		/// </summary>
@@ -135,7 +139,7 @@ namespace Greenshot.Addon.Win10
 				exportInformation.ErrorMessage = ex.Message;
 			}
 
-			ProcessExport(exportInformation, surface);
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
 			return exportInformation;
 
 		}

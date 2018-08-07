@@ -130,6 +130,7 @@ namespace Greenshot.Components
 	                    interval = TimeSpan.FromMinutes(10);
 	                    task = c => Task.FromResult(true);
 	                }
+
                     try
 	                {
 	                    await task(cancellationToken).ConfigureAwait(false);
@@ -138,10 +139,15 @@ namespace Greenshot.Components
 	                {
                         Log.Error().WriteLine(ex, "Error occured when trying to check for updates.");
 	                }
+
 	                try
 	                {
 	                    await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
-                    }
+	                }
+	                catch (TaskCanceledException)
+	                {
+                        // Ignore, this always happens
+	                }
 	                catch (Exception ex)
 	                {
 	                    Log.Error().WriteLine(ex, "Error occured await for the next update check.");

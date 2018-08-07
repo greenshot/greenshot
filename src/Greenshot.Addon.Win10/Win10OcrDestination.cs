@@ -41,7 +41,8 @@ namespace Greenshot.Addon.Win10
 	[Destination("WIN10OCR")]
 	public class Win10OcrDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly ExportNotification _exportNotification;
+	    private static readonly LogSource Log = new LogSource();
 
 		public override string Description { get; } = "Windows 10 OCR";
 
@@ -55,10 +56,12 @@ namespace Greenshot.Addon.Win10
 		/// </summary>
 		public Win10OcrDestination(
 		    ICoreConfiguration coreConfiguration,
-		    IGreenshotLanguage greenshotLanguage
+		    IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification
 		) : base(coreConfiguration, greenshotLanguage)
         {
-			var languages = OcrEngine.AvailableRecognizerLanguages;
+            _exportNotification = exportNotification;
+            var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{
 				Log.Debug().WriteLine("Found language {0} {1}", language.NativeName, language.LanguageTag);
@@ -110,7 +113,7 @@ namespace Greenshot.Addon.Win10
 				exportInformation.ErrorMessage = ex.Message;
 			}
 
-			ProcessExport(exportInformation, surface);
+            _exportNotification.NotifyOfExport(this, exportInformation, surface);
 			return exportInformation;
 
 		}
