@@ -77,8 +77,9 @@ namespace Greenshot.Addon.OneDrive
             IResourceProvider resourceProvider,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage
-        ) : base(coreConfiguration, greenshotLanguage)
+            IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
             _oneDriveConfiguration = oneDriveConfiguration;
             _oneDriveLanguage = oneDriveLanguage;

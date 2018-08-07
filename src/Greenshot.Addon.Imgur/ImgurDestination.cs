@@ -64,12 +64,13 @@ namespace Greenshot.Addon.Imgur
 		public ImgurDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification,
 		    IImgurConfiguration imgurConfiguration,
 	        IImgurLanguage imgurLanguage,
 	        ImgurApi imgurApi,
 	        ImgurHistoryViewModel imgurHistoryViewModel,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
-            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage, exportNotification)
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;

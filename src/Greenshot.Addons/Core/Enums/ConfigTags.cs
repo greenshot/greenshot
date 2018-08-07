@@ -1,4 +1,4 @@
-﻿namespace Greenshot.Addons.Core
+﻿namespace Greenshot.Addons.Core.Enums
 {
     public enum ConfigTags
     {

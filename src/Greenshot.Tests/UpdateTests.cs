@@ -20,7 +20,7 @@ namespace Greenshot.Tests
         [Fact]
         public void UpdateTest()
         {
-            var updateService = new UpdateService(null, null);
+            var updateService = new UpdateService(null, null, null);
             using (var reader = XmlReader.Create(@"TestFiles\project-feed.xml"))
             {
                 var feed = SyndicationFeed.Load(reader);

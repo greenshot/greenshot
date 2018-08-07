@@ -68,11 +68,12 @@ namespace Greenshot.Addon.Box
 		public BoxDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification,
             IBoxConfiguration boxConfiguration,
             IBoxLanguage boxLanguage,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             INetworkConfiguration networkConfiguration,
-            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage, exportNotification)
 	    {
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;

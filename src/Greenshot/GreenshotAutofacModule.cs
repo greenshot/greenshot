@@ -35,6 +35,8 @@ using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Ui.Configuration.ViewModels;
 using Greenshot.Ui.Misc.ViewModels;
+using Greenshot.Ui.Notifications.ViewModels;
+using ToastNotifications.Core;
 
 namespace Greenshot
 {
@@ -62,6 +64,7 @@ namespace Greenshot
                 .As<IAuthenticationProvider>()
                 .AsSelf()
                 .SingleInstance();
+
             builder
                 .RegisterType<MainForm>()
                 .AsSelf()
@@ -115,6 +118,14 @@ namespace Greenshot
                 .AssignableTo<IDestination>()
                 .As<IDestination>()
                 .SingleInstance();
+
+            builder.Register(context => new DisplayOptions { TopMost = true, Width = 400 })
+                .As<DisplayOptions>()
+                .SingleInstance();
+
+            // Toasts - Not a single instance
+            builder.RegisterType<UpdateNotificationViewModel>()
+                .AsSelf();
 
             base.Load(builder);
         }

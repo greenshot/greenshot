@@ -1,0 +1,15 @@
+﻿<toastNotifications:NotificationDisplayPart x:Class="Greenshot.Addons.Views.ExportNotificationView"
+                                            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                                            xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                                            xmlns:toastNotifications="clr-namespace:ToastNotifications.Core;assembly=ToastNotifications"
+                                            xmlns:viewModels="clr-namespace:Greenshot.Addons.ViewModels"
+                                            mc:Ignorable="d" Background="{DynamicResource AccentColorBrush}" Width="200" Padding="5"
+                                            d:DataContext="{d:DesignInstance viewModels:ExportNotificationViewModel,IsDesignTimeCreatable=False}"
+                                            d:DesignHeight="100" d:DesignWidth="200" HorizontalContentAlignment="Stretch" HorizontalAlignment="Right">
+    <DockPanel LastChildFill="True">
+        <Image Source="{Binding Source.DisplayIconWpf}" Width="64" VerticalAlignment="Top"/>
+        <Label Content="{Binding Information.DestinationDescription}" VerticalAlignment="Center" FontWeight="Light" Foreground="White"/>
+    </DockPanel>
+</toastNotifications:NotificationDisplayPart>

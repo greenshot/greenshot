@@ -44,17 +44,20 @@ namespace Greenshot.Addon.Office.Destinations
     [Destination("Excel", DestinationOrder.Excel)]
     public class ExcelDestination : AbstractDestination
 	{
-		private const int IconApplication = 0;
+	    private readonly ExportNotification _exportNotification;
+	    private const int IconApplication = 0;
 		private const int IconWorkbook = 1;
 		private readonly string _exePath;
 		private readonly string _workbookName;
 
 		public ExcelDestination(
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
-		    _exePath = PluginUtils.GetExePath("EXCEL.EXE");
+            _exportNotification = exportNotification;
+            _exePath = PluginUtils.GetExePath("EXCEL.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
 		        _exePath = null;
@@ -63,8 +66,9 @@ namespace Greenshot.Addon.Office.Destinations
 
 		protected ExcelDestination(string workbookName,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : this(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+		    ExportNotification exportNotification
+        ) : this(coreConfiguration, greenshotLanguage, exportNotification)
         {
 			_workbookName = workbookName;
 		}
@@ -84,7 +88,7 @@ namespace Greenshot.Addon.Office.Destinations
 		{
 			foreach (var workbookName in ExcelExporter.GetWorkbooks())
 			{
-				yield return new ExcelDestination(workbookName, CoreConfiguration, GreenshotLanguage);
+				yield return new ExcelDestination(workbookName, CoreConfiguration, GreenshotLanguage, _exportNotification);
 			}
 		}
 

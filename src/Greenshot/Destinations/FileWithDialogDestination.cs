@@ -44,8 +44,9 @@ namespace Greenshot.Destinations
 	    private readonly IGreenshotLanguage _greenshotLanguage;
 
 	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
 	    {
 	        _greenshotLanguage = greenshotLanguage;
 	    }

@@ -53,7 +53,8 @@ namespace Greenshot.Addon.Office.Destinations
 		private static readonly LogSource Log = new LogSource();
 
 	    private readonly IOfficeConfiguration _officeConfiguration;
-		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
+	    private readonly ExportNotification _exportNotification;
+	    private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
 		private readonly string _exePath;
 		private readonly bool _isActiveFlag;
 		private readonly string _outlookInspectorCaption;
@@ -62,10 +63,12 @@ namespace Greenshot.Addon.Office.Destinations
 		public OutlookDestination(
             IOfficeConfiguration officeConfiguration,
 		    ICoreConfiguration coreConfiguration,
-		    IGreenshotLanguage greenshotLanguage
-		    ) : base(coreConfiguration, greenshotLanguage)
+		    IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
             _officeConfiguration = officeConfiguration;
+            _exportNotification = exportNotification;
             if (EmailConfigHelper.HasOutlook())
 		    {
 		        _isActiveFlag = true;
@@ -86,8 +89,9 @@ namespace Greenshot.Addon.Office.Destinations
 	        OlObjectClass outlookInspectorType,
             IOfficeConfiguration officeConfiguration,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	        ) : this(officeConfiguration, coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+            ) : this(officeConfiguration, coreConfiguration, greenshotLanguage, exportNotification)
 		{
             _outlookInspectorCaption = outlookInspectorCaption;
 			_outlookInspectorType = outlookInspectorType;
@@ -124,7 +128,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			foreach (var inspectorCaption in inspectorCaptions.Keys)
 			{
-				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage);
+				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage, _exportNotification);
 			}
 		}
 
@@ -177,11 +181,11 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						var destinations = new List<IDestination>
 						{
-							new OutlookDestination(_officeConfiguration, CoreConfiguration, GreenshotLanguage)
+							new OutlookDestination(_officeConfiguration, CoreConfiguration, GreenshotLanguage, _exportNotification)
 						};
 						foreach (var inspectorCaption in inspectorCaptions.Keys)
 						{
-							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage));
+							destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption], _officeConfiguration, CoreConfiguration, GreenshotLanguage, _exportNotification));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);

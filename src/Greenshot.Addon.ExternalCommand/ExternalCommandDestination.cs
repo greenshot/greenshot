@@ -31,6 +31,7 @@ using CliWrap;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons;
+using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
@@ -53,8 +54,9 @@ namespace Greenshot.Addon.ExternalCommand
 	    public ExternalCommandDestination(ExternalCommandDefinition defintion,
             IExternalCommandConfiguration externalCommandConfiguration,
 		    ICoreConfiguration coreConfiguration,
-		    IGreenshotLanguage greenshotLanguage
-		) : base(coreConfiguration, greenshotLanguage)
+		    IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
 	    {
 	        _externalCommandDefinition = defintion;
 	        _externalCommandConfiguration = externalCommandConfiguration;

@@ -86,8 +86,9 @@ namespace Greenshot.Addon.Flickr
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-        ) : base(coreConfiguration, greenshotLanguage)
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
 	        _flickrConfiguration = flickrConfiguration;
 	        _flickrLanguage = flickrLanguage;

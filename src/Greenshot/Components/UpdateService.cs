@@ -24,21 +24,19 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
-using Dapplo.Utils;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Forms;
+using Greenshot.Ui.Notifications.ViewModels;
 
 #endregion
 
@@ -52,12 +50,12 @@ namespace Greenshot.Components
 	{
 	    private static readonly LogSource Log = new LogSource();
         private static readonly Regex VersionRegex = new Regex(@"^.*[^-]-(?<version>[0-9\.]+)\-(?<type>(release|beta|rc[0-9]+))\.exe.*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		private const string StableDownloadLink = "https://getgreenshot.org/downloads/";
 		private static readonly Uri UpdateFeed = new Uri("http://getgreenshot.org/project-feed/");
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly ICoreConfiguration _coreConfiguration;
-	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly IEventAggregator _eventAggregator;
+	    private readonly Func<Version, Owned<UpdateNotificationViewModel>> _updateNotificationViewModelFactory;
 
 	    /// <inheritdoc />
 	    public Version CurrentVersion { get; }
@@ -75,20 +73,23 @@ namespace Greenshot.Components
 	    /// </summary>
 	    public Version ReleaseCandidateVersion { get; private set; }
 
-        /// <inheritdoc />
-        public bool IsUpdateAvailable => LatestVersion > CurrentVersion;
+	    /// <inheritdoc />
+	    public bool IsUpdateAvailable => LatestVersion > CurrentVersion;
 
         /// <summary>
         /// Constructor with dependencies
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
-        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="eventAggregator">IEventAggregator</param>
+        /// <param name="updateNotificationViewModelFactory">UpdateNotificationViewModel factory</param>
         public UpdateService(
             ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage)
+            IEventAggregator eventAggregator,
+            Func<Version, Owned<UpdateNotificationViewModel>> updateNotificationViewModelFactory)
 	    {
 	        _coreConfiguration = coreConfiguration;
-	        _greenshotLanguage = greenshotLanguage;
+	        _eventAggregator = eventAggregator;
+	        _updateNotificationViewModelFactory = updateNotificationViewModelFactory;
 	        LatestVersion = CurrentVersion = GetType().Assembly.GetName().Version;
 	        _coreConfiguration.LastSaveWithVersion = CurrentVersion.ToString();
 	    }
@@ -113,14 +114,17 @@ namespace Greenshot.Components
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task</returns>
 	    private async Task BackgroundTask(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
-	    {
-            Log.Info().WriteLine("Starting background task");
+        {
+            // Initial delay, to make sure this doesn't happen at the startup
+            await Task.Delay(20000, cancellationToken);
+            Log.Info().WriteLine("Starting background task to check for updates");
 	        await Task.Run(async () =>
 	        {
-	            while (true)
+	            while (!cancellationToken.IsCancellationRequested)
 	            {
 	                var interval = intervalFactory();
 	                var task = reoccurringTask;
+                    // If the check is disabled, handle that here
 	                if (TimeSpan.Zero == interval)
 	                {
 	                    interval = TimeSpan.FromMinutes(10);
@@ -128,19 +132,23 @@ namespace Greenshot.Components
 	                }
                     try
 	                {
-	                    await Task.WhenAll(Task.Delay(interval), task(cancellationToken)).ConfigureAwait(false);
+	                    await task(cancellationToken).ConfigureAwait(false);
                     }
 	                catch (Exception ex)
 	                {
                         Log.Error().WriteLine(ex, "Error occured when trying to check for updates.");
 	                }
-                    if (cancellationToken.IsCancellationRequested)
+	                try
 	                {
-	                    break;
+	                    await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
                     }
-	            }
+	                catch (Exception ex)
+	                {
+	                    Log.Error().WriteLine(ex, "Error occured await for the next update check.");
+	                }
+
+                }
 	        }, cancellationToken).ConfigureAwait(false);
-	        Log.Info().WriteLine("Finished background task");
         }
 
         /// <summary>
@@ -150,7 +158,7 @@ namespace Greenshot.Components
         /// <returns>Task</returns>
 	    private async Task UpdateCheck(CancellationToken cancellationToken = default)
 	    {
-	        Log.Info().WriteLine("Checking for updates");
+	        Log.Info().WriteLine("Checking for updates from {0}", UpdateFeed);
 	        var updateFeed = await UpdateFeed.GetAsAsync<SyndicationFeed>(cancellationToken);
 	        if (updateFeed == null)
 	        {
@@ -162,15 +170,30 @@ namespace Greenshot.Components
 	        
 	        if (IsUpdateAvailable)
 	        {
-	            await UiContext.RunOn(() =>
-	            {
-	                // TODO: Show update more nicely...
-	                MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-	                MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-	                MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(_greenshotLanguage.UpdateFound, LatestVersion), ToolTipIcon.Info);
-                }, cancellationToken).ConfigureAwait(false);
+	            ShowUpdate(LatestVersion);
             }
         }
+
+
+	    /// <summary>
+	    /// This takes care of creating the toast view model, publishing it, and disposing afterwards
+	    /// </summary>
+	    private void ShowUpdate(Version latestVersion)
+	    {
+	        // Create the ViewModel "part"
+	        var message = _updateNotificationViewModelFactory(latestVersion);
+	        // Prepare to dispose the view model parts automatically if it's finished
+	        void DisposeHandler(object sender, DeactivationEventArgs args)
+	        {
+	            message.Value.Deactivated -= DisposeHandler;
+	            message.Dispose();
+	        }
+
+	        message.Value.Deactivated += DisposeHandler;
+
+            // Show the ViewModel as toast 
+	        _eventAggregator.PublishOnUIThread(message.Value);
+	    }
 
         /// <summary>
         /// Process the update feed to get the latest version
@@ -208,40 +231,5 @@ namespace Greenshot.Components
 	            }
             }
         }
-
-        /// <summary>
-        /// Remove the event handlers
-        /// </summary>
-        /// <param name="sender">object</param>
-        /// <param name="e">EventArgs</param>
-		private void CleanupBalloonTipClick(object sender, EventArgs e)
-		{
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
-		}
-
-        /// <summary>
-        /// Handle the click on a balloon
-        /// </summary>
-        /// <param name="sender">object</param>
-        /// <param name="e">EventArgs</param>
-		private void HandleBalloonTipClick(object sender, EventArgs e)
-		{
-			try
-			{
-				// "Direct" download link
-				// Process.Start(latestGreenshot.Link);
-				// Go to getgreenshot.org
-				Process.Start(StableDownloadLink);
-			}
-			catch (Exception)
-			{
-				MessageBox.Show(string.Format(_greenshotLanguage.ErrorOpenlink, StableDownloadLink), _greenshotLanguage.Error);
-			}
-			finally
-			{
-				CleanupBalloonTipClick(sender, e);
-			}
-		}
 	}
 }

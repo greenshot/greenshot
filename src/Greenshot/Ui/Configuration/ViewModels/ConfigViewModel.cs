@@ -26,11 +26,14 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
+using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
 using Greenshot.Configuration;
+using Greenshot.Ui.Notifications.ViewModels;
 using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Ui.Configuration.ViewModels
@@ -41,6 +44,8 @@ namespace Greenshot.Ui.Configuration.ViewModels
     /// </summary>
     public sealed class ConfigViewModel : Config<IConfigScreen>, IHaveIcon
     {
+        private readonly IEventAggregator _eventAggregator;
+
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
@@ -64,8 +69,12 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public ConfigViewModel(
             IEnumerable<Lazy<IConfigScreen>> configScreens,
             IGreenshotLanguage greenshotLanguage,
-            IConfigTranslations configTranslations)
+            IConfigTranslations configTranslations,
+            IEventAggregator eventAggregator,
+            Func<Owned<UpdateNotificationViewModel>> updateNotificationViewModelFactory
+            )
         {
+            _eventAggregator = eventAggregator;
             ConfigScreens = configScreens;
             GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;
@@ -96,7 +105,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
             {
                 GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle))
             };
-
             base.OnActivate();
         }
 

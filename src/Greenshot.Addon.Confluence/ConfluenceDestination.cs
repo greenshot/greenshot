@@ -53,6 +53,7 @@ namespace Greenshot.Addon.Confluence
 	{
 	    private static readonly LogSource Log = new LogSource();
 		private static readonly Bitmap ConfluenceIcon;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly IConfluenceConfiguration _confluenceConfiguration;
 	    private readonly IConfluenceLanguage _confluenceLanguage;
 	    private readonly Func<Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
@@ -81,11 +82,13 @@ namespace Greenshot.Addon.Confluence
 		public ConfluenceDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification,
 		    IConfluenceConfiguration confluenceConfiguration,
 		    IConfluenceLanguage confluenceLanguage,
             Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory
-            ) : base(coreConfiguration, greenshotLanguage)
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
+            _exportNotification = exportNotification;
             _confluenceConfiguration = confluenceConfiguration;
             _confluenceLanguage = confluenceLanguage;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
@@ -94,10 +97,11 @@ namespace Greenshot.Addon.Confluence
 	    private ConfluenceDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification,
 	        IConfluenceConfiguration confluenceConfiguration,
 	        IConfluenceLanguage confluenceLanguage,
 	        Func<Owned<PleaseWaitForm>> pleaseWaitFormFactory,
-            Content page) : this(coreConfiguration, greenshotLanguage, confluenceConfiguration, confluenceLanguage, pleaseWaitFormFactory)
+            Content page) : this(coreConfiguration, greenshotLanguage, exportNotification, confluenceConfiguration, confluenceLanguage, pleaseWaitFormFactory)
 	    {
 	        _page = page;
 	    }
@@ -131,7 +135,7 @@ namespace Greenshot.Addon.Confluence
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(CoreConfiguration, GreenshotLanguage, _confluenceConfiguration, _confluenceLanguage, _pleaseWaitFormFactory, currentPage);
+				yield return new ConfluenceDestination(CoreConfiguration, GreenshotLanguage, _exportNotification,_confluenceConfiguration, _confluenceLanguage, _pleaseWaitFormFactory, currentPage);
 			}
 		}
 

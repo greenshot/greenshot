@@ -61,6 +61,7 @@ namespace Greenshot.Addon.Photobucket
 	    private readonly IPhotobucketLanguage _photobucketLanguage;
 	    private readonly INetworkConfiguration _networkConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly OAuth1Settings _oAuthSettings;
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private IList<string> _albumsCache;
@@ -71,15 +72,17 @@ namespace Greenshot.Addon.Photobucket
             INetworkConfiguration networkConfiguration,
             IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
 	        _photobucketConfiguration = photobucketConfiguration;
 	        _photobucketLanguage = photobucketLanguage;
 	        _networkConfiguration = networkConfiguration;
 	        _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
 
-	        _oAuthSettings = new OAuth1Settings
+            _oAuthSettings = new OAuth1Settings
             {
                 Token = photobucketConfiguration,
                 ClientId = photobucketConfiguration.ClientId,
@@ -145,7 +148,8 @@ namespace Greenshot.Addon.Photobucket
 	        IResourceProvider resourceProvider,
 	        string albumPath,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage) : this(photobucketConfiguration, photobucketLanguage, networkConfiguration, resourceProvider, coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification) : this(photobucketConfiguration, photobucketLanguage, networkConfiguration, resourceProvider, coreConfiguration, greenshotLanguage, exportNotification)
 		{
 			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
@@ -204,7 +208,9 @@ namespace Greenshot.Addon.Photobucket
 				    _resourceProvider,
 				    album,
 				    CoreConfiguration,
-				    GreenshotLanguage);
+				    GreenshotLanguage,
+                    _exportNotification
+				    );
 			}
 		}
 

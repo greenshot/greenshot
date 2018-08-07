@@ -24,7 +24,7 @@
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 
 namespace Greenshot.Addon.LegacyEditor.ViewModels
 {

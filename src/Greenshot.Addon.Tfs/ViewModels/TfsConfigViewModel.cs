@@ -25,7 +25,7 @@ using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Addons;
-using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Tfs.ViewModels

@@ -58,6 +58,7 @@ namespace Greenshot.Addon.Tfs
         private readonly TfsClient _tfsClient;
         private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
         private readonly IResourceProvider _resourceProvider;
+        private readonly ExportNotification _exportNotification;
         private readonly WorkItem _workItem;
 
         public TfsDestination(
@@ -67,13 +68,15 @@ namespace Greenshot.Addon.Tfs
             ITfsLanguage tfsLanguage,
             TfsClient tfsClient,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
-            IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
+            IResourceProvider resourceProvider,
+            ExportNotification exportNotification) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
             _tfsConfiguration = tfsConfiguration;
             _tfsLanguage = tfsLanguage;
             _tfsClient = tfsClient;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
             _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
         }
 
         protected TfsDestination(
@@ -84,7 +87,8 @@ namespace Greenshot.Addon.Tfs
             TfsClient tfsClient,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider,
-            WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, pleaseWaitFormFactory, resourceProvider)
+            ExportNotification exportNotification,
+            WorkItem workItem) :this(coreConfiguration, greenshotLanguage, tfsConfiguration, tfsLanguage, tfsClient, pleaseWaitFormFactory, resourceProvider, exportNotification)
         {
             _workItem = workItem;
         }
@@ -115,7 +119,7 @@ namespace Greenshot.Addon.Tfs
             }
             foreach (var workitem in workitems)
             {
-                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _pleaseWaitFormFactory, _resourceProvider, workitem);
+                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _pleaseWaitFormFactory, _resourceProvider, _exportNotification, workitem);
             }
         }
 

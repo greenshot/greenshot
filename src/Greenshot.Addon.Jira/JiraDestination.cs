@@ -59,6 +59,7 @@ namespace Greenshot.Addon.Jira
 	    private readonly Func<Owned<JiraViewModel>> _jiraViewModelFactory;
 	    private readonly Func<Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly IResourceProvider _resourceProvider;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly IJiraLanguage _jiraLanguage;
 
@@ -71,8 +72,9 @@ namespace Greenshot.Addon.Jira
             IWindowManager windowManager,
             IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
             _jiraConfiguration = jiraConfiguration;
             _jiraLanguage = jiraLanguage;
@@ -81,6 +83,7 @@ namespace Greenshot.Addon.Jira
             _jiraViewModelFactory = jiraViewModelFactory;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
             _resourceProvider = resourceProvider;
+            _exportNotification = exportNotification;
         }
 
 	    private JiraDestination(IJiraConfiguration jiraConfiguration,
@@ -92,8 +95,9 @@ namespace Greenshot.Addon.Jira
 		    IResourceProvider resourceProvider,
 		    Issue jiraIssue,
 		    ICoreConfiguration coreConfiguration,
-		    IGreenshotLanguage greenshotLanguage
-		    ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModelFactory, pleaseWaitFormFactory, windowManager, resourceProvider, coreConfiguration, greenshotLanguage)
+		    IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+            ) : this(jiraConfiguration, jiraLanguage, jiraConnector, jiraViewModelFactory, pleaseWaitFormFactory, windowManager, resourceProvider, coreConfiguration, greenshotLanguage, exportNotification)
 		{
 			_jiraIssue = jiraIssue;
 		}
@@ -164,7 +168,7 @@ namespace Greenshot.Addon.Jira
 			{
 			    yield return new JiraDestination(
 			        _jiraConfiguration, _jiraLanguage, _jiraConnector, _jiraViewModelFactory, _pleaseWaitFormFactory,
-			        _windowManager, _resourceProvider, jiraDetails.JiraIssue, CoreConfiguration, GreenshotLanguage);
+			        _windowManager, _resourceProvider, jiraDetails.JiraIssue, CoreConfiguration, GreenshotLanguage, _exportNotification);
 			}
 		}
 

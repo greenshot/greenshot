@@ -57,8 +57,9 @@ namespace Greenshot.Addon.OCR
         public OcrDestination(
             IOCRConfiguration ocrConfiguration,
             ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage
-            ) : base(coreConfiguration, greenshotLanguage)
+            IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
 		{
 			_ocrConfiguration = ocrConfiguration;
 

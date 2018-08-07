@@ -25,6 +25,9 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Windows.Media.Imaging;
+using Dapplo.Windows.Icons;
 
 #endregion
 
@@ -46,6 +49,14 @@ namespace Greenshot.Addons.Core
 		{
 			return (Icon) greenshotResources.GetObject(imageName);
 		}
+
+	    public static BitmapSource GreenshotIconAsBitmapSource()
+	    {
+            using (var icon = GetGreenshotIcon())
+            {
+                return icon.ToBitmapSource();
+            }
+        }
 
 		public static Icon GetGreenshotIcon()
 		{

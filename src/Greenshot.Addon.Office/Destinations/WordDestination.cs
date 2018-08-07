@@ -47,7 +47,8 @@ namespace Greenshot.Addon.Office.Destinations
     [Destination("Word", DestinationOrder.Word)]
     public class WordDestination : AbstractDestination
 	{
-		private const int IconApplication = 0;
+	    private readonly ExportNotification _exportNotification;
+	    private const int IconApplication = 0;
 		private const int IconDocument = 1;
 		private static readonly LogSource Log = new LogSource();
 		private readonly string _exePath;
@@ -55,10 +56,12 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public WordDestination(
 		    ICoreConfiguration coreConfiguration,
-		    IGreenshotLanguage greenshotLanguage
-		    ) : base(coreConfiguration, greenshotLanguage)
+		    IGreenshotLanguage greenshotLanguage,
+		    ExportNotification exportNotification
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
-		    _exePath = PluginUtils.GetExePath("WINWORD.EXE");
+            _exportNotification = exportNotification;
+            _exePath = PluginUtils.GetExePath("WINWORD.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
 		        _exePath = null;
@@ -67,7 +70,8 @@ namespace Greenshot.Addon.Office.Destinations
 
 		protected WordDestination(string wordCaption,
 		    ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage) : this(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+		    ExportNotification exportNotification) : this(coreConfiguration, greenshotLanguage, exportNotification)
 		{
 			_documentCaption = wordCaption;
 		}
@@ -85,7 +89,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage));
+			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage, _exportNotification));
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -127,11 +131,11 @@ namespace Greenshot.Addon.Office.Destinations
 					{
 						var destinations = new List<IDestination>
 						{
-							new WordDestination(CoreConfiguration, GreenshotLanguage)
+							new WordDestination(CoreConfiguration, GreenshotLanguage, _exportNotification)
 						};
 						foreach (var document in documents)
 						{
-							destinations.Add(new WordDestination(document, CoreConfiguration, GreenshotLanguage));
+							destinations.Add(new WordDestination(document, CoreConfiguration, GreenshotLanguage, _exportNotification));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);

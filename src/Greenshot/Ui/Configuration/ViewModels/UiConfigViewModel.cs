@@ -34,6 +34,7 @@ using Dapplo.Language;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels

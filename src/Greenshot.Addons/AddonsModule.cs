@@ -73,6 +73,11 @@ namespace Greenshot.Addons
                 .As<IStartable>()
                 .SingleInstance();
 
+            builder.RegisterType<ExportNotification>()
+                .AsSelf()
+                .SingleInstance();
+            builder.RegisterType<ExportNotificationViewModel>()
+                .AsSelf();
             base.Load(builder);
         }
 

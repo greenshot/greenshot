@@ -46,23 +46,27 @@ namespace Greenshot.Destinations
     public class PrinterDestination : AbstractDestination
 	{
 	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly ExportNotification _exportNotification;
 	    private readonly Func<ISurface, ICaptureDetails, Owned<PrintHelper>> _printHelperFactory;
 	    private readonly string _printerName;
 
 	    public PrinterDestination(ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification,
 	        Func<ISurface, ICaptureDetails, Owned<PrintHelper>> printHelperFactory
-        ) : base(coreConfiguration, greenshotLanguage)
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
 	    {
 	        _greenshotLanguage = greenshotLanguage;
+	        _exportNotification = exportNotification;
 	        _printHelperFactory = printHelperFactory;
 	    }
 
         protected PrinterDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification,
             Func<ISurface, ICaptureDetails, Owned<PrintHelper>> printHelperFactory,
-            string printerName) : this(coreConfiguration, greenshotLanguage, printHelperFactory)
+            string printerName) : this(coreConfiguration, greenshotLanguage, exportNotification, printHelperFactory)
 		{
 			_printerName = printerName;
 		}
@@ -114,7 +118,7 @@ namespace Greenshot.Destinations
 			});
 			foreach (var printer in printers)
 			{
-				yield return new PrinterDestination(CoreConfiguration, GreenshotLanguage, _printHelperFactory, printer);
+				yield return new PrinterDestination(CoreConfiguration, GreenshotLanguage, _exportNotification, _printHelperFactory, printer);
 			}
 		}
 

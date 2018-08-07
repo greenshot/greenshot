@@ -31,6 +31,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -40,6 +42,7 @@ using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.ViewModels;
 using Greenshot.Gfx;
 
 #endregion
@@ -51,13 +54,20 @@ namespace Greenshot.Addons.Core
     /// </summary>
     public abstract class AbstractDestination : IDestination
     {
+        private readonly ExportNotification _exportNotification;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly Func<IDestination, Owned<ExportNotificationViewModel>> _toastFactory;
         private static readonly LogSource Log = new LogSource();
 
         protected IGreenshotLanguage GreenshotLanguage { get; }
         protected ICoreConfiguration CoreConfiguration { get; }
 
-        protected AbstractDestination(ICoreConfiguration coreConfiguration, IGreenshotLanguage greenshotLanguage)
+        protected AbstractDestination(
+            ICoreConfiguration coreConfiguration,
+            IGreenshotLanguage greenshotLanguage,
+            ExportNotification exportNotification)
         {
+            _exportNotification = exportNotification;
             CoreConfiguration = coreConfiguration;
             GreenshotLanguage = greenshotLanguage;
             Designation = GetType().GetDesignation();
@@ -238,6 +248,7 @@ namespace Greenshot.Addons.Core
         /// <param name="surface"></param>
         public void ProcessExport(ExportInformation exportInformation, ISurface surface)
         {
+            _exportNotification.NotifyOfExport(this, exportInformation);
             if (exportInformation != null && exportInformation.ExportMade)
             {
                 if (!string.IsNullOrEmpty(exportInformation.Uri))
@@ -276,18 +287,26 @@ namespace Greenshot.Addons.Core
         /// <param name="tagValue">Value for the tag</param>
         private void AddTagEvents(ToolStripMenuItem menuItem, ContextMenuStrip menu, string tagValue)
         {
-            if (menuItem == null || menu == null)
+            if (menuItem == null || menu == null || menu.IsDisposed)
             {
                 return;
             }
 
             menuItem.MouseDown += (sender, args) =>
             {
+                if (!menu.IsAccessible || menu.IsDisposed)
+                {
+                    return;
+                }
                 Log.Debug().WriteLine("Setting tag to '{0}'", tagValue);
                 menu.Tag = tagValue;
             };
             menuItem.MouseUp += (sender, args) =>
             {
+                if (!menu.IsAccessible || menu.IsDisposed)
+                {
+                    return;
+                }
                 Log.Debug().WriteLine("Deleting tag");
                 menu.Tag = null;
             };

@@ -47,15 +47,18 @@ namespace Greenshot.Addon.ExternalCommand
 		private readonly IExternalCommandConfiguration _externalCommandConfig;
 	    private readonly ICoreConfiguration _coreConfiguration;
 	    private readonly IGreenshotLanguage _greenshotLanguage;
+	    private readonly ExportNotification _exportNotification;
 
 	    public ExternalCommandDestinationProvider(
 	        IExternalCommandConfiguration externalCommandConfiguration,
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification)
 	    {
 	        _externalCommandConfig = externalCommandConfiguration;
 	        _coreConfiguration = coreConfiguration;
 	        _greenshotLanguage = greenshotLanguage;
+	        _exportNotification = exportNotification;
 	    }
 
 	    /// <inheritdoc />
@@ -63,7 +66,7 @@ namespace Greenshot.Addon.ExternalCommand
 		{
 		    return _externalCommandConfig.Commands
 		        .Select(command => _externalCommandConfig.Read(command))
-		        .Select(definition => new Lazy<IDestination, DestinationAttribute>(() => new ExternalCommandDestination(definition, _externalCommandConfig, _coreConfiguration, _greenshotLanguage), new DestinationAttribute(definition.Name)));
+		        .Select(definition => new Lazy<IDestination, DestinationAttribute>(() => new ExternalCommandDestination(definition, _externalCommandConfig, _coreConfiguration, _greenshotLanguage, _exportNotification), new DestinationAttribute(definition.Name)));
 		}
 
 

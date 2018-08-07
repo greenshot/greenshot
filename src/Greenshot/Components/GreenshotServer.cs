@@ -35,7 +35,6 @@ using Dapplo.Addons;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addons.Components;
-using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Forms;

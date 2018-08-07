@@ -47,8 +47,9 @@ namespace Greenshot.Destinations
         public PickerDestination(
 	        DestinationHolder destinationHolder,
             ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	        ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
             _destinationHolder = destinationHolder;
         }

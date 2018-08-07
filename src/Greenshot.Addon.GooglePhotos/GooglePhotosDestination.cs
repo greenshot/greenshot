@@ -69,8 +69,9 @@ namespace Greenshot.Addon.GooglePhotos
 	        IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification,
 	        Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory
-            ) : base(coreConfiguration, greenshotLanguage)
+            ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	        _googlePhotosLanguage = googlePhotosLanguage;

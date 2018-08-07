@@ -44,17 +44,20 @@ namespace Greenshot.Addon.Office.Destinations
     [Destination("OneNote", DestinationOrder.OneNote)]
     public class OneNoteDestination : AbstractDestination
 	{
-		private const int IconApplication = 0;
+	    private readonly ExportNotification _exportNotification;
+	    private const int IconApplication = 0;
 		private static readonly LogSource Log = new LogSource();
 		private readonly string _exePath;
 		private readonly OneNotePage _page;
 
 		public OneNoteDestination(
 	        ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : base(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+	        ExportNotification exportNotification
+        ) : base(coreConfiguration, greenshotLanguage, exportNotification)
         {
-		    _exePath = PluginUtils.GetExePath("ONENOTE.EXE");
+            _exportNotification = exportNotification;
+            _exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
 		        _exePath = null;
@@ -63,8 +66,9 @@ namespace Greenshot.Addon.Office.Destinations
 
 		protected OneNoteDestination(OneNotePage page,
 		    ICoreConfiguration coreConfiguration,
-	        IGreenshotLanguage greenshotLanguage
-	    ) : this(coreConfiguration, greenshotLanguage)
+	        IGreenshotLanguage greenshotLanguage,
+		    ExportNotification exportNotification
+        ) : this(coreConfiguration, greenshotLanguage, exportNotification)
         {
 			_page = page;
 		}
@@ -94,7 +98,7 @@ namespace Greenshot.Addon.Office.Destinations
 		{
 			try
 			{
-				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage, CoreConfiguration, GreenshotLanguage));
+				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage, CoreConfiguration, GreenshotLanguage, _exportNotification));
 			}
 			catch (COMException cEx)
 			{

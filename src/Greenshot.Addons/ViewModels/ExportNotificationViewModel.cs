@@ -21,13 +21,22 @@
 
 #endregion
 
-namespace Greenshot.Addons.Core
+using Dapplo.CaliburnMicro.Toasts.ViewModels;
+using Greenshot.Addons.Components;
+using Greenshot.Addons.Interfaces;
+
+namespace Greenshot.Addons.ViewModels
 {
-    public enum ConfigIds
+    /// <inheritdoc />
+    public class ExportNotificationViewModel : ToastBaseViewModel
     {
-        Ui,
-        Capture,
-        Destinations,
-        InternalDestinations
+        public ExportNotificationViewModel(IDestination source, ExportInformation exportInformation)
+        {
+            Information = exportInformation;
+            Source = source;
+        }
+        public IDestination Source { get; }
+
+        public ExportInformation Information { get; }
     }
 }
