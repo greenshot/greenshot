@@ -24,6 +24,7 @@
 using System;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
+using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -39,12 +40,12 @@ namespace Greenshot.Addons.Components
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IEventAggregator _eventAggregator;
-        private readonly Func<IDestination, ExportInformation, ISurface, Owned<ExportNotificationViewModel>> _toastFactory;
+        private readonly Func<IDestination, ExportInformation, ISurface, IConfigScreen, Owned<ExportNotificationViewModel>> _toastFactory;
 
         public ExportNotification(
             ICoreConfiguration coreConfiguration,
             IEventAggregator eventAggregator,
-            Func<IDestination, ExportInformation, ISurface, Owned<ExportNotificationViewModel>> toastFactory)
+            Func<IDestination, ExportInformation, ISurface, IConfigScreen, Owned<ExportNotificationViewModel>> toastFactory)
         {
             _coreConfiguration = coreConfiguration;
             _eventAggregator = eventAggregator;
@@ -57,7 +58,8 @@ namespace Greenshot.Addons.Components
         /// <param name="source">IDestination</param>
         /// <param name="exportInformation">ExportInformation</param>
         /// <param name="exportedSurface">ISurface</param>
-        public void NotifyOfExport(IDestination source, ExportInformation exportInformation, ISurface exportedSurface)
+        /// <param name="configScreen">IConfigScreen option to specify which IConfigScreen belongs to the destination</param>
+        public void NotifyOfExport(IDestination source, ExportInformation exportInformation, ISurface exportedSurface, IConfigScreen configScreen = null)
         {
             if (exportInformation == null || !_coreConfiguration.ShowTrayNotification)
             {
@@ -65,7 +67,7 @@ namespace Greenshot.Addons.Components
                 return;
             }
             // Create the ViewModel "part"
-            var message = _toastFactory(source, exportInformation, exportedSurface);
+            var message = _toastFactory(source, exportInformation, exportedSurface, configScreen);
             // Prepare to dispose the view model parts automatically if it's finished
             void DisposeHandler(object sender, DeactivationEventArgs args)
             {

@@ -57,6 +57,7 @@ namespace Greenshot
 
             builder
                 .RegisterType<ConfigViewModel>()
+                .As<Config<IConfigScreen>>()
                 .AsSelf();
 
             builder

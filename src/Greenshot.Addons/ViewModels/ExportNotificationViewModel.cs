@@ -24,6 +24,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Media;
+using Caliburn.Micro;
+using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Toasts.ViewModels;
 using Dapplo.Log;
 using Dapplo.Windows.Extensions;
@@ -36,9 +38,21 @@ namespace Greenshot.Addons.ViewModels
     /// <inheritdoc />
     public class ExportNotificationViewModel : ToastBaseViewModel
     {
+        private readonly IWindowManager _windowManager;
+        private readonly Config<IConfigScreen> _configViewModel;
+        private readonly IConfigScreen _configScreen;
         private static readonly LogSource Log = new LogSource();
-        public ExportNotificationViewModel(IDestination source, ExportInformation exportInformation, ISurface exportedSurface)
+        public ExportNotificationViewModel(
+            IDestination source,
+            ExportInformation exportInformation,
+            ISurface exportedSurface,
+            IWindowManager windowManager,
+            Config<IConfigScreen> configViewModel,
+            IConfigScreen configScreen = null)
         {
+            _windowManager = windowManager;
+            _configViewModel = configViewModel;
+            _configScreen = configScreen;
             Information = exportInformation;
             Source = source;
 
@@ -55,6 +69,22 @@ namespace Greenshot.Addons.ViewModels
         public IDestination Source { get; }
 
         public ExportInformation Information { get; }
+
+        public bool CanConfigure => _configScreen != null;
+
+        public void Configure()
+        {
+            if (!CanConfigure)
+            {
+                return;
+            }
+
+            _configViewModel.CurrentConfigScreen = _configScreen;
+            if (!_configViewModel.IsActive)
+            {
+                _windowManager.ShowDialog(_configViewModel);
+            }
+        }
 
         /// <summary>
         /// Handle the click

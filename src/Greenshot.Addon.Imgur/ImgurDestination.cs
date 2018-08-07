@@ -59,6 +59,7 @@ namespace Greenshot.Addon.Imgur
 	    private readonly IImgurLanguage _imgurLanguage;
 	    private readonly ImgurApi _imgurApi;
 	    private readonly ImgurHistoryViewModel _imgurHistoryViewModel;
+	    private readonly ImgurConfigViewModel _imgurConfigViewModel;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
 	    private readonly IResourceProvider _resourceProvider;
 
@@ -70,6 +71,7 @@ namespace Greenshot.Addon.Imgur
 	        IImgurLanguage imgurLanguage,
 	        ImgurApi imgurApi,
 	        ImgurHistoryViewModel imgurHistoryViewModel,
+            ImgurConfigViewModel imgurConfigViewModel,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
         {
@@ -78,7 +80,8 @@ namespace Greenshot.Addon.Imgur
 		    _imgurLanguage = imgurLanguage;
 		    _imgurApi = imgurApi;
 		    _imgurHistoryViewModel = imgurHistoryViewModel;
-		    _pleaseWaitFormFactory = pleaseWaitFormFactory;
+            _imgurConfigViewModel = imgurConfigViewModel;
+            _pleaseWaitFormFactory = pleaseWaitFormFactory;
 		    _resourceProvider = resourceProvider;
 		}
 
@@ -105,7 +108,7 @@ namespace Greenshot.Addon.Imgur
 		        ExportMade = uploadUrl != null,
 		        Uri = uploadUrl?.AbsoluteUri
 		    };
-		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface, _imgurConfigViewModel);
             return exportInformation;
 		}
 
