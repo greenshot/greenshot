@@ -23,8 +23,6 @@
 
 using System;
 using System.Reactive.Linq;
-using System.Threading;
-using Autofac.Features.AttributeFilters;
 using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.Log;
@@ -42,53 +40,67 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
-        private readonly SynchronizationContext _synchronizationContext;
         private IDisposable _subscriptions;
 
-        public HotkeyService(ICoreConfiguration coreConfiguration,
-            [KeyFilter("ui")] SynchronizationContext synchronizationContext)
+        public HotkeyService(ICoreConfiguration coreConfiguration)
         {
             _coreConfiguration = coreConfiguration;
-            _synchronizationContext = synchronizationContext;
+        }
+
+        /// <summary>
+        /// If set to false, hotkey presses don't trigger the functionality
+        /// </summary>
+        public bool AreHotkeysActive { get; set; } = true;
+
+        /// <summary>
+        /// This can be used to disable or enable the triggering of hotkeys, depending in different logic
+        /// </summary>
+        /// <param name="keyboardHookEventArgs">KeyboardHookEventArgs</param>
+        /// <returns>bool</returns>
+        private bool HotkeyTrigger(KeyboardHookEventArgs keyboardHookEventArgs)
+        {
+            return AreHotkeysActive;
         }
 
         public void Startup()
         {
             Log.Debug().WriteLine("Registering hotkeys");
 
-            var syncedEvents = KeyboardHook.KeyboardEvents
-                .Synchronize()
-                .ObserveOn(_synchronizationContext)
-                .SubscribeOn(_synchronizationContext);
+            var syncedEvents = KeyboardHook.KeyboardEvents;
 
             // Region hotkey
             var regionHotkeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.RegionHotkey));
             _subscriptions = syncedEvents
                 .Where(regionHotkeyHandler)
+                .Where(HotkeyTrigger)
                 .Subscribe(CaptureRegion, () => regionHotkeyHandler.Dispose());
 
             // Fullscreen hotkey
             var fullScreenHotkeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.FullscreenHotkey));
             _subscriptions = syncedEvents
                 .Where(fullScreenHotkeyHandler)
+                .Where(HotkeyTrigger)
                 .Subscribe(CaptureFullscreen, () => fullScreenHotkeyHandler.Dispose());
 
             // Last region hotkey
             var lastRegionHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.LastregionHotkey));
             _subscriptions = syncedEvents
                 .Where(lastRegionHotKeyHandler)
+                .Where(HotkeyTrigger)
                 .Subscribe(CaptureLast, () => lastRegionHotKeyHandler.Dispose());
 
             // Window hotkey
             var windowHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.WindowHotkey));
             _subscriptions = syncedEvents
                 .Where(windowHotKeyHandler)
+                .Where(HotkeyTrigger)
                 .Subscribe(CaptureWindow, () => windowHotKeyHandler.Dispose());
 
             // IE hotkey
             var ieHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.IEHotkey));
             _subscriptions = syncedEvents
                 .Where(ieHotKeyHandler)
+                .Where(HotkeyTrigger)
                 .Subscribe(CaptureIe, () => ieHotKeyHandler.Dispose());
 
             Log.Debug().WriteLine("Started hotkeys");
