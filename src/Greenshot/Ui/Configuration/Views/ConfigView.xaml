@@ -1,25 +1,19 @@
 ﻿<mah:MetroWindow x:Class="Greenshot.Ui.Configuration.Views.ConfigView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cal="http://www.caliburnproject.org"
              xmlns:behaviors="clr-namespace:Dapplo.CaliburnMicro.Behaviors;assembly=Dapplo.CaliburnMicro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:security="clr-namespace:Dapplo.CaliburnMicro.Security.Behaviors;assembly=Dapplo.CaliburnMicro.Security"
-             xmlns:converters="clr-namespace:Dapplo.CaliburnMicro.Security.Converters;assembly=Dapplo.CaliburnMicro.Security"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:controls="clr-namespace:Dapplo.CaliburnMicro.Configuration.Controls;assembly=Dapplo.CaliburnMicro.Configuration"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:ConfigViewModel,IsDesignTimeCreatable=False}"
              ResizeMode="CanResizeWithGrip" SizeToContent="Width" Width="700" MinWidth="700" MaxWidth="1000"  Height="500">
     <behaviors:FrameworkElementIcon.Value>
         <iconPacks:PackIconMaterial Kind="Settings" Margin="10" Visibility="Visible" />
     </behaviors:FrameworkElementIcon.Value>
-    <mah:MetroWindow.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-        <converters:AuthenticationTargetPropertyConverter x:Key="AuthenticationTargetPropertyConverter" />
-    </mah:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -35,32 +29,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <TextBox x:Name="Filter" Grid.Row="0" mah:TextBoxHelper.ClearTextButton="True" />
-            <TreeView x:Name="TreeItems" Grid.Row="1" cal:Message.Attach="[Event SelectedItemChanged] = [Action ActivateChildView($this.SelectedItem)]">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                        <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
-                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Converter={StaticResource AuthenticationTargetPropertyConverter}}" Value="{x:Static security:AuthenticationTargetProperties.Visibility}">
-                                <Setter Property="security:AuthenticationVisibility.Permissions" Value="{Binding Permissions}" />
-                                <Setter Property="security:AuthenticationVisibility.WhenPermissions" Value="{Binding WhenPermission}" />
-                                <Setter Property="security:AuthenticationVisibility.WhenPermissionsMissing" Value="{Binding WhenPermissionMissing}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Converter={StaticResource AuthenticationTargetPropertyConverter}}"
-                                         Value="{x:Static security:AuthenticationTargetProperties.IsEnabled}">
-                                <Setter Property="security:AuthenticationEnabled.Permissions" Value="{Binding Permissions}" />
-                                <Setter Property="security:AuthenticationEnabled.WhenPermissions" Value="{Binding WhenPermission}" />
-                                <Setter Property="security:AuthenticationEnabled.WhenPermissionsMissing" Value="{Binding WhenPermissionMissing}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding ChildNodes}">
-                        <Label Content="{Binding DisplayName}" />
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
+            <controls:ConfigurationTreeView Grid.Row="1" />
         </Grid>
         <ContentControl x:Name="ActiveItem" Grid.Column="1" Grid.Row="0"/>
         <UniformGrid Grid.Column="1" Grid.Row="1" Rows="1" Columns="2">
