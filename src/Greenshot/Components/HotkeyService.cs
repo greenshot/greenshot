@@ -25,6 +25,7 @@ using System;
 using System.Reactive.Linq;
 using System.Threading;
 using Autofac.Features.AttributeFilters;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Input.Keyboard;
@@ -60,26 +61,31 @@ namespace Greenshot.Components
                 .ObserveOn(_synchronizationContext)
                 .SubscribeOn(_synchronizationContext);
 
+            // Region hotkey
             var regionHotkeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.RegionHotkey));
             _subscriptions = syncedEvents
                 .Where(regionHotkeyHandler)
                 .Subscribe(CaptureRegion, () => regionHotkeyHandler.Dispose());
 
+            // Fullscreen hotkey
             var fullScreenHotkeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.FullscreenHotkey));
             _subscriptions = syncedEvents
                 .Where(fullScreenHotkeyHandler)
                 .Subscribe(CaptureFullscreen, () => fullScreenHotkeyHandler.Dispose());
 
+            // Last region hotkey
             var lastRegionHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.LastregionHotkey));
             _subscriptions = syncedEvents
                 .Where(lastRegionHotKeyHandler)
                 .Subscribe(CaptureLast, () => lastRegionHotKeyHandler.Dispose());
 
+            // Window hotkey
             var windowHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.WindowHotkey));
             _subscriptions = syncedEvents
                 .Where(windowHotKeyHandler)
                 .Subscribe(CaptureWindow, () => windowHotKeyHandler.Dispose());
 
+            // IE hotkey
             var ieHotKeyHandler = new HotKeyHandler(_coreConfiguration, nameof(ICoreConfiguration.IEHotkey));
             _subscriptions = syncedEvents
                 .Where(ieHotKeyHandler)
@@ -97,36 +103,36 @@ namespace Greenshot.Components
 
         private void CaptureRegion(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            CaptureHelper.CaptureRegion(true);
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureRegion(true));
         }
 
         private void CaptureWindow(KeyboardHookEventArgs keyboardHookEventArgs)
         {
             if (_coreConfiguration.CaptureWindowsInteractive)
             {
-                CaptureHelper.CaptureWindowInteractive(true);
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindowInteractive(true));
             }
             else
             {
-                CaptureHelper.CaptureWindow(true);
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindow(true));
             }
         }
 
         private void CaptureFullscreen(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            CaptureHelper.CaptureFullscreen(true, _coreConfiguration.ScreenCaptureMode);
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureFullscreen(true, _coreConfiguration.ScreenCaptureMode));
         }
 
         private void CaptureLast(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            CaptureHelper.CaptureLastRegion(true);
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureLastRegion(true));
         }
 
         private void CaptureIe(KeyboardHookEventArgs keyboardHookEventArgs)
         {
             if (_coreConfiguration.IECapture)
             {
-                CaptureHelper.CaptureIe(true, null);
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureIe(true, null));
             }
         }
     }
