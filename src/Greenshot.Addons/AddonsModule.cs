@@ -54,8 +54,8 @@ namespace Greenshot.Addons
                 .SingleInstance();
 
             builder
-                .Register(context => IniConfig.Current.Get<INetworkConfiguration>())
-                .As<INetworkConfiguration>()
+                .Register(context => IniConfig.Current.Get<IHttpConfiguration>())
+                .As<IHttpConfiguration>()
                 .SingleInstance();
 
             builder

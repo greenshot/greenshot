@@ -74,7 +74,7 @@ namespace Greenshot.Addon.OneDrive
         public OneDriveDestination(
             IOneDriveConfiguration oneDriveConfiguration,
             IOneDriveLanguage oneDriveLanguage,
-            INetworkConfiguration networkConfiguration,
+            IHttpConfiguration httpConfiguration,
             IResourceProvider resourceProvider,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
             ICoreConfiguration coreConfiguration,
@@ -109,7 +109,7 @@ namespace Greenshot.Addon.OneDrive
             };
             _oneDriveHttpBehaviour = new HttpBehaviour
             {
-                HttpSettings = networkConfiguration,
+                HttpSettings = httpConfiguration,
                 JsonSerializer = new JsonNetJsonSerializer()
             };
         }

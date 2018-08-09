@@ -37,7 +37,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Network")]
     [Description("Greenshot network configuration")]
-    public interface INetworkConfiguration : IIniSection, IHttpSettings, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITransactionalProperties
+    public interface IHttpConfiguration : IIniSection, IHttpSettings, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITransactionalProperties
     {
     }
 }

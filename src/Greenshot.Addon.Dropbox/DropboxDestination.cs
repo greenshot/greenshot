@@ -71,7 +71,7 @@ namespace Greenshot.Addon.Dropbox
 	    public DropboxDestination(
 	        IDropboxConfiguration dropboxPluginConfiguration,
 	        IDropboxLanguage dropboxLanguage,
-	        INetworkConfiguration networkConfiguration,
+	        IHttpConfiguration httpConfiguration,
 	        IResourceProvider resourceProvider,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -108,7 +108,7 @@ namespace Greenshot.Addon.Dropbox
 
 	        _oAuthHttpBehaviour = httpBehaviour;
             // Use the default network settings
-	        httpBehaviour.HttpSettings = networkConfiguration;
+	        httpBehaviour.HttpSettings = httpConfiguration;
         }
 
         public override Bitmap DisplayIcon

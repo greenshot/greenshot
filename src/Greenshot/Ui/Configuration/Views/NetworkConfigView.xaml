@@ -8,19 +8,19 @@
              d:DataContext="{d:DesignInstance viewModels:NetworkConfigViewModel,IsDesignTimeCreatable=False}"
              >
     <StackPanel>
-        <CheckBox Content="Allow auto redirect" IsChecked="{Binding NetworkConfiguration.AllowAutoRedirect}" />
-        <CheckBox Content="Allow pipelining" IsChecked="{Binding NetworkConfiguration.AllowPipelining}" />
-        <CheckBox Content="Ignore SSL certificate errors" IsChecked="{Binding NetworkConfiguration.IgnoreSslCertificateErrors}" />
-        <CheckBox Content="Pre authenticate" IsChecked="{Binding NetworkConfiguration.PreAuthenticate}" />
-        <CheckBox Content="Expect 100 continue" IsChecked="{Binding NetworkConfiguration.Expect100Continue}" />
-        <CheckBox Content="Use cookies" IsChecked="{Binding NetworkConfiguration.UseCookies}" />
-        <CheckBox Content="Use default credentials" IsChecked="{Binding NetworkConfiguration.UseDefaultCredentials}" />
-        <CheckBox Content="Use default proxy" IsChecked="{Binding NetworkConfiguration.UseDefaultProxy}" />
-        <CheckBox Content="Use proxy" IsChecked="{Binding NetworkConfiguration.UseProxy}" />
-        <CheckBox Content="Use default credentials for proxy" IsChecked="{Binding NetworkConfiguration.UseDefaultCredentialsForProxy}" />
+        <CheckBox Content="Allow auto redirect" IsChecked="{Binding HttpConfiguration.AllowAutoRedirect}" />
+        <CheckBox Content="Allow pipelining" IsChecked="{Binding HttpConfiguration.AllowPipelining}" />
+        <CheckBox Content="Ignore SSL certificate errors" IsChecked="{Binding HttpConfiguration.IgnoreSslCertificateErrors}" />
+        <CheckBox Content="Pre authenticate" IsChecked="{Binding HttpConfiguration.PreAuthenticate}" />
+        <CheckBox Content="Expect 100 continue" IsChecked="{Binding HttpConfiguration.Expect100Continue}" />
+        <CheckBox Content="Use cookies" IsChecked="{Binding HttpConfiguration.UseCookies}" />
+        <CheckBox Content="Use default credentials" IsChecked="{Binding HttpConfiguration.UseDefaultCredentials}" />
+        <CheckBox Content="Use default proxy" IsChecked="{Binding HttpConfiguration.UseDefaultProxy}" />
+        <CheckBox Content="Use proxy" IsChecked="{Binding HttpConfiguration.UseProxy}" />
+        <CheckBox Content="Use default credentials for proxy" IsChecked="{Binding HttpConfiguration.UseDefaultCredentialsForProxy}" />
         <DockPanel LastChildFill="True">
             <Label Content="DefaultUseAgent" Width="100" />
-            <TextBox Text="{Binding NetworkConfiguration.DefaultUserAgent}"></TextBox>
+            <TextBox Text="{Binding HttpConfiguration.DefaultUserAgent}"></TextBox>
         </DockPanel>
     </StackPanel>
 </UserControl>

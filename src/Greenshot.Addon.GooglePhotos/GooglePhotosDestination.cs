@@ -57,7 +57,7 @@ namespace Greenshot.Addon.GooglePhotos
 	    private static readonly LogSource Log = new LogSource();
         private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 	    private readonly IGooglePhotosLanguage _googlePhotosLanguage;
-	    private readonly INetworkConfiguration _networkConfiguration;
+	    private readonly IHttpConfiguration _httpConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
 	    private readonly ExportNotification _exportNotification;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
@@ -66,7 +66,7 @@ namespace Greenshot.Addon.GooglePhotos
         public GooglePhotosDestination(
 	        IGooglePhotosConfiguration googlePhotosConfiguration,
 	        IGooglePhotosLanguage googlePhotosLanguage,
-	        INetworkConfiguration networkConfiguration,
+	        IHttpConfiguration httpConfiguration,
 	        IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
@@ -76,7 +76,7 @@ namespace Greenshot.Addon.GooglePhotos
         {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	        _googlePhotosLanguage = googlePhotosLanguage;
-	        _networkConfiguration = networkConfiguration;
+	        _httpConfiguration = httpConfiguration;
 	        _resourceProvider = resourceProvider;
             _exportNotification = exportNotification;
             _pleaseWaitFormFactory = pleaseWaitFormFactory;
@@ -178,7 +178,7 @@ namespace Greenshot.Addon.GooglePhotos
             string filename = surface.GenerateFilename(CoreConfiguration, _googlePhotosConfiguration);
             
             var oAuthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
-            oAuthHttpBehaviour.HttpSettings = _networkConfiguration;
+            oAuthHttpBehaviour.HttpSettings = _httpConfiguration;
             // Use UploadProgress
             if (progress != null)
             {

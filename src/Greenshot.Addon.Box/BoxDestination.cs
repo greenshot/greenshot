@@ -60,7 +60,7 @@ namespace Greenshot.Addon.Box
 	    private readonly IBoxConfiguration _boxConfiguration;
 	    private readonly IBoxLanguage _boxLanguage;
 	    private readonly Func<CancellationTokenSource, Owned<PleaseWaitForm>> _pleaseWaitFormFactory;
-	    private readonly INetworkConfiguration _networkConfiguration;
+	    private readonly IHttpConfiguration _httpConfiguration;
 	    private readonly IResourceProvider _resourceProvider;
 	    private readonly OAuth2Settings _oauth2Settings;
         private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
@@ -73,14 +73,14 @@ namespace Greenshot.Addon.Box
             IBoxConfiguration boxConfiguration,
             IBoxLanguage boxLanguage,
             Func<CancellationTokenSource, Owned<PleaseWaitForm>> pleaseWaitFormFactory,
-            INetworkConfiguration networkConfiguration,
+            IHttpConfiguration httpConfiguration,
             IResourceProvider resourceProvider) : base(coreConfiguration, greenshotLanguage)
         {
 	        _exportNotification = exportNotification;
 	        _boxConfiguration = boxConfiguration;
 	        _boxLanguage = boxLanguage;
 	        _pleaseWaitFormFactory = pleaseWaitFormFactory;
-	        _networkConfiguration = networkConfiguration;
+	        _httpConfiguration = httpConfiguration;
 	        _resourceProvider = resourceProvider;
 
 	        _oauth2Settings = new OAuth2Settings
@@ -187,7 +187,7 @@ namespace Greenshot.Addon.Box
 
             var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
             // Use the network settings
-            oauthHttpBehaviour.HttpSettings = _networkConfiguration;
+            oauthHttpBehaviour.HttpSettings = _httpConfiguration;
             // Use UploadProgress
             if (progress != null)
             {

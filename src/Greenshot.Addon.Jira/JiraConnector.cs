@@ -66,13 +66,13 @@ namespace Greenshot.Addon.Jira
 		    IJiraConfiguration jiraConfiguration,
 		    JiraMonitor jiraMonitor,
 		    ICoreConfiguration coreConfiguration,
-		    INetworkConfiguration networkConfiguration)
+		    IHttpConfiguration httpConfiguration)
 		{
 		    jiraConfiguration.Url = jiraConfiguration.Url.Replace(DefaultPostfix, "");
 		    _jiraConfiguration = jiraConfiguration;
 		    _jiraMonitor = jiraMonitor;
 		    _coreConfiguration = coreConfiguration;
-		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url), networkConfiguration);
+		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url), httpConfiguration);
 		}
 
 		public Bitmap FavIcon { get; private set; }

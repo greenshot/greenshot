@@ -38,16 +38,16 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
-        public INetworkConfiguration NetworkConfiguration { get; }
+        public IHttpConfiguration HttpConfiguration { get; }
 
         public IGreenshotLanguage GreenshotLanguage { get; }
 
         public NetworkConfigViewModel(
-            INetworkConfiguration networkConfiguration,
+            IHttpConfiguration httpConfiguration,
             IGreenshotLanguage greenshotLanguage
             )
         {
-            NetworkConfiguration = networkConfiguration;
+            HttpConfiguration = httpConfiguration;
             GreenshotLanguage = greenshotLanguage;
         }
 
@@ -57,7 +57,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables?.Dispose();
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
-            config.Register(NetworkConfiguration);
+            config.Register(HttpConfiguration);
 
             this.VisibleOnPermissions("Expert");
 

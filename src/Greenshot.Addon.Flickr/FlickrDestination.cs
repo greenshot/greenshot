@@ -83,7 +83,7 @@ namespace Greenshot.Addon.Flickr
         public FlickrDestination(
             IFlickrConfiguration flickrConfiguration,
             IFlickrLanguage flickrLanguage,
-            INetworkConfiguration networkConfiguration,
+            IHttpConfiguration httpConfiguration,
             IResourceProvider resourceProvider,
             ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -123,7 +123,7 @@ namespace Greenshot.Addon.Flickr
 	        _oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
 	        _oAuthHttpBehaviour.ValidateResponseContentType = false;
             // Use the default network settings
-	        _oAuthHttpBehaviour.HttpSettings = networkConfiguration;
+	        _oAuthHttpBehaviour.HttpSettings = httpConfiguration;
 	    }
 
 		public override string Description => _flickrLanguage.UploadMenuItem;

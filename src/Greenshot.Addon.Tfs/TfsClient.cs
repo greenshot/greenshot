@@ -51,14 +51,14 @@ namespace Greenshot.Addon.Tfs
         public TfsClient(
             ICoreConfiguration coreConfiguration,
             ITfsConfiguration tfsConfiguration,
-            INetworkConfiguration networkConfiguration)
+            IHttpConfiguration httpConfiguration)
         {
             _coreConfiguration = coreConfiguration;
             _tfsConfiguration = tfsConfiguration;
 
             _tfsHttpBehaviour = new HttpBehaviour
             {
-                HttpSettings = networkConfiguration,
+                HttpSettings = httpConfiguration,
                 JsonSerializer = new JsonNetJsonSerializer()
             };
 
