@@ -1,11 +1,11 @@
-﻿<toastNotifications:NotificationDisplayPart x:Class="Greenshot.Ui.Notifications.Views.UpdateNotificationView"
+﻿<toasts:ToastView x:Class="Greenshot.Ui.Notifications.Views.UpdateNotificationView"
                                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                                            xmlns:toastNotifications="clr-namespace:ToastNotifications.Core;assembly=ToastNotifications"
                                             xmlns:viewModels="clr-namespace:Greenshot.Ui.Notifications.ViewModels"
                                             xmlns:cal="http://www.caliburnproject.org"
+                                            xmlns:toasts="clr-namespace:Dapplo.CaliburnMicro.Toasts;assembly=Dapplo.CaliburnMicro.Toasts"
                                             mc:Ignorable="d" Background="{DynamicResource AccentColorBrush}" Width="400" Padding="5"
                                             d:DataContext="{d:DesignInstance viewModels:UpdateNotificationViewModel,IsDesignTimeCreatable=False}"
                                             d:DesignHeight="100" d:DesignWidth="200" HorizontalContentAlignment="Stretch" HorizontalAlignment="Right">
@@ -28,4 +28,5 @@
             </TextBlock>
         </Button>
     </Grid>
-</toastNotifications:NotificationDisplayPart>
+</toasts:ToastView>
+
