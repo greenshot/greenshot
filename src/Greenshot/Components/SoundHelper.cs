@@ -57,6 +57,7 @@ namespace Greenshot.Components
 	        _instance = this;
         }
 
+	    /// <inheritdoc />
 		public void Startup()
 		{
             if (_gcHandle != null)

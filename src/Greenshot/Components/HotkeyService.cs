@@ -62,6 +62,7 @@ namespace Greenshot.Components
             return AreHotkeysActive;
         }
 
+        /// <inheritdoc />
         public void Startup()
         {
             Log.Debug().WriteLine("Registering hotkeys");

@@ -105,6 +105,7 @@ namespace Greenshot.Addon.ExternalCommand
 			return false;
 		}
 
+	    /// <inheritdoc />
 	    public void Startup()
 	    {
 	        // Check configuration & cleanup

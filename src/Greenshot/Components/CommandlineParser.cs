@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonServiceLocator;
 using Dapplo.Log;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons.Components;
@@ -40,11 +39,14 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
+        private readonly DestinationHolder _destinationHolder;
 
-        public CommandlineParser(ICoreConfiguration coreConfiguration)
+        public CommandlineParser(
+            ICoreConfiguration coreConfiguration,
+            DestinationHolder destinationHolder)
         {
             _coreConfiguration = coreConfiguration;
-
+            _destinationHolder = destinationHolder;
         }
 
         /// <summary>
@@ -211,12 +213,12 @@ namespace Greenshot.Components
                             "External Command like MS Paint",
                             Environment.NewLine
                             );
-                        foreach (var destination in ServiceLocator.Current.GetAllInstances<IDestination>())
+                        foreach (var destination in _destinationHolder.AllDestinations)
                         {
                             helpOutput.AppendFormat(
                                     "\t\t{0,-16}\t==>\t{1}{2}",
-                                    destination.Designation,
-                                    destination.Description,
+                                    destination.Metadata.Designation,
+                                    destination.Value.Description,
                                     Environment.NewLine
                                     );
                         }

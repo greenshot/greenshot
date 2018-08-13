@@ -62,6 +62,7 @@ namespace Greenshot.Addon.Jira
 		    _jiraConfiguration = jiraConfiguration;
 		}
 
+	    /// <inheritdoc />
 	    public void Startup()
 	    {
             // Subscribe the windows events which tell us a title was changed

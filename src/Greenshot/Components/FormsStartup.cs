@@ -37,6 +37,7 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
 
+        /// <inheritdoc />
         public void Startup()
         {
             Log.Debug().WriteLine("Starting Windows.Forms");

@@ -60,6 +60,7 @@ namespace Greenshot.Components
             _windowHandle = windowHandle;
         }
 
+        /// <inheritdoc />
         public void Startup()
         {
             Log.Debug().WriteLine("Starting MainForm");

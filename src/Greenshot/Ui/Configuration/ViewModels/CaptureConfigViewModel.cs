@@ -34,6 +34,9 @@ using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
+    /// <summary>
+    /// Configuration for the capture
+    /// </summary>
     public sealed class CaptureConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
