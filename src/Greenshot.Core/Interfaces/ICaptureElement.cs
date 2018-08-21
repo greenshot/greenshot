@@ -21,8 +21,8 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.Windows.Media;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Core.Enums;
 
@@ -31,7 +31,7 @@ namespace Greenshot.Core.Interfaces
     /// <summary>
     /// This specifies a single element of a capture, making it possible to have a capture contain mouse, window, popup etc information
     /// </summary>
-    public interface ICaptureElement
+    public interface ICaptureElement<TContent> : IDisposable
     {
         /// <summary>
         /// The location or bounds of the content
@@ -45,7 +45,7 @@ namespace Greenshot.Core.Interfaces
         /// <summary>
         /// The actual content
         /// </summary>
-        ImageSource Content
+        TContent Content
         {
             get;
             set;

@@ -21,8 +21,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.Windows.Media;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
@@ -32,11 +34,25 @@ namespace Greenshot.Core
     /// <summary>
     /// The CaptureElement contains the information of an element in a capture, e.g the window and mouse
     /// </summary>
-    public class CaptureElement : ICaptureElement
+    public class CaptureElement<TContent> : ICaptureElement<TContent>
     {
-        public CaptureElement(NativePoint location, ImageSource content)
+        public CaptureElement(NativePoint location, TContent content)
         {
-            Bounds = new NativeRect(location, new NativeSize((int)content.Width, (int)content.Height));
+            NativeSize size;
+            if (content is BitmapSource bitmapSource)
+            {
+                size = new NativeSize((int)bitmapSource.Width, (int)bitmapSource.Height);
+            }
+            else if (content is Bitmap bitmap)
+            {
+                size = new NativeSize(bitmap.Width, bitmap.Height);
+            }
+            else
+            {
+                throw new NotSupportedException(typeof(TContent).ToString());
+            }
+
+            Bounds = new NativeRect(location, size);
             Content = content;
         }
 
@@ -44,12 +60,20 @@ namespace Greenshot.Core
         public NativeRect Bounds { get; set; }
 
         /// <inheritdoc />
-        public ImageSource Content { get; set; }
+        public TContent Content { get; set; }
 
         /// <inheritdoc />
         public CaptureElementType ElementType { get; set; } = CaptureElementType.Unknown;
 
         /// <inheritdoc />
         public IDictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
+
+        public void Dispose()
+        {
+            if (Content is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 }

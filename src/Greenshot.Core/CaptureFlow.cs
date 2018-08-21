@@ -31,40 +31,40 @@ namespace Greenshot.Core
     /// <summary>
     /// This describes a capture flow, from source via processor to destination
     /// </summary>
-    public class CaptureFlow
+    public class CaptureFlow<TContent>
     {
         /// <summary>
         /// The ISource this capture flow contains
         /// </summary>
-        public IList<ISource> Sources
+        public IList<ISource<TContent>> Sources
         {
             get;
-        } = new List<ISource>();
+        } = new List<ISource<TContent>>();
 
         /// <summary>
         /// The IProcessor this capture flow contains
         /// </summary>
-        public IList<IProcessor> Processors
+        public IList<IProcessor<TContent>> Processors
         {
             get;
-        } = new List<IProcessor>();
+        } = new List<IProcessor<TContent>>();
 
         /// <summary>
         /// The IDestination this capture flow contains
         /// </summary>
-        public IList<IDestination> Destinations
+        public IList<IDestination<TContent>> Destinations
         {
             get;
-        } = new List<IDestination>();
+        } = new List<IDestination<TContent>>();
 
         /// <summary>
         /// Execute this capture flow, to create a capture
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture</returns>
-        public async Task<ICapture> Execute(CancellationToken cancellationToken = default)
+        public async Task<ICapture<TContent>> Execute(CancellationToken cancellationToken = default)
         {
-            var capture = new Capture();
+            var capture = new Capture<TContent>();
 
             // Import the capture from the sources
             foreach (var source in Sources)

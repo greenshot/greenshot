@@ -24,6 +24,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Dapplo.Windows.Desktop;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Extensions;
@@ -34,7 +35,7 @@ namespace Greenshot.Core.Sources
     /// <summary>
     /// This does the screen capture of a Window via DWM
     /// </summary>
-    public class DwmWindowSource : ISource
+    public class DwmWindowSource : ISource<BitmapSource>
     {
         private readonly ICaptureConfiguration _captureConfiguration;
         private readonly Func<IInteropWindow> _retrieveWindowFunc;
@@ -45,7 +46,7 @@ namespace Greenshot.Core.Sources
             _retrieveWindowFunc = retrieveWindowFunc ?? InteropWindowQuery.GetActiveWindow;
         }
 
-        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)
         {
             var window = _retrieveWindowFunc();
             return window.CaptureDwmWindow(_captureConfiguration);

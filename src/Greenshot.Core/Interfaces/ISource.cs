@@ -30,13 +30,13 @@ namespace Greenshot.Core.Interfaces
     /// This interface defines sources, which can be used to get information from.
     /// For instance the screen, IE, a file etc.
     /// </summary>
-    public interface ISource
+    public interface ISource<TResult>
     {
         /// <summary>
         /// Import an ICaptureElement from the source
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task with ICaptureElement</returns>
-        ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default);
+        ValueTask<ICaptureElement<TResult>> Import(CancellationToken cancellationToken = default);
     }
 }

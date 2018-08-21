@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Windows.Media.Imaging;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Core.Enums;
 
 namespace Greenshot.Core.Extensions
@@ -65,6 +66,16 @@ namespace Greenshot.Core.Extensions
             bitmapEncoder.Save(returnStream);
 
             return returnStream;
+        }
+
+        /// <summary>
+        /// Create a NativeSizeFloat object from a BitmapSource
+        /// </summary>
+        /// <param name="bitmapSource"></param>
+        /// <returns></returns>
+        public static NativeSizeFloat Size(this BitmapSource bitmapSource)
+        {
+            return new NativeSizeFloat(bitmapSource.Width, bitmapSource.Height);
         }
     }
 }

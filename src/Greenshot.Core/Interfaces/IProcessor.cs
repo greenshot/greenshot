@@ -30,7 +30,7 @@ namespace Greenshot.Core.Interfaces
     /// This IProcessor describes things which can process a capture
     /// An example would be to add a watermark to the capture
     /// </summary>
-    public interface IProcessor
+    public interface IProcessor<TContent>
     {
         /// <summary>
         /// Process the capture
@@ -38,6 +38,6 @@ namespace Greenshot.Core.Interfaces
         /// <param name="capture">ICapture</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task of bool</returns>
-        Task<bool> Process(ICapture capture, CancellationToken cancellationToken = default);
+        Task<bool> Process(ICapture<TContent> capture, CancellationToken cancellationToken = default);
     }
 }

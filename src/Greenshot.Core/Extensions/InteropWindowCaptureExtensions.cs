@@ -71,10 +71,10 @@ namespace Greenshot.Core.Extensions
         /// <param name="interopWindow">InteropWindow</param>
         /// <param name="clientBounds">true to use the client bounds</param>
         /// <returns>ICaptureElement</returns>
-        public static ICaptureElement CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
+        public static ICaptureElement<BitmapSource> CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
         {
             var bounds = clientBounds ? interopWindow.GetInfo().ClientBounds: interopWindow.GetInfo().Bounds;
-            ICaptureElement result = ScreenSource.CaptureRectangle(bounds);
+            ICaptureElement<BitmapSource> result = ScreenSource.CaptureRectangle(bounds);
             return result;
         }
 
@@ -84,18 +84,18 @@ namespace Greenshot.Core.Extensions
         ///     TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
         /// </summary>
         /// <returns>ICaptureElement</returns>
-        public static ICaptureElement PrintWindow(this IInteropWindow interopWindow)
+        public static ICaptureElement<BitmapSource> PrintWindow(this IInteropWindow interopWindow)
         {
             var returnBitmap = interopWindow.PrintWindow<BitmapSource>();
             if (interopWindow.HasParent || !interopWindow.IsMaximized())
             {
-                return new CaptureElement(interopWindow.GetInfo().Bounds.Location, returnBitmap);
+                return new CaptureElement<BitmapSource>(interopWindow.GetInfo().Bounds.Location, returnBitmap);
             }
             Log.Debug().WriteLine("Correcting for maximalization");
             var borderSize = interopWindow.GetInfo().BorderSize;
             var bounds = interopWindow.GetInfo().Bounds;
             var borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, bounds.Width - 2 * borderSize.Width, bounds.Height - 2 * borderSize.Height);
-            return new CaptureElement(interopWindow.GetInfo().Bounds.Location, new CroppedBitmap(returnBitmap, borderRectangle));
+            return new CaptureElement<BitmapSource>(interopWindow.GetInfo().Bounds.Location, new CroppedBitmap(returnBitmap, borderRectangle));
         }
 
 
@@ -103,6 +103,7 @@ namespace Greenshot.Core.Extensions
         ///     Helper method to check if it is allowed to capture the process using GDI
         /// </summary>
         /// <param name="process">Process owning the window</param>
+        /// <param name="captureConfiguration">ICaptureConfiguration</param>
         /// <returns>true if it's allowed</returns>
         public static bool IsGdiAllowed(Process process, ICaptureConfiguration captureConfiguration)
         {
@@ -137,10 +138,10 @@ namespace Greenshot.Core.Extensions
         /// <param name="interopWindow">IInteropWindow</param>
         /// <param name="captureConfiguration">ICaptureConfiguration configuration for the settings</param>
         /// <returns>ICaptureElement with the capture</returns>
-        public static async ValueTask<ICaptureElement> CaptureDwmWindow(this IInteropWindow interopWindow, ICaptureConfiguration captureConfiguration)
+        public static async ValueTask<ICaptureElement<BitmapSource>> CaptureDwmWindow(this IInteropWindow interopWindow, ICaptureConfiguration captureConfiguration)
         {
             // The capture
-            ICaptureElement capturedBitmap = null;
+            ICaptureElement<BitmapSource> capturedBitmap = null;
             var thumbnailHandle = IntPtr.Zero;
             Form tempForm = null;
             var tempFormShown = false;
@@ -387,12 +388,11 @@ namespace Greenshot.Core.Extensions
         /// <param name="blackBitmap">ICaptureElement with the black image</param>
         /// <param name="whiteBitmap">ICaptureElement with the white image</param>
         /// <returns>ICaptureElement with transparency</returns>
-        private static ICaptureElement ApplyTransparency(ICaptureElement blackBitmap, ICaptureElement whiteBitmap)
+        private static ICaptureElement<BitmapSource> ApplyTransparency(ICaptureElement<BitmapSource> blackBitmap, ICaptureElement<BitmapSource> whiteBitmap)
         {
-            var blackBitmapSource = blackBitmap.Content as BitmapSource ?? throw new ArgumentException("Not a BitmapSource", nameof(blackBitmap));
-            var whitkBitmapSource = whiteBitmap.Content as BitmapSource ?? throw new ArgumentException("Not a BitmapSource", nameof(whiteBitmap));
-            var blackBuffer = new WriteableBitmap(blackBitmapSource);
-            var whiteBuffer = new WriteableBitmap(whitkBitmapSource);
+            var blackBuffer = new WriteableBitmap(blackBitmap.Content);
+            var whiteBuffer = new WriteableBitmap(whiteBitmap.Content);
+            var blackBitmapSource = blackBitmap.Content;
             var result = new WriteableBitmap((int)blackBitmapSource.Width, (int)blackBitmapSource.Height, blackBitmapSource.DpiX, blackBitmapSource.DpiY, PixelFormats.Bgra32, null);
 
             try
@@ -458,7 +458,7 @@ namespace Greenshot.Core.Extensions
                 blackBuffer.Unlock();
                 whiteBuffer.Unlock();
             }
-            return new CaptureElement(blackBitmap.Bounds.Location, result);
+            return new CaptureElement<BitmapSource>(blackBitmap.Bounds.Location, result);
         }
     }
 }

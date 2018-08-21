@@ -24,6 +24,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
@@ -48,7 +49,7 @@ namespace Greenshot.Tests
         [Fact]
         public async Task Test_CaptureFlow_ScreenSource()
         {
-            var captureFlow = new CaptureFlow
+            var captureFlow = new CaptureFlow<BitmapSource>
             {
                 Sources = {new ScreenSource()}
             };
@@ -64,7 +65,7 @@ namespace Greenshot.Tests
         [Fact]
         public async Task Test_CaptureFlow_ScreenSource_MouseSource()
         {
-            var captureFlow = new CaptureFlow
+            var captureFlow = new CaptureFlow<BitmapSource>
             {
                 Sources = { new ScreenSource() , new MouseSource()}
             };
@@ -82,16 +83,21 @@ namespace Greenshot.Tests
         {
             var iniConfig = new IniConfig("Greenshot.Tests", "Greenshot.Tests");
             var config = iniConfig.Get<ICoreConfiguration>();
-            var captureFlow = new CaptureFlow
+
+            var windowToCapture = InteropWindowQuery.GetTopLevelWindows().First(window => window.GetCaption().Contains("Notepad"));
+            var bounds = windowToCapture.GetInfo().Bounds;
+            var captureFlow = new CaptureFlow<BitmapSource>
             {
-                Sources = { new DwmWindowSource(config, () => InteropWindowQuery.GetTopLevelWindows().First(window => window.GetCaption().Contains("Notepad"))) }
+                Sources = { new DwmWindowSource(config, () => windowToCapture) }
             };
             var capture = await captureFlow.Execute();
             Assert.NotNull(capture);
             Assert.NotNull(capture.CaptureElements);
 
             var template = new SimpleTemplate();
-            using (var outputStream = template.Apply(capture).ToBitmapSource().ToStream(OutputFormats.png))
+            var bitmapSource = template.Apply(capture).ToBitmapSource();
+            Assert.Equal(bounds.Size, bitmapSource.Size());
+            using (var outputStream = bitmapSource.ToStream(OutputFormats.png))
             using (var fileStream = File.Create("Test_CaptureFlow_DwmWindowSource.png"))
             {
                 outputStream.Seek(0, SeekOrigin.Begin);

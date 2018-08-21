@@ -21,8 +21,10 @@
 
 #endregion
 
+
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
 
@@ -31,10 +33,10 @@ namespace Greenshot.Core.Templates
     /// <summary>
     /// A template to create a FrameworkElement from a capture
     /// </summary>
-    public class SimpleTemplate : ITemplate
+    public class SimpleTemplate : ITemplate<BitmapSource>
     {
         public bool DisplayMouse { get; set; } = true;
-        public FrameworkElement Apply(ICapture capture)
+        public FrameworkElement Apply(ICapture<BitmapSource> capture)
         {
             var canvas = new Canvas
             {

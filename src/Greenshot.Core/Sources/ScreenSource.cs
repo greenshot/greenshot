@@ -30,7 +30,6 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -49,14 +48,13 @@ namespace Greenshot.Core.Sources
     /// <summary>
     /// This does the screen capture
     /// </summary>
-    public class ScreenSource : ISource
+    public class ScreenSource : ISource<BitmapSource>
     {
-        private static readonly LogSource Log = new LogSource();
-        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)
         {
             var screenbounds = DisplayInfo.GetAllScreenBounds();
             var result = CaptureRectangle(screenbounds);
-            return new ValueTask<ICaptureElement>(result);
+            return new ValueTask<ICaptureElement<BitmapSource>>(result);
         }
 
         /// <summary>
@@ -83,9 +81,9 @@ namespace Greenshot.Core.Sources
         /// </summary>
         /// <param name="captureBounds">NativeRect</param>
         /// <returns>ICaptureElement</returns>
-        internal static ICaptureElement CaptureRectangle(NativeRect captureBounds)
+        internal static ICaptureElement<BitmapSource> CaptureRectangle(NativeRect captureBounds)
         {
-            BitmapSource capturedBitmapSource = null;
+            BitmapSource capturedBitmapSource;
             if (captureBounds.IsEmpty)
             {
                 return null;
@@ -183,7 +181,7 @@ namespace Greenshot.Core.Sources
                     }
                 }
             }
-            ICaptureElement result = new CaptureElement(captureBounds.Location, capturedBitmapSource)
+            var result = new CaptureElement<BitmapSource>(captureBounds.Location, capturedBitmapSource)
             {
                 ElementType = CaptureElementType.Screen
             };

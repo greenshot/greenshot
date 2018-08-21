@@ -29,7 +29,7 @@ namespace Greenshot.Core.Interfaces
     /// <summary>
     /// This IDestination describes things which can export a capture
     /// </summary>
-    public interface IDestination
+    public interface IDestination<TContent>
     {
         /// <summary>
         /// This is called when the a capture needs to be exported
@@ -37,6 +37,6 @@ namespace Greenshot.Core.Interfaces
         /// <param name="capture">ICapture</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task of bool</returns>
-        Task<bool> Export(ICapture capture, CancellationToken cancellationToken = default);
+        Task<bool> Export(ICapture<TContent> capture, CancellationToken cancellationToken = default);
     }
 }

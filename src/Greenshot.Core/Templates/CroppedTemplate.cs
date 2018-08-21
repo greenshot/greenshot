@@ -24,6 +24,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
@@ -33,10 +34,10 @@ namespace Greenshot.Core.Templates
     /// <summary>
     /// A template to create a FrameworkElement from a capture, with a crop applied
     /// </summary>
-    public class CroppedTemplate : ITemplate
+    public class CroppedTemplate : ITemplate<BitmapSource>
     {
         public bool DisplayMouse { get; set; } = true;
-        public FrameworkElement Apply(ICapture capture)
+        public FrameworkElement Apply(ICapture<BitmapSource> capture)
         {
             var width = (int)(capture.CropRect.Width + 0.5);
             var height = (int)(capture.CropRect.Height + 0.5);

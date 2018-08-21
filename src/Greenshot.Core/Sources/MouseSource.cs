@@ -23,6 +23,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Dapplo.Windows.Icons;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
@@ -32,21 +33,21 @@ namespace Greenshot.Core.Sources
     /// <summary>
     /// A source to capture the mouse cursor
     /// </summary>
-    public class MouseSource : ISource
+    public class MouseSource : ISource<BitmapSource>
     {
         /// <inheritdoc />
-        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)
         {
-            ICaptureElement result = null;
+            ICaptureElement<BitmapSource> result = null;
             if (CursorHelper.TryGetCurrentCursor(out var bitmapSource, out var location))
             {
-                result = new CaptureElement(location, bitmapSource)
+                result = new CaptureElement<BitmapSource>(location, bitmapSource)
                 {
                     ElementType = CaptureElementType.Mouse
                 };
             }
 
-            return new ValueTask<ICaptureElement>(result);
+            return new ValueTask<ICaptureElement<BitmapSource>>(result);
         }
 
     }

@@ -30,7 +30,7 @@ namespace Greenshot.Core.Interfaces
     /// <summary>
     /// This contains all the capture information
     /// </summary>
-    public interface ICapture
+    public interface ICapture<TContent> : IDisposable
     {
         /// <summary>
         /// The calculated bounds for this capture
@@ -55,6 +55,6 @@ namespace Greenshot.Core.Interfaces
         /// <summary>
         /// the actual capture elements, making up the capture
         /// </summary>
-        IList<ICaptureElement> CaptureElements { get; }
+        IList<ICaptureElement<TContent>> CaptureElements { get; }
     }
 }

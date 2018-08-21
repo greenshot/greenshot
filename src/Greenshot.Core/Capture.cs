@@ -31,13 +31,22 @@ using Greenshot.Core.Interfaces;
 namespace Greenshot.Core
 {
     /// <inheritdoc />
-    public class Capture : ICapture
+    public class Capture<TContent> : ICapture<TContent>
     {
+        public void Dispose()
+        {
+            foreach (var captureElement in CaptureElements)
+            {
+                captureElement?.Dispose();
+            }
+            CaptureElements.Clear();
+        }
+
         /// <inheritdoc />
         public DateTimeOffset Taken { get; } = DateTimeOffset.Now;
 
         /// <inheritdoc />
-        public IList<ICaptureElement> CaptureElements { get; } = new List<ICaptureElement>();
+        public IList<ICaptureElement<TContent>> CaptureElements { get; } = new List<ICaptureElement<TContent>>();
 
         /// <inheritdoc />
         public NativeRect Bounds => CaptureElements.Select(element => element.Bounds).Aggregate((b1, b2) => b1.Union(b2));

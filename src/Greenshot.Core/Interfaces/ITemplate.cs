@@ -28,13 +28,13 @@ namespace Greenshot.Core.Interfaces
     /// <summary>
     /// This defines a template which is applied to a capture, so we can output it to the screen or to disk.
     /// </summary>
-    public interface ITemplate
+    public interface ITemplate<TContent>
     {
         /// <summary>
         /// This applies a template, to generate a framework element
         /// </summary>
         /// <param name="capture">ICapture</param>
         /// <returns>FrameworkElement</returns>
-        FrameworkElement Apply(ICapture capture);
+        FrameworkElement Apply(ICapture<TContent> capture);
     }
 }
