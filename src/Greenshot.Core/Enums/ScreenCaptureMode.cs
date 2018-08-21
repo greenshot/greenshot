@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace Greenshot.Addons.Interfaces
+namespace Greenshot.Core.Enums
 {
 	public enum ScreenCaptureMode
 	{

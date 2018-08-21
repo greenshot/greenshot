@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,22 +21,14 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Greenshot.Core.Interfaces
+namespace Greenshot.Core.Enums
 {
-    /// <summary>
-    /// This interface defines sources, which can be used to get information from.
-    /// For instance the screen, IE, a file etc.
-    /// </summary>
-    public interface ISource
-    {
-        /// <summary>
-        /// Import an ICaptureElement from the source
-        /// </summary>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>Task with ICaptureElement</returns>
-        ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default);
-    }
+	public enum WindowCaptureModes
+	{
+		Screen,
+		Gdi,
+		Aero,
+		AeroTransparent,
+		Auto
+	}
 }

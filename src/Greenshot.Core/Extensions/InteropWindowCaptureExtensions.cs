@@ -26,9 +26,10 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Ini;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Dapplo.Log;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Common;
@@ -37,17 +38,18 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Gdi32;
-using Dapplo.Windows.Icons;
-using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.User32.Enums;
-using Greenshot.Addons.Interfaces;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Structs;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Enums;
-using Greenshot.Gfx;
-using Greenshot.Gfx.FastBitmap;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Sources;
+using Greenshot.Core.Structs;
+using Color = System.Drawing.Color;
 
 #endregion
 
-namespace Greenshot.Addons.Core
+namespace Greenshot.Core.Extensions
 {
     /// <summary>
     ///     Greenshot versions of the extension methods for the InteropWindow
@@ -55,78 +57,25 @@ namespace Greenshot.Addons.Core
     public static class InteropWindowCaptureExtensions
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration CoreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
-        private static Color _transparentColor = Color.Transparent;
-
-        /// <summary>
-        ///     Get the file path to the exe for the process which owns this window
-        /// </summary>
-        public static string GetProcessPath(this IInteropWindow interopWindow)
+        private static readonly Bgra32 TransparentColor = new Bgra32
         {
-            // TODO: fix for apps
-            var processid = interopWindow.GetProcessId();
-            return Kernel32Api.GetProcessPath(processid);
-        }
-
-        /// <summary>
-        ///     Get the icon belonging to the process
-        /// TODO: Check when the icon is disposed!
-        /// </summary>
-        /// <param name="interopWindow">IInteropWindow</param>
-        /// <param name="useLargeIcon">true to use the large icon</param>
-        public static Image GetDisplayIcon(this IInteropWindow interopWindow, bool useLargeIcon = true)
-        {
-            try
-            {
-                var appIcon = interopWindow.GetIcon<Bitmap>(useLargeIcon);
-                if (appIcon != null)
-                {
-                    return appIcon;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", interopWindow.GetCaption(), ex.Message);
-            }
-            try
-            {
-                return PluginUtils.GetCachedExeIcon(interopWindow.GetProcessPath(), 0);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", interopWindow.GetCaption(), ex.Message);
-            }
-            return null;
-        }
+            A = 255,
+            R = 0,
+            G = 0,
+            B = 0
+        };
 
         /// <summary>
         ///     Extension method to capture a bitmap of the screen area where the InteropWindow is located
         /// </summary>
         /// <param name="interopWindow">InteropWindow</param>
         /// <param name="clientBounds">true to use the client bounds</param>
-        /// <returns>Bitmap</returns>
-        public static Bitmap CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
+        /// <returns>ICaptureElement</returns>
+        public static ICaptureElement CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
         {
             var bounds = clientBounds ? interopWindow.GetInfo().ClientBounds: interopWindow.GetInfo().Bounds;
-            return WindowCapture.CaptureRectangle(bounds);
-        }
-
-        /// <summary>
-        ///     Capture Window with GDI+
-        /// </summary>
-        /// <param name="interopWindow">IInteropWindow</param>
-        /// <param name="capture">The capture to fill</param>
-        /// <returns>ICapture</returns>
-        public static ICapture CaptureGdiWindow(this IInteropWindow interopWindow, ICapture capture)
-        {
-            var capturedImage = interopWindow.PrintWindow();
-            if (capturedImage == null)
-            {
-                return null;
-            }
-            capture.Bitmap = capturedImage;
-            capture.Location = interopWindow.GetInfo().Bounds.Location;
-            return capture;
+            ICaptureElement result = ScreenSource.CaptureRectangle(bounds);
+            return result;
         }
 
         /// <summary>
@@ -134,31 +83,64 @@ namespace Greenshot.Addons.Core
         ///     As GDI+ draws it, it will be without Aero borders!
         ///     TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
         /// </summary>
-        public static Bitmap PrintWindow(this IInteropWindow nativeWindow)
+        /// <returns>ICaptureElement</returns>
+        public static ICaptureElement PrintWindow(this IInteropWindow interopWindow)
         {
-            var returnBitmap = nativeWindow.PrintWindow<Bitmap>();
-            if (nativeWindow.HasParent || !nativeWindow.IsMaximized())
+            var returnBitmap = interopWindow.PrintWindow<BitmapSource>();
+            if (interopWindow.HasParent || !interopWindow.IsMaximized())
             {
-                return returnBitmap;
+                return new CaptureElement(interopWindow.GetInfo().Bounds.Location, returnBitmap);
             }
             Log.Debug().WriteLine("Correcting for maximalization");
-            Size borderSize = nativeWindow.GetInfo().BorderSize;
-            var bounds = nativeWindow.GetInfo().Bounds;
+            var borderSize = interopWindow.GetInfo().BorderSize;
+            var bounds = interopWindow.GetInfo().Bounds;
             var borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, bounds.Width - 2 * borderSize.Width, bounds.Height - 2 * borderSize.Height);
-            BitmapHelper.Crop(ref returnBitmap, ref borderRectangle);
-            return returnBitmap;
+            return new CaptureElement(interopWindow.GetInfo().Bounds.Location, new CroppedBitmap(returnBitmap, borderRectangle));
+        }
+
+
+        /// <summary>
+        ///     Helper method to check if it is allowed to capture the process using GDI
+        /// </summary>
+        /// <param name="process">Process owning the window</param>
+        /// <returns>true if it's allowed</returns>
+        public static bool IsGdiAllowed(Process process, ICaptureConfiguration captureConfiguration)
+        {
+            if (process == null)
+            {
+                return true;
+            }
+
+            if (captureConfiguration.NoGDICaptureForProduct == null || captureConfiguration.NoGDICaptureForProduct.Count <= 0)
+            {
+                return true;
+            }
+
+            try
+            {
+                var productName = process.MainModule.FileVersionInfo.ProductName;
+                if (productName != null && captureConfiguration.NoGDICaptureForProduct.Contains(productName.ToLower()))
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex.Message);
+            }
+            return true;
         }
 
         /// <summary>
-        ///     Capture DWM Window
+        ///     Capture DWM Window, this needs needs to be async to prevent Application.DoEvents (which is horribe)
         /// </summary>
         /// <param name="interopWindow">IInteropWindow</param>
-        /// <param name="capture">Capture to fill</param>
-        /// <param name="windowCaptureMode">Wanted WindowCaptureModes</param>
-        /// <param name="autoMode">True if auto modus is used</param>
-        /// <returns>ICapture with the capture</returns>
-        public static ICapture CaptureDwmWindow(this IInteropWindow interopWindow, ICapture capture, WindowCaptureModes windowCaptureMode, bool autoMode)
+        /// <param name="captureConfiguration">ICaptureConfiguration configuration for the settings</param>
+        /// <returns>ICaptureElement with the capture</returns>
+        public static async ValueTask<ICaptureElement> CaptureDwmWindow(this IInteropWindow interopWindow, ICaptureConfiguration captureConfiguration)
         {
+            // The capture
+            ICaptureElement capturedBitmap = null;
             var thumbnailHandle = IntPtr.Zero;
             Form tempForm = null;
             var tempFormShown = false;
@@ -191,30 +173,29 @@ namespace Greenshot.Addons.Core
                 {
                     // Assume using it's own location
                     formLocation = windowRectangle.Location;
-                    using (var workingArea = new Region(Screen.PrimaryScreen.Bounds))
+                    using (var workingArea = new Region())
                     {
                         // Find the screen where the window is and check if it fits
-                        foreach (var screen in Screen.AllScreens)
+                        foreach (var displayInfo in User32Api.AllDisplays())
                         {
-                            if (!Equals(screen, Screen.PrimaryScreen))
-                            {
-                                workingArea.Union(screen.Bounds);
-                            }
+                            workingArea.Union(displayInfo.WorkingArea);
                         }
 
                         // If the formLocation is not inside the visible area
                         if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
                         {
                             // If none found we find the biggest screen
-                            foreach (var screen in Screen.AllScreens)
+                            foreach (var displayInfo in User32Api.AllDisplays())
                             {
-                                var newWindowRectangle = new NativeRect(screen.WorkingArea.Location, windowRectangle.Size);
-                                if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
+                                var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
+                                if (!workingArea.AreRectangleCornersVisisble(newWindowRectangle))
                                 {
-                                    formLocation = screen.Bounds.Location;
-                                    doesCaptureFit = true;
-                                    break;
+                                    continue;
                                 }
+
+                                formLocation = displayInfo.Bounds.Location;
+                                doesCaptureFit = true;
+                                break;
                             }
                         }
                         else
@@ -246,10 +227,10 @@ namespace Greenshot.Addons.Core
                     // TODO: Also 8.x?
                     if (WindowsVersion.IsWindows10)
                     {
-                        captureRectangle = captureRectangle.Inflate(CoreConfiguration.Win10BorderCrop.Width, CoreConfiguration.Win10BorderCrop.Height);
+                        captureRectangle = captureRectangle.Inflate(captureConfiguration.Win10BorderCrop.Width, captureConfiguration.Win10BorderCrop.Height);
                     }
 
-                    if (autoMode)
+                    if (captureConfiguration.WindowCaptureMode == WindowCaptureModes.Auto)
                     {
                         // check if the capture fits
                         if (!doesCaptureFit)
@@ -257,7 +238,7 @@ namespace Greenshot.Addons.Core
                             // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
                             using (var thisWindowProcess = Process.GetProcessById(interopWindow.GetProcessId()))
                             {
-                                if (!interopWindow.IsApp() && WindowCapture.IsGdiAllowed(thisWindowProcess))
+                                if (!interopWindow.IsApp() && IsGdiAllowed(thisWindowProcess, captureConfiguration))
                                 {
                                     // we return null which causes the capturing code to try another method.
                                     return null;
@@ -278,59 +259,43 @@ namespace Greenshot.Addons.Core
                 tempFormShown = true;
 
                 // Intersect with screen
-                captureRectangle = captureRectangle.Intersect(capture.ScreenBounds);
+                captureRectangle = captureRectangle.Intersect(DisplayInfo.GetAllScreenBounds());
 
-                // Destination bitmap for the capture
-                Bitmap capturedBitmap = null;
                 // Check if we make a transparent capture
-                if (windowCaptureMode == WindowCaptureModes.AeroTransparent)
+                if (captureConfiguration.WindowCaptureMode == WindowCaptureModes.AeroTransparent)
                 {
                     // Use white, later black to capture transparent
                     tempForm.BackColor = Color.White;
                     // Make sure everything is visible
                     tempForm.Refresh();
-                    Application.DoEvents();
+                    await Task.Yield();
 
                     try
                     {
-                        using (var whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle))
-                        {
-                            // Apply a white color
-                            tempForm.BackColor = Color.Black;
-                            // Make sure everything is visible
-                            tempForm.Refresh();
-                            if (!interopWindow.IsApp())
-                            {
-                                // Make sure the application window is active, so the colors & buttons are right
-                                // TODO: Await?
-                                interopWindow.ToForegroundAsync();
-                            }
-                            // Make sure all changes are processed and visible
-                            Application.DoEvents();
-                            using (var blackBitmap = WindowCapture.CaptureRectangle(captureRectangle))
-                            {
-                                capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
-                            }
-                        }
+                        var whiteBitmap = ScreenSource.CaptureRectangle(captureRectangle);
+                        // Apply a white color
+                        tempForm.BackColor = Color.Black;
+                        // Make sure everything is visible
+                        tempForm.Refresh();
+                        // Make sure the application window is active, so the colors & buttons are right
+                        await Task.Yield();
+                        var blackBitmap = ScreenSource.CaptureRectangle(captureRectangle);
+                        capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
                     }
                     catch (Exception e)
                     {
                         Log.Warn().WriteLine(e, "Exception: ");
                         // Some problem occurred, cleanup and make a normal capture
-                        if (capturedBitmap != null)
-                        {
-                            capturedBitmap.Dispose();
-                            capturedBitmap = null;
-                        }
+                        capturedBitmap = null;
                     }
                 }
                 // If no capture up till now, create a normal capture.
                 if (capturedBitmap == null)
                 {
                     // Remove transparency, this will break the capturing
-                    if (!autoMode)
+                    if (captureConfiguration.WindowCaptureMode != WindowCaptureModes.Auto)
                     {
-                        tempForm.BackColor = Color.FromArgb(255, CoreConfiguration.DWMBackgroundColor.R, CoreConfiguration.DWMBackgroundColor.G, CoreConfiguration.DWMBackgroundColor.B);
+                        tempForm.BackColor = Color.FromArgb(255, captureConfiguration.DWMBackgroundColor.R, captureConfiguration.DWMBackgroundColor.G, captureConfiguration.DWMBackgroundColor.B);
                     }
                     else
                     {
@@ -344,21 +309,20 @@ namespace Greenshot.Addons.Core
                     if (!interopWindow.IsApp())
                     {
                         // Make sure the application window is active, so the colors & buttons are right
-                        interopWindow.ToForegroundAsync();
+                        await interopWindow.ToForegroundAsync();
                     }
                     // Make sure all changes are processed and visible
-                    Application.DoEvents();
+                    await Task.Yield();
                     // Capture from the screen
-                    capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+                    capturedBitmap = ScreenSource.CaptureRectangle(captureRectangle);
                 }
-                if (capturedBitmap != null)
+/*                if (capturedBitmap != null)
                 {
                     // Not needed for Windows 8
                     if (!WindowsVersion.IsWindows8OrLater)
                     {
                         // Only if the Inivalue is set, not maximized and it's not a tool window.
-                        if (CoreConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() &&
-                            !interopWindow.GetInfo().ExtendedStyle.HasFlag(ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW))
+                        if (captureConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() && !interopWindow.GetInfo().ExtendedStyle.HasFlag(ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW))
                         {
                             // Remove corners
                             if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
@@ -371,11 +335,7 @@ namespace Greenshot.Addons.Core
                             RemoveCorners(capturedBitmap);
                         }
                     }
-                }
-
-                capture.Bitmap = capturedBitmap;
-                // Make sure the capture location is the location of the window, not the copy
-                capture.Location = interopWindow.GetInfo().Bounds.Location;
+                }*/
             }
             finally
             {
@@ -395,10 +355,10 @@ namespace Greenshot.Addons.Core
                 }
             }
 
-            return capture;
+            return capturedBitmap;
         }
 
-        /// <summary>
+/*        /// <summary>
         ///     Helper method to remove the corners from a DMW capture
         /// </summary>
         /// <param name="image">The bitmap to remove the corners from.</param>
@@ -417,62 +377,88 @@ namespace Greenshot.Addons.Core
                     }
                 }
             }
-        }
+        }*/
 
         /// <summary>
         ///     Apply transparency by comparing a transparent capture with a black and white background
         ///     A "Math.min" makes sure there is no overflow, but this could cause the picture to have shifted colors.
         ///     The pictures should have been taken without differency, except for the colors.
         /// </summary>
-        /// <param name="blackBitmap">Bitmap with the black image</param>
-        /// <param name="whiteBitmap">Bitmap with the black image</param>
-        /// <returns>Bitmap with transparency</returns>
-        private static Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
+        /// <param name="blackBitmap">ICaptureElement with the black image</param>
+        /// <param name="whiteBitmap">ICaptureElement with the white image</param>
+        /// <returns>ICaptureElement with transparency</returns>
+        private static ICaptureElement ApplyTransparency(ICaptureElement blackBitmap, ICaptureElement whiteBitmap)
         {
-            using (var targetBuffer = FastBitmapFactory.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
+            var blackBitmapSource = blackBitmap.Content as BitmapSource ?? throw new ArgumentException("Not a BitmapSource", nameof(blackBitmap));
+            var whitkBitmapSource = whiteBitmap.Content as BitmapSource ?? throw new ArgumentException("Not a BitmapSource", nameof(whiteBitmap));
+            var blackBuffer = new WriteableBitmap(blackBitmapSource);
+            var whiteBuffer = new WriteableBitmap(whitkBitmapSource);
+            var result = new WriteableBitmap((int)blackBitmapSource.Width, (int)blackBitmapSource.Height, blackBitmapSource.DpiX, blackBitmapSource.DpiY, PixelFormats.Bgra32, null);
+
+            try
             {
-                targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-                using (var blackBuffer = FastBitmapFactory.Create(blackBitmap))
+                result.Lock();
+                blackBuffer.Lock();
+                whiteBuffer.Lock();
+
+                unsafe
                 {
-                    using (var whiteBuffer = FastBitmapFactory.Create(whiteBitmap))
+                    var blackPixels = (Bgra32*)blackBuffer.BackBuffer;
+                    var whitePixels = (Bgra32*)whiteBuffer.BackBuffer;
+                    var target = (Bgra32*) result.BackBuffer;
+                    for (var y = 0; y < blackBuffer.Height; y++)
                     {
-                        for (var y = 0; y < blackBuffer.Height; y++)
+                        for (var x = 0; x < blackBuffer.Width; x++)
                         {
-                            for (var x = 0; x < blackBuffer.Width; x++)
+                            ref var c0 = ref blackPixels[x];
+                            ref var c1 = ref whitePixels[x];
+                            // Calculate alpha as double in range 0-1
+                            var alpha = c0.R - c1.R + 255;
+                            if (alpha == 255)
                             {
-                                var c0 = blackBuffer.GetColorAt(x, y);
-                                var c1 = whiteBuffer.GetColorAt(x, y);
-                                // Calculate alpha as double in range 0-1
-                                var alpha = c0.R - c1.R + 255;
-                                if (alpha == 255)
-                                {
-                                    // Alpha == 255 means no change!
-                                    targetBuffer.SetColorAt(x, y, ref c0);
-                                }
-                                else if (alpha == 0)
-                                {
-                                    // Complete transparency, use transparent pixel
-                                    targetBuffer.SetColorAt(x, y, ref _transparentColor);
-                                }
-                                else
-                                {
-                                    // Calculate original color
-                                    var originalAlpha = (byte) Math.Min(255, alpha);
-                                    var alphaFactor = alpha / 255d;
-                                    //Log.Debug().WriteLine("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-                                    var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
-                                    var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
-                                    var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
-                                    var originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
-                                    //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-                                    targetBuffer.SetColorAt(x, y, ref originalColor);
-                                }
+                                // Alpha == 255 means no change!
+                                target[x] = c0;
                             }
+                            else if (alpha == 0)
+                            {
+                                // Complete transparency, use transparent pixel
+                                target[x] = TransparentColor;
+                            }
+                            else
+                            {
+                                // Calculate original color
+                                var originalAlpha = (byte) Math.Min(255, alpha);
+                                var alphaFactor = alpha / 255d;
+                                //Log.Debug().WriteLine("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
+                                var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
+                                var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
+                                var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
+
+                                var originalColor = new Bgra32()
+                                {
+                                    A = originalAlpha,
+                                    R = originalRed,
+                                    G = originalGreen,
+                                    B = originalBlue
+                                };
+                                //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
+                                target[x] = originalColor;
+                            }
+
                         }
+                        blackPixels += blackBuffer.BackBufferStride;
+                        whitePixels += whiteBuffer.BackBufferStride;
+                        target += result.BackBufferStride;
                     }
                 }
-                return targetBuffer.UnlockAndReturnBitmap();
             }
+            finally
+            {
+                result.Unlock();
+                blackBuffer.Unlock();
+                whiteBuffer.Unlock();
+            }
+            return new CaptureElement(blackBitmap.Bounds.Location, result);
         }
     }
 }

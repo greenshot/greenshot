@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -53,14 +52,11 @@ namespace Greenshot.Core.Sources
     public class ScreenSource : ISource
     {
         private static readonly LogSource Log = new LogSource();
-        public Task<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
         {
             var screenbounds = DisplayInfo.GetAllScreenBounds();
-            ICaptureElement result = new CaptureElement(screenbounds.Location, CaptureRectangle(screenbounds))
-            {
-                ElementType = CaptureElementType.Screen
-            };
-            return Task.FromResult(result);
+            var result = CaptureRectangle(screenbounds);
+            return new ValueTask<ICaptureElement>(result);
         }
 
         /// <summary>
@@ -86,10 +82,10 @@ namespace Greenshot.Core.Sources
         /// This captures the screen at the specified location
         /// </summary>
         /// <param name="captureBounds">NativeRect</param>
-        /// <returns>BitmapSource</returns>
-        internal static BitmapSource CaptureRectangle(NativeRect captureBounds)
+        /// <returns>ICaptureElement</returns>
+        internal static ICaptureElement CaptureRectangle(NativeRect captureBounds)
         {
-            BitmapSource returnBitmap = null;
+            BitmapSource capturedBitmapSource = null;
             if (captureBounds.IsEmpty)
             {
                 return null;
@@ -144,77 +140,54 @@ namespace Greenshot.Core.Sources
                                 RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
                         }
 
-                        // get a .NET image object for it
-                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
-                        bool success = false;
-                        ExternalException exception = null;
-                        for (int i = 0; i < 3; i++)
+                        // Create BitmapSource from the DibSection
+                        capturedBitmapSource = Imaging.CreateBitmapSourceFromHBitmap(safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+                        // Now cut away invisible parts
+
+                        // Collect all screens inside this capture
+                        var displaysInsideCapture = new List<DisplayInfo>();
+                        foreach (var displayInfo in User32Api.AllDisplays())
                         {
-                            try
+                            if (displayInfo.Bounds.IntersectsWith(captureBounds))
                             {
-                                // Create BitmapSource from the DibSection
-                                returnBitmap = Imaging.CreateBitmapSourceFromHBitmap(safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-                                // Now cut away invisible parts
-
-                                // Collect all screens inside this capture
-                                var displaysInsideCapture = new List<DisplayInfo>();
-                                foreach (var displayInfo in User32Api.AllDisplays())
-                                {
-                                    if (displayInfo.Bounds.IntersectsWith(captureBounds))
-                                    {
-                                        displaysInsideCapture.Add(displayInfo);
-                                    }
-                                }
-                                // Check all all screens are of an equal size
-                                bool offscreenContent;
-                                using (var captureRegion = new Region(captureBounds))
-                                {
-                                    // Exclude every visible part
-                                    foreach (var displayInfo in displaysInsideCapture)
-                                    {
-                                        captureRegion.Exclude(displayInfo.Bounds);
-                                    }
-                                    // If the region is not empty, we have "offscreenContent"
-                                    using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                                    {
-                                        offscreenContent = !captureRegion.IsEmpty(screenGraphics);
-                                    }
-                                }
-                                // Check if we need to have a transparent background, needed for offscreen content
-                                if (offscreenContent)
-                                {
-                                    var modifiedImage = new WriteableBitmap(returnBitmap.PixelWidth, returnBitmap.PixelHeight, returnBitmap.DpiX, returnBitmap.DpiY, PixelFormats.Bgr32, returnBitmap.Palette);
-                                    foreach (var displayInfo in User32Api.AllDisplays())
-                                    {
-                                        modifiedImage.CopyPixels(returnBitmap, displayInfo.Bounds);
-                                    }
-
-                                    returnBitmap = modifiedImage;
-                                }
-                                // We got through the capture without exception
-                                success = true;
-                                break;
-                            }
-                            catch (ExternalException ee)
-                            {
-                                Log.Warn().WriteLine("Problem getting ImageSource at try " + i + " : ", ee);
-                                exception = ee;
+                                displaysInsideCapture.Add(displayInfo);
                             }
                         }
-                        if (!success)
+                        // Check all all screens are of an equal size
+                        bool offscreenContent;
+                        using (var captureRegion = new Region(captureBounds))
                         {
-                            Log.Error().WriteLine("Still couldn't create ImageSource!");
-                            if (exception != null)
+                            // Exclude every visible part
+                            foreach (var displayInfo in displaysInsideCapture)
                             {
-                                throw exception;
+                                captureRegion.Exclude(displayInfo.Bounds);
+                            }
+                            // If the region is not empty, we have "offscreenContent"
+                            using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
+                            {
+                                offscreenContent = !captureRegion.IsEmpty(screenGraphics);
                             }
                         }
+                        // Check if we need to have a transparent background, needed for offscreen content
+                        if (offscreenContent)
+                        {
+                            var modifiedImage = new WriteableBitmap(capturedBitmapSource.PixelWidth, capturedBitmapSource.PixelHeight, capturedBitmapSource.DpiX, capturedBitmapSource.DpiY, PixelFormats.Bgr32, capturedBitmapSource.Palette);
+                            foreach (var displayInfo in User32Api.AllDisplays())
+                            {
+                                modifiedImage.CopyPixels(capturedBitmapSource, displayInfo.Bounds);
+                            }
 
+                            capturedBitmapSource = modifiedImage;
+                        }
                     }
                 }
             }
-            return returnBitmap;
+            ICaptureElement result = new CaptureElement(captureBounds.Location, capturedBitmapSource)
+            {
+                ElementType = CaptureElementType.Screen
+            };
+            return result;
         }
     }
 }

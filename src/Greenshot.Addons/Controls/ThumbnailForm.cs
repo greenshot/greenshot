@@ -34,7 +34,7 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
+using Greenshot.Core.Enums;
 
 #endregion
 

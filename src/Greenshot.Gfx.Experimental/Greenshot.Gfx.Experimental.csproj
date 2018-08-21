@@ -61,7 +61,7 @@
   <ItemGroup>
     <Compile Include="BoxBlurSpan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Structs\Argb32.cs" />
+    <Compile Include="Structs\Bgra32.cs" />
     <Compile Include="Structs\Rgb24.cs" />
     <Compile Include="Structs\SpanInfo.cs" />
   </ItemGroup>

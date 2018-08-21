@@ -21,22 +21,34 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Desktop;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Extensions;
+using Greenshot.Core.Interfaces;
 
-namespace Greenshot.Core.Interfaces
+namespace Greenshot.Core.Sources
 {
     /// <summary>
-    /// This interface defines sources, which can be used to get information from.
-    /// For instance the screen, IE, a file etc.
+    /// This does the screen capture of a Window via DWM
     /// </summary>
-    public interface ISource
+    public class DwmWindowSource : ISource
     {
-        /// <summary>
-        /// Import an ICaptureElement from the source
-        /// </summary>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>Task with ICaptureElement</returns>
-        ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default);
+        private readonly ICaptureConfiguration _captureConfiguration;
+        private readonly Func<IInteropWindow> _retrieveWindowFunc;
+
+        public DwmWindowSource(ICaptureConfiguration captureConfiguration, Func<IInteropWindow> retrieveWindowFunc = null)
+        {
+            _captureConfiguration = captureConfiguration;
+            _retrieveWindowFunc = retrieveWindowFunc ?? InteropWindowQuery.GetActiveWindow;
+        }
+
+        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        {
+            var window = _retrieveWindowFunc();
+            return window.CaptureDwmWindow(_captureConfiguration);
+        }
     }
 }

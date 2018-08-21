@@ -35,18 +35,18 @@ namespace Greenshot.Core.Sources
     public class MouseSource : ISource
     {
         /// <inheritdoc />
-        public Task<ICaptureElement> Import(CancellationToken cancellationToken = default)
+        public ValueTask<ICaptureElement> Import(CancellationToken cancellationToken = default)
         {
-            if (!CursorHelper.TryGetCurrentCursor(out var bitmapSource, out var location))
+            ICaptureElement result = null;
+            if (CursorHelper.TryGetCurrentCursor(out var bitmapSource, out var location))
             {
-                return Task.FromResult<ICaptureElement>(null);
+                result = new CaptureElement(location, bitmapSource)
+                {
+                    ElementType = CaptureElementType.Mouse
+                };
             }
 
-            ICaptureElement result = new CaptureElement(location, bitmapSource)
-            {
-                ElementType = CaptureElementType.Mouse
-            };
-            return Task.FromResult(result);
+            return new ValueTask<ICaptureElement>(result);
         }
 
     }

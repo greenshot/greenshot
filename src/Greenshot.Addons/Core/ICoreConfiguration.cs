@@ -31,7 +31,7 @@ using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Core.Enums;
-using Greenshot.Addons.Interfaces;
+using Greenshot.Core.Configuration;
 
 #endregion
 
@@ -42,7 +42,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Core")]
     [Description("Greenshot core configuration")]
-    public interface ICoreConfiguration : IIniSection, IFileConfiguration, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
+    public interface ICoreConfiguration : IIniSection, IFileConfiguration, ICaptureConfiguration, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
     {
         [Description("The language in IETF format (e.g. en-US)")]
         string Language { get; set; }
@@ -82,36 +82,9 @@ namespace Greenshot.Addons.Core
         [DefaultValue("PNG,DIB")]
         IList<ClipboardFormats> ClipboardFormats { get; set; }
 
-        [Description("Should the mouse be captured?")]
-        [DefaultValue(true)]
-        bool CaptureMousepointer { get; set; }
-
-        [Description("Use interactive window selection to capture? (false=Capture active window)")]
-        [DefaultValue(false)]
-        bool CaptureWindowsInteractive { get; set; }
-
-        [Description("Capture delay in millseconds.")]
-        [DefaultValue(100)]
-        int CaptureDelay { get; set; }
-
-        [Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)")]
-        [DefaultValue(ScreenCaptureMode.Auto)]
-        ScreenCaptureMode ScreenCaptureMode { get; set; }
-
-        [Description("The screen number to capture when using ScreenCaptureMode Fixed.")]
-        [DefaultValue(1)]
-        int ScreenToCapture { get; set; }
-
-        [Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).")]
-        [DefaultValue(WindowCaptureModes.Auto)]
-        WindowCaptureModes WindowCaptureMode { get; set; }
-
         [Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor.")]
         [DefaultValue(false)]
         bool WindowCaptureAllChildLocations { get; set; }
-
-        [Description("The background color for a DWM window capture.")]
-        Color DWMBackgroundColor { get; set; }
 
         [Description("Play a camera sound after taking a capture.")]
         [DefaultValue(false)]
@@ -245,14 +218,6 @@ namespace Greenshot.Addons.Core
         [DefaultValue(true)]
         bool ThumnailPreview { get; set; }
 
-        [Description("List of productnames for which GDI capturing is skipped (using fallback).")]
-        [DefaultValue("IntelliJ IDEA")]
-        IList<string> NoGDICaptureForProduct { get; set; }
-
-        [Description("List of productnames for which DWM capturing is skipped (using fallback).")]
-        [DefaultValue("Citrix ICA Client")]
-        IList<string> NoDWMCaptureForProduct { get; set; }
-
         [Description("Make some optimizations for usage with remote desktop")]
         [DefaultValue(false)]
         bool OptimizeForRDP { get; set; }
@@ -264,10 +229,6 @@ namespace Greenshot.Addons.Core
         [Description("Optimize memory footprint, but with a performance penalty!")]
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
-
-        [Description("Remove the corners from a window capture")]
-        [DefaultValue(true)]
-        bool WindowCaptureRemoveCorners { get; set; }
 
         [Description("Also check for unstable version updates")]
         [DefaultValue(false)]
@@ -288,10 +249,6 @@ namespace Greenshot.Addons.Core
         [Description("Enable a special DIB clipboard reader")]
         [DefaultValue(true)]
         bool EnableSpecialDIBClipboardReader { get; set; }
-
-        [Description("The cutshape which is used to remove the window corners, is mirrorred for all corners")]
-        [DefaultValue("5,3,2,1,1")]
-        IList<int> WindowCornerCutShape { get; set; }
 
         [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
         [DefaultValue(ClickActions.SHOW_CONTEXT_MENU)]
@@ -334,10 +291,6 @@ namespace Greenshot.Addons.Core
 
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
-
-        [Description("The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1")]
-        [DefaultValue("0,0")]
-        Size Win10BorderCrop { get; set; }
 
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling")]
         [DefaultValue("16,16")]

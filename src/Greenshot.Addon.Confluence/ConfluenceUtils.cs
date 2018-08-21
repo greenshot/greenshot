@@ -114,18 +114,20 @@ namespace Greenshot.Addon.Confluence
 			        var pageDouble = false;
 			        foreach (var page in pages)
 			        {
-			            if (page.Title.Equals(title))
+			            if (!page.Title.Equals(title))
 			            {
-			                Log.Debug().WriteLine("Skipping double page with title {0}", title);
-			                pageDouble = true;
-			                break;
+			                continue;
 			            }
+
+			            Log.Debug().WriteLine("Skipping double page with title {0}", title);
+			            pageDouble = true;
+			            break;
 			        }
 			        if (!pageDouble)
 			        {
 			            var foundContents = await confluenceConnector.Content.SearchAsync(Where.And(Where.Space.Is(space), Where.Title.Is(title)));
 			            var page = foundContents.FirstOrDefault();
-			            if (page != null)
+			            if (page == null)
 			            {
                             continue;
 			            }

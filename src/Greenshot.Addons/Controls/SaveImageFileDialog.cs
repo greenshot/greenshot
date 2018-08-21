@@ -31,6 +31,7 @@ using Dapplo.Log;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Core.Enums;
 
 #endregion
 

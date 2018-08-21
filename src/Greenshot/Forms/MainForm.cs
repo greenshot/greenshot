@@ -54,7 +54,7 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
-using Greenshot.Addons.Interfaces;
+using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
 using Message = System.Windows.Forms.Message;

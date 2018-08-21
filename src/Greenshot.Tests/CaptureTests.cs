@@ -1,6 +1,38 @@
-﻿using System.Threading.Tasks;
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.Ini;
+using Dapplo.Windows.Desktop;
+using Greenshot.Addons.Core;
 using Greenshot.Core;
+using Greenshot.Core.Enums;
+using Greenshot.Core.Extensions;
 using Greenshot.Core.Sources;
+using Greenshot.Core.Templates;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -40,6 +72,31 @@ namespace Greenshot.Tests
             Assert.NotNull(capture);
             Assert.NotNull(capture.CaptureElements);
             Assert.Equal(2, capture.CaptureElements.Count);
+        }
+
+        /// <summary>
+        /// Test if a capture from a window works
+        /// </summary>
+        [WpfFact]
+        public async Task Test_CaptureFlow_DwmWindowSource()
+        {
+            var iniConfig = new IniConfig("Greenshot.Tests", "Greenshot.Tests");
+            var config = iniConfig.Get<ICoreConfiguration>();
+            var captureFlow = new CaptureFlow
+            {
+                Sources = { new DwmWindowSource(config, () => InteropWindowQuery.GetTopLevelWindows().First(window => window.GetCaption().Contains("Notepad"))) }
+            };
+            var capture = await captureFlow.Execute();
+            Assert.NotNull(capture);
+            Assert.NotNull(capture.CaptureElements);
+
+            var template = new SimpleTemplate();
+            using (var outputStream = template.Apply(capture).ToBitmapSource().ToStream(OutputFormats.png))
+            using (var fileStream = File.Create("Test_CaptureFlow_DwmWindowSource.png"))
+            {
+                outputStream.Seek(0, SeekOrigin.Begin);
+                await outputStream.CopyToAsync(fileStream);
+            }
         }
     }
 }

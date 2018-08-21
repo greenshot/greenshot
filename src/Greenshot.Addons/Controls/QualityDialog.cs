@@ -27,6 +27,7 @@ using System;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Core.Enums;
 
 #endregion
 

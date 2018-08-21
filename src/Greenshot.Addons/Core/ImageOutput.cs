@@ -44,6 +44,7 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
 using Encoder = System.Drawing.Imaging.Encoder;

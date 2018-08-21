@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,16 +21,17 @@
 
 #endregion
 
-namespace Greenshot.Addons.Core.Enums
+namespace Greenshot.Gfx.Experimental.Structs
 {
-	public enum OutputFormats
-	{
-		bmp,
-		gif,
-		jpg,
-		png,
-		tiff,
-		greenshot,
-		ico
-	}
+    /// <summary>
+    /// Default BGRA values for a 32bit bitmapsource
+    /// </summary>
+    public struct Bgra32
+    {
+        public byte B;
+        public byte G;
+        public byte R;
+        public byte A;
+    }
+
 }

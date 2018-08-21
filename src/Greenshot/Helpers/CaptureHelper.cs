@@ -49,6 +49,7 @@ using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
+using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using LangKey = Greenshot.Configuration.LangKey;
 
@@ -823,7 +824,7 @@ namespace Greenshot.Helpers
                         }
                         else
                         {
-                            windowCaptureMode = WindowCaptureModes.GDI;
+                            windowCaptureMode = WindowCaptureModes.Gdi;
                         }
                     }
 
@@ -845,11 +846,11 @@ namespace Greenshot.Helpers
                         // Change to GDI, if allowed
                         if (WindowCapture.IsGdiAllowed(process))
                         {
-                            windowCaptureMode = WindowCaptureModes.GDI;
+                            windowCaptureMode = WindowCaptureModes.Gdi;
                         }
                     }
                 }
-                else if (windowCaptureMode == WindowCaptureModes.GDI && !WindowCapture.IsGdiAllowed(process))
+                else if (windowCaptureMode == WindowCaptureModes.Gdi && !WindowCapture.IsGdiAllowed(process))
                 {
                     // GDI not allowed, take screen
                     windowCaptureMode = WindowCaptureModes.Screen;
@@ -864,7 +865,7 @@ namespace Greenshot.Helpers
                     ICapture tmpCapture = null;
                     switch (windowCaptureMode)
                     {
-                        case WindowCaptureModes.GDI:
+                        case WindowCaptureModes.Gdi:
                             if (WindowCapture.IsGdiAllowed(process))
                             {
                                 if (windowToCapture.IsMinimized())
@@ -954,7 +955,7 @@ namespace Greenshot.Helpers
                             else
                             {
                                 // A problem, try GDI
-                                windowCaptureMode = WindowCaptureModes.GDI;
+                                windowCaptureMode = WindowCaptureModes.Gdi;
                             }
                             break;
                         default:

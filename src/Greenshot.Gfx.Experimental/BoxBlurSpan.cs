@@ -285,11 +285,11 @@ namespace Greenshot.Gfx.Experimental
 
             Parallel.For(spanInfo.Top, spanInfo.Bottom, y =>
             {
-                Span<Argb32> argb32;
-                unsafe { argb32 = new Span<Argb32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
+                Span<Bgra32> argb32;
+                unsafe { argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
                 unsafe
                 {
-                    Span<Argb32> averages = stackalloc Argb32[range];
+                    Span<Bgra32> averages = stackalloc Bgra32[range];
                     var a = 0;
                     var r = 0;
                     var g = 0;
@@ -297,7 +297,7 @@ namespace Greenshot.Gfx.Experimental
                     var hits = halfRange;
                     for (var x = spanInfo.Left; x < spanInfo.Left + halfRange; x++)
                     {
-                        ref Argb32 color = ref argb32[x + y * spanInfo.PixelStride];
+                        ref Bgra32 color = ref argb32[x + y * spanInfo.PixelStride];
                         a += color.A;
                         r += color.R;
                         g += color.G;
@@ -309,7 +309,7 @@ namespace Greenshot.Gfx.Experimental
                         if (leftSide >= spanInfo.Left)
                         {
                             // Get value at the left side of range
-                            ref Argb32 color = ref argb32[leftSide + y * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[leftSide + y * spanInfo.PixelStride];
                             a -= color.A;
                             r -= color.R;
                             g -= color.G;
@@ -320,7 +320,7 @@ namespace Greenshot.Gfx.Experimental
                         var rightSide = x + halfRange;
                         if (rightSide < spanInfo.Right)
                         {
-                            ref Argb32 color = ref argb32[rightSide + y * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[rightSide + y * spanInfo.PixelStride];
                             a += color.A;
                             r += color.R;
                             g += color.G;
@@ -328,7 +328,7 @@ namespace Greenshot.Gfx.Experimental
                             hits++;
                         }
 
-                        ref Argb32 average = ref averages[(x % range)];
+                        ref Bgra32 average = ref averages[(x % range)];
                         average.A = (byte)(a / hits);
                         average.R = (byte)(r / hits);
                         average.G = (byte)(g / hits);
@@ -356,11 +356,11 @@ namespace Greenshot.Gfx.Experimental
             var halfRange = range / 2;
             Parallel.For(spanInfo.Left, spanInfo.Right, x =>
             {
-                Span<Argb32> argb32;
-                unsafe { argb32 = new Span<Argb32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
+                Span<Bgra32> argb32;
+                unsafe { argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
                 unsafe
                 {
-                    Span<Argb32> averages = stackalloc Argb32[range];
+                    Span<Bgra32> averages = stackalloc Bgra32[range];
                     var hits = 0;
                     var a = 0;
                     var r = 0;
@@ -368,7 +368,7 @@ namespace Greenshot.Gfx.Experimental
                     var b = 0;
                     for (var y = spanInfo.Top; y < spanInfo.Top + halfRange; y++)
                     {
-                        ref Argb32 color = ref argb32[x + y * spanInfo.PixelStride];
+                        ref Bgra32 color = ref argb32[x + y * spanInfo.PixelStride];
                         a += color.A;
                         r += color.R;
                         g += color.G;
@@ -381,7 +381,7 @@ namespace Greenshot.Gfx.Experimental
                         if (topSide >= spanInfo.Top)
                         {
                             // Get value at the top side of range
-                            ref Argb32 color = ref argb32[x + topSide * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[x + topSide * spanInfo.PixelStride];
                             a -= color.A;
                             r -= color.R;
                             g -= color.G;
@@ -392,7 +392,7 @@ namespace Greenshot.Gfx.Experimental
                         var bottomSide = y + halfRange;
                         if (bottomSide < spanInfo.Bottom)
                         {
-                            ref Argb32 color = ref argb32[x + bottomSide * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[x + bottomSide * spanInfo.PixelStride];
                             a += color.A;
                             r += color.R;
                             g += color.G;
@@ -400,7 +400,7 @@ namespace Greenshot.Gfx.Experimental
                             hits++;
                         }
 
-                        ref Argb32 average = ref averages[(y % range)];
+                        ref Bgra32 average = ref averages[(y % range)];
                         average.A = (byte)(a / hits);
                         average.R = (byte)(r / hits);
                         average.G = (byte)(g / hits);

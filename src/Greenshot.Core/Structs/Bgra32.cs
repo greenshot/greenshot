@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,14 +21,13 @@
 
 #endregion
 
-namespace Greenshot.Addons.Core.Enums
+namespace Greenshot.Core.Structs
 {
-	public enum WindowCaptureModes
-	{
-		Screen,
-		GDI,
-		Aero,
-		AeroTransparent,
-		Auto
-	}
+    public struct Bgra32
+    {
+        public byte B;
+        public byte G;
+        public byte R;
+        public byte A;
+    }
 }
