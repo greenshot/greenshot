@@ -126,8 +126,8 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				if (!manuallyInitiated)
 				{
-					var documents = WordExporter.GetWordDocuments();
-					if (documents != null && documents.Count > 0)
+					var documents = WordExporter.GetWordDocuments().ToList();
+					if (documents.Count > 0)
 					{
 						var destinations = new List<IDestination>
 						{

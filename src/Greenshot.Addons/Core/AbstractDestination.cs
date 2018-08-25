@@ -93,7 +93,7 @@ namespace Greenshot.Addons.Core
         /// <returns>Task</returns>
         protected virtual Task PrepareDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
         {
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Greenshot.Addons.Core
         /// <returns>Task</returns>
         protected virtual Task AfterDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
         {
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -146,7 +146,8 @@ namespace Greenshot.Addons.Core
         /// <returns></returns>
         public virtual Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            return Task.FromResult(ExportCapture(manuallyInitiated, surface, captureDetails));
+            var syncResult = ExportCapture(manuallyInitiated, surface, captureDetails);
+            return Task.FromResult(syncResult);
         }
 
         /// <summary>
@@ -415,7 +416,7 @@ namespace Greenshot.Addons.Core
         ///     This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not
         ///     visible in the taskbar.
         /// </summary>
-        /// <param name="menu"></param>
+        /// <param name="menu">ContextMenuStrip</param>
         private static void ShowMenuAtCursor(ContextMenuStrip menu)
         {
             // find a suitable location

@@ -30,12 +30,12 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
-using Greenshot.Addon.Office.OfficeInterop;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Microsoft.Office.Interop.Outlook;
 
 #endregion
 
@@ -121,7 +121,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			var inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+			var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 			if (inspectorCaptions == null)
 			{
 				yield break;
@@ -169,14 +169,14 @@ namespace Greenshot.Addon.Office.Destinations
 
 			if (_outlookInspectorCaption != null)
 			{
-				OutlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
+				OutlookExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
 				exportInformation.ExportMade = true;
 			}
 			else
 			{
 				if (!manuallyInitiated)
 				{
-					var inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+					var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0)
 					{
 						var destinations = new List<IDestination>
@@ -193,7 +193,7 @@ namespace Greenshot.Addon.Office.Destinations
 				}
 				else
 				{
-					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(_officeConfiguration.OutlookEmailFormat, tmpFile,
+					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(_officeConfiguration.OutlookEmailFormat, tmpFile,
 						FilenameHelper.FillPattern(_officeConfiguration.EmailSubjectPattern, captureDetails, false), attachmentName, _officeConfiguration.EmailTo, _officeConfiguration.EmailCC,
 					    _officeConfiguration.EmailBCC, null);
 				}

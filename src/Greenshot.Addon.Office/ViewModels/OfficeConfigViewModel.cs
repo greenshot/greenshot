@@ -25,10 +25,10 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addon.Office.OfficeInterop;
 using Greenshot.Addons;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace Greenshot.Addon.Office.ViewModels
 {
@@ -80,7 +80,7 @@ namespace Greenshot.Addon.Office.ViewModels
             base.OnDeactivate(close);
         }
 
-        public PPSlideLayout SelectedSlideLayout
+        public PpSlideLayout SelectedSlideLayout
         {
             get => OfficeConfiguration.PowerpointSlideLayout;
             set
@@ -90,6 +90,6 @@ namespace Greenshot.Addon.Office.ViewModels
             }
         }
 
-        public IDictionary<PPSlideLayout, string> SlideLayouts => GreenshotLanguage.TranslationValuesForEnum<PPSlideLayout>();
+        public IDictionary<PpSlideLayout, string> SlideLayouts => GreenshotLanguage.TranslationValuesForEnum<PpSlideLayout>();
     }
 }

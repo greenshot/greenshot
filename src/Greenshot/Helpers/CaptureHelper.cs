@@ -31,7 +31,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using CommonServiceLocator;
 using Dapplo.Ini;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
@@ -79,8 +78,9 @@ namespace Greenshot.Helpers
         {
             _captureMode = captureMode;
             _capture = new Capture();
-            _destinationHolder = ServiceLocator.Current.GetInstance<DestinationHolder>();
-            _processors = ServiceLocator.Current.GetAllInstances<IProcessor>();
+            _destinationHolder = DestinationHolder.Instance;
+            // TODO: Fix this
+            _processors = Enumerable.Empty<IProcessor>();
         }
 
         public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode)

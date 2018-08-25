@@ -144,7 +144,6 @@
     </Reference>
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
@@ -181,6 +180,10 @@
     <Reference Include="Windows">
       <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
     </Reference>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
+      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
+      <Name>Greenshot.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>

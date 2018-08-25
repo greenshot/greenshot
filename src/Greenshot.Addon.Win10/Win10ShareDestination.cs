@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -35,10 +36,11 @@ using Greenshot.Addon.Win10.Native;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Core.Enums;
 using Greenshot.Gfx;
+using Color = Windows.UI.Color;
 
 namespace Greenshot.Addon.Win10
 {

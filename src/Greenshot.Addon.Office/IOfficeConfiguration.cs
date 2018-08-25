@@ -27,6 +27,7 @@ using System.ComponentModel;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Office.OfficeInterop;
+using Microsoft.Office.Interop.PowerPoint;
 
 #endregion
 
@@ -40,8 +41,8 @@ namespace Greenshot.Addon.Office
 	public interface IOfficeConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
 		[Description("Default type for emails. (Text, Html)")]
-		[DefaultValue(EmailFormats.Html)]
-		EmailFormats OutlookEmailFormat { get; set; }
+		[DefaultValue(EmailFormat.Html)]
+		EmailFormat OutlookEmailFormat { get; set; }
 
 		[Description("Email subject pattern, works like the OutputFileFilenamePattern")]
 		[DefaultValue("${title}")]
@@ -72,7 +73,7 @@ namespace Greenshot.Addon.Office
 		bool PowerpointLockAspectRatio { get; set; }
 
 		[Description("For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!")]
-		[DefaultValue(PPSlideLayout.ppLayoutPictureWithCaption)]
-		PPSlideLayout PowerpointSlideLayout { get; set; }
+		[DefaultValue(PpSlideLayout.ppLayoutPictureWithCaption)]
+		PpSlideLayout PowerpointSlideLayout { get; set; }
 	}
 }

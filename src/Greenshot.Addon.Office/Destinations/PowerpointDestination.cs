@@ -124,8 +124,8 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				if (!manuallyInitiated)
 				{
-					var presentations = PowerpointExporter.GetPowerpointPresentations();
-					if (presentations != null && presentations.Count > 0)
+					var presentations = PowerpointExporter.GetPowerpointPresentations().ToList();
+					if (presentations.Count > 0)
 					{
 						var destinations = new List<IDestination>
 						{

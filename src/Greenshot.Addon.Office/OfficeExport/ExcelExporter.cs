@@ -26,186 +26,208 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
 using Dapplo.Windows.Desktop;
 using Greenshot.Addon.Office.OfficeInterop;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using Version = System.Version;
 
 #endregion
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
-	public static class ExcelExporter
-	{
-		private static readonly LogSource Log = new LogSource();
-		private static Version _excelVersion;
+    /// <summary>
+    ///     Excel exporter
+    /// </summary>
+    public static class ExcelExporter
+    {
+        private static readonly LogSource Log = new LogSource();
+        private static Version _excelVersion;
 
-		/// <summary>
-		///     Get all currently opened workbooks
-		/// </summary>
-		/// <returns>List of string with names of the workbooks</returns>
-		public static List<string> GetWorkbooks()
-		{
-			var currentWorkbooks = new List<string>();
-			using (var excelApplication = GetExcelApplication())
-			{
-				if (excelApplication == null)
-				{
-					return currentWorkbooks;
-				}
-				using (var workbooks = excelApplication.Workbooks)
-				{
-					for (var i = 1; i <= workbooks.Count; i++)
-					{
-						using (var workbook = workbooks[i])
-						{
-							if (workbook != null)
-							{
-								currentWorkbooks.Add(workbook.Name);
-							}
-						}
-					}
-				}
-			}
-			currentWorkbooks.Sort();
-			return currentWorkbooks;
-		}
+        /// <summary>
+        ///     Call this to get the running Excel application, returns null if there isn't any.
+        /// </summary>
+        /// <returns>ComDisposable for Excel.Application or null</returns>
+        private static IDisposableCom<Application> GetExcelApplication()
+        {
+            IDisposableCom<Application> excelApplication;
+            try
+            {
+                excelApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Excel.Application"));
+            }
+            catch
+            {
+                // Ignore, probably no excel running
+                return null;
+            }
+            if ((excelApplication != null) && (excelApplication.ComObject != null))
+            {
+                InitializeVariables(excelApplication);
+            }
+            return excelApplication;
+        }
 
-		/// <summary>
-		///     Insert image from supplied tmp file into the give excel workbook
-		/// </summary>
-		/// <param name="workbookName"></param>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
-		{
-			using (var excelApplication = GetExcelApplication())
-			{
-				if (excelApplication == null)
-				{
-					return;
-				}
-				using (var workbooks = excelApplication.Workbooks)
-				{
-					for (var i = 1; i <= workbooks.Count; i++)
-					{
-						using (var workbook = workbooks[i])
-						{
-							if (workbook != null && workbook.Name.StartsWith(workbookName))
-							{
-								InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-							}
-						}
-					}
-				}
-				var hWnd = excelApplication.Hwnd;
-				if (hWnd > 0)
-				{
-					// TODO: Await
-					InteropWindowFactory.CreateFor(new IntPtr(hWnd)).ToForegroundAsync();
-				}
-			}
-		}
+        /// <summary>
+        ///     Call this to get the running Excel application, or create a new instance
+        /// </summary>
+        /// <returns>ComDisposable for Excel.Application</returns>
+        private static IDisposableCom<Application> GetOrCreateExcelApplication()
+        {
+            IDisposableCom<Application> excelApplication = GetExcelApplication();
+            if (excelApplication == null)
+            {
+                excelApplication = DisposableCom.Create(new Application());
+            }
+            InitializeVariables(excelApplication);
+            return excelApplication;
+        }
 
-		/// <summary>
-		///     Insert a file into an already created workbook
-		/// </summary>
-		/// <param name="workbook"></param>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize)
-		{
-			var workSheet = workbook.ActiveSheet;
-			if (workSheet == null)
-			{
-				return;
-			}
-			using (var shapes = workSheet.Shapes)
-			{
-				if (shapes != null)
-				{
-					using (var shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height))
-					{
-						if (shape != null)
-						{
-							shape.Top = 40;
-							shape.Left = 40;
-							shape.LockAspectRatio = MsoTriState.msoTrue;
-							shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-							shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-						}
-					}
-				}
-			}
-		}
+        /// <summary>
+        ///     Get all currently opened workbooks
+        /// </summary>
+        /// <returns>IEnumerable with names of the workbooks</returns>
+        public static IEnumerable<string> GetWorkbooks()
+        {
+            using (var excelApplication = GetExcelApplication())
+            {
+                if ((excelApplication == null) || (excelApplication.ComObject == null))
+                {
+                    yield break;
+                }
+                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
+                {
+                    for (int i = 1; i <= workbooks.ComObject.Count; i++)
+                    {
+                        using (var workbook = DisposableCom.Create(workbooks.ComObject[i]))
+                        {
+                            if (workbook != null)
+                            {
+                                yield return workbook.ComObject.Name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-		/// <summary>
-		///     Add an image-file to a newly created workbook
-		/// </summary>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
-		{
-			using (var excelApplication = GetOrCreateExcelApplication())
-			{
-				if (excelApplication != null)
-				{
-					excelApplication.Visible = true;
-					object template = Missing.Value;
-					using (var workbooks = excelApplication.Workbooks)
-					{
-						var workbook = workbooks.Add(template);
-						InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-					}
-				}
-			}
-		}
+        /// <summary>
+        ///     Initialize static excel variables like version and currentuser
+        /// </summary>
+        /// <param name="excelApplication"></param>
+        private static void InitializeVariables(IDisposableCom<Application> excelApplication)
+        {
+            if ((excelApplication == null) || (excelApplication.ComObject == null) || (_excelVersion != null))
+            {
+                return;
+            }
+            if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+            {
+                Log.Warn().WriteLine("Assuming Excel version 1997.");
+                _excelVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+            }
+        }
 
+        /// <summary>
+        ///     Insert image from supplied tmp file into the give excel workbook
+        /// </summary>
+        /// <param name="workbookName"></param>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+        {
+            using (var excelApplication = GetExcelApplication())
+            {
+                if ((excelApplication == null) || (excelApplication.ComObject == null))
+                {
+                    return;
+                }
+                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
+                {
+                    for (int i = 1; i <= workbooks.ComObject.Count; i++)
+                    {
+                        using (var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]))
+                        {
+                            if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
+                            {
+                                InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-		/// <summary>
-		///     Call this to get the running Excel application, returns null if there isn't any.
-		/// </summary>
-		/// <returns>IExcelApplication or null</returns>
-		private static IExcelApplication GetExcelApplication()
-		{
-			var excelApplication = ComWrapper.GetInstance<IExcelApplication>();
-			InitializeVariables(excelApplication);
-			return excelApplication;
-		}
+        /// <summary>
+        ///     Insert a file into an already created workbook
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        private static void InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
+        {
+            using (var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet))
+            {
+                if (workSheet == null)
+                {
+                    return;
+                }
+                using (var shapes = DisposableCom.Create(workSheet.ComObject.Shapes))
+                {
+                    if (shapes == null)
+                    {
+                        return;
+                    }
 
-		/// <summary>
-		///     Call this to get the running Excel application, or create a new instance
-		/// </summary>
-		/// <returns>IExcelApplication</returns>
-		private static IExcelApplication GetOrCreateExcelApplication()
-		{
-			var excelApplication = ComWrapper.GetOrCreateInstance<IExcelApplication>();
-			InitializeVariables(excelApplication);
-			return excelApplication;
-		}
+                    using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height)))
+                    {
+                        if (shape == null)
+                        {
+                            return;
+                        }
 
-		/// <summary>
-		///     Initialize static outlook variables like version and currentuser
-		/// </summary>
-		/// <param name="excelApplication"></param>
-		private static void InitializeVariables(IExcelApplication excelApplication)
-		{
-			if (excelApplication == null || _excelVersion != null)
-			{
-				return;
-			}
-			try
-			{
-				_excelVersion = new Version(excelApplication.Version);
-				Log.Info().WriteLine("Using Excel {0}", _excelVersion);
-			}
-			catch (Exception exVersion)
-			{
-				Log.Error().WriteLine(exVersion);
-				Log.Warn().WriteLine("Assuming Excel version 1997.");
-				_excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
-			}
-		}
-	}
+                        shape.ComObject.Top = 40;
+                        shape.ComObject.Left = 40;
+                        shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
+                        shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+                        shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+                        workbook.ComObject.Activate();
+                        using (var application = DisposableCom.Create(workbook.ComObject.Application))
+                        {
+                            var excelWindow = InteropWindowFactory.CreateFor((IntPtr) application.ComObject.Hwnd);
+                            excelWindow.ToForegroundAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Add an image-file to a newly created workbook
+        /// </summary>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+        {
+            using (var excelApplication = GetOrCreateExcelApplication())
+            {
+                if (excelApplication == null)
+                {
+                    return;
+                }
+
+                excelApplication.ComObject.Visible = true;
+                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
+                {
+                    using (var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add()))
+                    {
+                        InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -12,11 +12,14 @@ namespace Greenshot.Addons.Components
         private readonly IEnumerable<Lazy<IDestination, DestinationAttribute>> _destinations;
         private readonly IEnumerable<IDestinationProvider> _destinationProviders;
 
+        public static DestinationHolder Instance { get; internal set; }
+
         public DestinationHolder(
             IEnumerable<Lazy<IDestination, DestinationAttribute>> destinations,
             IEnumerable<IDestinationProvider> destinationProviders
             )
         {
+            Instance = this;
             _destinations = destinations;
             _destinationProviders = destinationProviders;
         }

@@ -26,240 +26,350 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Xml;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
-using Greenshot.Addon.Office.OfficeInterop;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
+using Microsoft.Office.Interop.OneNote;
 
 #endregion
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
-	public static class OneNoteExporter
-	{
-		private const string XmlImageContent =
-			"<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
+    /// <summary>
+    ///     OneNote exporter
+    ///     More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx
+    /// </summary>
+    public static class OneNoteExporter
+    {
+        private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
+        private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+        private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
+        private static readonly LogSource Log = new LogSource();
 
-		private const string XmlOutline =
-			"<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+        /// <summary>
+        ///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
+        /// </summary>
+        /// <param name="surfaceToUpload">ISurface</param>
+        /// <returns>bool true if export worked</returns>
+        public static bool ExportToNewPage(ISurface surfaceToUpload)
+        {
+            using (var oneNoteApplication = GetOrCreateOneNoteApplication())
+            {
+                var newPage = new OneNotePage();
+                string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
+                if (unfiledNotesSectionId == null)
+                {
+                    return false;
+                }
 
-		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
-		private static readonly LogSource Log = new LogSource();
+                string pageId;
+                oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
+                newPage.Id = pageId;
+                // Set the new name, this is automatically done in the export to page
+                newPage.Name = surfaceToUpload.CaptureDetails.Title;
+                return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
+            }
+        }
 
-		/// <summary>
-		///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
-		/// </summary>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <returns>bool true if export worked</returns>
-		public static bool ExportToNewPage(ISurface surfaceToUpload)
-		{
-			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
-			{
-				var newPage = new OneNotePage();
-				var unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
-			    if (unfiledNotesSectionId == null)
-			    {
-			        return false;
-			    }
+        /// <summary>
+        ///     Export the capture to the specified page
+        /// </summary>
+        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="page">OneNotePage</param>
+        /// <returns>bool true if everything worked</returns>
+        public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
+        {
+            using (var oneNoteApplication = GetOrCreateOneNoteApplication())
+            {
+                return ExportToPage(oneNoteApplication, surfaceToUpload, page);
+            }
+        }
 
-			    // ReSharper disable once RedundantAssignment
-			    oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out var pageId, NewPageStyle.npsDefault);
-			    newPage.ID = pageId;
-			    // Set the new name, this is automatically done in the export to page
-			    newPage.Name = surfaceToUpload.CaptureDetails.Title;
-			    return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
-			}
-		}
+        /// <summary>
+        ///     Export the capture to the specified page
+        /// </summary>
+        /// <param name="oneNoteApplication">IOneNoteApplication</param>
+        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="page">OneNotePage</param>
+        /// <returns>bool true if everything worked</returns>
+        private static bool ExportToPage(IDisposableCom<Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
+        {
+            if (oneNoteApplication == null)
+            {
+                return false;
+            }
 
-		/// <summary>
-		///     Export the capture to the specified page
-		/// </summary>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="page">OneNotePage</param>
-		/// <returns>bool true if everything worked</returns>
-		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
-		{
-			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
-			{
-				return ExportToPage(oneNoteApplication, surfaceToUpload, page);
-			}
-		}
+            using (var pngStream = new MemoryStream())
+            {
+                var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+                ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
+                var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+                var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
+                var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
+                Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
+                oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
+                try
+                {
+                    oneNoteApplication.ComObject.NavigateTo(page.Id, null, false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
+                }
+                return true;
+            }
+        }
 
-		/// <summary>
-		///     Export the capture to the specified page
-		/// </summary>
-		/// <param name="oneNoteApplication">IOneNoteApplication</param>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="page">OneNotePage</param>
-		/// <returns>bool true if everything worked</returns>
-		private static bool ExportToPage(IOneNoteApplication oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
-		{
-			if (oneNoteApplication == null)
-			{
-				return false;
-			}
-			using (var pngStream = new MemoryStream())
-			{
-				var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
-				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-				var base64String = Convert.ToBase64String(pngStream.GetBuffer());
-				var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
-				var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.ID, OnenoteNamespace2010, page.Name);
-				Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
-				oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
-				try
-				{
-					oneNoteApplication.NavigateTo(page.ID, null, false);
-				}
-				catch (Exception ex)
-				{
-					Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
-				}
-				return true;
-			}
-		}
+        /// <summary>
+        ///     Call this to get the running Excel application, returns null if there isn't any.
+        /// </summary>
+        /// <returns>ComDisposable for Excel.Application or null</returns>
+        private static IDisposableCom<Application> GetOneNoteApplication()
+        {
+            IDisposableCom<Application> oneNoteApplication;
+            try
+            {
+                oneNoteApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("OneNote.Application"));
+            }
+            catch
+            {
+                // Ignore, probably no OneNote running
+                return null;
+            }
+            return oneNoteApplication;
+        }
 
-		/// <summary>
-		///     Retrieve the Section ID for the specified special location
-		/// </summary>
-		/// <param name="oneNoteApplication"></param>
-		/// <param name="specialLocation">SpecialLocation</param>
-		/// <returns>string with section ID</returns>
-		private static string GetSectionId(IOneNoteApplication oneNoteApplication, SpecialLocation specialLocation)
-		{
-			if (oneNoteApplication == null)
-			{
-				return null;
-			}
-			// ReSharper disable once RedundantAssignment
-			var unfiledNotesPath = "";
-			oneNoteApplication.GetSpecialLocation(specialLocation, out unfiledNotesPath);
+        /// <summary>
+        ///     Call this to get the running OneNote application, or create a new instance
+        /// </summary>
+        /// <returns>ComDisposable for OneNote.Application</returns>
+        private static IDisposableCom<Application> GetOrCreateOneNoteApplication()
+        {
+            var oneNoteApplication = GetOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                oneNoteApplication = DisposableCom.Create(new Application());
+            }
+            return oneNoteApplication;
+        }
 
-			// ReSharper disable once RedundantAssignment
-			var notebookXml = "";
-			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-		    if (string.IsNullOrEmpty(notebookXml))
-		    {
-		        return null;
-		    }
+        /// <summary>
+        ///     Get the captions of all the open word documents
+        /// </summary>
+        /// <returns></returns>
+        public static IList<OneNotePage> GetPages()
+        {
+            var pages = new List<OneNotePage>();
+            try
+            {
+                using (var oneNoteApplication = GetOrCreateOneNoteApplication())
+                {
+                    if (oneNoteApplication != null)
+                    {
+                        // ReSharper disable once RedundantAssignment
+                        string notebookXml = "";
+                        oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+                        if (!string.IsNullOrEmpty(notebookXml))
+                        {
+                            Log.Debug().WriteLine(notebookXml);
+                            StringReader reader = null;
+                            try
+                            {
+                                reader = new StringReader(notebookXml);
+                                using (var xmlReader = new XmlTextReader(reader))
+                                {
+                                    reader = null;
+                                    OneNoteSection currentSection = null;
+                                    OneNoteNotebook currentNotebook = null;
+                                    while (xmlReader.Read())
+                                    {
+                                        if ("one:Notebook".Equals(xmlReader.Name))
+                                        {
+                                            string id = xmlReader.GetAttribute("ID");
+                                            if ((id != null) && ((currentNotebook == null) || !id.Equals(currentNotebook.Id)))
+                                            {
+                                                currentNotebook = new OneNoteNotebook();
+                                                currentNotebook.Id = xmlReader.GetAttribute("ID");
+                                                currentNotebook.Name = xmlReader.GetAttribute("name");
+                                            }
+                                        }
+                                        if ("one:Section".Equals(xmlReader.Name))
+                                        {
+                                            string id = xmlReader.GetAttribute("ID");
+                                            if ((id != null) && ((currentSection == null) || !id.Equals(currentSection.Id)))
+                                            {
+                                                currentSection = new OneNoteSection
+                                                {
+                                                    Id = xmlReader.GetAttribute("ID"),
+                                                    Name = xmlReader.GetAttribute("name"),
+                                                    Parent = currentNotebook
+                                                };
+                                            }
+                                        }
+                                        if ("one:Page".Equals(xmlReader.Name))
+                                        {
+                                            // Skip deleted items
+                                            if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
+                                            {
+                                                continue;
+                                            }
 
-		    Log.Debug().WriteLine(notebookXml);
-		    StringReader reader = null;
-		    try
-		    {
-		        reader = new StringReader(notebookXml);
-		        using (var xmlReader = new XmlTextReader(reader))
-		        {
-		            while (xmlReader.Read())
-		            {
-		                if (!"one:Section".Equals(xmlReader.Name))
-		                {
-		                    continue;
-		                }
+                                            var page = new OneNotePage
+                                            {
+                                                Parent = currentSection,
+                                                Name = xmlReader.GetAttribute("name"),
+                                                Id = xmlReader.GetAttribute("ID")
+                                            };
+                                            if ((page.Id == null) || (page.Name == null))
+                                            {
+                                                continue;
+                                            }
+                                            page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
+                                            pages.Add(page);
+                                        }
+                                    }
+                                }
+                            }
+                            finally
+                            {
+                                if (reader != null)
+                                {
+                                    reader.Dispose();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (COMException cEx)
+            {
+                if (cEx.ErrorCode == unchecked((int)0x8002801D))
+                {
+                    Log.Warn().WriteLine("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+                }
+                Log.Warn().WriteLine(cEx, "Problem retrieving onenote destinations, ignoring: ");
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex, "Problem retrieving onenote destinations, ignoring: ");
+            }
+            pages.Sort((page1, page2) =>
+            {
+                if (page1.IsCurrentlyViewed || page2.IsCurrentlyViewed)
+                {
+                    return page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed);
+                }
+                return string.Compare(page1.DisplayName, page2.DisplayName, StringComparison.Ordinal);
+            });
+            return pages;
+        }
 
-		                var id = xmlReader.GetAttribute("ID");
-		                var path = xmlReader.GetAttribute("path");
-		                if (unfiledNotesPath.Equals(path))
-		                {
-		                    return id;
-		                }
-		            }
-		        }
-		    }
-		    finally
-		    {
-		        reader?.Dispose();
-		    }
-		    return null;
-		}
+        /// <summary>
+        ///     Retrieve the Section ID for the specified special location
+        /// </summary>
+        /// <param name="oneNoteApplication"></param>
+        /// <param name="specialLocation">SpecialLocation</param>
+        /// <returns>string with section ID</returns>
+        private static string GetSectionId(IDisposableCom<Application> oneNoteApplication, SpecialLocation specialLocation)
+        {
+            if (oneNoteApplication == null)
+            {
+                return null;
+            }
+            // ReSharper disable once RedundantAssignment
+            string unfiledNotesPath = "";
+            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
 
-		/// <summary>
-		///     Get the captions of all the open word documents
-		/// </summary>
-		/// <returns></returns>
-		public static IEnumerable<OneNotePage> GetPages()
-		{
-			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
-			{
-			    if (oneNoteApplication == null)
-			    {
-			        yield break;
-			    }
+            // ReSharper disable once RedundantAssignment
+            string notebookXml = "";
+            oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+            if (!string.IsNullOrEmpty(notebookXml))
+            {
+                Log.Debug().WriteLine(notebookXml);
+                StringReader reader = null;
+                try
+                {
+                    reader = new StringReader(notebookXml);
+                    using (var xmlReader = new XmlTextReader(reader))
+                    {
+                        while (xmlReader.Read())
+                        {
+                            if (!"one:Section".Equals(xmlReader.Name))
+                            {
+                                continue;
+                            }
+                            string id = xmlReader.GetAttribute("ID");
+                            string path = xmlReader.GetAttribute("path");
+                            if (unfiledNotesPath.Equals(path))
+                            {
+                                return id;
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    if (reader != null)
+                    {
+                        reader.Dispose();
+                    }
+                }
+            }
+            return null;
+        }
+    }
 
-			    // ReSharper disable once RedundantAssignment
-			    var notebookXml = "";
-			    oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-			    if (string.IsNullOrEmpty(notebookXml))
-			    {
-			        yield break;
-			    }
+    /// <summary>
+    ///     Container for transporting Page information
+    /// </summary>
+    public class OneNotePage
+    {
+        public string DisplayName
+        {
+            get
+            {
+                OneNoteNotebook notebook = Parent.Parent;
+                if (string.IsNullOrEmpty(notebook.Name))
+                {
+                    return string.Format("{0} / {1}", Parent.Name, Name);
+                }
+                return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
+            }
+        }
 
-			    using (var reader = new StringReader(notebookXml))
-			    using (var xmlReader = new XmlTextReader(reader))
-			    {
-			        OneNoteSection currentSection = null;
-			        OneNoteNotebook currentNotebook = null;
-			        while (xmlReader.Read())
-			        {
-			            switch (xmlReader.Name)
-			            {
-			                case "one:Notebook":
-			                {
-			                    var id = xmlReader.GetAttribute("ID");
-			                    if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID)))
-			                    {
-			                        currentNotebook = new OneNoteNotebook
-			                        {
-			                            ID = xmlReader.GetAttribute("ID"),
-			                            Name = xmlReader.GetAttribute("name")
-			                        };
-			                    }
+        public string Id { get; set; }
 
-			                    break;
-			                }
-			                case "one:Section":
-			                {
-			                    var id = xmlReader.GetAttribute("ID");
-			                    if (id != null && (currentSection == null || !id.Equals(currentSection.ID)))
-			                    {
-			                        currentSection = new OneNoteSection
-			                        {
-			                            ID = xmlReader.GetAttribute("ID"),
-			                            Name = xmlReader.GetAttribute("name"),
-			                            Parent = currentNotebook
-			                        };
-			                    }
+        public bool IsCurrentlyViewed { get; set; }
 
-			                    break;
-			                }
-			                case "one:Page":
-			                    // Skip deleted items
-			                    if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
-			                    {
-			                        continue;
-			                    }
-			                    var page = new OneNotePage
-			                    {
-			                        Parent = currentSection,
-			                        Name = xmlReader.GetAttribute("name"),
-			                        ID = xmlReader.GetAttribute("ID")
-			                    };
-			                    if (page.ID == null || page.Name == null)
-			                    {
-			                        continue;
-			                    }
-			                    page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
-			                    yield return page;
-			                    break;
-			            }
-			        }
-			    }
-			}
-		}
-	}
+        public string Name { get; set; }
+
+        public OneNoteSection Parent { get; set; }
+    }
+
+    /// <summary>
+    ///     Container for transporting section information
+    /// </summary>
+    public class OneNoteSection
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public OneNoteNotebook Parent { get; set; }
+    }
+
+    /// <summary>
+    ///     Container for transporting notebook information
+    /// </summary>
+    public class OneNoteNotebook
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+    }
 }

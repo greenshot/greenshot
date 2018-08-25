@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,25 +21,14 @@
 
 #endregion
 
-#region Usings
-
-using Dapplo.Windows.Com;
-
-#endregion
-
 namespace Greenshot.Addon.Office.OfficeInterop
 {
-	// See http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx
-	[ComProgId("Word.Application")]
-	public interface IWordApplication : IComCommon
+	/// <summary>
+	///     Specifies which EmailFormat the email needs to use
+	/// </summary>
+	public enum EmailFormat
 	{
-		IWordDocument ActiveDocument { get; }
-		ISelection Selection { get; }
-		IDocuments Documents { get; }
-		bool Visible { get; set; }
-		string Version { get; }
-		void Activate();
+		Text,
+		Html
 	}
-
-	// See: http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.documents_members(v=office.11).aspx
 }

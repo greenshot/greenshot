@@ -26,295 +26,356 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.OfficeInterop;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.PowerPoint;
+using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
 
 #endregion
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
-	public static class PowerpointExporter
-	{
-		private static readonly LogSource Log = new LogSource();
-		private static Version _powerpointVersion;
-		private static readonly IOfficeConfiguration officeConfiguration = IniConfig.Current.Get<IOfficeConfiguration>();
+    public static class PowerpointExporter
+    {
+        private static readonly LogSource Log = new LogSource();
+        private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
+        private static Version _powerpointVersion;
 
-		private static bool IsAfter2003()
-		{
-			return _powerpointVersion.Major > (int) OfficeVersions.Office2003;
-		}
+        /// <summary>
+        ///     Internal method to add a picture to a presentation
+        /// </summary>
+        /// <param name="presentation"></param>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        /// <param name="title"></param>
+        private static void AddPictureToPresentation(IDisposableCom<Presentation> presentation, string tmpFile, Size imageSize, string title)
+        {
+            if (presentation != null)
+            {
+                //ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
+                IDisposableCom<Slide> slide = null;
+                try
+                {
+                    float left, top;
+                    using (var pageSetup = DisposableCom.Create(presentation.ComObject.PageSetup))
+                    {
+                        left = pageSetup.ComObject.SlideWidth / 2 - imageSize.Width / 2f;
+                        top = pageSetup.ComObject.SlideHeight / 2 - imageSize.Height / 2f;
+                    }
+                    float width = imageSize.Width;
+                    float height = imageSize.Height;
+                    IDisposableCom<Shape> shapeForCaption = null;
+                    bool hasScaledWidth = false;
+                    bool hasScaledHeight = false;
+                    try
+                    {
+                        using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
+                        {
+                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, OfficeConfig.PowerpointSlideLayout));
+                        }
 
-		/// <summary>
-		///     Get the captions of all the open powerpoint presentations
-		/// </summary>
-		/// <returns></returns>
-		public static List<string> GetPowerpointPresentations()
-		{
-			var foundPresentations = new List<string>();
-			try
-			{
-				using (var powerpointApplication = GetPowerpointApplication())
-				{
-					if (powerpointApplication == null)
-					{
-						return foundPresentations;
-					}
+                        using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
+                        {
+                            using (var shapeForLocation = DisposableCom.Create(shapes.ComObject[2]))
+                            {
+                                // Shapes[2] is the image shape on this layout.
+                                shapeForCaption = DisposableCom.Create(shapes.ComObject[1]);
+                                if (width > shapeForLocation.ComObject.Width)
+                                {
+                                    width = shapeForLocation.ComObject.Width;
+                                    left = shapeForLocation.ComObject.Left;
+                                    hasScaledWidth = true;
+                                }
+                                else
+                                {
+                                    shapeForLocation.ComObject.Left = left;
+                                }
+                                shapeForLocation.ComObject.Width = imageSize.Width;
 
-					using (var presentations = powerpointApplication.Presentations)
-					{
-						Log.Debug().WriteLine("Open Presentations: {0}", presentations.Count);
-						for (var i = 1; i <= presentations.Count; i++)
-						{
-							using (var presentation = presentations.item(i))
-							{
-								if (presentation == null)
-								{
-									continue;
-								}
-								if (presentation.ReadOnly == MsoTriState.msoTrue)
-								{
-									continue;
-								}
+                                if (height > shapeForLocation.ComObject.Height)
+                                {
+                                    height = shapeForLocation.ComObject.Height;
+                                    top = shapeForLocation.ComObject.Top;
+                                    hasScaledHeight = true;
+                                }
+                                else
+                                {
+                                    top = shapeForLocation.ComObject.Top + shapeForLocation.ComObject.Height / 2 - imageSize.Height / 2f;
+                                }
+                                shapeForLocation.ComObject.Height = imageSize.Height;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error().WriteLine(e, "Powerpoint shape creating failed");
+                        using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
+                        {
+                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
+                        }
+                    }
+                    using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
+                    {
+                        using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height)))
+                        {
+                            if (OfficeConfig.PowerpointLockAspectRatio)
+                            {
+                                shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
+                            }
+                            else
+                            {
+                                shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
+                            }
+                            shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+                            shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+                            if (hasScaledWidth)
+                            {
+                                shape.ComObject.Width = width;
+                            }
+                            if (hasScaledHeight)
+                            {
+                                shape.ComObject.Height = height;
+                            }
+                            shape.ComObject.Left = left;
+                            shape.ComObject.Top = top;
+                            shape.ComObject.AlternativeText = title;
+                        }
+                    }
+                    if (shapeForCaption != null)
+                    {
+                        try
+                        {
+                            using (shapeForCaption)
+                            {
+                                // Using try/catch to make sure problems with the text range don't give an exception.
+                                using (var textFrame = DisposableCom.Create(shapeForCaption.ComObject.TextFrame))
+                                {
+                                    using (var textRange = DisposableCom.Create(textFrame.ComObject.TextRange))
+                                    {
+                                        textRange.ComObject.Text = title;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn().WriteLine(ex, "Problem setting the title to a text-range");
+                        }
+                    }
+                    // Activate/Goto the slide
+                    try
+                    {
+                        using (var application = DisposableCom.Create(presentation.ComObject.Application))
+                        {
+                            using (var activeWindow = DisposableCom.Create(application.ComObject.ActiveWindow))
+                            {
+                                using (var view = DisposableCom.Create(activeWindow.ComObject.View))
+                                {
+                                    view.ComObject.GotoSlide(slide.ComObject.SlideNumber);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn().WriteLine(ex, "Problem going to the slide");
+                    }
+                }
+                finally
+                {
+                    slide?.Dispose();
+                }
+            }
+        }
 
-							    if (IsAfter2003() && presentation.Final)
-							    {
-							        continue;
-							    }
+        /// <summary>
+        ///     Export the image from the tmpfile to the presentation with the supplied name
+        /// </summary>
+        /// <param name="presentationName">Name of the presentation to insert to</param>
+        /// <param name="tmpFile">Filename of the image file to insert</param>
+        /// <param name="imageSize">Size of the image</param>
+        /// <param name="title">A string with the image title</param>
+        /// <returns></returns>
+        public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title)
+        {
+            using (var powerpointApplication = GetPowerPointApplication())
+            {
+                if (powerpointApplication == null)
+                {
+                    return false;
+                }
+                using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+                {
+                    Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
+                    for (int i = 1; i <= presentations.ComObject.Count; i++)
+                    {
+                        using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
+                        {
+                            if (presentation == null)
+                            {
+                                continue;
+                            }
+                            if (!presentation.ComObject.Name.StartsWith(presentationName))
+                            {
+                                continue;
+                            }
+                            try
+                            {
+                                AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                                return true;
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error().WriteLine(e, "Adding picture to powerpoint failed");
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
 
-							    foundPresentations.Add(presentation.Name);
-							}
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Warn().WriteLine(ex, "Problem retrieving word destinations, ignoring: ");
-			}
-			foundPresentations.Sort();
-			return foundPresentations;
-		}
+        /// <summary>
+        ///     Call this to get the running PowerPoint application, or create a new instance
+        /// </summary>
+        /// <returns>ComDisposable for PowerPoint.Application</returns>
+        private static IDisposableCom<Application> GetOrCreatePowerPointApplication()
+        {
+            IDisposableCom<Application> powerPointApplication = GetPowerPointApplication();
+            if (powerPointApplication == null)
+            {
+                powerPointApplication = DisposableCom.Create(new Application());
+            }
+            InitializeVariables(powerPointApplication);
+            return powerPointApplication;
+        }
 
-		/// <summary>
-		///     Export the image from the tmpfile to the presentation with the supplied name
-		/// </summary>
-		/// <param name="presentationName">Name of the presentation to insert to</param>
-		/// <param name="tmpFile">Filename of the image file to insert</param>
-		/// <param name="imageSize">Size of the image</param>
-		/// <param name="title">A string with the image title</param>
-		/// <returns></returns>
-		public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title)
-		{
-			using (var powerpointApplication = GetPowerpointApplication())
-			{
-				if (powerpointApplication == null)
-				{
-					return false;
-				}
-				using (var presentations = powerpointApplication.Presentations)
-				{
-					Log.Debug().WriteLine("Open Presentations: {0}", presentations.Count);
-					for (var i = 1; i <= presentations.Count; i++)
-					{
-						using (var presentation = presentations.item(i))
-						{
-							if (presentation == null)
-							{
-								continue;
-							}
-							if (!presentation.Name.StartsWith(presentationName))
-							{
-								continue;
-							}
-							try
-							{
-								AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-								return true;
-							}
-							catch (Exception e)
-							{
-								Log.Error().WriteLine(e);
-							}
-						}
-					}
-				}
-			}
-			return false;
-		}
+        /// <summary>
+        ///     Call this to get the running PowerPoint application, returns null if there isn't any.
+        /// </summary>
+        /// <returns>ComDisposable for PowerPoint.Application or null</returns>
+        private static IDisposableCom<Application> GetPowerPointApplication()
+        {
+            IDisposableCom<Application> powerPointApplication;
+            try
+            {
+                powerPointApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("PowerPoint.Application"));
+            }
+            catch (Exception)
+            {
+                // Ignore, probably no PowerPoint running
+                return null;
+            }
+            if (powerPointApplication.ComObject != null)
+            {
+                InitializeVariables(powerPointApplication);
+            }
+            return powerPointApplication;
+        }
 
-		/// <summary>
-		///     Internal method to add a picture to a presentation
-		/// </summary>
-		/// <param name="presentation"></param>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		/// <param name="title"></param>
-		private static void AddPictureToPresentation(IPresentation presentation, string tmpFile, Size imageSize, string title)
-		{
-		    if (presentation == null)
-		    {
-		        return;
-		    }
+        /// <summary>
+        ///     Get the captions of all the open powerpoint presentations
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<string> GetPowerpointPresentations()
+        {
+            using (var powerpointApplication = GetPowerPointApplication())
+            {
+                if (powerpointApplication == null)
+                {
+                    yield break;
+                }
 
-		    //ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
-		    ISlide slide;
-		    var left = presentation.PageSetup.SlideWidth / 2 - imageSize.Width / 2f;
-		    var top = presentation.PageSetup.SlideHeight / 2 - imageSize.Height / 2f;
-		    float width = imageSize.Width;
-		    float height = imageSize.Height;
-		    IShape shapeForCaption = null;
-		    var hasScaledWidth = false;
-		    var hasScaledHeight = false;
-		    try
-		    {
-		        slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int) officeConfiguration.PowerpointSlideLayout);
-		        // Shapes[2] is the image shape on this layout.
-		        shapeForCaption = slide.Shapes.item(1);
-		        var shapeForLocation = slide.Shapes.item(2);
+                using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+                {
+                    Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
+                    for (int i = 1; i <= presentations.ComObject.Count; i++)
+                    {
+                        using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
+                        {
+                            if (presentation == null)
+                            {
+                                continue;
+                            }
+                            if (presentation.ComObject.ReadOnly == MsoTriState.msoTrue)
+                            {
+                                continue;
+                            }
+                            if (IsAfter2003())
+                            {
+                                if (presentation.ComObject.Final)
+                                {
+                                    continue;
+                                }
+                            }
+                            yield return presentation.ComObject.Name;
+                        }
+                    }
+                }
+            }
+        }
 
-		        if (width > shapeForLocation.Width)
-		        {
-		            width = shapeForLocation.Width;
-		            left = shapeForLocation.Left;
-		            hasScaledWidth = true;
-		        }
-		        else
-		        {
-		            shapeForLocation.Left = left;
-		        }
-		        shapeForLocation.Width = imageSize.Width;
+        /// <summary>
+        ///     Initialize static powerpoint variables like version
+        /// </summary>
+        /// <param name="powerpointApplication">IPowerpointApplication</param>
+        private static void InitializeVariables(IDisposableCom<Application> powerpointApplication)
+        {
+            if ((powerpointApplication == null) || (powerpointApplication.ComObject == null) || (_powerpointVersion != null))
+            {
+                return;
+            }
+            if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
+            {
+                Log.Warn().WriteLine("Assuming Powerpoint version 1997.");
+                _powerpointVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+            }
+        }
 
-		        if (height > shapeForLocation.Height)
-		        {
-		            height = shapeForLocation.Height;
-		            top = shapeForLocation.Top;
-		            hasScaledHeight = true;
-		        }
-		        else
-		        {
-		            top = shapeForLocation.Top + shapeForLocation.Height / 2 - imageSize.Height / 2f;
-		        }
-		        shapeForLocation.Height = imageSize.Height;
-		    }
-		    catch (Exception e)
-		    {
-		        Log.Error().WriteLine(e);
-		        slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int) PPSlideLayout.ppLayoutBlank);
-		    }
-		    var shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
-		    shape.LockAspectRatio = officeConfiguration.PowerpointLockAspectRatio ? MsoTriState.msoTrue : MsoTriState.msoFalse;
-		    shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-		    shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-		    if (hasScaledWidth)
-		    {
-		        shape.Width = width;
-		    }
-		    if (hasScaledHeight)
-		    {
-		        shape.Height = height;
-		    }
-		    shape.Left = left;
-		    shape.Top = top;
-		    shape.AlternativeText = title;
-		    if (shapeForCaption != null)
-		    {
-		        try
-		        {
-		            // Using try/catch to make sure problems with the text range don't give an exception.
-		            var textFrame = shapeForCaption.TextFrame;
-		            textFrame.TextRange.Text = title;
-		        }
-		        catch (Exception ex)
-		        {
-		            Log.Warn().WriteLine(ex, "Problem setting the title to a text-range");
-		        }
-		    }
-		    presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);
-		    presentation.Application.Activate();
-		}
+        /// <summary>
+        ///     Insert a capture into a new presentation
+        /// </summary>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        /// <param name="title"></param>
+        /// <returns></returns>
+        public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title)
+        {
+            bool isPictureAdded = false;
+            using (var powerpointApplication = GetOrCreatePowerPointApplication())
+            {
+                if (powerpointApplication != null)
+                {
+                    powerpointApplication.ComObject.Activate();
+                    powerpointApplication.ComObject.Visible = MsoTriState.msoTrue;
+                    using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+                    {
+                        using (var presentation = DisposableCom.Create(presentations.ComObject.Add()))
+                        {
+                            try
+                            {
+                                AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                                isPictureAdded = true;
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error().WriteLine(e, "Powerpoint add picture to presentation failed");
+                            }
+                        }
+                    }
+                }
+            }
+            return isPictureAdded;
+        }
 
-		/// <summary>
-		///     Insert a capture into a new presentation
-		/// </summary>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		/// <param name="title"></param>
-		/// <returns></returns>
-		public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title)
-		{
-			var isPictureAdded = false;
-			using (var powerpointApplication = GetOrCreatePowerpointApplication())
-			{
-			    if (powerpointApplication == null)
-			    {
-			        return false;
-			    }
+        private static bool IsAfter2003()
+        {
+            return _powerpointVersion.Major > (int)OfficeVersions.Office2003;
+        }
+    }
 
-			    powerpointApplication.Visible = true;
-			    using (var presentations = powerpointApplication.Presentations)
-			    {
-			        using (var presentation = presentations.Add(MsoTriState.msoTrue))
-			        {
-			            try
-			            {
-			                AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-			                isPictureAdded = true;
-			            }
-			            catch (Exception e)
-			            {
-			                Log.Error().WriteLine(e);
-			            }
-			        }
-			    }
-			}
-			return isPictureAdded;
-		}
-
-		/// <summary>
-		///     Call this to get the running powerpoint application, returns null if there isn't any.
-		/// </summary>
-		/// <returns>IPowerpointApplication or null</returns>
-		private static IPowerpointApplication GetPowerpointApplication()
-		{
-			var powerpointApplication = ComWrapper.GetInstance<IPowerpointApplication>();
-			InitializeVariables(powerpointApplication);
-			return powerpointApplication;
-		}
-
-		/// <summary>
-		///     Call this to get the running powerpoint application, or create a new instance
-		/// </summary>
-		/// <returns>IPowerpointApplication</returns>
-		private static IPowerpointApplication GetOrCreatePowerpointApplication()
-		{
-			var powerpointApplication = ComWrapper.GetOrCreateInstance<IPowerpointApplication>();
-			InitializeVariables(powerpointApplication);
-			return powerpointApplication;
-		}
-
-		/// <summary>
-		///     Initialize static outlook variables like version and currentuser
-		/// </summary>
-		/// <param name="powerpointApplication">IPowerpointApplication</param>
-		private static void InitializeVariables(IPowerpointApplication powerpointApplication)
-		{
-			if (powerpointApplication == null || _powerpointVersion != null)
-			{
-				return;
-			}
-			try
-			{
-				_powerpointVersion = new Version(powerpointApplication.Version);
-				Log.Info().WriteLine("Using Powerpoint {0}", _powerpointVersion);
-			}
-			catch (Exception exVersion)
-			{
-				Log.Error().WriteLine(exVersion);
-				Log.Warn().WriteLine("Assuming Powerpoint version 1997.");
-				_powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
-			}
-		}
-	}
 }

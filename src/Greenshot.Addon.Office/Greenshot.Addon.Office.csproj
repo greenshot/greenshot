@@ -121,6 +121,22 @@
     <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Outlook.15.0.4797.1003\lib\net20\Microsoft.Office.Interop.Outlook.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.PowerPoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.PowerPoint.15.0.4420.1017\lib\net20\Microsoft.Office.Interop.PowerPoint.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Word.15.0.4797.1003\lib\net20\Microsoft.Office.Interop.Word.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -141,7 +157,6 @@
     </Reference>
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
@@ -160,63 +175,8 @@
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="IOfficeLanguage.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
-    <Compile Include="OfficeInterop\IAppointmentItem.cs" />
-    <Compile Include="OfficeInterop\EmailFormats.cs" />
-    <Compile Include="OfficeInterop\HierarchyScope.cs" />
-    <Compile Include="OfficeInterop\IAttachment.cs" />
-    <Compile Include="OfficeInterop\IAttachments.cs" />
-    <Compile Include="OfficeInterop\IComCommon.cs" />
-    <Compile Include="OfficeInterop\ICommonExplorer.cs" />
-    <Compile Include="OfficeInterop\IContactItem.cs" />
-    <Compile Include="OfficeInterop\IDocuments.cs" />
-    <Compile Include="OfficeInterop\IExplorer.cs" />
-    <Compile Include="OfficeInterop\IExplorers.cs" />
-    <Compile Include="OfficeInterop\IFolder.cs" />
-    <Compile Include="OfficeInterop\IHyperlink.cs" />
-    <Compile Include="OfficeInterop\IHyperlinks.cs" />
-    <Compile Include="OfficeInterop\IInlineShape.cs" />
-    <Compile Include="OfficeInterop\IInlineShapes.cs" />
-    <Compile Include="OfficeInterop\IInspector.cs" />
-    <Compile Include="OfficeInterop\IInspectors.cs" />
-    <Compile Include="OfficeInterop\IItem.cs" />
-    <Compile Include="OfficeInterop\IItems.cs" />
-    <Compile Include="OfficeInterop\INameSpace.cs" />
-    <Compile Include="OfficeInterop\IOneNoteApplication.cs" />
-    <Compile Include="OfficeInterop\IOutlookApplication.cs" />
-    <Compile Include="OfficeInterop\IPane.cs" />
-    <Compile Include="OfficeInterop\IPictures.cs" />
-    <Compile Include="OfficeInterop\IPropertyAccessor.cs" />
-    <Compile Include="OfficeInterop\IRecipient.cs" />
-    <Compile Include="OfficeInterop\ISelection.cs" />
-    <Compile Include="OfficeInterop\IWordDocument.cs" />
-    <Compile Include="OfficeInterop\IWordView.cs" />
-    <Compile Include="OfficeInterop\IWordWindow.cs" />
-    <Compile Include="OfficeInterop\IWorkbook.cs" />
-    <Compile Include="OfficeInterop\IWorkbooks.cs" />
-    <Compile Include="OfficeInterop\IWorksheet.cs" />
-    <Compile Include="OfficeInterop\IWorksheets.cs" />
-    <Compile Include="OfficeInterop\IZoom.cs" />
-    <Compile Include="OfficeInterop\IMailItem.cs" />
-    <Compile Include="OfficeInterop\MsoScaleFrom.cs" />
-    <Compile Include="OfficeInterop\MsoTriState.cs" />
-    <Compile Include="OfficeInterop\NewPageStyle.cs" />
+    <Compile Include="OfficeInterop\EmailFormat.cs" />
     <Compile Include="OfficeInterop\OfficeVersions.cs" />
-    <Compile Include="OfficeInterop\OlAttachmentType.cs" />
-    <Compile Include="OfficeInterop\OlBodyFormat.cs" />
-    <Compile Include="OfficeInterop\OlDefaultFolders.cs" />
-    <Compile Include="OfficeInterop\OlEditorType.cs" />
-    <Compile Include="OfficeInterop\OlInspectorClose.cs" />
-    <Compile Include="OfficeInterop\OlItemType.cs" />
-    <Compile Include="OfficeInterop\OlObjectClass.cs" />
-    <Compile Include="OfficeInterop\OlReoccurenceState.cs" />
-    <Compile Include="OfficeInterop\OlSensitivity.cs" />
-    <Compile Include="OfficeInterop\OlWindowState.cs" />
-    <Compile Include="OfficeInterop\OneNoteNotebook.cs" />
-    <Compile Include="OfficeInterop\OneNoteSection.cs" />
-    <Compile Include="OfficeInterop\PageInfo.cs" />
-    <Compile Include="OfficeInterop\SpecialLocation.cs" />
-    <Compile Include="OfficeInterop\WdUnits.cs" />
-    <Compile Include="OfficeInterop\XMLSchema.cs" />
     <Compile Include="OfficeAddonModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OfficeExport\ExcelExporter.cs" />
@@ -224,13 +184,6 @@
     <Compile Include="OfficeExport\OutlookEmailExporter.cs" />
     <Compile Include="OfficeExport\PowerpointExporter.cs" />
     <Compile Include="OfficeExport\WordExporter.cs" />
-    <Compile Include="OfficeInterop\IExcelApplication.cs" />
-    <Compile Include="OfficeInterop\IComCollection.cs" />
-    <Compile Include="OfficeInterop\OneNotePage.cs" />
-    <Compile Include="OfficeInterop\PropTag.cs" />
-    <Compile Include="OfficeInterop\OutlookUtils.cs" />
-    <Compile Include="OfficeInterop\PowerpointInterop.cs" />
-    <Compile Include="OfficeInterop\IWordApplication.cs" />
     <Compile Include="ViewModels\OfficeConfigViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -258,6 +211,26 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.OneNote">
+      <Guid>{0EA692EE-BB50-4E3C-AEF0-356D91732725}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons"
@@ -266,13 +239,13 @@ copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Green
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\$(ProjectName)"
 copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\$(ProjectName)"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Fody.3.1.4\build\Fody.targets" Condition="Exists('..\packages\Fody.3.1.4\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Fody.3.1.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.3.1.4\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets'))" />
   </Target>
   <Import Project="..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" />
-  <Import Project="..\packages\Fody.3.1.4\build\Fody.targets" Condition="Exists('..\packages\Fody.3.1.4\build\Fody.targets')" />
 </Project>

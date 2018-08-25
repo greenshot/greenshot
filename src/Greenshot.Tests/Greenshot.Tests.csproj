@@ -48,8 +48,8 @@
     <Reference Include="Autofac.Integration.Mef, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.Mef.4.0.0\lib\net45\Autofac.Integration.Mef.dll</HintPath>
     </Reference>
-    <Reference Include="BenchmarkDotNet, Version=0.11.0.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.0.11.0\lib\net46\BenchmarkDotNet.dll</HintPath>
+    <Reference Include="BenchmarkDotNet, Version=0.11.1.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.0.11.1\lib\net46\BenchmarkDotNet.dll</HintPath>
     </Reference>
     <Reference Include="BenchmarkDotNet.Core, Version=0.10.14.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
       <HintPath>..\packages\BenchmarkDotNet.Core.0.10.14\lib\net46\BenchmarkDotNet.Core.dll</HintPath>

@@ -66,6 +66,20 @@ namespace Greenshot.Addons.Components
                 Log.Info().WriteLine("No notification due to ShowTrayNotification = {0} - or export made = {1}", _coreConfiguration.ShowTrayNotification);
                 return;
             }
+
+            if (!exportInformation.ExportMade)
+            {
+                if (exportInformation.IsError)
+                {
+                    Log.Warn().WriteLine("{0}", exportInformation.ErrorMessage);
+                }
+                else
+                {
+                    Log.Debug().WriteLine("Export to {0} cancelled.", exportInformation.DestinationDesignation);
+                }
+
+                return;
+            }
             // Create the ViewModel "part"
             var message = _toastFactory(source, exportInformation, exportedSurface, configScreen);
             // Prepare to dispose the view model parts automatically if it's finished
@@ -80,6 +94,5 @@ namespace Greenshot.Addons.Components
             // Show the ViewModel as toast 
             _eventAggregator.PublishOnCurrentThread(message.Value);
         }
-
     }
 }

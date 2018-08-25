@@ -31,7 +31,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
-using Greenshot.Addon.Office.OfficeInterop;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -143,7 +142,8 @@ namespace Greenshot.Addon.Office.Destinations
 					Log.Error().WriteLine(ex);
 				}
 			}
-			return exportInformation;
+		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
+            return exportInformation;
 		}
 	}
 }

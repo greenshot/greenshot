@@ -28,10 +28,8 @@ using System.Text;
 using System.Windows;
 using System.Windows.Forms;
 using Autofac;
-using Autofac.Extras.CommonServiceLocator;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
-using CommonServiceLocator;
 using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Ini.Converters;
@@ -95,11 +93,6 @@ namespace Greenshot
 
             RegisterErrorHandlers(application);
 
-            application.Bootstrapper.OnContainerCreated += container =>
-                {
-                    var autofacServiceLocator = new AutofacServiceLocator(container);
-                    ServiceLocator.SetLocatorProvider(() => autofacServiceLocator);
-                };
             application.Run();
             return 0;
         }
@@ -122,10 +115,15 @@ namespace Greenshot
         /// <param name="exception">Exception</param>
         private static void DisplayErrorViewModel(Dapplication application, Exception exception)
         {
-            var windowManager = application.Bootstrapper.Container.Resolve<IWindowManager>();
+            var windowManager = application.Bootstrapper.Container?.Resolve<IWindowManager>();
+            if (windowManager == null)
+            {
+                Debugger.Break();
+                return;
+            }
             using (var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>())
             {
-                if (windowManager == null || errorViewModel == null)
+                if (errorViewModel == null)
                 {
                     return;
                 }

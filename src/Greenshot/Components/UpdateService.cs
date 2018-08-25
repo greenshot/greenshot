@@ -175,7 +175,7 @@ namespace Greenshot.Components
 
             ProcessFeed(updateFeed);
 	        
-	        if (true ||IsUpdateAvailable)
+	        if (IsUpdateAvailable)
 	        {
 	            ShowUpdate(LatestVersion);
             }
