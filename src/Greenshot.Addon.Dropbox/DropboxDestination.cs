@@ -94,17 +94,19 @@ namespace Greenshot.Addon.Dropbox
 	                    {"response_type", "code"},
 	                    {"client_id", "{ClientId}"},
 	                    {"redirect_uri", "{RedirectUrl}"},
+	                    // TODO: Add version?
 	                    {"state", "{State}"}
 	                }),
 	            TokenUrl = DropboxApiUri.AppendSegments("1", "oauth2", "token"),
 	            CloudServiceName = "Dropbox",
 	            ClientId = dropboxPluginConfiguration.ClientId,
 	            ClientSecret = dropboxPluginConfiguration.ClientSecret,
-	            AuthorizeMode = AuthorizeModes.LocalhostServer,
-	            RedirectUrl = "http://localhost:47336",
+	            AuthorizeMode = AuthorizeModes.OutOfBoundAuto,
+	            RedirectUrl = "https://getgreenshot.org/oauth/dropbox",
 	            Token = dropboxPluginConfiguration
             };
-	        var httpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
+
+            var httpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
 
 	        _oAuthHttpBehaviour = httpBehaviour;
             // Use the default network settings

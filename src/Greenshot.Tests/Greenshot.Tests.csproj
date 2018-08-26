@@ -87,6 +87,9 @@
     <Reference Include="Dapplo.HttpExtensions, Version=0.8.43.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.HttpExtensions.0.8.43\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.43.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.43\lib\net46\Dapplo.HttpExtensions.OAuth.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.Ini, Version=0.5.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Ini.0.5.28\lib\net45\Dapplo.Ini.dll</HintPath>
     </Reference>
@@ -105,6 +108,9 @@
     <Reference Include="Dapplo.Windows, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.0.5.109\lib\net461\Dapplo.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="Dapplo.Windows.Com, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Com.0.5.109\lib\net461\Dapplo.Windows.Com.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.Windows.Common, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.Common.0.5.109\lib\net461\Dapplo.Windows.Common.dll</HintPath>
     </Reference>
@@ -113,6 +119,9 @@
     </Reference>
     <Reference Include="Dapplo.Windows.Dpi, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.109\lib\net461\Dapplo.Windows.Dpi.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.Windows.EmbeddedBrowser, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.EmbeddedBrowser.0.5.109\lib\net461\Dapplo.Windows.EmbeddedBrowser.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.109\lib\net461\Dapplo.Windows.Gdi32.dll</HintPath>
@@ -310,6 +319,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandlineTests.cs" />
+    <Compile Include="IniTests.cs" />
     <Compile Include="QuantizeTests.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
     <Compile Include="BlurTests.cs" />
@@ -321,6 +331,10 @@
     <Compile Include="UpdateTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj">
+      <Project>{ad7cffe2-40e7-46cf-a172-d48cf7ae9a12}</Project>
+      <Name>Greenshot.Addon.Dropbox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
       <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
       <Name>Greenshot.Addons</Name>
