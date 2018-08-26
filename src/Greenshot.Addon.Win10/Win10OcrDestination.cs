@@ -68,16 +68,16 @@ namespace Greenshot.Addon.Win10
 			}
 		}
 
-		/// <summary>
-		/// Run the Windows 10 OCR engine to process the text on the captured image
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>ExportInformation</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        /// <summary>
+        /// Run the Windows 10 OCR engine to process the text on the captured image
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        /// <returns>ExportInformation</returns>
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
-			var exportInformation = new ExportInformation(Designation, Description);
+            var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
 			    string text;
@@ -91,9 +91,9 @@ namespace Greenshot.Addon.Win10
 					var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
 					var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+                    // TODO: Get the lines, words, bounding rectangles
 					text = ocrResult.Text;
 				}
-
 
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))

@@ -41,7 +41,6 @@ using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Controls;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;

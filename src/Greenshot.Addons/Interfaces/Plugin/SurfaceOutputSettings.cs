@@ -26,7 +26,6 @@
 using System.Collections.Generic;
 using Dapplo.Ini;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
 

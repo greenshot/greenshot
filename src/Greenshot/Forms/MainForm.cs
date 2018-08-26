@@ -48,6 +48,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
+using Greenshot.Addon.InternetExplorer;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;

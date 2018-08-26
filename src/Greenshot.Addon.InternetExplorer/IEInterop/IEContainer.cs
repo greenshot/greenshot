@@ -28,16 +28,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using Dapplo.Windows.Desktop;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using mshtml;
 using IServiceProvider = Greenshot.Addons.Interop.IServiceProvider;
 
 #endregion
 
-namespace Greenshot.Helpers.IEInterop
+namespace Greenshot.Addon.InternetExplorer.IEInterop
 {
 	public class DocumentContainer
 	{

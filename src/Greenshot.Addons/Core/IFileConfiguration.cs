@@ -24,7 +24,6 @@
 #region Usings
 
 using System.ComponentModel;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Core.Enums;
 
 #endregion

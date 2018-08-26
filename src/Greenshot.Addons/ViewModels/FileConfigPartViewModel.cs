@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Windows;
 using Caliburn.Micro;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Core.Enums;
 

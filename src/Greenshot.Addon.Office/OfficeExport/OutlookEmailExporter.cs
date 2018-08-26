@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Com;
+using Dapplo.Windows.Interop;
 using Greenshot.Addon.Office.OfficeInterop;
 using mshtml;
 using Microsoft.Office.Interop.Outlook;
@@ -404,7 +404,6 @@ namespace Greenshot.Addon.Office.OfficeExport
                 {
                     return;
                 }
-                //MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
                 var newMail = newItem.ComObject;
                 newMail.Subject = subject;
                 if (!string.IsNullOrEmpty(to))

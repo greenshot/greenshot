@@ -29,7 +29,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using Dapplo.Log;
-using Dapplo.Windows.Com;
+using Dapplo.Windows.Interop;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;

@@ -82,16 +82,16 @@ namespace Greenshot.Addon.Win10
 	        public bool IsDataRequested { get; set; }
 	    }
 
-		/// <summary>
-		/// Share the screenshot with a windows app
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>ExportInformation</returns>
+        /// <summary>
+        /// Share the screenshot with a windows app
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        /// <returns>ExportInformation</returns>
 		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
-			var exportInformation = new ExportInformation(Designation, Description);
+        {
+            var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
                 var triggerWindow = new Window
@@ -154,7 +154,6 @@ namespace Greenshot.Addon.Win10
 	    /// <returns>Task with string, which describes the application which was used to share with</returns>
 	    private async Task Share(ShareInfo shareInfo, IntPtr handle, ISurface surface, ICaptureDetails captureDetails)
 	    {
-
             using (var imageStream = new MemoryRandomAccessStream())
             using (var logoStream = new MemoryRandomAccessStream())
             using (var thumbnailStream = new MemoryRandomAccessStream())

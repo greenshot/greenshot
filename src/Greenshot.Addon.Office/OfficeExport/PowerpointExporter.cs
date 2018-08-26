@@ -29,7 +29,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Com;
+using Dapplo.Windows.Interop;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.PowerPoint;

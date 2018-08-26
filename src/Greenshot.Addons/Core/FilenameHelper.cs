@@ -31,7 +31,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
-using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Core.Enums;
 

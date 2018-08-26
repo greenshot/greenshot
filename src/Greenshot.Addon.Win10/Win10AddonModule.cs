@@ -31,7 +31,7 @@ namespace Greenshot.Addon.Win10
     {
         protected override void Load(ContainerBuilder builder)
         {
-            if (!WindowsVersion.IsWindows10OrLater)
+            if (WindowsVersion.IsWindows10OrLater)
             {
                 builder
                     .RegisterType<Win10OcrDestination>()

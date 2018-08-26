@@ -21,14 +21,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Microsoft.Win32;
 
-namespace Greenshot.Addons.Core {
+namespace Greenshot.Addon.InternetExplorer {
 	/// <summary>
 	/// Description of IEHelper.
 	/// </summary>
@@ -72,85 +70,6 @@ namespace Greenshot.Addons.Core {
 				}
 
 				return maxVer;
-			}
-		}
-
-		/// <summary>
-		///     Get the highest possible version for the embedded browser
-		/// </summary>
-		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
-		/// <returns>IE Feature</returns>
-		public static int GetEmbVersion(bool ignoreDoctype = true)
-		{
-			var ieVersion = IEVersion;
-
-			if (ieVersion > 9)
-			{
-				return ieVersion * 1000 + (ignoreDoctype ? 1 : 0);
-			}
-
-			if (ieVersion > 7)
-			{
-				return ieVersion * 1111;
-			}
-
-			return 7000;
-		}
-
-		/// <summary>
-		///     Fix browser version to the highest possible
-		/// </summary>
-		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
-		public static void FixBrowserVersion(bool ignoreDoctype = true)
-		{
-			var applicationName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
-			FixBrowserVersion(applicationName, ignoreDoctype);
-		}
-
-		/// <summary>
-		///     Fix the browser version for the specified application
-		/// </summary>
-		/// <param name="applicationName">Name of the process</param>
-		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
-		public static void FixBrowserVersion(string applicationName, bool ignoreDoctype = true)
-		{
-			FixBrowserVersion(applicationName, GetEmbVersion(ignoreDoctype));
-		}
-
-		/// <summary>
-		///     Fix the browser version for the specified application
-		/// </summary>
-		/// <param name="applicationName">Name of the process</param>
-		/// <param name="ieVersion">
-		///     Version, see
-		///     <a href="https://msdn.microsoft.com/en-us/library/ee330730(v=vs.85).aspx#browser_emulation">Browser Emulation</a>
-		/// </param>
-		public static void FixBrowserVersion(string applicationName, int ieVersion)
-		{
-			ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".exe", ieVersion);
-#if DEBUG
-			ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".vshost.exe", ieVersion);
-#endif
-		}
-
-		/// <summary>
-		///     Make the change to the registry
-		/// </summary>
-		/// <param name="root">HKEY_CURRENT_USER or something</param>
-		/// <param name="applicationName">Name of the executable</param>
-		/// <param name="ieFeatureVersion">Version to use</param>
-		private static void ModifyRegistry(string root, string applicationName, int ieFeatureVersion)
-		{
-			var regKey = root + @"\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION";
-			try
-			{
-				Registry.SetValue(regKey, applicationName, ieFeatureVersion);
-			}
-			catch (Exception ex)
-			{
-				// some config will hit access rights exceptions
-				// this is why we try with both LOCAL_MACHINE and CURRENT_USER
-				Log.Error().WriteLine(ex, "couldn't modify the registry key {0}", regKey);
 			}
 		}
 

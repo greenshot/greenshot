@@ -32,7 +32,7 @@ using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Confluence.Query;
 using Dapplo.Log;
-using Greenshot.Addons.Core;
+using Greenshot.Addon.InternetExplorer;
 
 #endregion
 

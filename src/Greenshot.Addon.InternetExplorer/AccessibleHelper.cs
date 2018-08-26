@@ -31,7 +31,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace Greenshot.Addons.Core
+namespace Greenshot.Addon.InternetExplorer
 {
 	/// <summary>
 	///     See:
