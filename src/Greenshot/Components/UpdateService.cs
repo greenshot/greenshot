@@ -104,7 +104,10 @@ namespace Greenshot.Components
         /// <inheritdoc />
         public void Shutdown()
 	    {
-	        _cancellationTokenSource.Cancel();
+	        if (!_cancellationTokenSource.IsCancellationRequested)
+	        {
+	            _cancellationTokenSource.Cancel();
+            }
         }
 
         /// <summary>

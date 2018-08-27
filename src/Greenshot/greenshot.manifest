@@ -9,6 +9,7 @@
             <dpiAware>True/PM</dpiAware>
         </asmv3>
         <asmv3 xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">
+            <!-- Important for Greenshot, so it can enumerate immersive windows (UWP etc) from the desktop -->
             <disableWindowFiltering>true</disableWindowFiltering>
             <printerDriverIsolation>true</printerDriverIsolation>
         </asmv3>

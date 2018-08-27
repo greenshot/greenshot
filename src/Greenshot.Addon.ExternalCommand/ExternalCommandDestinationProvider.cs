@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.ExternalCommand
     /// <summary>
     ///     Generate the external command destinations
     /// </summary>
-    [Service(nameof(ExternalCommandDestinationProvider))]
+    [Service(nameof(ExternalCommandDestinationProvider), nameof(CaliburnServices.IniSectionService))]
     public sealed class ExternalCommandDestinationProvider : IStartup, IDestinationProvider
 	{
 		private static readonly LogSource Log = new LogSource();

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -39,7 +40,7 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action starts the MainForm
     /// </summary>
-    [Service(nameof(MainFormStartup), nameof(FormsStartup), TaskSchedulerName = "ui")]
+    [Service(nameof(MainFormStartup), nameof(FormsStartup), nameof(CaliburnServices.IniSectionService), TaskSchedulerName = "ui")]
     public class MainFormStartup : IStartup, IShutdown
     {
         private static readonly LogSource Log = new LogSource();

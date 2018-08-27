@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro;
 using Dapplo.Jira;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Jira
 	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
-	[Service(nameof(JiraMonitor), TaskSchedulerName = "ui")]
+	[Service(nameof(JiraMonitor), nameof(CaliburnServices.IniSectionService), TaskSchedulerName = "ui")]
 	public class JiraMonitor : IStartup, IShutdown
 	{
 	    private readonly IJiraConfiguration _jiraConfiguration;

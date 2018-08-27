@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 using Dapplo.Addons;
+using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Dapplo.Windows.Multimedia;
 using Greenshot.Addons.Core;
@@ -41,7 +42,7 @@ namespace Greenshot.Components
 	///     Create to fix the sometimes wrongly played sample, especially after first start from IDE
 	///     See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
-	[Service(nameof(SoundHelper))]
+	[Service(nameof(SoundHelper), nameof(CaliburnServices.IniSectionService))]
 	public class SoundHelper : IStartup, IShutdown
 	{
 	    private readonly ICoreConfiguration _coreConfiguration;
