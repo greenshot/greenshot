@@ -186,13 +186,12 @@ namespace Greenshot.Addon.Photobucket
 			IList<string> albums = null;
 			try
 			{
-				albums = RetrievePhotobucketAlbums().Result;
+				albums = Task.Run(RetrievePhotobucketAlbums).Result;
 			    _albumsCache = albums;
-
 			}
-			catch
+			catch (Exception ex)
 			{
-				// ignored
+                Log.Error().WriteLine(ex, "Couldn't retrieve the photobucket albums.");
 			}
 
 			if (albums == null || albums.Count == 0)

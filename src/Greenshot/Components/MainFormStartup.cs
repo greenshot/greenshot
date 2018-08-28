@@ -64,7 +64,7 @@ namespace Greenshot.Components
         /// <inheritdoc />
         public void Startup()
         {
-            Log.Debug().WriteLine("Starting MainForm");
+            Log.Debug().WriteLine($"Starting MainForm, current language {_coreConfiguration.Language}");
 
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_coreConfiguration.Language))

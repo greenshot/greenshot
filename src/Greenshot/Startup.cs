@@ -36,6 +36,7 @@ using Dapplo.Ini.Converters;
 using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
+using Dapplo.Utils;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
@@ -64,7 +65,7 @@ namespace Greenshot
             //LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
+            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #endif
             var applicationConfig = ApplicationConfigBuilder
                 .Create()
@@ -113,7 +114,7 @@ namespace Greenshot
         /// </summary>
         /// <param name="application">Dapplication</param>
         /// <param name="exception">Exception</param>
-        private static void DisplayErrorViewModel(Dapplication application, Exception exception)
+        private static async void DisplayErrorViewModel(Dapplication application, Exception exception)
         {
             var windowManager = application.Bootstrapper.Container?.Resolve<IWindowManager>();
             if (windowManager == null)
@@ -128,9 +129,15 @@ namespace Greenshot
                     return;
                 }
                 errorViewModel.Value.SetExceptionToDisplay(exception);
-                windowManager.ShowDialog(errorViewModel.Value);
+                if (!UiContext.HasUiAccess)
+                {
+                    await UiContext.RunOn(() => windowManager.ShowDialog(errorViewModel.Value));
+                }
+                else
+                {
+                    windowManager.ShowDialog(errorViewModel.Value);
+                }
             }
-
         }
 
         /// <summary>
