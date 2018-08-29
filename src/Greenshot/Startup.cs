@@ -65,7 +65,7 @@ namespace Greenshot
             //LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
+            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
 #endif
             var applicationConfig = ApplicationConfigBuilder
                 .Create()
@@ -104,6 +104,7 @@ namespace Greenshot
         /// <param name="application">Dapplication</param>
         private static void RegisterErrorHandlers(Dapplication application)
         {
+            application.ObserveUnhandledTaskException = true;
             application.OnUnhandledAppDomainException += (exception, b) => DisplayErrorViewModel(application, exception);
             application.OnUnhandledDispatcherException += exception => DisplayErrorViewModel(application, exception);
             application.OnUnhandledTaskException += exception => DisplayErrorViewModel(application, exception);
