@@ -132,9 +132,6 @@
     <PackageReference Include="BenchmarkDotNet">
       <Version>0.11.1</Version>
     </PackageReference>
-    <PackageReference Include="BenchmarkDotNet.Toolchains.Roslyn">
-      <Version>0.10.14</Version>
-    </PackageReference>
     <PackageReference Include="CommandLineParser">
       <Version>2.3.0</Version>
     </PackageReference>
