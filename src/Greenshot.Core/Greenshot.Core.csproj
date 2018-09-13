@@ -1,72 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Greenshot.Core</RootNamespace>
-    <AssemblyName>Greenshot.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+  
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
+    <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Capture.cs" />
-    <Compile Include="CaptureElement.cs" />
-    <Compile Include="CaptureFlow.cs" />
-    <Compile Include="Configuration\ICaptureConfiguration.cs" />
-    <Compile Include="Enums\CaptureElementType.cs" />
-    <Compile Include="Enums\OutputFormats.cs" />
-    <Compile Include="Enums\ScreenCaptureMode.cs" />
-    <Compile Include="Enums\WindowCaptureModes.cs" />
-    <Compile Include="Extensions\BitmapSourceExtensions.cs" />
-    <Compile Include="Extensions\InteropWindowCaptureExtensions.cs" />
-    <Compile Include="Interfaces\ICapture.cs" />
-    <Compile Include="Interfaces\ICaptureElement.cs" />
-    <Compile Include="Interfaces\IDestination.cs" />
-    <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Interfaces\ISource.cs" />
-    <Compile Include="Interfaces\ITemplate.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sources\MouseSource.cs" />
-    <Compile Include="Sources\DwmWindowSource.cs" />
-    <Compile Include="Sources\ScreenSource.cs" />
-    <Compile Include="Structs\Bgra32.cs" />
-    <Compile Include="Templates\SimpleTemplate.cs" />
-    <Compile Include="Templates\CroppedTemplate.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
-  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.5.112</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+   <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
+      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
+      <Name>Greenshot.Gfx</Name>
+    </ProjectReference>
+  </ItemGroup>
+
 </Project>

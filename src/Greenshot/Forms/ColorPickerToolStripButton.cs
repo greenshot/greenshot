@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Greenshot.Addon.LegacyEditor.Controls;
 
 namespace GreenShot
 {
@@ -13,12 +14,12 @@ namespace GreenShot
 		private Color color;
 		public Point Offset = new Point(0,0);
 		public event ColorPickerEventHandler ColorPicked;
-		private ColorDialog cd;
+		private Greenshot.Addon.LegacyEditor.Controls.ColorDialog cd;
 		
 		
 		public ColorPickerToolStripButton()
 		{
-			cd = ColorDialog.GetInstance();
+            cd = null;// Greenshot.Addon.LegacyEditor.Controls.ColorDialog.GetInstance();
 			this.Click += new System.EventHandler(this.ToolStripButton1Click);
 		}
 		
@@ -37,7 +38,7 @@ namespace GreenShot
 			    colorMap[0] = new ColorMap();
 			    colorMap[0].OldColor = Color.Magenta;//this.ImageTransparentColor;
 			    colorMap[0].NewColor = color;
-			    ImageAttributes attr = new ImageAttributes();
+			    var attr = new ImageAttributes();
 			    attr.SetRemapTable(colorMap);
 			    Rectangle rect = new Rectangle(0, 0, Image.Width, Image.Height);
 			  	// todo find a way to retrieve transparency offset automatically
@@ -57,7 +58,7 @@ namespace GreenShot
 			cd.ShowDialog(this.Owner);
 			Color = cd.Color;
 			if(ColorPicked != null) {
-				ColorPicked(this, new ColorPickerEventArgs(Color, cd.RecentColors));
+				//ColorPicked(this, new ColorPickerEventArgs(Color, cd.RecentColors));
 			}
 		}
 	}

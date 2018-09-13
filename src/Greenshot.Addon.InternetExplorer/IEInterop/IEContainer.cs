@@ -87,7 +87,7 @@ namespace Greenshot.Addon.InternetExplorer.IEInterop
 			// Calculate startLocation for the frames
 			var window2 = document2.parentWindow;
 			var window3 = (IHTMLWindow3) window2;
-			NativePoint contentWindowLocation = contentWindow.GetInfo().Bounds.Location;
+			var contentWindowLocation = contentWindow.GetInfo().Bounds.Location;
 			var x = window3.screenLeft - contentWindowLocation.X;
 			var y = window3.screenTop - contentWindowLocation.Y;
 
@@ -247,7 +247,7 @@ namespace Greenshot.Addon.InternetExplorer.IEInterop
 			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
 			//Marshal.ReleaseComObject(document5);
 
-			NativeRect clientRectangle = contentWindow.GetInfo().Bounds;
+			var clientRectangle = contentWindow.GetInfo().Bounds;
 			try
 			{
 				var window2 = document2.parentWindow;
@@ -334,7 +334,7 @@ namespace Greenshot.Addon.InternetExplorer.IEInterop
 				{
 					try
 					{
-						IHTMLWindow2 frameWindow = frameCollection.item(frame);
+						var frameWindow = frameCollection.item(frame) as IHTMLWindow2;
 						var frameData = new DocumentContainer(frameWindow, contentWindow, this);
 						// check if frame is hidden
 						if (!frameData.IsHidden)

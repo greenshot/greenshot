@@ -1,383 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk.Wpf">
+
   <PropertyGroup>
-    <ProjectGuid>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</ProjectGuid>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Greenshot</RootNamespace>
-    <AssemblyName>Greenshot</AssemblyName>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <NoStdLib>False</NoStdLib>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <ApplicationManifest>greenshot.manifest</ApplicationManifest>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <TargetFrameworkProfile />
+    <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <ApplicationManifest>greenshot.manifest</ApplicationManifest>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="WindowsFormsIntegration" />
+    <Compile Remove="Components\GreenshotClient.cs" />
+    <Compile Remove="Components\GreenshotServer.cs" />
+    <Compile Remove="Components\UpdateService.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Components\HotKeyHandler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Components\AuthenticationProvider.cs" />
-    <Compile Include="Components\CommandlineParser.cs" />
-    <Compile Include="Components\MainFormStartup.cs" />
-    <Compile Include="Components\HotkeyService.cs" />
-    <Compile Include="Components\FormsStartup.cs" />
-    <Compile Include="Configuration\CommandlineCaptureOptions.cs" />
-    <Compile Include="Configuration\CommandlineOptions.cs" />
-    <Compile Include="Configuration\IConfigTranslations.cs" />
-    <Compile Include="Configuration\IMetroConfiguration.cs" />
-    <Compile Include="Configuration\LanguageKeys.cs" />
-    <Compile Include="Destinations\ClipboardDestination.cs" />
-    <Compile Include="Destinations\EmailDestination.cs" />
-    <Compile Include="Destinations\FileDestination.cs" />
-    <Compile Include="Destinations\FileWithDialogDestination.cs" />
-    <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PrinterDestination.cs" />
-    <Compile Include="Forms\AboutForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AboutForm.Designer.cs">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.Designer.cs">
-      <DependentUpon>CaptureForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\LanguageDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LanguageDialog.Designer.cs">
-      <DependentUpon>LanguageDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\PrintOptionsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
-      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ToolStripMenuSelectList.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Forms\BugReportForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\BugReportForm.Designer.cs">
-      <DependentUpon>BugReportForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GreenshotAutofacModule.cs" />
-    <Compile Include="Startup.cs" />
-    <Compile Include="Ui\Configuration\AddonDestinationsConfigNode.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\ClipboardDestinationConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\PrintConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\OutputConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\NetworkConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\GeneralConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\DestinationPickerConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\InternalDestinationsConfigNode.cs" />
-    <Compile Include="Ui\Configuration\CaptureConfigNode.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\CaptureConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\UiConfigViewModel.cs" />
-    <Compile Include="Ui\Misc\ViewModels\ErrorViewModel.cs" />
-    <Compile Include="Ui\Misc\ViewModels\SplashViewModel.cs" />
-    <Compile Include="Ui\Notifications\ViewModels\UpdateNotificationViewModel.cs" />
-    <None Include="App.config" />
-    <Compile Include="Helpers\CaptureHelper.cs" />
-    <Compile Include="Components\GreenshotClient.cs" />
-    <Compile Include="Components\GreenshotServer.cs" />
-    <Compile Include="Helpers\ScrollingCapture.cs" />
-    <Compile Include="Help\HelpFileLoader.cs" />
-    <Compile Include="Processors\TitleFixProcessor.cs" />
-    <Compile Include="Helpers\WindowWrapper.cs" />
-    <Compile Include="Components\UpdateService.cs" />
-    <Compile Include="Helpers\EnvironmentInfo.cs" />
-    <Compile Include="Helpers\MailHelper.cs" />
-    <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Components\SoundHelper.cs" />
-    <Compile Include="Helpers\StartupHelper.cs" />
-    <EmbeddedResource Include="Forms\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx" />
-    <None Include="greenshot.manifest" />
-    <None Include="Languages\Help\help-en-US.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-de-DE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-es-ES.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-fr-FR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-hu-HU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-it-IT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-nl-NL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-nn-NO.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-pl-PL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-ru-RU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-sv-SE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-tr-TR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-zh-CN.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-ko-KR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-pt-PT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ar-SY.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-cs-CZ.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-de-DE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-el-GR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-en-US.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-es-ES.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fa-IR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fi-FI.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fr-FR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fr-QC.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-he-IL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-hu-HU.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-it-IT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ja-JP.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ko-KR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-lt-LT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-nl-NL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-nn-NO.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pl-PL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pt-BR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pt-PT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ro-RO.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ru-RU.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sk-SK.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sv-SE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-tr-TR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-uk-UA.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-vi-VN.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-zh-CN.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-zh-tw.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj">
-      <Project>{4cca2717-b8a4-44f7-965b-5687107e4921}</Project>
-      <Name>Greenshot.Addon.InternetExplorer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
-      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
-      <Name>Greenshot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>Greenshot.Addons</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Languages\language-kab-DZ.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Languages\language-ca-CA.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-da-DK.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-de-x-franconia.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-et-EE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-id-ID.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-lv-LV.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sl-SI.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="FodyWeavers.xml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Ui\Configuration\Views\ClipboardDestinationConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\DestinationPickerConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\ConfigView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Configuration\Views\CaptureConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\PrintConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\OutputConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\NetworkConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\GeneralConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\UiConfigView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Misc\Views\ErrorView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Misc\Views\SplashView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Notifications\Views\UpdateNotificationView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.CommonServiceLocator">
       <Version>5.0.0</Version>
@@ -434,51 +75,116 @@
       <Version>2.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
-      <Version>4.0.11</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Console">
-      <Version>4.0.0</Version>
+      <Version>4.3.1</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.Debug">
-      <Version>4.0.11</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Globalization">
-      <Version>4.0.11</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.IO">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Linq">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Linq.Expressions">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.0.1</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.TypeExtensions">
-      <Version>4.5.0</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Resources.ResourceManager">
-      <Version>4.0.1</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.Extensions">
-      <Version>4.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Tools.InnoSetup">
-      <Version>5.6.1</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj">
+      <Name>Greenshot.Addon.InternetExplorer</Name>
+    </ProjectReference>
+	<ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj">
+      <Name>Greenshot.Addon.LegacyEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
+      <Name>Greenshot.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
+      <Name>Greenshot.Gfx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
+      <Name>Greenshot.Addons</Name>
+    </ProjectReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="Components\GreenshotClient.cs" />
+    <None Include="Components\GreenshotServer.cs" />
+    <None Include="Components\UpdateService.cs" />
+    <None Include="Ui\Configuration\Views\ClipboardDestinationConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\DestinationPickerConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\ConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Include="Ui\Configuration\Views\CaptureConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\PrintConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\OutputConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\NetworkConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\GeneralConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Configuration\Views\UiConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Include="Ui\Misc\Views\ErrorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Ui\Misc\Views\SplashView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Include="Ui\Notifications\Views\UpdateNotificationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
 </Project>

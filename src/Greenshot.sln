@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addons", "Greenshot.Addons\Greenshot.Addons.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addons", "Greenshot.Addons\Greenshot.Addons.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.ExternalCommand", "Greenshot.Addon.ExternalCommand\Greenshot.Addon.ExternalCommand.csproj", "{47F23C86-604E-4CC3-8767-B3D4088F30BB}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Win10", "Gr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Lutim", "Greenshot.Addon.Lutim\Greenshot.Addon.Lutim.csproj", "{D106F86C-CD3D-44FF-B151-2A5D47268B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Gfx", "Greenshot.Gfx\Greenshot.Gfx.csproj", "{F041C685-EB96-4ED1-9ACE-0F5BD836610F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Gfx", "Greenshot.Gfx\Greenshot.Gfx.csproj", "{F041C685-EB96-4ED1-9ACE-0F5BD836610F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.PerformanceTests", "Greenshot.PerformanceTests\Greenshot.PerformanceTests.csproj", "{5D594C8A-2137-46E1-8D01-B83662825C7B}"
 EndProject
@@ -49,7 +49,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Tfs", "Gree
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.OcrCommand", "Greenshot.Addon.OcrCommand\Greenshot.Addon.OcrCommand.csproj", "{7B8E9055-A054-4290-B537-075EBFDF8BDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Core", "Greenshot.Core\Greenshot.Core.csproj", "{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Core", "Greenshot.Core\Greenshot.Core.csproj", "{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.InternetExplorer", "Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj", "{4CCA2717-B8A4-44F7-965B-5687107E4921}"
 EndProject
@@ -63,18 +63,20 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|x86.ActiveCfg = Debug|x86
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|x86.Build.0 = Debug|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|x86.Build.0 = Debug|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|x86.ActiveCfg = Release|x86
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Release|x86.Build.0 = Release|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|x86.ActiveCfg = Debug|x86
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|x86.Build.0 = Debug|x86
+		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Debug|x86.Build.0 = Debug|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x86.ActiveCfg = Release|x86
+		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x86.ActiveCfg = Release|Any CPU
+		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x86.Build.0 = Release|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug|x86.ActiveCfg = Debug|x86

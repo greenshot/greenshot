@@ -1,48 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\CommonProject.properties" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{4CCA2717-B8A4-44F7-965B-5687107E4921}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Greenshot.Addon.InternetExplorer</RootNamespace>
-    <AssemblyName>Greenshot.Addon.InternetExplorer</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+   <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Accessibility" />
-    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
+    <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
+  
   <ItemGroup>
-    <Compile Include="AccessibleHelper.cs" />
-    <Compile Include="IECaptureHelper.cs" />
-    <Compile Include="IEHelper.cs" />
-    <Compile Include="IEInterop\IEContainer.cs" />
-    <Compile Include="IEInterop\IWebBrowser2.cs" />
-    <Compile Include="InternetExplorerSource.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <PackageReference Include="Dapplo.Ini">
+      <Version>0.5.31</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.Windows">
+      <Version>0.5.112</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.Windows.Com">
+      <Version>0.5.112</Version>
+    </PackageReference>
+    <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>
-  <ItemGroup>
+  
+    <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
       <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
       <Name>Greenshot.Addons</Name>
@@ -56,19 +37,4 @@
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dapplo.Ini">
-      <Version>0.5.31</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows">
-      <Version>0.5.112</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Com">
-      <Version>0.5.112</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
