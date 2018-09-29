@@ -387,7 +387,7 @@ namespace Greenshot.Addon.InternetExplorer
 		{
 			if (windowToCapture == null)
 			{
-				windowToCapture = InteropWindowQuery.GetActiveWindow();
+				windowToCapture = InteropWindowQuery.GetForegroundWindow();
 			}
 			// Show backgroundform after retrieving the active window..
 			var backgroundForm = new BackgroundForm("Internet Explorer", "Please wait while the page in Internet Explorer is captured...");
