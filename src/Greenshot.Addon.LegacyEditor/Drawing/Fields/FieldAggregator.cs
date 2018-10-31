@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Dapplo.Ini;
+using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Drawing;
 
@@ -49,7 +49,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	[Serializable]
 	public sealed class FieldAggregator : AbstractFieldHolder
 	{
-		private static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
+	    // TODO: Solve, was static reference!
+        private static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
 
 		private readonly IDrawableContainerList _boundContainers;
 		private bool _internalUpdateRunning;

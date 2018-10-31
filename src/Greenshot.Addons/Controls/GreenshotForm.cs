@@ -26,11 +26,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Interfaces;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
@@ -194,7 +195,8 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    var section = IniConfig.Current[configBindable.SectionName];
+            // TODO: Fix this
+		    IIniSection section = null; // IniConfig.Current[configBindable.SectionName];
 		    if (section == null)
 		    {
 		        return;
@@ -202,7 +204,7 @@ namespace Greenshot.Addons.Controls
 
 		    // Only update the language, so get the actual value and than repopulate
 		    var currentValue = comboxBox.GetSelectedEnum();
-		    comboxBox.Populate(section[configBindable.PropertyName].ValueType);
+		    comboxBox.Populate(section.GetIniValue(configBindable.PropertyName).ValueType);
 		    comboxBox.SetValue(currentValue);
 		}
 
@@ -308,7 +310,8 @@ namespace Greenshot.Addons.Controls
 			        continue;
 			    }
 
-			    var section = IniConfig.Current[configBindable.SectionName];
+                // TODO: Fix this
+			    IIniSection section = null;//IniConfig.Current[configBindable.SectionName];
 			    if (section == null)
 			    {
 			        continue;
@@ -375,7 +378,8 @@ namespace Greenshot.Addons.Controls
 			        continue;
 			    }
 
-			    var section = IniConfig.Current[configBindable.SectionName];
+                // TODO: Fix this
+			    IIniSection section = null;//IniConfig.Current[configBindable.SectionName];
 			    if (section == null)
 			    {
 			        continue;

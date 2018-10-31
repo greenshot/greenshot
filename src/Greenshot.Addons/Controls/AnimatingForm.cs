@@ -25,7 +25,7 @@
 
 using System;
 using System.Windows.Forms;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;

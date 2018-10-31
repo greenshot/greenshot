@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance viewModels:CaptureConfigViewModel,IsDesignTimeCreatable=False}"
              >
     <UserControl.Resources>
-        <controls:InvertedBoolenConverter x:Key="InvertedBoolenConverter" />
+        <controls:InvertedBooleanConverter x:Key="InvertedBooleanConverter" />
     </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="{Binding GreenshotLanguage.SettingsCapture}">
@@ -24,7 +24,7 @@
                     <mah:NumericUpDown Value="{Binding CoreConfiguration.CaptureDelay}" Maximum="1000" Minimum="0"></mah:NumericUpDown>
                 </DockPanel>
                 <CheckBox Content="{Binding GreenshotLanguage.SettingsCaptureWindowsInteractive}" IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive}" />
-                <DockPanel LastChildFill="True" IsEnabled="{Binding CoreConfiguration.CaptureWindowsInteractive,Converter={StaticResource InvertedBoolenConverter}}">
+                <DockPanel LastChildFill="True" IsEnabled="{Binding CoreConfiguration.CaptureWindowsInteractive,Converter={StaticResource InvertedBooleanConverter}}">
                     <Label Content="{Binding GreenshotLanguage.SettingsWindowCaptureMode}" Width="100" />
                     <ComboBox SelectedValue="{Binding SelectedWindowCaptureMode}" ItemsSource="{Binding WindowCaptureModes}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>

@@ -25,8 +25,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 
 #endregion
 

@@ -29,10 +29,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.Enums;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces.Forms;
 using Microsoft.Win32;
 
@@ -61,7 +61,7 @@ namespace Greenshot.Addons.Core
 	        }
 
 	        _isHooked = true;
-	        var coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
+	        var coreConfiguration = new CoreConfigurationImpl();
 	        coreConfiguration.PropertyChanged += OnIconSizeChanged;
 	    }
 

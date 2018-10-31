@@ -26,8 +26,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Core;
 using Greenshot.Core.Enums;
@@ -81,8 +81,7 @@ namespace Greenshot.Tests
         [WpfFact]
         public async Task Test_CaptureFlow_DwmWindowSource()
         {
-            var iniConfig = new IniConfig("Greenshot.Tests", "Greenshot.Tests");
-            var config = iniConfig.Get<ICoreConfiguration>();
+            ICoreConfiguration config = new CoreConfigurationImpl();
 
             var windowToCapture = InteropWindowQuery.GetTopLevelWindows().First(window => window.GetCaption().Contains("Notepad"));
             var bounds = windowToCapture.GetInfo().Bounds;

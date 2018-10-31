@@ -30,10 +30,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addon.LegacyEditor.Drawing.Adorners;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Drawing.Filters;
@@ -59,7 +59,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		private const int M11 = 0;
 		private const int M22 = 3;
 		private static readonly LogSource Log = new LogSource();
-		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
+	    // TODO: Solve, was static reference!
+        protected static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
 
 		/// <summary>
 		///     List of available Adorners

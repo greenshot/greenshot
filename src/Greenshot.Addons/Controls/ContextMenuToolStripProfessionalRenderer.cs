@@ -25,7 +25,7 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Ini;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
 
@@ -38,8 +38,10 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
 	{
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-		private Image _scaledCheckbox;
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+
+        private Image _scaledCheckbox;
 		private bool _newImage;
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{

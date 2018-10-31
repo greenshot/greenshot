@@ -34,13 +34,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -101,8 +101,9 @@ EndSelection:<<<<<<<4
 		private const int BITMAPFILEHEADER_LENGTH = 14;
 		private static readonly LogSource Log = new LogSource();
 		private static readonly object ClipboardLockObject = new object();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly string FORMAT_FILECONTENTS = "FileContents";
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+        private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
 		private static readonly string FORMAT_17 = "Format17";

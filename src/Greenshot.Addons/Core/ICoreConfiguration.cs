@@ -27,8 +27,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
+using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.Config.Attributes;
+using Dapplo.Config.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Core.Configuration;
@@ -42,7 +43,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Core")]
     [Description("Greenshot core configuration")]
-    public interface ICoreConfiguration : IIniSection, IFileConfiguration, ICaptureConfiguration, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
+    public interface ICoreConfiguration : IIniSection, IFileConfiguration, ICaptureConfiguration, IUiConfiguration
     {
         [Description("The language in IETF format (e.g. en-US)")]
         string Language { get; set; }
@@ -294,7 +295,7 @@ namespace Greenshot.Addons.Core
 
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling")]
         [DefaultValue("16,16")]
-        Size IconSize { get; set; }
+        NativeSize IconSize { get; set; }
 
         [Description("The connect timeout value for webrequets, these are seconds")]
         [DefaultValue(100)]
