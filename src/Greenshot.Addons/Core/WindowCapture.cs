@@ -30,7 +30,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Extensions;
@@ -43,6 +42,7 @@ using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
@@ -56,7 +56,8 @@ namespace Greenshot.Addons.Core
     public static class WindowCapture
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration Configuration = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration Configuration = new CoreConfigurationImpl();
 
         /// <summary>
         ///     Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method

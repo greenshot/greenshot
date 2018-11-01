@@ -37,6 +37,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.DesktopWindowsManager.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;

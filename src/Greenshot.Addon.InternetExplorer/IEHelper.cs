@@ -108,12 +108,13 @@ namespace Greenshot.Addon.InternetExplorer {
 			    {
 			        continue;
 			    }
-
-			    var ieAccessible = new Accessible(directUiWd.Handle);
+#if !NETCOREAPP30
+                var ieAccessible = new Accessible(directUiWd.Handle);
 			    foreach (var url in ieAccessible.IETabUrls)
 			    {
 			        yield return url;
 			    }
+#endif
 			}
 		}
 	}

@@ -21,23 +21,14 @@
 
 #endregion
 
-using System;
-using System.Globalization;
-using System.Windows.Data;
+using Dapplo.Config.Language;
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Configuration.Impl
 {
-    public class InvertedBoolenConverter : IValueConverter
+    internal class ConfigTranslationsImpl : LanguageBase<IConfigTranslations>, IConfigTranslations
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return !(bool)(value ?? false);
+        public string Filter { get; }
 
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return !(bool)(value ?? false);
-        }
+        public string Theme { get; }
     }
 }

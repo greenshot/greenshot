@@ -24,7 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
-using Dapplo.Ini;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
@@ -35,8 +35,9 @@ namespace Greenshot.Addons.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-		private bool _disableReduceColors;
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+        private bool _disableReduceColors;
 		private bool _reduceColors;
 
 		public SurfaceOutputSettings()

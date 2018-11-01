@@ -35,11 +35,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Ini;
-using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -58,7 +57,8 @@ namespace Greenshot.Addons.Core
 	public static class ImageOutput
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+		private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
@@ -139,8 +139,8 @@ namespace Greenshot.Addons.Core
 						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
 						if (CoreConfig.OutputFilePromptQuality)
 						{
-                            // TODO: Resolve
-							var qualityDialog = new QualityDialog(outputSettings, CoreConfig, LanguageLoader.Current.Get<IGreenshotLanguage>());
+                            // TODO: Resolve, was static reference
+							var qualityDialog = new QualityDialog(outputSettings, CoreConfig, new GreenshotLanguageImpl());
 							qualityDialog.ShowDialog();
 						}
 						// TODO: For now we always overwrite, should be changed

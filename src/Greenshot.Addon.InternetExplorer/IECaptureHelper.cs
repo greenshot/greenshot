@@ -29,7 +29,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
 using Dapplo.Windows.Common.Extensions;
@@ -38,6 +37,7 @@ using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Greenshot.Addon.InternetExplorer.IEInterop;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -57,10 +57,11 @@ namespace Greenshot.Addon.InternetExplorer
 	public static class IeCaptureHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
 
-		// Helper method to activate a certain IE Tab
-		public static void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)
+        // Helper method to activate a certain IE Tab
+        public static void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)
 		{
             var directUiInteropWindow = IEHelper.GetDirectUi(nativeIeWindow);
 			if (directUiInteropWindow != null)

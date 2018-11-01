@@ -26,8 +26,8 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Core.Enums;
@@ -43,8 +43,9 @@ namespace Greenshot.Addons.Controls
 	public class SaveImageFileDialog : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private readonly ICaptureDetails _captureDetails;
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfiguration = new CoreConfigurationImpl();
+        private readonly ICaptureDetails _captureDetails;
 		private DirectoryInfo _eagerlyCreatedDirectory;
 		private FilterOption[] _filterOptions;
 		protected SaveFileDialog SaveFileDialog;
@@ -145,21 +146,21 @@ namespace Greenshot.Addons.Controls
 			string initialDirectory = null;
 			try
 			{
-				conf.ValidateAndCorrect();
-				initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+				CoreConfiguration.ValidateAndCorrect();
+				initialDirectory = Path.GetDirectoryName(CoreConfiguration.OutputFileAsFullpath);
 			}
 			catch
 			{
-				Log.Warn().WriteLine("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
+				Log.Warn().WriteLine("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", CoreConfiguration.OutputFileAsFullpath);
 			}
 
 			if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
 			{
 				SaveFileDialog.InitialDirectory = initialDirectory;
 			}
-			else if (Directory.Exists(conf.OutputFilePath))
+			else if (Directory.Exists(CoreConfiguration.OutputFilePath))
 			{
-				SaveFileDialog.InitialDirectory = conf.OutputFilePath;
+				SaveFileDialog.InitialDirectory = CoreConfiguration.OutputFilePath;
 			}
 			// The following property fixes a problem that the directory where we save is locked (bug #2899790)
 			SaveFileDialog.RestoreDirectory = true;
@@ -174,7 +175,7 @@ namespace Greenshot.Addons.Controls
 			PrepareFilterOptions();
 			var fdf = "";
 			var preselect = 0;
-			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormats), conf.OutputFileFormat);
+			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormats), CoreConfiguration.OutputFileFormat);
 			for (var i = 0; i < _filterOptions.Length; i++)
 			{
 				var fo = _filterOptions[i];
@@ -223,7 +224,7 @@ namespace Greenshot.Addons.Controls
 		private void ApplySuggestedValues()
 		{
 			// build the full path and set dialog properties
-			FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
+			FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfiguration.OutputFileFilenamePattern, _captureDetails);
 		}
 
 		private void CleanUp()

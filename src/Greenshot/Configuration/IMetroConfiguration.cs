@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel;
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
+using Dapplo.Config.Ini;
 
 namespace Greenshot.Configuration
 {
     [IniSection("Metro")]
-    public interface IMetroConfiguration : IIniSection, ITransactionalProperties
+    public interface IMetroConfiguration : IIniSection
     {
         [DefaultValue(Themes.BaseLight)]
         Themes Theme { get; set; }

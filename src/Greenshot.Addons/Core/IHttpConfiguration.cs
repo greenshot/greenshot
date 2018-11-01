@@ -24,9 +24,8 @@
 #region Usings
 
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
@@ -37,7 +36,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Network")]
     [Description("Greenshot network configuration")]
-    public interface IHttpConfiguration : IIniSection, IHttpSettings, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITransactionalProperties
+    public interface IHttpConfiguration : IIniSection, IHttpSettings
     {
     }
 }

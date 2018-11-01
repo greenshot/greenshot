@@ -40,7 +40,7 @@ namespace Greenshot.Components
     /// <summary>
     /// This startup action starts the MainForm
     /// </summary>
-    [Service(nameof(MainFormStartup), nameof(FormsStartup), nameof(CaliburnServices.IniSectionService), TaskSchedulerName = "ui")]
+    [Service(nameof(MainFormStartup), nameof(FormsStartup), nameof(CaliburnServices.ConfigurationService), TaskSchedulerName = "ui")]
     public class MainFormStartup : IStartup, IShutdown
     {
         private static readonly LogSource Log = new LogSource();

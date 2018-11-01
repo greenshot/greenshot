@@ -33,7 +33,6 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.CaliburnMicro;
 using Greenshot.Helpers;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons;

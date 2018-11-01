@@ -21,15 +21,14 @@
 
 #endregion
 
-using System.ComponentModel;
-using Dapplo.Config.Language;
+using Dapplo.CaliburnMicro.Metro;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Configuration
+namespace Greenshot.Configuration.Impl
 {
-    [Language("Config")]
-    public interface IConfigTranslations : Dapplo.CaliburnMicro.Translations.IConfigTranslations, ILanguage
+    internal class MetroConfigurationImpl : IniSectionBase<IMetroConfiguration>, IMetroConfiguration
     {
-        [DefaultValue("Theme")]
-        string Theme { get; }
+        public Themes Theme { get; set; }
+        public ThemeAccents ThemeAccent { get; set; }
     }
 }

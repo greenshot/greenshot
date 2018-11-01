@@ -24,9 +24,8 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.ViewModels;
@@ -39,22 +38,18 @@ namespace Greenshot.Addons
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IUiConfiguration>())
+                .Register(context => new CoreConfigurationImpl())
+                .As<ICoreConfiguration>()
                 .As<IUiConfiguration>()
                 .SingleInstance();
 
             builder
-                .Register(context => IniConfig.Current.Get<ICoreConfiguration>())
-                .As<ICoreConfiguration>()
-                .SingleInstance();
-
-            builder
-                .Register(context => LanguageLoader.Current.Get<IGreenshotLanguage>())
+                .Register(context => new GreenshotLanguageImpl())
                 .As<IGreenshotLanguage>()
                 .SingleInstance();
 
             builder
-                .Register(context => IniConfig.Current.Get<IHttpConfiguration>())
+                .Register(context => new HttpConfigurationImpl())
                 .As<IHttpConfiguration>()
                 .SingleInstance();
 
@@ -69,26 +64,12 @@ namespace Greenshot.Addons
                 .RegisterType<PleaseWaitForm>()
                 .AsSelf();
 
-            builder.RegisterType<SetupConfig>()
-                .As<IStartable>()
-                .SingleInstance();
-
             builder.RegisterType<ExportNotification>()
                 .AsSelf()
                 .SingleInstance();
             builder.RegisterType<ExportNotificationViewModel>()
                 .AsSelf();
             base.Load(builder);
-        }
-
-        /// <inheritdoc />
-        private class SetupConfig : IStartable
-        {
-            public void Start()
-            {
-                // Register the after load, so it's called when the configuration is created
-                IniConfig.Current.AfterLoad<ICoreConfiguration>(coreConfiguration => coreConfiguration.AfterLoad());
-            }
         }
     }
 }

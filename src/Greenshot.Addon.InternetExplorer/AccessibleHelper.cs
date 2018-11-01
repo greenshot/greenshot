@@ -21,6 +21,7 @@
 
 #endregion
 
+#if !NETCOREAPP30
 #region Usings
 
 using System;
@@ -359,3 +360,4 @@ namespace Greenshot.Addon.InternetExplorer
 		#endregion
 	}
 }
+#endif

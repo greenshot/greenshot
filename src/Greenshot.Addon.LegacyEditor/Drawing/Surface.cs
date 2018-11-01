@@ -33,12 +33,12 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Memento;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -57,12 +57,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();
+	    // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration conf = new CoreConfigurationImpl();
 
-		/// <summary>
-		/// The number of Surfaces in existance
-		/// </summary>
-		public static int Count { get; private set; }
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+        /// <summary>
+        /// The number of Surfaces in existance
+        /// </summary>
+        public static int Count { get; private set; }
 
 		/// <summary>
 		///     all elements on the surface, needed with serialization
