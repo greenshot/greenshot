@@ -149,7 +149,9 @@ namespace Greenshot.Addons.Core
 					}
 					catch (ExternalException)
 					{
-						MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
+                        MessageBox.Show("Can't write to " + saveImageFileDialog.FileName.Replace(@"\\", @"\"), "Error");
+                        // TODO: Fix
+                        //MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
 					}
 				}
 			}

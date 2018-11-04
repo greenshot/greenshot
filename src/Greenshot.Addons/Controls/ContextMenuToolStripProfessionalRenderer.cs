@@ -25,6 +25,7 @@
 
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
@@ -45,7 +46,7 @@ namespace Greenshot.Addons.Controls
 		private bool _newImage;
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{
-			if (_scaledCheckbox == null || _scaledCheckbox.Size != CoreConfig.IconSize)
+			if (_scaledCheckbox == null || (NativeSize)_scaledCheckbox.Size != CoreConfig.IconSize)
 			{
 				if (_newImage)
 				{

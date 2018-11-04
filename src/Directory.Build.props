@@ -9,10 +9,12 @@
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
 	<LangVersion>latest</LangVersion>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	<DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'net461'">true</DisableImplicitFrameworkReferences>
+	<!-- <DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'net471'">true</DisableImplicitFrameworkReferences> -->
+	<CopyLocalLockFileAssemblies Condition="'$(TargetFramework)' != 'net471'">true</CopyLocalLockFileAssemblies>
 	<Version>1.0.0</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
+    <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net471'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};</AssemblySearchPaths>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -41,7 +43,7 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
   	<!--ApplicationDefinition Include="App.xaml">
 	  <Generator>MSBuild:Compile</Generator>
 	  <SubType>Designer</SubType>

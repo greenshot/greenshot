@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -9,7 +9,7 @@
     <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -51,19 +51,19 @@
       <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.1.1-gd01f910204</Version>
+      <Version>1.1.10-ge2d1078449</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.1.1-gd01f910204</Version>
+      <Version>1.1.10-ge2d1078449</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
       <Version>0.9.6</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.7.16</Version>
+      <Version>0.7.19</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.7.16</Version>
+      <Version>0.7.19</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

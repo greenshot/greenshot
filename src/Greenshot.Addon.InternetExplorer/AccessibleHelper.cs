@@ -21,7 +21,6 @@
 
 #endregion
 
-#if !NETCOREAPP30
 #region Usings
 
 using System;
@@ -335,7 +334,7 @@ namespace Greenshot.Addon.InternetExplorer
 			OBJID_WINDOW = 0x00000000
 		}
 
-		#region Interop
+#region Interop
 
 		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
 		{
@@ -357,7 +356,6 @@ namespace Greenshot.Addon.InternetExplorer
 		[return: MarshalAs(UnmanagedType.Interface)]
 		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
 
-		#endregion
+#endregion
 	}
 }
-#endif

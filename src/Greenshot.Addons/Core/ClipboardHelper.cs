@@ -192,11 +192,11 @@ EndSelection:<<<<<<<4
 					var clipboardOwner = GetClipboardOwner();
 					if (clipboardOwner != null)
 					{
-						messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
+                        messageText = "in use"; // Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 					}
 					else
 					{
-						messageText = Language.GetString("Core","clipboard_error");
+                        messageText = "error"; // Language.GetString("Core","clipboard_error");
 					}
 					Log.Error().WriteLine(clipboardSetException, messageText);
 				}
@@ -223,13 +223,14 @@ EndSelection:<<<<<<<4
 						{
 							string messageText;
 							var clipboardOwner = GetClipboardOwner();
+                            // TODO: Translations
 							if (clipboardOwner != null)
 							{
-								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
+                                messageText = "In use"; // Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 							}
 							else
 							{
-								messageText = Language.GetString("Core", "clipboard_error");
+                                messageText = "Error"; // Language.GetString("Core", "clipboard_error");
 							}
 							Log.Error().WriteLine(ee, messageText);
 						}

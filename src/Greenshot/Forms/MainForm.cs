@@ -34,7 +34,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
-using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Destinations;
 using Greenshot.Help;
@@ -60,6 +59,7 @@ using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
+using Dapplo.Config.Ini;
 
 #endregion
 
@@ -933,7 +933,7 @@ namespace Greenshot.Forms
                 var enumTypeName = typeof(WindowCaptureModes).Name;
                 foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes)))
                 {
-                    selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
+                    selectList.AddItem(_greenshotLanguage[enumTypeName + "." + captureMode], captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
                 }
                 selectList.CheckedChanged += QuickSettingCaptureModeChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -947,7 +947,7 @@ namespace Greenshot.Forms
 
             foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint") && value.ValueType == typeof(bool) && !_coreConfiguration.IsWriteProtected(value.PropertyName)))
             {
-                selectList.AddItem(Language.GetString(outputPrintIniValue.PropertyName), outputPrintIniValue, (bool) outputPrintIniValue.Value);
+                selectList.AddItem(_greenshotLanguage[outputPrintIniValue.PropertyName], outputPrintIniValue, (bool) outputPrintIniValue.Value);
             }
             if (selectList.DropDownItems.Count > 0)
             {
@@ -965,18 +965,18 @@ namespace Greenshot.Forms
                 Text = _greenshotLanguage.SettingsVisualization
             };
 
-            var iniValue = _coreConfiguration["PlayCameraSound"];
+            var iniValue = _coreConfiguration.GetIniValue("PlayCameraSound");
             var languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
 
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool) iniValue.Value);
             }
-            iniValue = _coreConfiguration["ShowTrayNotification"];
+            iniValue = _coreConfiguration.GetIniValue("ShowTrayNotification");
             languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool) iniValue.Value);
             }
             if (selectList.DropDownItems.Count > 0)
             {

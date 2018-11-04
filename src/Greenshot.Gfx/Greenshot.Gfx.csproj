@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
@@ -9,7 +9,7 @@
     <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -36,7 +36,7 @@
       <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.1.1-gd01f910204</Version>
+      <Version>1.1.10-ge2d1078449</Version>
     </PackageReference>
     <PackageReference Include="Svg">
       <Version>2.3.0</Version>

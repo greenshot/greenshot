@@ -21,6 +21,8 @@
 
 #endregion
 
+#if !NETCOREAPP3_0
+
 using System.ServiceModel;
 
 namespace Greenshot.Addons.Interfaces
@@ -58,3 +60,5 @@ namespace Greenshot.Addons.Interfaces
         void OpenFile(string filename);
     }
 }
+
+#endif

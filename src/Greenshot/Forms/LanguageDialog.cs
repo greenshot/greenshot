@@ -27,7 +27,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Language;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
 
@@ -70,11 +69,12 @@ namespace Greenshot.Forms
 			comboBoxLanguage.DisplayMember = "Value";
 			comboBoxLanguage.ValueMember = "Key";
 
-			// Set datasource last to prevent problems
-			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
+            // Set datasource last to prevent problems
+            // See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
+            // TODO: Get languages
+            //comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
 
-		    var currentLanguage = LanguageLoader.Current.CurrentLanguage;
+            var currentLanguage = "en-US"; // LanguageLoader.Current.CurrentLanguage;
 
             if (currentLanguage != null)
 			{
@@ -88,14 +88,14 @@ namespace Greenshot.Forms
 
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
-		    if (LanguageLoader.Current.AvailableLanguages.Count != 1)
+		    if (false) //LanguageLoader.Current.AvailableLanguages.Count != 1)
 		    {
 		        return;
 		    }
 
-		    comboBoxLanguage.SelectedValue = LanguageLoader.Current.AvailableLanguages.Keys.FirstOrDefault();
-            // TODO: Check
-		    var ignoreTask = LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
+            comboBoxLanguage.SelectedValue = "en-US"; // LanguageLoader.Current.AvailableLanguages.Keys.FirstOrDefault();
+            // TODO: Change language
+		    //var ignoreTask = LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
 		    _properOkPressed = true;
 		    Close();
 		}
@@ -104,7 +104,8 @@ namespace Greenshot.Forms
 		{
 			_properOkPressed = true;
 			// Fix for Bug #3431100 
-			Language.CurrentLanguage = SelectedLanguage;
+            // TODO: Change language
+			//Language.CurrentLanguage = SelectedLanguage;
 			Close();
 		}
 	}

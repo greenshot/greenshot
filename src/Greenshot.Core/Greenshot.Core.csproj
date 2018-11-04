@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
@@ -9,7 +9,7 @@
     <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -33,7 +33,7 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.7.16</Version>
+      <Version>0.7.19</Version>
     </PackageReference>
   </ItemGroup>
 

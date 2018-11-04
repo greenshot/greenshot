@@ -31,7 +31,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Greenshot.Destinations;
@@ -51,6 +50,7 @@ using Greenshot.Components;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using LangKey = Greenshot.Configuration.LangKey;
+using Greenshot.Addons.Config.Impl;
 
 #endregion
 
@@ -62,7 +62,8 @@ namespace Greenshot.Helpers
     public class CaptureHelper : IDisposable
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private CaptureMode _captureMode;
@@ -425,7 +426,8 @@ namespace Greenshot.Helpers
                     }
                     else
                     {
-                        MessageBox.Show(Language.GetString("clipboard_noimage"));
+                        // TODO: Translation
+                        //MessageBox.Show(Language.GetString("clipboard_noimage"));
                     }
                     break;
                 case CaptureMode.File:
@@ -449,7 +451,8 @@ namespace Greenshot.Helpers
                         catch (Exception e)
                         {
                             Log.Error().WriteLine(e, e.Message);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                            // TODO: Translation
+                            //MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
                         }
                         try
                         {
@@ -458,7 +461,8 @@ namespace Greenshot.Helpers
                         catch (Exception e)
                         {
                             Log.Error().WriteLine(e, e.Message);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                            // TODO: Translation
+                            //MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
                         }
                     }
                     if (fileImage != null)

@@ -32,8 +32,8 @@ using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
-using Dapplo.Ini.Converters;
-using Dapplo.Language;
+using Dapplo.Config.Ini.Converters;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Dapplo.Utils;
@@ -71,7 +71,6 @@ namespace Greenshot
                 .Create()
                 .WithApplicationName("Greenshot")
                 .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
-                .WithConfigSupport()
                 .WithCaliburnMicro()
                 .WithoutCopyOfEmbeddedAssemblies()
                 .WithAssemblyPatterns("Greenshot.Addon*")

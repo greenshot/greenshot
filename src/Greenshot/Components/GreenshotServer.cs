@@ -21,6 +21,8 @@
 
 #endregion
 
+#if !NETCOREAPP3_0
+
 #region Usings
 
 using System;
@@ -32,7 +34,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -102,7 +103,7 @@ namespace Greenshot.Components
             return Task.Factory.FromAsync((callback, stateObject) => _host.BeginClose(callback, stateObject), asyncResult => _host.EndClose(asyncResult), null);
         }
 
-        #region IGreenshotContract
+#region IGreenshotContract
 
         /// <inheritdoc />
         public void Exit()
@@ -116,7 +117,8 @@ namespace Greenshot.Components
             Log.Info().WriteLine("Reload requested");
             try
             {
-                IniConfig.Current?.ReloadAsync().Wait();
+                // TODO: Fix
+                //IniConfig.Current?.ReloadAsync().Wait();
                 _mainForm.Invoke((MethodInvoker)(() =>
                 {
                     // Even update language when needed, this should be done automatically :)
@@ -178,6 +180,7 @@ namespace Greenshot.Components
                     break;
             }
         }
-        #endregion
+#endregion
     }
 }
+#endif

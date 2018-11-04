@@ -25,8 +25,8 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 
@@ -40,9 +40,10 @@ namespace Greenshot.Processors
 	public class TitleFixProcessor : AbstractProcessor
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration config = new CoreConfigurationImpl();
 
-		public TitleFixProcessor()
+        public TitleFixProcessor()
 		{
 			var corruptKeys = new List<string>();
 			foreach (var key in config.ActiveTitleFixes)
