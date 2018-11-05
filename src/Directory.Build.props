@@ -14,7 +14,7 @@
 	<Version>1.0.0</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
-    <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net471'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};</AssemblySearchPaths>
+    <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net471'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};{GAC};</AssemblySearchPaths>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">

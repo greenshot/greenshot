@@ -5,6 +5,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="Languages\language*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
     <FrameworkReference Include="Microsoft.DesktopUI" />
   </ItemGroup>
@@ -47,6 +53,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="AutoProperties.Fody" Version="1.17.0" />
     <PackageReference Include="CommonServiceLocator">
       <Version>2.0.4</Version>
     </PackageReference>
@@ -64,6 +71,10 @@
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.7.19</Version>
+    </PackageReference>
+    <PackageReference Include="Fody" Version="3.2.13">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 </Project>

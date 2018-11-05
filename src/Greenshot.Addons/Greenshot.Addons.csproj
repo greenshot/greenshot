@@ -33,6 +33,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="AutoProperties.Fody" Version="1.17.0" />
     <PackageReference Include="CommonServiceLocator">
       <Version>2.0.4</Version>
     </PackageReference>
@@ -60,8 +61,12 @@
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.7.19</Version>
     </PackageReference>
+    <PackageReference Include="Fody" Version="3.2.13">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>3.0.0-alpha0082</Version>
+      <Version>3.0.0-alpha0086</Version>
     </PackageReference>
     <PackageReference Include="Svg">
       <Version>2.3.0</Version>

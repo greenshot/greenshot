@@ -923,6 +923,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
 
+            var languageKeys = _greenshotLanguage.Keys().ToList();
             if (!_coreConfiguration.IsWriteProtected("WindowCaptureMode"))
             {
                 // Capture Modes
@@ -933,7 +934,15 @@ namespace Greenshot.Forms
                 var enumTypeName = typeof(WindowCaptureModes).Name;
                 foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes)))
                 {
-                    selectList.AddItem(_greenshotLanguage[enumTypeName + "." + captureMode], captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
+                    var key = enumTypeName + "." + captureMode;
+                    if (languageKeys.Contains(key))
+                    {
+                        selectList.AddItem(_greenshotLanguage[key], captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
+                    }
+                    else
+                    {
+                        Log.Warn().WriteLine("Missing translation for {0}", key);
+                    }
                 }
                 selectList.CheckedChanged += QuickSettingCaptureModeChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -947,7 +956,15 @@ namespace Greenshot.Forms
 
             foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint") && value.ValueType == typeof(bool) && !_coreConfiguration.IsWriteProtected(value.PropertyName)))
             {
-                selectList.AddItem(_greenshotLanguage[outputPrintIniValue.PropertyName], outputPrintIniValue, (bool) outputPrintIniValue.Value);
+                var key = outputPrintIniValue.PropertyName;
+                if (languageKeys.Contains(key))
+                {
+                    selectList.AddItem(_greenshotLanguage[key], outputPrintIniValue, (bool)outputPrintIniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", key);
+                }
             }
             if (selectList.DropDownItems.Count > 0)
             {
@@ -970,13 +987,27 @@ namespace Greenshot.Forms
 
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool) iniValue.Value);
+                if (languageKeys.Contains(languageKey))
+                {
+                    selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool)iniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", languageKey);
+                }
             }
             iniValue = _coreConfiguration.GetIniValue("ShowTrayNotification");
             languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool) iniValue.Value);
+                if (languageKeys.Contains(languageKey))
+                {
+                    selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool)iniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", languageKey);
+                }
             }
             if (selectList.DropDownItems.Count > 0)
             {
