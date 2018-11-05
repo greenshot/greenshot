@@ -24,6 +24,8 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addon.LegacyEditor.Controls;
 using Greenshot.Addon.LegacyEditor.Drawing;
@@ -42,11 +44,13 @@ namespace Greenshot.Addon.LegacyEditor
             builder
                 .Register(context => new EditorConfigurationImpl())
                 .As<IEditorConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
                 .Register(context => new EditorLanguageImpl())
                 .As<IEditorLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder

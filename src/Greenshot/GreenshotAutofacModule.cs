@@ -21,11 +21,16 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Autofac;
 using Autofac.Features.AttributeFilters;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Security;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Addons.Components;
 using Greenshot.Components;
 using Greenshot.Configuration;
@@ -44,14 +49,31 @@ namespace Greenshot
     {
         protected override void Load(ContainerBuilder builder)
         {
+            // Specify the directories for the translations manually, this is a workaround
+            builder.Register(context => LanguageConfigBuilder.Create()
+                    .WithSpecificDirectories(GenerateScanDirectories(
+#if NET471
+                    "net471",
+#else
+                            "netcoreapp3.0",
+#endif
+                            "Greenshot.Addon.LegacyEditor",
+                            "Greenshot").ToArray()
+                    )
+                    .BuildLanguageConfig())
+                .As<LanguageConfig>()
+                .SingleInstance();
+
             builder
                 .Register(context => new MetroConfigurationImpl())
                 .As<IMetroConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
                 .Register(context => new ConfigTranslationsImpl())
                 .As<IConfigTranslations>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder
@@ -128,6 +150,29 @@ namespace Greenshot
                 .AsSelf();
 
             base.Load(builder);
+        }
+
+
+        /// <summary>
+        /// Helper method to create a list of paths where the files can be located
+        /// </summary>
+        /// <param name="platform">string with the platform</param>
+        /// <param name="addons"></param>
+        /// <returns>IEnumerable with paths</returns>
+        private IEnumerable<string> GenerateScanDirectories(string platform, params string[] addons)
+        {
+            var location = GetType().Assembly.Location;
+            foreach (var addon in addons)
+            {
+                yield return Path.Combine(location, @"..\..\..\..\..\", addon, "bin",
+#if DEBUG
+                    "Debug",
+#else
+                    "Release",
+#endif
+                    platform
+                );
+            }
         }
     }
 }

@@ -39,7 +39,6 @@ using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.Legacy;
-using LangKey = Greenshot.Configuration.LangKey;
 
 #endregion
 

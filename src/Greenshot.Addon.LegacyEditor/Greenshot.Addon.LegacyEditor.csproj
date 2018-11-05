@@ -38,41 +38,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
-      <Name>Greenshot.Addons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
-      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
-      <Name>Greenshot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AutoProperties.Fody" Version="1.17.0" />
-    <PackageReference Include="CommonServiceLocator">
-      <Version>2.0.4</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.1.10-ge2d1078449</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.1.10-ge2d1078449</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.6</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.7.19</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.7.19</Version>
-    </PackageReference>
-    <PackageReference Include="Fody" Version="3.2.13">
+    <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
+    <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.11-gd26115c7d3" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.11-gd26115c7d3" />
+    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.6" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.7.19" />
+    <PackageReference Include="Fody" Version="3.2.16">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

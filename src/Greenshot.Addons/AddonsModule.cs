@@ -24,6 +24,8 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
@@ -41,16 +43,19 @@ namespace Greenshot.Addons
                 .Register(context => new CoreConfigurationImpl())
                 .As<ICoreConfiguration>()
                 .As<IUiConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
                 .Register(context => new GreenshotLanguageImpl())
                 .As<IGreenshotLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder
                 .Register(context => new HttpConfigurationImpl())
                 .As<IHttpConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder

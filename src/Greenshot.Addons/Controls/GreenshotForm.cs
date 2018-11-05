@@ -33,6 +33,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Interfaces;
 using Dapplo.Config.Language;
 using Dapplo.Log;
+using Dapplo.Utils;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
@@ -143,17 +144,33 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    if (!string.IsNullOrEmpty(languageKey) && _language.Keys().Contains(languageKey))
+		    string translation;
+		    if (!string.IsNullOrEmpty(languageKey))
 		    {
-		        applyTo.Text = _language[languageKey];
+		        if (_language.TryGetTranslation(languageKey, out translation))
+		        {
+		            applyTo.Text = translation;
+		            return;
+		        }
+
+		        var dotIndex = languageKey.IndexOf('.');
+		        if (dotIndex >= 0)
+		        {
+		            var alternativeKey = languageKey.Substring(dotIndex + 1);
+		            if (_language.TryGetTranslation(alternativeKey, out translation))
+		            {
+		                applyTo.Text = translation;
+		                return;
+		            }
+		        }
+            }
+
+		    if (_language.TryGetTranslation(applyTo.Name, out translation))
+		    {
+		        applyTo.Text = translation;
 		        return;
 		    }
 
-		    if (_language.Keys().Contains(applyTo.Name))
-		    {
-		        applyTo.Text = _language[applyTo.Name];
-		        return;
-		    }
 		    Log.Warn().WriteLine("Unknown language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
 		}
 
@@ -236,7 +253,7 @@ namespace Greenshot.Addons.Controls
 			try
 			{
 				// Set title of the form
-			    if (!string.IsNullOrEmpty(LanguageKey) && _language.Keys().Contains(LanguageKey))
+			    if (!string.IsNullOrEmpty(LanguageKey) && _language.Keys().Contains(LanguageKey, AbcComparer.Instance))
 				{
                     Text = _language[LanguageKey];
 				}
@@ -282,15 +299,30 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    if (!string.IsNullOrEmpty(languageKey) && _language.Keys().Contains(languageKey))
+		    string translation;
+		    if (!string.IsNullOrEmpty(languageKey))
 		    {
-		        applyTo.Text = _language[languageKey];
-                return;
+		        if (_language.TryGetTranslation(languageKey, out translation))
+		        {
+		            applyTo.Text = translation;
+		            return;
+		        }
+
+		        var dotIndex = languageKey.IndexOf('.');
+		        if (dotIndex >= 0)
+		        {
+		            var alternativeKey = languageKey.Substring(dotIndex + 1);
+		            if (_language.TryGetTranslation(alternativeKey, out translation))
+		            {
+		                applyTo.Text = translation;
+		                return;
+		            }
+		        }
 		    }
 
-		    if (_language.Keys().Contains(applyTo.Name))
+		    if (_language.TryGetTranslation(applyTo.Name, out translation))
 		    {
-		        applyTo.Text = _language[applyTo.Name];
+		        applyTo.Text = translation;
 		        return;
 		    }
 		    Log.Warn().WriteLine("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
