@@ -31,6 +31,26 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Checkerboard.Image.png" />
+    <None Remove="Resources\Clipboard.Image.png" />
+    <None Remove="Resources\Close.Image.png" />
+    <None Remove="Resources\Email.Image.png" />
+    <None Remove="Resources\Greenshot.Icon.ico" />
+    <None Remove="Resources\Printer.Image.png" />
+    <None Remove="Resources\Save.Image.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Checkerboard.Image.png" />
+    <EmbeddedResource Include="Resources\Clipboard.Image.png" />
+    <EmbeddedResource Include="Resources\Close.Image.png" />
+    <EmbeddedResource Include="Resources\Email.Image.png" />
+    <EmbeddedResource Include="Resources\Greenshot.Icon.ico" />
+    <EmbeddedResource Include="Resources\Printer.Image.png" />
+    <EmbeddedResource Include="Resources\Save.Image.png" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />

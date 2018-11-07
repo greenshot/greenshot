@@ -33,6 +33,7 @@ using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Forms;
+using Greenshot.Addons.Resources;
 
 #endregion
 
@@ -48,7 +49,7 @@ namespace Greenshot.Addon.LegacyEditor
 	    private readonly EditorFactory _editorFactory;
 	    private readonly IEditorLanguage _editorLanguage;
 	    private static readonly LogSource Log = new LogSource();
-		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
+		private static readonly Bitmap greenshotIcon = GreenshotResources.Instance.GetGreenshotIcon().ToBitmap();
 	    private readonly IImageEditor _editor;
 
         /// <summary>

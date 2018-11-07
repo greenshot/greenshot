@@ -33,6 +33,7 @@ using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 using Greenshot.Helpers;
 
 #endregion
@@ -86,7 +87,7 @@ namespace Greenshot.Destinations
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 
-	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Printer.Image");
+	    public override Bitmap DisplayIcon => GreenshotResources.Instance.GetBitmap("Printer.Image");
 
 	    public override bool IsDynamic => true;
 

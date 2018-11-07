@@ -30,6 +30,7 @@ using Greenshot.Addons.Components;
 using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addons
@@ -61,6 +62,7 @@ namespace Greenshot.Addons
             builder
                 .RegisterType<FileConfigPartViewModel>()
                 .AsSelf();
+
             builder
                 .RegisterType<DestinationHolder>()
                 .AsSelf();
@@ -72,8 +74,15 @@ namespace Greenshot.Addons
             builder.RegisterType<ExportNotification>()
                 .AsSelf()
                 .SingleInstance();
+
             builder.RegisterType<ExportNotificationViewModel>()
                 .AsSelf();
+
+            builder
+                .RegisterType<GreenshotResources>()
+                .AsSelf()
+                .SingleInstance();
+
             base.Load(builder);
         }
     }

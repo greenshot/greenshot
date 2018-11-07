@@ -60,13 +60,15 @@ using Greenshot.Ui.Configuration.ViewModels;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
 using Dapplo.Config.Ini;
+using Dapplo.Addons;
+using Greenshot.Addons.Resources;
 
 #endregion
 
 namespace Greenshot.Forms
 {
     /// <summary>
-    ///     Description of MainForm.
+    ///     The MainForm provides the "shell" of the application
     /// </summary>
     public partial class MainForm : GreenshotForm
     {
@@ -89,6 +91,7 @@ namespace Greenshot.Forms
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
             IGreenshotLanguage greenshotLanguage,
+            GreenshotResources greenshotResources,
             Func<Owned<ConfigViewModel>> configViewModelFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
             DestinationHolder destinationHolder) : base(greenshotLanguage)
@@ -119,7 +122,8 @@ namespace Greenshot.Forms
                 ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
                 throw;
             }
-            notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
+
+            notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
 
             // Disable access to the settings, for feature #3521446
             contextmenu_settings.Visible = !_coreConfiguration.DisableSettings;
@@ -386,7 +390,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.Size = new Size(170, width + 8);
                 contextMenu.ResumeLayout(true);
                 contextMenu.Refresh();
-                notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
+                notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
             });
 
             var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));

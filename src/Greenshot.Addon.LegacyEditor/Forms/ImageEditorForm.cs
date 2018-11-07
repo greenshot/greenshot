@@ -53,6 +53,7 @@ using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Interfaces.Forms;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
 
@@ -288,7 +289,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 panel1.Controls.Add(_surface);
             }
-            var backgroundForTransparency = GreenshotResources.GetBitmap("Checkerboard.Image");
+            var backgroundForTransparency = GreenshotResources.Instance.GetBitmap("Checkerboard.Image");
             if (_surface != null)
             {
                 _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);

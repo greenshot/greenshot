@@ -32,6 +32,7 @@ using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 
 namespace Greenshot.Addons.ViewModels
 {
@@ -42,6 +43,7 @@ namespace Greenshot.Addons.ViewModels
         private readonly Config<IConfigScreen> _configViewModel;
         private readonly IConfigScreen _configScreen;
         private static readonly LogSource Log = new LogSource();
+
         public ExportNotificationViewModel(
             IDestination source,
             ExportInformation exportInformation,
@@ -62,7 +64,7 @@ namespace Greenshot.Addons.ViewModels
             }
         }
 
-        public ImageSource GreenshotIcon => GreenshotResources.GreenshotIconAsBitmapSource();
+        public ImageSource GreenshotIcon => GreenshotResources.Instance.GreenshotIconAsBitmapSource();
 
         public ImageSource ExportBitmapSource { get; }
 

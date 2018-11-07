@@ -34,6 +34,7 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Addons.Resources;
 
 #endregion
 
@@ -60,7 +61,7 @@ namespace Greenshot.Destinations
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 
-		public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Save.Image");
+		public override Bitmap DisplayIcon => GreenshotResources.Instance.GetBitmap("Save.Image");
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{

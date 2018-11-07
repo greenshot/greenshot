@@ -26,30 +26,31 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Media.Imaging;
+using Dapplo.Addons;
 using Dapplo.Windows.Icons;
+using Greenshot.Gfx;
 
 #endregion
 
-namespace Greenshot.Addons.Core
+namespace Greenshot.Addons.Resources
 {
 	/// <summary>
 	///     Centralized storage of the icons & bitmaps
 	/// </summary>
-	public static class GreenshotResources
+	public class GreenshotResources
 	{
 		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
+	    private readonly IResourceProvider _resourceProvider;
+        // TODO: Remove all usages
+	    public static GreenshotResources Instance;
 
-		public static Bitmap GetBitmap(string imageName)
-		{
-			return (Bitmap) greenshotResources.GetObject(imageName);
-		}
+        public GreenshotResources(IResourceProvider resourceProvider)
+        {
+            _resourceProvider = resourceProvider;
+            Instance = this;
+        }
 
-		public static Icon GetIcon(string imageName)
-		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
-
-	    public static BitmapSource GreenshotIconAsBitmapSource()
+	    public BitmapSource GreenshotIconAsBitmapSource()
 	    {
             using (var icon = GetGreenshotIcon())
             {
@@ -57,14 +58,35 @@ namespace Greenshot.Addons.Core
             }
         }
 
-		public static Icon GetGreenshotIcon()
+	    public Icon GetGreenshotIcon()
+	    {
+	        return GetIcon("Greenshot");
+	    }
+
+	    public Icon GetIcon(string name)
+	    {
+	        using (var iconStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Resources", $"{name}.Icon.ico"))
+	        {
+	            return new Icon(iconStream);
+	        }
+	    }
+
+        public Bitmap GetGreenshotImage()
 		{
-			return GetIcon("Greenshot.Icon");
+		    return GetBitmap("Greenshot.Image.png");
 		}
 
-		public static Image GetGreenshotImage()
-		{
-			return GetBitmap("Greenshot.Image");
-		}
-	}
+	    public Bitmap GetBitmap(string name)
+	    {
+	        if (name.EndsWith(".Image"))
+	        {
+	            name = name + ".png";
+
+	        }
+	        using (var pngStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Resources",  name))
+	        {
+	            return BitmapHelper.FromStream(pngStream);
+	        }
+	    }
+    }
 }

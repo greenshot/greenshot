@@ -44,6 +44,7 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx.Legacy;
 
 #endregion
@@ -84,7 +85,7 @@ namespace Greenshot.Forms
         /// </summary>
         static CaptureForm()
         {
-            var backgroundForTransparency = GreenshotResources.GetBitmap("Checkerboard.Image");
+            var backgroundForTransparency = GreenshotResources.Instance.GetBitmap("Checkerboard.Image");
             BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
         }
 

@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 
 #endregion
 
@@ -57,7 +58,7 @@ namespace Greenshot.Addons.Controls
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			Icon = GreenshotResources.GetGreenshotIcon();
+			Icon = GreenshotResources.Instance.GetGreenshotIcon();
 		}
 
 	    public PleaseWaitForm(IGreenshotLanguage greenshotLanguage, CancellationTokenSource cancellationTokenSource = default) : this(greenshotLanguage)

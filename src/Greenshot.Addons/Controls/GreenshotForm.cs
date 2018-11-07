@@ -38,6 +38,7 @@ using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 
 #endregion
@@ -89,7 +90,7 @@ namespace Greenshot.Addons.Controls
 		{
 			// Every GreenshotForm should have it's default icon
 			// And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
-			Icon = GreenshotResources.GetGreenshotIcon();
+			Icon = GreenshotResources.Instance.GetGreenshotIcon();
 			if (!ManualLanguageApply)
 			{
 				ApplyLanguage();

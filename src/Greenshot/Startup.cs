@@ -42,6 +42,7 @@ using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Ui.Misc.ViewModels;
 
 namespace Greenshot
@@ -173,7 +174,7 @@ namespace Greenshot
             // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
             using (var multiInstanceForm = new DpiAwareForm
             {
-                Icon = GreenshotResources.GetGreenshotIcon(),
+                Icon = GreenshotResources.Instance.GetGreenshotIcon(),
                 ShowInTaskbar = true,
                 MaximizeBox = false,
                 MinimizeBox = false,

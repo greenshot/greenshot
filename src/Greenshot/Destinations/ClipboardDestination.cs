@@ -34,6 +34,7 @@ using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Addons.Resources;
 using Greenshot.Core.Enums;
 
 #endregion
@@ -61,7 +62,7 @@ namespace Greenshot.Destinations
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 
-	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Clipboard.Image");
+	    public override Bitmap DisplayIcon => GreenshotResources.Instance.GetBitmap("Clipboard.Image");
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 	    {
