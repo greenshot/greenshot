@@ -23,8 +23,9 @@
 
 #region Usings
 
-using System.ComponentModel;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Media.Imaging;
 using Dapplo.Addons;
 using Dapplo.Windows.Icons;
@@ -39,7 +40,6 @@ namespace Greenshot.Addons.Resources
 	/// </summary>
 	public class GreenshotResources
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
 	    private readonly IResourceProvider _resourceProvider;
         // TODO: Remove all usages
 	    public static GreenshotResources Instance;
@@ -50,6 +50,10 @@ namespace Greenshot.Addons.Resources
             Instance = this;
         }
 
+        /// <summary>
+        /// Get the Greenshot icon as BitmapSource
+        /// </summary>
+        /// <returns>BitmapSource</returns>
 	    public BitmapSource GreenshotIconAsBitmapSource()
 	    {
             using (var icon = GetGreenshotIcon())
@@ -58,35 +62,71 @@ namespace Greenshot.Addons.Resources
             }
         }
 
+        /// <summary>
+        /// Get the Greenshot logo as an Icon
+        /// </summary>
+        /// <returns>Icon</returns>
 	    public Icon GetGreenshotIcon()
 	    {
-	        return GetIcon("Greenshot");
+	        return GetIcon("Greenshot", GetType());
 	    }
 
-	    public Icon GetIcon(string name)
+        /// <summary>
+        /// Get an embedded icon
+        /// </summary>
+        /// <param name="name">string</param>
+        /// <param name="type">Type</param>
+        /// <returns>Icon</returns>
+	    public Icon GetIcon(string name, Type type = null)
 	    {
-	        using (var iconStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Resources", $"{name}.Icon.ico"))
+	        using (var iconStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", $"{name}.Icon.ico"))
 	        {
 	            return new Icon(iconStream);
 	        }
 	    }
 
+        /// <summary>
+        /// Get the Greenshot logo as a Bitmap
+        /// </summary>
+        /// <returns>Bitmap</returns>
         public Bitmap GetGreenshotImage()
 		{
-		    return GetBitmap("Greenshot.Image.png");
+		    return GetBitmap("Greenshot.Image.png", GetType());
 		}
 
-	    public Bitmap GetBitmap(string name)
+        /// <summary>
+        /// Get a bitmap from an embedded resource
+        /// </summary>
+        /// <param name="name">string</param>
+        /// <param name="type">Type</param>
+        /// <returns>Bitmap</returns>
+	    public Bitmap GetBitmap(string name, Type type = null)
 	    {
 	        if (name.EndsWith(".Image"))
 	        {
 	            name = name + ".png";
 
 	        }
-	        using (var pngStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Resources",  name))
+	        using (var imageStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources",  name))
 	        {
-	            return BitmapHelper.FromStream(pngStream);
+	            return BitmapHelper.FromStream(imageStream);
 	        }
 	    }
+
+        /// <summary>
+        /// Get a byte[] from an embedded resource
+        /// </summary>
+        /// <param name="name">string</param>
+        /// <param name="type">Type</param>
+        /// <returns>bate[]</returns>
+	    public byte[] GetBytes(string name, Type type = null)
+        {
+            using (var stream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", name))
+            using (var memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Addons.Controls;
+using Greenshot.Addons.Resources;
 
 namespace Greenshot.Addon.LegacyEditor.Controls {
 	public partial class ColorDialog {
@@ -49,7 +50,6 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
 		/// </summary>
 		private void InitializeComponent()
 		{
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
             this.btnTransparent = new Greenshot.Addons.Controls.GreenshotButton();
             this.colorPanel = new System.Windows.Forms.Panel();
             this.labelHtmlColor = new Greenshot.Addons.Controls.GreenshotLabel();
@@ -233,7 +233,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             // 
             this.pipette.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pipette.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.pipette.Image = ((System.Drawing.Image)(resources.GetObject("pipette.Image")));
+            this.pipette.Image = GreenshotResources.Instance.GetBitmap("pipette.Image", GetType());
             this.pipette.Location = new System.Drawing.Point(510, 56);
             this.pipette.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.pipette.Name = "pipette";
@@ -278,7 +278,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             this.Controls.Add(this.colorPanel);
             this.Controls.Add(this.btnTransparent);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = GreenshotResources.Instance.GetGreenshotIcon();
             this.LanguageKey = "colorpicker_title";
             this.Margin = new System.Windows.Forms.Padding(6);
             this.MaximizeBox = false;

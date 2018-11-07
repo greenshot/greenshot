@@ -393,7 +393,7 @@ namespace Greenshot.Forms
                 notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
             });
 
-            var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            var contextMenuResourceScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
@@ -516,8 +516,7 @@ namespace Greenshot.Forms
                 now.Month == 3 && now.Day > 13 && now.Day < 21)
             {
                 // birthday
-                var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = GreenshotResources.Instance.GetBitmap("contextmenu_present.Image", GetType());
             }
         }
 

@@ -177,7 +177,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 
             ScaleHandler.AddTarget(btnFreehand, "btnFreehand.Image");
             ScaleHandler.AddTarget(btnText, "btnText.Image");
-            ScaleHandler.AddTarget(btnSpeechBubble, "btnSpeechBubble.Image");
+            ScaleHandler.AddTarget(btnSpeechBubble, "addSpeechBubbleToolStripMenuItem.Image");
             ScaleHandler.AddTarget(btnHighlight, "btnHighlight.Image");
             ScaleHandler.AddTarget(btnObfuscate, "btnObfuscate.Image");
 
@@ -227,19 +227,19 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             ScaleHandler.AddTarget(btnLineColor, "btnLineColor.Image");
             ScaleHandler.AddTarget(fontBoldButton, "fontBoldButton.Image");
             ScaleHandler.AddTarget(fontItalicButton, "fontItalicButton.Image");
-            ScaleHandler.AddTarget(textVerticalAlignmentButton, "textVerticalAlignmentButton.Image");
-            ScaleHandler.AddTarget(alignTopToolStripMenuItem, "alignTopToolStripMenuItem.Image");
-            ScaleHandler.AddTarget(alignMiddleToolStripMenuItem, "alignMiddleToolStripMenuItem.Image");
-            ScaleHandler.AddTarget(alignBottomToolStripMenuItem, "alignBottomToolStripMenuItem.Image");
+            ScaleHandler.AddTarget(textVerticalAlignmentButton, "btnAlignMiddle.Image");
+            ScaleHandler.AddTarget(alignTopToolStripMenuItem, "btnAlignTop.Image");
+            ScaleHandler.AddTarget(alignMiddleToolStripMenuItem, "btnAlignMiddle.Image");
+            ScaleHandler.AddTarget(alignBottomToolStripMenuItem, "btnAlignBottom.Image");
             ScaleHandler.AddTarget(arrowHeadsDropDownButton, "arrowHeadsDropDownButton.Image");
             ScaleHandler.AddTarget(shadowButton, "shadowButton.Image");
             ScaleHandler.AddTarget(btnConfirm, "btnConfirm.Image");
             ScaleHandler.AddTarget(btnCancel, "btnCancel.Image");
             ScaleHandler.AddTarget(closeToolStripMenuItem, "closeToolStripMenuItem.Image");
-            ScaleHandler.AddTarget(textHorizontalAlignmentButton, "textHorizontalAlignmentButton.Image");
-            ScaleHandler.AddTarget(alignLeftToolStripMenuItem, "alignLeftToolStripMenuItem.Image");
-            ScaleHandler.AddTarget(alignCenterToolStripMenuItem, "alignCenterToolStripMenuItem.Image");
-            ScaleHandler.AddTarget(alignRightToolStripMenuItem, "alignRightToolStripMenuItem.Image");
+            ScaleHandler.AddTarget(textHorizontalAlignmentButton, "btnAlignCenter.Image");
+            ScaleHandler.AddTarget(alignLeftToolStripMenuItem, "btnAlignLeft.Image");
+            ScaleHandler.AddTarget(alignCenterToolStripMenuItem, "btnAlignCenter.Image");
+            ScaleHandler.AddTarget(alignRightToolStripMenuItem, "btnAlignRight.Image");
         }
 
         /// <summary>
@@ -361,9 +361,8 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 // Loop over all items in the propertiesToolStrip
                 foreach (ToolStripItem item in propertiesToolStrip.Items)
                 {
-                    var cb = item as ToolStripComboBox;
                     // Only ToolStripComboBox that are visible
-                    if (cb == null || !cb.Visible)
+                    if (!(item is ToolStripComboBox cb) || !cb.Visible)
                     {
                         continue;
                     }

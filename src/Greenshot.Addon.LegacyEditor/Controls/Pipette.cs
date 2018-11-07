@@ -33,6 +33,7 @@ using Dapplo.Windows.Icons.SafeHandles;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Controls;
+using Greenshot.Addons.Resources;
 
 #endregion
 
@@ -54,7 +55,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		{
 			BorderStyle = BorderStyle.FixedSingle;
 			_dragging = false;
-			_image = (Bitmap) new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
+			_image = GreenshotResources.Instance.GetBitmap("pipette.Image", GetType());
 			Image = _image;
 			_cursor = CreateCursor(_image, 1, 14);
 			_movableShowColorForm = new MovableShowColorForm();

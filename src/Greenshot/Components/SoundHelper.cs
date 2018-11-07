@@ -25,8 +25,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
-using System.Resources;
 using System.Runtime.InteropServices;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
@@ -34,6 +32,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Multimedia;
 using Dapplo.Windows.Multimedia.Enums;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 
 #endregion
 
@@ -69,8 +68,7 @@ namespace Greenshot.Components
 
 		    try
 		    {
-		        var resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-		        _soundBuffer = (byte[]) resources.GetObject("camera");
+		        _soundBuffer = GreenshotResources.Instance.GetBytes("camera.wav", GetType());
 
 		        if (_coreConfiguration.NotificationSound != null && _coreConfiguration.NotificationSound.EndsWith(".wav"))
 		        {

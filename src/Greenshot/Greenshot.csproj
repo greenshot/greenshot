@@ -7,6 +7,8 @@
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
+	<AssemblyTitle>Greenshot</AssemblyTitle>
+    <AssemblyName>Greenshot</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,6 +55,38 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\camera.wav" />
+    <None Remove="Resources\contextmenu_capturearea.Image.png" />
+    <None Remove="Resources\contextmenu_captureclipboard.Image.png" />
+    <None Remove="Resources\contextmenu_capturefullscreen.Image.png" />
+    <None Remove="Resources\contextmenu_capturelastregion.Image.png" />
+    <None Remove="Resources\contextmenu_capturewindow.Image.png" />
+    <None Remove="Resources\contextmenu_donate.Image.png" />
+    <None Remove="Resources\contextmenu_exit.Image.png" />
+    <None Remove="Resources\contextmenu_help.Image.png" />
+    <None Remove="Resources\contextmenu_openfile.Image.png" />
+    <None Remove="Resources\contextmenu_present.Image.png" />
+    <None Remove="Resources\contextmenu_settings.Image.png" />
+    <None Remove="Resources\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\camera.wav" />
+    <EmbeddedResource Include="Resources\contextmenu_capturearea.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_captureclipboard.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturefullscreen.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturelastregion.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturewindow.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_donate.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_exit.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_help.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_openfile.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_present.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_settings.Image.png" />
+    <EmbeddedResource Include="Resources\icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

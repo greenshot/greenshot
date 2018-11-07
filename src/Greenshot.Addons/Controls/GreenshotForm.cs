@@ -69,7 +69,7 @@ namespace Greenshot.Addons.Controls
         {
             _language = language;
             // Add the Dapplo.Windows DPI change handler
-			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            ScaleHandler = BitmapScaleHandler.Create<string>(FormDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
         }
 
 	    protected bool ManualLanguageApply { get; set; }
