@@ -28,6 +28,7 @@ using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Lutim.Configuration;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;

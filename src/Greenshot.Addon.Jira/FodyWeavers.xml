@@ -5,4 +5,5 @@
             Dapplo.Jira
         </IncludeAssemblies>
     </Costura>
+    <AutoProperties />
 </Weavers>

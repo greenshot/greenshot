@@ -34,6 +34,7 @@ using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
+using Greenshot.Addon.Jira.Configuration;
 using Greenshot.Addon.Jira.ViewModels;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;

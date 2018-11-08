@@ -24,8 +24,10 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.GooglePhotos.Configuration;
+using Greenshot.Addon.GooglePhotos.Configuration.Impl;
 using Greenshot.Addon.GooglePhotos.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -37,13 +39,15 @@ namespace Greenshot.Addon.GooglePhotos
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IGooglePhotosConfiguration>())
+                .RegisterType<GooglePhotosConfigurationImpl>()
                 .As<IGooglePhotosConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => LanguageLoader.Current.Get<IGooglePhotosLanguage>())
+                .RegisterType<GooglePhotosLanguageImpl>()
                 .As<IGooglePhotosLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder

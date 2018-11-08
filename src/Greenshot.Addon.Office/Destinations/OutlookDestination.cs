@@ -29,12 +29,14 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Addons.Resources;
 using Microsoft.Office.Interop.Outlook;
 
 #endregion
@@ -54,13 +56,14 @@ namespace Greenshot.Addon.Office.Destinations
 
 	    private readonly IOfficeConfiguration _officeConfiguration;
 	    private readonly ExportNotification _exportNotification;
-	    private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
+	    private static readonly Bitmap MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
 		private readonly string _exePath;
 		private readonly bool _isActiveFlag;
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
+	    private readonly OutlookExporter _outlookExporter;
 
-		public OutlookDestination(
+        public OutlookDestination(
             IOfficeConfiguration officeConfiguration,
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
@@ -68,6 +71,7 @@ namespace Greenshot.Addon.Office.Destinations
             ) : base(coreConfiguration, greenshotLanguage)
         {
             _officeConfiguration = officeConfiguration;
+            _outlookExporter = new OutlookExporter(officeConfiguration);
             _exportNotification = exportNotification;
             if (EmailConfigHelper.HasOutlook())
 		    {
@@ -121,7 +125,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+			var inspectorCaptions = _outlookExporter.RetrievePossibleTargets();
 			if (inspectorCaptions == null)
 			{
 				yield break;
@@ -169,14 +173,14 @@ namespace Greenshot.Addon.Office.Destinations
 
 			if (_outlookInspectorCaption != null)
 			{
-				OutlookExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
+			    _outlookExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
 				exportInformation.ExportMade = true;
 			}
 			else
 			{
 				if (!manuallyInitiated)
 				{
-					var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+					var inspectorCaptions = _outlookExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0)
 					{
 						var destinations = new List<IDestination>
@@ -193,7 +197,7 @@ namespace Greenshot.Addon.Office.Destinations
 				}
 				else
 				{
-					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(_officeConfiguration.OutlookEmailFormat, tmpFile,
+					exportInformation.ExportMade = _outlookExporter.ExportToOutlook(_officeConfiguration.OutlookEmailFormat, tmpFile,
 						FilenameHelper.FillPattern(_officeConfiguration.EmailSubjectPattern, captureDetails, false), attachmentName, _officeConfiguration.EmailTo, _officeConfiguration.EmailCC,
 					    _officeConfiguration.EmailBCC, null);
 				}

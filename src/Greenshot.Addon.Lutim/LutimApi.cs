@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
+using Greenshot.Addon.Lutim.Configuration;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;

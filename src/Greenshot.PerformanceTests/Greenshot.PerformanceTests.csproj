@@ -1,18 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\CommonProject.properties" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{5D594C8A-2137-46E1-8D01-B83662825C7B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
     <RootNamespace>Greenshot.PerformanceTests</RootNamespace>
     <AssemblyName>Greenshot.PerformanceTests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <FrameworkReference Include="Microsoft.DesktopUI" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -38,31 +37,18 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="GfxPerformance.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
+    <ProjectReference Include="..\Greenshot.Tests\Greenshot.Tests.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj">
-      <Project>{14894a45-aa2c-4bc3-85a3-e388d0bdc1ca}</Project>
-      <Name>Greenshot.Gfx.Experimental</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{F041C685-EB96-4ED1-9ACE-0F5BD836610F}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Tests\Greenshot.Tests.csproj">
-      <Project>{9b162e60-12d8-44fd-8093-7d40392f23fa}</Project>
-      <Name>Greenshot.Tests</Name>
-    </ProjectReference>
-  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet">
-      <Version>0.11.1</Version>
+      <Version>0.11.2</Version>
     </PackageReference>
     <PackageReference Include="CommandLineParser">
       <Version>2.3.0</Version>
@@ -70,17 +56,11 @@
     <PackageReference Include="CommonServiceLocator">
       <Version>2.0.4</Version>
     </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.0.75</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.8.46</Version>
-    </PackageReference>
     <PackageReference Include="JeremyAnsel.ColorQuant">
       <Version>1.0.55</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
-      <Version>2.6.1</Version>
+      <Version>2.6.2</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -94,13 +74,13 @@
       <Version>4.3.1</Version>
     </PackageReference>
     <PackageReference Include="System.IO">
-      <Version>4.1.0</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.0.1</Version>
+      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.TypeExtensions">
-      <Version>4.1.0</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
       <Version>4.3.0</Version>
@@ -118,5 +98,4 @@
       <Version>4.3.1</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

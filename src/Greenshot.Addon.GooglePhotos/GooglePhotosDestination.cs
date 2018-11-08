@@ -39,6 +39,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.GooglePhotos.Configuration;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;

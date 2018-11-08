@@ -6,4 +6,5 @@
             Dapplo.HttpExtensions.JsonSimple
         </IncludeAssemblies>
     </Costura>
+	<AutoProperties />
 </Weavers>

@@ -36,6 +36,7 @@ using Dapplo.Jira;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
+using Greenshot.Addon.Jira.Configuration;
 
 #endregion
 
@@ -46,7 +47,7 @@ namespace Greenshot.Addon.Jira
 	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
-	[Service(nameof(JiraMonitor), nameof(CaliburnServices.IniSectionService), TaskSchedulerName = "ui")]
+	[Service(nameof(JiraMonitor), nameof(CaliburnServices.ConfigurationService), TaskSchedulerName = "ui")]
 	public class JiraMonitor : IStartup, IShutdown
 	{
 	    private readonly IJiraConfiguration _jiraConfiguration;

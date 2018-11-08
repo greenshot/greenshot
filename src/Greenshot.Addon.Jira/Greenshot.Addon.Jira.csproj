@@ -1,44 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk.Wpf">
+
   <PropertyGroup>
-    <ProjectGuid>{19FEEF09-313F-43C7-819D-F1BCA782B08B}</ProjectGuid>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.Jira</RootNamespace>
     <AssemblyName>Greenshot.Addon.Jira</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-    <NoStdLib>False</NoStdLib>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <TargetFrameworkProfile />
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>net471</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+
   <ItemGroup>
+    <None Include="Languages\language*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <FrameworkReference Include="Microsoft.DesktopUI" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
@@ -61,139 +39,29 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="IJiraLanguage.cs" />
-    <Compile Include="JiraAddonModule.cs" />
-    <Compile Include="IssueTypeBitmapCache.cs" />
-    <Compile Include="JiraConnector.cs" />
-    <Compile Include="IJiraConfiguration.cs" />
-    <Compile Include="JiraDestination.cs" />
-    <Compile Include="JiraDetails.cs" />
-    <Compile Include="JiraEventArgs.cs" />
-    <Compile Include="JiraEventTypes.cs" />
-    <Compile Include="JiraMonitor.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\JiraViewModel.cs" />
-    <Compile Include="ViewModels\JiraConfigViewModel.cs" />
-    <None Include="app.config" />
-    <EmbeddedResource Include="jira.svgz" />
-    <None Include="Languages\language_jiraplugin-de-DE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language_jiraplugin-en-US.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language_jiraplugin-fr-FR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language_jiraplugin-nl-NL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language_jiraplugin-zh-CN.xml" />
+	<EmbeddedResource Include="jira.svgz" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>Greenshot.Addons</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
-      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
-      <Name>Greenshot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Languages\language_jiraplugin-cs-CZ.xml" />
-    <Resource Include="Languages\language_jiraplugin-id-ID.xml" />
-    <Resource Include="Languages\language_jiraplugin-it-IT.xml" />
-    <Resource Include="Languages\language_jiraplugin-ja-JP.xml" />
-    <Resource Include="Languages\language_jiraplugin-kab-DZ.xml" />
-    <Resource Include="Languages\language_jiraplugin-ko-KR.xml" />
-    <Resource Include="Languages\language_jiraplugin-lv-LV.xml" />
-    <Resource Include="Languages\language_jiraplugin-pl-PL.xml" />
-    <Resource Include="Languages\language_jiraplugin-pt-PT.xml" />
-    <Resource Include="Languages\language_jiraplugin-ru-RU.xml" />
-    <Resource Include="Languages\language_jiraplugin-sr-Cyrl-RS.xml" />
-    <Resource Include="Languages\language_jiraplugin-sr-RS.xml" />
-    <Resource Include="Languages\language_jiraplugin-sv-SE.xml" />
-    <Resource Include="Languages\language_jiraplugin-uk-UA.xml" />
-    <Resource Include="Languages\language_jiraplugin-zh-TW.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Views\JiraConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\JiraView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommonServiceLocator">
-      <Version>2.0.4</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.0.75</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.0.75</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.8.46</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.8.46</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Jira">
-      <Version>0.7.15</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.5.112</Version>
+    <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.11-gd26115c7d3" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.11-gd26115c7d3" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.11" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.11" />
+    <PackageReference Include="Dapplo.Utils" Version="1.1.9" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
+	<PackageReference Include="Dapplo.Jira" Version="0.8.5" />
+    <PackageReference Include="Fody" Version="3.2.16">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons"
-copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
-copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
-copy "$(ProjectDir)bin\$(Configuration)\Svg.dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons"
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\$(ProjectName)"
-copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\$(ProjectName)"
-</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <BaseAddress>4194304</BaseAddress>
-    <PlatformTarget>x86</PlatformTarget>
-    <FileAlignment>4096</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <BaseAddress>4194304</BaseAddress>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <FileAlignment>4096</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>False</Optimize>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DebugType>Full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>True</Optimize>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <DebugType>None</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
 </Project>

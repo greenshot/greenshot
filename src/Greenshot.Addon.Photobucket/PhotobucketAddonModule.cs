@@ -24,8 +24,10 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.Photobucket.Configuration;
+using Greenshot.Addon.Photobucket.Configuration.Impl;
 using Greenshot.Addon.Photobucket.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -37,13 +39,15 @@ namespace Greenshot.Addon.Photobucket
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IPhotobucketConfiguration>())
+                .RegisterType<PhotobucketConfigurationImpl>()
                 .As<IPhotobucketConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => LanguageLoader.Current.Get<IPhotobucketLanguage>())
+                .RegisterType<PhotobucketLanguageImpl>()
                 .As<IPhotobucketLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder

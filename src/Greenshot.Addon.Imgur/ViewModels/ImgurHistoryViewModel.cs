@@ -32,6 +32,7 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Imgur.Configuration;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Extensions;

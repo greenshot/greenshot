@@ -34,9 +34,12 @@ using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
+#if !NETCOREAPP3_0
 using Dapplo.Jira.Converters;
+#endif
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
+using Greenshot.Addon.Jira.Configuration;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Credentials;
 using Greenshot.Addons.Extensions;
@@ -102,7 +105,9 @@ namespace Greenshot.Addon.Jira
 
 		public void UpdateSvgSize(int size)
 		{
+#if !NETCOREAPP3_0
 			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = size, Height = size });
+#endif
 		}
 
 		/// <summary>

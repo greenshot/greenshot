@@ -39,6 +39,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.OneDrive.Configuration;
 using Greenshot.Addon.OneDrive.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;

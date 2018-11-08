@@ -30,6 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dapplo.Log;
+using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -47,20 +48,25 @@ namespace Greenshot.Addon.Office.Destinations
     [Destination("Word", DestinationOrder.Word)]
     public class WordDestination : AbstractDestination
 	{
+	    private readonly IOfficeConfiguration _officeConfiguration;
 	    private readonly ExportNotification _exportNotification;
 	    private const int IconApplication = 0;
 		private const int IconDocument = 1;
 		private static readonly LogSource Log = new LogSource();
 		private readonly string _exePath;
 		private readonly string _documentCaption;
+	    private readonly WordExporter _wordExporter;
 
-		public WordDestination(
+        public WordDestination(
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
+		    IOfficeConfiguration officeConfiguration,
 		    ExportNotification exportNotification
             ) : base(coreConfiguration, greenshotLanguage)
         {
+            _officeConfiguration = officeConfiguration;
             _exportNotification = exportNotification;
+            _wordExporter = new WordExporter(officeConfiguration);
             _exePath = PluginUtils.GetExePath("WINWORD.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
 		    {
@@ -71,7 +77,8 @@ namespace Greenshot.Addon.Office.Destinations
 		protected WordDestination(string wordCaption,
 		    ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
-		    ExportNotification exportNotification) : this(coreConfiguration, greenshotLanguage, exportNotification)
+		    IOfficeConfiguration officeConfiguration,
+            ExportNotification exportNotification) : this(coreConfiguration, greenshotLanguage, officeConfiguration, exportNotification)
 		{
 			_documentCaption = wordCaption;
 		}
@@ -89,7 +96,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage, _exportNotification));
+			return _wordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage, _officeConfiguration, _exportNotification));
 		}
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -104,14 +111,14 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				try
 				{
-					WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+				    _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 					exportInformation.ExportMade = true;
 				}
 				catch (Exception)
 				{
 					try
 					{
-						WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+					    _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 						exportInformation.ExportMade = true;
 					}
 					catch (Exception ex)
@@ -126,16 +133,16 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				if (!manuallyInitiated)
 				{
-					var documents = WordExporter.GetWordDocuments().ToList();
+					var documents = _wordExporter.GetWordDocuments().ToList();
 					if (documents.Count > 0)
 					{
 						var destinations = new List<IDestination>
 						{
-							new WordDestination(CoreConfiguration, GreenshotLanguage, _exportNotification)
+							new WordDestination(CoreConfiguration, GreenshotLanguage, _officeConfiguration, _exportNotification)
 						};
 						foreach (var document in documents)
 						{
-							destinations.Add(new WordDestination(document, CoreConfiguration, GreenshotLanguage, _exportNotification));
+							destinations.Add(new WordDestination(document, CoreConfiguration, GreenshotLanguage, _officeConfiguration, _exportNotification));
 						}
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
@@ -143,7 +150,7 @@ namespace Greenshot.Addon.Office.Destinations
 				}
 				try
 				{
-					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+					_wordExporter.InsertIntoNewDocument(tmpFile, null, null);
 					exportInformation.ExportMade = true;
 				}
 				catch (Exception)
@@ -151,7 +158,7 @@ namespace Greenshot.Addon.Office.Destinations
 					// Retry once, just in case
 					try
 					{
-						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+						_wordExporter.InsertIntoNewDocument(tmpFile, null, null);
 						exportInformation.ExportMade = true;
 					}
 					catch (Exception ex)

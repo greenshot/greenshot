@@ -24,6 +24,7 @@
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addon.GooglePhotos.Configuration;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.ViewModels;
 

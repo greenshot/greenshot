@@ -29,6 +29,7 @@ using System.Windows;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Jira.Entities;
+using Greenshot.Addon.Jira.Configuration;
 
 namespace Greenshot.Addon.Jira.ViewModels
 {
