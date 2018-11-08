@@ -1,4 +1,4 @@
-//  Greenshot - a free and open source screenshot tool
+﻿//  Greenshot - a free and open source screenshot tool
 //  Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 //  For more information see: http://getgreenshot.org/
@@ -17,34 +17,24 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#region Usings
+using Dapplo.Config.Language;
 
-using System.ComponentModel;
-using Dapplo.Language;
-
-#endregion
-
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Configuration.Impl
 {
-	[Language("Dropbox")]
-	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged
-	{
-		string CommunicationWait { get; }
+    public class DropboxLanguageImpl: LanguageBase<IDropboxLanguage>, IDropboxLanguage
+    {
+        #region Implementation of IDropboxLanguage
 
-		string Configure { get; }
+        public string CommunicationWait { get; }
+        public string Configure { get; }
+        public string LabelAfterUpload { get; }
+        public string LabelAfterUploadLinkToClipBoard { get; }
+        public string LabelUploadFormat { get; }
+        public string SettingsTitle { get; }
+        public string UploadFailure { get; }
+        public string UploadMenuItem { get; }
+        public string UploadSuccess { get; }
 
-		string LabelAfterUpload { get; }
-
-		string LabelAfterUploadLinkToClipBoard { get; }
-
-		string LabelUploadFormat { get; }
-
-		string SettingsTitle { get; }
-
-		string UploadFailure { get; }
-
-		string UploadMenuItem { get; }
-
-		string UploadSuccess { get; }
-	}
+        #endregion
+    }
 }

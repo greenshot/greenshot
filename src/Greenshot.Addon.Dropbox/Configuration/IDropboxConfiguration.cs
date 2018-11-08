@@ -25,21 +25,20 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core;
 
 #endregion
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Configuration
 {
 	/// <summary>
 	///     Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Dropbox")]
 	[Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token, INotifyPropertyChanged, ITransactionalProperties
+	public interface IDropboxConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
 	{
 		[Description("After upload send Dropbox link to clipboard.")]
 		[DefaultValue(true)]

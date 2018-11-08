@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Jira", "Gre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.OCR", "Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Box", "Greenshot.Addon.Box\Greenshot.Addon.Box.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.Box", "Greenshot.Addon.Box\Greenshot.Addon.Box.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Dropbox", "Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
 EndProject
@@ -37,11 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Gfx", "Greenshot.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.PerformanceTests", "Greenshot.PerformanceTests\Greenshot.PerformanceTests.csproj", "{5D594C8A-2137-46E1-8D01-B83662825C7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Tests", "Greenshot.Tests\Greenshot.Tests.csproj", "{9B162E60-12D8-44FD-8093-7D40392F23FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Tests", "Greenshot.Tests\Greenshot.Tests.csproj", "{9B162E60-12D8-44FD-8093-7D40392F23FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.LegacyEditor", "Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj", "{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.LegacyEditor", "Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj", "{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Gfx.Experimental", "Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj", "{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Gfx.Experimental", "Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj", "{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.OneDrive", "Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj", "{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}"
 EndProject
@@ -51,7 +51,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.OcrCommand"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Core", "Greenshot.Core\Greenshot.Core.csproj", "{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.InternetExplorer", "Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj", "{4CCA2717-B8A4-44F7-965B-5687107E4921}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.InternetExplorer", "Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj", "{4CCA2717-B8A4-44F7-965B-5687107E4921}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,18 +114,20 @@ Global
 		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|x86.ActiveCfg = Release|x86
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|x86.ActiveCfg = Debug|x86
-		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|x86.Build.0 = Debug|x86
+		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|x86.Build.0 = Debug|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|x86.ActiveCfg = Release|x86
+		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|x86.ActiveCfg = Release|Any CPU
+		{697CF066-9077-4F22-99D9-D989CCE7282B}.Release|x86.Build.0 = Release|Any CPU
 		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|x86.ActiveCfg = Debug|x86
-		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|x86.Build.0 = Debug|x86
+		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Debug|x86.Build.0 = Debug|Any CPU
 		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Release|x86.ActiveCfg = Release|x86
+		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}.Release|x86.Build.0 = Release|Any CPU
 		{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}.Debug|x86.ActiveCfg = Debug|x86

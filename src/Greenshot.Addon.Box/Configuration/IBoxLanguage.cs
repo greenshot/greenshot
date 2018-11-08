@@ -21,13 +21,12 @@
 
 #endregion
 
-using System.ComponentModel;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 
-namespace Greenshot.Addon.Box
+namespace Greenshot.Addon.Box.Configuration
 {
     [Language("Box")]
-    public interface IBoxLanguage : ILanguage, INotifyPropertyChanged
+    public interface IBoxLanguage : ILanguage
     {
         string CommunicationWait { get; }
 

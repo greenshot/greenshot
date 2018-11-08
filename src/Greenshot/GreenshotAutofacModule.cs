@@ -65,13 +65,13 @@ namespace Greenshot
                 .SingleInstance();
 
             builder
-                .Register(context => new MetroConfigurationImpl())
+                .RegisterType<MetroConfigurationImpl>()
                 .As<IMetroConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => new ConfigTranslationsImpl())
+                .RegisterType<ConfigTranslationsImpl>()
                 .As<IConfigTranslations>()
                 .As<ILanguage>()
                 .SingleInstance();

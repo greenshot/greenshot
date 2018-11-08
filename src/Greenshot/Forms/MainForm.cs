@@ -371,7 +371,6 @@ namespace Greenshot.Forms
             
         }
 
-
         /// <summary>
         /// Setup the Bitmap scaling (for icons)
         /// </summary>

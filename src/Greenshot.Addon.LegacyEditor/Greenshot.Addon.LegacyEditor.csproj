@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RootNamespace>Greenshot.Addon.LegacyEditor</RootNamespace>
+    <AssemblyName>Greenshot.Addon.LegacyEditor</AssemblyName>
     <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -35,95 +37,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\addEllipseToolStripMenuItem.Image.png" />
-    <None Remove="Resources\addRectangleToolStripMenuItem.Image.png" />
-    <None Remove="Resources\addSpeechBubbleToolStripMenuItem.Image.png" />
-    <None Remove="Resources\addTextBoxToolStripMenuItem.Image.png" />
-    <None Remove="Resources\areaHighlightMenuItem.Image.png" />
-    <None Remove="Resources\arrowHeadsDropDownButton.Image.png" />
-    <None Remove="Resources\blurToolStripMenuItem.Image.png" />
-    <None Remove="Resources\btnAlignBottom.Image.png" />
-    <None Remove="Resources\btnAlignCenter.Image.png" />
-    <None Remove="Resources\btnAlignLeft.Image.png" />
-    <None Remove="Resources\btnAlignMiddle.Image.png" />
-    <None Remove="Resources\btnAlignRight.Image.png" />
-    <None Remove="Resources\btnAlignTop.Image.png" />
-    <None Remove="Resources\btnArrow.Image.png" />
-    <None Remove="Resources\btnCancel.Image.png" />
-    <None Remove="Resources\btnClipboard.Image.png" />
-    <None Remove="Resources\btnConfirm.Image.png" />
-    <None Remove="Resources\btnCopy.Image.png" />
-    <None Remove="Resources\btnCrop.Image.png" />
-    <None Remove="Resources\btnCursor.Image.png" />
-    <None Remove="Resources\btnCut.Image.png" />
-    <None Remove="Resources\btnDelete.Image.png" />
-    <None Remove="Resources\btnEllipse.Image.png" />
-    <None Remove="Resources\btnFillColor.Image.png" />
-    <None Remove="Resources\btnFreehand.Image.png" />
-    <None Remove="Resources\btnHelp.Image.png" />
-    <None Remove="Resources\btnHighlight.Image.png" />
-    <None Remove="Resources\btnLine.Image.png" />
-    <None Remove="Resources\btnLineColor.Image.png" />
-    <None Remove="Resources\btnObfuscate.Image.png" />
-    <None Remove="Resources\btnPaste.Image.png" />
-    <None Remove="Resources\btnPrint.Image.png" />
-    <None Remove="Resources\btnRect.Image.png" />
-    <None Remove="Resources\btnRedo.Image.png" />
-    <None Remove="Resources\btnResize.Image.png" />
-    <None Remove="Resources\btnSave.Image.png" />
-    <None Remove="Resources\btnSettings.Image.png" />
-    <None Remove="Resources\btnStepLabel.Image.png" />
-    <None Remove="Resources\btnStepLabel01.Image.png" />
-    <None Remove="Resources\btnStepLabel02.Image.png" />
-    <None Remove="Resources\btnStepLabel03.Image.png" />
-    <None Remove="Resources\btnStepLabel04.Image.png" />
-    <None Remove="Resources\btnStepLabel05.Image.png" />
-    <None Remove="Resources\btnStepLabel06.Image.png" />
-    <None Remove="Resources\btnStepLabel07.Image.png" />
-    <None Remove="Resources\btnStepLabel08.Image.png" />
-    <None Remove="Resources\btnStepLabel09.Image.png" />
-    <None Remove="Resources\btnStepLabel10.Image.png" />
-    <None Remove="Resources\btnStepLabel11.Image.png" />
-    <None Remove="Resources\btnStepLabel12.Image.png" />
-    <None Remove="Resources\btnStepLabel13.Image.png" />
-    <None Remove="Resources\btnStepLabel14.Image.png" />
-    <None Remove="Resources\btnStepLabel15.Image.png" />
-    <None Remove="Resources\btnStepLabel16.Image.png" />
-    <None Remove="Resources\btnStepLabel17.Image.png" />
-    <None Remove="Resources\btnStepLabel18.Image.png" />
-    <None Remove="Resources\btnStepLabel19.Image.png" />
-    <None Remove="Resources\btnStepLabel20+.Image.png" />
-    <None Remove="Resources\btnStepLabel20.Image.png" />
-    <None Remove="Resources\btnText.Image.png" />
-    <None Remove="Resources\btnUndo.Image.png" />
-    <None Remove="Resources\closeToolStripMenuItem.Image.png" />
-    <None Remove="Resources\copyToolStripMenuItem.Image.png" />
-    <None Remove="Resources\cutToolStripMenuItem.Image.png" />
-    <None Remove="Resources\drawArrowToolStripMenuItem.Image.png" />
-    <None Remove="Resources\drawFreehandToolStripMenuItem.Image.png" />
-    <None Remove="Resources\drawLineToolStripMenuItem.Image.png" />
-    <None Remove="Resources\fontBoldButton.Image.png" />
-    <None Remove="Resources\fontItalicButton.Image.png" />
-    <None Remove="Resources\grayscaleHighlightMenuItem.Image.png" />
-    <None Remove="Resources\helpToolStripMenuItem1.Image.png" />
-    <None Remove="Resources\highlightModeButton.Image.png" />
-    <None Remove="Resources\magnifyMenuItem.Image.png" />
-    <None Remove="Resources\obfuscateModeButton.Image.png" />
-    <None Remove="Resources\pasteToolStripMenuItem.Image.png" />
-    <None Remove="Resources\pipette.Image.png" />
-    <None Remove="Resources\pixelizeToolStripMenuItem.Image.png" />
-    <None Remove="Resources\preferencesToolStripMenuItem.Image.png" />
-    <None Remove="Resources\redoToolStripMenuItem.Image.png" />
-    <None Remove="Resources\removeObjectToolStripMenuItem.Image.png" />
-    <None Remove="Resources\rotateCcwToolstripButton.Image.png" />
-    <None Remove="Resources\rotateCwToolstripButton.Image.png" />
-    <None Remove="Resources\shadowButton.Image.png" />
-    <None Remove="Resources\textHighlightMenuItem.Image.png" />
-    <None Remove="Resources\toolStripSplitButton1.Image.png" />
-    <None Remove="Resources\undoToolStripMenuItem.Image.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -226,7 +139,7 @@
     <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.11-gd26115c7d3" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.11-gd26115c7d3" />
-    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.6" />
+    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.11" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
     <PackageReference Include="Dapplo.Windows.Icons" Version="0.7.19" />
     <PackageReference Include="Fody" Version="3.2.16">

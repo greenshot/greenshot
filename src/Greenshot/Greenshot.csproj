@@ -58,22 +58,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\camera.wav" />
-    <None Remove="Resources\contextmenu_capturearea.Image.png" />
-    <None Remove="Resources\contextmenu_captureclipboard.Image.png" />
-    <None Remove="Resources\contextmenu_capturefullscreen.Image.png" />
-    <None Remove="Resources\contextmenu_capturelastregion.Image.png" />
-    <None Remove="Resources\contextmenu_capturewindow.Image.png" />
-    <None Remove="Resources\contextmenu_donate.Image.png" />
-    <None Remove="Resources\contextmenu_exit.Image.png" />
-    <None Remove="Resources\contextmenu_help.Image.png" />
-    <None Remove="Resources\contextmenu_openfile.Image.png" />
-    <None Remove="Resources\contextmenu_present.Image.png" />
-    <None Remove="Resources\contextmenu_settings.Image.png" />
-    <None Remove="Resources\icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Resources\camera.wav" />
     <EmbeddedResource Include="Resources\contextmenu_capturearea.Image.png" />
     <EmbeddedResource Include="Resources\contextmenu_captureclipboard.Image.png" />
@@ -99,8 +83,8 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="1.1.11-gd26115c7d3" />
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts" Version="1.1.11-gd26115c7d3" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.11-gd26115c7d3" />
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.6" />
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.6" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.11" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.11" />
     <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.11" />
     <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.11" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
@@ -116,6 +100,8 @@
   </ItemGroup>
   
   <ItemGroup>
+	<ProjectReference Include="..\Greenshot.Addon.Box\Greenshot.Addon.Box.csproj" />
+	<ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />

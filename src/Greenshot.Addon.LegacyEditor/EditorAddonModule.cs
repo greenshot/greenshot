@@ -42,13 +42,13 @@ namespace Greenshot.Addon.LegacyEditor
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => new EditorConfigurationImpl())
+                .RegisterType<EditorConfigurationImpl>()
                 .As<IEditorConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => new EditorLanguageImpl())
+                .RegisterType<EditorLanguageImpl>()
                 .As<IEditorLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();

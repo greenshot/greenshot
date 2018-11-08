@@ -25,21 +25,20 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core;
 
 #endregion
 
-namespace Greenshot.Addon.Box
+namespace Greenshot.Addon.Box.Configuration
 {
 	/// <summary>
 	///     Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Box")]
 	[Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection, IDestinationFileConfiguration, INotifyPropertyChanged, ITransactionalProperties, IOAuth2Token
+	public interface IBoxConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
     {
 		[Description("After upload send Box link to clipboard.")]
 		[DefaultValue(true)]

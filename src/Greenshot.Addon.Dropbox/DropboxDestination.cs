@@ -39,6 +39,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Dropbox.Configuration;
 using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;

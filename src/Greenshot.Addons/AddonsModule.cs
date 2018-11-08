@@ -41,20 +41,20 @@ namespace Greenshot.Addons
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => new CoreConfigurationImpl())
+                .RegisterType<CoreConfigurationImpl>()
                 .As<ICoreConfiguration>()
                 .As<IUiConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => new GreenshotLanguageImpl())
+                .RegisterType<GreenshotLanguageImpl>()
                 .As<IGreenshotLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();
 
             builder
-                .Register(context => new HttpConfigurationImpl())
+                .RegisterType<HttpConfigurationImpl>()
                 .As<IHttpConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();

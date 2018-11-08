@@ -33,16 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Checkerboard.Image.png" />
-    <None Remove="Resources\Clipboard.Image.png" />
-    <None Remove="Resources\Close.Image.png" />
-    <None Remove="Resources\Email.Image.png" />
-    <None Remove="Resources\Greenshot.Icon.ico" />
-    <None Remove="Resources\Printer.Image.png" />
-    <None Remove="Resources\Save.Image.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Checkerboard.Image.png" />
     <EmbeddedResource Include="Resources\Clipboard.Image.png" />
     <EmbeddedResource Include="Resources\Close.Image.png" />
@@ -67,13 +57,13 @@
       <Version>1.1.11-gd26115c7d3</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.6</Version>
+      <Version>0.9.11</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.9.6</Version>
+      <Version>0.9.11</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.9.6</Version>
+      <Version>0.9.11</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
       <Version>0.7.19</Version>

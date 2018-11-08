@@ -21,24 +21,24 @@
 
 #endregion
 
-using Dapplo.Config.Ini.Converters;
-using Greenshot.Addon.Dropbox.Configuration.Impl;
-using Xunit;
+using Dapplo.Config.Language;
 
-namespace Greenshot.Tests
+namespace Greenshot.Addon.Box.Configuration.Impl
 {
-    public class IniTests
+    public class BoxLanguageImpl : LanguageBase<IBoxLanguage>, IBoxLanguage
     {
-        [Fact]
-        public void ConstIniTest()
-        {
-            // TODO: Set via build
-            StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
-            StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
+        #region Implementation of IBoxLanguage
 
-            var dropboxConfiguration = new DropboxConfigurationImpl();
-            // TODO: Fix this!!
-            Assert.NotEqual("@credentials_dropbox_consumer_key@", dropboxConfiguration.ClientId);
-        }
+        public string CommunicationWait { get; }
+        public string Configure { get; }
+        public string LabelAfterUpload { get; }
+        public string LabelAfterUploadLinkToClipBoard { get; }
+        public string LabelUploadFormat { get; }
+        public string SettingsTitle { get; }
+        public string UploadFailure { get; }
+        public string UploadMenuItem { get; }
+        public string UploadSuccess { get; }
+
+        #endregion
     }
 }
