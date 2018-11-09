@@ -41,6 +41,7 @@ using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Color = Windows.UI.Color;
+using Greenshot.Addons.Resources;
 
 namespace Greenshot.Addon.Win10
 {
@@ -180,7 +181,7 @@ namespace Greenshot.Addon.Win10
 
                 // Create logo
                 RandomAccessStreamReference logoRandomAccessStreamReference;
-                using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
+                using (var logo = GreenshotResources.Instance.GetGreenshotIcon().ToBitmap())
                 using (var logoThumbnail = logo.CreateThumbnail(30, 30))
                 {
                     ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);

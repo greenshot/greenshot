@@ -48,11 +48,11 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.11-gd26115c7d3" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.11-gd26115c7d3" />
-    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.11" />
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.11" />
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.11" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.12-gbfc701fccd" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.12-gbfc701fccd" />
+    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.12" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.12" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.12" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
     <PackageReference Include="Fody" Version="3.2.16">
       <PrivateAssets>all</PrivateAssets>

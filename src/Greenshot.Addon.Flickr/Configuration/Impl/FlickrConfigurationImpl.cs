@@ -21,7 +21,9 @@
 
 #endregion
 
+using System.ComponentModel;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Ini.Converters;
 using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Flickr.Configuration.Impl
@@ -53,8 +55,13 @@ namespace Greenshot.Addon.Flickr.Configuration.Impl
 
         #region Implementation of IOAuth1Token
 
+        [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuthToken { get; set; }
+
+        [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuthTokenSecret { get; set; }
+
+        [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuthTokenVerifier { get; set; }
 
         #endregion

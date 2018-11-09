@@ -48,22 +48,22 @@
       <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.1.11-gd26115c7d3</Version>
+      <Version>1.1.12-gbfc701fccd</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
-      <Version>1.1.11-gd26115c7d3</Version>
+      <Version>1.1.12-gbfc701fccd</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.1.11-gd26115c7d3</Version>
+      <Version>1.1.12-gbfc701fccd</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.11</Version>
+      <Version>0.9.12</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.9.11</Version>
+      <Version>0.9.12</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.9.11</Version>
+      <Version>0.9.12</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
       <Version>0.7.19</Version>
@@ -76,7 +76,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>3.0.0-alpha0086</Version>
+      <Version>3.0.0-alpha0088</Version>
     </PackageReference>
     <PackageReference Include="Svg">
       <Version>2.3.0</Version>

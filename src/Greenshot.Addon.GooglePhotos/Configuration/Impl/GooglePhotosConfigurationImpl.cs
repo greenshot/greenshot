@@ -22,7 +22,9 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Ini.Converters;
 using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.GooglePhotos.Configuration.Impl
@@ -54,8 +56,12 @@ namespace Greenshot.Addon.GooglePhotos.Configuration.Impl
 
         #region Implementation of IOAuth2Token
 
+        [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuth2AccessToken { get; set; }
+
         public DateTimeOffset OAuth2AccessTokenExpires { get; set; }
+
+        [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuth2RefreshToken { get; set; }
 
         #endregion
