@@ -54,7 +54,7 @@
     <PackageReference Include="Microsoft.Office.Interop.PowerPoint" Version="15.0.4420.1017" />
     <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1003" />
     <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0" />
-    <PackageReference Include="Fody" Version="3.2.16">
+    <PackageReference Include="Fody" Version="3.2.17">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

@@ -57,13 +57,13 @@
       <Version>1.1.12-gbfc701fccd</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.12</Version>
+      <Version>0.9.15</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.9.12</Version>
+      <Version>0.9.15</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.9.12</Version>
+      <Version>0.9.15</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
       <Version>0.7.19</Version>
@@ -71,7 +71,7 @@
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.7.19</Version>
     </PackageReference>
-    <PackageReference Include="Fody" Version="3.2.16">
+    <PackageReference Include="Fody" Version="3.2.17">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

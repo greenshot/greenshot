@@ -21,8 +21,6 @@
 
 #endregion
 
-#if !NETCOREAPP3_0
-
 #region Usings
 
 using System;
@@ -245,4 +243,3 @@ namespace Greenshot.Components
         }
 	}
 }
-#endif
