@@ -16,7 +16,7 @@ namespace Greenshot.PerformanceTests
         {
             var job = Job.Default.With(Platform.X64);
             var config = DefaultConfig.Instance.With(job).KeepBenchmarkFiles(true);
-            BenchmarkRunner.Run<GfxPerformance>(config);
+            BenchmarkRunner.Run<GfxPerformanceShort>(config);
             Console.ReadLine();
         }
     }
