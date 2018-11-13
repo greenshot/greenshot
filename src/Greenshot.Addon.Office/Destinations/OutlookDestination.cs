@@ -63,6 +63,13 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly OlObjectClass _outlookInspectorType;
 	    private readonly OutlookExporter _outlookExporter;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public OutlookDestination(
             IOfficeConfiguration officeConfiguration,
 		    ICoreConfiguration coreConfiguration,
@@ -88,7 +95,16 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-	    protected OutlookDestination(
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="outlookInspectorCaption">OlObjectClass</param>
+        /// <param name="outlookInspectorType">OlObjectClass</param>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        protected OutlookDestination(
 	        string outlookInspectorCaption,
 	        OlObjectClass outlookInspectorType,
             IOfficeConfiguration officeConfiguration,
@@ -101,14 +117,19 @@ namespace Greenshot.Addon.Office.Destinations
 			_outlookInspectorType = outlookInspectorType;
 		}
 
+        /// <inherit />
 		public override string Description => _outlookInspectorCaption ?? MapiClient;
 
+        /// <inherit />
         public override bool IsActive => base.IsActive && _isActiveFlag;
 
+        /// <inherit />
 		public override bool IsDynamic => true;
 
+        /// <inherit />
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
+        /// <inherit />
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			if (_outlookInspectorCaption == null)
@@ -123,6 +144,7 @@ namespace Greenshot.Addon.Office.Destinations
 			return MailIcon;
 		}
 
+        /// <inherit />
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			var inspectorCaptions = _outlookExporter.RetrievePossibleTargets();

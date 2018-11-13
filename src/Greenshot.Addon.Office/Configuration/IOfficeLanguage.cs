@@ -22,6 +22,7 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Office.Configuration
 {
+    #pragma warning disable CS1591
     [Language("Office")]
     public interface IOfficeLanguage : ILanguage, INotifyPropertyChanged
     {

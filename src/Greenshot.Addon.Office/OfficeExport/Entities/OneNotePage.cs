@@ -21,27 +21,42 @@
 
 #endregion
 
-using Dapplo.Config.Language;
+#region Usings
 
-namespace Greenshot.Addon.Office.Configuration.Impl
+
+#endregion
+
+namespace Greenshot.Addon.Office.OfficeExport.Entities
 {
-    #pragma warning disable CS1591
-    public class OfficeLanguageImpl : LanguageBase<IOfficeLanguage>, IOfficeLanguage
+    /// <summary>
+    ///     Container for transporting Page information
+    /// </summary>
+    public class OneNotePage
     {
-        #region Implementation of IOfficeLanguage
+        /// <inherit />
+        public string DisplayName
+        {
+            get
+            {
+                OneNoteNotebook notebook = Parent.Parent;
+                if (string.IsNullOrEmpty(notebook.Name))
+                {
+                    return string.Format("{0} / {1}", Parent.Name, Name);
+                }
+                return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
+            }
+        }
 
-        public string SettingsTitle { get; }
-        public string WordLockaspect { get; }
-        public string OutlookAllowmeetings { get; }
-        public string OutlookSubjectPattern { get; }
-        public string OutlookEmailFormat { get; }
-        public string OutlookEmailIncludeSignature { get; }
-        public string OutlookEmailTo { get; }
-        public string OutlookEmailCc { get; }
-        public string OutlookEmailBcc { get; }
-        public string PowerpointSlideLayout { get; }
-        public string PowerpointLockaspect { get; }
+        /// <inherit />
+        public string Id { get; set; }
 
-        #endregion
+        /// <inherit />
+        public bool IsCurrentlyViewed { get; set; }
+
+        /// <inherit />
+        public string Name { get; set; }
+
+        /// <inherit />
+        public OneNoteSection Parent { get; set; }
     }
 }

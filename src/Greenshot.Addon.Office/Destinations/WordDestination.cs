@@ -57,6 +57,13 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _documentCaption;
 	    private readonly WordExporter _wordExporter;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public WordDestination(
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
@@ -74,7 +81,15 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		protected WordDestination(string wordCaption,
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="wordCaption">string with the caption of the word document</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        protected WordDestination(string wordCaption,
 		    ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 		    IOfficeConfiguration officeConfiguration,
@@ -83,22 +98,28 @@ namespace Greenshot.Addon.Office.Destinations
 			_documentCaption = wordCaption;
 		}
 
-		public override string Description => _documentCaption ?? "Microsoft Word";
+        /// <inherit />
+        public override string Description => _documentCaption ?? "Microsoft Word";
 
+        /// <inherit />
 		public override bool IsDynamic => true;
 
+        /// <inherit />
 		public override bool IsActive => base.IsActive && _exePath != null;
 
+        /// <inherit />
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return PluginUtils.GetCachedExeIcon(_exePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication, dpi > 100);
-		} 
+		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+        /// <inherit />
+        public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			return _wordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption, CoreConfiguration, GreenshotLanguage, _officeConfiguration, _exportNotification));
 		}
 
+        /// <inherit />
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);

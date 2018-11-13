@@ -34,12 +34,19 @@ using Version = System.Version;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
+    /// <summary>
+    /// This makes it possible to export to word
+    /// </summary>
     public class WordExporter
     {
         private static readonly LogSource Log = new LogSource();
         private static Version _wordVersion;
         private readonly IOfficeConfiguration _officeConfiguration;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
         public WordExporter(IOfficeConfiguration officeConfiguration)
         {
             _officeConfiguration = officeConfiguration;
@@ -198,11 +205,11 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <summary>
         ///     Internal method for the insert
         /// </summary>
-        /// <param name="wordApplication"></param>
-        /// <param name="wordDocument"></param>
-        /// <param name="tmpFile"></param>
-        /// <param name="address"></param>
-        /// <param name="tooltip">tooltip of the image</param>
+        /// <param name="wordApplication">IDisposableCom with Application</param>
+        /// <param name="wordDocument">IDisposableCom with _Document</param>
+        /// <param name="tmpFile">string</param>
+        /// <param name="address">string</param>
+        /// <param name="tooltip">string with the tooltip of the image</param>
         /// <returns></returns>
         internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address, string tooltip)
         {
@@ -294,6 +301,12 @@ namespace Greenshot.Addon.Office.OfficeExport
             }
         }
 
+        /// <summary>
+        /// Insert a capture into a new document
+        /// </summary>
+        /// <param name="tmpFile">string</param>
+        /// <param name="address">string</param>
+        /// <param name="tooltip">string</param>
         public void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
         {
             using (var wordApplication = GetOrCreateWordApplication())

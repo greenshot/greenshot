@@ -40,12 +40,19 @@ using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
+    /// <summary>
+    /// Export logic for powerpoint
+    /// </summary>
     public class PowerpointExporter
     {
         private static readonly LogSource Log = new LogSource();
         private readonly IOfficeConfiguration _officeConfiguration;
         private Version _powerpointVersion;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
         public PowerpointExporter(IOfficeConfiguration officeConfiguration)
         {
             _officeConfiguration = officeConfiguration;

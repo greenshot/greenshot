@@ -65,6 +65,10 @@ namespace Greenshot.Addon.Office.OfficeExport
         private static string _currentUser;
         private readonly WordExporter _wordExporter;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
         public OutlookExporter(IOfficeConfiguration officeConfiguration)
         {
             _officeConfiguration = officeConfiguration;

@@ -30,6 +30,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using Dapplo.Log;
 using Dapplo.Windows.Interop;
+using Greenshot.Addon.Office.OfficeExport.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -322,54 +323,5 @@ namespace Greenshot.Addon.Office.OfficeExport
             }
             return null;
         }
-    }
-
-    /// <summary>
-    ///     Container for transporting Page information
-    /// </summary>
-    public class OneNotePage
-    {
-        public string DisplayName
-        {
-            get
-            {
-                OneNoteNotebook notebook = Parent.Parent;
-                if (string.IsNullOrEmpty(notebook.Name))
-                {
-                    return string.Format("{0} / {1}", Parent.Name, Name);
-                }
-                return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
-            }
-        }
-
-        public string Id { get; set; }
-
-        public bool IsCurrentlyViewed { get; set; }
-
-        public string Name { get; set; }
-
-        public OneNoteSection Parent { get; set; }
-    }
-
-    /// <summary>
-    ///     Container for transporting section information
-    /// </summary>
-    public class OneNoteSection
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public OneNoteNotebook Parent { get; set; }
-    }
-
-    /// <summary>
-    ///     Container for transporting notebook information
-    /// </summary>
-    public class OneNoteNotebook
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
     }
 }

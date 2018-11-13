@@ -4,6 +4,7 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace Greenshot.Addon.Office.Configuration.Impl
 {
+    #pragma warning disable CS1591
     public class OfficeConfigurationImpl : IniSectionBase<IOfficeConfiguration>, IOfficeConfiguration
     {
         #region Implementation of IOfficeConfiguration

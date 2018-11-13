@@ -38,6 +38,10 @@ namespace Greenshot.Addon.Office
     /// <inheritdoc />
     public class OfficeAddonModule : AddonModule
     {
+        /// <summary>
+        /// Define the dependencies of this project
+        /// </summary>
+        /// <param name="builder">ContainerBuilder</param>
         protected override void Load(ContainerBuilder builder)
         {
             var hasDestination = false;

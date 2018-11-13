@@ -56,6 +56,13 @@ namespace Greenshot.Addon.Office.Destinations
 	    private const int IconApplication = 0;
 	    private const int IconPresentation = 1;
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public PowerpointDestination(
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
@@ -73,7 +80,15 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		public PowerpointDestination(string presentationName,
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="presentationName">string with the name of the presentation</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        public PowerpointDestination(string presentationName,
 		    ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage,
 		    IOfficeConfiguration officeConfiguration,
@@ -82,6 +97,7 @@ namespace Greenshot.Addon.Office.Destinations
 			_presentationName = presentationName;
 		}
 
+        /// <inherit />
 	    public override string Description
 		{
 			get
@@ -94,10 +110,13 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 		}
 
+        /// <inherit />
 		public override bool IsDynamic => true;
 
+        /// <inherit />
 		public override bool IsActive => base.IsActive && _exePath != null;
 
+        /// <inherit />
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			if (!string.IsNullOrEmpty(_presentationName))
@@ -108,11 +127,13 @@ namespace Greenshot.Addon.Office.Destinations
 			return PluginUtils.GetCachedExeIcon(_exePath, IconApplication, dpi > 100);
 		}
 
+        /// <inherit />
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			return _powerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName, CoreConfiguration, GreenshotLanguage, _officeConfiguration, _exportNotification));
 		}
 
+        /// <inherit />
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);

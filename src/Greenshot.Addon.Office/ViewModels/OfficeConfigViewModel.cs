@@ -33,6 +33,9 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace Greenshot.Addon.Office.ViewModels
 {
+    /// <summary>
+    /// View model for the office configuration
+    /// </summary>
     public sealed class OfficeConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -40,10 +43,26 @@ namespace Greenshot.Addon.Office.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Used to modify the office configuration from the view
+        /// </summary>
         public IOfficeConfiguration OfficeConfiguration { get; }
+        /// <summary>
+        /// Used to supply translations to the view
+        /// </summary>
         public IOfficeLanguage OfficeLanguage { get; }
+
+        /// <summary>
+        /// Used to supply translations to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration">IOfficeConfiguration</param>
+        /// <param name="officeLanguage">IOfficeLanguage</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public OfficeConfigViewModel(
             IOfficeConfiguration officeConfiguration,
             IOfficeLanguage officeLanguage,
@@ -54,6 +73,7 @@ namespace Greenshot.Addon.Office.ViewModels
             GreenshotLanguage = greenshotLanguage;
         }
 
+        /// <inherit />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -75,12 +95,16 @@ namespace Greenshot.Addon.Office.ViewModels
             base.Initialize(config);
         }
 
+        /// <inherit />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
 
+        /// <summary>
+        /// The selected slide layout
+        /// </summary>
         public PpSlideLayout SelectedSlideLayout
         {
             get => OfficeConfiguration.PowerpointSlideLayout;
@@ -91,6 +115,9 @@ namespace Greenshot.Addon.Office.ViewModels
             }
         }
 
+        /// <summary>
+        /// The available slide layouts
+        /// </summary>
         public IDictionary<PpSlideLayout, string> SlideLayouts => GreenshotLanguage.TranslationValuesForEnum<PpSlideLayout>();
     }
 }
