@@ -44,9 +44,6 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
-    <PackageReference Include="CommonServiceLocator">
-      <Version>2.0.4</Version>
-    </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
       <Version>1.1.12-gbfc701fccd</Version>
     </PackageReference>

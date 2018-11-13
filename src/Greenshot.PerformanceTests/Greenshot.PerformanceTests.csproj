@@ -5,6 +5,8 @@
     <AssemblyName>Greenshot.PerformanceTests</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
@@ -56,9 +58,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.11.2.849" />
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
-    <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
     <PackageReference Include="JeremyAnsel.ColorQuant" Version="1.0.55" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
       <Version>2.6.2</Version>

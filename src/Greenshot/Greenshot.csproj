@@ -9,6 +9,7 @@
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
 	<AssemblyTitle>Greenshot</AssemblyTitle>
     <AssemblyName>Greenshot</AssemblyName>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
