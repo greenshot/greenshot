@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Tfs.Configuration.Impl
 {
+    /// <summary>
+    /// This implements ITfsLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class TfsLanguageImpl : LanguageBase<ITfsLanguage>, ITfsLanguage
     {
         #region Implementation of ITfsLanguage

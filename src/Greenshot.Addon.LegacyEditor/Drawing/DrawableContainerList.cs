@@ -521,7 +521,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		                continue;
 		            }
 
-		            Size defaultSize = container.DefaultSize;
+                    var defaultSize = container.DefaultSize;
 		            container.MakeBoundsChangeUndoable(false);
 		            container.Width = defaultSize.Width;
 		            container.Height = defaultSize.Height;

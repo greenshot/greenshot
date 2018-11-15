@@ -198,7 +198,7 @@ namespace Greenshot.Addon.Dropbox
         /// <param name="progress">IProgress</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Url as string</returns>
-        private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
             // Use UploadProgress

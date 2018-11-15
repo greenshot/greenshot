@@ -17,13 +17,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
-namespace Greenshot.Addon.OCR
+namespace Greenshot.Addon.OCR.Configuration
 {
 	[Language("Ocr")]
-	public interface IOcrLanguage : ILanguage, INotifyPropertyChanged
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+#pragma warning disable CS1591
+    public interface IOcrLanguage : ILanguage
 	{
 	    string Language { get; }
 	    string OrientImage { get; }

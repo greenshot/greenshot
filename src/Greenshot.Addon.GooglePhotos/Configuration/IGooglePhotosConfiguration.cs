@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
@@ -38,7 +39,8 @@ namespace Greenshot.Addon.GooglePhotos.Configuration
 	/// </summary>
 	[IniSection("GooglePhotos")]
 	[Description("Greenshot Google Photos Plugin configuration")]
-	public interface IGooglePhotosConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public interface IGooglePhotosConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
     {
 		[Description("After upload send Google Photos link to clipboard.")]
 		[DefaultValue(true)]

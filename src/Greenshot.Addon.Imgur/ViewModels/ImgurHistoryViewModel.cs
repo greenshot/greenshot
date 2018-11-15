@@ -45,16 +45,22 @@ namespace Greenshot.Addon.Imgur.ViewModels
     public sealed class ImgurHistoryViewModel : Screen
     {
         private static readonly LogSource Log = new LogSource();
+        private readonly ImgurApi _imgurApi;
 
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// The configuration used in the view
+        /// </summary>
         public IImgurConfiguration ImgurConfiguration { get; }
 
-        public ImgurApi ImgurApi { get; }
 
+        /// <summary>
+        /// The translations used in the view
+        /// </summary>
         public IImgurLanguage ImgurLanguage { get; }
 
         /// <summary>
@@ -62,6 +68,13 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// Constructor which accepts the dependencies for this class
+        /// </summary>
+        /// <param name="imgurConfiguration">IImgurConfiguration</param>
+        /// <param name="imgurApi">ImgurApi</param>
+        /// <param name="imgurLanguage">IImgurLanguage</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public ImgurHistoryViewModel(
             IImgurConfiguration imgurConfiguration,
             ImgurApi imgurApi,
@@ -70,7 +83,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             )
         {
             ImgurConfiguration = imgurConfiguration;
-            ImgurApi = imgurApi;
+            _imgurApi = imgurApi;
             ImgurLanguage = imgurLanguage;
             GreenshotLanguage = greenshotLanguage;
         }
@@ -79,6 +92,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         public ObservableCollection<ImgurImage> ImgurHistory { get; } = new BindableCollection<ImgurImage>();
 
+        /// <inheritdoc />
         protected override void OnActivate()
         {
              // Prepare disposables
@@ -91,6 +105,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             _ = LoadHistory();
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
@@ -117,10 +132,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
                 }
                 try
                 {
-                    var imgurInfo = await ImgurApi.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
+                    var imgurInfo = await _imgurApi.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], cancellationToken).ConfigureAwait(true);
                     if (imgurInfo != null)
                     {
-                        await ImgurApi.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
+                        await _imgurApi.RetrieveImgurThumbnailAsync(imgurInfo, cancellationToken).ConfigureAwait(true);
                         ImgurConfiguration.RuntimeImgurHistory.Add(hash, imgurInfo);
                         // Already loaded, only add it to the view
                         ImgurHistory.Add(imgurInfo);
@@ -138,6 +153,9 @@ namespace Greenshot.Addon.Imgur.ViewModels
             }
         }
 
+        /// <summary>
+        /// The selected Imgur entry
+        /// </summary>
         public ImgurImage SelectedImgur { get; private set; }
 
         /// <summary>
@@ -150,7 +168,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         public async Task Delete()
         {
-            await ImgurApi.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
+            await _imgurApi.DeleteImgurImageAsync(SelectedImgur).ConfigureAwait(true);
         }
 
         /// <summary>

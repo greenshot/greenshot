@@ -32,11 +32,28 @@ using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
+    /// <summary>
+    /// This defines the interface for all filters
+    /// </summary>
 	public interface IFilter : INotifyPropertyChanged, IFieldHolder
 	{
+        /// <summary>
+        /// Filters are childen of DrawableContainers, this is the parent
+        /// </summary>
 		DrawableContainer Parent { get; set; }
+
+        /// <summary>
+        /// is the filtered area inverted?
+        /// </summary>
 		bool Invert { get; set; }
-		void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
-		DrawableContainer GetParent();
-	}
+
+        /// <summary>
+        /// Apply this filter
+        /// </summary>
+        /// <param name="graphics">Graphics to use</param>
+        /// <param name="bmp">Bitmap to apply to</param>
+        /// <param name="rect">NativeRect with the area</param>
+        /// <param name="renderMode">RenderMode to use</param>
+        void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
+    }
 }

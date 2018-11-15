@@ -184,7 +184,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
 			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
+			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
 			using (var pen = new Pen(lineColor)) {
 				pen.Width = lineThickness;
 			    if (!(pen.Width > 0))
@@ -199,7 +199,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			    graphics.TranslateTransform(Left, Top);
 			    lock (_freehandPathLock)
 			    {
-			        if (isRecalculated && Selected && renderMode == RenderMode.EDIT)
+			        if (isRecalculated && Selected && renderMode == RenderMode.Edit)
 			        {
 			            DrawSelectionBorder(graphics, pen, freehandPath);
 			        }
@@ -257,8 +257,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
             {
                 return false;
             }
-            var other = obj as FreehandContainer;
-            if (other != null && Equals(freehandPath, other.freehandPath)) {
+
+            if (obj is FreehandContainer other && Equals(freehandPath, other.freehandPath)) {
                 ret = true;
             }
             return ret;

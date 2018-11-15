@@ -76,7 +76,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>ComDisposable for Excel.Application</returns>
         private static IDisposableCom<Application> GetOrCreateExcelApplication()
         {
-            IDisposableCom<Application> excelApplication = GetExcelApplication();
+            var excelApplication = GetExcelApplication();
             if (excelApplication == null)
             {
                 excelApplication = DisposableCom.Create(new Application());

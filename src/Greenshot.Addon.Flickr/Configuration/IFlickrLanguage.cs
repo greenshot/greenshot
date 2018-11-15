@@ -19,6 +19,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 #endregion
@@ -26,7 +27,8 @@ using Dapplo.Config.Language;
 namespace Greenshot.Addon.Flickr.Configuration
 {
 	[Language("Flickr")]
-	public interface IFlickrLanguage : ILanguage
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public interface IFlickrLanguage : ILanguage
 	{
 		string CommunicationWait { get; }
 

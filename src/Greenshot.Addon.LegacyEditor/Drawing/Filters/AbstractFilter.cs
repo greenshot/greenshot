@@ -75,11 +75,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			set { parent = value; }
 		}
 
-		public DrawableContainer GetParent()
-		{
-			return parent;
-		}
-
 		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
 
 		protected void OnPropertyChanged(string propertyName)

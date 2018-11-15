@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IConfigTranslations and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     internal class ConfigTranslationsImpl : LanguageBase<IConfigTranslations>, IConfigTranslations
     {
         public string Filter { get; }

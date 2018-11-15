@@ -30,13 +30,27 @@ using System.Drawing;
 
 namespace Greenshot.Addon.LegacyEditor
 {
+    /// <summary>
+    /// Utility class to work with System.Drawing.Colors
+    /// TODO: should be done differently
+    /// </summary>
 	public static class Colors
 	{
+        /// <summary>
+        /// Is the specified color visible?
+        /// </summary>
+        /// <param name="c">Color</param>
+        /// <returns>bool true if visible</returns>
 		public static bool IsVisible(Color c)
 		{
 			return !c.Equals(Color.Empty) && !c.Equals(Color.Transparent) && c.A > 0;
 		}
 
+        /// <summary>
+        /// Mix all specified colors into one
+        /// </summary>
+        /// <param name="colors">IEnumerable with Color</param>
+        /// <returns>Color</returns>
 		public static Color Mix(IEnumerable<Color> colors)
 		{
 			var a = 0;

@@ -35,7 +35,7 @@ using Greenshot.Addons.Interfaces.Drawing;
 namespace Greenshot.Addon.LegacyEditor.Memento
 {
 	/// <summary>
-	///     The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize & move
+	///     The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize and move
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento
 	{

@@ -94,7 +94,7 @@ namespace Greenshot.Addon.Tfs
         public async Task<WorkItemList> GetOwnWorkitems()
         {
             _tfsHttpBehaviour.MakeCurrent();
-            Uri apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
+            var apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
             var client = HttpClientFactory.Create(_tfsConfiguration.TfsUri).SetBasicAuthorization("", _tfsConfiguration.ApiKey);
 
             var workitemsQueryUri = apiUri.AppendSegments("wit", "wiql");
@@ -127,7 +127,7 @@ namespace Greenshot.Addon.Tfs
             _tfsHttpBehaviour.MakeCurrent();
 
             var client = HttpClientFactory.Create(_tfsConfiguration.TfsUri).SetBasicAuthorization("", _tfsConfiguration.ApiKey);
-            Uri apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
+            var apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
 
             var filename = surface.GenerateFilename(_coreConfiguration, _tfsConfiguration);
             var attachmentUri = apiUri.AppendSegments("wit", "attachments").ExtendQuery("fileName", filename);
@@ -159,7 +159,7 @@ namespace Greenshot.Addon.Tfs
             _tfsHttpBehaviour.MakeCurrent();
             var client = HttpClientFactory.Create(_tfsConfiguration.TfsUri).SetBasicAuthorization("", _tfsConfiguration.ApiKey);
 
-            Uri apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
+            var apiUri = _tfsConfiguration.TfsUri.AppendSegments("_apis").ExtendQuery("api-version", "3.0");
             // https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/update#add_an_attachment
             var linkAttachmentUri = apiUri.AppendSegments("wit", "workItems", workItem.Id);
             var linkAttachmentRequest = new List<Operation>

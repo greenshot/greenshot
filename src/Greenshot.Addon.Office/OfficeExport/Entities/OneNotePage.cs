@@ -38,7 +38,7 @@ namespace Greenshot.Addon.Office.OfficeExport.Entities
         {
             get
             {
-                OneNoteNotebook notebook = Parent.Parent;
+                var notebook = Parent.Parent;
                 if (string.IsNullOrEmpty(notebook.Name))
                 {
                     return string.Format("{0} / {1}", Parent.Name, Name);

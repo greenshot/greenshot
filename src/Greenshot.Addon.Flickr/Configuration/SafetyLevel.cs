@@ -21,30 +21,15 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using Dapplo.Config.Language;
-
-namespace Greenshot.Addon.GooglePhotos.Configuration.Impl
+namespace Greenshot.Addon.Flickr.Configuration
 {
     /// <summary>
-    /// This implements IGooglePhotosLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// The Flickr SafetyLevel
     /// </summary>
-    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
-#pragma warning disable CS1591
-    public class GooglePhotosLanguageImpl : LanguageBase<IGooglePhotosLanguage>, IGooglePhotosLanguage
+    public enum SafetyLevel
     {
-        #region Implementation of IGooglePhotosLanguage
-
-        public string CommunicationWait { get; }
-        public string Configure { get; }
-        public string LabelAfterUpload { get; }
-        public string LabelAfterUploadLinkToClipBoard { get; }
-        public string LabelUploadFormat { get; }
-        public string SettingsTitle { get; }
-        public string UploadFailure { get; }
-        public string UploadMenuItem { get; }
-        public string UploadSuccess { get; }
-
-        #endregion
+        Safe = 1,
+        Moderate = 2,
+        Restricted = 3
     }
 }

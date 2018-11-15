@@ -24,6 +24,7 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
@@ -33,19 +34,13 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Flickr.Configuration
 {
-	public enum SafetyLevel
-	{
-		Safe = 1,
-		Moderate = 2,
-		Restricted = 3
-	}
-
-	/// <summary>
-	///     Description of FlickrConfiguration.
+    /// <summary>
+	///     This defines the configuration for the Flickr addon
 	/// </summary>
 	[IniSection("Flickr")]
 	[Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth1Token
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public interface IFlickrConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth1Token
     {
 		[Description("IsPublic.")]
 		[DefaultValue(true)]
@@ -59,18 +54,30 @@ namespace Greenshot.Addon.Flickr.Configuration
 		[DefaultValue(true)]
 		bool IsFriend { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
 		[Description("Safety level")]
 		[DefaultValue(SafetyLevel.Safe)]
 		SafetyLevel SafetyLevel { get; set; }
 
+        /// <summary>
+        /// Hide the image from the search results in Flickr
+        /// </summary>
 		[Description("Hidden from search")]
 		[DefaultValue(false)]
 		bool HiddenFromSearch { get; set; }
 
+        /// <summary>
+        /// Place the link to Flickr onto the clipboard after it's uploaded
+        /// </summary>
 		[Description("After upload send flickr link to clipboard.")]
 		[DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard { get; set; }
 
+        /// <summary>
+        /// Defines if we use the pagelink or direct link on the clipboard
+        /// </summary>
 		[Description("Use pagelink instead of direct link on the clipboard")]
 		[DefaultValue(false)]
 		bool UsePageLink { get; set; }

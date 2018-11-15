@@ -34,11 +34,15 @@ using Greenshot.Gfx.Effects;
 
 namespace Greenshot.Addon.LegacyEditor.Forms
 {
+    /// <summary>
+    /// This form makes it possible to change the settings for a DropShadow effect
+    /// </summary>
 	public partial class DropShadowSettingsForm : GreenshotForm
 	{
 		private readonly DropShadowEffect _effect;
 
-		public DropShadowSettingsForm(DropShadowEffect effect, IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
+	    /// <inheritdoc />
+	    public DropShadowSettingsForm(DropShadowEffect effect, IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
 		{
 			_effect = effect;
 			InitializeComponent();

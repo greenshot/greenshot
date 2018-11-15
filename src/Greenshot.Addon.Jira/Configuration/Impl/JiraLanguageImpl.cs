@@ -26,6 +26,10 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Jira.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IJiraLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
+#pragma warning disable CS1591
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class JiraLanguageImpl : LanguageBase<IJiraLanguage>, IJiraLanguage
     {

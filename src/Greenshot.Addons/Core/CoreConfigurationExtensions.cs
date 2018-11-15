@@ -131,7 +131,7 @@ namespace Greenshot.Addons.Core
             // Make sure we have clipboard formats, otherwise a paste doesn't make sense!
             if (coreConfiguration.ClipboardFormats == null || coreConfiguration.ClipboardFormats.Count == 0)
             {
-                coreConfiguration.ClipboardFormats = new List<ClipboardFormats> { Enums.ClipboardFormats.PNG, Enums.ClipboardFormats.HTML, Enums.ClipboardFormats.DIB };
+                coreConfiguration.ClipboardFormats = new List<ClipboardFormats> { ClipboardFormats.PNG, ClipboardFormats.HTML, ClipboardFormats.DIB };
             }
 
             // Make sure the lists are lowercase, to speedup the check

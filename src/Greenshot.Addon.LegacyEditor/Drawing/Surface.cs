@@ -597,7 +597,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns></returns>
 		public Bitmap GetBitmapForExport()
 		{
-			return GetBitmap(RenderMode.EXPORT);
+			return GetBitmap(RenderMode.Export);
 		}
 
 		/// <summary>
@@ -1646,7 +1646,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                     DrawBackground(graphics, clipRectangle);
 					graphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
-					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
+					_elements.Draw(graphics, _buffer, RenderMode.Edit, clipRectangle);
 				}
 				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			}
@@ -1654,7 +1654,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				DrawBackground(targetGraphics, clipRectangle);
 				targetGraphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+				_elements.Draw(targetGraphics, null, RenderMode.Edit, clipRectangle);
 			}
 
 			// No clipping for the adorners

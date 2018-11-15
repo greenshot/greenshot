@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.OneDrive.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IOneDriveLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class OneDriveLanguageImpl : LanguageBase<IOneDriveLanguage>, IOneDriveLanguage
     {
         #region Implementation of IOneDriveLanguage

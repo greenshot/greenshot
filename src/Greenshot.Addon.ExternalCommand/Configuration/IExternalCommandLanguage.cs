@@ -21,11 +21,13 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.ExternalCommand.Configuration
 {
     [Language("ExternalCommand")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public interface IExternalCommandLanguage : ILanguage
     {
         string ContextmenuConfigure { get; }

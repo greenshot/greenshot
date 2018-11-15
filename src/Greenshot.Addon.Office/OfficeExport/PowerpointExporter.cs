@@ -257,7 +257,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>ComDisposable for PowerPoint.Application</returns>
         private IDisposableCom<Application> GetOrCreatePowerPointApplication()
         {
-            IDisposableCom<Application> powerPointApplication = GetPowerPointApplication();
+            var powerPointApplication = GetPowerPointApplication();
             if (powerPointApplication == null)
             {
                 powerPointApplication = DisposableCom.Create(new Application());

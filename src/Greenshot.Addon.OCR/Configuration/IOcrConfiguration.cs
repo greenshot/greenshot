@@ -24,18 +24,21 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Ini;
 
 #endregion
 
-namespace Greenshot.Addon.OCR
+namespace Greenshot.Addon.OCR.Configuration
 {
     /// <summary>
     ///     OCR Configuration.
     /// </summary>
     [IniSection("OCR")]
     [Description("Greenshot OCR Plugin configuration")]
-	public interface IOcrConfiguration : IIniSection
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+#pragma warning disable CS1591
+    public interface IOcrConfiguration : IIniSection
 	{
 		[Description("Language for OCR")]
 		[DefaultValue ("miLANG_ENGLISH")]

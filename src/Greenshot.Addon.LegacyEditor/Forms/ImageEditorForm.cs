@@ -1703,6 +1703,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
 
         #region key handling
 
+        /// <inheritdoc />
         protected override bool ProcessKeyPreview(ref Message msg)
         {
             // disable default key handling if surface has requested a lock
@@ -1714,6 +1715,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             return base.ProcessKeyPreview(ref msg);
         }
 
+        /// <inheritdoc />
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {
             // disable default key handling if surface has requested a lock

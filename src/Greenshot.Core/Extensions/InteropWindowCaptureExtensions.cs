@@ -75,7 +75,7 @@ namespace Greenshot.Core.Extensions
         public static ICaptureElement<BitmapSource> CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
         {
             var bounds = clientBounds ? interopWindow.GetInfo().ClientBounds: interopWindow.GetInfo().Bounds;
-            ICaptureElement<BitmapSource> result = ScreenSource.CaptureRectangle(bounds);
+            var result = ScreenSource.CaptureRectangle(bounds);
             return result;
         }
 

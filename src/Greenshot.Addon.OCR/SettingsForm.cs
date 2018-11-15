@@ -24,6 +24,7 @@
 #region Usings
 
 using System;
+using Greenshot.Addon.OCR.Configuration;
 using Greenshot.Addons.Controls;
 
 #endregion

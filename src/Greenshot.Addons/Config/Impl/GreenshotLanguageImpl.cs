@@ -3,7 +3,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addons.Config.Impl
 {
+    /// <summary>
+    /// This implements IGreenshotLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     internal class GreenshotLanguageImpl : LanguageBase<IGreenshotLanguage>, IGreenshotLanguage
     {
         #region Implementation of ICoreTranslations

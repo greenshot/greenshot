@@ -26,6 +26,10 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Flickr.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IFlickrLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
+#pragma warning disable CS1591
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class FlickrLanguageImpl : LanguageBase<IFlickrLanguage>, IFlickrLanguage
     {

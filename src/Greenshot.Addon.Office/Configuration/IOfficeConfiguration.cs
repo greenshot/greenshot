@@ -35,7 +35,7 @@ namespace Greenshot.Addon.Office.Configuration
     /// <summary>
     ///     Office configuration
     /// </summary>
-    #pragma warning disable CS1591
+#pragma warning disable CS1591
     [IniSection("Office")]
 	[Description("Greenshot Office configuration")]
 	public interface IOfficeConfiguration : IIniSection

@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Box.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IBoxLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class BoxLanguageImpl : LanguageBase<IBoxLanguage>, IBoxLanguage
     {
         #region Implementation of IBoxLanguage

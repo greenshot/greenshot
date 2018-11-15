@@ -23,9 +23,18 @@
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+    /// <summary>
+    /// Specifies how something needs to be rendered, the idea was that export needs more details and no "edit" adorners.
+    /// </summary>
 	public enum RenderMode
 	{
-		EDIT,
-		EXPORT
+        /// <summary>
+        /// Render for editing
+        /// </summary>
+		Edit,
+        /// <summary>
+        /// Render for exporting
+        /// </summary>
+		Export
 	}
 }

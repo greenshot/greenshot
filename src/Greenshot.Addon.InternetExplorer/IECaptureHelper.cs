@@ -60,19 +60,25 @@ namespace Greenshot.Addon.InternetExplorer
 	    // TODO: Solve, was static reference!
 	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
 
-        // Helper method to activate a certain IE Tab
+        /// <summary>
+        /// Helper method to activate a certain IE Tab
+        /// </summary>
+        /// <param name="nativeIeWindow">IInteropWindow</param>
+        /// <param name="tabIndex">int</param>
         public static void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)
 		{
             var directUiInteropWindow = IEHelper.GetDirectUi(nativeIeWindow);
-			if (directUiInteropWindow != null)
-			{
-				// Bring window to the front
-				nativeIeWindow.Restore();
-				// Get accessible
-				var ieAccessible = new Accessible(directUiInteropWindow.Handle);
-				// Activate Tab
-				ieAccessible.ActivateIETab(tabIndex);
-			}
+		    if (directUiInteropWindow == null)
+		    {
+		        return;
+		    }
+
+		    // Bring window to the front
+		    nativeIeWindow.Restore();
+		    // Get accessible
+		    var ieAccessible = new Accessible(directUiInteropWindow.Handle);
+		    // Activate Tab
+		    ieAccessible.ActivateIETab(tabIndex);
 		}
 
 		/// <summary>

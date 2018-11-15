@@ -57,8 +57,7 @@ namespace Greenshot.Gfx
 	    {
 	        using (var tmpImage = Image.FromStream(stream, true, true))
 	        {
-	            var bitmap = tmpImage as Bitmap;
-	            if (bitmap == null)
+	            if (!(tmpImage is Bitmap bitmap))
 	            {
 	                return null;
 	            }
@@ -69,8 +68,6 @@ namespace Greenshot.Gfx
 
         static BitmapHelper()
 		{
-			
-
 			// Fallback
 			StreamConverters[""] = FromStreamReader;
 

@@ -582,7 +582,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>IDisposableCom for Outlook.Application</returns>
         private IDisposableCom<Application> GetOrCreateOutlookApplication()
         {
-            IDisposableCom<Application> outlookApplication = GetOutlookApplication();
+            var outlookApplication = GetOutlookApplication();
             if (outlookApplication == null)
             {
                 outlookApplication = DisposableCom.Create(new Application());
@@ -620,7 +620,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns></returns>
         private string GetOutlookSignature(EmailFormat format)
         {
-            using (RegistryKey profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false))
+            using (var profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false))
             {
                 if (profilesKey == null)
                 {
@@ -628,7 +628,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                 }
                 string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
                 Log.Debug().WriteLine("defaultProfile={0}", defaultProfile);
-                using (RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
+                using (var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
                 {
                     if (profileKey != null)
                     {
@@ -636,7 +636,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                         foreach (string number in numbers)
                         {
                             Log.Debug().WriteLine("Found subkey {0}", number);
-                            using (RegistryKey numberKey = profileKey.OpenSubKey(number, false))
+                            using (var numberKey = profileKey.OpenSubKey(number, false))
                             {
                                 if (numberKey != null)
                                 {

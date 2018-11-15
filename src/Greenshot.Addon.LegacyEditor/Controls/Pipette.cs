@@ -92,7 +92,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
 		/// <summary>
-		///     Create a cursor from the supplied bitmap & hotspot coordinates
+		///     Create a cursor from the supplied bitmap and hotspot coordinates
 		/// </summary>
 		/// <param name="bitmap">Bitmap to create an icon from</param>
 		/// <param name="hotspotX">Hotspot X coordinate</param>

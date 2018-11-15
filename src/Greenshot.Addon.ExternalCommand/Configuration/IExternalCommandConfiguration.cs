@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons.Core;
@@ -38,7 +39,8 @@ namespace Greenshot.Addon.ExternalCommand.Configuration
 	/// </summary>
 	[IniSection("ExternalCommand")]
 	[Description("Greenshot ExternalCommand Plugin configuration")]
-	public interface IExternalCommandConfiguration : IIniSection, IDestinationFileConfiguration
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public interface IExternalCommandConfiguration : IIniSection, IDestinationFileConfiguration
 	{
 		[Description("The commands that are available.")]
 		IList<string> Commands { get; set; }

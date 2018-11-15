@@ -3,7 +3,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IEditorLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class EditorLanguageImpl : LanguageBase<IEditorLanguage>, IEditorLanguage
     {
         #region Implementation of IEditorLanguage

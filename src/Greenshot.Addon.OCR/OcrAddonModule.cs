@@ -28,6 +28,7 @@ using Dapplo.Addons;
 using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Greenshot.Addon.OCR.Configuration;
 using Greenshot.Addon.OCR.Configuration.Impl;
 using Greenshot.Addons.Components;
 

@@ -22,6 +22,10 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Dropbox.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IDropboxLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
+#pragma warning disable CS1591
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class DropboxLanguageImpl: LanguageBase<IDropboxLanguage>, IDropboxLanguage
     {

@@ -79,7 +79,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>ComDisposable for Word.Application</returns>
         private IDisposableCom<Application> GetOrCreateWordApplication()
         {
-            IDisposableCom<Application> wordApplication = GetWordApplication();
+            var wordApplication = GetWordApplication();
             if (wordApplication == null)
             {
                 wordApplication = DisposableCom.Create(new Application());

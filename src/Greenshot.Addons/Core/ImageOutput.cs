@@ -545,10 +545,12 @@ namespace Greenshot.Addons.Core
 				}
 				else if (Equals(imageFormat, ImageFormat.Icon))
 				{
-					// FEATURE-916: Added Icon support
-					IList<Bitmap> bitmaps = new List<Bitmap>();
-					bitmaps.Add(bitmapToSave);
-					WriteIcon(stream, bitmaps);
+                    // FEATURE-916: Added Icon support
+                    IList<Bitmap> bitmaps = new List<Bitmap>
+                    {
+                        bitmapToSave
+                    };
+                    WriteIcon(stream, bitmaps);
 				}
 				else
 				{

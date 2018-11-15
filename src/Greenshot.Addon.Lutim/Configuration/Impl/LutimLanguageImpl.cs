@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Lutim.Configuration.Impl
 {
+    /// <summary>
+    /// This implements ILutimLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class LutimLanguageImpl : LanguageBase<ILutimLanguage>, ILutimLanguage
     {
         #region Implementation of ILutimLanguage

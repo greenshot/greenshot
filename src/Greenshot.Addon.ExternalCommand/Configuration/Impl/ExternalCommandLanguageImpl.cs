@@ -26,7 +26,11 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.ExternalCommand.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IExternalCommandLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
+#pragma warning disable CS1591
     public class ExternalCommandLanguageImpl : LanguageBase<IExternalCommandLanguage>, IExternalCommandLanguage
     {
         #region Implementation of IExternalCommandLanguage

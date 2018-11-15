@@ -26,6 +26,10 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Photobucket.Configuration.Impl
 {
+    /// <summary>
+    /// This implements IPhotobucketLanguage and takes care of storing, all setters are replaced via AutoProperties.Fody
+    /// </summary>
+#pragma warning disable CS1591
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class PhotobucketLanguageImpl : LanguageBase<IPhotobucketLanguage>, IPhotobucketLanguage
     {

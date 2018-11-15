@@ -723,7 +723,7 @@ namespace Greenshot.Helpers
         /// <returns>WindowDetails with the target Window OR a replacement</returns>
         public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
         {
-            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
+            var windowRectangle = windowToCapture.GetInfo().Bounds;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
                 Log.Warn().WriteLine("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -784,7 +784,7 @@ namespace Greenshot.Helpers
             {
                 captureForWindow = new Capture();
             }
-            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
+            var windowRectangle = windowToCapture.GetInfo().Bounds;
 
             // When Vista & DWM (Aero) enabled
             var dwmEnabled = Dwm.IsDwmEnabled;
