@@ -117,13 +117,13 @@
 	<ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.Lutim\Greenshot.Addon.Lutim.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj" />
+	<ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.Photobucket\Greenshot.Addon.Photobucket.csproj" />
 	<ProjectReference Include="..\Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
 	<ProjectReference Include="..\Greenshot.Addon.Jira\Greenshot.Addon.Jira.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
 	<!--ProjectReference Include="..\Greenshot.Addon.Win10\Greenshot.Addon.Win10.csproj" /-->
   </ItemGroup>
 </Project>
