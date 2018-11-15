@@ -70,7 +70,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.2.849" />
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.12-gbfc701fccd" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.14-g04dc0f1bab" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.15" />
     <PackageReference Include="Dapplo.Log.XUnit" Version="1.3.11" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2">

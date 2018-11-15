@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Office</RootNamespace>
     <AssemblyName>Greenshot.Addon.Office</AssemblyName>
-    <TargetFrameworks>net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +14,7 @@
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <FrameworkReference Include="Microsoft.DesktopUI" />
+    <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
@@ -45,9 +46,9 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.12-gbfc701fccd" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.12-gbfc701fccd" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.19" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.1.14-g04dc0f1bab" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.1.14-g04dc0f1bab" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.21" />
     <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
     <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1003" />

@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Box.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class BoxLanguageImpl : LanguageBase<IBoxLanguage>, IBoxLanguage
     {
         #region Implementation of IBoxLanguage

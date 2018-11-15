@@ -33,7 +33,7 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.7.19</Version>
+      <Version>0.7.21</Version>
     </PackageReference>
   </ItemGroup>
 

@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Confluence.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class ConfluenceLanguageImpl : LanguageBase<IConfluenceLanguage>, IConfluenceLanguage
     {
         #region Implementation of IConfluenceLanguage

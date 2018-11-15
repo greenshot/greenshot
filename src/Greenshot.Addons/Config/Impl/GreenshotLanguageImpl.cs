@@ -1,7 +1,9 @@
-﻿using Dapplo.Config.Language;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dapplo.Config.Language;
 
 namespace Greenshot.Addons.Config.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     internal class GreenshotLanguageImpl : LanguageBase<IGreenshotLanguage>, IGreenshotLanguage
     {
         #region Implementation of ICoreTranslations

@@ -20,10 +20,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #endregion
+
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.OneDrive.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class OneDriveLanguageImpl : LanguageBase<IOneDriveLanguage>, IOneDriveLanguage
     {
         #region Implementation of IOneDriveLanguage

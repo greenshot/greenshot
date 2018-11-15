@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Imgur.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class ImgurLanguageImpl : LanguageBase<IImgurLanguage>, IImgurLanguage
     {
         #region Implementation of IImgurLanguage

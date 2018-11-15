@@ -17,10 +17,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Dropbox.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class DropboxLanguageImpl: LanguageBase<IDropboxLanguage>, IDropboxLanguage
     {
         #region Implementation of IDropboxLanguage

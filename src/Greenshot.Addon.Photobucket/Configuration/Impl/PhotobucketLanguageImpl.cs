@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Photobucket.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class PhotobucketLanguageImpl : LanguageBase<IPhotobucketLanguage>, IPhotobucketLanguage
     {
         #region Implementation of IPhotobucketLanguage

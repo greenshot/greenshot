@@ -27,9 +27,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Dapplo.Config.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -276,7 +275,7 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDisposableCom<Application> powerPointApplication;
             try
             {
-                powerPointApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("PowerPoint.Application"));
+                powerPointApplication = OleAut32Api.GetActiveObject<Application>("PowerPoint.Application");
             }
             catch (Exception)
             {

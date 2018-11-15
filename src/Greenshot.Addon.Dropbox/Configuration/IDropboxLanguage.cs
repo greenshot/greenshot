@@ -19,7 +19,6 @@
 
 #region Usings
 
-using System.ComponentModel;
 using Dapplo.Config.Language;
 
 #endregion
@@ -27,7 +26,7 @@ using Dapplo.Config.Language;
 namespace Greenshot.Addon.Dropbox.Configuration
 {
 	[Language("Dropbox")]
-	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged
+	public interface IDropboxLanguage : ILanguage
 	{
 		string CommunicationWait { get; }
 

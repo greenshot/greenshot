@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Flickr.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class FlickrLanguageImpl : LanguageBase<IFlickrLanguage>, IFlickrLanguage
     {
         #region Implementation of IFlickrLanguage

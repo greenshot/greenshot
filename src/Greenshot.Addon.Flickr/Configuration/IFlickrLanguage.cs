@@ -19,7 +19,6 @@
 
 #region Usings
 
-using System.ComponentModel;
 using Dapplo.Config.Language;
 
 #endregion
@@ -27,7 +26,7 @@ using Dapplo.Config.Language;
 namespace Greenshot.Addon.Flickr.Configuration
 {
 	[Language("Flickr")]
-	public interface IFlickrLanguage : ILanguage, INotifyPropertyChanged
+	public interface IFlickrLanguage : ILanguage
 	{
 		string CommunicationWait { get; }
 

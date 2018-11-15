@@ -21,13 +21,12 @@
 
 #endregion
 
-using System.ComponentModel;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.ExternalCommand.Configuration
 {
     [Language("ExternalCommand")]
-    public interface IExternalCommandLanguage : ILanguage, INotifyPropertyChanged
+    public interface IExternalCommandLanguage : ILanguage
     {
         string ContextmenuConfigure { get; }
         string SettingsEdit { get; }

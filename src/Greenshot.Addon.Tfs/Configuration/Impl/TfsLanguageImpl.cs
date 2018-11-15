@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Tfs.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class TfsLanguageImpl : LanguageBase<ITfsLanguage>, ITfsLanguage
     {
         #region Implementation of ITfsLanguage

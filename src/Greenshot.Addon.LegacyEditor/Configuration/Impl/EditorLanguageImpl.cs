@@ -1,7 +1,9 @@
-﻿using Dapplo.Config.Language;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class EditorLanguageImpl : LanguageBase<IEditorLanguage>, IEditorLanguage
     {
         #region Implementation of IEditorLanguage

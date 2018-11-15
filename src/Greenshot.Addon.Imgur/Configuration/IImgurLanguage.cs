@@ -19,7 +19,7 @@
 
 #region Usings
 
-using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 #endregion
@@ -27,7 +27,8 @@ using Dapplo.Config.Language;
 namespace Greenshot.Addon.Imgur.Configuration
 {
 	[Language("Imgur")]
-	public interface IImgurLanguage : ILanguage, INotifyPropertyChanged
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	public interface IImgurLanguage : ILanguage
 	{
 		string Cancel { get; }
 

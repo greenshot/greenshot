@@ -21,10 +21,9 @@
 
 #endregion
 
-using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace Greenshot.Addon.Confluence
+namespace Greenshot.Addon.Confluence.Configuration
 {
     [Language("Confluence")]
     public interface IConfluenceLanguage : ILanguage

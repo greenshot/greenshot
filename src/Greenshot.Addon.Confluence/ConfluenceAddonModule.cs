@@ -26,6 +26,7 @@ using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Greenshot.Addon.Confluence.Configuration;
 using Greenshot.Addon.Confluence.Configuration.Impl;
 using Greenshot.Addon.Confluence.ViewModels;
 using Greenshot.Addons.Components;

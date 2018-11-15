@@ -28,8 +28,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Interop;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
@@ -56,14 +56,14 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDisposableCom<Application> excelApplication;
             try
             {
-                excelApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Excel.Application"));
+                excelApplication = OleAut32Api.GetActiveObject<Application>("Excel.Application");
             }
             catch
             {
                 // Ignore, probably no excel running
                 return null;
             }
-            if ((excelApplication != null) && (excelApplication.ComObject != null))
+            if (excelApplication?.ComObject != null)
             {
                 InitializeVariables(excelApplication);
             }

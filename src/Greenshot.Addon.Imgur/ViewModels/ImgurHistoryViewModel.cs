@@ -88,7 +88,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             {
                 ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.History))
             };
-            var ignoringTask = LoadHistory();
+            _ = LoadHistory();
         }
 
         protected override void OnDeactivate(bool close)

@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
-using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +42,6 @@ namespace Greenshot.Addon.InternetExplorer
 	{
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
-		private static readonly LogSource Log = new LogSource();
 		private readonly IAccessible accessible;
 
 		public Accessible(IntPtr hWnd)

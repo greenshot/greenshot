@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     internal class ConfigTranslationsImpl : LanguageBase<IConfigTranslations>, IConfigTranslations
     {
         public string Filter { get; }

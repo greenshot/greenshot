@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.OCR.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class OcrLanguageImpl : LanguageBase<IOcrLanguage>, IOcrLanguage
     {
         #region Implementation of IOcrLanguage

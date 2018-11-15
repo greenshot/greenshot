@@ -21,9 +21,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -98,7 +97,7 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDisposableCom<Application> wordApplication;
             try
             {
-                wordApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Word.Application"));
+                wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
             catch (Exception)
             {
@@ -173,7 +172,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// </summary>
         /// <param name="wordCaption"></param>
         /// <param name="tmpFile"></param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         public bool InsertIntoExistingDocument(string wordCaption, string tmpFile)
         {
             using (var wordApplication = GetWordApplication())
@@ -210,7 +209,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="tmpFile">string</param>
         /// <param name="address">string</param>
         /// <param name="tooltip">string with the tooltip of the image</param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address, string tooltip)
         {
             // Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.

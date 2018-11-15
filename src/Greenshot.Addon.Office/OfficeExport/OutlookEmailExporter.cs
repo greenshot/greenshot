@@ -26,10 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using mshtml;
@@ -601,7 +600,7 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDisposableCom<Application> outlookApplication;
             try
             {
-                outlookApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Outlook.Application"));
+                outlookApplication = OleAut32Api.GetActiveObject<Application>("Outlook.Application");
             }
             catch (Exception)
             {

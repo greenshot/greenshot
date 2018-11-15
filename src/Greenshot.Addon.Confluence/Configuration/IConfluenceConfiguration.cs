@@ -29,7 +29,7 @@ using Greenshot.Core.Enums;
 
 #endregion
 
-namespace Greenshot.Addon.Confluence
+namespace Greenshot.Addon.Confluence.Configuration
 {
 	/// <summary>
 	///     Description of ConfluenceConfiguration.

@@ -95,7 +95,7 @@ namespace Greenshot
                 return -1;
             }
 
-            RegisterErrorHandlers(application);
+            //RegisterErrorHandlers(application);
 
             application.Run();
             return 0;

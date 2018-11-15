@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.GooglePhotos.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class GooglePhotosLanguageImpl : LanguageBase<IGooglePhotosLanguage>, IGooglePhotosLanguage
     {
         #region Implementation of IGooglePhotosLanguage

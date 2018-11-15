@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Jira.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class JiraLanguageImpl : LanguageBase<IJiraLanguage>, IJiraLanguage
     {
         #region Implementation of IJiraLanguage

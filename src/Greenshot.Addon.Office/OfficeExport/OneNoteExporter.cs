@@ -29,7 +29,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.OfficeExport.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -135,7 +135,7 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDisposableCom<Application> oneNoteApplication;
             try
             {
-                oneNoteApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("OneNote.Application"));
+                oneNoteApplication = OleAut32Api.GetActiveObject<Application>("OneNote.Application");
             }
             catch
             {

@@ -33,6 +33,7 @@ using Autofac.Features.OwnedInstances;
 using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
+using Greenshot.Addon.Confluence.Configuration;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Controls;

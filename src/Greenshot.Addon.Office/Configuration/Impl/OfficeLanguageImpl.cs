@@ -21,11 +21,13 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Office.Configuration.Impl
 {
     #pragma warning disable CS1591
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class OfficeLanguageImpl : LanguageBase<IOfficeLanguage>, IOfficeLanguage
     {
         #region Implementation of IOfficeLanguage

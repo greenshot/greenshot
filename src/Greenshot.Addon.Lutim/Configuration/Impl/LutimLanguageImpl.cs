@@ -21,10 +21,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Lutim.Configuration.Impl
 {
+    [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class LutimLanguageImpl : LanguageBase<ILutimLanguage>, ILutimLanguage
     {
         #region Implementation of ILutimLanguage
