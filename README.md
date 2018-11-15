@@ -30,7 +30,7 @@ Quick started for developers
 * Make sure you have the latest Visual Studio 2017 (no need for previews), for 15.9.x enable [Use previews of the .NET Core SDK](https://blogs.msdn.microsoft.com/dotnet/2018/11/13/net-core-tooling-update-for-visual-studio-2017-version-15-9/)
 * Clone the [repository](https://github.com/greenshot/greenshot/tree/feature/netcoreapp3.0), branch feature/netcoreapp3.0
 * Open the solution from the src directory in Visual Studio 2017
-* Rebuild and start... 
+* Rebuild and start... (you might need to rebuild 2x, looking into this)
 
 
 For users the major changes since 1.2.x are:
