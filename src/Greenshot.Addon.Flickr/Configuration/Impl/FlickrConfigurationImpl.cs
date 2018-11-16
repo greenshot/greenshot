@@ -28,7 +28,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Flickr.Configuration.Impl
 {
-    public class FlickrConfigurationImpl : IniSectionBase<IFlickrConfiguration>, IFlickrConfiguration
+    internal class FlickrConfigurationImpl : IniSectionBase<IFlickrConfiguration>, IFlickrConfiguration
     {
         #region Implementation of IFileConfiguration
 

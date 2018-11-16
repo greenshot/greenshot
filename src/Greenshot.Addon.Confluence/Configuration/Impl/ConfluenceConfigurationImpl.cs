@@ -26,7 +26,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Confluence.Configuration.Impl
 {
-    public class ConfluenceConfigurationImpl : IniSectionBase<IConfluenceConfiguration>, IConfluenceConfiguration
+    internal class ConfluenceConfigurationImpl : IniSectionBase<IConfluenceConfiguration>, IConfluenceConfiguration
     {
         #region Implementation of IConfluenceConfiguration
 

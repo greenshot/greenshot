@@ -50,7 +50,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.2" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.15" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.15" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.21" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.24" />
 	<PackageReference Include="MahApps.Metro" Version="1.6.5" />
     <PackageReference Include="Fody" Version="3.2.17">
       <PrivateAssets>all</PrivateAssets>

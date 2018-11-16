@@ -28,7 +28,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Lutim.Configuration.Impl
 {
-    public class LutimConfigurationImpl : IniSectionBase<ILutimConfiguration>, ILutimConfiguration
+    internal class LutimConfigurationImpl : IniSectionBase<ILutimConfiguration>, ILutimConfiguration
     {
         #region Implementation of IFileConfiguration
 

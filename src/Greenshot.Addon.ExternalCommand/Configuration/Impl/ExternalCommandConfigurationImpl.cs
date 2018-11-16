@@ -28,7 +28,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.ExternalCommand.Configuration.Impl
 {
-    public class ExternalCommandConfigurationImpl : IniSectionBase<IExternalCommandConfiguration>, IExternalCommandConfiguration
+    internal class ExternalCommandConfigurationImpl : IniSectionBase<IExternalCommandConfiguration>, IExternalCommandConfiguration
     {
         #region Overrides of IniSectionBase<IExternalCommandConfiguration>
 

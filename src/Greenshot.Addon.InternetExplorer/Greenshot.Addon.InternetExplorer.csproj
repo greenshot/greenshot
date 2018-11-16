@@ -30,10 +30,10 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows">
-      <Version>0.7.21</Version>
+      <Version>0.7.24</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Com">
-      <Version>0.7.21</Version>
+      <Version>0.7.24</Version>
     </PackageReference>
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>

@@ -31,7 +31,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Imgur.Configuration.Impl
 {
-    public class ImgurConfigurationImpl : IniSectionBase<IImgurConfiguration>, IImgurConfiguration
+    internal class ImgurConfigurationImpl : IniSectionBase<IImgurConfiguration>, IImgurConfiguration
     {
         #region Implementation of IFileConfiguration
 

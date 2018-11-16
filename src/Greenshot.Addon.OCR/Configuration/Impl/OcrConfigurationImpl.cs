@@ -25,7 +25,7 @@ using Dapplo.Config.Ini;
 
 namespace Greenshot.Addon.OCR.Configuration.Impl
 {
-    public class OcrConfigurationImpl : IniSectionBase<IOcrConfiguration>, IOcrConfiguration
+    internal class OcrConfigurationImpl : IniSectionBase<IOcrConfiguration>, IOcrConfiguration
     {
         #region Implementation of IOcrConfiguration
 

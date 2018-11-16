@@ -29,7 +29,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Box.Configuration.Impl
 {
-    public class BoxConfigurationImpl : IniSectionBase<IBoxConfiguration>, IBoxConfiguration
+    internal class BoxConfigurationImpl : IniSectionBase<IBoxConfiguration>, IBoxConfiguration
     {
         #region Implementation of IFileConfiguration
 

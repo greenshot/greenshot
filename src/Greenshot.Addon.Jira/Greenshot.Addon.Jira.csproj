@@ -53,7 +53,7 @@
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.15" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.15" />
     <PackageReference Include="Dapplo.Utils" Version="1.1.9" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.21" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.24" />
 	<PackageReference Include="Dapplo.Jira" Version="0.8.7" />
     <PackageReference Include="Fody" Version="3.2.17">
       <PrivateAssets>all</PrivateAssets>

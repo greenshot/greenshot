@@ -29,7 +29,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.GooglePhotos.Configuration.Impl
 {
-    public class GooglePhotosConfigurationImpl : IniSectionBase<IGooglePhotosConfiguration>, IGooglePhotosConfiguration
+    internal class GooglePhotosConfigurationImpl : IniSectionBase<IGooglePhotosConfiguration>, IGooglePhotosConfiguration
     {
         #region Implementation of IFileConfiguration
 

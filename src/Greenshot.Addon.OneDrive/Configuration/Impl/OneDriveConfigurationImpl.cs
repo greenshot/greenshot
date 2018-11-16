@@ -29,7 +29,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.OneDrive.Configuration.Impl
 {
-    public class OneDriveConfigurationImpl : IniSectionBase<IOneDriveConfiguration>, IOneDriveConfiguration
+    internal class OneDriveConfigurationImpl : IniSectionBase<IOneDriveConfiguration>, IOneDriveConfiguration
     {
         #region Implementation of IFileConfiguration
 

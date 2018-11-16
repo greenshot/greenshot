@@ -27,7 +27,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Tfs.Configuration.Impl
 {
-    public class TfsConfigurationImpl : IniSectionBase<ITfsConfiguration>, ITfsConfiguration
+    internal class TfsConfigurationImpl : IniSectionBase<ITfsConfiguration>, ITfsConfiguration
     {
         #region Implementation of IFileConfiguration
 

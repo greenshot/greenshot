@@ -26,7 +26,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Jira.Configuration.Impl
 {
-    public class JiraConfigurationImpl : IniSectionBase<IJiraConfiguration>, IJiraConfiguration
+    internal class JiraConfigurationImpl : IniSectionBase<IJiraConfiguration>, IJiraConfiguration
     {
         #region Implementation of IFileConfiguration
 

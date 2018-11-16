@@ -28,7 +28,7 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Photobucket.Configuration.Impl
 {
-    public class PhotobucketConfigurationImpl : IniSectionBase<IPhotobucketConfiguration>, IPhotobucketConfiguration
+    internal class PhotobucketConfigurationImpl : IniSectionBase<IPhotobucketConfiguration>, IPhotobucketConfiguration
     {
         #region Implementation of IFileConfiguration
 

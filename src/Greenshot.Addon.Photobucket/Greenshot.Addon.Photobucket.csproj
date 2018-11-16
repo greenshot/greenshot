@@ -49,7 +49,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.2" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.2" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.15" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.21" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.24" />
     <PackageReference Include="Fody" Version="3.2.17">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
