@@ -1,14 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFrameworks>net471</TargetFrameworks>
     <RootNamespace>Greenshot.Addon.OcrCommand</RootNamespace>
     <AssemblyName>GreenshotOCRCommand</AssemblyName>
   </PropertyGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
-    <FrameworkReference Include="Microsoft.DesktopUI" />
-  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="CustomMarshalers" />

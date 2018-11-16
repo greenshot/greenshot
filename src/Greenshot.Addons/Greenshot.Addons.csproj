@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Wpf">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
@@ -6,7 +6,6 @@
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
-    <FrameworkReference Include="Microsoft.DesktopUI" />
 	<PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
   </ItemGroup>
 

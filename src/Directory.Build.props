@@ -14,6 +14,8 @@
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
     <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net471'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};{GAC};</AssemblySearchPaths>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -41,20 +43,6 @@
 	<DebugType>pdbonly</DebugType>
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
-  	<!--ApplicationDefinition Include="App.xaml">
-	  <Generator>MSBuild:Compile</Generator>
-	  <SubType>Designer</SubType>
-	</ApplicationDefinition-->
-	<Page Include="**\*.xaml" SubType="Designer" Generator="MSBuild:Compile" Exclude="App.xaml" />
-	<Compile Update="**\*.xaml.cs" SubType="Designer" DependentUpon="%(Filename)" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-	<Page Include="**\*.xaml" SubType="Designer" Generator="MSBuild:Compile" Exclude="App.xaml" />
-    <Compile Update="**\*.xaml.cs" SubType="Designer" DependentUpon="%(Filename)" />
-  </ItemGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.33">
