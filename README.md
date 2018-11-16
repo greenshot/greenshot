@@ -26,7 +26,8 @@ This repository is work in progress for the next Greenshot (2.0?).
 
 Quick started for developers
 ----------------------------
-* Download the latest dotnet core SDK from here: https://github.com/dotnet/core-sdk ([quick-link to download](https://dotnetcli.blob.core.windows.net/dotnet/Sdk/master/dotnet-sdk-latest-win-x64.exe))
+* Download the latest (!!!) dotnet core SDK from here: https://github.com/dotnet/core-sdk ([quick-link to download](https://dotnetcli.blob.core.windows.net/dotnet/Sdk/master/dotnet-sdk-latest-win-x64.exe))
+  * Make sure you only have the latest dotnet core 3.0 installed!
 * Make sure you have the latest Visual Studio 2017 (no need for previews), for 15.9.x enable [Use previews of the .NET Core SDK](https://blogs.msdn.microsoft.com/dotnet/2018/11/13/net-core-tooling-update-for-visual-studio-2017-version-15-9/)
 * Clone the [repository](https://github.com/greenshot/greenshot/tree/feature/netcoreapp3.0), branch feature/netcoreapp3.0
 * Open the solution from the src directory in Visual Studio 2017
