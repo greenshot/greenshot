@@ -133,12 +133,12 @@
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
     <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.2" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.2" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.5" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.5" />
     <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.15" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.24" />
     <PackageReference Include="Dapplo.Windows.Icons" Version="0.7.24" />
-    <PackageReference Include="Fody" Version="3.2.17">
+    <PackageReference Include="Fody" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

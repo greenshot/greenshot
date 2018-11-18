@@ -99,8 +99,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         {
             // Manually commit
             MetroConfiguration.CommitTransaction();
-            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme);
-            MetroWindowManager.ChangeThemeAccent(MetroConfiguration.ThemeAccent);
+            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeAccent);
 
             CoreConfiguration.CommitTransaction();
             // TODO: Fix
