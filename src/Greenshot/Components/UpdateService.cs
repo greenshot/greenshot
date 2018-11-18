@@ -97,9 +97,8 @@ namespace Greenshot.Components
 	    /// <inheritdoc />
 	    public void Startup()
 	    {
-	        //var ignore = BackgroundTask(() => TimeSpan.FromDays(_coreConfiguration.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
-	        var ignore = BackgroundTask(() => TimeSpan.FromSeconds(20), UpdateCheck, _cancellationTokenSource.Token);
-        }
+	        var ignore = BackgroundTask(() => TimeSpan.FromDays(_coreConfiguration.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
+	    }
 
         /// <inheritdoc />
         public void Shutdown()

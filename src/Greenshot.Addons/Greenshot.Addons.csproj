@@ -53,13 +53,13 @@
       <Version>1.2.5</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.15</Version>
+      <Version>0.9.16</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.9.15</Version>
+      <Version>0.9.16</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.9.15</Version>
+      <Version>0.9.16</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
       <Version>0.7.24</Version>
