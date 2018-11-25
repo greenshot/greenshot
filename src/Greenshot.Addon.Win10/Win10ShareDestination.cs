@@ -79,7 +79,7 @@ namespace Greenshot.Addon.Win10
 	        public bool IsDestroyed { get; set; }
 	        public bool IsShareCompleted { get; set; }
 
-            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>();
+            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 	        public bool IsDataRequested { get; set; }
 	    }
 
@@ -90,7 +90,7 @@ namespace Greenshot.Addon.Win10
         /// <param name="surface"></param>
         /// <param name="captureDetails"></param>
         /// <returns>ExportInformation</returns>
-		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             var exportInformation = new ExportInformation(Designation, Description);
 			try
@@ -121,7 +121,7 @@ namespace Greenshot.Addon.Win10
                     });
                 var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
 
-			    Share(shareInfo, windowHandle, surface, captureDetails).Wait();
+			    await Share(shareInfo, windowHandle, surface, captureDetails);
 			    Log.Debug().WriteLine("Sharing finished, closing window.");
 			    triggerWindow.Close();
 			    if (string.IsNullOrWhiteSpace(shareInfo.ApplicationName))
@@ -216,6 +216,7 @@ namespace Greenshot.Addon.Win10
                         }
                         // Signal that the stream is ready
                         streamedFileDataRequest.Dispose();
+                        shareInfo.ShareTask.TrySetResult(true);
                     }
                     catch (Exception)
                     {

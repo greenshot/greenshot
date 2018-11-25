@@ -174,6 +174,8 @@ namespace Greenshot
             // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
             using (var multiInstanceForm = new DpiAwareForm
             {
+
+                // TODO: Fix a problem that in this case instance is null 
                 Icon = GreenshotResources.Instance.GetGreenshotIcon(),
                 ShowInTaskbar = true,
                 MaximizeBox = false,
