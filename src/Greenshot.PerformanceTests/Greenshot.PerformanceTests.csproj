@@ -6,7 +6,6 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
