@@ -7,9 +7,9 @@
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
-	<AssemblyTitle>Greenshot</AssemblyTitle>
+    <AssemblyTitle>Greenshot</AssemblyTitle>
     <AssemblyName>Greenshot</AssemblyName>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,21 +19,21 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
-	<PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Console" Version="4.3.1" />
     <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
     <PackageReference Include="System.Globalization" Version="4.3.0" />
     <PackageReference Include="System.IO" Version="4.3.0" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
-	<PackageReference Include="System.Management" Version="4.5.0" />
+    <PackageReference Include="System.Management" Version="4.5.0" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
     <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
     <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
-	<PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
@@ -105,24 +105,24 @@
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Box\Greenshot.Addon.Box.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Confluence\Greenshot.Addon.Confluence.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.ExternalCommand\Greenshot.Addon.ExternalCommand.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Flickr\Greenshot.Addon.Flickr.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.GooglePhotos\Greenshot.Addon.GooglePhotos.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Imgur\Greenshot.Addon.Imgur.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Lutim\Greenshot.Addon.Lutim.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Photobucket\Greenshot.Addon.Photobucket.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj" />
-	<ProjectReference Include="..\Greenshot.Addon.Win10\Greenshot.Addon.Win10.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Box\Greenshot.Addon.Box.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Confluence\Greenshot.Addon.Confluence.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.ExternalCommand\Greenshot.Addon.ExternalCommand.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Flickr\Greenshot.Addon.Flickr.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.GooglePhotos\Greenshot.Addon.GooglePhotos.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Imgur\Greenshot.Addon.Imgur.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Lutim\Greenshot.Addon.Lutim.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Photobucket\Greenshot.Addon.Photobucket.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj" />
+    <ProjectReference Condition="$(OsProductName.Contains('Windows 10'))" Include="..\Greenshot.Addon.Win10\Greenshot.Addon.Win10.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
-	<ProjectReference Include="..\Greenshot.Addon.Jira\Greenshot.Addon.Jira.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Jira\Greenshot.Addon.Jira.csproj" />
   </ItemGroup>
 </Project>
