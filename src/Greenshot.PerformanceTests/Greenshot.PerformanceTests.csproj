@@ -4,7 +4,7 @@
     <RootNamespace>Greenshot.PerformanceTests</RootNamespace>
     <AssemblyName>Greenshot.PerformanceTests</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>

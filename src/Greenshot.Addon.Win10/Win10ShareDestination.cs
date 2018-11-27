@@ -216,6 +216,7 @@ namespace Greenshot.Addon.Win10
                         }
                         // Signal that the stream is ready
                         streamedFileDataRequest.Dispose();
+                        // Signal that the action is ready, bitmap was exported
                         shareInfo.ShareTask.TrySetResult(true);
                     }
                     catch (Exception)

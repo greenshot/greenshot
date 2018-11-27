@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Win10</RootNamespace>
     <AssemblyName>Greenshot.Addon.Win10</AssemblyName>
-    <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
