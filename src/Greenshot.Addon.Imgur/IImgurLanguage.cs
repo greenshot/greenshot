@@ -60,6 +60,8 @@ namespace Greenshot.Addon.Imgur
 		string UploadSuccess { get; }
 
 		string UsePageLink { get; }
+		
+		string addImgBBCode { get; }
 
 	    string AnonymousAccess { get; }
 
