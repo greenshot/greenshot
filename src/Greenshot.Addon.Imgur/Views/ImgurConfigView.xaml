@@ -14,6 +14,7 @@
                 <ContentControl x:Name="FileConfigPartViewModel"/>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.AnonymousAccess}" Content="{Binding ImgurLanguage.AnonymousAccess}"/>
                 <CheckBox IsChecked="{Binding ImgurConfiguration.UsePageLink}" Content="{Binding ImgurLanguage.UsePageLink}"/>
+				<CheckBox IsChecked="{Binding ImgurConfiguration.addImgBBCode}" Content="{Binding ImgurLanguage.addImgBBCode}"/>
                 <Button x:Name="ShowHistory" Content="{Binding ImgurLanguage.History}"/>
                 <Button Content="{Binding ImgurLanguage.ResetCredentialsButton}" x:Name="ResetCredentials" />
             </StackPanel>

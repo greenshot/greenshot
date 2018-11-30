@@ -171,7 +171,13 @@ namespace Greenshot.Addon.Imgur
                         using (var clipboardAccessToken = ClipboardNative.Access())
                         {
                             clipboardAccessToken.ClearContents();
-                            clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
+							
+							// EDIT
+							if (_imgurConfiguration.addImgBBCode && !_imgurConfiguration.UsePageLink) {
+								clipboardAccessToken.SetAsUnicodeString("[img]" + uploadUrl.AbsoluteUri + "[/img]");
+                            } else {
+								clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
+							}
                         }
                     }
                     catch (Exception ex)

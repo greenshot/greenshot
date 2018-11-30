@@ -54,6 +54,10 @@ namespace Greenshot.Addon.Imgur
 		[Description("Use pagelink instead of direct link on the clipboard")]
 	    [DefaultValue(false)]
 		bool UsePageLink { get; set; }
+		
+		[Description("Add [img] BBCode tag to the link on the clipboard")]
+	    [DefaultValue(false)]
+		bool addImgBBCode { get; set; }
 
 		[Description("Use anonymous access to Imgur")]
 		[DefaultValue(true)]
