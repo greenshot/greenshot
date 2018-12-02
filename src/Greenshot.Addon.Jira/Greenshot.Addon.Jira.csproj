@@ -48,14 +48,14 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.5" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.5" />
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.16" />
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.16" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.7" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.7" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
     <PackageReference Include="Dapplo.Utils" Version="1.1.9" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.24" />
-	<PackageReference Include="Dapplo.Jira" Version="0.8.8" />
-    <PackageReference Include="Fody" Version="3.3.0">
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.26" />
+	<PackageReference Include="Dapplo.Jira" Version="0.8.9" />
+    <PackageReference Include="Fody" Version="3.3.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
