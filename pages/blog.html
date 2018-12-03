@@ -10,7 +10,7 @@ tags: []
 <div class="container-fluid">
 
 	<div class="col-md-7">
-		{% for post in site.posts %}
+		{% for post in site.posts %}{% unless post.draft %}
 			<div class="panel panel-primary" id="blog_{{ forloop.index }}">
 				<div class="panel-heading">
 					<h3 class="panel-title">{{ post.date | date: "%-d %b %Y" }}: {{ post.title }}</h3>

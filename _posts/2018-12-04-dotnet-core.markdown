@@ -1,7 +1,7 @@
 ---
 layout: post
-status: draft
-published: false
+draft: true
+published: true
 title: The future of Greenshot for Windows
 tags:
 - windows
