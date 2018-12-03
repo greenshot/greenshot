@@ -8,7 +8,7 @@ tags:
 ---
 
 What did we do the last year?
-=============================
+-----------------------------
 
 Although you might not have noticed, as we didn't release any new version of Greenshot, but since our last official release we didn't sit still, and a lot has happened!
 
@@ -30,7 +30,7 @@ Together with these projects, and a lot of changes in the codebase, the code in 
 
 
 Greenshot goes dotnet core!
-======================
+---------------------------
 
 Although Microsoft dotnet core technology, which saw the light in June 2016, is platform agnostic, it it has not been possible to use existing UI technologies in it. In May 2018, while working hard on getting things working, Microsoft had an interesting announcement on Build 2018 which you can find [here](https://blogs.msdn.microsoft.com/dotnet/2018/05/07/net-core-3-and-support-for-windows-desktop-applications/)
 
@@ -46,7 +46,7 @@ Another interesting fact is that the .NET Framework is used by billions of appli
 
 
 How and when
-============
+------------
 
 After the first major steps towards a new Greenshot, which I described before, I started the next journey "making Greenshot dotnet core compatible".
 
