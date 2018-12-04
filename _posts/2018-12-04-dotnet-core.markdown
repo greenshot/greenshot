@@ -50,15 +50,15 @@ I had the great pleasure to talk to many fine Microsoft employees about what of 
 
 With this available I worked for the last 3 months to get the whole of Greenshot and the backing projects running with dotnet core 3.0, which while it being very early would have been quite hard, so I am really grateful for the support I got from my contacts. While it was a _lot_ of work to make Greenshot dotnet core compatible, the UI part of the application actually was a case of "it just works", which is really amazing! And when one or the other bug showed up, the turn around time for fixes are usually one or two days.
 
-It's the first week of December 2018 at the time I am writing this, the current state is that Greenshot is running on .NET Framework 4.7.1 and dotnet core 3.0 __side by side__! I would say that the dotnet core implementation has around 95% of the functionality which .NET Framework has, and this is mainly due to missing time. There are __currently__ no show stoppers why the dotnet core 3.0 version of Greenshot would have less functionality as the other, in fact I expect that it will be the other way around. Having things work side by side is very convenient, we can stay on the "stable" .NET Framework and release from there, but as soon as dotnet core 3.0 is available for the general audience we can also release for this.
+It's the first week of December 2018 at the time I am writing this, the current state is that Greenshot is running on .NET Framework 4.7.1 and dotnet core 3.0 __side by side__! Having things work side by side is very convenient, we can stay on the "stable" .NET Framework and release from there, but as soon as dotnet core 3.0 is available for the general audience we can also release for this. I would say that the dotnet core implementation has around 95% of the functionality which .NET Framework has, and the only reason for this is time. There are __currently__ no show stoppers why the dotnet core 3.0 version of Greenshot would have less functionality, in fact I expect that it will be the other way around. 
 
-Currently I expect that dotnet core 3.0 is quicker to be released than I finish all the open ends on Greenshot, but we might be able to start releasing alpha builds at the end of the first quarter of 2019.
+I expect that the first release candidate of dotnet core 3.0 are available before I finish all the open ends on Greenshot, but we might be able to start releasing alpha builds at the end of the first quarter of 2019. Around that time I will also write a blog post about the coming features, and give a bit more information on the time line.
 
 
 P.S.
-I again want to thank the people at Microsoft who supported me and Greenshot. Thank you Rich, Daniel and all your colleagues, for staying calm while handling my annoying questions!
-Hope to be able to work with you again in the future!
+I again want to thank the people at Microsoft who supported me and Greenshot. Thank you Rich, Daniel and all your colleagues, for staying professional while handling my annoying questions! Hope to be able to work with you again in the future!
 
-*For now, what is left is to wish all our users happy times and enjoy the coming holidays!*
-*Best wishes from Robin and the rest of the Greenshot team!*
-*We hope to have more news in the near future!*
+
+*What is left for now: we wish all our users happy times and enjoy the coming holidays!*
+
+*Robin and the rest of the Greenshot team!*
