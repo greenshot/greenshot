@@ -1,6 +1,5 @@
 ---
 layout: post
-draft: true
 published: true
 title: The future of Greenshot for Windows
 tags:
@@ -27,22 +26,22 @@ Last year I started updating Greenshot so it works on and uses the most recent v
 These projects help to build a base for any .NET Windows application, and allows us to quickly add new features and fix existing. After going through Greenshot with a vacuum cleaner and a high pressure washer it should now also be easier for new developers to get acquainted to Greenshot and quickly learn to add new functionality. As soon as things get stable, there will be some documentation about writing your own add-ons.
 
 
-Enter dotnet core
------------------
+Enter dotnet core 3.0
+---------------------
 
-Although the dotnet core technology, [version 1.0 saw the light in June 2016](https://en.wikipedia.org/wiki/.NET_Core), is pretty much platform agnostic like Java, it has not been possible to use existing Windows UI technologies with it. In May 2018, while I was working hard on getting things working with the latest .NET Framework version, Microsoft presented an interesting announcement during Build 2018 which you can find [here](https://blogs.msdn.microsoft.com/dotnet/2018/05/07/net-core-3-and-support-for-windows-desktop-applications/) and also in the video [here](https://www.youtube.com/watch?v=spgI12ZEBcs).
+Although the dotnet core technology, [version 1.0 saw the light in June 2016](https://en.wikipedia.org/wiki/.NET_Core), is pretty much platform agnostic like Java, it has not been possible to use existing Windows UI technologies with it. In May 2018, while I was working hard on getting things working with the latest .NET Framework version, Microsoft presented an interesting announcement during Build 2018 which you can read about [here](https://blogs.msdn.microsoft.com/dotnet/2018/05/07/net-core-3-and-support-for-windows-desktop-applications/) or watch in the video [here](https://www.youtube.com/watch?v=spgI12ZEBcs).
 
-The announcement was just what I was waiting for! Microsoft demonstrated that with dotnet core 3.0 it will be possible to use the UI technologies that Greenshot is already using! Why is this so exiting? Although most reasons are explained in a second blog about dotnet core 3.0 which can be found [here](https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/) I will try to translate this for our users.
+The announcement was just what I was waiting for! Microsoft demonstrated that with dotnet core 3.0 it will be possible to use the UI technologies that Greenshot is already using! Why is this so exiting? Although most reasons are explained in a second blog about dotnet core 3.0 which can be read [here](https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/) I will try to translate this for our users.
 
-One of the challenges with Greenshot was picking the version of the .NET Framework to run on, in the end we were way to conservative and this limited our possibilities. The problem with the .NET Framework is that there can be only one version installed on a Windows PC! So if we want to use the newest version, we force a lot of people to update and a lot of companies might not be able to do so without extensively testing their other applications. With dotnet core this is a thing of the past, every application can provide their own version of dotnet core and multiple versions run side by side!
+One of the challenges with Greenshot was picking the version of the .NET Framework to run on, actually we were way to conservative and this limited our possibilities. The problem with the .NET Framework is that there can be only one version installed on a Windows PC! So if we want to use the newest version, we force a lot of people to update and a lot of companies might not be able to do so without extensively testing their other applications. The Greenshot installer needed to start the .NET Framework installer if this wasn't available, managing this added another complexity. With dotnet core this is a thing of the past, every application __can__ provide their own version of dotnet core and multiple versions run side by side!
 
-Although Greenshot is open source it needed the .NET Framework to run, but this isn't open source! The [.NET Foundation](https://dotnetfoundation.org), which is an independent organization which supports many open source .NET [projects](https://dotnetfoundation.org/projects), is the maintainer of dotnet core. As soon as Greenshot is released for dotnet core, the complete stack (well ~99%) is running on Open Source technologies!
+Although Greenshot is open source it currently needs the .NET Framework to run, but this isn't open source! The [.NET Foundation](https://dotnetfoundation.org), which is an independent organization which supports many open source .NET [projects](https://dotnetfoundation.org/projects), is also taking good care of dotnet core. As soon as Greenshot is released for dotnet core, the complete stack (well ~99%) is running with open source technologies!
 
-Another interesting fact is that the .NET Framework is used "in the wild" by billions of applications, this makes it __very__ hard to maintain backwards compatibility while adding new features or fixes. With dotnet core, which doesn't have all the legacy applications, a different approach is possible. By releasing more often and not having the need to support years of backwards compatibility, it's finally possible to introduce new features and maybe sometimes even make breaking changes. One thing where this shows is that dotnet core has many performance enhancements, which will also be noticeable in Greenshot.
+Another interesting fact is that the .NET Framework is used by billions of applications, this makes it __very__ hard to maintain backwards compatibility while adding new features or fixes. With dotnet core, which doesn't have all the legacy applications, a different approach is possible. By releasing more often and not having the need to support years of backwards compatibility, it's finally possible to introduce new features and maybe sometimes even make breaking changes. One thing where this shows is that dotnet core has many performance enhancements, which will also be noticeable in Greenshot.
 
 
-Greenshot goes dotnet core
---------------------------
+Greenshot goes dotnet core 3.0
+------------------------------
 
 After the first major steps towards a new Greenshot, which I described before, I had the wish "making Greenshot dotnet core compatible". In May 2018 there wasn't much information on the topic so I tried to reach out to Microsoft. In June 2018 I managed to get a contact interested in working together, and we decided to try to use Greenshot as an early adopter of dotnet core 3.0.
 
