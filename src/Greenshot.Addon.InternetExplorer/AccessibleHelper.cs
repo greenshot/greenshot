@@ -62,8 +62,7 @@ namespace Greenshot.Addon.InternetExplorer
 		{
 			get
 			{
-				int num;
-				var res = GetAccessibleChildren(accessible, out num);
+			    var res = GetAccessibleChildren(accessible, out _);
 				if (res == null)
 				{
 					return new Accessible[0];
@@ -72,26 +71,20 @@ namespace Greenshot.Addon.InternetExplorer
 				var list = new List<Accessible>(res.Length);
 				foreach (var obj in res)
 				{
-				    if (obj is IAccessible accessible)
+				    if (obj is IAccessible localAccessible)
 					{
-						list.Add(new Accessible(accessible));
+						list.Add(new Accessible(localAccessible));
 					}
 				}
 				return list.ToArray();
 			}
 		}
 
-		private string Name
-		{
-			get { return accessible.get_accName(CHILDID_SELF); }
-		}
+		private string Name => accessible.get_accName(CHILDID_SELF);
 
-		private int ChildCount
-		{
-			get { return accessible.accChildCount; }
-		}
+	    private int ChildCount => accessible.accChildCount;
 
-        /// <summary>
+	    /// <summary>
         /// Returns the URL for the active tab
         /// </summary>
 		public string IEActiveTabUrl
@@ -106,19 +99,23 @@ namespace Greenshot.Addon.InternetExplorer
 						{
 							var tabIndex = tab.accessible.get_accState(CHILDID_SELF);
 
-							if ((int) tabIndex == IE_ACTIVE_TAB)
-							{
-								var description = tab.accessible.get_accDescription(CHILDID_SELF);
+						    if ((int) tabIndex != IE_ACTIVE_TAB)
+						    {
+						        continue;
+						    }
 
-								if (!string.IsNullOrEmpty(description))
-								{
-									if (description.Contains(Environment.NewLine))
-									{
-										var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-										return url;
-									}
-								}
-							}
+						    var description = tab.accessible.get_accDescription(CHILDID_SELF);
+
+						    if (string.IsNullOrEmpty(description))
+						    {
+						        continue;
+						    }
+
+						    if (description.Contains(Environment.NewLine))
+						    {
+						        var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
+						        return url;
+						    }
 						}
 					}
 				}
@@ -225,14 +222,18 @@ namespace Greenshot.Addon.InternetExplorer
 						{
 							var tabIndex = tab.accessible.get_accState(CHILDID_SELF);
 							var description = tab.accessible.get_accDescription(CHILDID_SELF);
-							if (!string.IsNullOrEmpty(description))
-							{
-								if (description.Contains(Environment.NewLine))
-								{
-									var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-									yield return url;
-								}
-							}
+						    if (string.IsNullOrEmpty(description))
+						    {
+						        continue;
+						    }
+
+						    if (!description.Contains(Environment.NewLine))
+						    {
+						        continue;
+						    }
+
+						    var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
+						    yield return url;
 						}
 					}
 				}
@@ -272,11 +273,13 @@ namespace Greenshot.Addon.InternetExplorer
 				{
 					foreach (var tab in child.Children)
 					{
-						if (tab.Name == tabCaptionToActivate)
-						{
-							tab.Activate();
-							return;
-						}
+					    if (tab.Name != tabCaptionToActivate)
+					    {
+					        continue;
+					    }
+
+					    tab.Activate();
+					    return;
 					}
 				}
 			}
@@ -294,14 +297,16 @@ namespace Greenshot.Addon.InternetExplorer
 				{
 					foreach (var tab in child.Children)
 					{
-						if (tab.Name == tabCaptionToClose)
-						{
-							foreach (var  CloseTab in tab.Children)
-							{
-								CloseTab.Activate();
-							}
-							return;
-						}
+					    if (tab.Name != tabCaptionToClose)
+					    {
+					        continue;
+					    }
+
+					    foreach (var  CloseTab in tab.Children)
+					    {
+					        CloseTab.Activate();
+					    }
+					    return;
 					}
 				}
 			}

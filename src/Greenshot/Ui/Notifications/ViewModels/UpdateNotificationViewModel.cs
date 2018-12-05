@@ -27,7 +27,6 @@ using System.Windows.Media;
 using Dapplo.CaliburnMicro.Toasts.ViewModels;
 using Dapplo.Log;
 using Greenshot.Addons;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 
 namespace Greenshot.Ui.Notifications.ViewModels

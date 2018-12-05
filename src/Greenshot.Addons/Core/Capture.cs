@@ -29,6 +29,7 @@ using System.Drawing.Imaging;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
@@ -59,7 +60,7 @@ namespace Greenshot.Addons.Core
 		/// </summary>
 		public Capture()
 		{
-			_screenBounds = WindowCapture.GetScreenBounds();
+			_screenBounds = DisplayInfo.ScreenBounds;
 			_captureDetails = new CaptureDetails();
 		}
 
@@ -82,7 +83,7 @@ namespace Greenshot.Addons.Core
 			{
 				if (_screenBounds == NativeRect.Empty)
 				{
-					_screenBounds = WindowCapture.GetScreenBounds();
+					_screenBounds = DisplayInfo.ScreenBounds;
 				}
 				return _screenBounds;
 			}

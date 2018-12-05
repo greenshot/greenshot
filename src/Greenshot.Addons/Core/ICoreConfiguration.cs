@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Attributes;
 using Dapplo.Config.Ini;

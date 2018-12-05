@@ -60,34 +60,6 @@ namespace Greenshot.Addons.Core
         private static readonly ICoreConfiguration Configuration = new CoreConfigurationImpl();
 
         /// <summary>
-        ///     Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method
-        /// </summary>
-        /// <param name="hObject"></param>
-        /// <returns></returns>
-        [DllImport("gdi32", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteObject(IntPtr hObject);
-
-        /// <summary>
-        ///     Get the bounds of all screens combined.
-        /// </summary>
-        /// <returns>A NativeRect of the bounds of the entire display area.</returns>
-        public static NativeRect GetScreenBounds()
-        {
-            int left = 0, top = 0, bottom = 0, right = 0;
-            foreach (var screen in Screen.AllScreens)
-            {
-                left = Math.Min(left, screen.Bounds.X);
-                top = Math.Min(top, screen.Bounds.Y);
-                var screenAbsRight = screen.Bounds.X + screen.Bounds.Width;
-                var screenAbsBottom = screen.Bounds.Y + screen.Bounds.Height;
-                right = Math.Max(right, screenAbsRight);
-                bottom = Math.Max(bottom, screenAbsBottom);
-            }
-            return new NativeRect(left, top, right, bottom);
-        }
-
-        /// <summary>
         ///     Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
         ///     can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
         /// </summary>
@@ -102,14 +74,14 @@ namespace Greenshot.Addons.Core
 
         /// <summary>
         ///     Converts locationRelativeToScreenOrigin to be relative to top left corner of all screen bounds, which might
-        ///     be different in multiscreen setups. This implementation
+        ///     be different in multi screen setups. This implementation
         ///     can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
         /// </summary>
         /// <param name="locationRelativeToScreenOrigin">NativePoint</param>
         /// <returns>NativePoint</returns>
         public static NativePoint GetLocationRelativeToScreenBounds(NativePoint locationRelativeToScreenOrigin)
         {
-            var bounds = GetScreenBounds();
+            var bounds = DisplayInfo.ScreenBounds;
             return locationRelativeToScreenOrigin.Offset(-bounds.X, -bounds.Y);
         }
 
@@ -144,7 +116,7 @@ namespace Greenshot.Addons.Core
                 using (iconInfo.ColorBitmapHandle)
                 {
                     var cursorLocation = User32Api.GetCursorLocation();
-                    // Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
+                    // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
                     var x = cursorLocation.X - iconInfo.Hotspot.X - capture.ScreenBounds.X;
                     var y = cursorLocation.Y - iconInfo.Hotspot.Y - capture.ScreenBounds.Y;
                     // Set the location
@@ -160,10 +132,10 @@ namespace Greenshot.Addons.Core
         }
 
         /// <summary>
-        ///     This method will call the CaptureRectangle with the screenbounds, therefor Capturing the whole screen.
+        ///     This method will call the CaptureRectangle with the screen bounds, therefor Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
-        public static ICapture CaptureScreen(ICapture capture)
+        public static ICapture CaptureScreen(ICapture capture = null)
         {
             if (capture == null)
             {
@@ -350,7 +322,7 @@ namespace Greenshot.Addons.Core
                         // throw exception
                         throw exceptionToThrow;
                     }
-                    // Create BITMAPINFOHEADER for CreateDIBSection
+                    // Create BitmapInfoHeader for CreateDIBSection
                     var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
 
                     // TODO: Enable when the function is available again
@@ -358,9 +330,8 @@ namespace Greenshot.Addons.Core
                     Win32.SetLastError(0);
 
                     // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                    IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-                    // TODO: Change the usage to an enum?
-                    using (var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, 0, out bits0, IntPtr.Zero, 0))
+                    // the returned (out) IntPtr _ is not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
+                    using (var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, DibColors.PalColors, out _, IntPtr.Zero, 0))
                     {
                         if (safeDibSectionHandle.IsInvalid)
                         {
@@ -375,7 +346,7 @@ namespace Greenshot.Addons.Core
                         // select the bitmap object and store the old handle
                         using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
                         {
-                            // bitblt over (make copy)
+                            // bit-blt over (make copy)
                             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
                             Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
                                 RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
@@ -427,7 +398,7 @@ namespace Greenshot.Addons.Core
                                             // For all screens copy the content to the new bitmap
                                             foreach (var screen in Screen.AllScreens)
                                             {
-                                                // Make sure the bounds are offsetted to the capture bounds
+                                                // Make sure the bounds are with an offset to the capture bounds
                                                 var screenBounds = screen.Bounds;
                                                 screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
                                                 graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);

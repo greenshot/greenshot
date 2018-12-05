@@ -39,7 +39,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
-using Dapplo.Windows.User32.Structs;
 using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -639,7 +638,7 @@ namespace Greenshot.Forms
             }
             else if (UsedCaptureMode != CaptureMode.Window)
             {
-                var allScreenBounds = WindowCapture.GetScreenBounds();
+                var allScreenBounds = DisplayInfo.ScreenBounds;
 
                 allScreenBounds = allScreenBounds.MoveTo(WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location));
                 if (verticalMove)

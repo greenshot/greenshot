@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 
 #endregion

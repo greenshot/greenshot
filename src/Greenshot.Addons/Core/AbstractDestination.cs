@@ -37,6 +37,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Extensions;
+using Dapplo.Windows.User32;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
@@ -422,7 +423,7 @@ namespace Greenshot.Addons.Core
         {
             // find a suitable location
             var location = Cursor.Position;
-            var menuRectangle = new NativeRect(location, menu.Size).Intersect(WindowCapture.GetScreenBounds());
+            var menuRectangle = new NativeRect(location, menu.Size).Intersect(DisplayInfo.ScreenBounds);
             if (menuRectangle.Height < menu.Height)
             {
                 location.Offset(-40, -(menuRectangle.Height - menu.Height));

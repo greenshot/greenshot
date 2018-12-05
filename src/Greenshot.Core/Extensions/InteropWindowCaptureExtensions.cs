@@ -40,7 +40,6 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Structs;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
@@ -178,7 +177,7 @@ namespace Greenshot.Core.Extensions
                     using (var workingArea = new Region())
                     {
                         // Find the screen where the window is and check if it fits
-                        foreach (var displayInfo in User32Api.AllDisplays())
+                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
                             workingArea.Union(displayInfo.WorkingArea);
                         }
@@ -187,7 +186,7 @@ namespace Greenshot.Core.Extensions
                         if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
                         {
                             // If none found we find the biggest screen
-                            foreach (var displayInfo in User32Api.AllDisplays())
+                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                             {
                                 var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
                                 if (!workingArea.AreRectangleCornersVisisble(newWindowRectangle))
@@ -261,7 +260,7 @@ namespace Greenshot.Core.Extensions
                 tempFormShown = true;
 
                 // Intersect with screen
-                captureRectangle = captureRectangle.Intersect(DisplayInfo.GetAllScreenBounds());
+                captureRectangle = captureRectangle.Intersect(DisplayInfo.ScreenBounds);
 
                 // Check if we make a transparent capture
                 if (captureConfiguration.WindowCaptureMode == WindowCaptureModes.AeroTransparent)

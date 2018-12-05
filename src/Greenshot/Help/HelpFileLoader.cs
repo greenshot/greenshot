@@ -28,7 +28,6 @@ using System.Diagnostics;
 using System.Net;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
-using Greenshot.Addons.Core;
 
 #endregion
 

@@ -21,7 +21,7 @@
 
 #endregion
 
-using Dapplo.CaliburnMicro.Metro;
+using Dapplo.CaliburnMicro.Metro.Configuration;
 using Dapplo.Config.Ini;
 
 namespace Greenshot.Configuration.Impl

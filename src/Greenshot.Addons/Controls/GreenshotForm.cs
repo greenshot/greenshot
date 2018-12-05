@@ -37,7 +37,6 @@ using Dapplo.Utils;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 

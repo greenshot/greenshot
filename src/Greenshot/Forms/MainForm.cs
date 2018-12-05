@@ -60,7 +60,7 @@ using Greenshot.Ui.Configuration.ViewModels;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
 using Dapplo.Config.Ini;
-using Dapplo.Addons;
+using Dapplo.Windows.User32;
 using Greenshot.Addons.Resources;
 
 #endregion
@@ -457,7 +457,7 @@ namespace Greenshot.Forms
             }
         }
         
-        private void CaptureIE()
+        private void CaptureIe()
         {
             if (_coreConfiguration.IECapture)
             {
@@ -597,28 +597,28 @@ namespace Greenshot.Forms
             {
                 return;
             }
-            var allScreensBounds = WindowCapture.GetScreenBounds();
+            var allScreensBounds = DisplayInfo.ScreenBounds;
 
             var captureScreenItem = new ToolStripMenuItem(_greenshotLanguage.ContextmenuCapturefullscreenAll);
             captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen)));
             captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-            foreach (var screen in Screen.AllScreens)
+            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
             {
-                var screenToCapture = screen;
+                var screenToCapture = displayInfo;
                 var deviceAlignment = "";
-                if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
+                if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
                 {
                     deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenTop;
                 }
-                else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
+                else if (displayInfo.Bounds.Top != allScreensBounds.Top && displayInfo.Bounds.Bottom == allScreensBounds.Bottom)
                 {
                     deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenBottom;
                 }
-                if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
+                if (displayInfo.Bounds.Left == allScreensBounds.Left && displayInfo.Bounds.Right != allScreensBounds.Right)
                 {
                     deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenLeft;
                 }
-                else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
+                else if (displayInfo.Bounds.Left != allScreensBounds.Left && displayInfo.Bounds.Right == allScreensBounds.Right)
                 {
                     deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenRight;
                 }
@@ -765,7 +765,7 @@ namespace Greenshot.Forms
 
         private void Contextmenu_captureie_Click(object sender, EventArgs e)
         {
-            CaptureIE();
+            CaptureIe();
         }
 
         private void Contextmenu_captureiefromlist_Click(object sender, EventArgs e)

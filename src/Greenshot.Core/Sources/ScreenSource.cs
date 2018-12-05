@@ -38,7 +38,6 @@ using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Structs;
 using Greenshot.Core.Enums;
 using Greenshot.Core.Interfaces;
 using Greenshot.Gfx.Extensions;
@@ -52,7 +51,7 @@ namespace Greenshot.Core.Sources
     {
         public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)
         {
-            var screenbounds = DisplayInfo.GetAllScreenBounds();
+            var screenbounds = DisplayInfo.ScreenBounds;
             var result = CaptureRectangle(screenbounds);
             return new ValueTask<ICaptureElement<BitmapSource>>(result);
         }
@@ -145,7 +144,7 @@ namespace Greenshot.Core.Sources
 
                         // Collect all screens inside this capture
                         var displaysInsideCapture = new List<DisplayInfo>();
-                        foreach (var displayInfo in User32Api.AllDisplays())
+                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
                             if (displayInfo.Bounds.IntersectsWith(captureBounds))
                             {
@@ -171,7 +170,7 @@ namespace Greenshot.Core.Sources
                         if (offscreenContent)
                         {
                             var modifiedImage = new WriteableBitmap(capturedBitmapSource.PixelWidth, capturedBitmapSource.PixelHeight, capturedBitmapSource.DpiX, capturedBitmapSource.DpiY, PixelFormats.Bgr32, capturedBitmapSource.Palette);
-                            foreach (var displayInfo in User32Api.AllDisplays())
+                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                             {
                                 modifiedImage.CopyPixels(capturedBitmapSource, displayInfo.Bounds);
                             }

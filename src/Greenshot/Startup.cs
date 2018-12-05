@@ -34,14 +34,11 @@ using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Config.Ini.Converters;
 using Dapplo.Config.Language;
-using Dapplo.Log;
-using Dapplo.Log.Loggers;
 using Dapplo.Utils;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 using Greenshot.Ui.Misc.ViewModels;
 

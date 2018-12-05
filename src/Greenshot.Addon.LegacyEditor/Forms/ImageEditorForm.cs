@@ -123,7 +123,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 // Make sure the editor is placed on the same location as the last editor was on close
                 // But only if this still exists, else it will be reset (BUG-1812)
                 var editorWindowPlacement = _editorConfiguration.GetEditorPlacement();
-                var screenbounds = WindowCapture.GetScreenBounds();
+                var screenbounds = DisplayInfo.ScreenBounds;
                 if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
                 {
                     _editorConfiguration.ResetEditorPlacement();

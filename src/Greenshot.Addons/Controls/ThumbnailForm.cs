@@ -53,6 +53,9 @@ namespace Greenshot.Addons.Controls
 
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 
+        /// <summary>
+        /// Constructor for the Thumbnail form
+        /// </summary>
 		public ThumbnailForm()
 		{
 			ShowInTaskbar = false;
@@ -139,9 +142,13 @@ namespace Greenshot.Addons.Controls
 		    }
 		}
 
+        /// <summary>
+        /// Aligns the thumbnail form to the specified control
+        /// </summary>
+        /// <param name="alignTo"></param>
 		public void AlignToControl(Control alignTo)
 		{
-			var screenBounds = WindowCapture.GetScreenBounds();
+			var screenBounds = DisplayInfo.ScreenBounds;
 			if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height))
 			{
 				Location = new Point(alignTo.Left + alignTo.Width / 2 - Width / 2, alignTo.Top - Height);

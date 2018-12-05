@@ -24,11 +24,9 @@
 #region Usings
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 
 #endregion

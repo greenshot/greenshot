@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
 using Dapplo.Windows.Desktop;

@@ -101,9 +101,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					Add(blurFilter);
 					break;
 				case PreparedFilter.GRAYSCALE:
-					AbstractFilter f = new GrayscaleFilter(this);
-					f.Invert = true;
-					Add(f);
+                    AbstractFilter f = new GrayscaleFilter(this)
+                    {
+                        Invert = true
+                    };
+                    Add(f);
 					break;
 				case PreparedFilter.MAGNIFICATION:
 					Add(new MagnifierFilter(this));

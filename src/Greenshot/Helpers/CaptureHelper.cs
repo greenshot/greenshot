@@ -369,12 +369,14 @@ namespace Greenshot.Helpers
                             var mouseLocation = User32Api.GetCursorLocation();
                             foreach (var screen in Screen.AllScreens)
                             {
-                                if (screen.Bounds.Contains(mouseLocation))
+                                if (!screen.Bounds.Contains(mouseLocation))
                                 {
-                                    _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
-                                    captureTaken = true;
-                                    break;
+                                    continue;
                                 }
+
+                                _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
+                                captureTaken = true;
+                                break;
                             }
                             break;
                         case ScreenCaptureMode.Fixed:

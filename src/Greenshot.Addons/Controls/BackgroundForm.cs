@@ -27,7 +27,6 @@ using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 
 #endregion
