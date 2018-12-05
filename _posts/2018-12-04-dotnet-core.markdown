@@ -15,11 +15,11 @@ What most people don't realize is that Greenshot in its current form would still
 
 Last year I started updating Greenshot so it works on and uses the most recent version of the .NET Framework. Using current technologies help to reduce the amount of code, get fixes a lot quicker and have new features available. To make this all possible I created a couple of new open source projects and moved generic parts of Greenshot in there:
 * [Dapplo.Addons](https://github.com/dapplo/Dapplo.Addons) provides an add-on framework, based on [Autofac](https://github.com/autofac/Autofac), which makes it possible to extend Greenshot
-* [Dapplo.CaliburnMicro](https://github.com/dapplo/Dapplo.CaliburnMicro) provides a composition & MVVM implementation using [CaliburnMicro](https://caliburnmicro.com/) and bases on Dapplo.Addons.
-* [Dapplo.Config](https://github.com/dapplo/Dapplo.Config) Dapplo.Config provides the logic for handling the .ini file and also provides translations.
+* [Dapplo.CaliburnMicro](https://github.com/dapplo/Dapplo.CaliburnMicro) provides UI composition & MVVM implementation using [CaliburnMicro](https://caliburnmicro.com/) and bases on Dapplo.Addons.
+* [Dapplo.Config](https://github.com/dapplo/Dapplo.Config) provides the logic for handling the .ini file and also provides translations.
 * [Dapplo.Confluence](https://github.com/dapplo/Dapplo.Confluence) provides an .NET API for accessing Atlassian Confluence
 * [Dapplo.HttpExtensions](https://github.com/dapplo/Dapplo.HttpExtensions) providing logic which is used for the cloud services like box, dropbox etc.
-* [Dapplo.Jira](https://github.com/dapplo/Dapplo.Jira) Dapplo.Jira provides an .NET API for accessing Atlassian Jira
+* [Dapplo.Jira](https://github.com/dapplo/Dapplo.Jira) provides an .NET API for accessing Atlassian Jira
 * [Dapplo.Log](https://github.com/dapplo/Dapplo.Log) provides a simple logger for applications, this was build out of necessity and I hope to be able to delete this soon!
 * [Dapplo.Windows](https://github.com/dapplo/Dapplo.Windows) provides the low level APIs for Windows (Win32), which contain the logic to locate the windows and other information which Greenshot needs.
 
@@ -37,7 +37,7 @@ One of the challenges with Greenshot was picking the version of the .NET Framewo
 
 Although Greenshot is open source it currently needs the .NET Framework to run, but this isn't open source! The [.NET Foundation](https://dotnetfoundation.org), which is an independent organization which supports many open source .NET [projects](https://dotnetfoundation.org/projects), is also taking good care of dotnet core. As soon as Greenshot is released for dotnet core, the complete stack is running with open source technologies!
 
-__Edit__: On the 4th of December, "coincidentally" only hours after my blog post was made available, Microsoft announced on the Microsoft Connect(); 2018 event the following [NET Core 3 Preview 1 and Open Sourcing Windows Desktop Frameworks](https://blogs.msdn.microsoft.com/dotnet/2018/12/04/announcing-net-core-3-preview-1-and-open-sourcing-windows-desktop-frameworks/) This shows that Microsoft is really serious about its open source commitment, and that going towards dotnet core is the right thing to do for Greenshot! With this announcement the full stack of Greenshot on dotnet core, including the UI components, is build with open source technologies!
+__Edit__: On the 4th of December, "coincidentally" only hours after my blog post was made available, Microsoft announced on the Microsoft Connect(); 2018 event the following: [NET Core 3 Preview 1 and Open Sourcing Windows Desktop Frameworks](https://blogs.msdn.microsoft.com/dotnet/2018/12/04/announcing-net-core-3-preview-1-and-open-sourcing-windows-desktop-frameworks/). This shows that Microsoft is really serious about its open source commitment, and that going towards dotnet core is the right thing to do for Greenshot! With this announcement the full stack of Greenshot on dotnet core, including the UI components, is build with open source technologies!
 
 Another interesting fact is that the .NET Framework is used by billions of applications, this makes it __very__ hard to maintain backwards compatibility while adding new features or fixes. With dotnet core, which doesn't have all the legacy applications, a different approach is possible. By releasing more often and not having the need to support years of backwards compatibility, it's finally possible to introduce new features and maybe sometimes even make breaking changes. One thing where this shows is that dotnet core has many performance enhancements, which will also be noticeable in Greenshot.
 
