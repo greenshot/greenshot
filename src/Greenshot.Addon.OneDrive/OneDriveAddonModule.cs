@@ -24,8 +24,10 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.OneDrive.Configuration;
+using Greenshot.Addon.OneDrive.Configuration.Impl;
 using Greenshot.Addon.OneDrive.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -37,13 +39,15 @@ namespace Greenshot.Addon.OneDrive
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IOneDriveConfiguration>())
+                .RegisterType<OneDriveConfigurationImpl>()
                 .As<IOneDriveConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => LanguageLoader.Current.Get<IOneDriveLanguage>())
+                .RegisterType<OneDriveLanguageImpl>()
                 .As<IOneDriveLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder

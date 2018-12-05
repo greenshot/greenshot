@@ -46,7 +46,6 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LanguageDialog));
 			this.comboBoxLanguage = new System.Windows.Forms.ComboBox();
 			this.btnOK = new System.Windows.Forms.Button();
 			this.SuspendLayout();

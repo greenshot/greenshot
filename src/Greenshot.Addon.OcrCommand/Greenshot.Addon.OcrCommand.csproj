@@ -1,43 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7B8E9055-A054-4290-B537-075EBFDF8BDF}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net471</TargetFrameworks>
     <RootNamespace>Greenshot.Addon.OcrCommand</RootNamespace>
     <AssemblyName>GreenshotOCRCommand</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="CustomMarshalers" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,32 +20,5 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ComProgIdAttribute.cs" />
-    <Compile Include="COMWrapper.cs" />
-    <Compile Include="Modi\CompressionLevel.cs" />
-    <Compile Include="Modi\FileFormat.cs" />
-    <Compile Include="Modi\ICommon.cs" />
-    <Compile Include="Modi\IDispatch.cs" />
-    <Compile Include="Modi\IDocument.cs" />
-    <Compile Include="Modi\IImage.cs" />
-    <Compile Include="Modi\IImages.cs" />
-    <Compile Include="Modi\ILayout.cs" />
-    <Compile Include="Modi\IMiRect.cs" />
-    <Compile Include="Modi\IMiRects.cs" />
-    <Compile Include="Modi\IWord.cs" />
-    <Compile Include="Modi\IWords.cs" />
-    <Compile Include="Modi\ModiLanguage.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"
-copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName).config" "$(SolutionDir)Greenshot\bin\$(Configuration)\Addons\"</PostBuildEvent>
-  </PropertyGroup>
+
 </Project>

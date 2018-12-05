@@ -28,6 +28,7 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.HttpExtensions.OAuth;
+using Greenshot.Addon.Imgur.Configuration;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.ViewModels;
 

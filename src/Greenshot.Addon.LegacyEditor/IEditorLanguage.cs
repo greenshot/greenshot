@@ -17,13 +17,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.LegacyEditor
 {
 	[Language("Editor")]
-	public interface IEditorLanguage : ILanguage, INotifyPropertyChanged
+	public interface IEditorLanguage : ILanguage
 	{
 	    string SettingsDestinationEditor { get; }
 

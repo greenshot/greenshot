@@ -34,11 +34,23 @@ namespace Greenshot.Addons.Animation
     /// </summary>
     public static class EasePower
 	{
+        /// <summary>
+        /// Calculate EaseIn
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <param name="power">int</param>
+        /// <returns>double</returns>
 		public static double EaseIn(double s, int power)
 		{
 			return Math.Pow(s, power);
 		}
 
+        /// <summary>
+        /// Calculate EaseInOut
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <param name="power">int</param>
+        /// <returns>double</returns>
 		public static double EaseInOut(double s, int power)
 		{
 			s *= 2;
@@ -50,6 +62,12 @@ namespace Greenshot.Addons.Animation
 			return sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2);
 		}
 
+        /// <summary>
+        /// Calculate EaseOut
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <param name="power">int</param>
+        /// <returns>double</returns>
 		public static double EaseOut(double s, int power)
 		{
 			var sign = power % 2 == 0 ? -1 : 1;

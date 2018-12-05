@@ -21,6 +21,7 @@
 
 #endregion
 
+#if !NETCOREAPP3_0
 using System;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
@@ -55,3 +56,4 @@ namespace Greenshot.Tests
         }
     }
 }
+#endif

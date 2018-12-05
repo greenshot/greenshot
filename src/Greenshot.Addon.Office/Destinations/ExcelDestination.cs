@@ -50,6 +50,12 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _exePath;
 		private readonly string _workbookName;
 
+        /// <summary>
+        /// Constructor used to wire dependencies
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
 		public ExcelDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -64,6 +70,13 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
+        /// <summary>
+        /// protected constructor to accept a workbook name too
+        /// </summary>
+        /// <param name="workbookName">string</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
 		protected ExcelDestination(string workbookName,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -73,17 +86,22 @@ namespace Greenshot.Addon.Office.Destinations
 			_workbookName = workbookName;
 		}
 
+        /// <inherit />
 		public override string Description => _workbookName ?? "Microsoft Excel";
 
+        /// <inherit />
 		public override bool IsDynamic => true;
 
+        /// <inherit />
 		public override bool IsActive => base.IsActive && _exePath != null;
 
+        /// <inherit />
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return PluginUtils.GetCachedExeIcon(_exePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication, dpi > 100);
 		}
 
+        /// <inherit />
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			foreach (var workbookName in ExcelExporter.GetWorkbooks())
@@ -92,6 +110,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 		}
 
+        /// <inherit />
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);

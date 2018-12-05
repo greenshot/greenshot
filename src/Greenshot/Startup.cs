@@ -32,8 +32,8 @@ using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
-using Dapplo.Ini.Converters;
-using Dapplo.Language;
+using Dapplo.Config.Ini.Converters;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Dapplo.Utils;
@@ -42,6 +42,7 @@ using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Ui.Misc.ViewModels;
 
 namespace Greenshot
@@ -65,15 +66,17 @@ namespace Greenshot
             //LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
+            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #endif
             var applicationConfig = ApplicationConfigBuilder
                 .Create()
                 .WithApplicationName("Greenshot")
                 .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
-                .WithConfigSupport()
                 .WithCaliburnMicro()
                 .WithoutCopyOfEmbeddedAssemblies()
+#if !NETCOREAPP3_0
+                .WithoutCopyOfAssembliesToProbingPath()
+#endif
                 .WithAssemblyPatterns("Greenshot.Addon*")
                 .BuildApplicationConfig();
 
@@ -92,7 +95,7 @@ namespace Greenshot
                 return -1;
             }
 
-            RegisterErrorHandlers(application);
+            //RegisterErrorHandlers(application);
 
             application.Run();
             return 0;
@@ -171,7 +174,9 @@ namespace Greenshot
             // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
             using (var multiInstanceForm = new DpiAwareForm
             {
-                Icon = GreenshotResources.GetGreenshotIcon(),
+
+                // TODO: Fix a problem that in this case instance is null 
+                Icon = GreenshotResources.Instance.GetGreenshotIcon(),
                 ShowInTaskbar = true,
                 MaximizeBox = false,
                 MinimizeBox = false,

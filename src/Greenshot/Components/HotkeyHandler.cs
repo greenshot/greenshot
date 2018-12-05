@@ -51,7 +51,7 @@ namespace Greenshot.Components
         /// <param name="propertyName">string with the property of the ICoreConfiguration to use</param>
         public HotKeyHandler(ICoreConfiguration coreConfiguration, string propertyName)
         {
-            string RetrieveFunc() => coreConfiguration[propertyName].Value as string;
+            string RetrieveFunc() => coreConfiguration.GetIniValue(propertyName).Value as string;
             _propertyChangeSubscription = coreConfiguration
                 .OnPropertyChanged(propertyName)
                 .Subscribe(pc => UpdateKeyCombination(RetrieveFunc));

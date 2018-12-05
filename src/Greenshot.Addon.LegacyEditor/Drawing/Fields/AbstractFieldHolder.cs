@@ -24,8 +24,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
@@ -37,8 +37,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
         private static readonly LogSource Log = new LogSource();
-		private static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
-		[NonSerialized]
+	    // TODO: Solve, was static reference!
+        private static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
+
+	    [NonSerialized]
 		private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
 		/// <summary>

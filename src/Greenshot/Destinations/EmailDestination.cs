@@ -30,6 +30,7 @@ using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 using Greenshot.Helpers;
 
 #endregion
@@ -43,7 +44,7 @@ namespace Greenshot.Destinations
     public class EmailDestination : AbstractDestination
 	{
 	    private readonly ExportNotification _exportNotification;
-	    private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
+	    private static readonly Bitmap MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
 		private static bool _isActiveFlag;
 		private static string _mapiClient;
 

@@ -1,387 +1,84 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <ProjectGuid>{5B924697-4DCD-4F98-85F1-105CB84B7341}</ProjectGuid>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Greenshot.Addons</RootNamespace>
-    <AssemblyName>Greenshot.Addons</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <NoStdLib>False</NoStdLib>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkProfile />
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Extras.AttributeMetadata, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Extras.AttributeMetadata.4.0.1\lib\net45\Autofac.Extras.AttributeMetadata.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Integration.Mef, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Mef.4.0.0\lib\net45\Autofac.Integration.Mef.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.Core.3.2.0\lib\net45\Caliburn.Micro.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
-    </Reference>
-    <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Addons, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.1.0.79\lib\net461\Dapplo.Addons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.1.0.79\lib\net461\Dapplo.Addons.Bootstrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.1.0.75\lib\net461\Dapplo.CaliburnMicro.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Configuration, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Configuration.1.0.75\lib\net461\Dapplo.CaliburnMicro.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Dapp, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Dapp.1.0.75\lib\net461\Dapplo.CaliburnMicro.Dapp.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Menu, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Menu.1.0.75\lib\net461\Dapplo.CaliburnMicro.Menu.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Security, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Security.1.0.75\lib\net461\Dapplo.CaliburnMicro.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Toasts, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Toasts.1.0.75\lib\net461\Dapplo.CaliburnMicro.Toasts.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Translations, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.1.0.75\lib\net461\Dapplo.CaliburnMicro.Translations.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.46\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.46\lib\net46\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.46\lib\net46\Dapplo.HttpExtensions.OAuth.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Ini, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Ini.0.5.31\lib\net45\Dapplo.Ini.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.InterfaceImpl, Version=0.2.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.12\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Language, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Language.0.5.31\lib\net45\Dapplo.Language.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Log, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.2.1\lib\net45\Dapplo.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Utils, Version=1.0.161.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.1.0.161\lib\net45\Dapplo.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.109\lib\net461\Dapplo.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.109\lib\net461\Dapplo.Windows.Clipboard.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Com, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Com.0.5.109\lib\net461\Dapplo.Windows.Com.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.109\lib\net461\Dapplo.Windows.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.109\lib\net461\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.109\lib\net461\Dapplo.Windows.Dpi.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.EmbeddedBrowser, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.EmbeddedBrowser.0.5.109\lib\net461\Dapplo.Windows.EmbeddedBrowser.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.109\lib\net461\Dapplo.Windows.Gdi32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Icons, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.109\lib\net461\Dapplo.Windows.Icons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.109\lib\net461\Dapplo.Windows.Input.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.109\lib\net461\Dapplo.Windows.Kernel32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.109\lib\net461\Dapplo.Windows.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Shell32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Shell32.0.5.109\lib\net461\Dapplo.Windows.Shell32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.109\lib\net461\Dapplo.Windows.User32.dll</HintPath>
-    </Reference>
-    <Reference Include="MahApps.Metro.IconPacks, Version=2.3.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.IconPacks.2.3.0\lib\net46\MahApps.Metro.IconPacks.dll</HintPath>
-    </Reference>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
+	<PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
-      <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reactive.4.1.0\lib\net46\System.Reactive.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="ToastNotifications, Version=2.3.4.0, Culture=neutral, PublicKeyToken=e89d9d7314a7c797, processorArchitecture=MSIL">
-      <HintPath>..\packages\ToastNotifications.2.3.4\lib\net40\ToastNotifications.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Animation\EasePower.cs" />
-    <Compile Include="Animation\EaseSine.cs" />
-    <Compile Include="Components\DestinationAttribute.cs" />
-    <Compile Include="Animation\ColorAnimator.cs" />
-    <Compile Include="Animation\Easing.cs" />
-    <Compile Include="Animation\EasingModes.cs" />
-    <Compile Include="Animation\EasingTypes.cs" />
-    <Compile Include="Animation\IAnimator.cs" />
-    <Compile Include="Animation\IntAnimator.cs" />
-    <Compile Include="Animation\PointAnimator.cs" />
-    <Compile Include="Animation\RectangleAnimator.cs" />
-    <Compile Include="Animation\SizeAnimator.cs" />
-    <Compile Include="Components\DestinationHolder.cs" />
-    <Compile Include="Components\DestinationOrder.cs" />
-    <Compile Include="Components\ExportNotification.cs" />
-    <Compile Include="Components\IDestinationProvider.cs" />
-    <Compile Include="Components\WindowHandle.cs" />
-    <Compile Include="Controls\AnimatingForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\InvertedBoolenConverter.cs" />
-    <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
-    <Compile Include="Controls\GreenshotRadioButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\MovableShowColorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\MovableShowColorForm.Designer.cs">
-      <DependentUpon>MovableShowColorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ResourceImageManager.cs" />
-    <Compile Include="Animation\AnimatorBase.cs" />
-    <Compile Include="Core\Capture.cs" />
-    <Compile Include="Core\CaptureDetails.cs" />
-    <Compile Include="Core\Enums\ConfigIds.cs" />
-    <Compile Include="Core\Enums\ConfigTags.cs" />
-    <Compile Include="Core\CoreConfigurationExtensions.cs" />
-    <Compile Include="Core\Credentials\CredFlags.cs" />
-    <Compile Include="Core\Credentials\CredUiInfo.cs" />
-    <Compile Include="Core\Credentials\CredUIReturnCodes.cs" />
-    <Compile Include="Core\Enums\BuildStates.cs" />
-    <Compile Include="Core\Enums\ClickActions.cs" />
-    <Compile Include="Core\Enums\ClipboardFormats.cs" />
-    <Compile Include="Core\ExplorerHelper.cs" />
-    <Compile Include="Core\IHttpConfiguration.cs" />
-    <Compile Include="Core\IDestinationFileConfiguration.cs" />
-    <Compile Include="Core\ImageOutput.cs" />
-    <Compile Include="Core\InteropWindowExtensions.cs" />
-    <Compile Include="Core\InteropWindowCaptureExtensions.cs" />
-    <Compile Include="Core\CaptureHandler.cs" />
-    <Compile Include="Core\EventDelay.cs" />
-    <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
-    <Compile Include="Extensions\ClipboardBitmapExtensions.cs" />
-    <Compile Include="Extensions\ClipboardHtmlExtensions.cs" />
-    <Compile Include="Extensions\DestinationExtensions.cs" />
-    <Compile Include="Extensions\LanguageExtensions.cs" />
-    <Compile Include="Extensions\ProcessorExtensions.cs" />
-    <Compile Include="Core\IFileConfiguration.cs" />
-    <Compile Include="Extensions\SurfaceExtensions.cs" />
-    <Compile Include="AddonsModule.cs" />
-    <Compile Include="IGreenshotLanguage.cs" />
-    <Compile Include="Interfaces\CaptureMode.cs" />
-    <Compile Include="Interfaces\DrawingModes.cs" />
-    <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />
-    <Compile Include="Interfaces\Drawing\EditStatus.cs" />
-    <Compile Include="Interfaces\Drawing\FieldChangedEventArgs.cs" />
-    <Compile Include="Interfaces\Drawing\FieldChangedEventHandler.cs" />
-    <Compile Include="Interfaces\Drawing\FieldFlag.cs" />
-    <Compile Include="Interfaces\Drawing\ICursorContainer.cs" />
-    <Compile Include="Interfaces\Drawing\IDrawableContainerList.cs" />
-    <Compile Include="Interfaces\Drawing\IField.cs" />
-    <Compile Include="Interfaces\Drawing\IFieldHolder.cs" />
-    <Compile Include="Interfaces\Drawing\IFieldHolderWithChildren.cs" />
-    <Compile Include="Interfaces\Drawing\IFieldType.cs" />
-    <Compile Include="Interfaces\Drawing\IIconContainer.cs" />
-    <Compile Include="Interfaces\Drawing\IBitmapContainer.cs" />
-    <Compile Include="Interfaces\Drawing\IMemento.cs" />
-    <Compile Include="Interfaces\Drawing\IMetafileContainer.cs" />
-    <Compile Include="Interfaces\Drawing\ITextContainer.cs" />
-    <Compile Include="Interfaces\Drawing\RenderMode.cs" />
-    <Compile Include="Interfaces\ExportInformation.cs" />
-    <Compile Include="Interfaces\ICapture.cs" />
-    <Compile Include="Interfaces\IGreenshotContract.cs" />
-    <Compile Include="Interfaces\ISurface.cs" />
-    <Compile Include="Interfaces\Plugin\HotKeyHandler.cs" />
-    <Compile Include="Interfaces\Plugin\SurfaceOutputSettings.cs" />
-    <Compile Include="Interfaces\SurfaceDrawingModeEventArgs.cs" />
-    <Compile Include="Interfaces\SurfaceDrawingModeEventHandler.cs" />
-    <Compile Include="Interfaces\SurfaceElementEventArgs.cs" />
-    <Compile Include="Interfaces\SurfaceElementEventHandler.cs" />
-    <Compile Include="Interfaces\SurfaceMessageEventHandler.cs" />
-    <Compile Include="Interfaces\SurfaceMessageTyp.cs" />
-    <Compile Include="Interfaces\SurfaceSizeChangeEventHandler.cs" />
-    <Compile Include="Interfaces\VerticalAlignment.cs" />
-    <Compile Include="Interop\IServiceProvider.cs" />
-    <Compile Include="Controls\FormWithoutActivation.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotCheckBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotColumnSorter.cs" />
-    <Compile Include="Controls\GreenshotComboBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotGroupBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotToolStripMenuItem.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HotkeyControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\BackgroundForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\BackgroundForm.Designer.cs">
-      <DependentUpon>BackgroundForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\IGreenshotConfigBindable.cs" />
-    <Compile Include="Controls\IGreenshotLanguageBindable.cs" />
-    <Compile Include="Controls\GreenshotToolStripButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotToolStripLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GreenshotToolDropDownButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\PleaseWaitForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\PleaseWaitForm.Designer.cs">
-      <DependentUpon>PleaseWaitForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\QualityDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\QualityDialog.Designer.cs">
-      <DependentUpon>QualityDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SaveImageFileDialog.cs" />
-    <Compile Include="Controls\ThumbnailForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Core\AbstractDestination.cs" />
-    <Compile Include="Core\AbstractProcessor.cs" />
-    <Compile Include="Animation\AnimationLeg.cs" />
-    <Compile Include="Core\BinaryStructHelper.cs" />
-    <Compile Include="Core\Cache.cs" />
-    <Compile Include="Core\ClipboardHelper.cs" />
-    <Compile Include="Core\ICoreConfiguration.cs" />
-    <Compile Include="Core\Credentials\CredentialsDialog.cs" />
-    <Compile Include="Core\StringExtensions.cs" />
-    <Compile Include="Core\FilenameHelper.cs" />
-    <Compile Include="Core\InterfaceUtils.cs" />
-    <Compile Include="Core\DisplayKeyAttribute.cs" />
-    <Compile Include="Core\EmailConfigHelper.cs" />
-    <Compile Include="Core\EnumExtensions.cs" />
-    <Compile Include="Core\ExtensionAttribute.cs" />
-    <Compile Include="Core\GreenshotResources.cs" />
-    <Compile Include="Core\Language.cs" />
-    <Compile Include="Core\ObjectExtensions.cs" />
-    <Compile Include="Core\PluginUtils.cs" />
-    <Compile Include="Core\WindowCapture.cs" />
-    <Compile Include="Interfaces\ICaptureDetails.cs" />
-    <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
-    <Compile Include="Interfaces\Forms\IImageEditor.cs" />
-    <Compile Include="Interfaces\SurfaceMessageEventArgs.cs" />
-    <Compile Include="Components\IDestination.cs" />
-    <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\FileConfigPartViewModel.cs" />
-    <Compile Include="ViewModels\ExportNotificationViewModel.cs" />
-    <Compile Include="ViewModels\UploadViewModel.cs" />
-    <EmbeddedResource Include="Core\GreenshotResources.resx">
-      <DependentUpon>GreenshotResources.cs</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Checkerboard.Image.png" />
+    <EmbeddedResource Include="Resources\Clipboard.Image.png" />
+    <EmbeddedResource Include="Resources\Close.Image.png" />
+    <EmbeddedResource Include="Resources\Email.Image.png" />
+    <EmbeddedResource Include="Resources\Greenshot.Icon.ico" />
+    <EmbeddedResource Include="Resources\Printer.Image.png" />
+    <EmbeddedResource Include="Resources\Save.Image.png" />
   </ItemGroup>
+  
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
+      <Version>1.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
+      <Version>1.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
+      <Version>1.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.HttpExtensions">
+      <Version>0.9.18</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
+      <Version>0.9.18</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth">
+      <Version>0.9.18</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.Windows.Clipboard">
+      <Version>0.7.26</Version>
+    </PackageReference>
+    <PackageReference Include="Dapplo.Windows.Icons">
+      <Version>0.7.26</Version>
+    </PackageReference>
+    <PackageReference Include="Fody" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MahApps.Metro.IconPacks">
+      <Version>3.0.0-alpha0089</Version>
+    </PackageReference>
+    <PackageReference Include="Svg">
+      <Version>2.3.0</Version>
+    </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
       <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
@@ -392,24 +89,5 @@
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Page Include="Views\FileConfigPartView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\ExportNotificationView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\UploadView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

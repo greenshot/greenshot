@@ -33,7 +33,6 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.CaliburnMicro;
 using Greenshot.Helpers;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons;
@@ -387,20 +386,21 @@ namespace Greenshot.Forms
 					    }
 */
                         break;
-					case Keys.I:
-						try
-						{
-							using (Process.Start("\"" + IniConfig.Current.IniLocation + "\""))
-							{
-                                // Ignore
-							}
-						}
-						catch (Exception)
-						{
-							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.Current.IniLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK,
-								MessageBoxIcon.Asterisk);
-						}
-						break;
+                    // TODO: Open configuration location
+      //              case Keys.I:
+						//try
+						//{
+						//	using (Process.Start("\"" + IniConfig.Current.IniLocation + "\""))
+						//	{
+      //                          // Ignore
+						//	}
+						//}
+						//catch (Exception)
+						//{
+						//	MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.Current.IniLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK,
+						//		MessageBoxIcon.Asterisk);
+						//}
+						//break;
 					default:
 						return base.ProcessCmdKey(ref msg, keyData);
 				}

@@ -44,6 +44,7 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx.Legacy;
 
 #endregion
@@ -60,7 +61,6 @@ namespace Greenshot.Forms
         private static readonly Brush ScrollingOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.GreenYellow));
         private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 
-        private readonly ICoreConfiguration _coreConfiguration;
         private static readonly Brush BackgroundBrush;
         private readonly ICapture _capture;
         private readonly bool _isZoomerTransparent;
@@ -85,7 +85,7 @@ namespace Greenshot.Forms
         /// </summary>
         static CaptureForm()
         {
-            var backgroundForTransparency = GreenshotResources.GetBitmap("Checkerboard.Image");
+            var backgroundForTransparency = GreenshotResources.Instance.GetBitmap("Checkerboard.Image");
             BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
         }
 
@@ -97,7 +97,6 @@ namespace Greenshot.Forms
         /// <param name="windows">IList of IInteropWindow</param>
         public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows) : base(coreConfiguration, null)
         {
-            _coreConfiguration = coreConfiguration;
             _isZoomerTransparent = _coreConfiguration.ZoomerOpacity < 1;
             ManualLanguageApply = true;
             ManualStoreFields = true;

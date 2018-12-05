@@ -33,6 +33,7 @@ using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Extensions;
+using Greenshot.Addon.Imgur.Configuration;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addon.Imgur.ViewModels;
 using Greenshot.Addons;

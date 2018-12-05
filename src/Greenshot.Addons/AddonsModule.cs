@@ -24,11 +24,13 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addons
@@ -39,28 +41,28 @@ namespace Greenshot.Addons
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IUiConfiguration>())
-                .As<IUiConfiguration>()
-                .SingleInstance();
-
-            builder
-                .Register(context => IniConfig.Current.Get<ICoreConfiguration>())
+                .RegisterType<CoreConfigurationImpl>()
                 .As<ICoreConfiguration>()
+                .As<IUiConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => LanguageLoader.Current.Get<IGreenshotLanguage>())
+                .RegisterType<GreenshotLanguageImpl>()
                 .As<IGreenshotLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder
-                .Register(context => IniConfig.Current.Get<IHttpConfiguration>())
+                .RegisterType<HttpConfigurationImpl>()
                 .As<IHttpConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
                 .RegisterType<FileConfigPartViewModel>()
                 .AsSelf();
+
             builder
                 .RegisterType<DestinationHolder>()
                 .AsSelf();
@@ -69,26 +71,19 @@ namespace Greenshot.Addons
                 .RegisterType<PleaseWaitForm>()
                 .AsSelf();
 
-            builder.RegisterType<SetupConfig>()
-                .As<IStartable>()
-                .SingleInstance();
-
             builder.RegisterType<ExportNotification>()
                 .AsSelf()
                 .SingleInstance();
+
             builder.RegisterType<ExportNotificationViewModel>()
                 .AsSelf();
-            base.Load(builder);
-        }
 
-        /// <inheritdoc />
-        private class SetupConfig : IStartable
-        {
-            public void Start()
-            {
-                // Register the after load, so it's called when the configuration is created
-                IniConfig.Current.AfterLoad<ICoreConfiguration>(coreConfiguration => coreConfiguration.AfterLoad());
-            }
+            builder
+                .RegisterType<GreenshotResources>()
+                .AsSelf()
+                .SingleInstance();
+
+            base.Load(builder);
         }
     }
 }

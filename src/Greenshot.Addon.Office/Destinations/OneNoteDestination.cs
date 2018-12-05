@@ -31,6 +31,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Dapplo.Log;
 using Greenshot.Addon.Office.OfficeExport;
+using Greenshot.Addon.Office.OfficeExport.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -40,6 +41,9 @@ using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Office.Destinations
 {
+    /// <summary>
+    /// This is the OneNote destination, taking care of exporting
+    /// </summary>
     [Destination("OneNote", DestinationOrder.OneNote)]
     public class OneNoteDestination : AbstractDestination
 	{
@@ -49,6 +53,12 @@ namespace Greenshot.Addon.Office.Destinations
 		private readonly string _exePath;
 		private readonly OneNotePage _page;
 
+        /// <summary>
+        /// Constructor used for dependency wiring
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
 		public OneNoteDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -63,7 +73,14 @@ namespace Greenshot.Addon.Office.Destinations
 		    }
         }
 
-		protected OneNoteDestination(OneNotePage page,
+        /// <summary>
+        /// Constructor used for dependency wiring, and being able to specify a page
+        /// </summary>
+        /// <param name="page">OneNotePage</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        protected OneNoteDestination(OneNotePage page,
 		    ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 		    ExportNotification exportNotification
@@ -72,6 +89,7 @@ namespace Greenshot.Addon.Office.Destinations
 			_page = page;
 		}
 
+        /// <inherit />
 	    public override string Description
 		{
 			get
@@ -84,15 +102,19 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 		}
 
+        /// <inherit />
 		public override bool IsDynamic => true;
 
+        /// <inherit />
 		public override bool IsActive => base.IsActive && _exePath != null;
 
+        /// <inherit />
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return PluginUtils.GetCachedExeIcon(_exePath, IconApplication, dpi > 100);
 		}
 
+        /// <inherit />
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			try
@@ -114,6 +136,7 @@ namespace Greenshot.Addon.Office.Destinations
 			return Enumerable.Empty<IDestination>();
 		}
 
+        /// <inherit />
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);

@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
-using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +42,6 @@ namespace Greenshot.Addon.InternetExplorer
 	{
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
-		private static readonly LogSource Log = new LogSource();
 		private readonly IAccessible accessible;
 
 		public Accessible(IntPtr hWnd)
@@ -74,8 +72,7 @@ namespace Greenshot.Addon.InternetExplorer
 				var list = new List<Accessible>(res.Length);
 				foreach (var obj in res)
 				{
-					var accessible = obj as IAccessible;
-					if (accessible != null)
+				    if (obj is IAccessible accessible)
 					{
 						list.Add(new Accessible(accessible));
 					}
@@ -94,6 +91,9 @@ namespace Greenshot.Addon.InternetExplorer
 			get { return accessible.accChildCount; }
 		}
 
+        /// <summary>
+        /// Returns the URL for the active tab
+        /// </summary>
 		public string IEActiveTabUrl
 		{
 			get
@@ -126,6 +126,9 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Get the index of the active tab
+        /// </summary>
 		public int IEActiveTabIndex
 		{
 			get
@@ -151,6 +154,9 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Get the caption of the active tab
+        /// </summary>
 		public string IEActiveTabCaption
 		{
 			get
@@ -174,6 +180,9 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Get the captions of all tabs
+        /// </summary>
 		public List<string> IETabCaptions
 		{
 			get
@@ -201,7 +210,9 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
-
+        /// <summary>
+        /// Get the urls of all tabs
+        /// </summary>
 		public IEnumerable<string> IETabUrls
 		{
 			get
@@ -228,6 +239,9 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Count the tabs
+        /// </summary>
 		public int IETabCount
 		{
 			get
@@ -246,6 +260,10 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Activate the specified tab
+        /// </summary>
+        /// <param name="tabCaptionToActivate">string</param>
 		public void ActivateIETab(string tabCaptionToActivate)
 		{
 			foreach (var accessor in Children)
@@ -264,6 +282,10 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Close the specified tabs
+        /// </summary>
+        /// <param name="tabCaptionToClose">string</param>
 		public void CloseIETab(string tabCaptionToClose)
 		{
 			foreach (var accessor in Children)
@@ -285,6 +307,10 @@ namespace Greenshot.Addon.InternetExplorer
 			}
 		}
 
+        /// <summary>
+        /// Active the IE tab
+        /// </summary>
+        /// <param name="tabIndexToActivate">int</param>
 		public void ActivateIETab(int tabIndexToActivate)
 		{
 			var index = 0;
@@ -334,7 +360,7 @@ namespace Greenshot.Addon.InternetExplorer
 			OBJID_WINDOW = 0x00000000
 		}
 
-		#region Interop
+#region Interop
 
 		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
 		{
@@ -356,6 +382,6 @@ namespace Greenshot.Addon.InternetExplorer
 		[return: MarshalAs(UnmanagedType.Interface)]
 		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
 
-		#endregion
+#endregion
 	}
 }

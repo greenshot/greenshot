@@ -26,16 +26,19 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Dapplo.Ini;
-using Dapplo.InterfaceImpl.Extensions;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Interfaces;
+using Dapplo.Config.Language;
 using Dapplo.Log;
+using Dapplo.Utils;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 
 #endregion
@@ -66,7 +69,7 @@ namespace Greenshot.Addons.Controls
         {
             _language = language;
             // Add the Dapplo.Windows DPI change handler
-			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            ScaleHandler = BitmapScaleHandler.Create<string>(FormDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
         }
 
 	    protected bool ManualLanguageApply { get; set; }
@@ -87,7 +90,7 @@ namespace Greenshot.Addons.Controls
 		{
 			// Every GreenshotForm should have it's default icon
 			// And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
-			Icon = GreenshotResources.GetGreenshotIcon();
+			Icon = GreenshotResources.Instance.GetGreenshotIcon();
 			if (!ManualLanguageApply)
 			{
 				ApplyLanguage();
@@ -142,17 +145,33 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    if (!string.IsNullOrEmpty(languageKey) && _language.Keys().Contains(languageKey))
+		    string translation;
+		    if (!string.IsNullOrEmpty(languageKey))
 		    {
-		        applyTo.Text = _language[languageKey];
+		        if (_language.TryGetTranslation(languageKey, out translation))
+		        {
+		            applyTo.Text = translation;
+		            return;
+		        }
+
+		        var dotIndex = languageKey.IndexOf('.');
+		        if (dotIndex >= 0)
+		        {
+		            var alternativeKey = languageKey.Substring(dotIndex + 1);
+		            if (_language.TryGetTranslation(alternativeKey, out translation))
+		            {
+		                applyTo.Text = translation;
+		                return;
+		            }
+		        }
+            }
+
+		    if (_language.TryGetTranslation(applyTo.Name, out translation))
+		    {
+		        applyTo.Text = translation;
 		        return;
 		    }
 
-		    if (_language.Keys().Contains(applyTo.Name))
-		    {
-		        applyTo.Text = _language[applyTo.Name];
-		        return;
-		    }
 		    Log.Warn().WriteLine("Unknown language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
 		}
 
@@ -194,7 +213,8 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    var section = IniConfig.Current[configBindable.SectionName];
+            // TODO: Fix this
+		    IIniSection section = null; // IniConfig.Current[configBindable.SectionName];
 		    if (section == null)
 		    {
 		        return;
@@ -202,7 +222,7 @@ namespace Greenshot.Addons.Controls
 
 		    // Only update the language, so get the actual value and than repopulate
 		    var currentValue = comboxBox.GetSelectedEnum();
-		    comboxBox.Populate(section[configBindable.PropertyName].ValueType);
+		    comboxBox.Populate(section.GetIniValue(configBindable.PropertyName).ValueType);
 		    comboxBox.SetValue(currentValue);
 		}
 
@@ -234,7 +254,7 @@ namespace Greenshot.Addons.Controls
 			try
 			{
 				// Set title of the form
-			    if (!string.IsNullOrEmpty(LanguageKey) && _language.Keys().Contains(LanguageKey))
+			    if (!string.IsNullOrEmpty(LanguageKey) && _language.Keys().Contains(LanguageKey, AbcComparer.Instance))
 				{
                     Text = _language[LanguageKey];
 				}
@@ -280,15 +300,30 @@ namespace Greenshot.Addons.Controls
 		        return;
 		    }
 
-		    if (!string.IsNullOrEmpty(languageKey) && _language.Keys().Contains(languageKey))
+		    string translation;
+		    if (!string.IsNullOrEmpty(languageKey))
 		    {
-		        applyTo.Text = _language[languageKey];
-                return;
+		        if (_language.TryGetTranslation(languageKey, out translation))
+		        {
+		            applyTo.Text = translation;
+		            return;
+		        }
+
+		        var dotIndex = languageKey.IndexOf('.');
+		        if (dotIndex >= 0)
+		        {
+		            var alternativeKey = languageKey.Substring(dotIndex + 1);
+		            if (_language.TryGetTranslation(alternativeKey, out translation))
+		            {
+		                applyTo.Text = translation;
+		                return;
+		            }
+		        }
 		    }
 
-		    if (_language.Keys().Contains(applyTo.Name))
+		    if (_language.TryGetTranslation(applyTo.Name, out translation))
 		    {
-		        applyTo.Text = _language[applyTo.Name];
+		        applyTo.Text = translation;
 		        return;
 		    }
 		    Log.Warn().WriteLine("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
@@ -308,7 +343,8 @@ namespace Greenshot.Addons.Controls
 			        continue;
 			    }
 
-			    var section = IniConfig.Current[configBindable.SectionName];
+                // TODO: Fix this
+			    IIniSection section = null;//IniConfig.Current[configBindable.SectionName];
 			    if (section == null)
 			    {
 			        continue;
@@ -375,7 +411,8 @@ namespace Greenshot.Addons.Controls
 			        continue;
 			    }
 
-			    var section = IniConfig.Current[configBindable.SectionName];
+                // TODO: Fix this
+			    IIniSection section = null;//IniConfig.Current[configBindable.SectionName];
 			    if (section == null)
 			    {
 			        continue;

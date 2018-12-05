@@ -41,6 +41,7 @@ using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Color = Windows.UI.Color;
+using Greenshot.Addons.Resources;
 
 namespace Greenshot.Addon.Win10
 {
@@ -78,7 +79,7 @@ namespace Greenshot.Addon.Win10
 	        public bool IsDestroyed { get; set; }
 	        public bool IsShareCompleted { get; set; }
 
-            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>();
+            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 	        public bool IsDataRequested { get; set; }
 	    }
 
@@ -89,7 +90,7 @@ namespace Greenshot.Addon.Win10
         /// <param name="surface"></param>
         /// <param name="captureDetails"></param>
         /// <returns>ExportInformation</returns>
-		protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             var exportInformation = new ExportInformation(Designation, Description);
 			try
@@ -120,7 +121,7 @@ namespace Greenshot.Addon.Win10
                     });
                 var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
 
-			    Share(shareInfo, windowHandle, surface, captureDetails).Wait();
+			    await Share(shareInfo, windowHandle, surface, captureDetails);
 			    Log.Debug().WriteLine("Sharing finished, closing window.");
 			    triggerWindow.Close();
 			    if (string.IsNullOrWhiteSpace(shareInfo.ApplicationName))
@@ -180,7 +181,7 @@ namespace Greenshot.Addon.Win10
 
                 // Create logo
                 RandomAccessStreamReference logoRandomAccessStreamReference;
-                using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
+                using (var logo = GreenshotResources.Instance.GetGreenshotIcon().ToBitmap())
                 using (var logoThumbnail = logo.CreateThumbnail(30, 30))
                 {
                     ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
@@ -215,6 +216,8 @@ namespace Greenshot.Addon.Win10
                         }
                         // Signal that the stream is ready
                         streamedFileDataRequest.Dispose();
+                        // Signal that the action is ready, bitmap was exported
+                        shareInfo.ShareTask.TrySetResult(true);
                     }
                     catch (Exception)
                     {

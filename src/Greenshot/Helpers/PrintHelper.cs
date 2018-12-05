@@ -39,7 +39,6 @@ using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.Legacy;
-using LangKey = Greenshot.Configuration.LangKey;
 
 #endregion
 
@@ -131,9 +130,10 @@ namespace Greenshot.Helpers
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "An error ocurred while trying to print");
-				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
-			}
-			return returnPrinterSettings;
+                // TODO: Translation
+                //MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+            }
+            return returnPrinterSettings;
 		}
 
 		/// <summary>
@@ -164,9 +164,10 @@ namespace Greenshot.Helpers
 		    catch (Exception e)
 		    {
 		        Log.Error().WriteLine(e, "An error ocurred while trying to print");
-		        MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
-		    }
-		    return returnPrinterSettings;
+                // TODO: Translation
+                //MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+            }
+            return returnPrinterSettings;
 		}
 
 		private bool IsColorPrint()

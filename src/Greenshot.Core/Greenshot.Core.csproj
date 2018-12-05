@@ -1,110 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <ProjectGuid>{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Greenshot.Core</RootNamespace>
-    <AssemblyName>Greenshot.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Dapplo.Log, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.2.1\lib\net45\Dapplo.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.109\lib\net461\Dapplo.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.109\lib\net461\Dapplo.Windows.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.109\lib\net461\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.109\lib\net461\Dapplo.Windows.Gdi32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Icons, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.109\lib\net461\Dapplo.Windows.Icons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.109\lib\net461\Dapplo.Windows.Input.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.109\lib\net461\Dapplo.Windows.Kernel32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.109\lib\net461\Dapplo.Windows.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.109\lib\net461\Dapplo.Windows.User32.dll</HintPath>
-    </Reference>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reactive.4.1.0\lib\net46\System.Reactive.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
   </ItemGroup>
+  
   <ItemGroup>
-    <Compile Include="Capture.cs" />
-    <Compile Include="CaptureElement.cs" />
-    <Compile Include="CaptureFlow.cs" />
-    <Compile Include="Configuration\ICaptureConfiguration.cs" />
-    <Compile Include="Enums\CaptureElementType.cs" />
-    <Compile Include="Enums\OutputFormats.cs" />
-    <Compile Include="Enums\ScreenCaptureMode.cs" />
-    <Compile Include="Enums\WindowCaptureModes.cs" />
-    <Compile Include="Extensions\BitmapSourceExtensions.cs" />
-    <Compile Include="Extensions\InteropWindowCaptureExtensions.cs" />
-    <Compile Include="Interfaces\ICapture.cs" />
-    <Compile Include="Interfaces\ICaptureElement.cs" />
-    <Compile Include="Interfaces\IDestination.cs" />
-    <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Interfaces\ISource.cs" />
-    <Compile Include="Interfaces\ITemplate.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sources\MouseSource.cs" />
-    <Compile Include="Sources\DwmWindowSource.cs" />
-    <Compile Include="Sources\ScreenSource.cs" />
-    <Compile Include="Structs\Bgra32.cs" />
-    <Compile Include="Templates\SimpleTemplate.cs" />
-    <Compile Include="Templates\CroppedTemplate.cs" />
+    <PackageReference Include="Dapplo.Windows.Icons">
+      <Version>0.7.26</Version>
+    </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+   <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

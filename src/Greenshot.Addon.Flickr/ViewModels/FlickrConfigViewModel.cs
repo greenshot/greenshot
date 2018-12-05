@@ -25,12 +25,16 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addon.Flickr.Configuration;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Flickr.ViewModels
 {
+    /// <summary>
+    /// This is the ViewModel for the configuration of the Flickr addon
+    /// </summary>
     public sealed class FlickrConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -38,10 +42,20 @@ namespace Greenshot.Addon.Flickr.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Configuration for the view
+        /// </summary>
         public IFlickrConfiguration FlickrConfiguration { get; }
-        
+
+        /// <summary>
+        /// Translations for the view
+        /// </summary>
         public IFlickrLanguage FlickrLanguage { get; }
-        
+
+        /// <summary>
+        /// FileConfigPartViewModel is used from the view
+        /// TODO: Check if this is really true and needed
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
         public FlickrConfigViewModel(
@@ -54,6 +68,7 @@ namespace Greenshot.Addon.Flickr.ViewModels
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = FlickrConfiguration;
@@ -75,12 +90,16 @@ namespace Greenshot.Addon.Flickr.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
 
+        /// <summary>
+        /// Used in the view for the dropdown
+        /// </summary>
         public SafetyLevel SelectedSafetyLevel
         {
             get => FlickrConfiguration.SafetyLevel;
@@ -91,6 +110,9 @@ namespace Greenshot.Addon.Flickr.ViewModels
             }
         }
 
+        /// <summary>
+        /// Used for a dropdown in the view
+        /// </summary>
         public IDictionary<SafetyLevel, string> SafetyLevels => FlickrLanguage.TranslationValuesForEnum<SafetyLevel>();
     }
 }

@@ -34,7 +34,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
-using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Destinations;
 using Greenshot.Help;
@@ -60,13 +59,16 @@ using Greenshot.Gfx;
 using Greenshot.Ui.Configuration.ViewModels;
 using Message = System.Windows.Forms.Message;
 using Screen = System.Windows.Forms.Screen;
+using Dapplo.Config.Ini;
+using Dapplo.Addons;
+using Greenshot.Addons.Resources;
 
 #endregion
 
 namespace Greenshot.Forms
 {
     /// <summary>
-    ///     Description of MainForm.
+    ///     The MainForm provides the "shell" of the application
     /// </summary>
     public partial class MainForm : GreenshotForm
     {
@@ -89,6 +91,7 @@ namespace Greenshot.Forms
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
             IGreenshotLanguage greenshotLanguage,
+            GreenshotResources greenshotResources,
             Func<Owned<ConfigViewModel>> configViewModelFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
             DestinationHolder destinationHolder) : base(greenshotLanguage)
@@ -119,7 +122,8 @@ namespace Greenshot.Forms
                 ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
                 throw;
             }
-            notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
+
+            notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
 
             // Disable access to the settings, for feature #3521446
             contextmenu_settings.Visible = !_coreConfiguration.DisableSettings;
@@ -367,7 +371,6 @@ namespace Greenshot.Forms
             
         }
 
-
         /// <summary>
         /// Setup the Bitmap scaling (for icons)
         /// </summary>
@@ -386,10 +389,10 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.Size = new Size(170, width + 8);
                 contextMenu.ResumeLayout(true);
                 contextMenu.Refresh();
-                notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
+                notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
             });
 
-            var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            var contextMenuResourceScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
@@ -512,8 +515,7 @@ namespace Greenshot.Forms
                 now.Month == 3 && now.Day > 13 && now.Day < 21)
             {
                 // birthday
-                var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = GreenshotResources.Instance.GetBitmap("contextmenu_present.Image", GetType());
             }
         }
 
@@ -923,6 +925,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
 
+            var languageKeys = _greenshotLanguage.Keys().ToList();
             if (!_coreConfiguration.IsWriteProtected("WindowCaptureMode"))
             {
                 // Capture Modes
@@ -933,7 +936,15 @@ namespace Greenshot.Forms
                 var enumTypeName = typeof(WindowCaptureModes).Name;
                 foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes)))
                 {
-                    selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
+                    var key = enumTypeName + "." + captureMode;
+                    if (languageKeys.Contains(key))
+                    {
+                        selectList.AddItem(_greenshotLanguage[key], captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
+                    }
+                    else
+                    {
+                        Log.Warn().WriteLine("Missing translation for {0}", key);
+                    }
                 }
                 selectList.CheckedChanged += QuickSettingCaptureModeChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -947,7 +958,15 @@ namespace Greenshot.Forms
 
             foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint") && value.ValueType == typeof(bool) && !_coreConfiguration.IsWriteProtected(value.PropertyName)))
             {
-                selectList.AddItem(Language.GetString(outputPrintIniValue.PropertyName), outputPrintIniValue, (bool) outputPrintIniValue.Value);
+                var key = outputPrintIniValue.PropertyName;
+                if (languageKeys.Contains(key))
+                {
+                    selectList.AddItem(_greenshotLanguage[key], outputPrintIniValue, (bool)outputPrintIniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", key);
+                }
             }
             if (selectList.DropDownItems.Count > 0)
             {
@@ -965,18 +984,32 @@ namespace Greenshot.Forms
                 Text = _greenshotLanguage.SettingsVisualization
             };
 
-            var iniValue = _coreConfiguration["PlayCameraSound"];
+            var iniValue = _coreConfiguration.GetIniValue("PlayCameraSound");
             var languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
 
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
+                if (languageKeys.Contains(languageKey))
+                {
+                    selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool)iniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", languageKey);
+                }
             }
-            iniValue = _coreConfiguration["ShowTrayNotification"];
+            iniValue = _coreConfiguration.GetIniValue("ShowTrayNotification");
             languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
             if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
+                if (languageKeys.Contains(languageKey))
+                {
+                    selectList.AddItem(_greenshotLanguage[languageKey], iniValue, (bool)iniValue.Value);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Missing translation for {0}", languageKey);
+                }
             }
             if (selectList.DropDownItems.Count > 0)
             {

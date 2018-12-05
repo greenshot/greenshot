@@ -38,23 +38,31 @@ namespace Greenshot.Addons.Core
 	/// </summary>
 	public class CaptureDetails : ICaptureDetails
 	{
+	    /// <inheritdoc />
 		public CaptureDetails()
 		{
 			DateTime = DateTime.Now;
 		}
 
-		public string Title { get; set; }
+	    /// <inheritdoc />
+	    public string Title { get; set; }
 
+	    /// <inheritdoc />
 		public string Filename { get; set; }
 
+	    /// <inheritdoc />
 		public DateTime DateTime { get; set; }
 
+	    /// <inheritdoc />
 		public float DpiX { get; set; }
 
+	    /// <inheritdoc />
 		public float DpiY { get; set; }
 
+	    /// <inheritdoc />
 		public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
 
+	    /// <inheritdoc />
 		public void AddMetaData(string key, string value)
 		{
 			if (MetaData.ContainsKey(key))
@@ -67,15 +75,19 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
+	    /// <inheritdoc />
 		public CaptureMode CaptureMode { get; set; }
 
+	    /// <inheritdoc />
 		public List<IDestination> CaptureDestinations { get; set; } = new List<IDestination>();
 
+	    /// <inheritdoc />
 		public void ClearDestinations()
 		{
 			CaptureDestinations.Clear();
 		}
 
+	    /// <inheritdoc />
 		public void RemoveDestination(IDestination destination)
 		{
 			if (CaptureDestinations.Contains(destination))
@@ -84,6 +96,7 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
+	    /// <inheritdoc />
 		public void AddDestination(IDestination captureDestination)
 		{
 			if (!CaptureDestinations.Contains(captureDestination))
@@ -92,6 +105,7 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
+	    /// <inheritdoc />
 		public bool HasDestination(string designation)
 		{
 			foreach (var destination in CaptureDestinations)

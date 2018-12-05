@@ -29,8 +29,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Greenshot.Gfx;
-using Dapplo.Ini;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Config.Impl;
 
 #endregion
 
@@ -41,8 +41,9 @@ namespace Greenshot.Forms
 	/// </summary>
 	public sealed class ToolStripMenuSelectList : ToolStripMenuItem
 	{
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-		private static Image _defaultImage;
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+        private static Image _defaultImage;
 		private readonly bool _multiCheckAllowed;
 		private bool _updateInProgress;
 

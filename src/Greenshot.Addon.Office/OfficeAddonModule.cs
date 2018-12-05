@@ -24,8 +24,10 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.Office.Configuration;
+using Greenshot.Addon.Office.Configuration.Impl;
 using Greenshot.Addon.Office.Destinations;
 using Greenshot.Addon.Office.ViewModels;
 using Greenshot.Addons.Components;
@@ -36,6 +38,10 @@ namespace Greenshot.Addon.Office
     /// <inheritdoc />
     public class OfficeAddonModule : AddonModule
     {
+        /// <summary>
+        /// Define the dependencies of this project
+        /// </summary>
+        /// <param name="builder">ContainerBuilder</param>
         protected override void Load(ContainerBuilder builder)
         {
             var hasDestination = false;
@@ -88,14 +94,16 @@ namespace Greenshot.Addon.Office
             if (hasDestination)
             {
                 builder
-                    .Register(context => IniConfig.Current.Get<IOfficeConfiguration>())
+                    .RegisterType<OfficeConfigurationImpl>()
                     .As<IOfficeConfiguration>()
+                    .As<IIniSection>()
                     .SingleInstance();
 
 
                 builder
-                    .Register(context => LanguageLoader.Current.Get<IOfficeLanguage>())
+                    .RegisterType<OfficeLanguageImpl>()
                     .As<IOfficeLanguage>()
+                    .As<ILanguage>()
                     .SingleInstance();
 
                 builder

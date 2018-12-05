@@ -25,7 +25,7 @@
 
 using System;
 using System.Windows.Forms;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;
@@ -41,7 +41,7 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-	    private readonly ICoreConfiguration _coreConfiguration;
+	    protected readonly ICoreConfiguration _coreConfiguration;
 	    private const int DefaultVerticalRefresh = 60;
 		private static readonly LogSource Log = new LogSource();
 		private Timer _timer;

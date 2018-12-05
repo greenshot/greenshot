@@ -63,7 +63,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
             {
                 int halfHeight = e.ArrowRectangle.Height / 2;
                 int halfWidth = e.ArrowRectangle.Width / 2;
-                Point middle = new Point(dropDownRect.Left + halfWidth, dropDownRect.Top + halfHeight);
+                var middle = new Point(dropDownRect.Left + halfWidth, dropDownRect.Top + halfHeight);
 
                 Point[] arrow;
 

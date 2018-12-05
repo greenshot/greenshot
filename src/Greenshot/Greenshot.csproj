@@ -1,577 +1,127 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
-  <Import Project="..\CommonProject.properties" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <ProjectGuid>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</ProjectGuid>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Greenshot</RootNamespace>
-    <AssemblyName>Greenshot</AssemblyName>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <NoStdLib>False</NoStdLib>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <ApplicationManifest>greenshot.manifest</ApplicationManifest>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <TargetFrameworkProfile />
+    <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <ApplicationManifest>greenshot.manifest</ApplicationManifest>
+    <AssemblyTitle>Greenshot</AssemblyTitle>
+    <AssemblyName>Greenshot</AssemblyName>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Extras.AttributeMetadata, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Extras.AttributeMetadata.4.0.1\lib\net45\Autofac.Extras.AttributeMetadata.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Extras.CommonServiceLocator, Version=5.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Extras.CommonServiceLocator.5.0.0\lib\net45\Autofac.Extras.CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Integration.Mef, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Mef.4.0.0\lib\net45\Autofac.Integration.Mef.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.Core.3.2.0\lib\net45\Caliburn.Micro.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CommandLine, Version=2.3.0.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineParser.2.3.0\lib\net45\CommandLine.dll</HintPath>
-    </Reference>
-    <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
-    </Reference>
-    <Reference Include="Costura, Version=3.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Costura.Fody.3.1.0\lib\net46\Costura.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.1.0.79\lib\net461\Dapplo.Addons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.1.0.79\lib\net461\Dapplo.Addons.Bootstrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons.Config, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Config.1.0.79\lib\net461\Dapplo.Addons.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.1.0.75\lib\net461\Dapplo.CaliburnMicro.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Configuration, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Configuration.1.0.75\lib\net461\Dapplo.CaliburnMicro.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Dapp, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Dapp.1.0.75\lib\net461\Dapplo.CaliburnMicro.Dapp.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Menu, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Menu.1.0.75\lib\net461\Dapplo.CaliburnMicro.Menu.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Metro, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.1.0.75\lib\net461\Dapplo.CaliburnMicro.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Security, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Security.1.0.75\lib\net461\Dapplo.CaliburnMicro.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Toasts, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Toasts.1.0.75\lib\net461\Dapplo.CaliburnMicro.Toasts.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Translations, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.1.0.75\lib\net461\Dapplo.CaliburnMicro.Translations.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.8.46\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions.JsonNet, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.JsonNet.0.8.46\lib\net46\Dapplo.HttpExtensions.JsonNet.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.HttpExtensions.OAuth, Version=0.8.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.OAuth.0.8.46\lib\net46\Dapplo.HttpExtensions.OAuth.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Ini, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Ini.0.5.31\lib\net45\Dapplo.Ini.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.InterfaceImpl, Version=0.2.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.12\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Language, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Language.0.5.31\lib\net45\Dapplo.Language.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Log, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.2.1\lib\net45\Dapplo.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Log.LogFile, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.LogFile.1.2.1\lib\net45\Dapplo.Log.LogFile.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Log.Loggers, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.Loggers.1.2.1\lib\net45\Dapplo.Log.Loggers.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Utils, Version=1.0.161.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.1.0.161\lib\net45\Dapplo.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.109\lib\net461\Dapplo.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.109\lib\net461\Dapplo.Windows.Clipboard.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Com, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Com.0.5.109\lib\net461\Dapplo.Windows.Com.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.109\lib\net461\Dapplo.Windows.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.109\lib\net461\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.109\lib\net461\Dapplo.Windows.Dpi.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.EmbeddedBrowser, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.EmbeddedBrowser.0.5.109\lib\net461\Dapplo.Windows.EmbeddedBrowser.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.109\lib\net461\Dapplo.Windows.Gdi32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Icons, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.109\lib\net461\Dapplo.Windows.Icons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.109\lib\net461\Dapplo.Windows.Input.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.109\lib\net461\Dapplo.Windows.Kernel32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.109\lib\net461\Dapplo.Windows.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Multimedia, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Multimedia.0.5.109\lib\net461\Dapplo.Windows.Multimedia.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Shell32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Shell32.0.5.109\lib\net461\Dapplo.Windows.Shell32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.109\lib\net461\Dapplo.Windows.User32.dll</HintPath>
-    </Reference>
-    <Reference Include="GongSolutions.Wpf.DragDrop, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\gong-wpf-dragdrop.1.1.0\lib\net46\GongSolutions.Wpf.DragDrop.dll</HintPath>
-    </Reference>
-    <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.1.6.5\lib\net46\MahApps.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="MahApps.Metro.IconPacks, Version=2.3.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.IconPacks.2.3.0\lib\net46\MahApps.Metro.IconPacks.dll</HintPath>
-    </Reference>
+    <None Include="Languages\language*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Console" Version="4.3.1" />
+    <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
+    <PackageReference Include="System.Globalization" Version="4.3.0" />
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+    <PackageReference Include="System.Management" Version="4.5.0" />
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
-      <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Console, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Console.4.0.0\lib\net46\System.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Drawing" />
+    <Reference Include="System" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reactive.4.1.0\lib\net46\System.Reactive.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reflection.TypeExtensions, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reflection.TypeExtensions.4.5.0\lib\net461\System.Reflection.TypeExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="ToastNotifications, Version=2.3.4.0, Culture=neutral, PublicKeyToken=e89d9d7314a7c797, processorArchitecture=MSIL">
-      <HintPath>..\packages\ToastNotifications.2.3.4\lib\net40\ToastNotifications.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Components\HotKeyHandler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Components\AuthenticationProvider.cs" />
-    <Compile Include="Components\CommandlineParser.cs" />
-    <Compile Include="Components\MainFormStartup.cs" />
-    <Compile Include="Components\HotkeyService.cs" />
-    <Compile Include="Components\FormsStartup.cs" />
-    <Compile Include="Configuration\CommandlineCaptureOptions.cs" />
-    <Compile Include="Configuration\CommandlineOptions.cs" />
-    <Compile Include="Configuration\IConfigTranslations.cs" />
-    <Compile Include="Configuration\IMetroConfiguration.cs" />
-    <Compile Include="Configuration\LanguageKeys.cs" />
-    <Compile Include="Destinations\ClipboardDestination.cs" />
-    <Compile Include="Destinations\EmailDestination.cs" />
-    <Compile Include="Destinations\FileDestination.cs" />
-    <Compile Include="Destinations\FileWithDialogDestination.cs" />
-    <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PrinterDestination.cs" />
-    <Compile Include="Forms\AboutForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AboutForm.Designer.cs">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.Designer.cs">
-      <DependentUpon>CaptureForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\LanguageDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LanguageDialog.Designer.cs">
-      <DependentUpon>LanguageDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\PrintOptionsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PrintOptionsDialog.Designer.cs">
-      <DependentUpon>PrintOptionsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ToolStripMenuSelectList.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Forms\BugReportForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\BugReportForm.Designer.cs">
-      <DependentUpon>BugReportForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GreenshotAutofacModule.cs" />
-    <Compile Include="Startup.cs" />
-    <Compile Include="Ui\Configuration\AddonDestinationsConfigNode.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\ClipboardDestinationConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\PrintConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\OutputConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\NetworkConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\GeneralConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\DestinationPickerConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\InternalDestinationsConfigNode.cs" />
-    <Compile Include="Ui\Configuration\CaptureConfigNode.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\CaptureConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\UiConfigViewModel.cs" />
-    <Compile Include="Ui\Misc\ViewModels\ErrorViewModel.cs" />
-    <Compile Include="Ui\Misc\ViewModels\SplashViewModel.cs" />
-    <Compile Include="Ui\Notifications\ViewModels\UpdateNotificationViewModel.cs" />
-    <None Include="App.config" />
-    <Compile Include="Helpers\CaptureHelper.cs" />
-    <Compile Include="Components\GreenshotClient.cs" />
-    <Compile Include="Components\GreenshotServer.cs" />
-    <Compile Include="Helpers\ScrollingCapture.cs" />
-    <Compile Include="Help\HelpFileLoader.cs" />
-    <Compile Include="Processors\TitleFixProcessor.cs" />
-    <Compile Include="Helpers\WindowWrapper.cs" />
-    <Compile Include="Components\UpdateService.cs" />
-    <Compile Include="Helpers\EnvironmentInfo.cs" />
-    <Compile Include="Helpers\MailHelper.cs" />
-    <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Components\SoundHelper.cs" />
-    <Compile Include="Helpers\StartupHelper.cs" />
-    <EmbeddedResource Include="Forms\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx" />
-    <None Include="greenshot.manifest" />
-    <None Include="Languages\Help\help-en-US.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-de-DE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-es-ES.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-fr-FR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-hu-HU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-it-IT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-nl-NL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-nn-NO.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-pl-PL.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-ru-RU.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-sv-SE.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-tr-TR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-zh-CN.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-ko-KR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\Help\help-pt-PT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ar-SY.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-cs-CZ.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-de-DE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-el-GR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-en-US.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-es-ES.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fa-IR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fi-FI.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fr-FR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-fr-QC.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-he-IL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-hu-HU.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-it-IT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ja-JP.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ko-KR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-lt-LT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-nl-NL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-nn-NO.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pl-PL.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pt-BR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-pt-PT.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ro-RO.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-ru-RU.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sk-SK.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sv-SE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-tr-TR.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-uk-UA.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-vi-VN.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-zh-CN.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-zh-tw.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
+    <EmbeddedResource Include="Resources\camera.wav" />
+    <EmbeddedResource Include="Resources\contextmenu_capturearea.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_captureclipboard.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturefullscreen.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturelastregion.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_capturewindow.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_donate.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_exit.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_help.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_openfile.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_present.Image.png" />
+    <EmbeddedResource Include="Resources\contextmenu_settings.Image.png" />
+    <EmbeddedResource Include="Resources\icon.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj">
-      <Project>{4cca2717-b8a4-44f7-965b-5687107e4921}</Project>
-      <Name>Greenshot.Addon.InternetExplorer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
-      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
-      <Name>Greenshot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>Greenshot.Addons</Name>
-    </ProjectReference>
+    <PackageReference Include="Autofac.Extras.CommonServiceLocator" Version="5.0.0" />
+    <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
+    <PackageReference Include="CommandLineParser" Version="2.3.0" />
+    <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="1.2.7" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.7" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="1.2.7" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Toasts" Version="1.2.7" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.7" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
+    <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.11" />
+    <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.11" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.7.26" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.7.26" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.7.26" />
+    <PackageReference Include="Fody" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.0.0-alpha0106" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0089" />
+    <PackageReference Include="Svg" Version="2.3.0" />
   </ItemGroup>
+  
   <ItemGroup>
-    <None Include="Languages\language-kab-DZ.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Box\Greenshot.Addon.Box.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Confluence\Greenshot.Addon.Confluence.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.ExternalCommand\Greenshot.Addon.ExternalCommand.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Flickr\Greenshot.Addon.Flickr.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.GooglePhotos\Greenshot.Addon.GooglePhotos.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Imgur\Greenshot.Addon.Imgur.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Lutim\Greenshot.Addon.Lutim.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Photobucket\Greenshot.Addon.Photobucket.csproj" />
+    <ProjectReference Include="..\Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj" />
+    <ProjectReference Condition="$(OsProductName.Contains('Windows 10'))" Include="..\Greenshot.Addon.Win10\Greenshot.Addon.Win10.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Languages\language-ca-CA.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-da-DK.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-de-x-franconia.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-et-EE.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-id-ID.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-lv-LV.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\language-sl-SI.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+    <ProjectReference Include="..\Greenshot.Addon.Jira\Greenshot.Addon.Jira.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="FodyWeavers.xml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Ui\Configuration\Views\ClipboardDestinationConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\DestinationPickerConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\ConfigView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Configuration\Views\CaptureConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\PrintConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\OutputConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\NetworkConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\GeneralConfigView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Configuration\Views\UiConfigView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Misc\Views\ErrorView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Ui\Misc\Views\SplashView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Ui\Notifications\Views\UpdateNotificationView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <Import Project="..\packages\Fody.3.1.4\build\Fody.targets" Condition="Exists('..\packages\Fody.3.1.4\build\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.3.1.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.3.1.4\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets'))" />
-  </Target>
-  <Import Project="..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.3.1.0\build\Costura.Fody.targets')" />
 </Project>

@@ -30,6 +30,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addon.OCR.Configuration;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -51,11 +52,11 @@ namespace Greenshot.Addon.OCR
 	    private static readonly LogSource Log = new LogSource();
 	    private const int MinWidth = 130;
 	    private const int MinHeight = 130;
-        private readonly IOCRConfiguration _ocrConfiguration;
+        private readonly IOcrConfiguration _ocrConfiguration;
 	    private readonly string _ocrCommand;
 
         public OcrDestination(
-            IOCRConfiguration ocrConfiguration,
+            IOcrConfiguration ocrConfiguration,
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification

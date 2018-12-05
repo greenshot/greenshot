@@ -1,4 +1,7 @@
 ﻿using System;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 
 namespace Greenshot.PerformanceTests
@@ -11,7 +14,9 @@ namespace Greenshot.PerformanceTests
         // ReSharper disable once UnusedParameter.Local
         private static void Main(string[] args)
         {
-            BenchmarkRunner.Run<GfxPerformance>();
+            var job = Job.Default.With(Platform.X64);
+            var config = DefaultConfig.Instance.With(job).KeepBenchmarkFiles(true);
+            BenchmarkRunner.Run<GfxPerformanceShort>(config);
             Console.ReadLine();
         }
     }

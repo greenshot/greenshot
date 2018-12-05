@@ -30,7 +30,6 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.Language;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
@@ -60,13 +59,15 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// Used from the View
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public IDictionary<string, string> AvailableLanguages => LanguageLoader.Current.AvailableLanguages;
+        // TODO: Fix
+        public IDictionary<string, string> AvailableLanguages => new Dictionary<string, string>();//LanguageLoader.Current.AvailableLanguages;
 
         /// <summary>
         ///     Can the login button be pressed?
         /// </summary>
+        // TODO: Fix
         public bool CanChangeLanguage
-            => !string.IsNullOrWhiteSpace(CoreConfiguration.Language) && CoreConfiguration.Language != LanguageLoader.Current.CurrentLanguage;
+            => !string.IsNullOrWhiteSpace(CoreConfiguration.Language); // && CoreConfiguration.Language != LanguageLoader.Current.CurrentLanguage;
 
         public IMetroConfiguration MetroConfiguration { get; }
 
@@ -98,11 +99,11 @@ namespace Greenshot.Ui.Configuration.ViewModels
         {
             // Manually commit
             MetroConfiguration.CommitTransaction();
-            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme);
-            MetroWindowManager.ChangeThemeAccent(MetroConfiguration.ThemeAccent);
+            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeAccent);
 
             CoreConfiguration.CommitTransaction();
-            Execute.OnUIThread(async () => { await LanguageLoader.Current.ChangeLanguageAsync(CoreConfiguration.Language).ConfigureAwait(false); });
+            // TODO: Fix
+            //Execute.OnUIThread(async () => { await LanguageLoader.Current.ChangeLanguageAsync(CoreConfiguration.Language).ConfigureAwait(false); });
 
         }
 

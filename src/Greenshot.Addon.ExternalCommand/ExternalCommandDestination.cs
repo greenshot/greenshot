@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CliWrap;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.ExternalCommand.Configuration;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -83,31 +84,30 @@ namespace Greenshot.Addon.ExternalCommand
 
 	        var fullPath = captureDetails.Filename ?? surface.SaveNamedTmpFile(CoreConfiguration, _externalCommandConfiguration);
 
-	        using (var cli = new Cli(_externalCommandDefinition.Command))
+	        var cli = new Cli(_externalCommandDefinition.Command);
+	        var arguments = string.Format(_externalCommandDefinition.Arguments, fullPath);
+	        // Execute
+	        cli.SetArguments(arguments);
+	        var output = await cli.ExecuteAsync().ConfigureAwait(true);
+
+	        if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
 	        {
-	            var arguments = string.Format(_externalCommandDefinition.Arguments, fullPath);
-	            // Execute
-	            var output = await cli.ExecuteAsync(arguments).ConfigureAwait(true);
-
-	            if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
+	            var uriMatches = UriRegexp.Matches(output.StandardOutput);
+	            if (uriMatches.Count > 0)
 	            {
-	                var uriMatches = UriRegexp.Matches(output.StandardOutput);
-	                if (uriMatches.Count > 0)
-	                {
-	                    exportInformation.Uri = uriMatches[0].Groups[1].Value;
+	                exportInformation.Uri = uriMatches[0].Groups[1].Value;
 
-	                    using (var clipboardAccessToken = ClipboardNative.Access())
-	                    {
-	                        clipboardAccessToken.ClearContents();
-                            clipboardAccessToken.SetAsUrl(exportInformation.Uri);
-	                    }
+	                using (var clipboardAccessToken = ClipboardNative.Access())
+	                {
+	                    clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(exportInformation.Uri);
 	                }
 	            }
+	        }
 
-	            if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.DeleteOnExit))
-	            {
-                    File.Delete(fullPath);
-	            }
+	        if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.DeleteOnExit))
+	        {
+                File.Delete(fullPath);
 	        }
 
 	        _exportNotification.NotifyOfExport(this, exportInformation, surface);

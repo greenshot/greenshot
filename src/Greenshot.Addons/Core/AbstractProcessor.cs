@@ -36,12 +36,11 @@ namespace Greenshot.Addons.Core
 	{
 		public virtual int CompareTo(object obj)
 		{
-			var other = obj as IProcessor;
-			if (other == null)
-			{
-				return 1;
-			}
-			if (Priority == other.Priority)
+            if (!(obj is IProcessor other))
+            {
+                return 1;
+            }
+            if (Priority == other.Priority)
 			{
 				return Description.CompareTo(other.Description);
 			}
@@ -52,22 +51,16 @@ namespace Greenshot.Addons.Core
 
 		public abstract string Description { get; }
 
-		public virtual int Priority
-		{
-			get { return 10; }
-		}
+		public virtual int Priority => 10;
 
-		public void Dispose()
+	    public void Dispose()
 		{
 			Dispose(true);
 		}
 
-		public virtual bool IsActive
-		{
-			get { return true; }
-		}
+		public virtual bool IsActive => true;
 
-		public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+	    public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
 
 		protected virtual void Dispose(bool disposing)
 		{

@@ -27,9 +27,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.PowerPoint;
@@ -39,11 +39,23 @@ using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
-    public static class PowerpointExporter
+    /// <summary>
+    /// Export logic for powerpoint
+    /// </summary>
+    public class PowerpointExporter
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
-        private static Version _powerpointVersion;
+        private readonly IOfficeConfiguration _officeConfiguration;
+        private Version _powerpointVersion;
+
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
+        public PowerpointExporter(IOfficeConfiguration officeConfiguration)
+        {
+            _officeConfiguration = officeConfiguration;
+        }
 
         /// <summary>
         ///     Internal method to add a picture to a presentation
@@ -52,7 +64,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
         /// <param name="title"></param>
-        private static void AddPictureToPresentation(IDisposableCom<Presentation> presentation, string tmpFile, Size imageSize, string title)
+        private void AddPictureToPresentation(IDisposableCom<Presentation> presentation, string tmpFile, Size imageSize, string title)
         {
             if (presentation != null)
             {
@@ -75,7 +87,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                     {
                         using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
                         {
-                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, OfficeConfig.PowerpointSlideLayout));
+                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, _officeConfiguration.PowerpointSlideLayout));
                         }
 
                         using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
@@ -122,7 +134,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                     {
                         using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height)))
                         {
-                            if (OfficeConfig.PowerpointLockAspectRatio)
+                            if (_officeConfiguration.PowerpointLockAspectRatio)
                             {
                                 shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
                             }
@@ -200,7 +212,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="imageSize">Size of the image</param>
         /// <param name="title">A string with the image title</param>
         /// <returns></returns>
-        public static bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title)
+        public bool ExportToPresentation(string presentationName, string tmpFile, Size imageSize, string title)
         {
             using (var powerpointApplication = GetPowerPointApplication())
             {
@@ -243,9 +255,9 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running PowerPoint application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for PowerPoint.Application</returns>
-        private static IDisposableCom<Application> GetOrCreatePowerPointApplication()
+        private IDisposableCom<Application> GetOrCreatePowerPointApplication()
         {
-            IDisposableCom<Application> powerPointApplication = GetPowerPointApplication();
+            var powerPointApplication = GetPowerPointApplication();
             if (powerPointApplication == null)
             {
                 powerPointApplication = DisposableCom.Create(new Application());
@@ -258,12 +270,12 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running PowerPoint application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for PowerPoint.Application or null</returns>
-        private static IDisposableCom<Application> GetPowerPointApplication()
+        private IDisposableCom<Application> GetPowerPointApplication()
         {
             IDisposableCom<Application> powerPointApplication;
             try
             {
-                powerPointApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("PowerPoint.Application"));
+                powerPointApplication = OleAut32Api.GetActiveObject<Application>("PowerPoint.Application");
             }
             catch (Exception)
             {
@@ -281,7 +293,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Get the captions of all the open powerpoint presentations
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> GetPowerpointPresentations()
+        public IEnumerable<string> GetPowerpointPresentations()
         {
             using (var powerpointApplication = GetPowerPointApplication())
             {
@@ -323,7 +335,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Initialize static powerpoint variables like version
         /// </summary>
         /// <param name="powerpointApplication">IPowerpointApplication</param>
-        private static void InitializeVariables(IDisposableCom<Application> powerpointApplication)
+        private void InitializeVariables(IDisposableCom<Application> powerpointApplication)
         {
             if ((powerpointApplication == null) || (powerpointApplication.ComObject == null) || (_powerpointVersion != null))
             {
@@ -343,7 +355,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="imageSize"></param>
         /// <param name="title"></param>
         /// <returns></returns>
-        public static bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title)
+        public bool InsertIntoNewPresentation(string tmpFile, Size imageSize, string title)
         {
             bool isPictureAdded = false;
             using (var powerpointApplication = GetOrCreatePowerPointApplication())
@@ -372,7 +384,7 @@ namespace Greenshot.Addon.Office.OfficeExport
             return isPictureAdded;
         }
 
-        private static bool IsAfter2003()
+        private bool IsAfter2003()
         {
             return _powerpointVersion.Major > (int)OfficeVersions.Office2003;
         }

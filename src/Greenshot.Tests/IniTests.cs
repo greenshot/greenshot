@@ -21,10 +21,8 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using Dapplo.Ini;
-using Dapplo.Ini.Converters;
-using Greenshot.Addon.Dropbox;
+using Dapplo.Config.Ini.Converters;
+using Greenshot.Addon.Dropbox.Configuration.Impl;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -32,19 +30,15 @@ namespace Greenshot.Tests
     public class IniTests
     {
         [Fact]
-        public async Task ConstIniTest()
+        public void ConstIniTest()
         {
             // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
             StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
-            using (var iniConfig = new IniConfig("greenshot", "greenshot"))
-            {
-                await iniConfig.LoadIfNeededAsync();
-                var dropboxConfiguration = iniConfig.Get<IDropboxConfiguration>();
-                // TODO: Fix this!!
-                Assert.NotEqual("@credentials_dropbox_consumer_key@", dropboxConfiguration.ClientId);
-            }
+            var dropboxConfiguration = new DropboxConfigurationImpl();
+            // TODO: Fix this!!
+            Assert.NotEqual("@credentials_dropbox_consumer_key@", dropboxConfiguration.ClientId);
         }
     }
 }

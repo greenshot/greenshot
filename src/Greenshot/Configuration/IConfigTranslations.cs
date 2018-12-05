@@ -22,12 +22,12 @@
 #endregion
 
 using System.ComponentModel;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 
 namespace Greenshot.Configuration
 {
     [Language("Config")]
-    public interface IConfigTranslations : Dapplo.CaliburnMicro.Translations.IConfigTranslations, ILanguage, INotifyPropertyChanged
+    public interface IConfigTranslations : Dapplo.CaliburnMicro.Translations.IConfigTranslations, ILanguage
     {
         [DefaultValue("Theme")]
         string Theme { get; }

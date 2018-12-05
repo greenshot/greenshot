@@ -24,14 +24,14 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.Language;
+using Dapplo.Config.Language;
 
 #endregion
 
 namespace Greenshot.Addons
 {
     [Language("Core")]
-    public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, Dapplo.CaliburnMicro.Translations.ICoreTranslations
+    public interface IGreenshotLanguage : ILanguage, Dapplo.CaliburnMicro.Translations.ICoreTranslations
     {
         string None { get; }
         string AboutBugs { get; }

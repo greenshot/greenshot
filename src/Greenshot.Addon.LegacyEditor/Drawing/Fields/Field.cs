@@ -119,8 +119,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		public override bool Equals(object obj)
 		{
-			var other = obj as Field;
-			if (other == null)
+		    if (!(obj is Field other))
 			{
 				return false;
 			}

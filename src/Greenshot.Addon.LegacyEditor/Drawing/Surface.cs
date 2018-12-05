@@ -33,12 +33,12 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
-using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Memento;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -57,12 +57,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();
+	    // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration conf = new CoreConfigurationImpl();
 
-		/// <summary>
-		/// The number of Surfaces in existance
-		/// </summary>
-		public static int Count { get; private set; }
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+        /// <summary>
+        /// The number of Surfaces in existance
+        /// </summary>
+        public static int Count { get; private set; }
 
 		/// <summary>
 		///     all elements on the surface, needed with serialization
@@ -596,7 +597,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns></returns>
 		public Bitmap GetBitmapForExport()
 		{
-			return GetBitmap(RenderMode.EXPORT);
+			return GetBitmap(RenderMode.Export);
 		}
 
 		/// <summary>
@@ -1645,7 +1646,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                     DrawBackground(graphics, clipRectangle);
 					graphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
-					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
+					_elements.Draw(graphics, _buffer, RenderMode.Edit, clipRectangle);
 				}
 				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			}
@@ -1653,7 +1654,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				DrawBackground(targetGraphics, clipRectangle);
 				targetGraphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+				_elements.Draw(targetGraphics, null, RenderMode.Edit, clipRectangle);
 			}
 
 			// No clipping for the adorners

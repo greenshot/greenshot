@@ -31,7 +31,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Greenshot.Destinations;
@@ -50,7 +49,7 @@ using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
-using LangKey = Greenshot.Configuration.LangKey;
+using Greenshot.Addons.Config.Impl;
 
 #endregion
 
@@ -62,7 +61,8 @@ namespace Greenshot.Helpers
     public class CaptureHelper : IDisposable
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private CaptureMode _captureMode;
@@ -425,7 +425,8 @@ namespace Greenshot.Helpers
                     }
                     else
                     {
-                        MessageBox.Show(Language.GetString("clipboard_noimage"));
+                        // TODO: Translation
+                        //MessageBox.Show(Language.GetString("clipboard_noimage"));
                     }
                     break;
                 case CaptureMode.File:
@@ -449,7 +450,8 @@ namespace Greenshot.Helpers
                         catch (Exception e)
                         {
                             Log.Error().WriteLine(e, e.Message);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                            // TODO: Translation
+                            //MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
                         }
                         try
                         {
@@ -458,7 +460,8 @@ namespace Greenshot.Helpers
                         catch (Exception e)
                         {
                             Log.Error().WriteLine(e, e.Message);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                            // TODO: Translation
+                            //MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
                         }
                     }
                     if (fileImage != null)
@@ -678,7 +681,7 @@ namespace Greenshot.Helpers
             }
             else
             {
-                SelectedCaptureWindow = InteropWindowQuery.GetActiveWindow();
+                SelectedCaptureWindow = InteropWindowQuery.GetForegroundWindow();
                 if (SelectedCaptureWindow != null)
                 {
                     if (Log.IsDebugEnabled())
@@ -720,7 +723,7 @@ namespace Greenshot.Helpers
         /// <returns>WindowDetails with the target Window OR a replacement</returns>
         public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
         {
-            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
+            var windowRectangle = windowToCapture.GetInfo().Bounds;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
                 Log.Warn().WriteLine("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -781,7 +784,7 @@ namespace Greenshot.Helpers
             {
                 captureForWindow = new Capture();
             }
-            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
+            var windowRectangle = windowToCapture.GetInfo().Bounds;
 
             // When Vista & DWM (Aero) enabled
             var dwmEnabled = Dwm.IsDwmEnabled;
@@ -997,7 +1000,7 @@ namespace Greenshot.Helpers
         private void SetDpi()
         {
             // Workaround for proble with DPI retrieval, the FromHwnd activates the window...
-            var previouslyActiveWindow = InteropWindowQuery.GetActiveWindow();
+            var previouslyActiveWindow = InteropWindowQuery.GetForegroundWindow();
             // Workaround for changed DPI settings in Windows 7
             using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
             {

@@ -23,6 +23,7 @@
 
 using System.Linq;
 using Caliburn.Micro;
+using Greenshot.Addon.ExternalCommand.Configuration;
 using Greenshot.Addon.ExternalCommand.Entities;
 
 namespace Greenshot.Addon.ExternalCommand.ViewModels

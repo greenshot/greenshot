@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 
 namespace Greenshot.Addons.Controls
@@ -34,12 +35,12 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class ResourceImageManager : IDisposable
 	{
-		private readonly System.ComponentModel.ComponentResourceManager _resources;
+        private readonly Type _resourceType;
 		private readonly IList<Bitmap> _images = new List<Bitmap>();
 		public ResourceImageManager(Type resourceType)
 		{
-			_resources = new System.ComponentModel.ComponentResourceManager(resourceType);
-		}
+            _resourceType = resourceType;
+        }
 
 		/// <summary>
 		/// Get icons for displaying
@@ -48,7 +49,7 @@ namespace Greenshot.Addons.Controls
 		/// <returns>Bitmap</returns>
 		public Bitmap GetIcon(string imageName)
 		{
-			var bitmap = (Bitmap)_resources.GetObject(imageName);
+			var bitmap = GreenshotResources.Instance.GetBitmap(imageName, _resourceType);
 			var result = bitmap.ScaleIconForDisplaying(96);
 			if (Equals(bitmap, result))
 			{

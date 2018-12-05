@@ -127,7 +127,7 @@ namespace Greenshot.Components
                     {
                         Log.Info().WriteLine("Sending all instances the exit command.");
                         // Pass Exit to running instance, if any
-                        GreenshotClient.Exit();
+                        //GreenshotClient.Exit();
                     }
                     catch (Exception e)
                     {
@@ -146,7 +146,7 @@ namespace Greenshot.Components
                     try
                     {
                         // Update running instances
-                        GreenshotClient.ReloadConfig();
+                        //GreenshotClient.ReloadConfig();
                     }
                     catch (Exception ex)
                     {
@@ -253,7 +253,7 @@ namespace Greenshot.Components
                     }
                     else
                     {
-                        GreenshotClient.Capture(arguments[1]);
+                        //GreenshotClient.Capture(arguments[1]);
                     }
                     // TODO:
                     //FreeMutex();
@@ -269,7 +269,7 @@ namespace Greenshot.Components
                 // We didn't initialize the language yet, do it here just for the message box
                 if (filesToOpen.Count > 0)
                 {
-                    GreenshotClient.OpenFiles(filesToOpen);
+                    //GreenshotClient.OpenFiles(filesToOpen);
                 }
                 else
                 {

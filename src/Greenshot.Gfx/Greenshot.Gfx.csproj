@@ -1,184 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\CommonProject.properties" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F041C685-EB96-4ED1-9ACE-0F5BD836610F}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Greenshot.Gfx</RootNamespace>
-    <AssemblyName>Greenshot.Gfx</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Extras.AttributeMetadata, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Extras.AttributeMetadata.4.0.1\lib\net45\Autofac.Extras.AttributeMetadata.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Integration.Mef, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.Mef.4.0.0\lib\net45\Autofac.Integration.Mef.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.Core.3.2.0\lib\net45\Caliburn.Micro.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Caliburn.Micro.Platform.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.1.0.79\lib\net461\Dapplo.Addons.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=1.0.79.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.1.0.79\lib\net461\Dapplo.Addons.Bootstrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.1.0.75\lib\net461\Dapplo.CaliburnMicro.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Translations, Version=1.0.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.1.0.75\lib\net461\Dapplo.CaliburnMicro.Translations.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Ini, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Ini.0.5.31\lib\net45\Dapplo.Ini.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.InterfaceImpl, Version=0.2.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.12\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Language, Version=0.5.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Language.0.5.31\lib\net45\Dapplo.Language.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Log, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.2.1\lib\net45\Dapplo.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Utils, Version=1.0.161.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.1.0.161\lib\net45\Dapplo.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.109\lib\net461\Dapplo.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.109\lib\net461\Dapplo.Windows.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.109\lib\net461\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.109\lib\net461\Dapplo.Windows.Dpi.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.109\lib\net461\Dapplo.Windows.Gdi32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.109\lib\net461\Dapplo.Windows.Input.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.109\lib\net461\Dapplo.Windows.Kernel32.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.109\lib\net461\Dapplo.Windows.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.109.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.109\lib\net461\Dapplo.Windows.User32.dll</HintPath>
-    </Reference>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
-      <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reactive.4.1.0\lib\net46\System.Reactive.dll</HintPath>
-    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
   </ItemGroup>
+  
   <ItemGroup>
-    <Compile Include="BoxBlur.cs" />
-    <Compile Include="Effects\BlurEffect.cs" />
-    <Compile Include="Effects\EffectConverter.cs" />
-    <Compile Include="Effects\AdjustEffect.cs" />
-    <Compile Include="Effects\BorderEffect.cs" />
-    <Compile Include="Effects\DropShadowEffect.cs" />
-    <Compile Include="Effects\GrayscaleEffect.cs" />
-    <Compile Include="Effects\IEffect.cs" />
-    <Compile Include="Effects\InvertEffect.cs" />
-    <Compile Include="Effects\MonochromeEffect.cs" />
-    <Compile Include="Effects\ReduceColorsEffect.cs" />
-    <Compile Include="Effects\ResizeCanvasEffect.cs" />
-    <Compile Include="Effects\ResizeEffect.cs" />
-    <Compile Include="Effects\RotateEffect.cs" />
-    <Compile Include="Effects\Scale2xEffect.cs" />
-    <Compile Include="Effects\TornEdgeEffect.cs" />
-    <Compile Include="ExifOrientations.cs" />
-    <Compile Include="Extensions\WriteableBitmapExtensions.cs" />
-    <Compile Include="FastBitmap\Fast24RgbBitmap.cs" />
-    <Compile Include="FastBitmap\Fast32ArgbBitmap.cs" />
-    <Compile Include="FastBitmap\Fast32RgbBitmap.cs" />
-    <Compile Include="FastBitmap\FastBitmapFactory.cs" />
-    <Compile Include="FastBitmap\FastBitmapBase.cs" />
-    <Compile Include="FastBitmap\FastChunkyBitmap.cs" />
-    <Compile Include="FastBitmap\IFastBitmap.cs" />
-    <Compile Include="FastBitmap\IFastBitmapWithBlend.cs" />
-    <Compile Include="FastBitmap\IFastBitmapWithClip.cs" />
-    <Compile Include="FastBitmap\IFastBitmapWithOffset.cs" />
-    <Compile Include="Legacy\GeometryHelper.cs" />
-    <Compile Include="IBitmap.cs" />
-    <Compile Include="BitmapFactory.cs" />
-    <Compile Include="BitmapHelper.cs" />
-    <Compile Include="BitmapWrapper.cs" />
-    <Compile Include="Murmur3.cs" />
-    <Compile Include="Legacy\Positions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Legacy\RoundedRectangle.cs" />
-    <Compile Include="Legacy\ScaleHelper.cs" />
-    <Compile Include="ScaleX.cs" />
-    <Compile Include="Stitching\BitmapStitcher.cs" />
-    <Compile Include="Stitching\StitchInfo.cs" />
-    <Compile Include="SvgBitmap.cs" />
-    <Compile Include="Quantizer\WuColorCube.cs" />
-    <Compile Include="Quantizer\WuQuantizer.cs" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
+      <Version>1.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Svg">
+      <Version>2.3.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

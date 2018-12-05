@@ -31,6 +31,7 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Lutim.Configuration;
 using Greenshot.Addon.Lutim.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Extensions;

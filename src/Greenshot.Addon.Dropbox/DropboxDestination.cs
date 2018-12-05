@@ -39,6 +39,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Dropbox.Configuration;
 using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -197,7 +198,7 @@ namespace Greenshot.Addon.Dropbox
         /// <param name="progress">IProgress</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Url as string</returns>
-        private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
             // Use UploadProgress

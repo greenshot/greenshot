@@ -24,8 +24,10 @@
 using Autofac;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
-using Dapplo.Ini;
-using Dapplo.Language;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.Dropbox.Configuration;
+using Greenshot.Addon.Dropbox.Configuration.Impl;
 using Greenshot.Addon.Dropbox.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -37,13 +39,15 @@ namespace Greenshot.Addon.Dropbox
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(context => IniConfig.Current.Get<IDropboxConfiguration>())
+                .RegisterType<DropboxConfigurationImpl>()
                 .As<IDropboxConfiguration>()
+                .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .Register(context => LanguageLoader.Current.Get<IDropboxLanguage>())
+                .RegisterType<DropboxLanguageImpl>()
                 .As<IDropboxLanguage>()
+                .As<ILanguage>()
                 .SingleInstance();
 
             builder

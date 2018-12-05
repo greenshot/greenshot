@@ -43,7 +43,7 @@ namespace Greenshot.Core.Sources
         public DwmWindowSource(ICaptureConfiguration captureConfiguration, Func<IInteropWindow> retrieveWindowFunc = null)
         {
             _captureConfiguration = captureConfiguration;
-            _retrieveWindowFunc = retrieveWindowFunc ?? InteropWindowQuery.GetActiveWindow;
+            _retrieveWindowFunc = retrieveWindowFunc ?? InteropWindowQuery.GetForegroundWindow;
         }
 
         public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)

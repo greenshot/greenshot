@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using Dapplo.Log;
 using Dapplo.Log.XUnit;
 using Greenshot.Gfx;
+using Greenshot.Tests.Implementation;
 using Xunit;
 using Xunit.Abstractions;
 

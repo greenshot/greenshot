@@ -21,10 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;
@@ -34,11 +33,23 @@ using Version = System.Version;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
-    public static class WordExporter
+    /// <summary>
+    /// This makes it possible to export to word
+    /// </summary>
+    public class WordExporter
     {
         private static readonly LogSource Log = new LogSource();
         private static Version _wordVersion;
-        private static readonly IOfficeConfiguration Config = IniConfig.Current.Get<IOfficeConfiguration>();
+        private readonly IOfficeConfiguration _officeConfiguration;
+
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
+        public WordExporter(IOfficeConfiguration officeConfiguration)
+        {
+            _officeConfiguration = officeConfiguration;
+        }
 
         /// <summary>
         ///     Helper method to add the file as image to the selection
@@ -46,13 +57,13 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="selection"></param>
         /// <param name="tmpFile"></param>
         /// <returns></returns>
-        private static IDisposableCom<InlineShape> AddPictureToSelection(IDisposableCom<Selection> selection, string tmpFile)
+        private IDisposableCom<InlineShape> AddPictureToSelection(IDisposableCom<Selection> selection, string tmpFile)
         {
             using (var shapes = DisposableCom.Create(selection.ComObject.InlineShapes))
             {
                 var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
                 // Lock aspect ratio
-                if (Config.WordLockAspectRatio)
+                if (_officeConfiguration.WordLockAspectRatio)
                 {
                     shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
                 }
@@ -66,9 +77,9 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running Word application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for Word.Application</returns>
-        private static IDisposableCom<Application> GetOrCreateWordApplication()
+        private IDisposableCom<Application> GetOrCreateWordApplication()
         {
-            IDisposableCom<Application> wordApplication = GetWordApplication();
+            var wordApplication = GetWordApplication();
             if (wordApplication == null)
             {
                 wordApplication = DisposableCom.Create(new Application());
@@ -81,12 +92,12 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running Word application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for Word.Application or null</returns>
-        private static IDisposableCom<Application> GetWordApplication()
+        private IDisposableCom<Application> GetWordApplication()
         {
             IDisposableCom<Application> wordApplication;
             try
             {
-                wordApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Word.Application"));
+                wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
             catch (Exception)
             {
@@ -104,7 +115,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Get the captions of all the open word documents
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> GetWordDocuments()
+        public IEnumerable<string> GetWordDocuments()
         {
             using (var wordApplication = GetWordApplication())
             {
@@ -143,7 +154,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Initialize static word variables like version
         /// </summary>
         /// <param name="wordApplication"></param>
-        private static void InitializeVariables(IDisposableCom<Application> wordApplication)
+        private void InitializeVariables(IDisposableCom<Application> wordApplication)
         {
             if ((wordApplication == null) || (wordApplication.ComObject == null) || (_wordVersion != null))
             {
@@ -161,8 +172,8 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// </summary>
         /// <param name="wordCaption"></param>
         /// <param name="tmpFile"></param>
-        /// <returns></returns>
-        public static bool InsertIntoExistingDocument(string wordCaption, string tmpFile)
+        /// <returns>bool</returns>
+        public bool InsertIntoExistingDocument(string wordCaption, string tmpFile)
         {
             using (var wordApplication = GetWordApplication())
             {
@@ -193,13 +204,13 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <summary>
         ///     Internal method for the insert
         /// </summary>
-        /// <param name="wordApplication"></param>
-        /// <param name="wordDocument"></param>
-        /// <param name="tmpFile"></param>
-        /// <param name="address"></param>
-        /// <param name="tooltip">tooltip of the image</param>
-        /// <returns></returns>
-        internal static bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address, string tooltip)
+        /// <param name="wordApplication">IDisposableCom with Application</param>
+        /// <param name="wordDocument">IDisposableCom with _Document</param>
+        /// <param name="tmpFile">string</param>
+        /// <param name="address">string</param>
+        /// <param name="tooltip">string with the tooltip of the image</param>
+        /// <returns>bool</returns>
+        internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address, string tooltip)
         {
             // Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
             // Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
@@ -289,7 +300,13 @@ namespace Greenshot.Addon.Office.OfficeExport
             }
         }
 
-        public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
+        /// <summary>
+        /// Insert a capture into a new document
+        /// </summary>
+        /// <param name="tmpFile">string</param>
+        /// <param name="address">string</param>
+        /// <param name="tooltip">string</param>
+        public void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
         {
             using (var wordApplication = GetOrCreateWordApplication())
             {
@@ -367,7 +384,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Check if the used version is higher than Office 2003
         /// </summary>
         /// <returns></returns>
-        private static bool IsAfter2003()
+        private bool IsAfter2003()
         {
             return _wordVersion.Major > (int)OfficeVersions.Office2003;
         }

@@ -40,6 +40,7 @@ using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 
 #endregion
@@ -390,7 +391,7 @@ namespace Greenshot.Addons.Core
             menu.Items.Add(new ToolStripSeparator());
             var closeItem = new ToolStripMenuItem(GreenshotLanguage.ContextmenuExit)
             {
-                Image = GreenshotResources.GetBitmap("Close.Image")
+                Image = GreenshotResources.Instance.GetBitmap("Close.Image")
             };
             closeItem.Click += (sender, args) =>
             {

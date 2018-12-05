@@ -63,8 +63,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR, Color.Red);
-			Color fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR, Color.Transparent);
+            var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR, Color.Red);
+            var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR, Color.Transparent);
 			bool shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
@@ -95,7 +95,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 				int steps = 5;
 				int currentStep = lineVisible ? 1 : 0;
 				while (currentStep <= steps) {
-					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
+					using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
 						var shadowRect = new NativeRect(
 							rect.Left + currentStep,
@@ -118,7 +118,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 
 			graphics.SmoothingMode = SmoothingMode.HighSpeed;
 			if (lineVisible) {
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
+				using (var pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawRectangle(pen, rect);
 				}
 			}
@@ -127,7 +127,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		public override bool ClickableAt(int x, int y) {
 			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 10;
-			Color fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
+            var fillColor = GetFieldValueAsColor(FieldTypes.FILL_COLOR);
 
 			return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
 		}
@@ -144,8 +144,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 
 			// check the rest of the lines
 			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White, lineThickness)) {
-					using (GraphicsPath path = new GraphicsPath()) {
+				using (var pen = new Pen(Color.White, lineThickness)) {
+					using (var path = new GraphicsPath()) {
 						path.AddRectangle(rect);
 						return path.IsOutlineVisible(x, y, pen);
 					}

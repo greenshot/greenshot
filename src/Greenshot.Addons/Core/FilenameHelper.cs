@@ -29,8 +29,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Core.Enums;
 
@@ -53,14 +53,15 @@ namespace Greenshot.Addons.Core
 		private static readonly Regex CmdVarRegexp = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 
 		private static readonly Regex SplitRegexp = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+	    // TODO: Solve, was static reference!
+	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
 
-		/// <summary>
-		///     Remove invalid characters from the fully qualified filename
-		/// </summary>
-		/// <param name="fullPath">string with the full path to a file</param>
-		/// <returns>string with the full path to a file, without invalid characters</returns>
-		public static string MakeFqFilenameSafe(string fullPath)
+        /// <summary>
+        ///     Remove invalid characters from the fully qualified filename
+        /// </summary>
+        /// <param name="fullPath">string with the full path to a file</param>
+        /// <returns>string with the full path to a file, without invalid characters</returns>
+        public static string MakeFqFilenameSafe(string fullPath)
 		{
 			var path = MakePathSafe(Path.GetDirectoryName(fullPath));
 			var filename = MakeFilenameSafe(Path.GetFileName(fullPath));

@@ -28,7 +28,13 @@ namespace Greenshot.Addon.Office.OfficeInterop
 	/// </summary>
 	public enum EmailFormat
 	{
+        /// <summary>
+        /// Use the plain text format
+        /// </summary>
 		Text,
+        /// <summary>
+        /// Use HTML format
+        /// </summary>
 		Html
 	}
 }

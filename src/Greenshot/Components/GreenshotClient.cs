@@ -21,6 +21,8 @@
 
 #endregion
 
+#if !NETCOREAPP3_0
+
 using System.Collections.Generic;
 using System.ServiceModel;
 using Greenshot.Addons.Interfaces;
@@ -78,3 +80,4 @@ namespace Greenshot.Components
         }
     }
 }
+#endif

@@ -31,8 +31,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -77,11 +77,12 @@ namespace Greenshot.Helpers
 		#endregion Enums
 
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+        // TODO: Solve, was static reference!
+        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
 
-		#region Member Variables
+        #region Member Variables
 
-		private readonly ManualResetEvent _manualResetEvent;
+        private readonly ManualResetEvent _manualResetEvent;
 
 		#endregion Member Variables
 

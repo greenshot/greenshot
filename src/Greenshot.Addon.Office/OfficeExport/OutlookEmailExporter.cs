@@ -26,11 +26,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-using Dapplo.Ini;
 using Dapplo.Log;
-using Dapplo.Windows.Interop;
+using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.OfficeInterop;
 using mshtml;
 using Microsoft.Office.Interop.Outlook;
@@ -49,6 +48,8 @@ namespace Greenshot.Addon.Office.OfficeExport
     /// </summary>
     public class OutlookExporter
     {
+        private readonly IOfficeConfiguration _officeConfiguration;
+
         // The signature key can be found at:
         // HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
         private const string ProfilesKey = @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\";
@@ -58,10 +59,20 @@ namespace Greenshot.Addon.Office.OfficeExport
         // Schema definitions for the MAPI properties, see: http://msdn.microsoft.com/en-us/library/aa454438.aspx and: http://msdn.microsoft.com/en-us/library/bb446117.aspx
         private const string AttachmentContentId = @"http://schemas.microsoft.com/mapi/proptag/0x3712001E";
         private static readonly LogSource Log = new LogSource();
-        private static readonly IOfficeConfiguration Conf = IniConfig.Current.Get<IOfficeConfiguration>();
         private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
         private static Version _outlookVersion;
         private static string _currentUser;
+        private readonly WordExporter _wordExporter;
+
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="officeConfiguration"></param>
+        public OutlookExporter(IOfficeConfiguration officeConfiguration)
+        {
+            _officeConfiguration = officeConfiguration;
+            _wordExporter = new WordExporter(officeConfiguration);
+        }
 
         /// <summary>
         ///     Export the image stored in tmpFile to the Inspector with the caption
@@ -70,7 +81,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="tmpFile">Path to image file</param>
         /// <param name="attachmentName">name of the attachment (used as the tooltip of the image)</param>
         /// <returns>true if it worked</returns>
-        public static bool ExportToInspector(string inspectorCaption, string tmpFile, string attachmentName)
+        public bool ExportToInspector(string inspectorCaption, string tmpFile, string attachmentName)
         {
             using (var outlookApplication = GetOrCreateOutlookApplication())
             {
@@ -100,7 +111,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                                         }
                                         break;
                                     case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && Conf.OutlookAllowExportInMeetings)
+                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                         {
                                             if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                             {
@@ -151,7 +162,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                                         }
                                         break;
                                     case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && Conf.OutlookAllowExportInMeetings)
+                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                         {
                                             if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                             {
@@ -194,7 +205,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="explorer"></param>
         /// <param name="itemClass"></param>
         /// <returns></returns>
-        private static bool ExportToInspector(IDisposableCom<_Inspector> inspector, IDisposableCom<_Explorer> explorer, OlObjectClass itemClass, MailItem mailItem, string tmpFile, string attachmentName)
+        private bool ExportToInspector(IDisposableCom<_Inspector> inspector, IDisposableCom<_Explorer> explorer, OlObjectClass itemClass, MailItem mailItem, string tmpFile, string attachmentName)
         {
             bool isMail = OlObjectClass.olMail.Equals(itemClass);
             bool isAppointment = OlObjectClass.olAppointment.Equals(itemClass);
@@ -240,7 +251,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                             {
                                 try
                                 {
-                                    if (WordExporter.InsertIntoExistingDocument(application, wordDocument, tmpFile, null, null))
+                                    if (_wordExporter.InsertIntoExistingDocument(application, wordDocument, tmpFile, null, null))
                                     {
                                         Log.Info().WriteLine("Inserted into Wordmail");
                                         return true;
@@ -396,7 +407,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="cc"></param>
         /// <param name="bcc"></param>
         /// <param name="url"></param>
-        private static void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
+        private void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
         {
             using (var newItem = DisposableCom.Create((MailItem)outlookApplication.ComObject.CreateItem(OlItemType.olMailItem)))
             {
@@ -543,7 +554,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="bcc"></param>
         /// <param name="url"></param>
         /// <returns>true if it worked, false if not</returns>
-        public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
+        public bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
         {
             bool exported = false;
             try
@@ -569,9 +580,9 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running Outlook application, or create a new instance
         /// </summary>
         /// <returns>IDisposableCom for Outlook.Application</returns>
-        private static IDisposableCom<Application> GetOrCreateOutlookApplication()
+        private IDisposableCom<Application> GetOrCreateOutlookApplication()
         {
-            IDisposableCom<Application> outlookApplication = GetOutlookApplication();
+            var outlookApplication = GetOutlookApplication();
             if (outlookApplication == null)
             {
                 outlookApplication = DisposableCom.Create(new Application());
@@ -584,12 +595,12 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running Outlook application, returns null if there isn't any.
         /// </summary>
         /// <returns>IDisposableCom for Outlook.Application or null</returns>
-        private static IDisposableCom<Application> GetOutlookApplication()
+        private IDisposableCom<Application> GetOutlookApplication()
         {
             IDisposableCom<Application> outlookApplication;
             try
             {
-                outlookApplication = DisposableCom.Create((Application)Marshal.GetActiveObject("Outlook.Application"));
+                outlookApplication = OleAut32Api.GetActiveObject<Application>("Outlook.Application");
             }
             catch (Exception)
             {
@@ -607,9 +618,9 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Helper method to get the Outlook signature
         /// </summary>
         /// <returns></returns>
-        private static string GetOutlookSignature(EmailFormat format)
+        private string GetOutlookSignature(EmailFormat format)
         {
-            using (RegistryKey profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false))
+            using (var profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false))
             {
                 if (profilesKey == null)
                 {
@@ -617,7 +628,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                 }
                 string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
                 Log.Debug().WriteLine("defaultProfile={0}", defaultProfile);
-                using (RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
+                using (var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
                 {
                     if (profileKey != null)
                     {
@@ -625,7 +636,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                         foreach (string number in numbers)
                         {
                             Log.Debug().WriteLine("Found subkey {0}", number);
-                            using (RegistryKey numberKey = profileKey.OpenSubKey(number, false))
+                            using (var numberKey = profileKey.OpenSubKey(number, false))
                             {
                                 if (numberKey != null)
                                 {
@@ -673,7 +684,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Initialize static outlook variables like version and currentuser
         /// </summary>
         /// <param name="outlookApplication"></param>
-        private static void InitializeVariables(IDisposableCom<Application> outlookApplication)
+        private void InitializeVariables(IDisposableCom<Application> outlookApplication)
         {
             if ((outlookApplication == null) || (outlookApplication.ComObject == null) || (_outlookVersion != null))
             {
@@ -709,7 +720,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     A method to retrieve all inspectors which can act as an export target
         /// </summary>
         /// <returns>IDictionary with inspector captions (window title) and object class</returns>
-        public static IDictionary<string, OlObjectClass> RetrievePossibleTargets()
+        public IDictionary<string, OlObjectClass> RetrievePossibleTargets()
         {
             IDictionary<string, OlObjectClass> inspectorCaptions = new SortedDictionary<string, OlObjectClass>();
             try
@@ -744,7 +755,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                                                 }
                                                 break;
                                             case AppointmentItem appointmentItem:
-                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && Conf.OutlookAllowExportInMeetings)
+                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                                 {
                                                     if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                                     {
@@ -787,7 +798,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                                                 inspectorCaptions.Add(caption, mailItem.Class);
                                                 break;
                                             case AppointmentItem appointmentItem:
-                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && Conf.OutlookAllowExportInMeetings)
+                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                                 {
                                                     if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                                     {

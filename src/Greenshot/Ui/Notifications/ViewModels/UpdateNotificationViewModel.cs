@@ -28,6 +28,7 @@ using Dapplo.CaliburnMicro.Toasts.ViewModels;
 using Dapplo.Log;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Resources;
 
 namespace Greenshot.Ui.Notifications.ViewModels
 {
@@ -50,7 +51,7 @@ namespace Greenshot.Ui.Notifications.ViewModels
 
         public string Message => string.Format(_greenshotLanguage.UpdateFound, LatestVersion);
 
-        public ImageSource GreenshotIcon => GreenshotResources.GreenshotIconAsBitmapSource();
+        public ImageSource GreenshotIcon => GreenshotResources.Instance.GreenshotIconAsBitmapSource();
 
         /// <summary>
         /// Handle the click
