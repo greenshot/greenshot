@@ -678,7 +678,7 @@ namespace Greenshot.Helpers
             }
             else
             {
-                SelectedCaptureWindow = InteropWindowQuery.GetForegroundWindow();
+                SelectedCaptureWindow = InteropWindowQuery.GetActiveWindow();
                 if (SelectedCaptureWindow != null)
                 {
                     if (Log.IsDebugEnabled())
@@ -997,7 +997,7 @@ namespace Greenshot.Helpers
         private void SetDpi()
         {
             // Workaround for proble with DPI retrieval, the FromHwnd activates the window...
-            var previouslyActiveWindow = InteropWindowQuery.GetForegroundWindow();
+            var previouslyActiveWindow = InteropWindowQuery.GetActiveWindow();
             // Workaround for changed DPI settings in Windows 7
             using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
             {
