@@ -1,4 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.1.1.2550" languagegroup="1">
+	<resources>
 
 <language>
 	<resources prefix="Core">
@@ -6,16 +8,15 @@
 		<resource name="about_donations">Wenn Sie Greenshot mögen, können Sie uns gerne unterstützen:</resource>
 		<resource name="about_host">Greenshot wird von GitHub gehostet unter</resource>
 		<resource name="about_icons">Icons aus Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">
-			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 			Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie unter bestimmten Bedingungen weitergeben dürfen.
+Detaillierte Informationen zur GNU General Public License:</resource>
 			Detaillierte Informationen zur GNU General Public License:
 		</resource>
 		<resource name="about_title">Über Greenshot</resource>
 		<resource name="application_title">Greenshot - das revolutionäre Screenshot-Tool</resource>
 		<resource name="bugreport_cancel">Schließen</resource>
-		<resource name="bugreport_info">
-			Tut uns leid, ein unerwarteter Fehler ist aufgetreten.
+		<resource name="bugreport_info">Tut uns leid, ein unerwarteter Fehler ist aufgetreten.
 			Die gute Nachricht ist: Sie können uns helfen, ihn zu beseitigen, indem Sie uns einen Fehlerbericht zukommen lassen.
 			Besuchen Sie die unten stehende URL und erstellen Sie einen neuen Fehlerbericht.
 			Bitte geben Sie eine aussgekräftige Zusammenfassung an, fügen Sie den Inhalt des Textfelds in die Beschreibung ein, und ergänzen Sie diese mit zusätzlichen
@@ -137,8 +138,7 @@
 		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
 		<resource name="settings_language">Sprache</resource>
-		<resource name="settings_message_filenamepattern">
-			Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
+		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
 			${YYYY} Jahr, 4-stellig
 			${MM} Monat, 2-stellig
 			${DD} Tag, 2-stellig
@@ -198,7 +198,6 @@
 			Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
 			Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm reserviert.
 			Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
-
 			Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.
 		</resource>
 		<resource name="WindowCaptureModes.Aero">Benutzerdefinierte Farbe verwenden</resource>
