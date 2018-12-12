@@ -21,14 +21,38 @@
 
 #endregion
 
-using Dapplo.CaliburnMicro.Metro.Configuration;
+using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Config.Ini;
 
 namespace Greenshot.Configuration.Impl
 {
     internal class MetroConfigurationImpl : IniSectionBase<IMetroConfiguration>, IMetroConfiguration
     {
-        public Themes Theme { get; set; }
-        public ThemeAccents ThemeAccent { get; set; }
+        private readonly MetroThemeManager _metroThemeManager;
+        public MetroConfigurationImpl(MetroThemeManager metroThemeManager)
+        {
+            _metroThemeManager = metroThemeManager;
+        }
+        public string Theme { get; set; }
+        public string ThemeColor { get; set; }
+
+        #region Overrides of IniSectionBase<IMetroConfiguration>
+
+        public override void AfterLoad()
+        {
+            if (string.IsNullOrEmpty(Theme))
+            {
+                Theme = null;
+            }
+            if (string.IsNullOrEmpty(ThemeColor))
+            {
+                ThemeColor = null;
+            }
+            _metroThemeManager.ChangeTheme(Theme, ThemeColor);
+
+            base.AfterLoad();
+        }
+
+        #endregion
     }
 }

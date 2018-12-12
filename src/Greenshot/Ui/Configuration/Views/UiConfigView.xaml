@@ -10,8 +10,8 @@
     <StackPanel>
         <DockPanel>
             <Label Content="{Binding ConfigTranslations.Theme}" Width="50" />
-            <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding MetroConfiguration.Theme}"/>
-            <ComboBox ItemsSource="{Binding AvailableThemeAccents}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding MetroConfiguration.ThemeAccent}"/>
+            <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedValuePath="." DisplayMemberPath="." SelectedValue="{Binding MetroConfiguration.Theme}" />
+            <ComboBox ItemsSource="{Binding AvailableThemeColors}" SelectedValuePath="." DisplayMemberPath="." SelectedValue="{Binding MetroConfiguration.ThemeColor}" />
         </DockPanel>
         <DockPanel LastChildFill="True">
             <Label Content="{Binding GreenshotLanguage.SettingsLanguage}" Width="100" />

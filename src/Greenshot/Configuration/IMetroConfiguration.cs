@@ -30,10 +30,10 @@ namespace Greenshot.Configuration
     [IniSection("Metro")]
     public interface IMetroConfiguration : IIniSection, IMetroUiConfiguration
     {
-        [DefaultValue(Themes.Light)]
-        new Themes Theme { get; set; }
+        [DefaultValue("Light")]
+        new string Theme { get; set; }
 
-        [DefaultValue(ThemeAccents.Olive)]
-        new ThemeAccents ThemeAccent { get; set; }
+        [DefaultValue("Olive")]
+        new string ThemeColor{ get; set; }
     }
 }

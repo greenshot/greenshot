@@ -34,6 +34,10 @@ using Dapplo.Addons.Bootstrapper;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Config.Ini.Converters;
 using Dapplo.Config.Language;
+using Dapplo.Log;
+#if DEBUG
+using Dapplo.Log.Loggers;
+#endif
 using Dapplo.Utils;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Forms;

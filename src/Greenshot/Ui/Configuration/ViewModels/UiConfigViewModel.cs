@@ -24,12 +24,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.CaliburnMicro.Metro.Configuration;
+using Dapplo.Config.Intercepting;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
@@ -40,20 +39,22 @@ namespace Greenshot.Ui.Configuration.ViewModels
 {
     public sealed class UiConfigViewModel : SimpleConfigScreen
     {
+        private readonly MetroThemeManager _metroThemeManager;
+
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
 
         /// <summary>
-        ///     The avaible theme accents
+        ///     The available themes
         /// </summary>
-        public ObservableCollection<Tuple<ThemeAccents, string>> AvailableThemeAccents { get; set; } = new ObservableCollection<Tuple<ThemeAccents, string>>();
+        public ObservableCollection<string> AvailableThemes { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
-        ///     The avaible themes
+        ///     The available theme colors
         /// </summary>
-        public ObservableCollection<Tuple<Themes, string>> AvailableThemes { get; set; } = new ObservableCollection<Tuple<Themes, string>>();
+        public ObservableCollection<string> AvailableThemeColors { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
         /// Used from the View
@@ -77,29 +78,35 @@ namespace Greenshot.Ui.Configuration.ViewModels
 
         public IGreenshotLanguage GreenshotLanguage { get; }
 
-        private MetroWindowManager MetroWindowManager { get; }
-
+        /// <summary>
+        /// Default constructor for DI usage
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="configTranslations">IConfigTranslations</param>
+        /// <param name="metroConfiguration">IMetroConfiguration</param>
+        /// <param name="metroThemeManager">MetroThemeManager</param>
         public UiConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations,
             IMetroConfiguration metroConfiguration,
-            MetroWindowManager metroWindowManager
-
+            MetroThemeManager metroThemeManager
             )
         {
+            _metroThemeManager = metroThemeManager;
             CoreConfiguration = coreConfiguration;
             GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;
             MetroConfiguration = metroConfiguration;
-            MetroWindowManager = metroWindowManager;
         }
 
         public override void Commit()
         {
             // Manually commit
+            _metroThemeManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeColor);
+            // Manually commit
             MetroConfiguration.CommitTransaction();
-            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeAccent);
 
             CoreConfiguration.CommitTransaction();
             // TODO: Fix
@@ -107,24 +114,28 @@ namespace Greenshot.Ui.Configuration.ViewModels
 
         }
 
+        /// <inheritdoc />
+        public override void Rollback()
+        {
+            MetroConfiguration.RollbackTransaction();
+            _metroThemeManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeColor);
+        }
+
+        /// <inheritdoc />
+        public override void Terminate()
+        {
+            MetroConfiguration.RollbackTransaction();
+            _metroThemeManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeColor);
+        }
+
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
             _disposables?.Dispose();
 
-            AvailableThemeAccents.Clear();
-            foreach (var themeAccent in Enum.GetValues(typeof(ThemeAccents)).Cast<ThemeAccents>())
-            {
-                var translation = themeAccent.EnumValueOf();
-                AvailableThemeAccents.Add(new Tuple<ThemeAccents, string>(themeAccent, translation));
-            }
-
             AvailableThemes.Clear();
-            foreach (var theme in Enum.GetValues(typeof(Themes)).Cast<Themes>())
-            {
-                var translation = theme.EnumValueOf();
-                AvailableThemes.Add(new Tuple<Themes, string>(theme, translation));
-            }
+            MetroThemeManager.AvailableThemes.ForEach(themeBaseColor => AvailableThemes.Add(themeBaseColor));
+            MetroThemeManager.AvailableThemeColors.ForEach(colorScheme => AvailableThemeColors.Add(colorScheme));
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Ui);
@@ -138,6 +149,25 @@ namespace Greenshot.Ui.Configuration.ViewModels
                 GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle))
             };
 
+            // Automatically show theme changes
+            _disposables.Add(
+                MetroConfiguration.OnPropertyChanging(nameof(MetroConfiguration.Theme)).Subscribe(args =>
+                {
+                    if (args is PropertyChangingEventArgsEx propertyChangingEventArgsEx)
+                    {
+                        _metroThemeManager.ChangeTheme(propertyChangingEventArgsEx.NewValue as string, null);
+                    }
+                })
+            );
+            _disposables.Add(
+                MetroConfiguration.OnPropertyChanging(nameof(MetroConfiguration.ThemeColor)).Subscribe(args =>
+                {
+                    if (args is PropertyChangingEventArgsEx propertyChangingEventArgsEx)
+                    {
+                        _metroThemeManager.ChangeTheme(null, propertyChangingEventArgsEx.NewValue as string);
+                    }
+                })
+            );
             base.Initialize(config);
         }
 

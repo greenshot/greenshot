@@ -28,6 +28,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.ContentConverter;
 using Dapplo.HttpExtensions.Factory;
 using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Addon.Tfs.Entities;

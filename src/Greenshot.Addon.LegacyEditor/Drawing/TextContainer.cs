@@ -31,6 +31,9 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Memento;
 using Greenshot.Addons.Interfaces.Drawing;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
