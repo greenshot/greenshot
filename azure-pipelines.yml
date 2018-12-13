@@ -42,11 +42,9 @@ steps:
   inputs:
     SourceFolder: '$(system.defaultworkingdirectory)'
     Contents: |
-     **\bin\$(BuildConfiguration)\*.nupkg
-     **\TestResults\**\*.coverage
+     **\Greenshot\bin\$(BuildConfiguration)\**
     TargetFolder: '$(build.artifactstagingdirectory)'
-    flattenFolders: true
-
+    flattenFolders: false
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
