@@ -57,8 +57,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.14" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.14" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.19" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.19" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.3" />
   </ItemGroup>
 </Project>
