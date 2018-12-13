@@ -45,8 +45,8 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.14" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.14" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.19" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.19" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.3" />
     <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
