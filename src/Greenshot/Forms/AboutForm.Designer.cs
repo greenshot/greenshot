@@ -117,7 +117,7 @@ namespace Greenshot.Forms {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + Assembly.GetEntryAssembly().GetName().Version;
+			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + _versionProvider.CurrentVersion;
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
@@ -135,7 +135,7 @@ namespace Greenshot.Forms {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version;
+			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + _versionProvider.CurrentVersion;
 			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations
