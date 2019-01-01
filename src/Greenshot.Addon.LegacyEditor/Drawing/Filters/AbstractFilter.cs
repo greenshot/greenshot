@@ -48,7 +48,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 
 		[NonSerialized] private PropertyChangedEventHandler propertyChanged;
 
-		public AbstractFilter(DrawableContainer parent)
+		public AbstractFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration)
 		{
 			this.parent = parent;
 		}

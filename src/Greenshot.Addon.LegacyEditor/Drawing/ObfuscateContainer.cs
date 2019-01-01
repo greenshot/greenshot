@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	[Serializable]
 	public class ObfuscateContainer : FilterContainer
 	{
-		public ObfuscateContainer(Surface parent) : base(parent)
+		public ObfuscateContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}
@@ -83,10 +83,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			switch (preset)
 			{
 				case PreparedFilter.BLUR:
-					Add(new BlurFilter(this));
+					Add(new BlurFilter(this, _editorConfiguration));
 					break;
 				case PreparedFilter.PIXELIZE:
-					Add(new PixelizationFilter(this));
+					Add(new PixelizationFilter(this, _editorConfiguration));
 					break;
 			}
 		}

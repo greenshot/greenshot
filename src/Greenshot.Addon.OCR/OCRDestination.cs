@@ -106,7 +106,7 @@ namespace Greenshot.Addon.OCR
         /// <param name="surface">Has the Image and the capture details</param>
         public string DoOcr(ISurface surface)
         {
-            var outputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 0, true)
+            var outputSettings = new SurfaceOutputSettings(CoreConfiguration, OutputFormats.bmp, 0, true)
             {
                 ReduceColors = true,
                 SaveBackgroundOnly = true

@@ -57,8 +57,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();
-	    // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration conf = new CoreConfigurationImpl();
 
         /// <summary>
         /// The number of Surfaces in existance
@@ -70,7 +68,15 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		private readonly IDrawableContainerList _elements;
 
-		[NonSerialized] private readonly Stack<IMemento> _redoStack = new Stack<IMemento>();
+
+        [NonSerialized]
+        private readonly IEditorConfiguration _editorConfiguration;
+
+        [NonSerialized]
+        private readonly ICoreConfiguration _coreConfiguration;
+
+        [NonSerialized]
+        private readonly Stack<IMemento> _redoStack = new Stack<IMemento>();
 
 		/// <summary>
 		///     all stepLabels for the surface, needed with serialization
@@ -80,12 +86,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     Undo/Redo stacks, should not be serialized as the file would be way to big
 		/// </summary>
-		[NonSerialized] private readonly Stack<IMemento> _undoStack = new Stack<IMemento>();
+		[NonSerialized]
+        private readonly Stack<IMemento> _undoStack = new Stack<IMemento>();
 
 		/// <summary>
 		///     all selected elements, do not serialize
 		/// </summary>
-		[NonSerialized] private readonly IDrawableContainerList selectedElements;
+		[NonSerialized]
+        private readonly IDrawableContainerList selectedElements;
 
 		/// <summary>
 		///     The buffer is only for drawing on it when using filters (to supply access)
@@ -94,7 +102,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     The actual bitmap is in the paintbox...
 		///     TODO: Check if this buffer is still needed!
 		/// </summary>
-		[NonSerialized] private Bitmap _buffer;
+		[NonSerialized]
+        private Bitmap _buffer;
 
 		/// <summary>
 		///     This value is used to start counting the step labels
@@ -104,7 +113,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     the cropcontainer, when cropping this is set, do not serialize
 		/// </summary>
-		[NonSerialized] private IDrawableContainer _cropContainer;
+		[NonSerialized]
+        private IDrawableContainer _cropContainer;
 
 		/// <summary>
 		///     the cursor container, needed with serialization as we need a direct acces to it.
@@ -114,14 +124,17 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     the element we are drawing with, do not serialize
 		/// </summary>
-		[NonSerialized] private IDrawableContainer _drawingElement;
+		[NonSerialized]
+        private IDrawableContainer _drawingElement;
 
 		/// <summary>
 		///     current drawing mode, do not serialize!
 		/// </summary>
-		[NonSerialized] private DrawingModes _drawingMode = DrawingModes.None;
+		[NonSerialized]
+        private DrawingModes _drawingMode = DrawingModes.None;
 
-		[NonSerialized] private SurfaceDrawingModeEventHandler _drawingModeChanged;
+		[NonSerialized]
+        private SurfaceDrawingModeEventHandler _drawingModeChanged;
 
 		/// <summary>
 		///     all elements on the surface, needed with serialization
@@ -136,22 +149,26 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     inUndoRedo makes sure we don't undo/redo while in a undo/redo action
 		/// </summary>
-		[NonSerialized] private bool _inUndoRedo;
+		[NonSerialized]
+        private bool _inUndoRedo;
 
 		/// <summary>
 		///     Make only one surfacemove cycle undoable, see SurfaceMouseMove
 		/// </summary>
-		[NonSerialized] private bool _isSurfaceMoveMadeUndoable;
+		[NonSerialized]
+        private bool _isSurfaceMoveMadeUndoable;
 
 		/// <summary>
 		///     the keyslocked flag helps with focus issues
 		/// </summary>
-		[NonSerialized] private bool _keysLocked;
+		[NonSerialized]
+        private bool _keysLocked;
 
 		/// <summary>
 		///     Last save location, do not serialize!
 		/// </summary>
-		[NonSerialized] private string _lastSaveFullPath;
+		[NonSerialized]
+        private string _lastSaveFullPath;
 
 		/// <summary>
 		///     the modified flag specifies if the surface has had modifications after the last export.
@@ -164,47 +181,56 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     are we in a mouse down, do not serialize
 		/// </summary>
-		[NonSerialized] private bool _mouseDown;
+		[NonSerialized]
+        private bool _mouseDown;
 
 		/// <summary>
 		///     The selected element for the mouse down, do not serialize
 		/// </summary>
-		[NonSerialized] private IDrawableContainer _mouseDownElement;
+		[NonSerialized]
+        private IDrawableContainer _mouseDownElement;
 
 		/// <summary>
 		///     Location of the mouse-down (it "starts" here), do not serialize
 		/// </summary>
-		[NonSerialized] private NativePoint _mouseStart = NativePoint.Empty;
+		[NonSerialized]
+        private NativePoint _mouseStart = NativePoint.Empty;
 
-		[NonSerialized] private SurfaceElementEventHandler _movingElementChanged;
+		[NonSerialized]
+        private SurfaceElementEventHandler _movingElementChanged;
 
 		/// <summary>
 		///     Event handlers (do not serialize!)
 		/// </summary>
-		[NonSerialized] private PropertyChangedEventHandler _propertyChanged;
+		[NonSerialized]
+        private PropertyChangedEventHandler _propertyChanged;
 
-		[NonSerialized] private SurfaceMessageEventHandler _surfaceMessage;
+		[NonSerialized]
+        private SurfaceMessageEventHandler _surfaceMessage;
 
-		[NonSerialized] private SurfaceSizeChangeEventHandler _surfaceSizeChanged;
+		[NonSerialized]
+        private SurfaceSizeChangeEventHandler _surfaceSizeChanged;
 
 		/// <summary>
 		///     the brush which is used for transparent backgrounds, set by the editor, do not serialize
 		/// </summary>
-		[NonSerialized] private Brush _transparencyBackgroundBrush;
+		[NonSerialized]
+        private Brush _transparencyBackgroundBrush;
 
 		/// <summary>
 		///     the element we want to draw with (not yet drawn), do not serialize
 		/// </summary>
-		[NonSerialized] private IDrawableContainer _undrawnElement;
+		[NonSerialized]
+        private IDrawableContainer _undrawnElement;
 
 		// Property to identify the Surface ID
 
 		/// <summary>
 		///     Base Surface constructor
 		/// </summary>
-		public Surface()
+		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration)
 		{
-			_fieldAggregator = new FieldAggregator(this);
+			_fieldAggregator = new FieldAggregator(this, editorConfiguration);
 			Count++;
 			_elements = new DrawableContainerList(ID);
 			selectedElements = new DrawableContainerList(ID);
@@ -234,7 +260,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         ///     Surface constructor with an image
         /// </summary>
         /// <param name="newBitmap">Bitmap</param>
-        public Surface(Bitmap newBitmap) : this()
+        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, Bitmap newBitmap) : this(coreConfiguration, editorConfiguration)
 		{
 			Log.Debug().WriteLine("Got Bitmap with dimensions {0} and format {1}", newBitmap.Size, newBitmap.PixelFormat);
 			SetBitmap(newBitmap, true);
@@ -244,7 +270,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     Surface contructor with a capture
 		/// </summary>
 		/// <param name="capture"></param>
-		public Surface(ICapture capture) : this()
+		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, ICapture capture) : this(coreConfiguration, editorConfiguration)
 		{
 			SetCapture(capture);
 		}
@@ -1135,41 +1161,41 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			switch (DrawingMode)
 			{
 				case DrawingModes.Rect:
-					_undrawnElement = new RectangleContainer(this);
+					_undrawnElement = new RectangleContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Ellipse:
-					_undrawnElement = new EllipseContainer(this);
+					_undrawnElement = new EllipseContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Text:
-					_undrawnElement = new TextContainer(this);
+					_undrawnElement = new TextContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.SpeechBubble:
-					_undrawnElement = new SpeechbubbleContainer(this);
+					_undrawnElement = new SpeechbubbleContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.StepLabel:
-					_undrawnElement = new StepLabelContainer(this);
+					_undrawnElement = new StepLabelContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Line:
-					_undrawnElement = new LineContainer(this);
+					_undrawnElement = new LineContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Arrow:
-					_undrawnElement = new ArrowContainer(this);
+					_undrawnElement = new ArrowContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Highlight:
-					_undrawnElement = new HighlightContainer(this);
+					_undrawnElement = new HighlightContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Obfuscate:
-					_undrawnElement = new ObfuscateContainer(this);
+					_undrawnElement = new ObfuscateContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Crop:
-					_cropContainer = new CropContainer(this);
+					_cropContainer = new CropContainer(this, _editorConfiguration);
 					_undrawnElement = _cropContainer;
 					break;
 				case DrawingModes.Bitmap:
-					_undrawnElement = new BitmapContainer(this);
+					_undrawnElement = new BitmapContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.Path:
-					_undrawnElement = new FreehandContainer(this);
+					_undrawnElement = new FreehandContainer(this, _editorConfiguration);
 					break;
 				case DrawingModes.None:
 					_undrawnElement = null;
@@ -1190,7 +1216,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			NativeRect cropRectangle;
 			using (var tmpImage = GetBitmapForExport())
 			{
-				cropRectangle = tmpImage.FindAutoCropRectangle(conf.AutoCropDifference);
+				cropRectangle = tmpImage.FindAutoCropRectangle(_coreConfiguration.AutoCropDifference);
 			}
 			if (!IsCropPossible(ref cropRectangle))
 			{
@@ -1880,7 +1906,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public IBitmapContainer AddImageContainer(Bitmap bitmap, int x, int y)
 		{
-			var bitmapContainer = new BitmapContainer(this)
+			var bitmapContainer = new BitmapContainer(this, _editorConfiguration)
 			{
 				Bitmap = bitmap,
 				Left = x,
@@ -1892,7 +1918,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public IBitmapContainer AddImageContainer(string filename, int x, int y)
 		{
-			var bitmapContainer = new BitmapContainer(this);
+			var bitmapContainer = new BitmapContainer(this, _editorConfiguration);
 			bitmapContainer.Load(filename);
 			bitmapContainer.Left = x;
 			bitmapContainer.Top = y;
@@ -1902,7 +1928,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public IIconContainer AddIconContainer(Icon icon, int x, int y)
 		{
-			var iconContainer = new IconContainer(this)
+			var iconContainer = new IconContainer(this, _editorConfiguration)
 			{
 				Icon = icon,
 				Left = x,
@@ -1914,7 +1940,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public IIconContainer AddIconContainer(string filename, int x, int y)
 		{
-			var iconContainer = new IconContainer(this);
+			var iconContainer = new IconContainer(this, _editorConfiguration);
 			iconContainer.Load(filename);
 			iconContainer.Left = x;
 			iconContainer.Top = y;
@@ -1924,7 +1950,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public ICursorContainer AddCursorContainer(Cursor cursor, int x, int y)
 		{
-			var cursorContainer = new CursorContainer(this)
+			var cursorContainer = new CursorContainer(this, _editorConfiguration)
 			{
 				Cursor = cursor,
 				Left = x,
@@ -1936,7 +1962,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public ICursorContainer AddCursorContainer(string filename, int x, int y)
 		{
-			var cursorContainer = new CursorContainer(this);
+			var cursorContainer = new CursorContainer(this, _editorConfiguration);
 			cursorContainer.Load(filename);
 			cursorContainer.Left = x;
 			cursorContainer.Top = y;
@@ -1947,7 +1973,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size,
 			bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
 		{
-			var textContainer = new TextContainer(this) {Text = text};
+			var textContainer = new TextContainer(this, _editorConfiguration) {Text = text};
 			textContainer.SetFieldValue(FieldTypes.FONT_FAMILY, family.Name);
 			textContainer.SetFieldValue(FieldTypes.FONT_BOLD, bold);
 			textContainer.SetFieldValue(FieldTypes.FONT_ITALIC, italic);

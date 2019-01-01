@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows;
 using Dapplo.Config.Ini;
+using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Addons.Core;

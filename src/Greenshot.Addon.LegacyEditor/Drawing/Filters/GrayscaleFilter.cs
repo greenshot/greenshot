@@ -40,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	[Serializable]
 	public class GrayscaleFilter : AbstractFilter
 	{
-		public GrayscaleFilter(DrawableContainer parent) : base(parent)
+		public GrayscaleFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 		}
 

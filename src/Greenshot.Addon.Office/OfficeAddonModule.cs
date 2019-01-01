@@ -29,6 +29,7 @@ using Dapplo.Config.Language;
 using Greenshot.Addon.Office.Configuration;
 using Greenshot.Addon.Office.Configuration.Impl;
 using Greenshot.Addon.Office.Destinations;
+using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.ViewModels;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
@@ -79,6 +80,11 @@ namespace Greenshot.Addon.Office
                 builder
                     .RegisterType<OneNoteDestination>()
                     .As<IDestination>()
+                    .SingleInstance();
+
+                builder
+                    .RegisterType<OneNoteExporter>()
+                    .AsSelf()
                     .SingleInstance();
             }
 

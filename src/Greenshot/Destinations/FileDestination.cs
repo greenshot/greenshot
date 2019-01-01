@@ -70,7 +70,7 @@ namespace Greenshot.Destinations
 			bool overwrite;
 			string fullPath;
 			// Get output settings from the configuration
-			var outputSettings = new SurfaceOutputSettings();
+			var outputSettings = new SurfaceOutputSettings(CoreConfiguration);
 
 			if (captureDetails?.Filename != null)
 			{

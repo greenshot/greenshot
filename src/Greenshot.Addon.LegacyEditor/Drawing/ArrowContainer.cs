@@ -51,7 +51,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
-		public ArrowContainer(Surface parent) : base(parent)
+		public ArrowContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 		}
 

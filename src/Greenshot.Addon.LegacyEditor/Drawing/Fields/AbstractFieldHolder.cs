@@ -37,8 +37,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
         private static readonly LogSource Log = new LogSource();
-	    // TODO: Solve, was static reference!
-        private static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
 
 	    [NonSerialized]
 		private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
@@ -61,7 +59,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 		private IDictionary<IFieldType, IField> _fieldsByType = new Dictionary<IFieldType, IField>();
 		private readonly IList<IField> fields = new List<IField>();
 
-		[OnDeserialized]
+        [NonSerialized]
+        protected readonly IEditorConfiguration _editorConfiguration;
+
+        [OnDeserialized]
 		private void OnDeserialized(StreamingContext context)
 		{
 			_fieldsByType = new Dictionary<IFieldType, IField>();
@@ -73,9 +74,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 			}
 		}
 
+        public AbstractFieldHolder(IEditorConfiguration editorConfiguration)
+        {
+            _editorConfiguration = editorConfiguration;
+        }
 		public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
 		{
-			AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
+			AddField(_editorConfiguration.CreateField(requestingType, fieldType, fieldValue));
 		}
 
 		public virtual void AddField(IField field)

@@ -41,8 +41,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	[Serializable]
 	public class EllipseContainer : DrawableContainer
 	{
-		public EllipseContainer(Surface parent) : base(parent)
-		{
+		public EllipseContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
+        {
 			CreateDefaultAdorners();
 		}
 

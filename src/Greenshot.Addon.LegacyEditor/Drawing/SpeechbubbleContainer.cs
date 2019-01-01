@@ -46,8 +46,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	{
 		private NativePoint _initialGripperPoint;
 
-		public SpeechbubbleContainer(Surface parent)
-			: base(parent)
+		public SpeechbubbleContainer(Surface parent, IEditorConfiguration editorConfiguration)
+			: base(parent, editorConfiguration)
 		{
 		}
 

@@ -648,7 +648,7 @@ EndSelection:<<<<<<<4
 			var disposeImage = false;
 			try
 			{
-				var outputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+				var outputSettings = new SurfaceOutputSettings(CoreConfig, OutputFormats.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
 				disposeImage = ImageOutput.CreateBitmapFromSurface(surface, outputSettings, out bitmapToSave);
 				try
@@ -658,7 +658,7 @@ EndSelection:<<<<<<<4
 					{
 						pngStream = new MemoryStream();
 						// PNG works for e.g. Powerpoint
-						var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+						var pngOutputSettings = new SurfaceOutputSettings(CoreConfig, OutputFormats.png, 100, false);
 						ImageOutput.SaveToStream(bitmapToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
@@ -677,7 +677,7 @@ EndSelection:<<<<<<<4
 						using (var tmpBmpStream = new MemoryStream())
 						{
 							// Save image as BMP
-							var bmpOutputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 100, false);
+							var bmpOutputSettings = new SurfaceOutputSettings(CoreConfig, OutputFormats.bmp, 100, false);
 							ImageOutput.SaveToStream(bitmapToSave, null, tmpBmpStream, bmpOutputSettings);
 
 							dibStream = new MemoryStream();
@@ -736,7 +736,7 @@ EndSelection:<<<<<<<4
 				// Set the HTML
 				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.HTML))
 				{
-					var tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormats.png, 100, false), null);
+					var tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(CoreConfig, OutputFormats.png, 100, false), null);
 					var html = GetHtmlString(surface, tmpFile);
 					dataObject.SetText(html, TextDataFormat.Html);
 				}
@@ -745,7 +745,7 @@ EndSelection:<<<<<<<4
 					string html;
 					using (var tmpPngStream = new MemoryStream())
 					{
-						var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false)
+						var pngOutputSettings = new SurfaceOutputSettings(CoreConfig, OutputFormats.png, 100, false)
 						{
 							// Do not allow to reduce the colors, some applications dislike 256 color images
 							// reported with bug #3594681

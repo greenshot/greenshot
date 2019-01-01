@@ -44,7 +44,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	{
 		public static readonly int MAX_CLICK_DISTANCE_TOLERANCE = 10;
 
-		public LineContainer(Surface parent) : base(parent)
+		public LineContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}

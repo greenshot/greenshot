@@ -32,11 +32,13 @@ using Dapplo.CaliburnMicro.Security;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Configuration;
 using Greenshot.Configuration.Impl;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Processors;
 using Greenshot.Ui.Configuration.ViewModels;
 using Greenshot.Ui.Misc.ViewModels;
 using Greenshot.Ui.Notifications.ViewModels;
@@ -132,6 +134,12 @@ namespace Greenshot
             builder
                 .RegisterType<WindowHandle>()
                 .AsSelf()
+                .SingleInstance();
+
+            // Processors
+            builder
+                .RegisterType<TitleFixProcessor>()
+                .As<IProcessor>()
                 .SingleInstance();
 
             // Destinations

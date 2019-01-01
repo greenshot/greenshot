@@ -64,6 +64,7 @@ namespace Greenshot.Forms
         private readonly ICapture _capture;
         private readonly bool _isZoomerTransparent;
         private readonly IList<IInteropWindow> _windows;
+        private readonly IEnumerable<IFormEnhancer> _formEnhancers;
         private NativeRect _captureRect = NativeRect.Empty;
         private NativePoint _cursorPos;
         private FixMode _fixMode = FixMode.None;
@@ -94,7 +95,7 @@ namespace Greenshot.Forms
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="capture">ICapture</param>
         /// <param name="windows">IList of IInteropWindow</param>
-        public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows) : base(coreConfiguration, null)
+        public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows, IEnumerable<IFormEnhancer> formEnhancers) : base(coreConfiguration, null)
         {
             _isZoomerTransparent = _coreConfiguration.ZoomerOpacity < 1;
             ManualLanguageApply = true;
@@ -105,6 +106,7 @@ namespace Greenshot.Forms
 
             _capture = capture;
             _windows = windows;
+            _formEnhancers = formEnhancers;
             UsedCaptureMode = capture.CaptureDetails.CaptureMode;
 
             //

@@ -21,6 +21,7 @@
 
 using Autofac;
 using Dapplo.Addons;
+using Greenshot.Addons.Interfaces;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Components;
 
@@ -37,6 +38,14 @@ namespace Greenshot.Addon.Win10
                     .RegisterType<Win10OcrDestination>()
                     .As<IDestination>()
                     .SingleInstance();
+
+#if !NETCOREAPP3_0
+                builder
+                    .RegisterType<Win10FormEnhancer>()
+                    .As<IFormEnhancer>()
+                    .SingleInstance();
+#endif
+
                 builder
                     .RegisterType<Win10ShareDestination>()
                     .As<IDestination>()

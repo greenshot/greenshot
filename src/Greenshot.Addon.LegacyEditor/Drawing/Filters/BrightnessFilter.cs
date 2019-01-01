@@ -38,7 +38,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	[Serializable]
 	public class BrightnessFilter : AbstractFilter
 	{
-		public BrightnessFilter(DrawableContainer parent) : base(parent)
+		public BrightnessFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			AddField(GetType(), FieldTypes.BRIGHTNESS, 0.9d);
 		}

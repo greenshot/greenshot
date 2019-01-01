@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	/// </summary>
 	public class CropContainer : DrawableContainer
 	{
-		public CropContainer(Surface parent) : base(parent)
+		public CropContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}

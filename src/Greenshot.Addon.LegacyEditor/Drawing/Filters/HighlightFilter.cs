@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	[Serializable]
 	public class HighlightFilter : AbstractFilter
 	{
-        public HighlightFilter(DrawableContainer parent) : base(parent)
+        public HighlightFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			AddField(GetType(), FieldTypes.FILL_COLOR, Color.Yellow);
 		}

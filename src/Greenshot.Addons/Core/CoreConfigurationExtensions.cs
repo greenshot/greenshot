@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Dapplo.Log;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -39,6 +40,8 @@ namespace Greenshot.Addons.Core
     /// </summary>
     public static class CoreConfigurationExtensions
     {
+        private static readonly LogSource Log = new LogSource();
+
         /// <summary>
         ///     Validate the values in the ICoreConfiguration, correct them where needed
         /// </summary>
@@ -194,6 +197,30 @@ namespace Greenshot.Addons.Core
                 coreConfiguration.WebRequestReadWriteTimeout = 100;
             }
 
+            // TitleFix processor
+            var corruptKeys = new List<string>();
+            foreach (var key in coreConfiguration.ActiveTitleFixes)
+            {
+                if (coreConfiguration.TitleFixMatcher.ContainsKey(key))
+                {
+                    continue;
+                }
+                Log.Warn().WriteLine("Key {0} not found, configuration is broken! Disabling this key!", key);
+                corruptKeys.Add(key);
+            }
+
+            // Fix configuration if needed
+            if (corruptKeys.Count <= 0)
+            {
+                return;
+            }
+            foreach (var corruptKey in corruptKeys)
+            {
+                // Removing any reference to the key
+                coreConfiguration.ActiveTitleFixes.Remove(corruptKey);
+                coreConfiguration.TitleFixMatcher.Remove(corruptKey);
+                coreConfiguration.TitleFixReplacer.Remove(corruptKey);
+            }
             coreConfiguration.ValidateAndCorrect();
         }
     }

@@ -195,7 +195,7 @@ namespace Greenshot.Helpers
 		private void DrawImageForPrint(object sender, PrintPageEventArgs e)
 		{
 			// Create the output settins
-			var printOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+			var printOutputSettings = new SurfaceOutputSettings(_coreConfig, OutputFormats.png, 100, false);
 
 			ApplyEffects(printOutputSettings);
 

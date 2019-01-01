@@ -58,7 +58,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			HIGHLIGHT
 		}
 
-		public FilterContainer(Surface parent) : base(parent)
+		public FilterContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}

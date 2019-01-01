@@ -84,7 +84,7 @@ namespace Greenshot.Addon.Win10
 				var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
 				using (var imageStream = new MemoryStream())
 				{
-					ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+					ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings(CoreConfiguration));
 					imageStream.Position = 0;
 
 					var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());

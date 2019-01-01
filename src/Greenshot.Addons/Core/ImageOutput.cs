@@ -136,7 +136,7 @@ namespace Greenshot.Addons.Core
 					try
 					{
 						var fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+						var outputSettings = new SurfaceOutputSettings(CoreConfig, FormatForFilename(fileNameWithExtension));
 						if (CoreConfig.OutputFilePromptQuality)
 						{
                             // TODO: Resolve, was static reference

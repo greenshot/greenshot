@@ -90,7 +90,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             }
         }
 
-        public TextContainer(Surface parent) : base(parent)
+        public TextContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
         {
             Init();
         }
