@@ -2,13 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <!--TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks-->
+    <TargetFrameworks>net471</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
     <AssemblyTitle>Greenshot</AssemblyTitle>
     <AssemblyName>Greenshot</AssemblyName>
+    <!--RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained-->
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

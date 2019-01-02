@@ -73,6 +73,11 @@ namespace Greenshot
                 .SingleInstance();
 
             builder
+                .RegisterType<CaptureSupportInfo>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder
                 .RegisterType<ConfigTranslationsImpl>()
                 .As<IConfigTranslations>()
                 .As<ILanguage>()

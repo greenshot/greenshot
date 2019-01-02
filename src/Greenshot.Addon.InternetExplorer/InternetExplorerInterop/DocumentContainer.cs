@@ -37,7 +37,7 @@ using IServiceProvider = Greenshot.Addons.Interop.IServiceProvider;
 
 #endregion
 
-namespace Greenshot.Addon.InternetExplorer.IEInterop
+namespace Greenshot.Addon.InternetExplorer.InternetExplorerInterop
 {
 	public class DocumentContainer
 	{

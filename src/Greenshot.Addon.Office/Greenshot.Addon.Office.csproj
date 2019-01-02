@@ -3,7 +3,8 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Office</RootNamespace>
     <AssemblyName>Greenshot.Addon.Office</AssemblyName>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <!--TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks-->
+    <TargetFrameworks>net471</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

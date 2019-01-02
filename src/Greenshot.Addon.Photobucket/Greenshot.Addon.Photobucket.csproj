@@ -3,7 +3,8 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Photobucket</RootNamespace>
     <AssemblyName>Greenshot.Addon.Photobucket</AssemblyName>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <!--TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks-->
+    <TargetFrameworks>net471</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

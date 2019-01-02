@@ -65,8 +65,8 @@ namespace Greenshot.Helpers
         private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
+        private readonly CaptureSupportInfo _captureSupportInfo;
         private CaptureMode _captureMode;
-        private readonly IEnumerable<IFormEnhancer> _formEnhancers;
         private NativeRect _captureRect = NativeRect.Empty;
         private ScreenCaptureMode _screenCaptureMode = ScreenCaptureMode.Auto;
         // TODO: when we get the screen capture code working correctly, this needs to be enabled
@@ -75,28 +75,28 @@ namespace Greenshot.Helpers
         private readonly DestinationHolder _destinationHolder;
         private readonly IEnumerable<IProcessor> _processors;
 
-        public CaptureHelper(IEnumerable<IFormEnhancer> formEnhancers, CaptureMode captureMode)
+        public CaptureHelper(CaptureSupportInfo captureSupportInfo, CaptureMode captureMode)
         {
+            _captureSupportInfo = captureSupportInfo;
             _captureMode = captureMode;
-            _formEnhancers = formEnhancers;
             _capture = new Capture();
             _destinationHolder = DestinationHolder.Instance;
             // TODO: Fix this
             _processors = Enumerable.Empty<IProcessor>();
         }
 
-        public CaptureHelper(IEnumerable<IFormEnhancer> formEnhancers, CaptureMode captureMode, bool captureMouseCursor) : this(formEnhancers, captureMode)
+        public CaptureHelper(CaptureSupportInfo captureSupportInfo, CaptureMode captureMode, bool captureMouseCursor) : this(captureSupportInfo, captureMode)
         {
             _captureMouseCursor = captureMouseCursor;
         }
 
-        public CaptureHelper(IEnumerable<IFormEnhancer> formEnhancers, CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(formEnhancers, captureMode)
+        public CaptureHelper(CaptureSupportInfo captureSupportInfo, CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureSupportInfo, captureMode)
         {
             _captureMouseCursor = captureMouseCursor;
             _screenCaptureMode = screenCaptureMode;
         }
 
-        public CaptureHelper(IEnumerable<IFormEnhancer> formEnhancers, CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(formEnhancers, captureMode, captureMouseCursor)
+        public CaptureHelper(CaptureSupportInfo captureSupportInfo, CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureSupportInfo, captureMode, captureMouseCursor)
         {
             if (destination != null)
             {
@@ -140,100 +140,100 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureClipboard(IEnumerable<IFormEnhancer> formEnhancers, IDestination destination = null)
+        public static void CaptureClipboard(CaptureSupportInfo captureSupportInfo, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.Clipboard, false, destination))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Clipboard, false, destination))
             {
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureRegion(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse, IDestination destination = null)
+        public static void CaptureRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.Region, captureMouse, destination))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse, destination))
             {
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureRegion(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse, NativeRect region)
+        public static void CaptureRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse, NativeRect region)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.Region, captureMouse))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse))
             {
                 captureHelper.MakeCapture(region);
             }
         }
 
-        public static void CaptureFullscreen(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse, ScreenCaptureMode screenCaptureMode, IDestination destination = null)
+        public static void CaptureFullscreen(CaptureSupportInfo captureSupportInfo, bool captureMouse, ScreenCaptureMode screenCaptureMode, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.FullScreen, captureMouse, destination))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.FullScreen, captureMouse, destination))
             {
                 captureHelper._screenCaptureMode = screenCaptureMode;
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureLastRegion(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse)
+        public static void CaptureLastRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.LastRegion, captureMouse))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.LastRegion, captureMouse))
             {
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureIe(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse, IInteropWindow windowToCapture)
+        public static void CaptureIe(CaptureSupportInfo captureSupportInfo, bool captureMouse, IInteropWindow windowToCapture)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.IE, captureMouse))
-            {
-                captureHelper.SelectedCaptureWindow = windowToCapture;
-                captureHelper.MakeCapture();
-            }
-        }
-
-        public static void CaptureWindow(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse, IDestination destination = null)
-        {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.ActiveWindow, captureMouse, destination))
-            {
-                captureHelper.MakeCapture();
-            }
-        }
-
-        public static void CaptureWindow(IEnumerable<IFormEnhancer> formEnhancers, IInteropWindow windowToCapture)
-        {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.ActiveWindow))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.IE, captureMouse))
             {
                 captureHelper.SelectedCaptureWindow = windowToCapture;
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureWindowInteractive(IEnumerable<IFormEnhancer> formEnhancers, bool captureMouse)
+        public static void CaptureWindow(CaptureSupportInfo captureSupportInfo, bool captureMouse, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.Window))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow, captureMouse, destination))
             {
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureFile(IEnumerable<IFormEnhancer> formEnhancers, string filename)
+        public static void CaptureWindow(CaptureSupportInfo captureSupportInfo, IInteropWindow windowToCapture)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.File))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow))
+            {
+                captureHelper.SelectedCaptureWindow = windowToCapture;
+                captureHelper.MakeCapture();
+            }
+        }
+
+        public static void CaptureWindowInteractive(CaptureSupportInfo captureSupportInfo, bool captureMouse)
+        {
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Window))
+            {
+                captureHelper.MakeCapture();
+            }
+        }
+
+        public static void CaptureFile(CaptureSupportInfo captureSupportInfo, string filename)
+        {
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
             {
                 captureHelper.MakeCapture(filename);
             }
         }
 
-        public static void CaptureFile(IEnumerable<IFormEnhancer> formEnhancers, string filename, IDestination destination)
+        public static void CaptureFile(CaptureSupportInfo captureSupportInfo, string filename, IDestination destination)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.File))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
             {
                 captureHelper.AddDestination(destination).MakeCapture(filename);
             }
         }
 
-        public static void ImportCapture(IEnumerable<IFormEnhancer> formEnhancers, ICapture captureToImport)
+        public static void ImportCapture(CaptureSupportInfo captureSupportInfo, ICapture captureToImport)
         {
-            using (var captureHelper = new CaptureHelper(formEnhancers, CaptureMode.File))
+            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
             {
                 captureHelper._capture = captureToImport;
                 captureHelper.HandleCapture();
@@ -355,7 +355,7 @@ namespace Greenshot.Helpers
                     HandleCapture();
                     break;
                 case CaptureMode.IE:
-                    if (IeCaptureHelper.CaptureIe(_capture, SelectedCaptureWindow) != null)
+                    if (_captureSupportInfo.InternetExplorerCaptureHelper.CaptureIe(_capture, SelectedCaptureWindow) != null)
                     {
                         _capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
                         SetDpi();
@@ -782,7 +782,7 @@ namespace Greenshot.Helpers
         /// <param name="captureForWindow">The capture to store the details</param>
         /// <param name="windowCaptureMode">What WindowCaptureModes to use</param>
         /// <returns>ICapture</returns>
-        public static ICapture CaptureWindow(IInteropWindow windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode)
+        public ICapture CaptureWindow(IInteropWindow windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode)
         {
             if (captureForWindow == null)
             {
@@ -802,11 +802,11 @@ namespace Greenshot.Helpers
                 // 3) Otherwise use GDI (Screen might be also okay but might lose content)
                 if (isAutoMode)
                 {
-                    if (CoreConfig.IECapture && IeCaptureHelper.IsIeWindow(windowToCapture))
+                    if (CoreConfig.IECapture && _captureSupportInfo.InternetExplorerCaptureHelper.IsIeWindow(windowToCapture))
                     {
                         try
                         {
-                            var ieCapture = IeCaptureHelper.CaptureIe(captureForWindow, windowToCapture);
+                            var ieCapture = _captureSupportInfo.InternetExplorerCaptureHelper.CaptureIe(captureForWindow, windowToCapture);
                             if (ieCapture != null)
                             {
                                 return ieCapture;
@@ -1032,7 +1032,7 @@ namespace Greenshot.Helpers
             //	}
             //}
 
-            using (var captureForm = new CaptureForm(CoreConfig, _capture, _windows, _formEnhancers))
+            using (var captureForm = new CaptureForm(CoreConfig, _capture, _windows, _captureSupportInfo.FormEnhancers))
             {
                 // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
                 DialogResult result;

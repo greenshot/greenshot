@@ -50,7 +50,7 @@ namespace Greenshot.Addon.Confluence
 			var pages = new List<Content>();
 			var pageIdRegex = new Regex(@"pageId=(\d+)");
 			var spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
-			foreach (var browserurl in IEHelper.GetIEUrls().Distinct())
+			foreach (var browserurl in InternetExplorerHelper.GetIEUrls().Distinct())
 			{
 				string url;
 				try

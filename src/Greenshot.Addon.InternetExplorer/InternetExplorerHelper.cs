@@ -27,10 +27,10 @@ using Dapplo.Windows.Desktop;
 using Microsoft.Win32;
 
 namespace Greenshot.Addon.InternetExplorer {
-	/// <summary>
-	/// Description of IEHelper.
-	/// </summary>
-	public static class IEHelper {
+    /// <summary>
+    /// Util code for Internet Explorer
+    /// </summary>
+    public  class InternetExplorerHelper {
 		private static readonly LogSource Log = new LogSource();
 
 		// Internet explorer Registry key
