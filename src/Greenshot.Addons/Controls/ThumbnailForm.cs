@@ -48,17 +48,14 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public sealed class ThumbnailForm : FormWithoutActivation
 	{
-	    // TODO: Solve, was static reference!
-	    private static readonly ICoreConfiguration coreConfiguration = new CoreConfigurationImpl();
-
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 
         /// <summary>
         /// Constructor for the Thumbnail form
         /// </summary>
-		public ThumbnailForm()
+		public ThumbnailForm(ICoreConfiguration coreConfiguration)
 		{
-			ShowInTaskbar = false;
+            ShowInTaskbar = false;
 			FormBorderStyle = FormBorderStyle.None;
 			TopMost = false;
 			Enabled = false;

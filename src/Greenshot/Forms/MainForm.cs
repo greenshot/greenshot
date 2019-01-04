@@ -676,7 +676,7 @@ namespace Greenshot.Forms
             var window = captureWindowItem.Tag as IInteropWindow;
             if (_thumbnailForm == null)
             {
-                _thumbnailForm = new ThumbnailForm();
+                _thumbnailForm = new ThumbnailForm(_coreConfiguration);
             }
             _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
         }

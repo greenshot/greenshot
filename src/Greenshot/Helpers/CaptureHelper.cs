@@ -61,8 +61,7 @@ namespace Greenshot.Helpers
     public class CaptureHelper : IDisposable
     {
         private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+        private readonly ICoreConfiguration _coreConfiguration;
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private readonly CaptureSupportInfo _captureSupportInfo;
@@ -78,6 +77,7 @@ namespace Greenshot.Helpers
         public CaptureHelper(CaptureSupportInfo captureSupportInfo, CaptureMode captureMode)
         {
             _captureSupportInfo = captureSupportInfo;
+            _coreConfiguration = captureSupportInfo.CoreConfiguration;
             _captureMode = captureMode;
             _capture = new Capture();
             _destinationHolder = DestinationHolder.Instance;
@@ -134,7 +134,7 @@ namespace Greenshot.Helpers
             SelectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing
-            if (CoreConfig.MinimizeWorkingSetSize)
+            if (_coreConfiguration.MinimizeWorkingSetSize)
             {
                 PsApi.EmptyWorkingSet();
             }
@@ -248,7 +248,7 @@ namespace Greenshot.Helpers
 
         private void DoCaptureFeedback()
         {
-            if (CoreConfig.PlayCameraSound)
+            if (_coreConfiguration.PlayCameraSound)
             {
                 SoundHelper.Play();
             }
@@ -282,7 +282,7 @@ namespace Greenshot.Helpers
         {
             // This fixes a problem when a balloon is still visible and a capture needs to be taken
             // forcefully removes the balloon!
-            if (!CoreConfig.HideTrayicon)
+            if (!_coreConfiguration.HideTrayicon)
             {
                 MainForm.Instance.NotifyIcon.Visible = false;
                 MainForm.Instance.NotifyIcon.Visible = true;
@@ -313,20 +313,20 @@ namespace Greenshot.Helpers
             }
 
             // Delay for the Context menu
-            if (CoreConfig.CaptureDelay > 0)
+            if (_coreConfiguration.CaptureDelay > 0)
             {
-                Thread.Sleep(CoreConfig.CaptureDelay);
+                Thread.Sleep(_coreConfiguration.CaptureDelay);
             }
             else
             {
-                CoreConfig.CaptureDelay = 0;
+                _coreConfiguration.CaptureDelay = 0;
             }
 
             // Capture Mousecursor if we are not loading from file or clipboard, only show when needed
             if (_captureMode != CaptureMode.File && _captureMode != CaptureMode.Clipboard)
             {
                 _capture = WindowCapture.CaptureCursor(_capture);
-                _capture.CursorVisible = _captureMouseCursor && CoreConfig.CaptureMousepointer;
+                _capture.CursorVisible = _captureMouseCursor && _coreConfiguration.CaptureMousepointer;
             }
 
             switch (_captureMode)
@@ -382,9 +382,9 @@ namespace Greenshot.Helpers
                             }
                             break;
                         case ScreenCaptureMode.Fixed:
-                            if (CoreConfig.ScreenToCapture > 0 && CoreConfig.ScreenToCapture <= Screen.AllScreens.Length)
+                            if (_coreConfiguration.ScreenToCapture > 0 && _coreConfiguration.ScreenToCapture <= Screen.AllScreens.Length)
                             {
-                                _capture = WindowCapture.CaptureRectangle(_capture, Screen.AllScreens[CoreConfig.ScreenToCapture].Bounds);
+                                _capture = WindowCapture.CaptureRectangle(_capture, Screen.AllScreens[_coreConfiguration.ScreenToCapture].Bounds);
                                 captureTaken = true;
                             }
                             break;
@@ -497,9 +497,9 @@ namespace Greenshot.Helpers
                     }
                     break;
                 case CaptureMode.LastRegion:
-                    if (!CoreConfig.LastCapturedRegion.IsEmpty)
+                    if (!_coreConfiguration.LastCapturedRegion.IsEmpty)
                     {
-                        _capture = WindowCapture.CaptureRectangle(_capture, CoreConfig.LastCapturedRegion);
+                        _capture = WindowCapture.CaptureRectangle(_capture, _coreConfiguration.LastCapturedRegion);
 
                         // Move cursor, fixing bug #3569703
                         _capture.MoveMouseLocation(_capture.ScreenBounds.Location.X - _capture.Location.X, _capture.ScreenBounds.Location.Y - _capture.Location.Y);
@@ -559,7 +559,7 @@ namespace Greenshot.Helpers
 
         private void AddConfiguredDestination()
         {
-            foreach (var destinationDesignation in CoreConfig.OutputDestinations)
+            foreach (var destinationDesignation in _coreConfiguration.OutputDestinations)
             {
                 var destination = _destinationHolder.SortedActiveDestinations.Find(destinationDesignation);
                 if (destination != null)
@@ -714,8 +714,8 @@ namespace Greenshot.Helpers
                 return false;
             }
             // Fix for Bug #3430560 
-            CoreConfig.LastCapturedRegion = SelectedCaptureWindow.GetInfo().Bounds;
-            var returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
+            _coreConfiguration.LastCapturedRegion = SelectedCaptureWindow.GetInfo().Bounds;
+            var returnValue = CaptureWindow(SelectedCaptureWindow, _capture, _coreConfiguration.WindowCaptureMode) != null;
             return returnValue;
         }
 
@@ -802,7 +802,7 @@ namespace Greenshot.Helpers
                 // 3) Otherwise use GDI (Screen might be also okay but might lose content)
                 if (isAutoMode)
                 {
-                    if (CoreConfig.IECapture && _captureSupportInfo.InternetExplorerCaptureHelper.IsIeWindow(windowToCapture))
+                    if (_coreConfiguration.IECapture && _captureSupportInfo.InternetExplorerCaptureHelper.IsIeWindow(windowToCapture))
                     {
                         try
                         {
@@ -1032,7 +1032,7 @@ namespace Greenshot.Helpers
             //	}
             //}
 
-            using (var captureForm = new CaptureForm(CoreConfig, _capture, _windows, _captureSupportInfo.FormEnhancers))
+            using (var captureForm = new CaptureForm(_coreConfiguration, _capture, _windows, _captureSupportInfo.FormEnhancers))
             {
                 // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
                 DialogResult result;
@@ -1086,7 +1086,7 @@ namespace Greenshot.Helpers
                 // save for re-capturing later and show recapture context menu option
                 // Important here is that the location needs to be offsetted back to screen coordinates!
                 var tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-                CoreConfig.LastCapturedRegion = tmpRectangle;
+                _coreConfiguration.LastCapturedRegion = tmpRectangle;
                 HandleCapture();
             }
         }

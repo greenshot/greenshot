@@ -128,7 +128,7 @@ namespace Greenshot.Addons.Core
 		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
 		{
 			string returnValue = null;
-			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+			using (var saveImageFileDialog = new SaveImageFileDialog(CoreConfig, captureDetails))
 			{
 				var dialogResult = saveImageFileDialog.ShowDialog();
 				if (dialogResult.Equals(DialogResult.OK))

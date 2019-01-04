@@ -39,14 +39,18 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
 	{
-	    // TODO: Solve, was static reference!
-	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+	    private readonly ICoreConfiguration _coreConfiguration = new CoreConfigurationImpl();
+
+        public ContextMenuToolStripProfessionalRenderer(ICoreConfiguration coreConfiguration)
+        {
+            _coreConfiguration = coreConfiguration;
+        }
 
         private Image _scaledCheckbox;
 		private bool _newImage;
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{
-			if (_scaledCheckbox == null || (NativeSize)_scaledCheckbox.Size != CoreConfig.IconSize)
+			if (_scaledCheckbox == null || (NativeSize)_scaledCheckbox.Size != _coreConfiguration.IconSize)
 			{
 				if (_newImage)
 				{
