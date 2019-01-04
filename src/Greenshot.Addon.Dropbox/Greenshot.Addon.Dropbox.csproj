@@ -3,8 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Dropbox</RootNamespace>
     <AssemblyName>Greenshot.Addon.Dropbox</AssemblyName>
-    <!--TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks-->
-    <TargetFrameworks>net471</TargetFrameworks>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

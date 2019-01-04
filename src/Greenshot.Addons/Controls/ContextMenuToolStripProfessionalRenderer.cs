@@ -39,7 +39,7 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
 	{
-	    private readonly ICoreConfiguration _coreConfiguration = new CoreConfigurationImpl();
+	    private readonly ICoreConfiguration _coreConfiguration;
 
         public ContextMenuToolStripProfessionalRenderer(ICoreConfiguration coreConfiguration)
         {

@@ -3,8 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.LegacyEditor</RootNamespace>
     <AssemblyName>Greenshot.Addon.LegacyEditor</AssemblyName>
-    <!--TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks-->
-    <TargetFrameworks>net471</TargetFrameworks>
+    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

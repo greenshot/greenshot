@@ -39,6 +39,9 @@ namespace Greenshot.Addon.Win10
 
         public void InitializeComponent(Form target)
         {
+            // TODO: Fix the code below, when the following is solved: https://github.com/windows-toolkit/Microsoft.Toolkit.Win32/issues/16#issuecomment-451337186
+            return;
+
             // InkCanvas
             inkCanvasHost = new WindowsXamlHost();
             inkCanvasHost.InitialTypeName = "Windows.UI.Xaml.Controls.InkCanvas";

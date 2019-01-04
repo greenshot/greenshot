@@ -56,8 +56,11 @@ namespace Greenshot.Addons.Core
     public static class InteropWindowCaptureExtensions
     {
         private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration CoreConfiguration = new CoreConfigurationImpl();
+
+        /// <summary>
+        /// Set from DI via AddonsModule
+        /// </summary>
+        internal static ICoreConfiguration CoreConfiguration { get; set; }
         private static Color _transparentColor = Color.Transparent;
 
         /// <summary>

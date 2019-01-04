@@ -38,6 +38,7 @@ using Greenshot.Configuration;
 using Greenshot.Configuration.Impl;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Helpers.Mapi;
 using Greenshot.Processors;
 using Greenshot.Ui.Configuration.ViewModels;
 using Greenshot.Ui.Misc.ViewModels;
@@ -75,7 +76,12 @@ namespace Greenshot
             builder
                 .RegisterType<CaptureSupportInfo>()
                 .AsSelf()
-                .SingleInstance();
+                .SingleInstance()
+                .OnActivated(args =>
+                {
+                    // Workaround for static access in different helper classes and extensions
+                    MapiMailMessage.CoreConfiguration = args.Instance.CoreConfiguration;
+                });
 
             builder
                 .RegisterType<ConfigTranslationsImpl>()

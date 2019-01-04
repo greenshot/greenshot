@@ -45,13 +45,28 @@ namespace Greenshot.Addons
                 .As<ICoreConfiguration>()
                 .As<IUiConfiguration>()
                 .As<IIniSection>()
-                .SingleInstance();
+                .SingleInstance()
+                .OnActivated(args =>
+                {
+                    // Workaround for static access in different helper classes and extensions
+                    ClipboardHelper.CoreConfiguration = args.Instance;
+                    FilenameHelper.CoreConfiguration = args.Instance;
+                    ImageOutput.CoreConfiguration = args.Instance;
+                    InteropWindowCaptureExtensions.CoreConfiguration = args.Instance;
+                    WindowCapture.CoreConfiguration = args.Instance;
+                    PluginUtils.CoreConfiguration = args.Instance;
+                });
 
             builder
                 .RegisterType<GreenshotLanguageImpl>()
                 .As<IGreenshotLanguage>()
                 .As<ILanguage>()
-                .SingleInstance();
+                .SingleInstance()
+                .OnActivated(args =>
+                {
+                    // Workaround for static access in different helper classes and extensions
+                    ImageOutput.GreenshotLanguage = args.Instance;
+                });
 
             builder
                 .RegisterType<HttpConfigurationImpl>()

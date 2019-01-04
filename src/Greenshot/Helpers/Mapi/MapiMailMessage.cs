@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -32,53 +31,30 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 
-namespace Greenshot.Helpers
+namespace Greenshot.Helpers.Mapi
 {
-	/// <summary>
-	///     Author: Andrew Baker
-	///     Datum: 10.03.2006
-	///     Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
-	/// </summary>
-	/// <summary>
-	///     Represents an email message to be sent through MAPI.
-	/// </summary>
-	public class MapiMailMessage : IDisposable
+    /// <summary>
+    ///     Author: Andrew Baker
+    ///     Datum: 10.03.2006
+    ///     Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
+    /// </summary>
+    /// <summary>
+    ///     Represents an email message to be sent through MAPI.
+    /// </summary>
+    public partial class MapiMailMessage : IDisposable
 	{
-		#region Enums
-
-		/// <summary>
-		///     Specifies the valid RecipientTypes for a Recipient.
-		/// </summary>
-		public enum RecipientType
-		{
-			/// <summary>
-			///     Recipient will be in the TO list.
-			/// </summary>
-			To = 1,
-
-			/// <summary>
-			///     Recipient will be in the CC list.
-			/// </summary>
-			CC = 2,
-
-			/// <summary>
-			///     Recipient will be in the BCC list.
-			/// </summary>
-			BCC = 3
-		}
-
-		#endregion Enums
-
 		private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+
+        /// <summary>
+        /// Set from DI via AddonsModule
+        /// </summary>
+        internal static ICoreConfiguration CoreConfiguration { get; set; }
 
         #region Member Variables
 
@@ -96,17 +72,17 @@ namespace Greenshot.Helpers
 			using (var message = new MapiMailMessage(title, null))
 			{
 				message.Files.Add(fullPath);
-				if (!string.IsNullOrEmpty(CoreConfig.MailApiTo))
+				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiTo))
 				{
-					message.Recipients.Add(new Recipient(CoreConfig.MailApiTo, RecipientType.To));
+					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiTo, RecipientType.To));
 				}
-				if (!string.IsNullOrEmpty(CoreConfig.MailApiCC))
+				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiCC))
 				{
-					message.Recipients.Add(new Recipient(CoreConfig.MailApiCC, RecipientType.CC));
+					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiCC, RecipientType.CC));
 				}
-				if (!string.IsNullOrEmpty(CoreConfig.MailApiBCC))
+				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiBCC))
 				{
-					message.Recipients.Add(new Recipient(CoreConfig.MailApiBCC, RecipientType.BCC));
+					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiBCC, RecipientType.BCC));
 				}
 				message.ShowDialog();
 			}
@@ -120,7 +96,7 @@ namespace Greenshot.Helpers
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(ISurface surface, ICaptureDetails captureDetails)
 		{
-			var tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(CoreConfig));
+			var tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(CoreConfiguration));
 
 			if (tmpFile != null)
 			{
@@ -550,242 +526,4 @@ namespace Greenshot.Helpers
 
 		#endregion Private Methods
 	}
-
-	#region Public Recipient Class
-
-	/// <summary>
-	///     Represents a Recipient for a MapiMailMessage.
-	/// </summary>
-	public class Recipient
-	{
-		#region Internal Methods
-
-		/// <summary>
-		///     Returns an interop representation of a recepient.
-		/// </summary>
-		/// <returns></returns>
-		internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
-		{
-			var interop = new MapiMailMessage.MapiHelperInterop.MapiRecipDesc();
-
-			if (DisplayName == null)
-			{
-				interop.Name = Address;
-			}
-			else
-			{
-				interop.Name = DisplayName;
-				interop.Address = Address;
-			}
-
-			interop.RecipientClass = (int) RecipientType;
-
-			return interop;
-		}
-
-		#endregion Internal Methods
-
-		#region Public Properties
-
-		/// <summary>
-		///     The email address of this recipient.
-		/// </summary>
-		public string Address;
-
-		/// <summary>
-		///     The display name of this recipient.
-		/// </summary>
-		public string DisplayName;
-
-		/// <summary>
-		///     How the recipient will receive this message (To, CC, BCC).
-		/// </summary>
-		public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
-
-		#endregion Public Properties
-
-		#region Constructors
-
-		/// <summary>
-		///     Creates a new recipient with the specified address.
-		/// </summary>
-		public Recipient(string address)
-		{
-			Address = address;
-		}
-
-		/// <summary>
-		///     Creates a new recipient with the specified address and display name.
-		/// </summary>
-		public Recipient(string address, string displayName)
-		{
-			Address = address;
-			DisplayName = displayName;
-		}
-
-		/// <summary>
-		///     Creates a new recipient with the specified address and recipient type.
-		/// </summary>
-		public Recipient(string address, MapiMailMessage.RecipientType recipientType)
-		{
-			Address = address;
-			RecipientType = recipientType;
-		}
-
-		/// <summary>
-		///     Creates a new recipient with the specified address, display name and recipient type.
-		/// </summary>
-		public Recipient(string address, string displayName, MapiMailMessage.RecipientType recipientType)
-		{
-			Address = address;
-			DisplayName = displayName;
-			RecipientType = recipientType;
-		}
-
-		#endregion Constructors
-	}
-
-	#endregion Public Recipient Class
-
-	#region Public RecipientCollection Class
-
-	/// <summary>
-	///     Represents a colleciton of recipients for a mail message.
-	/// </summary>
-	public class RecipientCollection : CollectionBase
-	{
-		/// <summary>
-		///     Returns the recipient stored in this collection at the specified index.
-		/// </summary>
-		public Recipient this[int index] => (Recipient) List[index];
-
-		/// <summary>
-		///     Adds the specified recipient to this collection.
-		/// </summary>
-		public void Add(Recipient value)
-		{
-			List.Add(value);
-		}
-
-		/// <summary>
-		///     Adds a new recipient with the specified address to this collection.
-		/// </summary>
-		public void Add(string address)
-		{
-			Add(new Recipient(address));
-		}
-
-		/// <summary>
-		///     Adds a new recipient with the specified address and display name to this collection.
-		/// </summary>
-		public void Add(string address, string displayName)
-		{
-			Add(new Recipient(address, displayName));
-		}
-
-		/// <summary>
-		///     Adds a new recipient with the specified address and recipient type to this collection.
-		/// </summary>
-		public void Add(string address, MapiMailMessage.RecipientType recipientType)
-		{
-			Add(new Recipient(address, recipientType));
-		}
-
-		/// <summary>
-		///     Adds a new recipient with the specified address, display name and recipient type to this collection.
-		/// </summary>
-		public void Add(string address, string displayName, MapiMailMessage.RecipientType recipientType)
-		{
-			Add(new Recipient(address, displayName, recipientType));
-		}
-
-		internal InteropRecipientCollection GetInteropRepresentation()
-		{
-			return new InteropRecipientCollection(this);
-		}
-
-		/// <summary>
-		///     Struct which contains an interop representation of a colleciton of recipients.
-		/// </summary>
-		internal struct InteropRecipientCollection : IDisposable
-		{
-			#region Member Variables
-
-			private int _count;
-
-			#endregion Member Variables
-
-			#region Constructors
-
-			/// <summary>
-			///     Default constructor for creating InteropRecipientCollection.
-			/// </summary>
-			/// <param name="outer"></param>
-			public InteropRecipientCollection(RecipientCollection outer)
-			{
-				_count = outer.Count;
-
-				if (_count == 0)
-				{
-					Handle = IntPtr.Zero;
-					return;
-				}
-
-				// allocate enough memory to hold all recipients
-				var size = Marshal.SizeOf(typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc));
-				Handle = Marshal.AllocHGlobal(_count * size);
-
-				// place all interop recipients into the memory just allocated
-				var ptr = Handle;
-				foreach (Recipient native in outer)
-				{
-					var interop = native.GetInteropRepresentation();
-
-					// stick it in the memory block
-					Marshal.StructureToPtr(interop, ptr, false);
-					ptr = new IntPtr(ptr.ToInt64() + size);
-				}
-			}
-
-			#endregion Costructors
-
-			#region Public Properties
-
-			public IntPtr Handle { get; private set; }
-
-			#endregion Public Properties
-
-			#region Public Methods
-
-			/// <summary>
-			///     Disposes of resources.
-			/// </summary>
-			public void Dispose()
-			{
-				if (Handle != IntPtr.Zero)
-				{
-					var type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
-					var size = Marshal.SizeOf(type);
-
-					// destroy all the structures in the memory area
-					var ptr = Handle;
-					for (var i = 0; i < _count; i++)
-					{
-						Marshal.DestroyStructure(ptr, type);
-						ptr = new IntPtr(ptr.ToInt64() + size);
-					}
-
-					// free the memory
-					Marshal.FreeHGlobal(Handle);
-
-					Handle = IntPtr.Zero;
-					_count = 0;
-				}
-			}
-
-			#endregion Public Methods
-		}
-	}
-
-	#endregion Public RecipientCollection Class
 }
