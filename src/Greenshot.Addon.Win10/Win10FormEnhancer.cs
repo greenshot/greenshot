@@ -24,6 +24,7 @@
 #if !NETCOREAPP3_0
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons.Interfaces;
 using Microsoft.Toolkit.Forms.UI.XamlHost;
@@ -41,7 +42,6 @@ namespace Greenshot.Addon.Win10
         {
             // TODO: Fix the code below, when the following is solved: https://github.com/windows-toolkit/Microsoft.Toolkit.Win32/issues/16#issuecomment-451337186
             return;
-
             // InkCanvas
             inkCanvasHost = new WindowsXamlHost();
             inkCanvasHost.InitialTypeName = "Windows.UI.Xaml.Controls.InkCanvas";
@@ -57,6 +57,8 @@ namespace Greenshot.Addon.Win10
             inkToolbarHost.Dock = DockStyle.Top;
 
             inkCanvasHost.Dock = DockStyle.Fill;
+            inkCanvasHost.BackColor = Color.Transparent;
+
             // Add to Window
             target.Controls.Add(inkToolbarHost);
             target.Controls.Add(inkCanvasHost);

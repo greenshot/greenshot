@@ -24,6 +24,12 @@
             <CheckBox Content="{Binding GreenshotLanguage.SettingsReducecolors}" IsChecked="{Binding FileConfiguration.OutputFileReduceColors}"/>
 
             <DockPanel LastChildFill="True">
+                <Label Content="{Binding GreenshotLanguage.SettingsOutput}" Width="100" />
+                <Button Content="..." Name="SelectOutputPath" />
+                <TextBox Text="{Binding FileConfiguration.OutputFilePath}"/>
+            </DockPanel>
+            
+            <DockPanel LastChildFill="True">
                 <Label Content="{Binding GreenshotLanguage.SettingsFilenamepattern}" Width="100" />
                 <TextBox Text="{Binding FileConfiguration.OutputFileFilenamePattern}"/>
             </DockPanel>

@@ -98,6 +98,26 @@ namespace Greenshot.Addons.ViewModels
         }
 
         /// <summary>
+        /// This opens the directory selection dialog
+        /// </summary>
+        public void SelectOutputPath()
+        {
+            using (var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                // Get the storage location and replace the environment variables
+                folderBrowserDialog.SelectedPath = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
+                if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    // Only change if there is a change, otherwise we might overwrite the environment variables
+                    if (folderBrowserDialog.SelectedPath != null && !folderBrowserDialog.SelectedPath.Equals(FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false)))
+                    {
+                        CoreConfiguration.OutputFilePath = folderBrowserDialog.SelectedPath;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Specifies if the global settings can be modified, which is the case when there are is no DestinationFileConfiguration
         /// </summary>
         public bool AreSettingsEnabled => DestinationFileConfiguration == null || DestinationFileConfiguration.UseOwnSettings;
