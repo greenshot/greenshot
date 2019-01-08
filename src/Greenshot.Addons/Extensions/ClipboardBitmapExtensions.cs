@@ -195,12 +195,12 @@ namespace Greenshot.Addons.Extensions
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
-        public static void SetAsFormat17(this IClipboardAccessToken clipboardAccessToken, ISurface surface)
+        public static void SetAsFormat17(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
             // Create the stream for the clipboard
             using (var dibV5Stream = new MemoryStream())
             {
-                var outputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 100, false);
+                var outputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.bmp, 100, false);
                 bool dispose = ImageOutput.CreateBitmapFromSurface(surface, outputSettings, out var bitmapToSave);
                 // Create the BITMAPINFOHEADER
                 var header = BitmapInfoHeader.Create(bitmapToSave.Width, bitmapToSave.Height, 32);
@@ -269,11 +269,11 @@ namespace Greenshot.Addons.Extensions
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
-        public static void SetAsDeviceIndependendBitmap(this IClipboardAccessToken clipboardAccessToken, ISurface surface)
+        public static void SetAsDeviceIndependendBitmap(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
             using (var bitmapStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(surface, bitmapStream, new SurfaceOutputSettings{Format = OutputFormats.bmp});
+                ImageOutput.SaveToStream(surface, bitmapStream, new SurfaceOutputSettings(coreConfiguration) {Format = OutputFormats.bmp});
                 bitmapStream.Seek(Marshal.SizeOf(typeof(BitmapFileHeader)), SeekOrigin.Begin);
                 // Set the stream
                 clipboardAccessToken.SetAsStream(StandardClipboardFormats.DeviceIndependentBitmap, bitmapStream);

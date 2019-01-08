@@ -187,7 +187,7 @@ namespace Greenshot.Addon.Confluence
 
 		private bool Upload(ISurface surfaceToUpload, Content page, string filename, out string errorMessage)
 		{
-			var outputSettings = new SurfaceOutputSettings(_confluenceConfiguration.UploadFormat, _confluenceConfiguration.UploadJpegQuality, _confluenceConfiguration.UploadReduceColors);
+			var outputSettings = new SurfaceOutputSettings(CoreConfiguration, _confluenceConfiguration.UploadFormat, _confluenceConfiguration.UploadJpegQuality, _confluenceConfiguration.UploadReduceColors);
 			errorMessage = null;
 			try
 			{

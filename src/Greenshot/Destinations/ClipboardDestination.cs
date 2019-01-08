@@ -83,22 +83,22 @@ namespace Greenshot.Destinations
 				        switch (clipboardFormat)
 				        {
                             case ClipboardFormats.DIB:
-                                clipboardAccessToken.SetAsDeviceIndependendBitmap(surface);
+                                clipboardAccessToken.SetAsDeviceIndependendBitmap(surface, CoreConfiguration);
                                 break;
 				            case ClipboardFormats.DIBV5:
-				                clipboardAccessToken.SetAsFormat17(surface);
+				                clipboardAccessToken.SetAsFormat17(surface, CoreConfiguration);
 				                break;
 				            case ClipboardFormats.PNG:
-				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(OutputFormats.png));
+				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(CoreConfiguration, OutputFormats.png));
 				                break;
 				            case ClipboardFormats.BITMAP:
-				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(OutputFormats.bmp));
+				                clipboardAccessToken.SetAsBitmap(surface, new SurfaceOutputSettings(CoreConfiguration, OutputFormats.bmp));
 				                break;
 				            case ClipboardFormats.HTML:
-				                clipboardAccessToken.SetAsHtml(surface);
+				                clipboardAccessToken.SetAsHtml(surface, CoreConfiguration);
 				                break;
 				            case ClipboardFormats.HTMLDATAURL:
-				                clipboardAccessToken.SetAsEmbeddedHtml(surface);
+				                clipboardAccessToken.SetAsEmbeddedHtml(surface, CoreConfiguration);
 				                break;
 				        }
                     }

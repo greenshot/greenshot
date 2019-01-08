@@ -41,7 +41,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.19" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.19" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.3" />
-    <PackageReference Include="Fody" Version="3.3.3">
+    <PackageReference Include="Fody" Version="3.3.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

@@ -159,7 +159,7 @@ namespace Greenshot.Addon.Win10
             using (var logoStream = new MemoryRandomAccessStream())
             using (var thumbnailStream = new MemoryRandomAccessStream())
             {
-                var outputSettings = new SurfaceOutputSettings();
+                var outputSettings = new SurfaceOutputSettings(CoreConfiguration);
                 outputSettings.PreventGreenshotFormat();
 
                 // Create capture for export

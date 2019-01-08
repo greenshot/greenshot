@@ -57,9 +57,18 @@ namespace Greenshot.Addons.Core
 	public static class ImageOutput
 	{
 		private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-		private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
-		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
+
+        /// <summary>
+        /// Set from DI via AddonsModule
+        /// </summary>
+        internal static ICoreConfiguration CoreConfiguration { get; set; }
+
+        /// <summary>
+        /// Set from DI via AddonsModule
+        /// </summary>
+        internal static IGreenshotLanguage GreenshotLanguage { get; set; }
+
+        private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
 	    static ImageOutput()
@@ -128,7 +137,7 @@ namespace Greenshot.Addons.Core
 		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
 		{
 			string returnValue = null;
-			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+			using (var saveImageFileDialog = new SaveImageFileDialog(CoreConfiguration, captureDetails))
 			{
 				var dialogResult = saveImageFileDialog.ShowDialog();
 				if (dialogResult.Equals(DialogResult.OK))
@@ -136,15 +145,15 @@ namespace Greenshot.Addons.Core
 					try
 					{
 						var fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-						if (CoreConfig.OutputFilePromptQuality)
+						var outputSettings = new SurfaceOutputSettings(CoreConfiguration, FormatForFilename(fileNameWithExtension));
+						if (CoreConfiguration.OutputFilePromptQuality)
 						{
-                            // TODO: Resolve, was static reference
-							var qualityDialog = new QualityDialog(outputSettings, CoreConfig, new GreenshotLanguageImpl());
+                            // TODO: Use factory
+							var qualityDialog = new QualityDialog(outputSettings, CoreConfiguration, GreenshotLanguage);
 							qualityDialog.ShowDialog();
 						}
 						// TODO: For now we always overwrite, should be changed
-						Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+						Save(surface, fileNameWithExtension, true, outputSettings, CoreConfiguration.OutputFileCopyPathToClipboard);
 						returnValue = fileNameWithExtension;
 					}
 					catch (ExternalException)
@@ -170,7 +179,7 @@ namespace Greenshot.Addons.Core
 		/// <returns>Path to image file</returns>
 		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
 		{
-			var pattern = CoreConfig.OutputFileFilenamePattern;
+			var pattern = CoreConfiguration.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern?.Trim()))
 			{
 				pattern = "greenshot ${capturetime}";
@@ -564,7 +573,7 @@ namespace Greenshot.Addons.Core
 					AddTag(bitmapToSave);
 					// Added for OptiPNG
 					var processed = false;
-					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
+					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfiguration.OptimizePNGCommand))
 					{
 						processed = ProcessPngImageExternally(bitmapToSave, targetStream);
 					}
@@ -616,13 +625,13 @@ namespace Greenshot.Addons.Core
 		/// <returns></returns>
 		private static bool ProcessPngImageExternally(Image imageToProcess, Stream targetStream)
 		{
-			if (string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
+			if (string.IsNullOrEmpty(CoreConfiguration.OptimizePNGCommand))
 			{
 				return false;
 			}
-			if (!File.Exists(CoreConfig.OptimizePNGCommand))
+			if (!File.Exists(CoreConfiguration.OptimizePNGCommand))
 			{
-				Log.Warn().WriteLine("Can't find 'OptimizePNGCommand' {0}", CoreConfig.OptimizePNGCommand);
+				Log.Warn().WriteLine("Can't find 'OptimizePNGCommand' {0}", CoreConfiguration.OptimizePNGCommand);
 				return false;
 			}
 			var tmpFileName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
@@ -639,12 +648,12 @@ namespace Greenshot.Addons.Core
 				}
 				if (Log.IsDebugEnabled())
 				{
-					Log.Debug().WriteLine("Starting : {0}", CoreConfig.OptimizePNGCommand);
+					Log.Debug().WriteLine("Starting : {0}", CoreConfiguration.OptimizePNGCommand);
 				}
 
-				var processStartInfo = new ProcessStartInfo(CoreConfig.OptimizePNGCommand)
+				var processStartInfo = new ProcessStartInfo(CoreConfiguration.OptimizePNGCommand)
 				{
-					Arguments = string.Format(CoreConfig.OptimizePNGCommandArguments, tmpFileName),
+					Arguments = string.Format(CoreConfiguration.OptimizePNGCommandArguments, tmpFileName),
 					CreateNoWindow = true,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
@@ -735,12 +744,12 @@ namespace Greenshot.Addons.Core
 			}
 
 			// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
-			if (outputSettings.DisableReduceColors || !CoreConfig.OutputFileAutoReduceColors && !outputSettings.ReduceColors)
+			if (outputSettings.DisableReduceColors || !CoreConfiguration.OutputFileAutoReduceColors && !outputSettings.ReduceColors)
 			{
 				return disposeImage;
 			}
 			var isAlpha = Image.IsAlphaPixelFormat(bitmapToSave.PixelFormat);
-			if (outputSettings.ReduceColors || !isAlpha && CoreConfig.OutputFileAutoReduceColors)
+			if (outputSettings.ReduceColors || !isAlpha && CoreConfiguration.OutputFileAutoReduceColors)
 			{
 				using (var quantizer = new WuQuantizer(bitmapToSave))
 				{
@@ -753,7 +762,7 @@ namespace Greenshot.Addons.Core
 					try
 					{
 						Log.Info().WriteLine("Reducing colors on bitmap to 256.");
-						tmpBitmap = quantizer.GetQuantizedImage(CoreConfig.OutputFileReduceColorsTo);
+						tmpBitmap = quantizer.GetQuantizedImage(CoreConfiguration.OutputFileReduceColorsTo);
 						if (disposeImage)
 						{
 							bitmapToSave.Dispose();

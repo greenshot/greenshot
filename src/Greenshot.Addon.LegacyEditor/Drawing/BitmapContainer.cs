@@ -61,12 +61,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private Bitmap _bitmap;
 
-		public BitmapContainer(Surface parent, string filename) : this(parent)
+		public BitmapContainer(Surface parent, string filename, IEditorConfiguration editorConfiguration) : this(parent, editorConfiguration)
 		{
 			Load(filename);
 		}
 
-		public BitmapContainer(Surface parent) : base(parent)
+		public BitmapContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			FieldChanged += BitmapContainer_OnFieldChanged;
 			Init();

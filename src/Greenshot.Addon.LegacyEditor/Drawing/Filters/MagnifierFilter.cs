@@ -38,7 +38,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	[Serializable]
 	public class MagnifierFilter : AbstractFilter
 	{
-		public MagnifierFilter(DrawableContainer parent) : base(parent)
+		public MagnifierFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			AddField(GetType(), FieldTypes.MAGNIFICATION_FACTOR, 2);
 		}

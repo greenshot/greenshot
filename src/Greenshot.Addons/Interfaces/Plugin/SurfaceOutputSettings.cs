@@ -35,37 +35,31 @@ namespace Greenshot.Addons.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{
-	    // TODO: Solve, was static reference!
-	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
         private bool _disableReduceColors;
 		private bool _reduceColors;
 
-		public SurfaceOutputSettings()
+		public SurfaceOutputSettings(IFileConfiguration fileConfiguration)
 		{
 			_disableReduceColors = false;
-			Format = CoreConfig.OutputFileFormat;
-			JPGQuality = CoreConfig.OutputFileJpegQuality;
-			ReduceColors = CoreConfig.OutputFileReduceColors;
+			Format = fileConfiguration.OutputFileFormat;
+			JPGQuality = fileConfiguration.OutputFileJpegQuality;
+			ReduceColors = fileConfiguration.OutputFileReduceColors;
 		}
 
-		public SurfaceOutputSettings(OutputFormats format) : this()
+		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format) : this(fileConfiguration)
 		{
 			Format = format;
 		}
 
-		public SurfaceOutputSettings(OutputFormats format, int quality) : this(format)
+		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality) : this(fileConfiguration, format)
 		{
 			JPGQuality = quality;
 		}
 
-		public SurfaceOutputSettings(OutputFormats format, int quality, bool reduceColors) : this(format, quality)
+		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality, bool reduceColors) : this(fileConfiguration, format, quality)
 		{
 			ReduceColors = reduceColors;
 		}
-
-	    public SurfaceOutputSettings(IFileConfiguration fileConfiguration) : this(fileConfiguration.OutputFileFormat, fileConfiguration.OutputFileJpegQuality, fileConfiguration.OutputFileReduceColors)
-	    {
-	    }
 
         public OutputFormats Format { get; set; }
 

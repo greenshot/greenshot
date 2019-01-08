@@ -55,7 +55,7 @@
     <PackageReference Include="Dapplo.Utils" Version="1.1.9" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.3" />
 	<PackageReference Include="Dapplo.Jira" Version="0.8.9" />
-    <PackageReference Include="Fody" Version="3.3.3">
+    <PackageReference Include="Fody" Version="3.3.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

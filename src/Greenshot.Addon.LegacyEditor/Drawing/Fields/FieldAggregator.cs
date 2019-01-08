@@ -49,13 +49,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	[Serializable]
 	public sealed class FieldAggregator : AbstractFieldHolder
 	{
-	    // TODO: Solve, was static reference!
-        private static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
-
 		private readonly IDrawableContainerList _boundContainers;
 		private bool _internalUpdateRunning;
 
-		public FieldAggregator(ISurface parent)
+		public FieldAggregator(ISurface parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration) 
 		{
 			foreach (var fieldType in FieldTypes.Values)
 			{
@@ -225,7 +222,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 				drawableContainerField.Value = field.Value;
 				// update last used from DC field, so that scope is honored
-				EditorConfig.UpdateLastFieldValue(drawableContainerField);
+				_editorConfiguration.UpdateLastFieldValue(drawableContainerField);
 			}
 		}
 	}

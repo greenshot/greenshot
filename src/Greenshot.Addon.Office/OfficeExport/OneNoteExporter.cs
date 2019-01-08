@@ -45,19 +45,25 @@ namespace Greenshot.Addon.Office.OfficeExport
     ///     OneNote exporter
     ///     More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx
     /// </summary>
-    public static class OneNoteExporter
+    public class OneNoteExporter
     {
         private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
         private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
         private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
         private static readonly LogSource Log = new LogSource();
+        private readonly ICoreConfiguration _coreConfiguration;
+
+        public OneNoteExporter(ICoreConfiguration coreConfiguration)
+        {
+            _coreConfiguration = coreConfiguration;
+        }
 
         /// <summary>
         ///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
         /// </summary>
         /// <param name="surfaceToUpload">ISurface</param>
         /// <returns>bool true if export worked</returns>
-        public static bool ExportToNewPage(ISurface surfaceToUpload)
+        public bool ExportToNewPage(ISurface surfaceToUpload)
         {
             using (var oneNoteApplication = GetOrCreateOneNoteApplication())
             {
@@ -83,7 +89,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="surfaceToUpload">ISurface</param>
         /// <param name="page">OneNotePage</param>
         /// <returns>bool true if everything worked</returns>
-        public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
+        public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
         {
             using (var oneNoteApplication = GetOrCreateOneNoteApplication())
             {
@@ -98,7 +104,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="surfaceToUpload">ISurface</param>
         /// <param name="page">OneNotePage</param>
         /// <returns>bool true if everything worked</returns>
-        private static bool ExportToPage(IDisposableCom<Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
+        private bool ExportToPage(IDisposableCom<Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
         {
             if (oneNoteApplication == null)
             {
@@ -107,7 +113,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 
             using (var pngStream = new MemoryStream())
             {
-                var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+                var pngOutputSettings = new SurfaceOutputSettings(_coreConfiguration, OutputFormats.png, 100, false);
                 ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
                 var base64String = Convert.ToBase64String(pngStream.GetBuffer());
                 var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
@@ -130,7 +136,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running Excel application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for Excel.Application or null</returns>
-        private static IDisposableCom<Application> GetOneNoteApplication()
+        private IDisposableCom<Application> GetOneNoteApplication()
         {
             IDisposableCom<Application> oneNoteApplication;
             try
@@ -149,7 +155,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Call this to get the running OneNote application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for OneNote.Application</returns>
-        private static IDisposableCom<Application> GetOrCreateOneNoteApplication()
+        private IDisposableCom<Application> GetOrCreateOneNoteApplication()
         {
             var oneNoteApplication = GetOneNoteApplication();
             if (oneNoteApplication == null)
@@ -163,7 +169,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         ///     Get the captions of all the open word documents
         /// </summary>
         /// <returns></returns>
-        public static IList<OneNotePage> GetPages()
+        public IList<OneNotePage> GetPages()
         {
             var pages = new List<OneNotePage>();
             try
@@ -276,7 +282,7 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="oneNoteApplication"></param>
         /// <param name="specialLocation">SpecialLocation</param>
         /// <returns>string with section ID</returns>
-        private static string GetSectionId(IDisposableCom<Application> oneNoteApplication, SpecialLocation specialLocation)
+        private string GetSectionId(IDisposableCom<Application> oneNoteApplication, SpecialLocation specialLocation)
         {
             if (oneNoteApplication == null)
             {

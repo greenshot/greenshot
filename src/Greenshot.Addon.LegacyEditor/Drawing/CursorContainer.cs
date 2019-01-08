@@ -46,12 +46,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected Cursor cursor;
 
-		public CursorContainer(Surface parent) : base(parent)
+		public CursorContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}
 
-		public CursorContainer(Surface parent, string filename) : this(parent)
+		public CursorContainer(Surface parent, string filename, IEditorConfiguration editorConfiguration) : this(parent, editorConfiguration)
 		{
 			Load(filename);
 		}

@@ -36,7 +36,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
-using Greenshot.Addon.InternetExplorer.IEInterop;
+using Greenshot.Addon.InternetExplorer.InternetExplorerInterop;
 using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -54,20 +54,24 @@ namespace Greenshot.Addon.InternetExplorer
 	///     On top I modified it to use the already available code in Greenshot.
 	///     Many thanks to all the people who contributed here!
 	/// </summary>
-	public static class IeCaptureHelper
+	public class InternetExplorerCaptureHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-	    // TODO: Solve, was static reference!
-	    private static readonly ICoreConfiguration CoreConfig = new CoreConfigurationImpl();
+        private readonly ICoreConfiguration _coreConfiguration;
+
+        public InternetExplorerCaptureHelper(ICoreConfiguration coreConfiguration)
+        {
+            _coreConfiguration = coreConfiguration;
+        }
 
         /// <summary>
         /// Helper method to activate a certain IE Tab
         /// </summary>
         /// <param name="nativeIeWindow">IInteropWindow</param>
         /// <param name="tabIndex">int</param>
-        public static void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)
+        public void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)
 		{
-            var directUiInteropWindow = IEHelper.GetDirectUi(nativeIeWindow);
+            var directUiInteropWindow = InternetExplorerHelper.GetDirectUi(nativeIeWindow);
 		    if (directUiInteropWindow == null)
 		    {
 		        return;
@@ -87,7 +91,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="someWindow">InteropWindow to check</param>
 		/// <param name="minimumPercentage">min percentage</param>
 		/// <returns></returns>
-		public static bool IsMostlyIeWindow(IInteropWindow someWindow, int minimumPercentage)
+		public bool IsMostlyIeWindow(IInteropWindow someWindow, int minimumPercentage)
 		{
 			var ieWindow = someWindow.GetChildren().FirstOrDefault(window => window.GetClassname() == "Internet Explorer_Server");
 		    if (ieWindow == null)
@@ -106,13 +110,13 @@ namespace Greenshot.Addon.InternetExplorer
 		/// </summary>
 		/// <param name="someWindow"></param>
 		/// <returns></returns>
-		public static bool IsIeWindow(IInteropWindow someWindow)
+		public bool IsIeWindow(IInteropWindow someWindow)
 		{
 			if ("IEFrame".Equals(someWindow.GetClassname()))
 			{
 				return true;
 			}
-			if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(someWindow.Classname))
+			if (_coreConfiguration.WindowClassesToCheckForIE != null && _coreConfiguration.WindowClassesToCheckForIE.Contains(someWindow.Classname))
 			{
 				return someWindow.GetChildren().Any(window => window.GetClassname() == "Internet Explorer_Server");
 			}
@@ -123,7 +127,7 @@ namespace Greenshot.Addon.InternetExplorer
 		///     Get Windows displaying an IE
 		/// </summary>
 		/// <returns>IEnumerable IInteropWindow</returns>
-		public static IEnumerable<IInteropWindow> GetIeWindows()
+		public IEnumerable<IInteropWindow> GetIeWindows()
 		{
 		    return WindowsEnumerator.EnumerateWindows().Where(IsIeWindow);
 		}
@@ -132,7 +136,7 @@ namespace Greenshot.Addon.InternetExplorer
 		///     Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
-		public static bool IsIeRunning()
+		public bool IsIeRunning()
 		{
 			return GetIeWindows().Any();
 		}
@@ -141,7 +145,7 @@ namespace Greenshot.Addon.InternetExplorer
 		///     Gets a list of all IE Windows & tabs with the captions of the instances
 		/// </summary>
 		/// <returns>List with KeyValuePair of InteropWindow and string</returns>
-		public static IList<KeyValuePair<IInteropWindow, string>> GetBrowserTabs()
+		public IList<KeyValuePair<IInteropWindow, string>> GetBrowserTabs()
 		{
 			var ieHandleList = new List<IntPtr>();
 			var browserWindows = new Dictionary<IInteropWindow, List<string>>();
@@ -157,14 +161,14 @@ namespace Greenshot.Addon.InternetExplorer
 					}
 					if ("IEFrame".Equals(ieWindow.GetClassname()))
 					{
-						var directUiwd = IEHelper.GetDirectUi(ieWindow);
+						var directUiwd = InternetExplorerHelper.GetDirectUi(ieWindow);
 						if (directUiwd != null)
 						{
 							var accessible = new Accessible(directUiwd.Handle);
 							browserWindows.Add(ieWindow, accessible.IETabCaptions);
 						}
 					}
-					else if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(ieWindow.Classname))
+					else if (_coreConfiguration.WindowClassesToCheckForIE != null && _coreConfiguration.WindowClassesToCheckForIE.Contains(ieWindow.Classname))
 					{
 						var singleWindowText = new List<string>();
 						try
@@ -211,7 +215,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// </summary>
 		/// <param name="mainWindow"></param>
 		/// <returns></returns>
-		private static IHTMLDocument2 GetHtmlDocument(IInteropWindow mainWindow)
+		private IHTMLDocument2 GetHtmlDocument(IInteropWindow mainWindow)
 		{
 			var ieServer = "Internet Explorer_Server".Equals(mainWindow.GetClassname())
 				? mainWindow
@@ -250,7 +254,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// </summary>
 		/// <param name="browserWindow">The InteropWindow to get the IHTMLDocument2 for</param>
 		/// <returns>DocumentContainer</returns>
-		private static DocumentContainer CreateDocumentContainer(IInteropWindow browserWindow)
+		private DocumentContainer CreateDocumentContainer(IInteropWindow browserWindow)
 		{
 			DocumentContainer returnDocumentContainer = null;
 			InteropWindow returnWindow = null;
@@ -265,7 +269,7 @@ namespace Greenshot.Addon.InternetExplorer
 				Log.Debug().WriteLine("Processing {0} - {1}", ieWindow.Classname, ieWindow.Text);
 
 				Accessible ieAccessible = null;
-				var directUiwd = IEHelper.GetDirectUi(ieWindow);
+				var directUiwd = InternetExplorerHelper.GetDirectUi(ieWindow);
 				if (directUiwd != null)
 				{
 					ieAccessible = new Accessible(directUiwd.Handle);
@@ -390,7 +394,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="capture">ICapture where the capture needs to be stored</param>
 		/// <param name="windowToCapture">window to use</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIe(ICapture capture, IInteropWindow windowToCapture = null)
+		public ICapture CaptureIe(ICapture capture, IInteropWindow windowToCapture = null)
 		{
 			if (windowToCapture == null)
 			{
@@ -542,7 +546,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="documentContainer"></param>
 		/// <param name="capture"></param>
 		/// <returns>Size of the complete page</returns>
-		private static Size PrepareCapture(DocumentContainer documentContainer, ICapture capture)
+		private Size PrepareCapture(DocumentContainer documentContainer, ICapture capture)
 		{
 			// Calculate the page size
 			var pageWidth = documentContainer.ScrollWidth;
@@ -645,7 +649,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private static Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize)
+		private Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize)
 		{
 			var contentWindowDetails = documentContainer.ContentWindow;
 
@@ -685,7 +689,7 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <param name="graphicsTarget">Graphics</param>
 		/// <returns>Bitmap with the capture</returns>
-		private static void DrawDocument(DocumentContainer documentContainer, IInteropWindow contentWindowDetails, Graphics graphicsTarget)
+		private void DrawDocument(DocumentContainer documentContainer, IInteropWindow contentWindowDetails, Graphics graphicsTarget)
 		{
 			documentContainer.SetAttribute("scroll", 1);
 

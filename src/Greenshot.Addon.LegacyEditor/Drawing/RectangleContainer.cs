@@ -35,7 +35,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 	[Serializable] 
 	public class RectangleContainer : DrawableContainer {
 
-		public RectangleContainer(Surface parent) : base(parent) {
+		public RectangleContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration) {
 			Init();
 		}
 

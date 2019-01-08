@@ -26,6 +26,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -60,6 +61,7 @@ namespace Greenshot.Components
         private readonly HotkeyService _hotkeyService;
         private readonly DestinationHolder _destinationHolder;
         private ServiceHost _host;
+        private CaptureSupportInfo _captureSupportInfo;
 
         public static string Identity
         {
@@ -75,8 +77,10 @@ namespace Greenshot.Components
             ICoreConfiguration coreConfiguration,
             MainForm mainForm,
             HotkeyService hotkeyService,
-            DestinationHolder destinationHolder)
+            DestinationHolder destinationHolder,
+            CaptureSupportInfo captureSupportInfo)
         {
+            _captureSupportInfo = captureSupportInfo;
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;
             _hotkeyService = hotkeyService;
@@ -137,7 +141,7 @@ namespace Greenshot.Components
             Log.Debug().WriteLine("Open file requested: {0}", filename);
             if (File.Exists(filename))
             {
-                CaptureHelper.CaptureFile(filename);
+                CaptureHelper.CaptureFile(_captureSupportInfo, filename);
             }
             else
             {
@@ -167,13 +171,13 @@ namespace Greenshot.Components
             switch (captureMode.ToLower())
             {
                 case "region":
-                    CaptureHelper.CaptureRegion(false, destination);
+                    CaptureHelper.CaptureRegion(_captureSupportInfo, false, destination);
                     break;
                 case "window":
-                    CaptureHelper.CaptureWindow(false, destination);
+                    CaptureHelper.CaptureWindow(_captureSupportInfo, false, destination);
                     break;
                 case "fullscreen":
-                    CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen, destination);
+                    CaptureHelper.CaptureFullscreen(_captureSupportInfo, false, ScreenCaptureMode.FullScreen, destination);
                     break;
                 default:
                     Log.Warn().WriteLine("Unknown capture option");

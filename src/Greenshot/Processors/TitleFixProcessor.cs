@@ -39,36 +39,12 @@ namespace Greenshot.Processors
 	/// </summary>
 	public class TitleFixProcessor : AbstractProcessor
 	{
-		private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration config = new CoreConfigurationImpl();
+        private readonly ICoreConfiguration _coreConfiguration;
 
-        public TitleFixProcessor()
+        public TitleFixProcessor(ICoreConfiguration coreConfiguration)
 		{
-			var corruptKeys = new List<string>();
-			foreach (var key in config.ActiveTitleFixes)
-			{
-				if (config.TitleFixMatcher.ContainsKey(key))
-				{
-					continue;
-				}
-				Log.Warn().WriteLine("Key {0} not found, configuration is broken! Disabling this key!", key);
-				corruptKeys.Add(key);
-			}
-
-			// Fix configuration if needed
-			if (corruptKeys.Count <= 0)
-			{
-				return;
-			}
-			foreach (var corruptKey in corruptKeys)
-			{
-				// Removing any reference to the key
-				config.ActiveTitleFixes.Remove(corruptKey);
-				config.TitleFixMatcher.Remove(corruptKey);
-				config.TitleFixReplacer.Remove(corruptKey);
-			}
-		}
+            _coreConfiguration = coreConfiguration;
+        }
 
 		public override string Designation => "TitleFix";
 
@@ -81,10 +57,10 @@ namespace Greenshot.Processors
 			if (!string.IsNullOrEmpty(title))
 			{
 				title = title.Trim();
-				foreach (var titleIdentifier in config.ActiveTitleFixes)
+				foreach (var titleIdentifier in _coreConfiguration.ActiveTitleFixes)
 				{
-					var regexpString = config.TitleFixMatcher[titleIdentifier];
-					var replaceString = config.TitleFixReplacer[titleIdentifier];
+					var regexpString = _coreConfiguration.TitleFixMatcher[titleIdentifier];
+					var replaceString = _coreConfiguration.TitleFixReplacer[titleIdentifier];
 					if (replaceString == null)
 					{
 						replaceString = "";

@@ -118,7 +118,7 @@ namespace Greenshot.Addon.Office.Destinations
 			var imageFile = captureDetails.Filename;
 			if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings(CoreConfiguration).PreventGreenshotFormat());
 				createdFile = true;
 			}
 			if (_workbookName != null)

@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	[Serializable]
 	public class HighlightContainer : FilterContainer
 	{
-		public HighlightContainer(Surface parent) : base(parent)
+		public HighlightContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}
@@ -86,29 +86,29 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			switch (preset)
 			{
 				case PreparedFilter.TEXT_HIGHTLIGHT:
-					Add(new HighlightFilter(this));
+					Add(new HighlightFilter(this, _editorConfiguration));
 					break;
 				case PreparedFilter.AREA_HIGHLIGHT:
-					var brightnessFilter = new BrightnessFilter(this)
+					var brightnessFilter = new BrightnessFilter(this, _editorConfiguration)
 					{
 						Invert = true
 					};
 					Add(brightnessFilter);
-					var blurFilter = new BlurFilter(this)
+					var blurFilter = new BlurFilter(this, _editorConfiguration)
 					{
 						Invert = true
 					};
 					Add(blurFilter);
 					break;
 				case PreparedFilter.GRAYSCALE:
-                    AbstractFilter f = new GrayscaleFilter(this)
+                    AbstractFilter f = new GrayscaleFilter(this, _editorConfiguration)
                     {
                         Invert = true
                     };
                     Add(f);
 					break;
 				case PreparedFilter.MAGNIFICATION:
-					Add(new MagnifierFilter(this));
+					Add(new MagnifierFilter(this, _editorConfiguration));
 					break;
 			}
 		}

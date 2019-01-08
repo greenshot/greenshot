@@ -43,7 +43,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
     [Serializable]
     public class PixelizationFilter : AbstractFilter
     {
-        public PixelizationFilter(DrawableContainer parent) : base(parent)
+        public PixelizationFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
         {
             AddField(GetType(), FieldTypes.PIXEL_SIZE, 5);
         }

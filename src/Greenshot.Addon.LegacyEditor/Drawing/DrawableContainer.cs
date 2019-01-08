@@ -59,8 +59,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		private const int M11 = 0;
 		private const int M22 = 3;
 		private static readonly LogSource Log = new LogSource();
-	    // TODO: Solve, was static reference!
-        protected static readonly IEditorConfiguration EditorConfig = new EditorConfigurationImpl();
 
 		/// <summary>
 		///     List of available Adorners
@@ -98,7 +96,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private int width;
 
-		public DrawableContainer(Surface parent)
+		public DrawableContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration)
 		{
 			InitializeFields();
 			_parent = parent;

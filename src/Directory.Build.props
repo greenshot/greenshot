@@ -17,6 +17,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
     <OsProductName>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@ProductName)</OsProductName>
+	<RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -45,8 +46,8 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.33">
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.38">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

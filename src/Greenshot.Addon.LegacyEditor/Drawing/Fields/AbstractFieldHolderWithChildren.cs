@@ -46,7 +46,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 		[NonSerialized] private EventHandler childrenChanged;
 
-		public AbstractFieldHolderWithChildren()
+		public AbstractFieldHolderWithChildren(IEditorConfiguration editorConfiguration) : base(editorConfiguration)
 		{
 			_fieldChangedEventHandler = OnFieldChanged;
 		}

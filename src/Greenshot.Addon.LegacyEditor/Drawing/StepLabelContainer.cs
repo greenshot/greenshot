@@ -50,7 +50,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		private float fontSize = 16;
 
-		public StepLabelContainer(Surface parent) : base(parent)
+		public StepLabelContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			parent.AddStepLabel(this);
 			InitContent();

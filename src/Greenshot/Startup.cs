@@ -78,7 +78,7 @@ namespace Greenshot
 #if !NETCOREAPP3_0
                 .WithoutCopyOfAssembliesToProbingPath()
 #endif
-                .WithAssemblyPatterns("Greenshot.Addon*")
+                .WithAssemblyPatterns("Greenshot.Addon.*")
                 .BuildApplicationConfig();
 
             var application = new Dapplication(applicationConfig)

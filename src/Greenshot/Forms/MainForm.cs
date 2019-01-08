@@ -62,6 +62,8 @@ using Screen = System.Windows.Forms.Screen;
 using Dapplo.Config.Ini;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Resources;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Components;
 
 #endregion
 
@@ -76,6 +78,7 @@ namespace Greenshot.Forms
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IWindowManager _windowManager;
         private readonly IGreenshotLanguage _greenshotLanguage;
+        private readonly InternetExplorerCaptureHelper _internetExplorerCaptureHelper;
         private readonly Func<Owned<ConfigViewModel>> _configViewModelFactory;
         private readonly Func<Owned<AboutForm>> _aboutFormFactory;
 
@@ -83,6 +86,8 @@ namespace Greenshot.Forms
         private readonly Timer _doubleClickTimer = new Timer();
 
         private readonly DestinationHolder _destinationHolder;
+        private readonly CaptureSupportInfo _captureSupportInfo;
+
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
@@ -91,17 +96,22 @@ namespace Greenshot.Forms
         public MainForm(ICoreConfiguration coreConfiguration,
             IWindowManager windowManager,
             IGreenshotLanguage greenshotLanguage,
+            InternetExplorerCaptureHelper internetExplorerCaptureHelper,
             GreenshotResources greenshotResources,
             Func<Owned<ConfigViewModel>> configViewModelFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
-            DestinationHolder destinationHolder) : base(greenshotLanguage)
+            DestinationHolder destinationHolder,
+            CaptureSupportInfo captureSupportInfo
+            ) : base(greenshotLanguage)
         {
             _coreConfiguration = coreConfiguration;
             _windowManager = windowManager;
             _greenshotLanguage = greenshotLanguage;
+            _internetExplorerCaptureHelper = internetExplorerCaptureHelper;
             _configViewModelFactory = configViewModelFactory;
             _aboutFormFactory = aboutFormFactory;
             _destinationHolder = destinationHolder;
+            _captureSupportInfo = captureSupportInfo;
             Instance = this;
         }
 
@@ -281,7 +291,7 @@ namespace Greenshot.Forms
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinationHolder.SortedActiveDestinations.Find("Editor"));
+                        CaptureHelper.CaptureFile(_captureSupportInfo, _coreConfiguration.OutputFileAsFullpath, _destinationHolder.SortedActiveDestinations.Find("Editor"));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:
@@ -453,7 +463,7 @@ namespace Greenshot.Forms
 
             if (File.Exists(openFileDialog.FileName))
             {
-                CaptureHelper.CaptureFile(openFileDialog.FileName);
+                CaptureHelper.CaptureFile(_captureSupportInfo, openFileDialog.FileName);
             }
         }
         
@@ -461,7 +471,7 @@ namespace Greenshot.Forms
         {
             if (_coreConfiguration.IECapture)
             {
-                CaptureHelper.CaptureIe(true, null);
+                CaptureHelper.CaptureIe(_captureSupportInfo, true, null);
             }
         }
 
@@ -480,7 +490,7 @@ namespace Greenshot.Forms
             // IE context menu code
             try
             {
-                if (_coreConfiguration.IECapture && IeCaptureHelper.IsIeRunning())
+                if (_coreConfiguration.IECapture && _internetExplorerCaptureHelper.IsIeRunning())
                 {
                     contextmenu_captureie.Enabled = true;
                     contextmenu_captureiefromlist.Enabled = true;
@@ -537,7 +547,7 @@ namespace Greenshot.Forms
             }
             try
             {
-                var tabs = IeCaptureHelper.GetBrowserTabs();
+                var tabs = _internetExplorerCaptureHelper.GetBrowserTabs();
                 contextmenu_captureiefromlist.DropDownItems.Clear();
                 if (tabs.Count > 0)
                 {
@@ -600,7 +610,7 @@ namespace Greenshot.Forms
             var allScreensBounds = DisplayInfo.ScreenBounds;
 
             var captureScreenItem = new ToolStripMenuItem(_greenshotLanguage.ContextmenuCapturefullscreenAll);
-            captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen)));
+            captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureFullscreen(_captureSupportInfo, false, ScreenCaptureMode.FullScreen)));
             captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
             foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
             {
@@ -623,7 +633,7 @@ namespace Greenshot.Forms
                     deviceAlignment += " " + _greenshotLanguage.ContextmenuCapturefullscreenRight;
                 }
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-                captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureRegion(false, screenToCapture.Bounds)));
+                captureScreenItem.Click += (o, args) => BeginInvoke((MethodInvoker) (() => CaptureHelper.CaptureRegion(_captureSupportInfo, false, screenToCapture.Bounds)));
                 captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
             }
         }
@@ -666,7 +676,7 @@ namespace Greenshot.Forms
             var window = captureWindowItem.Tag as IInteropWindow;
             if (_thumbnailForm == null)
             {
-                _thumbnailForm = new ThumbnailForm();
+                _thumbnailForm = new ThumbnailForm(_coreConfiguration);
             }
             _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
         }
@@ -718,12 +728,12 @@ namespace Greenshot.Forms
 
         private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false); });
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(_captureSupportInfo, false); });
         }
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke(new System.Action(() => CaptureHelper.CaptureClipboard()));
+            BeginInvoke(new System.Action(() => CaptureHelper.CaptureClipboard(_captureSupportInfo)));
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
@@ -733,17 +743,17 @@ namespace Greenshot.Forms
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, _coreConfiguration.ScreenCaptureMode); });
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(_captureSupportInfo, false, _coreConfiguration.ScreenCaptureMode); });
         }
 
         private void Contextmenu_capturelastregionClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureLastRegion(false); });
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureLastRegion(_captureSupportInfo, false); });
         }
 
         private void Contextmenu_capturewindow_Click(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureWindowInteractive(false); });
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureWindowInteractive(_captureSupportInfo, false); });
         }
 
         private void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
@@ -754,7 +764,7 @@ namespace Greenshot.Forms
                 try
                 {
                     var windowToCapture = (InteropWindow) clickedItem.Tag;
-                    CaptureHelper.CaptureWindow(windowToCapture);
+                    CaptureHelper.CaptureWindow(_captureSupportInfo, windowToCapture);
                 }
                 catch (Exception exception)
                 {
@@ -786,7 +796,7 @@ namespace Greenshot.Forms
                 }
                 try
                 {
-                    IeCaptureHelper.ActivateIeTab(ieWindowToCapture, tabData.Value);
+                    _internetExplorerCaptureHelper.ActivateIeTab(ieWindowToCapture, tabData.Value);
                 }
                 catch (Exception exception)
                 {
@@ -794,7 +804,7 @@ namespace Greenshot.Forms
                 }
                 try
                 {
-                    CaptureHelper.CaptureIe(false, ieWindowToCapture);
+                    CaptureHelper.CaptureIe(_captureSupportInfo, false, ieWindowToCapture);
                 }
                 catch (Exception exception)
                 {
@@ -912,7 +922,7 @@ namespace Greenshot.Forms
             if (!_coreConfiguration.IsWriteProtected("Destinations"))
             {
                 // screenshot destination
-                selectList = new ToolStripMenuSelectList("destinations", true)
+                selectList = new ToolStripMenuSelectList(_coreConfiguration, "destinations", true)
                 {
                     Text = _greenshotLanguage.SettingsDestination
                 };
@@ -929,7 +939,7 @@ namespace Greenshot.Forms
             if (!_coreConfiguration.IsWriteProtected("WindowCaptureMode"))
             {
                 // Capture Modes
-                selectList = new ToolStripMenuSelectList("capturemodes", false)
+                selectList = new ToolStripMenuSelectList(_coreConfiguration,"capturemodes", false)
                 {
                     Text = _greenshotLanguage.SettingsWindowCaptureMode
                 };
@@ -951,7 +961,7 @@ namespace Greenshot.Forms
             }
 
             // print options
-            selectList = new ToolStripMenuSelectList("printoptions", true)
+            selectList = new ToolStripMenuSelectList(_coreConfiguration, "printoptions", true)
             {
                 Text = _greenshotLanguage.SettingsPrintoptions
             };
@@ -979,7 +989,7 @@ namespace Greenshot.Forms
             }
 
             // effects
-            selectList = new ToolStripMenuSelectList("effects", true)
+            selectList = new ToolStripMenuSelectList(_coreConfiguration, "effects", true)
             {
                 Text = _greenshotLanguage.SettingsVisualization
             };

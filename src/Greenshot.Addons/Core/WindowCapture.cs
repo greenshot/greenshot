@@ -56,8 +56,11 @@ namespace Greenshot.Addons.Core
     public static class WindowCapture
     {
         private static readonly LogSource Log = new LogSource();
-        // TODO: Solve, was static reference!
-        private static readonly ICoreConfiguration Configuration = new CoreConfigurationImpl();
+
+        /// <summary>
+        /// Set from DI via AddonsModule
+        /// </summary>
+        internal static ICoreConfiguration CoreConfiguration { get; set; }
 
         /// <summary>
         ///     Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
@@ -173,7 +176,7 @@ namespace Greenshot.Addons.Core
                 return true;
             }
 
-            if (Configuration.NoDWMCaptureForProduct == null || Configuration.NoDWMCaptureForProduct.Count <= 0)
+            if (CoreConfiguration.NoDWMCaptureForProduct == null || CoreConfiguration.NoDWMCaptureForProduct.Count <= 0)
             {
                 return true;
             }
@@ -181,7 +184,7 @@ namespace Greenshot.Addons.Core
             try
             {
                 var productName = process.MainModule.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
+                if (productName != null && CoreConfiguration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
                 {
                     return false;
                 }
@@ -205,7 +208,7 @@ namespace Greenshot.Addons.Core
                 return true;
             }
 
-            if (Configuration.NoGDICaptureForProduct == null || Configuration.NoGDICaptureForProduct.Count <= 0)
+            if (CoreConfiguration.NoGDICaptureForProduct == null || CoreConfiguration.NoGDICaptureForProduct.Count <= 0)
             {
                 return true;
             }
@@ -213,7 +216,7 @@ namespace Greenshot.Addons.Core
             try
             {
                 var productName = process.MainModule.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
+                if (productName != null && CoreConfiguration.NoGDICaptureForProduct.Contains(productName.ToLower()))
                 {
                     return false;
                 }

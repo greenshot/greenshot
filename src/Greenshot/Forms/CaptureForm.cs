@@ -64,6 +64,7 @@ namespace Greenshot.Forms
         private readonly ICapture _capture;
         private readonly bool _isZoomerTransparent;
         private readonly IList<IInteropWindow> _windows;
+        private readonly IEnumerable<IFormEnhancer> _formEnhancers;
         private NativeRect _captureRect = NativeRect.Empty;
         private NativePoint _cursorPos;
         private FixMode _fixMode = FixMode.None;
@@ -94,7 +95,7 @@ namespace Greenshot.Forms
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="capture">ICapture</param>
         /// <param name="windows">IList of IInteropWindow</param>
-        public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows) : base(coreConfiguration, null)
+        public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows, IEnumerable<IFormEnhancer> formEnhancers) : base(coreConfiguration, null)
         {
             _isZoomerTransparent = _coreConfiguration.ZoomerOpacity < 1;
             ManualLanguageApply = true;
@@ -105,6 +106,7 @@ namespace Greenshot.Forms
 
             _capture = capture;
             _windows = windows;
+            _formEnhancers = formEnhancers;
             UsedCaptureMode = capture.CaptureDetails.CaptureMode;
 
             //
@@ -348,8 +350,8 @@ namespace Greenshot.Forms
         /// <summary>
         ///     The mousedown handler of the capture form
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">object</param>
+        /// <param name="e">MouseEventArgs</param>
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -449,8 +451,8 @@ namespace Greenshot.Forms
         /// <summary>
         ///     The mouse move handler of the capture form
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">object</param>
+        /// <param name="e">MouseEventArgs</param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
             var cursorLocation = User32Api.GetCursorLocation();
@@ -463,7 +465,7 @@ namespace Greenshot.Forms
         ///     Helper method to simplify check
         /// </summary>
         /// <param name="animator"></param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private bool IsAnimating(IAnimator animator)
         {
             return animator != null && animator.HasNext;

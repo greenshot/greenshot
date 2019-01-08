@@ -136,9 +136,9 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
-        public static void SetAsHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface)
+        public static void SetAsHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
-            var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+            var pngOutputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.png, 100, false);
             // This file is automatically deleted when Greenshot exits.
             var filename = ImageOutput.SaveNamedTmpFile(surface, surface.CaptureDetails, pngOutputSettings);
             // Set the PNG stream
@@ -152,11 +152,11 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
-        public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface)
+        public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
             using (var pngStream = new MemoryStream())
             {
-                var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+                var pngOutputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.png, 100, false);
                 ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
                 pngStream.Seek(0, SeekOrigin.Begin);
                 // Set the PNG stream

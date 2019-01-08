@@ -22,12 +22,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Input.Keyboard;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Helpers;
 
 namespace Greenshot.Components
@@ -40,11 +42,13 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
+        private readonly CaptureSupportInfo _captureSupportInfo;
         private IDisposable _subscriptions;
 
-        public HotkeyService(ICoreConfiguration coreConfiguration)
+        public HotkeyService(ICoreConfiguration coreConfiguration, CaptureSupportInfo captureSupportInfo)
         {
             _coreConfiguration = coreConfiguration;
+            _captureSupportInfo = captureSupportInfo;
         }
 
         /// <summary>
@@ -116,36 +120,36 @@ namespace Greenshot.Components
 
         private void CaptureRegion(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            Execute.BeginOnUIThread(() => CaptureHelper.CaptureRegion(true));
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureRegion(_captureSupportInfo, true));
         }
 
         private void CaptureWindow(KeyboardHookEventArgs keyboardHookEventArgs)
         {
             if (_coreConfiguration.CaptureWindowsInteractive)
             {
-                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindowInteractive(true));
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindowInteractive(_captureSupportInfo, true));
             }
             else
             {
-                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindow(true));
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureWindow(_captureSupportInfo, true));
             }
         }
 
         private void CaptureFullscreen(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            Execute.BeginOnUIThread(() => CaptureHelper.CaptureFullscreen(true, _coreConfiguration.ScreenCaptureMode));
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureFullscreen(_captureSupportInfo, true, _coreConfiguration.ScreenCaptureMode));
         }
 
         private void CaptureLast(KeyboardHookEventArgs keyboardHookEventArgs)
         {
-            Execute.BeginOnUIThread(() => CaptureHelper.CaptureLastRegion(true));
+            Execute.BeginOnUIThread(() => CaptureHelper.CaptureLastRegion(_captureSupportInfo, true));
         }
 
         private void CaptureIe(KeyboardHookEventArgs keyboardHookEventArgs)
         {
             if (_coreConfiguration.IECapture)
             {
-                Execute.BeginOnUIThread(() => CaptureHelper.CaptureIe(true, null));
+                Execute.BeginOnUIThread(() => CaptureHelper.CaptureIe(_captureSupportInfo, true, null));
             }
         }
     }

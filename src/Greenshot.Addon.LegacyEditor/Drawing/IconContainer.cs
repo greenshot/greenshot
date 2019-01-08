@@ -45,12 +45,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected Icon icon;
 
-		public IconContainer(Surface parent) : base(parent)
+		public IconContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}
 
-		public IconContainer(Surface parent, string filename) : base(parent)
+		public IconContainer(Surface parent, string filename, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Load(filename);
 		}
