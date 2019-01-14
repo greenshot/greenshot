@@ -21,27 +21,29 @@
 
 #endregion
 
-using System;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Running;
+#region Usings
 
-namespace Greenshot.PerformanceTests
+using System;
+using System.Runtime.InteropServices;
+
+#endregion
+
+namespace Greenshot.Helpers.Mapi
 {
-    /// <summary>
-    /// This initializes the benchmark tests
-    /// </summary>
-    public static class Program
-    {
-        // ReSharper disable once UnusedParameter.Local
-        private static void Main(string[] args)
-        {
-            var job = Job.Default.With(Platform.X64);
-            var config = DefaultConfig.Instance.With(job).KeepBenchmarkFiles(true);
-            //BenchmarkRunner.Run<GfxPerformanceShort>(config);
-            BenchmarkRunner.Run<CapturePerformance>(config);
-            Console.ReadLine();
-        }
-    }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+	internal class MapiMessage
+	{
+		public string ConversationID = null;
+		public string DateReceived = null;
+		public int FileCount;
+		public IntPtr Files = IntPtr.Zero;
+		public int Flags = 0;
+		public string MessageType = null;
+		public string NoteText;
+		public IntPtr Originator = IntPtr.Zero;
+		public int RecipientCount;
+		public IntPtr Recipients = IntPtr.Zero;
+		public int Reserved = 0;
+		public string Subject;
+	}
 }

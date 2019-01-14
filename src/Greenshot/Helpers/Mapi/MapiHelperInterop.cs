@@ -21,27 +21,34 @@
 
 #endregion
 
-using System;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Running;
+#region Usings
 
-namespace Greenshot.PerformanceTests
+using System;
+using System.Runtime.InteropServices;
+
+#endregion
+
+namespace Greenshot.Helpers.Mapi
 {
     /// <summary>
-    /// This initializes the benchmark tests
+    ///     Internal class for calling MAPI APIs
     /// </summary>
-    public static class Program
-    {
-        // ReSharper disable once UnusedParameter.Local
-        private static void Main(string[] args)
-        {
-            var job = Job.Default.With(Platform.X64);
-            var config = DefaultConfig.Instance.With(job).KeepBenchmarkFiles(true);
-            //BenchmarkRunner.Run<GfxPerformanceShort>(config);
-            BenchmarkRunner.Run<CapturePerformance>(config);
-            Console.ReadLine();
-        }
-    }
+    internal class MapiHelperInterop
+	{
+		#region Constructors
+
+		/// <summary>
+		///     Private constructor.
+		/// </summary>
+		private MapiHelperInterop()
+		{
+			// Intenationally blank
+		}
+
+#endregion Constructors
+
+		[DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
+		public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
+
+	}
 }

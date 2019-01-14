@@ -24,59 +24,64 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Dapplo.Log;
-using Dapplo.Windows.Common;
-using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
-using Dapplo.Windows.Icons;
-using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Enums;
-using Dapplo.Windows.User32.Structs;
-using Greenshot.Addons.Config.Impl;
-using Greenshot.Addons.Interfaces;
-using Greenshot.Gfx;
+using Greenshot.Addons.Core;
 
 #endregion
 
-namespace Greenshot.Addons.Core
+namespace Greenshot.PerformanceTests.Capture
 {
     /// <summary>
     ///     The screen Capture code
     /// </summary>
     public class ScreenCapture : IDisposable
     {
-        private static readonly LogSource Log = new LogSource();
-        private readonly ICoreConfiguration _coreConfiguration;
-        private readonly NativeRect _captureBounds;
         private readonly SafeWindowDcHandle _desktopDcHandle;
         private readonly SafeCompatibleDcHandle _safeCompatibleDcHandle;
-        private readonly BitmapInfoHeader _bitmapInfoHeader;
+        private readonly bool _useStretch;
         private readonly SafeDibSectionHandle _safeDibSectionHandle;
         private readonly SafeSelectObjectHandle _safeSelectObjectHandle;
 
-        public ScreenCapture(ICoreConfiguration coreConfiguration, NativeRect captureBounds)
+        /// <summary>
+        /// Return the source rectangle
+        /// </summary>
+        public NativeRect SourceRect { get; }
+
+        /// <summary>
+        /// Return the source rectangle
+        /// </summary>
+        public NativeSize DestinationSize { get; }
+
+        public ScreenCapture(NativeRect sourceCaptureBounds, NativeSize? requestedSize = null)
         {
-            _coreConfiguration = coreConfiguration;
-            _captureBounds = captureBounds;
+            SourceRect = sourceCaptureBounds;
+
+            if (requestedSize.HasValue && requestedSize.Value != SourceRect.Size)
+            {
+                DestinationSize = requestedSize.Value;
+                _useStretch = true;
+            }
+            else
+            {
+                DestinationSize = SourceRect.Size;
+                _useStretch = false;
+            }
+
             _desktopDcHandle = SafeWindowDcHandle.FromDesktop();
             _safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(_desktopDcHandle);
             // Create BitmapInfoHeader for CreateDIBSection
-            _bitmapInfoHeader = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
+            var bitmapInfoHeader = BitmapInfoHeader.Create(DestinationSize.Width, DestinationSize.Height, 32);
 
-            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref _bitmapInfoHeader, DibColors.PalColors, out _, IntPtr.Zero, 0);
+            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref bitmapInfoHeader, DibColors.PalColors, out _, IntPtr.Zero, 0);
 
             // select the bitmap object and store the old handle
             _safeSelectObjectHandle = _safeCompatibleDcHandle.SelectObject(_safeDibSectionHandle);
@@ -84,12 +89,40 @@ namespace Greenshot.Addons.Core
 
         public void CaptureFrame()
         {
-                // bit-blt over (make copy)
-                // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-                Gdi32Api.BitBlt(_safeCompatibleDcHandle, 0, 0, _captureBounds.Width, _captureBounds.Height, _desktopDcHandle, _captureBounds.X, _captureBounds.Y,
+            if (_useStretch)
+            {
+                // capture & blt over (make copy)
+                Gdi32Api.StretchBlt(
+                    _safeCompatibleDcHandle, 0, 0, DestinationSize.Width, DestinationSize.Height, // Destination
+                    _desktopDcHandle, SourceRect.X, SourceRect.Y, SourceRect.Width, SourceRect.Height, // source
                     RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
+            }
+            else
+            {
+                // capture & blt over (make copy)
+                Gdi32Api.BitBlt(
+                    _safeCompatibleDcHandle, 0, 0, DestinationSize.Width, DestinationSize.Height, // Destination
+                    _desktopDcHandle, SourceRect.X, SourceRect.Y, // Source
+                    RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
+            }
+        }
 
-                //return Imaging.CreateBitmapSourceFromHBitmap(_safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        /// <summary>
+        /// Get the current frame as BitmapSource
+        /// </summary>
+        /// <returns>BitmapSource</returns>
+        public BitmapSource CurrentFrameAsBitmapSource()
+        {
+            return Imaging.CreateBitmapSourceFromHBitmap(_safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+
+        /// <summary>
+        /// Get the current frame as Bitmap
+        /// </summary>
+        /// <returns>Bitmap</returns>
+        public Bitmap CurrentFrameAsBitmap()
+        {
+            return Image.FromHbitmap(_safeDibSectionHandle.DangerousGetHandle());
         }
 
         public void Dispose()

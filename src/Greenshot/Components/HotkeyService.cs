@@ -22,14 +22,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Reactive.Linq;
 using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Input.Keyboard;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Interfaces;
 using Greenshot.Helpers;
 
 namespace Greenshot.Components

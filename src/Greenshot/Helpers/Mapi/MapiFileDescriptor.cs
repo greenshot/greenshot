@@ -21,27 +21,23 @@
 
 #endregion
 
-using System;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Running;
+#region Usings
 
-namespace Greenshot.PerformanceTests
+using System;
+using System.Runtime.InteropServices;
+
+#endregion
+
+namespace Greenshot.Helpers.Mapi
 {
-    /// <summary>
-    /// This initializes the benchmark tests
-    /// </summary>
-    public static class Program
-    {
-        // ReSharper disable once UnusedParameter.Local
-        private static void Main(string[] args)
-        {
-            var job = Job.Default.With(Platform.X64);
-            var config = DefaultConfig.Instance.With(job).KeepBenchmarkFiles(true);
-            //BenchmarkRunner.Run<GfxPerformanceShort>(config);
-            BenchmarkRunner.Run<CapturePerformance>(config);
-            Console.ReadLine();
-        }
-    }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+	internal class MapiFileDescriptor
+	{
+		public int flags = 0;
+		public string name;
+		public string path;
+		public int position;
+		public int reserved = 0;
+		public IntPtr type = IntPtr.Zero;
+	}
 }

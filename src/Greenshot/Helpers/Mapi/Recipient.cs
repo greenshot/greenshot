@@ -41,9 +41,9 @@ namespace Greenshot.Helpers.Mapi
 		///     Returns an interop representation of a recepient.
 		/// </summary>
 		/// <returns></returns>
-		internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
+		internal MapiRecipDesc GetInteropRepresentation()
 		{
-			var interop = new MapiMailMessage.MapiHelperInterop.MapiRecipDesc();
+			var interop = new MapiRecipDesc();
 
 			if (DisplayName == null)
 			{

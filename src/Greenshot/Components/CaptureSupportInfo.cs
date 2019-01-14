@@ -6,13 +6,14 @@ using Greenshot.Addons.Interfaces;
 namespace Greenshot.Components
 {
     /// <summary>
-    /// This is the information which is needed for making captures possible.
+    /// This is the bundled information which is needed for making captures possible.
     /// </summary>
     public class CaptureSupportInfo
     {
         /// <summary>
         /// Constructor for DI
         /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="internetExplorerCaptureHelper">InternetExplorerCaptureHelper</param>
         /// <param name="formEnhancers">IEnumerable with IFormEnhancer</param>
         public CaptureSupportInfo(

@@ -58,7 +58,7 @@ namespace Greenshot.Helpers.Mapi
             }
 
             // allocate enough memory to hold all recipients
-            var size = Marshal.SizeOf(typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc));
+            var size = Marshal.SizeOf(typeof(MapiRecipDesc));
             Handle = Marshal.AllocHGlobal(_count * size);
 
             // place all interop recipients into the memory just allocated
@@ -90,7 +90,7 @@ namespace Greenshot.Helpers.Mapi
         {
             if (Handle != IntPtr.Zero)
             {
-                var type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
+                var type = typeof(MapiRecipDesc);
                 var size = Marshal.SizeOf(type);
 
                 // destroy all the structures in the memory area

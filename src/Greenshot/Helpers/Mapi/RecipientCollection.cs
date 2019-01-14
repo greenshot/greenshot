@@ -32,7 +32,7 @@ namespace Greenshot.Helpers.Mapi
     /// <summary>
     ///     Represents a colleciton of recipients for a mail message.
     /// </summary>
-    public partial class RecipientCollection : CollectionBase
+    public class RecipientCollection : CollectionBase
 	{
 		/// <summary>
 		///     Returns the recipient stored in this collection at the specified index.

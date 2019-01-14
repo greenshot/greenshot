@@ -30,7 +30,6 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Greenshot.Gfx;
 using Greenshot.Addons.Core;
-using Greenshot.Addons.Config.Impl;
 
 #endregion
 

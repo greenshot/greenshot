@@ -114,78 +114,6 @@ namespace Greenshot.Helpers.Mapi
 			}
 		}
 
-		#region Private MapiFileDescriptor Class
-
-		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-		private class MapiFileDescriptor
-		{
-			public int flags = 0;
-			public string name;
-			public string path;
-			public int position;
-			public int reserved = 0;
-			public IntPtr type = IntPtr.Zero;
-		}
-
-		#endregion Private MapiFileDescriptor Class
-
-		#region Private MAPIHelperInterop Class
-
-		/// <summary>
-		///     Internal class for calling MAPI APIs
-		/// </summary>
-		internal class MapiHelperInterop
-		{
-			#region Constructors
-
-			/// <summary>
-			///     Private constructor.
-			/// </summary>
-			private MapiHelperInterop()
-			{
-				// Intenationally blank
-			}
-
-			#endregion Constructors
-
-			#region Structs
-
-			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-			public class MapiMessage
-			{
-				public string ConversationID = null;
-				public string DateReceived = null;
-				public int FileCount;
-				public IntPtr Files = IntPtr.Zero;
-				public int Flags = 0;
-				public string MessageType = null;
-				public string NoteText;
-				public IntPtr Originator = IntPtr.Zero;
-				public int RecipientCount;
-				public IntPtr Recipients = IntPtr.Zero;
-				public int Reserved = 0;
-				public string Subject;
-			}
-
-			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-			public class MapiRecipDesc
-			{
-				public string Address;
-				public int eIDSize = 0;
-				public IntPtr EntryID = IntPtr.Zero;
-				public string Name;
-				public int RecipientClass;
-				public int Reserved = 0;
-			}
-
-			[DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
-			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
-
-			#endregion Structs
-		}
-
-		#endregion Private MAPIHelperInterop Class
-
 		#region Constructors
 
 		/// <summary>
@@ -286,7 +214,7 @@ namespace Greenshot.Helpers.Mapi
 		/// </summary>
 		private void _ShowMail()
 		{
-			var message = new MapiHelperInterop.MapiMessage();
+			var message = new MapiMessage();
 
 			using (var interopRecipients = Recipients.GetInteropRepresentation())
 			{
@@ -339,7 +267,7 @@ namespace Greenshot.Helpers.Mapi
 		///     Deallocates the files in a message.
 		/// </summary>
 		/// <param name="message">The message to deallocate the files from.</param>
-		private void _DeallocFiles(MapiHelperInterop.MapiMessage message)
+		private void _DeallocFiles(MapiMessage message)
 		{
 			if (message.Files != IntPtr.Zero)
 			{

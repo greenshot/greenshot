@@ -62,7 +62,6 @@ using Screen = System.Windows.Forms.Screen;
 using Dapplo.Config.Ini;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Resources;
-using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 
 #endregion
@@ -97,7 +96,6 @@ namespace Greenshot.Forms
             IWindowManager windowManager,
             IGreenshotLanguage greenshotLanguage,
             InternetExplorerCaptureHelper internetExplorerCaptureHelper,
-            GreenshotResources greenshotResources,
             Func<Owned<ConfigViewModel>> configViewModelFactory,
             Func<Owned<AboutForm>> aboutFormFactory,
             DestinationHolder destinationHolder,

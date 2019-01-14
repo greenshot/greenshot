@@ -95,6 +95,7 @@ namespace Greenshot.Forms
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="capture">ICapture</param>
         /// <param name="windows">IList of IInteropWindow</param>
+        /// <param name="formEnhancers">IEnumerable with IFormEnhancer</param>
         public CaptureForm(ICoreConfiguration coreConfiguration, ICapture capture, IList<IInteropWindow> windows, IEnumerable<IFormEnhancer> formEnhancers) : base(coreConfiguration, null)
         {
             _isZoomerTransparent = _coreConfiguration.ZoomerOpacity < 1;

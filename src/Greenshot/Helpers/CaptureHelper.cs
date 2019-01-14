@@ -41,7 +41,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Addon.InternetExplorer;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -49,7 +48,6 @@ using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
-using Greenshot.Addons.Config.Impl;
 
 #endregion
 
