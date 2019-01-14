@@ -54,6 +54,12 @@ namespace Greenshot.Addon.Win10
 	    private readonly ExportNotification _exportNotification;
 	    private static readonly LogSource Log = new LogSource();
 
+        /// <summary>
+        /// Default constructor used for dependency injection
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
 	    public Win10ShareDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -62,7 +68,8 @@ namespace Greenshot.Addon.Win10
 	        _exportNotification = exportNotification;
 	    }
 
-	    public override string Description { get; } = "Windows 10 share";
+        /// <inheritdoc />
+        public override string Description { get; } = "Windows 10 share";
 
 		/// <summary>
 		/// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml

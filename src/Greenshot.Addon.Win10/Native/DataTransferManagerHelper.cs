@@ -38,12 +38,18 @@ namespace Greenshot.Addon.Win10.Native
 		private readonly IDataTransferManagerInterOp _dataTransferManagerInterOp;
 		private readonly IntPtr _windowHandle;
 
+        /// <summary>
+        /// The DataTransferManager
+        /// </summary>
 		public DataTransferManager DataTransferManager
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Constructor which takes a handle to initialize
+        /// </summary>
+        /// <param name="handle"></param>
 		public DataTransferManagerHelper(IntPtr handle)
 		{
 			//TODO: Add a check for failure here. This will fail for versions of Windows below Windows 10

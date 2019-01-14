@@ -25,11 +25,20 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.OneDrive.Entities
 {
+    /// <summary>
+    /// The response for the upload, only what we need is defined here
+    /// </summary>
     public class OneDriveUploadResponse
     {
+        /// <summary>
+        /// Id of the response
+        /// </summary>
         [JsonProperty("id")] 
         public string Id;
 
+        /// <summary>
+        /// The url
+        /// </summary>
         [JsonProperty("webUrl")]
         public string WebUrl;
     }

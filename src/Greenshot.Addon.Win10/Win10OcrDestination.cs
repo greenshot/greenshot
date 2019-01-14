@@ -44,7 +44,8 @@ namespace Greenshot.Addon.Win10
 	    private readonly ExportNotification _exportNotification;
 	    private static readonly LogSource Log = new LogSource();
 
-		public override string Description { get; } = "Windows 10 OCR";
+        /// <inheritdoc />
+        public override string Description { get; } = "Windows 10 OCR";
 
 		/// <summary>
 		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml

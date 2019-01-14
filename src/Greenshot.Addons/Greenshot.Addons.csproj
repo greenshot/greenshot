@@ -62,10 +62,10 @@
       <Version>0.9.18</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.8.3</Version>
+      <Version>0.8.7</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.8.3</Version>
+      <Version>0.8.7</Version>
     </PackageReference>
     <PackageReference Include="Fody" Version="3.3.5">
       <PrivateAssets>all</PrivateAssets>
@@ -75,7 +75,7 @@
       <Version>3.0.0-alpha0096</Version>
     </PackageReference>
     <PackageReference Include="Svg">
-      <Version>2.3.0</Version>
+      <Version>2.4.0</Version>
     </PackageReference>
   </ItemGroup>
 

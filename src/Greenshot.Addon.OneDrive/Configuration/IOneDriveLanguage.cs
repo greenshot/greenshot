@@ -28,8 +28,13 @@ using Dapplo.Config.Language;
 
 #endregion
 
+#pragma warning disable 1591
+
 namespace Greenshot.Addon.OneDrive.Configuration
 {
+    /// <summary>
+    /// This interface contains all the translations for the OneDrive addon
+    /// </summary>
     [Language("OneDrive")]
     public interface IOneDriveLanguage : ILanguage, INotifyPropertyChanged
     {
@@ -50,3 +55,5 @@ namespace Greenshot.Addon.OneDrive.Configuration
         string ResetCredentialsButton { get; }
     }
 }
+
+#pragma warning restore 1591

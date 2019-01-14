@@ -40,9 +40,9 @@
     <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.19" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.19" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.3" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.7" />
 	<PackageReference Include="CliWrap" Version="2.2.0" />
-    <PackageReference Include="Fody" Version="3.3.5">
+    <PackageReference Include="Fody" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

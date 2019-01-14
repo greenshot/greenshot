@@ -1,5 +1,6 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
+using Dapplo.Windows.User32;
 using Greenshot.Addons.Core;
 
 namespace Greenshot.PerformanceTests
@@ -10,7 +11,9 @@ namespace Greenshot.PerformanceTests
     [MinColumn, MaxColumn, MemoryDiagnoser]
     public class CapturePerformance
     {
-        [Benchmark]
+        private readonly ScreenCapture _screenCapture = new ScreenCapture(null, DisplayInfo.ScreenBounds);
+
+        //[Benchmark]
         public void Capture()
         {
             using (var capture = WindowCapture.CaptureScreen())
@@ -24,6 +27,19 @@ namespace Greenshot.PerformanceTests
                     throw new NotSupportedException();
                 }
             }
+        }
+
+        
+        [Benchmark]
+        public void CaptureBuffered()
+        {
+            _screenCapture.CaptureFrame();
+        }
+
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            _screenCapture.Dispose();
         }
     }
 }

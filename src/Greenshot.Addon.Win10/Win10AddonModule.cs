@@ -30,6 +30,7 @@ namespace Greenshot.Addon.Win10
     /// <inheritdoc />
     public class Win10AddonModule : AddonModule
     {
+        /// <inheritdoc />
         protected override void Load(ContainerBuilder builder)
         {
             if (WindowsVersion.IsWindows10OrLater)

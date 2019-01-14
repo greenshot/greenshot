@@ -3,64 +3,83 @@ using Windows.Storage.Streams;
 
 namespace Greenshot.Addon.Win10
 {
+    /// <summary>
+    /// This is an IRandomAccessStream implementation which uses a MemoryStream
+    /// </summary>
 	public sealed class MemoryRandomAccessStream : MemoryStream, IRandomAccessStream
 	{
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public MemoryRandomAccessStream()
 		{
 		}
 
+        /// <summary>
+        /// Constructor where also bytes are already passed
+        /// </summary>
+        /// <param name="bytes">byte array</param>
 		public MemoryRandomAccessStream(byte[] bytes)
 		{
 			Write(bytes, 0, bytes.Length);
 		}
 
-		public IInputStream GetInputStreamAt(ulong position)
+        /// <inheritdoc />
+        public IInputStream GetInputStreamAt(ulong position)
 		{
 			Seek((long)position, SeekOrigin.Begin);
 
 			return this.AsInputStream();
 		}
 
-		public IOutputStream GetOutputStreamAt(ulong position)
+        /// <inheritdoc />
+        public IOutputStream GetOutputStreamAt(ulong position)
 		{
 			Seek((long)position, SeekOrigin.Begin);
 
 			return this.AsOutputStream();
 		}
 
-		ulong IRandomAccessStream.Position => (ulong)Position;
+        /// <inheritdoc />
+        ulong IRandomAccessStream.Position => (ulong)Position;
 
-		public ulong Size
+        /// <inheritdoc />
+        public ulong Size
 		{
 			get { return (ulong)Length; }
 			set { SetLength((long)value); }
 		}
 
-		public IRandomAccessStream CloneStream()
+        /// <inheritdoc />
+        public IRandomAccessStream CloneStream()
 		{
 			var cloned = new MemoryRandomAccessStream();
 			CopyTo(cloned);
 			return cloned;
 		}
 
-		public void Seek(ulong position)
+        /// <inheritdoc />
+        public void Seek(ulong position)
 		{
 			Seek((long)position, SeekOrigin.Begin);
 		}
 
-		public Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
+        /// <inheritdoc />
+        public Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
 		{
 			var inputStream = GetInputStreamAt(0);
 			return inputStream.ReadAsync(buffer, count, options);
 		}
 
-		Windows.Foundation.IAsyncOperation<bool> IOutputStream.FlushAsync()
+        /// <inheritdoc />
+        Windows.Foundation.IAsyncOperation<bool> IOutputStream.FlushAsync()
 		{
 			var outputStream = GetOutputStreamAt(0);
 			return outputStream.FlushAsync();
 		}
 
-		public Windows.Foundation.IAsyncOperationWithProgress<uint, uint> WriteAsync(IBuffer buffer)
+        /// <inheritdoc />
+        public Windows.Foundation.IAsyncOperationWithProgress<uint, uint> WriteAsync(IBuffer buffer)
 		{
 			var outputStream = GetOutputStreamAt(0);
 			return outputStream.WriteAsync(buffer);

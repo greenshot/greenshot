@@ -34,6 +34,7 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.OneDrive.ViewModels
 {
+    /// <inherit />
     public sealed class OneDriveConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -41,11 +42,33 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Used in the view to change the configuration
+        /// </summary>
         public IOneDriveConfiguration OneDriveConfiguration { get; }
+
+        /// <summary>
+        /// Used in the view for the translations
+        /// </summary>
         public IOneDriveLanguage OneDriveLanguage { get; }
+
+        /// <summary>
+        /// Used in the view for the translations
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
+
+        /// <summary>
+        /// Used in the view to change the file configuration
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
+        /// <summary>
+        /// Constructor used for dependency injection
+        /// </summary>
+        /// <param name="oneDriveConfiguration">IOneDriveConfiguration</param>
+        /// <param name="oneDriveLanguage">IOneDriveLanguage</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="fileConfigPartViewModel"><FileConfigPartViewModel/param>
         public OneDriveConfigViewModel(
             IOneDriveConfiguration oneDriveConfiguration,
             IOneDriveLanguage oneDriveLanguage,
@@ -58,6 +81,8 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             GreenshotLanguage = greenshotLanguage;
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
+
+        /// <inherit />
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = OneDriveConfiguration;
@@ -78,6 +103,7 @@ namespace Greenshot.Addon.OneDrive.ViewModels
             base.Initialize(config);
         }
 
+        /// <inherit />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
@@ -98,6 +124,9 @@ namespace Greenshot.Addon.OneDrive.ViewModels
 
         public bool CanResetCredentials => OneDriveConfiguration.HasToken();
 
+        /// <summary>
+        /// Used to reset/clear the OAuth credentials
+        /// </summary>
         public void ResetCredentials()
         {
             OneDriveConfiguration.ResetToken();
