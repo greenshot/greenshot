@@ -212,3 +212,7 @@ ModelManifest.xml
 
 #JetBrains Rider
 *.idea
+
+# Cake tools
+tools/*
+!tools/packages.config

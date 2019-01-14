@@ -34,6 +34,11 @@ Quick started for developers
 * Open the solution from the src directory in Visual Studio
 * Rebuild and start... (you might need to rebuild 2x, looking into this)
 
+If you can't use Visual Studio 2019 (preview) try the following:
+* Open a powershell in the directory where you cloned this repo
+* Disable dotnet core 3.0 with the following: .\build.ps1 --settings_skippackageversioncheck=true -Target DisableDNC30
+* To practically (some encoding issue maintains) undo the previous: .\build.ps1 --settings_skippackageversioncheck=true -Target EnableDNC30
+* Change src/global.json to contain the dotnet SDK version you have installed (e.g. 2.1.400)
 
 For users the major changes since 1.2.x are:
 * dotnet core 3.0 support (why, read here: https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/ )
