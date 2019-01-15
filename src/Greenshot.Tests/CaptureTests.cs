@@ -76,6 +76,35 @@ namespace Greenshot.Tests
         }
 
         /// <summary>
+        /// Test if multiple captures with GdiScreenCapture work
+        /// </summary>
+        [Fact]
+        public void Test_GdiScreenCapture()
+        {
+            using (var gdiScreenCapture = new GdiScreenCapture())
+            {
+                gdiScreenCapture.CaptureFrame();
+                using (var bitmap = gdiScreenCapture.CurrentFrameAsBitmap())
+                {
+                    Assert.True(bitmap.Width > 0);
+
+/*
+                    // Write the capture to a file, for analysis
+                    using (var stream = new FileStream(Path.Combine(Path.GetTempPath(), "test.png"), FileMode.Create, FileAccess.Write))
+                    {
+                        ImageOutput.SaveToStream(bitmap, null, stream, new SurfaceOutputSettings(null, OutputFormats.png));
+                    }
+*/
+                }
+
+                var bitmapSource = gdiScreenCapture.CurrentFrameAsBitmapSource();
+                Assert.True(bitmapSource.Width > 0);
+
+                gdiScreenCapture.CaptureFrame();
+            }
+        }
+
+        /// <summary>
         /// Test if a capture from a window works
         /// </summary>
         [WpfFact]

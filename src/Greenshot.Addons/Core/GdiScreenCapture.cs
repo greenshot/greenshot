@@ -28,26 +28,26 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
-using Greenshot.Addons.Core;
+using Dapplo.Windows.User32;
 
 #endregion
 
-namespace Greenshot.PerformanceTests.Capture
+namespace Greenshot.Addons.Core
 {
     /// <summary>
-    ///     The screen Capture code
+    ///     This allows us to repeatedly capture the screen via GDI
     /// </summary>
-    public class ScreenCapture : IDisposable
+    public class GdiScreenCapture : IDisposable
     {
+        private readonly bool _useStretch;
+        private bool _hasFrame;
         private readonly SafeWindowDcHandle _desktopDcHandle;
         private readonly SafeCompatibleDcHandle _safeCompatibleDcHandle;
-        private readonly bool _useStretch;
         private readonly SafeDibSectionHandle _safeDibSectionHandle;
         private readonly SafeSelectObjectHandle _safeSelectObjectHandle;
 
@@ -61,10 +61,16 @@ namespace Greenshot.PerformanceTests.Capture
         /// </summary>
         public NativeSize DestinationSize { get; }
 
-        public ScreenCapture(NativeRect sourceCaptureBounds, NativeSize? requestedSize = null)
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        /// <param name="sourceCaptureBounds">NativeRect, optional, with the source area from the screen</param>
+        /// <param name="requestedSize">NativeSize, optional, specifying the resulting size</param>
+        public GdiScreenCapture(NativeRect? sourceCaptureBounds = null, NativeSize? requestedSize = null)
         {
-            SourceRect = sourceCaptureBounds;
+            SourceRect = sourceCaptureBounds ?? DisplayInfo.ScreenBounds;
 
+            // Check if a size was specified, if this differs we need to stretch / scale
             if (requestedSize.HasValue && requestedSize.Value != SourceRect.Size)
             {
                 DestinationSize = requestedSize.Value;
@@ -76,22 +82,30 @@ namespace Greenshot.PerformanceTests.Capture
                 _useStretch = false;
             }
 
+            // Get a Device Context for the desktop
             _desktopDcHandle = SafeWindowDcHandle.FromDesktop();
+
+            // Create a Device Context which is compatible with the desktop Device Context
             _safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(_desktopDcHandle);
-            // Create BitmapInfoHeader for CreateDIBSection
+            // Create BitmapInfoHeader, which is later used in the CreateDIBSection 
             var bitmapInfoHeader = BitmapInfoHeader.Create(DestinationSize.Width, DestinationSize.Height, 32);
+            // Create a DibSection, a device-independent bitmap (DIB)
+            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref bitmapInfoHeader, DibColors.RgbColors, out _, IntPtr.Zero, 0);
 
-            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref bitmapInfoHeader, DibColors.PalColors, out _, IntPtr.Zero, 0);
-
-            // select the bitmap object and store the old handle
+            // select the device-independent bitmap in the device context, storing the previous.
+            // This is needed, so every interaction with the DC will go into the DIB.
             _safeSelectObjectHandle = _safeCompatibleDcHandle.SelectObject(_safeDibSectionHandle);
         }
 
+        /// <summary>
+        /// Capture a frame from the screen
+        /// </summary>
         public void CaptureFrame()
         {
             if (_useStretch)
             {
-                // capture & blt over (make copy)
+                // capture from source and blt over (make copy) to the DIB (via the DC)
+                // use stretching as the source and destination have different sizes
                 Gdi32Api.StretchBlt(
                     _safeCompatibleDcHandle, 0, 0, DestinationSize.Width, DestinationSize.Height, // Destination
                     _desktopDcHandle, SourceRect.X, SourceRect.Y, SourceRect.Width, SourceRect.Height, // source
@@ -99,32 +113,45 @@ namespace Greenshot.PerformanceTests.Capture
             }
             else
             {
-                // capture & blt over (make copy)
+                // capture from source and blt over (make copy) to the DIB (via the DC)
                 Gdi32Api.BitBlt(
                     _safeCompatibleDcHandle, 0, 0, DestinationSize.Width, DestinationSize.Height, // Destination
                     _desktopDcHandle, SourceRect.X, SourceRect.Y, // Source
                     RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
             }
+
+            _hasFrame = true;
         }
 
         /// <summary>
-        /// Get the current frame as BitmapSource
+        /// Get the frame, captured with the previous CaptureFrame call, as BitmapSource
         /// </summary>
         /// <returns>BitmapSource</returns>
         public BitmapSource CurrentFrameAsBitmapSource()
         {
+            if (!_hasFrame)
+            {
+                throw new NotSupportedException("No frame captured.");
+            }
             return Imaging.CreateBitmapSourceFromHBitmap(_safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         }
 
         /// <summary>
-        /// Get the current frame as Bitmap
+        /// Get the frame, captured with the previous CaptureFrame call, as 
         /// </summary>
         /// <returns>Bitmap</returns>
         public Bitmap CurrentFrameAsBitmap()
         {
+            if (!_hasFrame)
+            {
+                throw new NotSupportedException("No frame captured.");
+            }
             return Image.FromHbitmap(_safeDibSectionHandle.DangerousGetHandle());
         }
 
+        /// <summary>
+        /// Dispose all DC, DIB, handles etc
+        /// </summary>
         public void Dispose()
         {
             _safeSelectObjectHandle.Dispose();

@@ -573,7 +573,7 @@ namespace Greenshot.Addons.Core
 					AddTag(bitmapToSave);
 					// Added for OptiPNG
 					var processed = false;
-					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfiguration.OptimizePNGCommand))
+					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfiguration?.OptimizePNGCommand))
 					{
 						processed = ProcessPngImageExternally(bitmapToSave, targetStream);
 					}

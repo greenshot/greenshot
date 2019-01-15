@@ -26,7 +26,6 @@ using BenchmarkDotNet.Attributes;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Core;
-using Greenshot.PerformanceTests.Capture;
 
 namespace Greenshot.PerformanceTests
 {
@@ -37,9 +36,9 @@ namespace Greenshot.PerformanceTests
     public class CapturePerformance
     {
         // A ScreenCapture which captures the whole screen (multi-monitor)
-        private readonly ScreenCapture _screenCapture = new ScreenCapture(DisplayInfo.ScreenBounds);
+        private readonly GdiScreenCapture _screenCapture = new GdiScreenCapture(DisplayInfo.ScreenBounds);
         // A ScreenCapture which captures the whole screen (multi-monitor) but with half the destination size, uses stretch-blt
-        private readonly ScreenCapture _screenCaptureResized = new ScreenCapture(DisplayInfo.ScreenBounds, new NativeSize(DisplayInfo.ScreenBounds.Width / 2, DisplayInfo.ScreenBounds.Height / 2));
+        private readonly GdiScreenCapture _screenCaptureResized = new GdiScreenCapture(DisplayInfo.ScreenBounds, new NativeSize(DisplayInfo.ScreenBounds.Width / 2, DisplayInfo.ScreenBounds.Height / 2));
 
         /// <summary>
         /// This benchmarks a screen capture which does a lot of additional work

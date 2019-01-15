@@ -33,17 +33,24 @@ using Greenshot.Gfx.Effects;
 
 namespace Greenshot.Addons.Interfaces.Plugin
 {
+    /// <summary>
+    /// This contains the settings for outputting a surface
+    /// </summary>
 	public class SurfaceOutputSettings
 	{
         private bool _disableReduceColors;
 		private bool _reduceColors;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileConfiguration">IFileConfiguration</param>
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration)
 		{
 			_disableReduceColors = false;
-			Format = fileConfiguration.OutputFileFormat;
-			JPGQuality = fileConfiguration.OutputFileJpegQuality;
-			ReduceColors = fileConfiguration.OutputFileReduceColors;
+			Format = fileConfiguration?.OutputFileFormat ?? OutputFormats.png;
+			JPGQuality = fileConfiguration?.OutputFileJpegQuality ?? 80;
+			ReduceColors = fileConfiguration?.OutputFileReduceColors ?? false;
 		}
 
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format) : this(fileConfiguration)
