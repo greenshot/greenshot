@@ -25,6 +25,7 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -50,6 +51,7 @@ namespace Greenshot.Addons.Core
         private readonly SafeCompatibleDcHandle _safeCompatibleDcHandle;
         private readonly SafeDibSectionHandle _safeDibSectionHandle;
         private readonly SafeSelectObjectHandle _safeSelectObjectHandle;
+        private IntPtr _bits;
 
         /// <summary>
         /// Return the source rectangle
@@ -90,7 +92,7 @@ namespace Greenshot.Addons.Core
             // Create BitmapInfoHeader, which is later used in the CreateDIBSection 
             var bitmapInfoHeader = BitmapInfoHeader.Create(DestinationSize.Width, DestinationSize.Height, 32);
             // Create a DibSection, a device-independent bitmap (DIB)
-            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref bitmapInfoHeader, DibColors.RgbColors, out _, IntPtr.Zero, 0);
+            _safeDibSectionHandle = Gdi32Api.CreateDIBSection(_desktopDcHandle, ref bitmapInfoHeader, DibColors.RgbColors, out _bits, IntPtr.Zero, 0);
 
             // select the device-independent bitmap in the device context, storing the previous.
             // This is needed, so every interaction with the DC will go into the DIB.

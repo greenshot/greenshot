@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
@@ -62,10 +62,10 @@
       <Version>0.9.18</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.8.7</Version>
+      <Version>0.8.9</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.8.7</Version>
+      <Version>0.8.9</Version>
     </PackageReference>
     <PackageReference Include="Fody" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>

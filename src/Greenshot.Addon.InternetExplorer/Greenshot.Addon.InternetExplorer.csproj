@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
@@ -30,10 +30,10 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows">
-      <Version>0.8.7</Version>
+      <Version>0.8.9</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Com">
-      <Version>0.8.7</Version>
+      <Version>0.8.9</Version>
     </PackageReference>
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Confluence</RootNamespace>
@@ -55,7 +55,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.19" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.7" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
     <PackageReference Include="Dapplo.Confluence" Version="0.8.16" />
     <PackageReference Include="Fody" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>

@@ -22,10 +22,14 @@
 #endregion
 
 using System;
+using System.IO;
 using BenchmarkDotNet.Attributes;
+using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Core;
+using SharpAvi;
+using SharpAvi.Output;
 
 namespace Greenshot.PerformanceTests
 {
@@ -35,10 +39,33 @@ namespace Greenshot.PerformanceTests
     [MinColumn, MaxColumn, MemoryDiagnoser]
     public class CapturePerformance
     {
+        private static readonly LogSource Log = new LogSource();
         // A ScreenCapture which captures the whole screen (multi-monitor)
-        private readonly GdiScreenCapture _screenCapture = new GdiScreenCapture(DisplayInfo.ScreenBounds);
+        private GdiScreenCapture _screenCapture;
         // A ScreenCapture which captures the whole screen (multi-monitor) but with half the destination size, uses stretch-blt
-        private readonly GdiScreenCapture _screenCaptureResized = new GdiScreenCapture(DisplayInfo.ScreenBounds, new NativeSize(DisplayInfo.ScreenBounds.Width / 2, DisplayInfo.ScreenBounds.Height / 2));
+        private GdiScreenCapture _screenCaptureResized;
+        private AviWriter _aviWriter;
+        private IAviVideoStream _aviVideoStream;
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _screenCapture = new GdiScreenCapture(DisplayInfo.ScreenBounds);
+            var resizedSize = new NativeSize(DisplayInfo.ScreenBounds.Width / 2, DisplayInfo.ScreenBounds.Height / 2);
+            _screenCaptureResized = new GdiScreenCapture(DisplayInfo.ScreenBounds, resizedSize);
+
+            var aviFile = Path.Combine(Path.GetTempPath(), @"test.avi");
+            Log.Info().WriteLine("Writing AVI to {0}", aviFile);
+            _aviWriter = new AviWriter(aviFile)
+            {
+                FramesPerSecond = 30,
+                // Emitting AVI v1 index in addition to OpenDML index (AVI v2)
+                // improves compatibility with some software, including 
+                // standard Windows programs like Media Player and File Explorer
+                EmitIndex1 = true
+            };
+            _aviVideoStream = _aviWriter.AddVideoStream(resizedSize.Width, resizedSize.Height, BitsPerPixel.Bpp24);
+        }
 
         /// <summary>
         /// This benchmarks a screen capture which does a lot of additional work
@@ -71,16 +98,28 @@ namespace Greenshot.PerformanceTests
         /// <summary>
         /// Capture the screen with buffered settings, but resized (smaller) destination
         /// </summary>
-        [Benchmark]
+        //[Benchmark]
         public void CaptureBufferedResized()
         {
             _screenCaptureResized.CaptureFrame();
+        }
+
+        /// <summary>
+        /// Capture the screen with buffered settings, but resized (smaller) destination
+        /// </summary>
+        //[Benchmark]
+        public void CaptureAvi()
+        {
+            _screenCaptureResized.CaptureFrame();
+            // TODO: Write frame...
+            //_aviVideoStream.WriteFrame(false, new []{}, 0, 0);
         }
 
         [GlobalCleanup]
         public void Cleanup()
         {
             _screenCapture.Dispose();
+            _aviWriter.Close();
         }
     }
 }
