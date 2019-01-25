@@ -96,7 +96,8 @@ namespace Greenshot.Addons
             builder
                 .RegisterType<GreenshotResources>()
                 .AsSelf()
-                .SingleInstance();
+                .SingleInstance()
+                .AutoActivate();
 
             base.Load(builder);
         }
