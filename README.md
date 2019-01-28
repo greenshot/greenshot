@@ -30,7 +30,7 @@ Quick started for developers
   * Make sure you only have the latest dotnet core 3.0 installed!
 * ~~Make sure you have the latest Visual Studio 2017 (no need for previews), for 15.9.x enable [Use previews of the .NET Core SDK](https://blogs.msdn.microsoft.com/dotnet/2018/11/13/net-core-tooling-update-for-visual-studio-2017-version-15-9/)~~
 * Make sure you have Visual Studio 2019 Preview, since dotnet core 3.0 sdk 009831 it no longer works with Visual Studio 2017
-* Clone the [repository](https://github.com/greenshot/greenshot/tree/feature/netcoreapp3.0), branch feature/netcoreapp3.0
+* Clone the [repository](https://github.com/greenshot/greenshot/tree/develop), branch develop
 * Open the solution from the src directory in Visual Studio
 * Rebuild and start... (you might need to rebuild 2x, looking into this)
 
