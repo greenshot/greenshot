@@ -31,6 +31,7 @@ using Autofac;
 using Autofac.Features.OwnedInstances;
 using Caliburn.Micro;
 using Dapplo.Addons.Bootstrapper;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.CaliburnMicro.Dapp;
 using Dapplo.Config.Ini.Converters;
 using Dapplo.Config.Language;
@@ -169,6 +170,7 @@ namespace Greenshot
                 process.Dispose();
             }
 
+            var greenshotResources = new GreenshotResources(new ManifestResources(null));
             // Placehold for the Extension
             IGreenshotLanguage language = null;
 
@@ -177,7 +179,7 @@ namespace Greenshot
             {
 
                 // TODO: Fix a problem that in this case instance is null 
-                Icon = GreenshotResources.Instance.GetGreenshotIcon(),
+                Icon = greenshotResources.GetGreenshotIcon(),
                 ShowInTaskbar = true,
                 MaximizeBox = false,
                 MinimizeBox = false,
