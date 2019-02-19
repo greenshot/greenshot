@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Lutim</RootNamespace>
     <AssemblyName>Greenshot.Addon.Lutim</AssemblyName>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +12,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
@@ -51,7 +51,7 @@
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
-	<PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0170" />
+	<PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0212" />
     <PackageReference Include="Fody" Version="3.3.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Win10</RootNamespace>
     <AssemblyName>Greenshot.Addon.Win10</AssemblyName>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,21 +13,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="System.Runtime.WindowsRuntime" Version="4.3.0" />
     <Reference Include="Windows">
       <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
     </Reference>
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <!-- Light up Windows 10 features -->
-    <PackageReference Include="Microsoft.Toolkit.Forms.UI.Controls" Version="5.0.1" />
-	<!--PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview1-27018-01" />-->
-    <Reference Include="System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.Runtime.WindowsRuntime.dll</HintPath>
-      <Aliases>global</Aliases>
-    </Reference>
     <Reference Include="Windows">
       <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
     </Reference>
@@ -62,5 +54,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.21" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
+    <PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview.19073.11" />
+    <PackageReference Include="Microsoft.Toolkit.Forms.UI.Controls" Version="6.0.0-preview1" />
   </ItemGroup>
 </Project>

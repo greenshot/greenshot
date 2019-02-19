@@ -21,21 +21,29 @@
 
 #endregion
 
-using System;
-using BenchmarkDotNet.Running;
-
-namespace Greenshot.PerformanceTests
+namespace Greenshot.Gfx.Experimental.Structs
 {
     /// <summary>
-    /// This initializes the benchmark tests
+    /// A struct with the BGR values for a 32bit pixel
     /// </summary>
-    public static class Program
+    public struct Bgr32
     {
-        // ReSharper disable once UnusedParameter.Local
-        private static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<GfxPerformance>();
-            Console.ReadLine();
-        }
+        /// <summary>
+        /// Blue component of the pixel
+        /// </summary>
+        public byte B;
+        /// <summary>
+        /// Green component of the pixel
+        /// </summary>
+        public byte G;
+        /// <summary>
+        /// Red component of the pixel
+        /// </summary>
+        public byte R;
+        /// <summary>
+        /// Unused component of the pixel
+        /// </summary>
+        public readonly byte Unused;
     }
+
 }

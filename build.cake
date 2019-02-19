@@ -176,15 +176,21 @@ Task("AssemblyVersion")
 Task("EnableDNC30")
     .Does(() =>
 {
-    ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>.*</TargetFrameworks><!-- net471;netcoreapp3.0 -->", "<TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>");
+    ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>.*</TargetFrameworks><!-- net472;netcoreapp3.0 -->", "<TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>");
     ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"MSBuild.Sdk.Extras/1.6.65\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">");
 });
 
 Task("DisableDNC30")
     .Does(() =>
 {
-    ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>", "<TargetFrameworks>net471</TargetFrameworks><!-- net471;netcoreapp3.0 -->");
+    ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>", "<TargetFrameworks>net472</TargetFrameworks><!-- net472;netcoreapp3.0 -->");
     ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">", "<Project Sdk=\"MSBuild.Sdk.Extras/1.6.65\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->");
+});
+
+Task("ChangeNETVersion")
+    .Does(() =>
+{
+    ReplaceRegexInFiles("./**/*.csproj", "net471", "net472");
 });
 
 // Clean all unneeded files, so we build on a clean file system

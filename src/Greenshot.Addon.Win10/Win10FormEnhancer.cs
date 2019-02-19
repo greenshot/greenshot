@@ -40,24 +40,33 @@ namespace Greenshot.Addon.Win10
 
         public void InitializeComponent(Form target)
         {
-            // TODO: Fix the code below, when the following is solved: https://github.com/windows-toolkit/Microsoft.Toolkit.Win32/issues/16#issuecomment-451337186
+            if (target is null)
+            {
+                return;
+            }
             return;
             // InkCanvas
-            inkCanvasHost = new WindowsXamlHost();
-            inkCanvasHost.InitialTypeName = "Windows.UI.Xaml.Controls.InkCanvas";
+            inkCanvasHost = new WindowsXamlHost
+            {
+                InitialTypeName = "Windows.UI.Xaml.Controls.InkCanvas",
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                
+            };
             inkCanvasHost.ChildChanged += InkCanvas_ChildChanged;
-            // InkToolbar
-            inkToolbarHost = new WindowsXamlHost();
-            inkToolbarHost.InitialTypeName = "Windows.UI.Xaml.Controls.InkToolbar";
-            inkToolbarHost.ChildChanged += InkToolbar_ChildChanged;
-            // Layout
-            inkToolbarHost.Top = 0;
-            inkToolbarHost.Left = 0;
-            inkToolbarHost.Height = 50;
-            inkToolbarHost.Dock = DockStyle.Top;
 
-            inkCanvasHost.Dock = DockStyle.Fill;
-            inkCanvasHost.BackColor = Color.Transparent;
+            // InkToolbar
+            inkToolbarHost = new WindowsXamlHost
+            {
+                InitialTypeName = "Windows.UI.Xaml.Controls.InkToolbar",
+                // Layout
+                Top = 0,
+                Left = 0,
+                Height = 50,
+                Dock = DockStyle.Top,
+                BackColor = Color.Transparent
+            };
+            inkToolbarHost.ChildChanged += InkToolbar_ChildChanged;
 
             // Add to Window
             target.Controls.Add(inkToolbarHost);

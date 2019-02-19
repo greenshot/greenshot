@@ -23,9 +23,13 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Experimental;
 using Greenshot.Tests.Implementation;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -35,6 +39,43 @@ namespace Greenshot.Tests
     /// </summary>
     public class BlurTests
     {
+        [Fact]
+        public void Test_BoxBlurSharpImage()
+        {
+            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
+            {
+                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var pen = new SolidBrush(Color.Blue))
+                {
+                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                    bitmapOld.ApplyOldBoxBlur(10);
+                    bitmapOld.Save(@"old.png", ImageFormat.Png);
+                }
+
+                using (var tmpStream = new MemoryStream())
+                using (var image = new Image<Rgba32>(SixLabors.ImageSharp.Configuration.Default, 400, 400, Rgba32.White))
+                {
+                    var color = Rgba32.Blue;
+                    color.A = 255;
+                    var solidBlueBrush = SixLabors.ImageSharp.Processing.Brushes.Solid(color);
+                    var g = new GraphicsOptions(false);
+                    image.Mutate(c => c
+                    .Fill(new GraphicsOptions(false), solidBlueBrush, new SixLabors.Primitives.Rectangle(30, 30, 340, 340))
+                    .BoxBlur(10));
+                    image.SaveAsPng(tmpStream);
+
+                    tmpStream.Seek(0, SeekOrigin.Begin);
+                    using (var bitmapNew = (Bitmap)System.Drawing.Image.FromStream(tmpStream))
+                    {
+                        bitmapNew.Save(@"new.png", ImageFormat.Png);
+                        Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
+                    }
+                }
+
+            }
+        }
+
+
         [Theory]
         [InlineData(PixelFormat.Format24bppRgb)]
         [InlineData(PixelFormat.Format32bppRgb)]

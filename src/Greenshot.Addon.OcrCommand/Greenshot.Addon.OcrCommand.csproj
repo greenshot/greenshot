@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net471</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <RootNamespace>Greenshot.Addon.OcrCommand</RootNamespace>
     <AssemblyName>GreenshotOCRCommand</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Reference Include="CustomMarshalers" />
     <Reference Include="System" />
     <Reference Include="System.Core" />

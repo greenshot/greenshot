@@ -2,7 +2,7 @@
 
 namespace Greenshot.Gfx.Experimental.Structs
 {
-    public struct SpanInfo
+    public class SpanInfo
     {
         public IntPtr Pointer;
         public int PixelStride;

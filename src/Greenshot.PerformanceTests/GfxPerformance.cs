@@ -5,6 +5,9 @@ using Greenshot.Gfx;
 using Greenshot.Gfx.Experimental;
 using Greenshot.Gfx.Quantizer;
 using Greenshot.Tests.Implementation;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.PerformanceTests
 {
@@ -14,6 +17,12 @@ namespace Greenshot.PerformanceTests
     [MinColumn, MaxColumn, MemoryDiagnoser]
     public class GfxPerformance
     {
+        [GlobalSetup]
+        public void Setup()
+        {
+            BoxBlurImageSharp();
+        }
+
         [Benchmark]
         [Arguments(PixelFormat.Format24bppRgb)]
         [Arguments(PixelFormat.Format32bppRgb)]
@@ -66,6 +75,21 @@ namespace Greenshot.PerformanceTests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmap.ApplyBoxBlurSpan(10);
+            }
+        }
+
+
+        [Benchmark]
+        public void BoxBlurImageSharp()
+        {
+            var color = NamedColors<Rgb24>.Blue;
+            var solidBlueBrush = SixLabors.ImageSharp.Processing.Brushes.Solid(color);
+            var graphicsOptions = new GraphicsOptions(false);
+            using (var image = new Image<Rgb24>(SixLabors.ImageSharp.Configuration.Default, 400, 400, NamedColors<Rgb24>.White))
+            {
+                image.Mutate(c => c
+                .Fill(new GraphicsOptions(false), solidBlueBrush, new SixLabors.Primitives.Rectangle(30, 30, 340, 340))
+                .BoxBlur(10));
             }
         }
 

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -31,8 +31,9 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
       <Version>1.2.21</Version>
     </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="Svg">
-      <Version>2.4.0</Version>
+      <Version>2.4.1</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

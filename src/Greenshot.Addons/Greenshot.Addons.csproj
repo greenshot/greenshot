@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
@@ -9,7 +9,7 @@
 	<PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -72,10 +72,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>3.0.0-alpha0096</Version>
+      <Version>3.0.0-alpha0103</Version>
     </PackageReference>
     <PackageReference Include="Svg">
-      <Version>2.4.0</Version>
+      <Version>2.4.1</Version>
     </PackageReference>
   </ItemGroup>
 

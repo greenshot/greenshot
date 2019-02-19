@@ -24,13 +24,25 @@
 namespace Greenshot.Gfx.Experimental.Structs
 {
     /// <summary>
-    /// Default BGRA values for a 32bit bitmapsource
+    /// A struct with the BGR values for a 32bit pixel
     /// </summary>
     public struct Bgra32
     {
+        /// <summary>
+        /// Blue component of the pixel
+        /// </summary>
         public byte B;
+        /// <summary>
+        /// Green component of the pixel
+        /// </summary>
         public byte G;
+        /// <summary>
+        /// Red component of the pixel
+        /// </summary>
         public byte R;
+        /// <summary>
+        /// Alpha component of the pixel
+        /// </summary>
         public byte A;
     }
 

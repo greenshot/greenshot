@@ -8,12 +8,12 @@
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
     <LangVersion>latest</LangVersion>
-    <!-- <DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'net471'">true</DisableImplicitFrameworkReferences> -->
-    <CopyLocalLockFileAssemblies Condition="'$(TargetFramework)' != 'net471'">true</CopyLocalLockFileAssemblies>
+    <!-- <DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'net472'">true</DisableImplicitFrameworkReferences> -->
+    <CopyLocalLockFileAssemblies Condition="'$(TargetFramework)' != 'net472'">true</CopyLocalLockFileAssemblies>
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
-    <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net471'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};{GAC};</AssemblySearchPaths>
+    <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net472'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};{GAC};</AssemblySearchPaths>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
     <OsProductName>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@ProductName)</OsProductName>
@@ -48,8 +48,8 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.38">
+  <!--<ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests'))">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.105">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -57,7 +57,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
+  </ItemGroup>-->
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="

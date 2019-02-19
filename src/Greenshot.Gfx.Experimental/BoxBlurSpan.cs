@@ -71,6 +71,7 @@ namespace Greenshot.Gfx.Experimental
                     PixelStride = pixelStride,
                     BitmapSize = destinationBitmap.Height * pixelStride
                 };
+
                 if (isAlpha)
                 {
                     ApplyBoxBlurSpanAlpha(spanInfo, range);
@@ -150,10 +151,9 @@ namespace Greenshot.Gfx.Experimental
 
             Parallel.For(spanInfo.Top, spanInfo.Bottom, y =>
             {
-                Span<Rgb24> rgb24;
-                unsafe { rgb24 = new Span<Rgb24>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
-                unsafe
-                {
+                
+                unsafe {
+                    var rgb24 = new Span<Rgb24>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
                     Span<Rgb24> averages = stackalloc Rgb24[range];
                     var r = 0;
                     var g = 0;
@@ -217,10 +217,8 @@ namespace Greenshot.Gfx.Experimental
             var halfRange = range / 2;
             Parallel.For(spanInfo.Left, spanInfo.Right, x =>
             {
-                Span<Rgb24> rgb24;
-                unsafe { rgb24 = new Span<Rgb24>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
-                unsafe
-                {
+                unsafe {
+                    var rgb24 = new Span<Rgb24>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
                     Span<Rgb24> averages = stackalloc Rgb24[range];
                     var hits = 0;
                     var r = 0;
@@ -228,7 +226,7 @@ namespace Greenshot.Gfx.Experimental
                     var b = 0;
                     for (var y = spanInfo.Top; y < spanInfo.Top + halfRange; y++)
                     {
-                        ref Rgb24 color = ref rgb24[x + y * spanInfo.PixelStride];
+                        ref Rgb24 color = ref rgb24[y * spanInfo.PixelStride + x];
                         r += color.R;
                         g += color.G;
                         b += color.B;
@@ -257,7 +255,7 @@ namespace Greenshot.Gfx.Experimental
                             hits++;
                         }
 
-                        ref Rgb24 average = ref averages[(y % range)];
+                        ref Rgb24 average = ref averages[y % range];
                         average.R = (byte)(r / hits);
                         average.G = (byte)(g / hits);
                         average.B = (byte)(b / hits);
@@ -285,19 +283,18 @@ namespace Greenshot.Gfx.Experimental
 
             Parallel.For(spanInfo.Top, spanInfo.Bottom, y =>
             {
-                Span<Bgra32> argb32;
-                unsafe { argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
-                unsafe
-                {
+                unsafe {
+                    var argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
                     Span<Bgra32> averages = stackalloc Bgra32[range];
                     var a = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
                     var hits = halfRange;
+                    var lineOffset = y * spanInfo.PixelStride;
                     for (var x = spanInfo.Left; x < spanInfo.Left + halfRange; x++)
                     {
-                        ref Bgra32 color = ref argb32[x + y * spanInfo.PixelStride];
+                        ref Bgra32 color = ref argb32[x + lineOffset];
                         a += color.A;
                         r += color.R;
                         g += color.G;
@@ -309,7 +306,7 @@ namespace Greenshot.Gfx.Experimental
                         if (leftSide >= spanInfo.Left)
                         {
                             // Get value at the left side of range
-                            ref Bgra32 color = ref argb32[leftSide + y * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[leftSide + lineOffset];
                             a -= color.A;
                             r -= color.R;
                             g -= color.G;
@@ -320,7 +317,7 @@ namespace Greenshot.Gfx.Experimental
                         var rightSide = x + halfRange;
                         if (rightSide < spanInfo.Right)
                         {
-                            ref Bgra32 color = ref argb32[rightSide + y * spanInfo.PixelStride];
+                            ref Bgra32 color = ref argb32[rightSide + lineOffset];
                             a += color.A;
                             r += color.R;
                             g += color.G;
@@ -328,7 +325,7 @@ namespace Greenshot.Gfx.Experimental
                             hits++;
                         }
 
-                        ref Bgra32 average = ref averages[(x % range)];
+                        ref Bgra32 average = ref averages[x % range];
                         average.A = (byte)(a / hits);
                         average.R = (byte)(r / hits);
                         average.G = (byte)(g / hits);
@@ -339,7 +336,7 @@ namespace Greenshot.Gfx.Experimental
                             // Now we can write the value from the calculated avarages
                             var readLocation = (leftSide % range);
 
-                            argb32[leftSide + y * spanInfo.PixelStride] = averages[readLocation];
+                            argb32[leftSide + lineOffset] = averages[readLocation];
                         }
                     }
                 }

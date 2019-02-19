@@ -55,8 +55,8 @@ namespace Greenshot
             // Specify the directories for the translations manually, this is a workaround
             builder.Register(context => LanguageConfigBuilder.Create()
                     .WithSpecificDirectories(GenerateScanDirectories(
-#if NET471
-                    "net471",
+#if NET472
+                    "net472",
 #else
                             "netcoreapp3.0",
 #endif

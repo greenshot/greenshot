@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net471;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
     <AssemblyTitle>Greenshot</AssemblyTitle>
     <AssemblyName>Greenshot</AssemblyName>
+	<RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -35,7 +36,7 @@
     <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -96,8 +97,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.0.0-alpha0106" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0096" />
-    <PackageReference Include="Svg" Version="2.4.0" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0103" />
+    <PackageReference Include="Svg" Version="2.4.1" />
   </ItemGroup>
   
   <ItemGroup>
