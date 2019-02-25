@@ -50,7 +50,7 @@
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </PackageReference>
-    <PackageReference Include="Fody" Version="3.3.5">
+    <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

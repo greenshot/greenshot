@@ -92,13 +92,15 @@
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
     <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.9" />
     <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.8.9" />
-    <PackageReference Include="Fody" Version="3.3.5">
+    <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.0.0-alpha0106" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0103" />
     <PackageReference Include="Svg" Version="2.4.1" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
   </ItemGroup>
   
   <ItemGroup>

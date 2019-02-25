@@ -67,7 +67,7 @@
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.8.9</Version>
     </PackageReference>
-    <PackageReference Include="Fody" Version="3.3.5">
+    <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

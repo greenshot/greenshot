@@ -92,7 +92,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon.Dropbox\Greenshot.Addon.Dropbox.csproj" />
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
     <ProjectReference Include="..\Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj" />

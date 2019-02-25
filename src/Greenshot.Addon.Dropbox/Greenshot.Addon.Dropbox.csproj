@@ -52,7 +52,7 @@
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
-    <PackageReference Include="Fody" Version="3.3.5">
+    <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
