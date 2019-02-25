@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 pool:
-  vmImage: 'VS2017-Win2016'
+  vmImage: 'Windows-2019'
 
 variables:
   solution: '**/*.sln'
@@ -15,7 +15,7 @@ steps:
 - task: DotNetCoreInstaller@0
   displayName: 'Use .NET Core sdk 3.0'
   inputs:
-    version: '3.0.100-preview-009812'
+    version: '3.0.100-preview4-010520'
 
 - task: NuGetToolInstaller@0
   displayName: 'Use NuGet 4.9.2'
