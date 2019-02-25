@@ -15,11 +15,11 @@
     <FileVersion>1.0.0</FileVersion>
     <AssemblySearchPaths Condition="'$(TargetFramework)' == 'net472'">{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName};{GAC};</AssemblySearchPaths>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>false</UseWindowsForms>
+    <UseWindowsForms>true</UseWindowsForms>
     <OsProductName>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@ProductName)</OsProductName>
     <!--RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers-->
     <ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
-    <ExtrasEnableWinFormsProjectSetup>false</ExtrasEnableWinFormsProjectSetup>
+    <ExtrasEnableWinFormsProjectSetup>true</ExtrasEnableWinFormsProjectSetup>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -48,7 +48,7 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <!--<ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests'))">
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.105">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -57,7 +57,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup>-->
+  </ItemGroup>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
