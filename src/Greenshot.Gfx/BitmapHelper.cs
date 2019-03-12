@@ -986,7 +986,7 @@ namespace Greenshot.Gfx
 	                    {
 	                        fastBitmap1.GetColorAt(x, y, tmpColor1);
 	                        fastBitmap2.GetColorAt(x, y, tmpColor2);
-	                        if (AreColorsSame(tmpColor1, tmpColor2))
+	                        if (AreColorsSame(tmpColor1, tmpColor2, fastBitmap1.HasAlphaChannel))
 	                        {
 	                            continue;
 	                        }
@@ -1005,11 +1005,12 @@ namespace Greenshot.Gfx
 	    /// </summary>
 	    /// <param name="aColor">Color first</param>
 	    /// <param name="bColor">Color second</param>
+        /// <param name="hasAlpha">bool hasAlpha</param>
 	    /// <returns>True if they are; otherwise false</returns>
 	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-	    private static unsafe bool AreColorsSame(byte* aColor, byte* bColor)
+	    private static unsafe bool AreColorsSame(byte* aColor, byte* bColor, bool hasAlpha = false)
 	    {
-	        return aColor[0] == bColor[0] && aColor[1] == bColor[1] && aColor[2] == bColor[2] && aColor[3] == bColor[3];
+	        return aColor[0] == bColor[0] && aColor[1] == bColor[1] && aColor[2] == bColor[2] && (hasAlpha ? aColor[3] == bColor[3] : true);
 	    }
     }
 }

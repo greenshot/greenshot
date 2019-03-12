@@ -26,10 +26,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Experimental;
+using Greenshot.Gfx.Experimental.Structs;
 using Greenshot.Tests.Implementation;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -39,43 +37,6 @@ namespace Greenshot.Tests
     /// </summary>
     public class BlurTests
     {
-        [Fact]
-        public void Test_BoxBlurSharpImage()
-        {
-            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppArgb, Color.White))
-            {
-                using (var graphics = Graphics.FromImage(bitmapOld))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    bitmapOld.ApplyOldBoxBlur(10);
-                    bitmapOld.Save(@"old.png", ImageFormat.Png);
-                }
-
-                using (var tmpStream = new MemoryStream())
-                using (var image = new Image<Rgba32>(SixLabors.ImageSharp.Configuration.Default, 400, 400, Rgba32.White))
-                {
-                    var color = Rgba32.Blue;
-                    color.A = 255;
-                    var solidBlueBrush = SixLabors.ImageSharp.Processing.Brushes.Solid(color);
-                    var g = new GraphicsOptions(false);
-                    image.Mutate(c => c
-                    .Fill(new GraphicsOptions(false), solidBlueBrush, new SixLabors.Primitives.Rectangle(30, 30, 340, 340))
-                    .BoxBlur(10));
-                    image.SaveAsPng(tmpStream);
-
-                    tmpStream.Seek(0, SeekOrigin.Begin);
-                    using (var bitmapNew = (Bitmap)System.Drawing.Image.FromStream(tmpStream))
-                    {
-                        bitmapNew.Save(@"new.png", ImageFormat.Png);
-                        Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
-                    }
-                }
-
-            }
-        }
-
-
         [Theory]
         [InlineData(PixelFormat.Format24bppRgb)]
         [InlineData(PixelFormat.Format32bppRgb)]
@@ -129,6 +90,35 @@ namespace Greenshot.Tests
                 bitmapNew.Save(@"new.png", ImageFormat.Png);
 
                 Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
+            }
+        }
+
+        [Fact]
+        public void Test_Blur_UnmanagedBitmap()
+        {
+            using (var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400))
+            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
+            {
+                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var pen = new SolidBrush(Color.Blue))
+                {
+                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                    //bitmapOld.ApplyOldBoxBlur(10);
+                    bitmapOld.ApplyBoxBlurSpan(10);
+                }
+                bitmapOld.Save(@"old.png", ImageFormat.Png);
+
+                bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
+                using (var bitmap = bitmapNew.AsBitmap())
+                using (var graphics = Graphics.FromImage(bitmap))
+                using (var pen = new SolidBrush(Color.Blue))
+                {
+                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                    bitmapNew.ApplyBoxBlur(10);
+                    bitmap.Save(@"new.png", ImageFormat.Png);
+                }
+
+                Assert.True(bitmapOld.IsEqualTo(bitmapNew.AsBitmap()), "New blur doesn't compare to old.");
             }
         }
     }

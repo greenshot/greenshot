@@ -36,6 +36,12 @@ namespace Greenshot.Gfx.Effects
 	/// </summary>
 	public class GrayscaleEffect : IEffect
 	{
+        /// <summary>
+        /// Apply this effect to the specified bitmap
+        /// </summary>
+        /// <param name="sourceBitmap">Bitmap</param>
+        /// <param name="matrix">Matrix</param>
+        /// <returns>Bitmap</returns>
 		public Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
 		{
 			return CreateGrayscale(sourceBitmap);

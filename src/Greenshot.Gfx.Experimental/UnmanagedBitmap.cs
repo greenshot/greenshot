@@ -22,23 +22,23 @@
 #endregion
 
 using System;
-using System.Buffers;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
+using Greenshot.Gfx.Experimental.Structs;
 
 namespace Greenshot.Gfx.Experimental
 {
     /// <summary>
-    /// A bitmap with memory from Marshal.AllocHGlobal
+    /// A bitmap wraper with memory from Marshal.AllocHGlobal
     /// </summary>
     /// <typeparam name="TPixelLayout">struct for the pixel information</typeparam>
-    public class UnmanagedBitmap<TPixelLayout> : MemoryManager<TPixelLayout> where TPixelLayout : unmanaged
+    public class UnmanagedBitmap<TPixelLayout> : IDisposable where TPixelLayout : unmanaged
     {
-        private readonly object _lock = new object();
         private readonly int _byteLength;
         private readonly int _bytesPerPixel;
+        private readonly int _pixels;
         private readonly int _stride;
         private bool _isDisposed;
         private readonly IntPtr _hGlobal;
@@ -54,94 +54,90 @@ namespace Greenshot.Gfx.Experimental
         public int Height { get; }
 
         /// <summary>
-        /// The format of the pixels
-        /// </summary>
-        public PixelFormat Format { get; }
-
-        /// <summary>
         /// The constructor for the UnmanagedBitmap
         /// </summary>
         /// <param name="width">int</param>
         /// <param name="height">int</param>
-        /// <param name="pixelFormat">PixelFormat</param>
-        public UnmanagedBitmap(int width, int height, PixelFormat pixelFormat)
+        public UnmanagedBitmap(int width, int height)
         {
             _bytesPerPixel = Marshal.SizeOf<TPixelLayout>();
             Width = width;
             Height = height;
-            Format = pixelFormat;
-            _stride = width * _bytesPerPixel;
+            _pixels = height * width;
+            _stride = _bytesPerPixel * width;
             _byteLength = height * _stride;
             _hGlobal = Marshal.AllocHGlobal(_byteLength);
             GC.AddMemoryPressure(_byteLength);
         }
 
-        /// <inheritdoc />
-        public override unsafe Span<TPixelLayout> GetSpan() => new Span<TPixelLayout>(_hGlobal.ToPointer(), _byteLength);
-
         /// <summary>
-        /// Retrusn
+        /// This returns a span with a the pixels for the specified line
         /// </summary>
-        public override Memory<TPixelLayout> Memory => CreateMemory(0, Width * Height);
-
-        /// <summary>
-        /// NotSupportedException
-        /// </summary>
-        /// <param name="elementIndex">int</param>
-        /// <returns>MemoryHandle</returns>
-        public override MemoryHandle Pin(int elementIndex = 0)
-        {
-            throw new NotSupportedException("Pinning not needed");
+        /// <param name="y">int with y position</param>
+        /// <returns>Span of TPixelLayout for the line</returns>
+        public Span<TPixelLayout> this[int y] {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                unsafe
+                {
+                    var pixelRowPointer = _hGlobal + (y * _stride);
+                    return new Span<TPixelLayout>(pixelRowPointer.ToPointer(), Width);
+                }
+            }
         }
 
-        /// <summary>
-        /// NotSupportedException
-        /// </summary>
-        public override void Unpin()
+        /// <inheritdoc />
+        public Span<TPixelLayout> Span
         {
-            throw new NotSupportedException("Pinning not needed");
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                unsafe
+                {
+                    return new Span<TPixelLayout>(_hGlobal.ToPointer(), _pixels);
+                }
+            }
         }
 
         /// <summary>
         /// Convert this to a real bitmap
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Bitmap</returns>
         public Bitmap AsBitmap()
         {
-            return new Bitmap(Width, Height, _stride, Format, _hGlobal);
+            PixelFormat format;
+            TPixelLayout empty = default;
+            switch (empty)
+            {
+                case Bgr24 _:
+                    format = PixelFormat.Format24bppRgb;
+                    break;
+                case Bgra32 _:
+                    format = PixelFormat.Format32bppArgb;
+                    break;
+                case Bgr32 _:
+                    format = PixelFormat.Format32bppRgb;
+                    break;
+                default:
+                    throw new NotSupportedException("Unknown pixel format");
+            }
+            return new Bitmap(Width, Height, _stride, format, _hGlobal);
         }
 
         #region Implementation of IDisposable
-
-        /// <summary>
-        /// Dispose implementation
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-            lock (_lock)
-            {
-                if (_isDisposed)
-                {
-                    return;
-                }
-
-                _isDisposed = true;
-                Marshal.FreeHGlobal(_hGlobal);
-                GC.RemoveMemoryPressure(_byteLength);
-            }
-        }
-
         /// <summary>
         /// The actual dispose
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            if (_isDisposed)
+            {
+                return;
+            }
+            _isDisposed = true;
+            Marshal.FreeHGlobal(_hGlobal);
+            GC.RemoveMemoryPressure(_byteLength);
         }
 
         #endregion

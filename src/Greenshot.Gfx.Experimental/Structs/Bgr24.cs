@@ -3,7 +3,7 @@
     /// <summary>
     /// A struct with the BGR values for a 24bit pixel
     /// </summary>
-    public struct Rgb24
+    public struct Bgr24
     {
         /// <summary>
         /// Blue component of the pixel

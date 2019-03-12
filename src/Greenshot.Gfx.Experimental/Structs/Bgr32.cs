@@ -21,12 +21,14 @@
 
 #endregion
 
+using System;
+
 namespace Greenshot.Gfx.Experimental.Structs
 {
     /// <summary>
     /// A struct with the BGR values for a 32bit pixel
     /// </summary>
-    public struct Bgr32
+    public struct Bgr32 : IEquatable<Bgr32>
     {
         /// <summary>
         /// Blue component of the pixel
@@ -43,7 +45,26 @@ namespace Greenshot.Gfx.Experimental.Structs
         /// <summary>
         /// Unused component of the pixel
         /// </summary>
-        public readonly byte Unused;
+        public byte Unused;
+
+        /// <inheritdoc />
+        public static bool operator ==(Bgr32 left, Bgr32 right) => Equals(left, right);
+        
+        /// <inheritdoc />
+        public static bool operator !=(Bgr32 left, Bgr32 right) => !Equals(left, right);
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) => (obj is Bgr32 bgr32) && Equals(bgr32);
+
+        /// <summary>
+        /// Equals implementation
+        /// </summary>
+        /// <param name="other">Bgr32</param>
+        /// <returns>bool</returns>
+        public bool Equals(Bgr32 other) => (B, G, R) == (other.B, other.G, other.R);
+
+        /// <inheritdoc />
+        public override int GetHashCode() => HashCode.Combine(B, G, R);
     }
 
 }

@@ -24,8 +24,10 @@
 #region Usings
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
 using Dapplo.Log;
 using Greenshot.Addons.Resources;
 
@@ -34,27 +36,29 @@ using Greenshot.Addons.Resources;
 namespace Greenshot.Forms
 {
 	/// <summary>
-	///     Description of LanguageDialog.
+	///     The LanguageDialog askes the user for the language to use when none is selected.
 	/// </summary>
 	public partial class LanguageDialog : Form
 	{
 		private static readonly LogSource Log = new LogSource();
-		private bool _properOkPressed;
+        private readonly LanguageContainer _languageContainer;
+        private bool _properOkPressed;
 
-		public LanguageDialog()
+		public LanguageDialog(GreenshotResources greenshotResources, LanguageContainer languageContainer)
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			Icon = GreenshotResources.Instance.GetGreenshotIcon();
+			Icon = greenshotResources.GetGreenshotIcon();
 			Load += FormLoad;
 			FormClosing += PreventFormClose;
-		}
+            _languageContainer = languageContainer;
+        }
 
 		public string SelectedLanguage => comboBoxLanguage?.SelectedValue?.ToString();
 
-	    private void PreventFormClose(object sender, FormClosingEventArgs e)
+        private void PreventFormClose(object sender, FormClosingEventArgs e)
 		{
 			if (!_properOkPressed)
 			{
@@ -70,10 +74,9 @@ namespace Greenshot.Forms
 
             // Set datasource last to prevent problems
             // See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-            // TODO: Get languages
-            //comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
+            comboBoxLanguage.DataSource = _languageContainer.AvailableLanguages;
 
-            var currentLanguage = "en-US"; // LanguageLoader.Current.CurrentLanguage;
+            var currentLanguage = _languageContainer.CurrentLanguage;
 
             if (currentLanguage != null)
 			{
@@ -87,14 +90,13 @@ namespace Greenshot.Forms
 
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
-		    if (false) //LanguageLoader.Current.AvailableLanguages.Count != 1)
+		    if (_languageContainer.AvailableLanguages.Count != 1)
 		    {
 		        return;
 		    }
 
-            comboBoxLanguage.SelectedValue = "en-US"; // LanguageLoader.Current.AvailableLanguages.Keys.FirstOrDefault();
-            // TODO: Change language
-		    //var ignoreTask = LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
+            comboBoxLanguage.SelectedValue = _languageContainer.AvailableLanguages.Keys.First();
+		    _ = _languageContainer.ChangeLanguageAsync(SelectedLanguage);
 		    _properOkPressed = true;
 		    Close();
 		}
@@ -102,9 +104,7 @@ namespace Greenshot.Forms
 		private void BtnOKClick(object sender, EventArgs e)
 		{
 			_properOkPressed = true;
-			// Fix for Bug #3431100 
-            // TODO: Change language
-			//Language.CurrentLanguage = SelectedLanguage;
+            _ = _languageContainer.ChangeLanguageAsync(SelectedLanguage);
 			Close();
 		}
 	}

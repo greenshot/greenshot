@@ -158,17 +158,19 @@ namespace Greenshot.Gfx
                             var multipliedX = 3 * x;
                             var multipliedY = 3 * y;
 
-                            destination.SetColorAt(multipliedX - 1, multipliedY - 1, colorE0);
-                            destination.SetColorAt(multipliedX, multipliedY - 1, colorE1);
-                            destination.SetColorAt(multipliedX + 1, multipliedY - 1, colorE2);
+                            destination.SetColorAt(multipliedX, multipliedY, colorE0);
+                            destination.SetColorAt(multipliedX + 1, multipliedY, colorE1);
+                            destination.SetColorAt(multipliedX + 2, multipliedY, colorE2);
 
-                            destination.SetColorAt(multipliedX - 1, multipliedY, colorE3);
-                            destination.SetColorAt(multipliedX, multipliedY, colorE4);
-                            destination.SetColorAt(multipliedX + 1, multipliedY, colorE5);
+                            multipliedY++;
+                            destination.SetColorAt(multipliedX, multipliedY, colorE3);
+                            destination.SetColorAt(multipliedX + 1, multipliedY, colorE4);
+                            destination.SetColorAt(multipliedX + 2, multipliedY, colorE5);
 
-                            destination.SetColorAt(multipliedX - 1, multipliedY + 1, colorE6);
-                            destination.SetColorAt(multipliedX, multipliedY + 1, colorE7);
-                            destination.SetColorAt(multipliedX + 1, multipliedY + 1, colorE8);
+                            multipliedY++;
+                            destination.SetColorAt(multipliedX, multipliedY, colorE6);
+                            destination.SetColorAt(multipliedX + 1, multipliedY, colorE7);
+                            destination.SetColorAt(multipliedX + 2, multipliedY, colorE8);
 
                             x++;
                         }

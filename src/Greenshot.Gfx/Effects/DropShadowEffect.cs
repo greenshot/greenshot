@@ -39,12 +39,27 @@ namespace Greenshot.Gfx.Effects
 	[TypeConverter(typeof(EffectConverter))]
 	public class DropShadowEffect : IEffect
 	{
+        /// <summary>
+        /// The darkness
+        /// </summary>
 	    public float Darkness { get; set; } = 0.6f;
 
+        /// <summary>
+        /// The size of the shadow
+        /// </summary>
 	    public int ShadowSize { get; set; } = 7;
 
+        /// <summary>
+        /// Offset of the shadow
+        /// </summary>
 	    public NativePoint ShadowOffset { get; set; } = new NativePoint(-1, -1);
 
+        /// <summary>
+        /// Apply this effect to the specified bitmap
+        /// </summary>
+        /// <param name="sourceBitmap">Bitmap</param>
+        /// <param name="matrix">Matrix</param>
+        /// <returns>Bitmap</returns>
 		public virtual Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
 		{
 			return sourceBitmap.CreateShadow(Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
