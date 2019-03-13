@@ -67,7 +67,6 @@ namespace Greenshot.Gfx.Experimental.Structs
         public bool Equals(Bgra32 other) => (B, G, R, A) == (other.B, other.G, other.R, other.A);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(B, G, R, A);
+        public override int GetHashCode() => (B, G, R, A).GetHashCode();
     }
-
 }

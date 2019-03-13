@@ -177,14 +177,14 @@ Task("EnableDNC30")
     .Does(() =>
 {
     ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>.*</TargetFrameworks><!-- net472;netcoreapp3.0 -->", "<TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>");
-    ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"MSBuild.Sdk.Extras/1.6.65\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">");
+    ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"Microsoft.NET.Sdk\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">");
 });
 
 Task("DisableDNC30")
     .Does(() =>
 {
     ReplaceRegexInFiles("./**/*.csproj", "<TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>", "<TargetFrameworks>net472</TargetFrameworks><!-- net472;netcoreapp3.0 -->");
-    ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">", "<Project Sdk=\"MSBuild.Sdk.Extras/1.6.65\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->");
+    ReplaceRegexInFiles("./**/*.csproj", "<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">", "<Project Sdk=\"Microsoft.NET.Sdk\"><!-- Microsoft.NET.Sdk.WindowsDesktop -->");
 });
 
 Task("ChangeNETVersion")

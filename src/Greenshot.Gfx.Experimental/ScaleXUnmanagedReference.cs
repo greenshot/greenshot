@@ -22,13 +22,9 @@
 #endregion
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Greenshot.Gfx.Experimental;
-using Greenshot.Gfx.Experimental.Structs;
 
-namespace Greenshot.Gfx
+namespace Greenshot.Gfx.Experimental
 {
     /// <summary>
     /// This is the ScaleX code for the UnmanagedBitmap

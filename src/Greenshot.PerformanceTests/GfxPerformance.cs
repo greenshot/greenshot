@@ -107,7 +107,7 @@ namespace Greenshot.PerformanceTests
         }
 
 
-        [Benchmark]
+        //[Benchmark]
         public void Blur_Old()
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))

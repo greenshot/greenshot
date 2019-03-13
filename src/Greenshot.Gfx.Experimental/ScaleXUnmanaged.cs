@@ -23,9 +23,8 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Greenshot.Gfx.Experimental;
 
-namespace Greenshot.Gfx
+namespace Greenshot.Gfx.Experimental
 {
     /// <summary>
     /// This is the ScaleX code for the UnmanagedBitmap
@@ -33,11 +32,11 @@ namespace Greenshot.Gfx
     /// </summary>
     public static class ScaleXUnmanaged
     {
-        private const int ColorB = 0;
-        private const int ColorD = 1;
-        private const int ColorE = 4;
-        private const int ColorF = 2;
-        private const int ColorH = 3;
+        private const byte ColorB = 0;
+        private const byte ColorD = 1;
+        private const byte ColorE = 4;
+        private const byte ColorF = 2;
+        private const byte ColorH = 3;
         private const byte ColorA = 5;
         private const byte ColorC = 6;
         private const byte ColorG = 7;
@@ -59,78 +58,81 @@ namespace Greenshot.Gfx
 
             var sourceWidth = sourceBitmap.Width;
             var destinationWidth = destinationBitmap.Width;
-            ReadOnlySpan<int> sourceSpan = MemoryMarshal.Cast<TPixelLayout, int>(sourceBitmap.Span);
-            var destinationSpan = MemoryMarshal.Cast<TPixelLayout, int>(destinationBitmap.Span);
-
-            Span<int> colors = stackalloc int[5];
-            Span<int> colorsE = stackalloc int[4];
-            for (var y = 0; y < sourceBitmap.Height; y++)
+            ReadOnlySpan<uint> sourceSpan = MemoryMarshal.Cast<TPixelLayout, uint>(sourceBitmap.Span);
+            var destinationSpan = MemoryMarshal.Cast<TPixelLayout, uint>(destinationBitmap.Span);
+            unsafe
             {
-                var sourceYOffset = y * sourceWidth;
-                var destinationYOffset = (y << 1) * destinationWidth;
-                for (var x = 0; x < sourceWidth; x++)
+                var colors = stackalloc uint[5];
+                var colorsE = stackalloc uint[4];
+                for (var y = 0; y < sourceBitmap.Height; y++)
                 {
-                    var sourceOffset = sourceYOffset + x;
-                    colors[ColorE] = sourceSpan[sourceOffset];
+                    var sourceYOffset = y * sourceWidth;
+                    var destinationYOffset = (y << 1) * destinationWidth;
+                    for (var x = 0; x < sourceWidth; x++)
+                    {
+                        var sourceOffset = sourceYOffset + x;
+                        colors[ColorE] = sourceSpan[sourceOffset];
 
-                    if (y != 0)
-                    {
-                        colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
-                    }
-                    else
-                    {
-                        colors[ColorB] = colors[ColorE];
-                    }
+                        if (y != 0)
+                        {
+                            colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorB] = colors[ColorE];
+                        }
 
-                    if (y != sourceBitmap.Height - 1)
-                    {
-                        colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
-                    }
-                    else
-                    {
-                        colors[ColorH] = colors[ColorE];
-                    }
+                        if (y != sourceBitmap.Height - 1)
+                        {
+                            colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorH] = colors[ColorE];
+                        }
 
-                    if (x > 0)
-                    {
-                        colors[ColorD] = sourceSpan[sourceOffset - 1];
-                    }
-                    else
-                    {
-                        colors[ColorD] = colors[ColorE];
-                    }
+                        if (x > 0)
+                        {
+                            colors[ColorD] = sourceSpan[sourceOffset - 1];
+                        }
+                        else
+                        {
+                            colors[ColorD] = colors[ColorE];
+                        }
 
-                    if (x < sourceBitmap.Width - 1)
-                    {
-                        colors[ColorF] = sourceSpan[sourceOffset + 1];
-                    }
-                    else
-                    {
-                        colors[ColorF] = colors[ColorE];
-                    }
+                        if (x < sourceBitmap.Width - 1)
+                        {
+                            colors[ColorF] = sourceSpan[sourceOffset + 1];
+                        }
+                        else
+                        {
+                            colors[ColorF] = colors[ColorE];
+                        }
 
-                    if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
-                    {
-                        colorsE[3] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                        colorsE[2] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
-                        colorsE[1] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                        colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
-                    }
-                    else
-                    {
-                        colorsE[3] = colors[ColorE];
-                        colorsE[2] = colors[ColorE];
-                        colorsE[1] = colors[ColorE];
-                        colorsE[0] = colors[ColorE];
-                    }
+                        if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
+                        {
+                            colorsE[3] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[2] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
+                            colorsE[1] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
+                        }
+                        else
+                        {
+                            colorsE[3] = colors[ColorE];
+                            colorsE[2] = colors[ColorE];
+                            colorsE[1] = colors[ColorE];
+                            colorsE[0] = colors[ColorE];
+                        }
 
-                    var destinationOffset = (x << 1) + destinationYOffset;
-                    destinationSpan[destinationOffset + 1 + destinationWidth] = colorsE[3];
-                    destinationSpan[destinationOffset + destinationWidth] = colorsE[2];
-                    destinationSpan[destinationOffset + 1] = colorsE[1];
-                    destinationSpan[destinationOffset] = colorsE[0];
+                        var destinationOffset = (x << 1) + destinationYOffset;
+                        destinationSpan[destinationOffset + 1 + destinationWidth] = colorsE[3];
+                        destinationSpan[destinationOffset + destinationWidth] = colorsE[2];
+                        destinationSpan[destinationOffset + 1] = colorsE[1];
+                        destinationSpan[destinationOffset] = colorsE[0];
+                    }
                 }
             }
+
             return destinationBitmap;
         }
 
@@ -147,18 +149,19 @@ namespace Greenshot.Gfx
                 throw new NotSupportedException("Only 4 byte unmanaged structs are supported.");
             }
             var destinationBitmap = new UnmanagedBitmap<TPixelLayout>(sourceBitmap.Width * 3, sourceBitmap.Height * 3);
-            ReadOnlySpan<int> sourceSpan = MemoryMarshal.Cast<TPixelLayout, int>(sourceBitmap.Span);
-            var destinationSpan = MemoryMarshal.Cast<TPixelLayout, int>(destinationBitmap.Span);
+
+            ReadOnlySpan<uint> sourceSpan = MemoryMarshal.Cast<TPixelLayout, uint>(sourceBitmap.Span);
+            var destinationSpan = MemoryMarshal.Cast<TPixelLayout, uint>(destinationBitmap.Span);
 
             var sourceWidth = sourceBitmap.Width;
             var destinationWidth = destinationBitmap.Width;
 
             unsafe
             {
-                Span<int> colors = stackalloc int[9];
-                Span<int> colorsE = stackalloc int[9];
+                var colors = stackalloc uint[9];
+                var colorsE = stackalloc uint[9];
 
-                for (int y = 0; y < sourceBitmap.Height; y++)
+                for (var y = 0; y < sourceBitmap.Height; y++)
                 {
                     var sourceYOffset = y * sourceWidth;
                     var destinationYOffset = y * 3 * destinationWidth;
@@ -166,10 +169,8 @@ namespace Greenshot.Gfx
                     {
                         var sourceOffset = sourceYOffset + x;
 
-                        //source.GetColorAt(x, y, colors[ColorE]);
                         colors[ColorE] = sourceSpan[sourceOffset];
 
-                        //source.GetColorAt(x - 1, y - 1, colors[ColorA]);
                         if (y != 0 && x != 0)
                         {
                             colors[ColorA] = sourceSpan[(sourceOffset - 1) - sourceWidth];
@@ -179,7 +180,6 @@ namespace Greenshot.Gfx
                             colors[ColorA] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x, y - 1, colors[ColorB]);
                         if (y != 0)
                         {
                             colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
@@ -189,7 +189,6 @@ namespace Greenshot.Gfx
                             colors[ColorB] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x + 1, y - 1, colors[ColorC]);
                         if (x < sourceWidth - 1 && y != 0)
                         {
                             colors[ColorC] = sourceSpan[(sourceOffset + 1) - sourceWidth];
@@ -199,7 +198,6 @@ namespace Greenshot.Gfx
                             colors[ColorC] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x - 1, y, colors[ColorD]);
                         if (x != 0)
                         {
                             colors[ColorD] = sourceSpan[sourceOffset - 1];
@@ -209,7 +207,6 @@ namespace Greenshot.Gfx
                             colors[ColorD] = colors[ColorE];
                         }
                         
-                        //source.GetColorAt(x + 1, y, colors[ColorF]);
                         if (x < sourceWidth - 1)
                         {
                             colors[ColorF] = sourceSpan[sourceOffset + 1];
@@ -219,7 +216,6 @@ namespace Greenshot.Gfx
                             colors[ColorF] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x - 1, y + 1, colors[ColorG]);
                         if (x != 0 && y < sourceBitmap.Height - 1)
                         {
                             colors[ColorG] = sourceSpan[(sourceOffset - 1) + sourceWidth];
@@ -229,7 +225,6 @@ namespace Greenshot.Gfx
                             colors[ColorG] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x, y + 1, colors[ColorH]);
                         if (y < sourceBitmap.Height - 1)
                         {
                             colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
@@ -239,7 +234,6 @@ namespace Greenshot.Gfx
                             colors[ColorH] = colors[ColorE];
                         }
 
-                        //source.GetColorAt(x + 1, y + 1, colors[ColorI]);
                         if (x < sourceWidth - 1 && y < sourceBitmap.Height - 1)
                         {
                             colors[ColorI] = sourceSpan[sourceOffset + 1 + sourceWidth];
@@ -251,22 +245,31 @@ namespace Greenshot.Gfx
 
                         if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
                         {
-                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
-                            colorsE[1] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorC] || colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorA] ? colors[ColorB] : colors[ColorE];
-                            colorsE[2] = colors[ColorB] == colors[ColorF] ? colors[ColorF]: colors[ColorE];
-                            colorsE[3] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorG] || colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorA] ? colors[ColorD] : colors[ColorE];
+                            colorsE[8] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[7] = colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorG] ? colors[ColorH] : colors[ColorE];
+                            colorsE[6] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
+                            colorsE[5] = colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorC] ? colors[ColorF] : colors[ColorE];
 
                             colorsE[4] = colors[ColorE];
-                            colorsE[5] = colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorC] ? colors[ColorF] : colors[ColorE];
-                            colorsE[6] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
-                            colorsE[7] = colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorG] ? colors[ColorH] : colors[ColorE];
-                            colorsE[8] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+
+                            colorsE[3] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorG] || colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorA] ? colors[ColorD] : colors[ColorE];
+                            colorsE[2] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[1] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorC] || colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorA] ? colors[ColorB] : colors[ColorE];
+                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
                         }
                         else
                         {
-                            colorsE.Fill(colors[ColorE]);
+                            colorsE[8] = colors[ColorE];
+                            colorsE[7] = colors[ColorE];
+                            colorsE[6] = colors[ColorE];
+                            colorsE[5] = colors[ColorE];
+                            colorsE[4] = colors[ColorE];
+                            colorsE[3] = colors[ColorE];
+                            colorsE[2] = colors[ColorE];
+                            colorsE[1] = colors[ColorE];
+                            colorsE[0] = colors[ColorE];
                         }
-                        var destinationOffset = (x * 3) + destinationYOffset;
+                        var destinationOffset = x * 3 + destinationYOffset;
 
                         destinationSpan[destinationOffset] = colorsE[0];
                         destinationSpan[destinationOffset + 1] = colorsE[1];
@@ -282,7 +285,6 @@ namespace Greenshot.Gfx
                         destinationSpan[destinationOffset + 1] = colorsE[7];
                         destinationSpan[destinationOffset + 2] = colorsE[8];
                     }
-
                 }
             }
             return destinationBitmap;
