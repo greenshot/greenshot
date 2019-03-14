@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 EndProject
@@ -40,8 +40,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Tests", "Greenshot.Tests\Greenshot.Tests.csproj", "{9B162E60-12D8-44FD-8093-7D40392F23FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.LegacyEditor", "Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj", "{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Gfx.Experimental", "Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj", "{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.OneDrive", "Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj", "{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}"
 EndProject
@@ -213,14 +211,6 @@ Global
 		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|x86.Build.0 = Release|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Debug|x86.Build.0 = Debug|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Release|x86.ActiveCfg = Release|Any CPU
-		{14894A45-AA2C-4BC3-85A3-E388D0BDC1CA}.Release|x86.Build.0 = Release|Any CPU
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}.Debug|x86.ActiveCfg = Debug|Any CPU

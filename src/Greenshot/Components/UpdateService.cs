@@ -51,7 +51,7 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private static readonly Regex VersionRegex = new Regex(@"^.*[^-]-(?<version>[0-9\.]+)\-(?<type>(release|beta|rc[0-9]+))\.exe.*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Uri UpdateFeed = new Uri("http://getgreenshot.org/project-feed/");
+        private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/project-feed/");
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly ICoreConfiguration _coreConfiguration;
@@ -93,7 +93,10 @@ namespace Greenshot.Components
             _updateNotificationViewModelFactory = updateNotificationViewModelFactory;
             var version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location);
             LatestVersion = CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
-            _coreConfiguration.LastSaveWithVersion = CurrentVersion.ToString();
+            if (_coreConfiguration != null)
+            {
+                _coreConfiguration.LastSaveWithVersion = CurrentVersion.ToString();
+            }
         }
 
         /// <inheritdoc />
@@ -175,7 +178,11 @@ namespace Greenshot.Components
             {
                 return;
             }
-            _coreConfiguration.LastUpdateCheck = DateTime.Now;
+
+            if (_coreConfiguration != null)
+            {
+                _coreConfiguration.LastUpdateCheck = DateTime.Now;
+            }
 
             ProcessFeed(updateFeed);
             
@@ -236,7 +243,8 @@ namespace Greenshot.Components
                 {
                     BetaVersion = version;
                 }
-                if ("rc".Equals(type, StringComparison.OrdinalIgnoreCase))
+                
+                if (type.StartsWith("rc", StringComparison.OrdinalIgnoreCase))
                 {
                     ReleaseCandidateVersion = version;
                 }

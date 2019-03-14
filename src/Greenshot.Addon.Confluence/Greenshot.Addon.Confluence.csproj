@@ -50,12 +50,12 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AutoProperties.Fody" Version="1.19.0" />
+    <PackageReference Include="AutoProperties.Fody" Version="1.20.0" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.21" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.9" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.17" />
     <PackageReference Include="Dapplo.Confluence" Version="0.8.16" />
     <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>

@@ -28,7 +28,7 @@ namespace Greenshot.Tests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmap1.Save("bitmap0.png", ImageFormat.Png);
-                bitmap1.ApplyBoxBlur(20);
+                bitmap1.ApplyBoxBlur(10);
                 bitmap1.Save("bitmap1.png", ImageFormat.Png);
 
                 using (var graphics = Graphics.FromImage(bitmap2))

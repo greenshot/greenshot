@@ -64,13 +64,16 @@ namespace Greenshot.Gfx
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddBytes(byte one, byte two, byte three, byte four)
         {
-            var k = (uint)(one | two << 8 | three << 16 | four << 24);
-            k *= C1;
-            k = RotateLeft(k, R1);
-            k *= C2;
-            _hash ^= k;
-            _hash = RotateLeft(_hash, R2);
-            _hash = _hash * M + N;
+            unchecked
+            {
+                var k = (uint)(one | two << 8 | three << 16 | four << 24);
+                k *= C1;
+                k = RotateLeft(k, R1);
+                k *= C2;
+                _hash ^= k;
+                _hash = RotateLeft(_hash, R2);
+                _hash = _hash * M + N;
+            }
         }
 
         /// <summary>
@@ -81,11 +84,14 @@ namespace Greenshot.Gfx
         /// <param name="three">third byte</param>
         public void AddTrailingBytes(byte one, byte two = 0, byte three = 0)
         {
-            var k = (uint)(one | two << 8 | three << 16);
-            k *= C1;
-            k = RotateLeft(k, R1);
-            k *= C2;
-            _hash ^= k;
+            unchecked
+            {
+                var k = (uint) (one | two << 8 | three << 16);
+                k *= C1;
+                k = RotateLeft(k, R1);
+                k *= C2;
+                _hash ^= k;
+            }
         }
 
         /// <inheritdoc />
@@ -127,11 +133,14 @@ namespace Greenshot.Gfx
             get
             {
                 var hash = _hash ^ _length;
-                hash ^= hash >> 16;
-                hash *= 0x85ebca6b;
-                hash ^= hash >> 13;
-                hash *= 0xc2b2ae35;
-                hash ^= hash >> 16;
+                unchecked
+                {
+                    hash ^= hash >> 16;
+                    hash *= 0x85ebca6b;
+                    hash ^= hash >> 13;
+                    hash *= 0xc2b2ae35;
+                    hash ^= hash >> 16;
+                }
                 return hash;
             }
         }

@@ -26,8 +26,7 @@ using System.Drawing.Imaging;
 using Dapplo.Log;
 using Dapplo.Log.XUnit;
 using Greenshot.Gfx;
-using Greenshot.Gfx.Experimental;
-using Greenshot.Gfx.Experimental.Structs;
+using Greenshot.Gfx.Structs;
 using Xunit;
 using Xunit.Abstractions;
 

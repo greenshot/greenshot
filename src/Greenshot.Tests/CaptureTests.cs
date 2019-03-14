@@ -23,10 +23,13 @@
 
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Core;

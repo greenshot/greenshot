@@ -26,9 +26,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Greenshot.Gfx.Experimental.Structs;
+using Greenshot.Gfx.Structs;
 
-namespace Greenshot.Gfx.Experimental
+namespace Greenshot.Gfx
 {
     /// <summary>
     /// A bitmap wraper with memory from Marshal.AllocHGlobal

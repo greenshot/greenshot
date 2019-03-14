@@ -7,6 +7,14 @@
     <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.Console" Version="4.3.1" />
@@ -50,13 +58,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
-    <ProjectReference Include="..\Greenshot.Gfx.Experimental\Greenshot.Gfx.Experimental.csproj" />
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
     <ProjectReference Include="..\Greenshot.Tests\Greenshot.Tests.csproj" />
   </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />
+    <PackageReference Include="ClrHeapAllocationAnalyzer" Version="1.0.0.9" />
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="JeremyAnsel.ColorQuant" Version="1.0.55" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">

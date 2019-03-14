@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Gfx.Experimental
+namespace Greenshot.Gfx
 {
     /// <summary>
     /// This is the ScaleX code for the UnmanagedBitmap

@@ -49,7 +49,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.125">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.136">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -59,7 +59,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo')) And ($(OsProductName.Contains('Windows 10')) Or (!$(OsProductName.Contains('Windows 10')) And !$(MSBuildProjectName.Contains('Win10'))))">
     <Exec Command="
     xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;

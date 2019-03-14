@@ -22,80 +22,22 @@
 #endregion
 
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading.Tasks;
-using Greenshot.Gfx.Experimental.Structs;
+using Greenshot.Gfx.Structs;
 
-
-namespace Greenshot.Gfx.Experimental
+namespace Greenshot.Gfx
 {
     /// <summary>
     /// Code to apply a box blur
     /// </summary>
-    public static class BoxBlurSpan
+    public static class BoxBlurUnmanaged
     {
         /// <summary>
-        ///     Apply BoxBlur to the destinationBitmap
+        ///     Apply BoxBlur to the UnmanagedBitmap
         /// </summary>
-        /// <param name="destinationBitmap">Bitmap to blur</param>
-        /// <param name="range">Must be ODD, if not +1 is used</param>
-        public static void ApplyBoxBlurSpan(this Bitmap destinationBitmap, int range)
-        {
-            var bitmapData = destinationBitmap.LockBits(new Rectangle(Point.Empty, destinationBitmap.Size), ImageLockMode.ReadWrite, destinationBitmap.PixelFormat);
-            try
-            {
-                var pixelStride = destinationBitmap.Width;
-                bool isAlpha = false;
-                switch (bitmapData.PixelFormat)
-                {
-                    case PixelFormat.Format24bppRgb:
-                        pixelStride = bitmapData.Stride / 3;
-                        break;
-                    case PixelFormat.Format32bppRgb:
-                        pixelStride = bitmapData.Stride / 4;
-                        break;
-                    case PixelFormat.Format32bppArgb:
-                        pixelStride = bitmapData.Stride / 4;
-                        isAlpha = true;
-                        break;
-                }
-
-                var spanInfo = new SpanInfo
-                {
-                    Width = destinationBitmap.Width,
-                    Height = destinationBitmap.Height,
-                    Left = 0,
-                    Right = destinationBitmap.Width,
-                    Top = 0,
-                    Bottom = destinationBitmap.Height,
-                    Pointer = bitmapData.Scan0,
-                    PixelStride = pixelStride,
-                    BitmapSize = destinationBitmap.Height * pixelStride
-                };
-
-                if (isAlpha)
-                {
-                    ApplyBoxBlurSpanAlpha(spanInfo, range);
-                }
-                else
-                {
-                    ApplyBoxBlurSpan(spanInfo, range);
-                }
-
-            }
-            finally
-            {
-                destinationBitmap.UnlockBits(bitmapData);
-            }
-        }
-
-        /// <summary>
-        ///     Apply BoxBlur to the fastBitmap
-        /// </summary>
-        /// <param name="spanInfo">SpanInfo</param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Must be even!</param>
-        private static void ApplyBoxBlurSpan(SpanInfo spanInfo, int range)
+        public static void ApplyBoxBlur(this UnmanagedBitmap<Bgr32> unmanagedBitmap, int range)
         {
             // Range must be odd!
             if ((range & 1) == 0)
@@ -110,19 +52,18 @@ namespace Greenshot.Gfx.Experimental
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            BoxBlurHorizontalSpan(spanInfo, range);
-            BoxBlurVerticalSpan(spanInfo, range);
-            BoxBlurHorizontalSpan(spanInfo, range);
-            BoxBlurVerticalSpan(spanInfo, range);
+            BoxBlurHorizontal(unmanagedBitmap, range);
+            BoxBlurVertical(unmanagedBitmap, range);
+            BoxBlurHorizontal(unmanagedBitmap, range);
+            BoxBlurVertical(unmanagedBitmap, range);
         }
 
-
         /// <summary>
-        ///     Apply BoxBlur to the fastBitmap
+        ///     Apply BoxBlur to the UnmanagedBitmap
         /// </summary>
-        /// <param name="spanInfo">SpanInfo</param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Must be even!</param>
-        private static void ApplyBoxBlurSpanAlpha(SpanInfo spanInfo, int range)
+        public static void ApplyBoxBlur(this UnmanagedBitmap<Bgra32> unmanagedBitmap, int range)
         {
             // Range must be odd!
             if ((range & 1) == 0)
@@ -137,44 +78,45 @@ namespace Greenshot.Gfx.Experimental
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            BoxBlurHorizontalSpanAlpha(spanInfo, range);
-            BoxBlurVerticalSpanAlpha(spanInfo, range);
-            BoxBlurHorizontalSpanAlpha(spanInfo, range);
-            BoxBlurVerticalSpanAlpha(spanInfo, range);
+            BoxBlurHorizontal(unmanagedBitmap, range);
+            BoxBlurVertical(unmanagedBitmap, range);
+            BoxBlurHorizontal(unmanagedBitmap, range);
+            BoxBlurVertical(unmanagedBitmap, range);
         }
+
         /// <summary>
         ///     BoxBlurHorizontal is a private helper method for the BoxBlur, only for IFastBitmaps with alpha channel
         /// </summary>
-        /// <param name="spanInfo"></param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurHorizontalSpan(SpanInfo spanInfo, int range)
+        private static void BoxBlurHorizontal(UnmanagedBitmap<Bgr32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
 
-            Parallel.For(spanInfo.Top, spanInfo.Bottom, y =>
+            Parallel.For(0, unmanagedBitmap.Height, y =>
             {
                 unsafe {
-                    var rgb24 = new Span<Bgr32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
+                    var rgb32 = unmanagedBitmap[y];
                     Span<Bgr32> averages = stackalloc Bgr32[range];
                     var r = 0;
                     var g = 0;
                     var b = 0;
                     var hits = halfRange;
-                    for (var x = spanInfo.Left; x < spanInfo.Left + halfRange; x++)
+                    for (var x = 0; x < halfRange; x++)
                     {
-                        ref Bgr32 color = ref rgb24[x + (y * spanInfo.PixelStride)];
+                        ref Bgr32 color = ref rgb32[x];
 
                         r += color.R;
                         g += color.G;
                         b += color.B;
                     }
-                    for (var x = spanInfo.Left; x < spanInfo.Right; x++)
+                    for (var x = 0; x < unmanagedBitmap.Width; x++)
                     {
                         var leftSide = x - halfRange - 1;
-                        if (leftSide >= spanInfo.Left)
+                        if (leftSide >= 0)
                         {
                             // Get value at the left side of range
-                            ref Bgr32 color = ref rgb24[leftSide + (y * spanInfo.PixelStride)];
+                            ref Bgr32 color = ref rgb32[leftSide];
                             r -= color.R;
                             g -= color.G;
                             b -= color.B;
@@ -182,26 +124,26 @@ namespace Greenshot.Gfx.Experimental
                         }
 
                         var rightSide = x + halfRange;
-                        if (rightSide < spanInfo.Right)
+                        if (rightSide < unmanagedBitmap.Width)
                         {
-                            ref Bgr32 color = ref rgb24[rightSide + (y * spanInfo.PixelStride)];
+                            ref Bgr32 color = ref rgb32[rightSide];
                             r += color.R;
                             g += color.G;
                             b += color.B;
                             hits++;
                         }
 
-                        ref Bgr32 average = ref averages[(x % range)];
+                        ref Bgr32 average = ref averages[x % range];
                         average.R = (byte)(r / hits);
                         average.G = (byte)(g / hits);
                         average.B = (byte)(b / hits);
 
-                        if (leftSide >= spanInfo.Left)
+                        if (leftSide >= 0)
                         {
                             // Now we can write the value from the calculated avarages
                             var readLocation = (leftSide % range);
 
-                            rgb24[leftSide + (y * spanInfo.PixelStride)] = averages[readLocation];
+                            rgb32[leftSide] = averages[readLocation];
                         }
                     }
                 }
@@ -211,35 +153,35 @@ namespace Greenshot.Gfx.Experimental
         /// <summary>
         ///     BoxBlurVertical is a private helper method for the BoxBlur
         /// </summary>
-        /// <param name="spanInfo"></param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurVerticalSpan(SpanInfo spanInfo, int range)
+        private static void BoxBlurVertical(UnmanagedBitmap<Bgr32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
-            Parallel.For(spanInfo.Left, spanInfo.Right, x =>
+            Parallel.For(0, unmanagedBitmap.Width, x =>
             {
                 unsafe {
-                    var rgb24 = new Span<Bgr32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
+                    var rgb32 = unmanagedBitmap.Span;
                     Span<Bgr32> averages = stackalloc Bgr32[range];
                     var hits = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
-                    for (var y = spanInfo.Top; y < spanInfo.Top + halfRange; y++)
+                    for (var y = 0; y < halfRange; y++)
                     {
-                        ref Bgr32 color = ref rgb24[(y * spanInfo.PixelStride) + x];
+                        ref Bgr32 color = ref rgb32[(y * unmanagedBitmap.Width) + x];
                         r += color.R;
                         g += color.G;
                         b += color.B;
                         hits++;
                     }
-                    for (var y = spanInfo.Top; y < spanInfo.Bottom; y++)
+                    for (var y = 0; y < unmanagedBitmap.Height; y++)
                     {
                         var topSide = y - halfRange - 1;
-                        if (topSide >= spanInfo.Top)
+                        if (topSide >= 0)
                         {
                             // Get value at the top side of range
-                            ref Bgr32 color = ref rgb24[x + (topSide * spanInfo.PixelStride)];
+                            ref Bgr32 color = ref rgb32[x + (topSide * unmanagedBitmap.Width)];
                             r -= color.R;
                             g -= color.G;
                             b -= color.B;
@@ -247,9 +189,9 @@ namespace Greenshot.Gfx.Experimental
                         }
 
                         var bottomSide = y + halfRange;
-                        if (bottomSide < spanInfo.Bottom)
+                        if (bottomSide < unmanagedBitmap.Height)
                         {
-                            ref Bgr32 color = ref rgb24[x + (bottomSide * spanInfo.PixelStride)];
+                            ref Bgr32 color = ref rgb32[x + (bottomSide * unmanagedBitmap.Width)];
                             r += color.R;
                             g += color.G;
                             b += color.B;
@@ -261,12 +203,12 @@ namespace Greenshot.Gfx.Experimental
                         average.G = (byte)(g / hits);
                         average.B = (byte)(b / hits);
 
-                        if (topSide >= spanInfo.Top)
+                        if (topSide >= 0)
                         {
                             // Write the value from the calculated avarages
-                            var readLocation = (topSide % range);
+                            var readLocation = topSide % range;
 
-                            rgb24[x + (topSide * spanInfo.PixelStride)] = averages[readLocation];
+                            rgb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
                         }
                     }
                 }
@@ -276,38 +218,37 @@ namespace Greenshot.Gfx.Experimental
         /// <summary>
         ///     BoxBlurHorizontal is a private helper method for the BoxBlur, only for IFastBitmaps with alpha channel
         /// </summary>
-        /// <param name="spanInfo"></param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurHorizontalSpanAlpha(SpanInfo spanInfo, int range)
+        private static void BoxBlurHorizontal(UnmanagedBitmap<Bgra32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
 
-            Parallel.For(spanInfo.Top, spanInfo.Bottom, y =>
+            Parallel.For(0, unmanagedBitmap.Height, y =>
             {
                 unsafe {
-                    var argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize);
+                    var argb32 = unmanagedBitmap[y];
                     Span<Bgra32> averages = stackalloc Bgra32[range];
                     var a = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
                     var hits = halfRange;
-                    var lineOffset = y * spanInfo.PixelStride;
-                    for (var x = spanInfo.Left; x < spanInfo.Left + halfRange; x++)
+                    for (var x = 0; x < halfRange; x++)
                     {
-                        ref Bgra32 color = ref argb32[x + lineOffset];
+                        ref Bgra32 color = ref argb32[x];
                         a += color.A;
                         r += color.R;
                         g += color.G;
                         b += color.B;
                     }
-                    for (var x = spanInfo.Left; x < spanInfo.Right; x++)
+                    for (var x = 0; x < unmanagedBitmap.Width; x++)
                     {
                         var leftSide = x - halfRange - 1;
-                        if (leftSide >= spanInfo.Left)
+                        if (leftSide >= 0)
                         {
                             // Get value at the left side of range
-                            ref Bgra32 color = ref argb32[leftSide + lineOffset];
+                            ref Bgra32 color = ref argb32[leftSide];
                             a -= color.A;
                             r -= color.R;
                             g -= color.G;
@@ -316,9 +257,9 @@ namespace Greenshot.Gfx.Experimental
                         }
 
                         var rightSide = x + halfRange;
-                        if (rightSide < spanInfo.Right)
+                        if (rightSide < unmanagedBitmap.Width)
                         {
-                            ref Bgra32 color = ref argb32[rightSide + lineOffset];
+                            ref Bgra32 color = ref argb32[rightSide];
                             a += color.A;
                             r += color.R;
                             g += color.G;
@@ -332,12 +273,12 @@ namespace Greenshot.Gfx.Experimental
                         average.G = (byte)(g / hits);
                         average.B = (byte)(b / hits);
 
-                        if (leftSide >= spanInfo.Left)
+                        if (leftSide >= 0)
                         {
                             // Now we can write the value from the calculated avarages
-                            var readLocation = (leftSide % range);
+                            var readLocation = leftSide % range;
 
-                            argb32[leftSide + lineOffset] = averages[readLocation];
+                            argb32[leftSide] = averages[readLocation];
                         }
                     }
                 }
@@ -347,39 +288,38 @@ namespace Greenshot.Gfx.Experimental
         /// <summary>
         ///     BoxBlurVertical is a private helper method for the BoxBlur
         /// </summary>
-        /// <param name="spanInfo"></param>
+        /// <param name="unmanagedBitmap">UnmanagedBitmap</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurVerticalSpanAlpha(SpanInfo spanInfo, int range)
+        private static void BoxBlurVertical(UnmanagedBitmap<Bgra32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
-            Parallel.For(spanInfo.Left, spanInfo.Right, x =>
+            Parallel.For(0, unmanagedBitmap.Width, x =>
             {
-                Span<Bgra32> argb32;
-                unsafe { argb32 = new Span<Bgra32>((byte*)spanInfo.Pointer, spanInfo.BitmapSize); }
                 unsafe
                 {
+                    var argb32 = unmanagedBitmap.Span;
                     Span<Bgra32> averages = stackalloc Bgra32[range];
                     var hits = 0;
                     var a = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
-                    for (var y = spanInfo.Top; y < spanInfo.Top + halfRange; y++)
+                    for (var y = 0; y < halfRange; y++)
                     {
-                        ref Bgra32 color = ref argb32[x + (y * spanInfo.PixelStride)];
+                        ref Bgra32 color = ref argb32[x + (y * unmanagedBitmap.Width)];
                         a += color.A;
                         r += color.R;
                         g += color.G;
                         b += color.B;
                         hits++;
                     }
-                    for (var y = spanInfo.Top; y < spanInfo.Bottom; y++)
+                    for (var y = 0; y < unmanagedBitmap.Height; y++)
                     {
                         var topSide = y - halfRange - 1;
-                        if (topSide >= spanInfo.Top)
+                        if (topSide >= 0)
                         {
                             // Get value at the top side of range
-                            ref Bgra32 color = ref argb32[x + (topSide * spanInfo.PixelStride)];
+                            ref Bgra32 color = ref argb32[x + (topSide * unmanagedBitmap.Width)];
                             a -= color.A;
                             r -= color.R;
                             g -= color.G;
@@ -388,9 +328,9 @@ namespace Greenshot.Gfx.Experimental
                         }
 
                         var bottomSide = y + halfRange;
-                        if (bottomSide < spanInfo.Bottom)
+                        if (bottomSide < unmanagedBitmap.Height)
                         {
-                            ref Bgra32 color = ref argb32[x + (bottomSide * spanInfo.PixelStride)];
+                            ref Bgra32 color = ref argb32[x + (bottomSide * unmanagedBitmap.Width)];
                             a += color.A;
                             r += color.R;
                             g += color.G;
@@ -404,12 +344,12 @@ namespace Greenshot.Gfx.Experimental
                         average.G = (byte)(g / hits);
                         average.B = (byte)(b / hits);
 
-                        if (topSide >= spanInfo.Top)
+                        if (topSide >= 0)
                         {
                             // Write the value from the calculated avarages
                             var readLocation = (topSide % range);
 
-                            argb32[x + (topSide * spanInfo.PixelStride)] = averages[readLocation];
+                            argb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
                         }
                     }
                 }

@@ -33,7 +33,7 @@
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="Svg">
-      <Version>2.4.1</Version>
+      <Version>2.4.2</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

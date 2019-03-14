@@ -22,12 +22,14 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace Greenshot.Gfx.Experimental.Structs
+namespace Greenshot.Gfx.Structs
 {
     /// <summary>
     /// A struct with the BGR values for a 32bit pixel
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct Bgr32 : IEquatable<Bgr32>
     {
         /// <summary>
