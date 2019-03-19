@@ -44,7 +44,6 @@ namespace Greenshot.Addon.Win10
             {
                 return;
             }
-            return;
             // InkCanvas
             inkCanvasHost = new WindowsXamlHost
             {

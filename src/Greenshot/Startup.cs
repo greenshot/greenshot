@@ -68,7 +68,7 @@ namespace Greenshot
             //LogSettings.ExceptionToStacktrace = exception => exception.ToStringDemystified();
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
+            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
 #endif
             var applicationConfig = ApplicationConfigBuilder
                 .Create()

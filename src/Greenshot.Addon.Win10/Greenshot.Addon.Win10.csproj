@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Win10</RootNamespace>
@@ -12,19 +12,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <Reference Include="Windows">
-      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.17763.0\Windows.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-    </Reference>
-  </ItemGroup>
-  
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <!-- Light up Windows 10 features -->
-    <Reference Include="Windows">
-      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.17763.0\Windows.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -56,7 +44,8 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.21" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.17" />
-    <PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview.19073.11" />
-    <PackageReference Include="Microsoft.Toolkit.Forms.UI.Controls" Version="6.0.0-preview1" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.17763.144-preview" />
+	<PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview3.19128.7" />
+    <PackageReference Include="Microsoft.Toolkit.Forms.UI.Controls" Version="6.0.0-preview3" />
   </ItemGroup>
 </Project>

@@ -104,7 +104,7 @@ namespace Greenshot.Addons.Resources
 	    {
 	        if (name.EndsWith(".Image"))
 	        {
-	            name = name + ".png";
+	            name += ".png";
 
 	        }
 	        using (var imageStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources",  name))
