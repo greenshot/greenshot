@@ -60,76 +60,67 @@ namespace Greenshot.Gfx
             var destinationWidth = destinationBitmap.Width;
             ReadOnlySpan<uint> sourceSpan = MemoryMarshal.Cast<TPixelLayout, uint>(sourceBitmap.Span);
             var destinationSpan = MemoryMarshal.Cast<TPixelLayout, uint>(destinationBitmap.Span);
-            unsafe
+            for (var y = 0; y < sourceBitmap.Height; y++)
             {
-                var colors = stackalloc uint[5];
-                var colorsE = stackalloc uint[4];
-                for (var y = 0; y < sourceBitmap.Height; y++)
+                var sourceYOffset = y * sourceWidth;
+                var destinationYOffset = (y << 1) * destinationWidth;
+                for (var x = 0; x < sourceWidth; x++)
                 {
-                    var sourceYOffset = y * sourceWidth;
-                    var destinationYOffset = (y << 1) * destinationWidth;
-                    for (var x = 0; x < sourceWidth; x++)
+                    var sourceOffset = sourceYOffset + x;
+                    ref readonly uint colorE = ref sourceSpan[sourceOffset];
+
+                    ref readonly uint colorB = ref colorE;
+                    if (y != 0)
                     {
-                        var sourceOffset = sourceYOffset + x;
-                        colors[ColorE] = sourceSpan[sourceOffset];
-
-                        if (y != 0)
-                        {
-                            colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorB] = colors[ColorE];
-                        }
-
-                        if (y != sourceBitmap.Height - 1)
-                        {
-                            colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorH] = colors[ColorE];
-                        }
-
-                        if (x > 0)
-                        {
-                            colors[ColorD] = sourceSpan[sourceOffset - 1];
-                        }
-                        else
-                        {
-                            colors[ColorD] = colors[ColorE];
-                        }
-
-                        if (x < sourceBitmap.Width - 1)
-                        {
-                            colors[ColorF] = sourceSpan[sourceOffset + 1];
-                        }
-                        else
-                        {
-                            colors[ColorF] = colors[ColorE];
-                        }
-
-                        if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
-                        {
-                            colorsE[3] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                            colorsE[2] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
-                            colorsE[1] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
-                        }
-                        else
-                        {
-                            colorsE[3] = colors[ColorE];
-                            colorsE[2] = colors[ColorE];
-                            colorsE[1] = colors[ColorE];
-                            colorsE[0] = colors[ColorE];
-                        }
-
-                        var destinationOffset = (x << 1) + destinationYOffset;
-                        destinationSpan[destinationOffset + 1 + destinationWidth] = colorsE[3];
-                        destinationSpan[destinationOffset + destinationWidth] = colorsE[2];
-                        destinationSpan[destinationOffset + 1] = colorsE[1];
-                        destinationSpan[destinationOffset] = colorsE[0];
+                        colorB = ref sourceSpan[sourceOffset - sourceWidth];
                     }
+
+                    ref readonly uint colorH = ref colorE;
+                    if (y != sourceBitmap.Height - 1)
+                    {
+                        colorH = ref sourceSpan[sourceOffset + sourceWidth];
+                    }
+
+                    ref readonly uint colorD = ref colorE;
+                    if (x > 0)
+                    {
+                        colorD = ref sourceSpan[sourceOffset - 1];
+                    }
+
+                    ref readonly uint colorF = ref colorE;
+                    if (x < sourceBitmap.Width - 1)
+                    {
+                        colorF = ref sourceSpan[sourceOffset + 1];
+                    }
+
+                    ref readonly uint colorE0 = ref colorE;
+                    ref readonly uint colorE1 = ref colorE;
+                    ref readonly uint colorE2 = ref colorE;
+                    ref readonly uint colorE3 = ref colorE;
+                    if (colorB != colorH && colorD != colorF)
+                    {
+                        if (colorH == colorF)
+                        {
+                            colorE3 = ref colorF;
+                        }
+                        if (colorD == colorH)
+                        {
+                            colorE2 = ref colorD;
+                        }
+                        if (colorB == colorF)
+                        {
+                            colorE1 = ref colorF;
+                        }
+                        if (colorD == colorB)
+                        {
+                            colorE0 = ref colorD;
+                        }
+                    }
+                    var destinationOffset = (x << 1) + destinationYOffset;
+                    destinationSpan[destinationOffset + 1 + destinationWidth] = colorE3;
+                    destinationSpan[destinationOffset + destinationWidth] = colorE2;
+                    destinationSpan[destinationOffset + 1] = colorE1;
+                    destinationSpan[destinationOffset] = colorE0;
                 }
             }
 
@@ -206,7 +197,7 @@ namespace Greenshot.Gfx
                         {
                             colors[ColorD] = colors[ColorE];
                         }
-                        
+
                         if (x < sourceWidth - 1)
                         {
                             colors[ColorF] = sourceSpan[sourceOffset + 1];

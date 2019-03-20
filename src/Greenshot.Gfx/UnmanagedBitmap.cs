@@ -36,12 +36,8 @@ namespace Greenshot.Gfx
     /// <typeparam name="TPixelLayout">struct for the pixel information</typeparam>
     public class UnmanagedBitmap<TPixelLayout> : IDisposable where TPixelLayout : unmanaged
     {
-        private readonly int _byteLength;
-        private readonly int _bytesPerPixel;
-        private readonly int _pixels;
         private readonly int _stride;
-        private bool _isDisposed;
-        private readonly IntPtr _hGlobal;
+        private IntPtr _hGlobal;
 
         /// <summary>
         /// Width of the bitmap
@@ -60,14 +56,13 @@ namespace Greenshot.Gfx
         /// <param name="height">int</param>
         public UnmanagedBitmap(int width, int height)
         {
-            _bytesPerPixel = Marshal.SizeOf<TPixelLayout>();
+            var bytesPerPixel = Marshal.SizeOf<TPixelLayout>();
             Width = width;
             Height = height;
-            _pixels = height * width;
-            _stride = _bytesPerPixel * width;
-            _byteLength = height * _stride;
-            _hGlobal = Marshal.AllocHGlobal(_byteLength);
-            GC.AddMemoryPressure(_byteLength);
+            _stride = bytesPerPixel * width;
+            var bytesAllocated = height * _stride;
+            _hGlobal = Marshal.AllocHGlobal(bytesAllocated);
+            GC.AddMemoryPressure(bytesAllocated);
         }
 
         /// <summary>
@@ -87,7 +82,10 @@ namespace Greenshot.Gfx
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// This returns a span with all the pixels
+        /// </summary>
+        /// <returns>Span of TPixelLayout for the line</returns>
         public Span<TPixelLayout> Span
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,7 +93,7 @@ namespace Greenshot.Gfx
             {
                 unsafe
                 {
-                    return new Span<TPixelLayout>(_hGlobal.ToPointer(), _pixels);
+                    return new Span<TPixelLayout>(_hGlobal.ToPointer(), Height * Width);
                 }
             }
         }
@@ -131,13 +129,13 @@ namespace Greenshot.Gfx
         /// </summary>
         public void Dispose()
         {
-            if (_isDisposed)
+            if (_hGlobal == IntPtr.Zero)
             {
                 return;
             }
-            _isDisposed = true;
             Marshal.FreeHGlobal(_hGlobal);
-            GC.RemoveMemoryPressure(_byteLength);
+            _hGlobal = IntPtr.Zero;
+            GC.RemoveMemoryPressure(Height * _stride);
         }
 
         #endregion
