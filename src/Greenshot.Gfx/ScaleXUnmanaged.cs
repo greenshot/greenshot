@@ -32,16 +32,6 @@ namespace Greenshot.Gfx
     /// </summary>
     public static class ScaleXUnmanaged
     {
-        private const byte ColorB = 0;
-        private const byte ColorD = 1;
-        private const byte ColorE = 4;
-        private const byte ColorF = 2;
-        private const byte ColorH = 3;
-        private const byte ColorA = 5;
-        private const byte ColorC = 6;
-        private const byte ColorG = 7;
-        private const byte ColorI = 8;
-
         /// <summary>
         /// Use "Scale2x" algorithm to produce bitmap from the original.
         /// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
@@ -139,6 +129,7 @@ namespace Greenshot.Gfx
             {
                 throw new NotSupportedException("Only 4 byte unmanaged structs are supported.");
             }
+            // Create destination bitmap, where the scaled image is written to
             var destinationBitmap = new UnmanagedBitmap<TPixelLayout>(sourceBitmap.Width * 3, sourceBitmap.Height * 3);
 
             ReadOnlySpan<uint> sourceSpan = MemoryMarshal.Cast<TPixelLayout, uint>(sourceBitmap.Span);
@@ -147,11 +138,8 @@ namespace Greenshot.Gfx
             var sourceWidth = sourceBitmap.Width;
             var destinationWidth = destinationBitmap.Width;
 
-            unsafe
+            unchecked
             {
-                var colors = stackalloc uint[9];
-                var colorsE = stackalloc uint[9];
-
                 for (var y = 0; y < sourceBitmap.Height; y++)
                 {
                     var sourceYOffset = y * sourceWidth;
@@ -159,125 +147,121 @@ namespace Greenshot.Gfx
                     for (var x = 0; x < sourceWidth; x++)
                     {
                         var sourceOffset = sourceYOffset + x;
-
-                        colors[ColorE] = sourceSpan[sourceOffset];
+                        ref readonly uint colorE = ref sourceSpan[sourceOffset];
+                        ref readonly uint colorA = ref colorE;
+                        ref readonly uint colorB = ref colorE;
+                        ref readonly uint colorC = ref colorE;
+                        ref readonly uint colorD = ref colorE;
+                        ref readonly uint colorF = ref colorE;
+                        ref readonly uint colorG = ref colorE;
+                        ref readonly uint colorH = ref colorE;
+                        ref readonly uint colorI = ref colorE;
 
                         if (y != 0 && x != 0)
                         {
-                            colors[ColorA] = sourceSpan[(sourceOffset - 1) - sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorA] = colors[ColorE];
+                            colorA = ref sourceSpan[sourceOffset - 1 - sourceWidth];
                         }
 
                         if (y != 0)
                         {
-                            colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorB] = colors[ColorE];
+                            colorB = ref sourceSpan[sourceOffset - sourceWidth];
                         }
 
                         if (x < sourceWidth - 1 && y != 0)
                         {
-                            colors[ColorC] = sourceSpan[(sourceOffset + 1) - sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorC] = colors[ColorE];
+                            colorC = ref sourceSpan[sourceOffset + 1 - sourceWidth];
                         }
 
                         if (x != 0)
                         {
-                            colors[ColorD] = sourceSpan[sourceOffset - 1];
-                        }
-                        else
-                        {
-                            colors[ColorD] = colors[ColorE];
+                            colorD = ref sourceSpan[sourceOffset - 1];
                         }
 
                         if (x < sourceWidth - 1)
                         {
-                            colors[ColorF] = sourceSpan[sourceOffset + 1];
-                        }
-                        else
-                        {
-                            colors[ColorF] = colors[ColorE];
+                            colorF = ref sourceSpan[sourceOffset + 1];
                         }
 
                         if (x != 0 && y < sourceBitmap.Height - 1)
                         {
-                            colors[ColorG] = sourceSpan[(sourceOffset - 1) + sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorG] = colors[ColorE];
+                            colorG = ref sourceSpan[sourceOffset - 1 + sourceWidth];
                         }
 
                         if (y < sourceBitmap.Height - 1)
                         {
-                            colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorH] = colors[ColorE];
+                            colorH = ref sourceSpan[sourceOffset + sourceWidth];
                         }
 
                         if (x < sourceWidth - 1 && y < sourceBitmap.Height - 1)
                         {
-                            colors[ColorI] = sourceSpan[sourceOffset + 1 + sourceWidth];
-                        }
-                        else
-                        {
-                            colors[ColorI] = colors[ColorE];
+                            colorI = ref sourceSpan[sourceOffset + 1 + sourceWidth];
                         }
 
-                        if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
+                        ref readonly uint colorE0 = ref colorE;
+                        ref readonly uint colorE1 = ref colorE;
+                        ref readonly uint colorE2 = ref colorE;
+                        ref readonly uint colorE3 = ref colorE;
+                        ref readonly uint colorE4 = ref colorE;
+                        ref readonly uint colorE5 = ref colorE;
+                        ref readonly uint colorE6 = ref colorE;
+                        ref readonly uint colorE7 = ref colorE;
+                        ref readonly uint colorE8 = ref colorE;
+                        if (colorB != colorH && colorD != colorF)
                         {
-                            colorsE[8] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                            colorsE[7] = colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorG] ? colors[ColorH] : colors[ColorE];
-                            colorsE[6] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
-                            colorsE[5] = colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorC] ? colors[ColorF] : colors[ColorE];
+                            if (colorH == colorF)
+                            {
+                                colorE8 = ref colorF;
+                            }
+                            if (colorD == colorH && colorE != colorI || colorH == colorF && colorE != colorG)
+                            {
+                                colorE7 = ref colorH;
+                            }
+                            if (colorD == colorH)
+                            {
+                                colorE6 = ref colorD;
+                            }
+                            if (colorB == colorF && colorE != colorI || colorH == colorF && colorE != colorC)
+                            {
+                                colorE5 = ref colorF;
+                            }
 
-                            colorsE[4] = colors[ColorE];
+                            if (colorD == colorB && colorE != colorG || colorD == colorH && colorE != colorA)
+                            {
+                                colorE3 = ref colorD;
+                            }
+                            if (colorB == colorF)
+                            {
+                                colorE2 = ref colorF;
+                            }
+                            if (colorD == colorB && colorE != colorC || colorB == colorF && colorE != colorA)
+                            {
+                                colorE1 = ref colorB;
+                            }
+                            if (colorD == colorB)
+                            {
+                                colorE0 = ref colorD;
+                            }
+                        }
 
-                            colorsE[3] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorG] || colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorA] ? colors[ColorD] : colors[ColorE];
-                            colorsE[2] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
-                            colorsE[1] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorC] || colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorA] ? colors[ColorB] : colors[ColorE];
-                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
-                        }
-                        else
-                        {
-                            colorsE[8] = colors[ColorE];
-                            colorsE[7] = colors[ColorE];
-                            colorsE[6] = colors[ColorE];
-                            colorsE[5] = colors[ColorE];
-                            colorsE[4] = colors[ColorE];
-                            colorsE[3] = colors[ColorE];
-                            colorsE[2] = colors[ColorE];
-                            colorsE[1] = colors[ColorE];
-                            colorsE[0] = colors[ColorE];
-                        }
                         var destinationOffset = x * 3 + destinationYOffset;
 
-                        destinationSpan[destinationOffset] = colorsE[0];
-                        destinationSpan[destinationOffset + 1] = colorsE[1];
-                        destinationSpan[destinationOffset + 2] = colorsE[2];
+                        destinationSpan[destinationOffset] = colorE0;
+                        destinationSpan[destinationOffset + 1] = colorE1;
+                        destinationSpan[destinationOffset + 2] = colorE2;
 
                         destinationOffset += destinationWidth;
-                        destinationSpan[destinationOffset] = colorsE[3];
-                        destinationSpan[destinationOffset + 1] = colorsE[4];
-                        destinationSpan[destinationOffset + 2] = colorsE[5];
+                        destinationSpan[destinationOffset] = colorE3;
+                        destinationSpan[destinationOffset + 1] = colorE4;
+                        destinationSpan[destinationOffset + 2] = colorE5;
 
                         destinationOffset += destinationWidth;
-                        destinationSpan[destinationOffset] = colorsE[6];
-                        destinationSpan[destinationOffset + 1] = colorsE[7];
-                        destinationSpan[destinationOffset + 2] = colorsE[8];
+                        destinationSpan[destinationOffset] = colorE6;
+                        destinationSpan[destinationOffset + 1] = colorE7;
+                        destinationSpan[destinationOffset + 2] = colorE8;
                     }
                 }
             }
+
             return destinationBitmap;
         }
     }

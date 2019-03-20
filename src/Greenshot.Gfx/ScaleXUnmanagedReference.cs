@@ -33,10 +33,13 @@ namespace Greenshot.Gfx
     {
         private const byte ColorB = 0;
         private const byte ColorD = 1;
-        private const byte ColorE = 2;
-        private const byte ColorF = 3;
-        private const byte ColorH = 4;
-
+        private const byte ColorE = 4;
+        private const byte ColorF = 2;
+        private const byte ColorH = 3;
+        private const byte ColorA = 5;
+        private const byte ColorC = 6;
+        private const byte ColorG = 7;
+        private const byte ColorI = 8;
 
         /// <summary>
         /// Use "Scale2x" algorithm to produce bitmap from the original.
@@ -123,6 +126,161 @@ namespace Greenshot.Gfx
                         destinationSpan[destinationOffset + 1] = colorsE[1];
                         destinationSpan[destinationOffset + destinationBitmap.Width] = colorsE[2];
                         destinationSpan[destinationOffset + 1 + destinationBitmap.Width] = colorsE[3];
+                    }
+                }
+            }
+            return destinationBitmap;
+        }
+
+
+        /// <summary>
+        /// Use "Scale3x" algorithm to produce bitmap from the original.
+        /// Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
+        /// </summary>
+        /// <param name="sourceBitmap">UnmanagedBitmap to scale 3x</param>
+        /// <returns>UnmanagedBitmap</returns>
+        public static UnmanagedBitmap<TPixelLayout> Scale3XReference<TPixelLayout>(this UnmanagedBitmap<TPixelLayout> sourceBitmap) where TPixelLayout : unmanaged
+        {
+            if (Marshal.SizeOf<TPixelLayout>() != 4)
+            {
+                throw new NotSupportedException("Only 4 byte unmanaged structs are supported.");
+            }
+            var destinationBitmap = new UnmanagedBitmap<TPixelLayout>(sourceBitmap.Width * 3, sourceBitmap.Height * 3);
+
+            ReadOnlySpan<uint> sourceSpan = MemoryMarshal.Cast<TPixelLayout, uint>(sourceBitmap.Span);
+            var destinationSpan = MemoryMarshal.Cast<TPixelLayout, uint>(destinationBitmap.Span);
+
+            var sourceWidth = sourceBitmap.Width;
+            var destinationWidth = destinationBitmap.Width;
+
+            unsafe
+            {
+                var colors = stackalloc uint[9];
+                var colorsE = stackalloc uint[9];
+
+                for (var y = 0; y < sourceBitmap.Height; y++)
+                {
+                    var sourceYOffset = y * sourceWidth;
+                    var destinationYOffset = y * 3 * destinationWidth;
+                    for (var x = 0; x < sourceWidth; x++)
+                    {
+                        var sourceOffset = sourceYOffset + x;
+
+                        colors[ColorE] = sourceSpan[sourceOffset];
+
+                        if (y != 0 && x != 0)
+                        {
+                            colors[ColorA] = sourceSpan[(sourceOffset - 1) - sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorA] = colors[ColorE];
+                        }
+
+                        if (y != 0)
+                        {
+                            colors[ColorB] = sourceSpan[sourceOffset - sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorB] = colors[ColorE];
+                        }
+
+                        if (x < sourceWidth - 1 && y != 0)
+                        {
+                            colors[ColorC] = sourceSpan[(sourceOffset + 1) - sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorC] = colors[ColorE];
+                        }
+
+                        if (x != 0)
+                        {
+                            colors[ColorD] = sourceSpan[sourceOffset - 1];
+                        }
+                        else
+                        {
+                            colors[ColorD] = colors[ColorE];
+                        }
+
+                        if (x < sourceWidth - 1)
+                        {
+                            colors[ColorF] = sourceSpan[sourceOffset + 1];
+                        }
+                        else
+                        {
+                            colors[ColorF] = colors[ColorE];
+                        }
+
+                        if (x != 0 && y < sourceBitmap.Height - 1)
+                        {
+                            colors[ColorG] = sourceSpan[(sourceOffset - 1) + sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorG] = colors[ColorE];
+                        }
+
+                        if (y < sourceBitmap.Height - 1)
+                        {
+                            colors[ColorH] = sourceSpan[sourceOffset + sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorH] = colors[ColorE];
+                        }
+
+                        if (x < sourceWidth - 1 && y < sourceBitmap.Height - 1)
+                        {
+                            colors[ColorI] = sourceSpan[sourceOffset + 1 + sourceWidth];
+                        }
+                        else
+                        {
+                            colors[ColorI] = colors[ColorE];
+                        }
+
+                        if (colors[ColorB] != colors[ColorH] && colors[ColorD] != colors[ColorF])
+                        {
+                            colorsE[8] = colors[ColorH] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[7] = colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorG] ? colors[ColorH] : colors[ColorE];
+                            colorsE[6] = colors[ColorD] == colors[ColorH] ? colors[ColorD] : colors[ColorE];
+                            colorsE[5] = colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorI] || colors[ColorH] == colors[ColorF] && colors[ColorE] != colors[ColorC] ? colors[ColorF] : colors[ColorE];
+
+                            colorsE[4] = colors[ColorE];
+
+                            colorsE[3] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorG] || colors[ColorD] == colors[ColorH] && colors[ColorE] != colors[ColorA] ? colors[ColorD] : colors[ColorE];
+                            colorsE[2] = colors[ColorB] == colors[ColorF] ? colors[ColorF] : colors[ColorE];
+                            colorsE[1] = colors[ColorD] == colors[ColorB] && colors[ColorE] != colors[ColorC] || colors[ColorB] == colors[ColorF] && colors[ColorE] != colors[ColorA] ? colors[ColorB] : colors[ColorE];
+                            colorsE[0] = colors[ColorD] == colors[ColorB] ? colors[ColorD] : colors[ColorE];
+                        }
+                        else
+                        {
+                            colorsE[8] = colors[ColorE];
+                            colorsE[7] = colors[ColorE];
+                            colorsE[6] = colors[ColorE];
+                            colorsE[5] = colors[ColorE];
+                            colorsE[4] = colors[ColorE];
+                            colorsE[3] = colors[ColorE];
+                            colorsE[2] = colors[ColorE];
+                            colorsE[1] = colors[ColorE];
+                            colorsE[0] = colors[ColorE];
+                        }
+                        var destinationOffset = x * 3 + destinationYOffset;
+
+                        destinationSpan[destinationOffset] = colorsE[0];
+                        destinationSpan[destinationOffset + 1] = colorsE[1];
+                        destinationSpan[destinationOffset + 2] = colorsE[2];
+
+                        destinationOffset += destinationWidth;
+                        destinationSpan[destinationOffset] = colorsE[3];
+                        destinationSpan[destinationOffset + 1] = colorsE[4];
+                        destinationSpan[destinationOffset + 2] = colorsE[5];
+
+                        destinationOffset += destinationWidth;
+                        destinationSpan[destinationOffset] = colorsE[6];
+                        destinationSpan[destinationOffset + 1] = colorsE[7];
+                        destinationSpan[destinationOffset + 2] = colorsE[8];
                     }
                 }
             }
