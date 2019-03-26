@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,13 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Dapplo.Log;
 using Greenshot.Addons;
@@ -34,8 +27,7 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Forms;
 using Greenshot.Addons.Resources;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.LegacyEditor
 {
@@ -49,7 +41,7 @@ namespace Greenshot.Addon.LegacyEditor
 	    private readonly EditorFactory _editorFactory;
 	    private readonly IEditorLanguage _editorLanguage;
 	    private static readonly LogSource Log = new LogSource();
-		private static readonly Bitmap greenshotIcon = GreenshotResources.Instance.GetGreenshotIcon().ToBitmap();
+		private static readonly IBitmapWithNativeSupport greenshotIcon = BitmapWrapper.FromBitmap(GreenshotResources.Instance.GetGreenshotIcon().ToBitmap());
 	    private readonly IImageEditor _editor;
 
         /// <summary>
@@ -93,7 +85,7 @@ namespace Greenshot.Addon.LegacyEditor
 
 	    public override bool IsDynamic => true;
 
-	    public override Bitmap DisplayIcon => greenshotIcon;
+	    public override IBitmapWithNativeSupport DisplayIcon => greenshotIcon;
 
 	    public override IEnumerable<IDestination> DynamicDestinations()
 		{

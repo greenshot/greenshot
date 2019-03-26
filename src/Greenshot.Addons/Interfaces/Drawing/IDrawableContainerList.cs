@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,18 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
@@ -52,7 +45,7 @@ namespace Greenshot.Addons.Interfaces.Drawing
 		void OnDoubleClick();
 		bool HasIntersectingFilters(NativeRect clipRectangle);
 		bool IntersectsWith(NativeRect clipRectangle);
-		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle);
+		void Draw(Graphics g, IBitmapWithNativeSupport bitmap, RenderMode renderMode, NativeRect clipRectangle);
 		void Invalidate();
 		void PullElementsToTop(IDrawableContainerList elements);
 		bool CanPushDown(IDrawableContainerList elements);

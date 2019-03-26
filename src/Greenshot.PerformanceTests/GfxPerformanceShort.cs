@@ -19,7 +19,7 @@ namespace Greenshot.PerformanceTests
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));

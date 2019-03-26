@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,52 +17,69 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Svg;
 
-#endregion
 
 namespace Greenshot.Gfx
 {
 	/// <summary>
 	///     Create an image look like of the SVG
 	/// </summary>
-	public class SvgBitmap : IBitmap
+	public class SvgBitmap : IBitmapWithNativeSupport
 	{
 		private readonly SvgDocument _svgDocument;
 
 		private Bitmap _imageClone;
 
-		/// <summary>
-		///     Default constructor
-		/// </summary>
-		/// <param name="stream"></param>
-		public SvgBitmap(Stream stream)
+        /// <inheritdoc />
+        /// <param name="stream">Stream</param>
+        /// <param name="width">int</param>
+        /// <param name="height">int</param>
+        public SvgBitmap(Stream stream, int? width = null, int? height = null) : this(SvgDocument.Open<SvgDocument>(stream), width, height)
 		{
-			_svgDocument = SvgDocument.Open<SvgDocument>(stream);
-		    if ((int) _svgDocument.ViewBox.Height == 0)
-		    {
-		        Height = (int)_svgDocument.Height;
+        }
+        
+        /// <summary>
+        ///     Default constructor
+        /// </summary>
+        /// <param name="svgDocument">SvgDocument</param>
+        /// <param name="width">int</param>
+        /// <param name="height">int</param>
+        public SvgBitmap(SvgDocument svgDocument, int? width = null, int? height = null)
+        {
+            _svgDocument = svgDocument;
+            if ((int) _svgDocument.ViewBox.Height == 0)
+            {
+                Height = (int)_svgDocument.Height;
             }
-		    else
-		    {
-		        Height = (int)_svgDocument.ViewBox.Height;
+            else
+            {
+                Height = (int)_svgDocument.ViewBox.Height;
             }
-		    if ((int)_svgDocument.ViewBox.Width == 0)
-		    {
-		        Width = (int)_svgDocument.Width;
-		    }
-		    else
-		    {
-		        Width = (int)_svgDocument.ViewBox.Width;
-		    }
-		}
+            if ((int)_svgDocument.ViewBox.Width == 0)
+            {
+                Width = (int)_svgDocument.Width;
+            }
+            else
+            {
+                Width = (int)_svgDocument.ViewBox.Width;
+            }
+
+            if (width.HasValue)
+            {
+                Width = width.Value;
+            }
+            if (height.HasValue)
+            {
+                Height = height.Value;
+            }
+
+            // Generate the native bitmap
+            GenerateNativeBitmap();
+        }
 
 		/// <summary>
 		///     Height of the image, can be set to change
@@ -77,43 +92,46 @@ namespace Greenshot.Gfx
 		public int Width { get; set; }
 
 		/// <summary>
-		///     Size of the image
+		///     PixelFormat of the underlying image
 		/// </summary>
-		public Size Size => new Size(Width, Height);
-
-		/// <summary>
-		///     Pixelformat of the underlying image
-		/// </summary>
-		public PixelFormat PixelFormat => Bitmap.PixelFormat;
+		public PixelFormat PixelFormat => _imageClone.PixelFormat;
 
 		/// <summary>
 		///     Horizontal resolution of the underlying image
 		/// </summary>
-		public float HorizontalResolution => Bitmap.HorizontalResolution;
+		public float HorizontalResolution => _imageClone.HorizontalResolution;
 
 		/// <summary>
 		///     Vertical resolution of the underlying image
 		/// </summary>
-		public float VerticalResolution => Bitmap.VerticalResolution;
+		public float VerticalResolution => _imageClone.VerticalResolution;
 
-		/// <summary>
-		///     Unterlying image, or an on demand rendered version with different attributes as the original
-		/// </summary>
-		public Bitmap Bitmap
+        /// <summary>
+        ///     Underlying image, or an on demand rendered version with different attributes as the original
+        /// </summary>
+        public Bitmap NativeBitmap => GenerateNativeBitmap();
+
+        private Bitmap GenerateNativeBitmap()
         {
-			get
-			{
-				if (_imageClone?.Height == Height && _imageClone?.Width == Width)
-				{
-					return _imageClone;
-				}
-				// Calculate new image clone
-				_imageClone?.Dispose();
-				_imageClone = BitmapFactory.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent, 96, 96);
-				_svgDocument.Draw(_imageClone);
-				return _imageClone;
-			}
-		}
+            if (_imageClone?.Height == Height && _imageClone?.Width == Width)
+            {
+                return _imageClone;
+            }
+
+            // Calculate new image clone
+            _imageClone?.Dispose();
+            var emptyBitmap = BitmapFactory.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent, 96, 96);
+            _imageClone = emptyBitmap.NativeBitmap;
+            _svgDocument.Draw(_imageClone);
+            return _imageClone;
+        }
+
+        public Size Size => new Size(Width, Height);
+
+        public void DisposeNativeBitmap(Bitmap nativeBitmap)
+        {
+            // do nothing, we need this
+        }
 
 		/// <summary>
 		///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -123,14 +141,16 @@ namespace Greenshot.Gfx
 			_imageClone?.Dispose();
 		}
 
-		/// <summary>
-		///     Factory to create via a stream
-		/// </summary>
-		/// <param name="stream">Stream</param>
-		/// <returns>IBitmap</returns>
-		public static IBitmap FromStream(Stream stream)
+        /// <summary>
+        ///     Factory to create via a stream
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="width">int optional</param>
+        /// <param name="height">int optional</param>
+        /// <returns>IBitmap</returns>
+        public static IBitmapWithNativeSupport FromStream(Stream stream, int? width = null, int? height = null)
 		{
-			return new SvgBitmap(stream);
+			return new SvgBitmap(stream, width, height);
 		}
 	}
 }

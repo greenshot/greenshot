@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Greenshot.Gfx.FastBitmap;
@@ -38,7 +33,7 @@ namespace Greenshot.Gfx
         /// </summary>
         /// <param name="destinationBitmap">Bitmap to blur</param>
         /// <param name="range">Must be ODD, if not +1 is used</param>
-        public static void ApplyBoxBlur(this Bitmap destinationBitmap, int range)
+        public static void ApplyBoxBlur(this IBitmapWithNativeSupport destinationBitmap, int range)
         {
             // We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
             using (var fastBitmap = FastBitmapFactory.Create(destinationBitmap))

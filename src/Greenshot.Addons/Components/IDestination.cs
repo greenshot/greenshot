@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,20 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using Dapplo.Windows.Dpi;
 using Greenshot.Addons.Interfaces;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addons.Components
 {
@@ -54,7 +46,7 @@ namespace Greenshot.Addons.Components
 		/// <summary>
 		///     Gets an icon for the destination
 		/// </summary>
-		Bitmap DisplayIcon { get; }
+        IBitmapWithNativeSupport DisplayIcon { get; }
 
 	    /// <summary>
 	    ///     Gets an icon for the destination
@@ -64,7 +56,7 @@ namespace Greenshot.Addons.Components
         /// <summary>
         ///     Gets an icon for the destination, optionally it's already scaled
         /// </summary>
-        Bitmap GetDisplayIcon(double dpi);
+        IBitmapWithNativeSupport GetDisplayIcon(double dpi);
 
 		/// <summary>
 		/// Returns if there is a displayIcon
@@ -104,7 +96,7 @@ namespace Greenshot.Addons.Components
 		/// <param name="destinationClickHandler">Handler which is called when clicked</param>
 		/// <param name="bitmapScaleHandler">BitmapScaleHandler can be used for scaling icons</param>
 		/// <returns>ToolStripMenuItem</returns>
-		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> bitmapScaleHandler);
+		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination, IBitmapWithNativeSupport> bitmapScaleHandler);
 
 		/// <summary>
 		///     Gets the dynamic destinations

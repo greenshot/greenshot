@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,8 +24,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -51,7 +43,7 @@ namespace Greenshot.Gfx.Effects
 
         public bool GenerateShadow { get; set; } = true;
 
-		public override Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+		public override IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			var tmpTornImage = CreateTornEdge(sourceBitmap, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
 		    if (!GenerateShadow)
@@ -91,7 +83,7 @@ namespace Greenshot.Gfx.Effects
 	    ///     0=top,1=right,2=bottom,3=left
 	    /// </param>
 	    /// <returns>Changed bitmap</returns>
-	    public static Bitmap CreateTornEdge(Bitmap sourceBitmap, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
+	    public static IBitmapWithNativeSupport CreateTornEdge(IBitmapWithNativeSupport sourceBitmap, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
 	    {
 	        var returnBitmap = BitmapFactory.CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
 	        using (var path = new GraphicsPath())
@@ -186,13 +178,13 @@ namespace Greenshot.Gfx.Effects
 	            path.CloseFigure();
 
 	            // Draw the created figure with the original image by using a TextureBrush so we have anti-aliasing
-	            using (var graphics = Graphics.FromImage(returnBitmap))
+	            using (var graphics = Graphics.FromImage(returnBitmap.NativeBitmap))
 	            {
 	                graphics.SmoothingMode = SmoothingMode.HighQuality;
 	                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 	                graphics.CompositingQuality = CompositingQuality.HighQuality;
 	                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-	                using (Brush brush = new TextureBrush(sourceBitmap))
+	                using (Brush brush = new TextureBrush(sourceBitmap.NativeBitmap))
 	                {
 	                    // Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
 	                    graphics.FillPath(brush, path);

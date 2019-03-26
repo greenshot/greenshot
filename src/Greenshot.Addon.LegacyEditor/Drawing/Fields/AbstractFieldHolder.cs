@@ -25,7 +25,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Log;
-using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
@@ -136,8 +135,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 			return GetField(fieldType)?.Value;
 		}
 
-		#region convenience methods to save us some casts outside
-		public string GetFieldValueAsString(IFieldType fieldType)
+        public string GetFieldValueAsString(IFieldType fieldType)
 		{
 			return Convert.ToString(GetFieldValue(fieldType));
 		}
@@ -171,9 +169,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 		{
 			return (Color)(GetFieldValue(fieldType) ?? defaultColor);
 		}
-		#endregion
 
-		public bool HasField(IFieldType fieldType)
+        public bool HasField(IFieldType fieldType)
 		{
 			return _fieldsByType.ContainsKey(fieldType);
 		}

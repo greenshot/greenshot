@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -36,9 +30,9 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Greenshot.Gfx.Effects;
+using Greenshot.Gfx.Extensions;
 using Greenshot.Gfx.FastBitmap;
-
-#endregion
+using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Gfx
 {
@@ -53,7 +47,7 @@ namespace Greenshot.Gfx
         /// <summary>
         /// A function which usage image.fromstream
         /// </summary>
-        public static readonly Func<Stream, string, Bitmap> FromStreamReader = (stream, s) =>
+        public static readonly Func<Stream, string, IBitmapWithNativeSupport> FromStreamReader = (stream, s) =>
 	    {
 	        using (var tmpImage = Image.FromStream(stream, true, true))
 	        {
@@ -82,7 +76,7 @@ namespace Greenshot.Gfx
 				stream.Position = 0;
 				try
 				{
-					return SvgBitmap.FromStream(stream).Bitmap;
+					return SvgBitmap.FromStream(stream);
 				}
 				catch (Exception ex)
 				{
@@ -131,7 +125,7 @@ namespace Greenshot.Gfx
 			};
 		}
 
-		public static IDictionary<string, Func<Stream, string, Bitmap>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Bitmap>>(StringComparer.OrdinalIgnoreCase);
+		public static IDictionary<string, Func<Stream, string, IBitmapWithNativeSupport>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, IBitmapWithNativeSupport>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		///     Make sure the image is orientated correctly
@@ -198,7 +192,7 @@ namespace Greenshot.Gfx
         /// <param name="maxWidth">int</param>
         /// <param name="maxHeight">int</param>
         /// <returns></returns>
-        public static Bitmap CreateThumbnail(this Image image, int thumbWidth, int thumbHeight, int maxWidth = -1, int maxHeight = -1)
+        public static IBitmapWithNativeSupport CreateThumbnail(this IBitmapWithNativeSupport image, int thumbWidth, int thumbHeight, int maxWidth = -1, int maxHeight = -1)
 		{
 			var srcWidth = image.Width;
 			var srcHeight = image.Height;
@@ -221,15 +215,15 @@ namespace Greenshot.Gfx
 				thumbWidth = (int) (thumbHeight * (srcWidth / (float) srcHeight));
 			}
 
-			var bmp = new Bitmap(thumbWidth, thumbHeight);
-			using (var graphics = Graphics.FromImage(bmp))
+            IBitmapWithNativeSupport bmp = new UnmanagedBitmap<Bgra32>(thumbWidth, thumbHeight, image.HorizontalResolution, image.VerticalResolution);
+			using (var graphics = Graphics.FromImage(bmp.NativeBitmap))
 			{
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				var rectDestination = new NativeRect(0, 0, thumbWidth, thumbHeight);
-				graphics.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);
+				graphics.DrawImage(image.NativeBitmap, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);
 			}
 			return bmp;
 		}
@@ -239,7 +233,7 @@ namespace Greenshot.Gfx
         /// </summary>
         /// <param name="bitmap">Bitmap to crop</param>
         /// <param name="cropRectangle">NativeRect with bitmap coordinates, will be "intersected" to the bitmap</param>
-        public static bool Crop(ref Bitmap bitmap, ref NativeRect cropRectangle)
+        public static bool Crop(ref IBitmapWithNativeSupport bitmap, ref NativeRect cropRectangle)
 		{
 			if (bitmap.Width * bitmap.Height > 0)
 			{
@@ -347,7 +341,7 @@ namespace Greenshot.Gfx
 		/// <param name="image"></param>
 		/// <param name="cropDifference"></param>
 		/// <returns>NativeRect</returns>
-		public static NativeRect FindAutoCropRectangle(this Image image, int cropDifference)
+		public static NativeRect FindAutoCropRectangle(this IBitmapWithNativeSupport image, int cropDifference)
 		{
 			var cropRectangle = NativeRect.Empty;
 			var checkPoints = new List<NativePoint>
@@ -361,7 +355,7 @@ namespace Greenshot.Gfx
 			// Bottom Left
 			// Top Right
 			// Bottom Right
-			using (var fastBitmap = FastBitmapFactory.Create((Bitmap) image))
+			using (var fastBitmap = FastBitmapFactory.Create(image))
 			{
 				// find biggest area
 				foreach (var checkPoint in checkPoints)
@@ -381,7 +375,7 @@ namespace Greenshot.Gfx
 		/// </summary>
 		/// <param name="filename"></param>
 		/// <returns></returns>
-		public static Bitmap LoadBitmap(string filename)
+		public static IBitmapWithNativeSupport LoadBitmap(string filename)
 		{
 			if (string.IsNullOrEmpty(filename))
 			{
@@ -391,7 +385,7 @@ namespace Greenshot.Gfx
 			{
 				return null;
 			}
-			Bitmap fileBitmap;
+            IBitmapWithNativeSupport fileBitmap;
 			Log.Info().WriteLine("Loading image from file {0}", filename);
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename))
@@ -412,11 +406,11 @@ namespace Greenshot.Gfx
 		/// </summary>
 		/// <param name="iconStream">Stream with the icon information</param>
 		/// <returns>Bitmap with the Vista Icon (256x256)</returns>
-		private static Bitmap ExtractVistaIcon(this Stream iconStream)
+		private static IBitmapWithNativeSupport ExtractVistaIcon(this Stream iconStream)
 		{
 			const int sizeIconDir = 6;
 			const int sizeIconDirEntry = 16;
-			Bitmap bmpPngExtracted = null;
+            IBitmapWithNativeSupport bmpPngExtracted = null;
 			try
 			{
 				var srcBuf = new byte[iconStream.Length];
@@ -436,7 +430,7 @@ namespace Greenshot.Gfx
 				    {
 				        destStream.Write(srcBuf, iImageOffset, iImageSize);
 				        destStream.Seek(0, SeekOrigin.Begin);
-				        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+				        bmpPngExtracted = BitmapWrapper.FromBitmap(new Bitmap(destStream)); // This is PNG! :)
 				    }
 				    break;
 				}
@@ -455,7 +449,7 @@ namespace Greenshot.Gfx
 		/// <param name="effect">IEffect</param>
 		/// <param name="matrix">Matrix</param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap ApplyEffect(this Bitmap sourceBitmap, IEffect effect, Matrix matrix)
+		public static IBitmapWithNativeSupport ApplyEffect(this IBitmapWithNativeSupport sourceBitmap, IEffect effect, Matrix matrix)
 		{
 			var effects = new List<IEffect> {effect};
 			return sourceBitmap.ApplyEffects(effects, matrix);
@@ -468,7 +462,7 @@ namespace Greenshot.Gfx
 	    /// <param name="effects">List of IEffect</param>
 	    /// <param name="matrix">Matrix</param>
 	    /// <returns>Bitmap</returns>
-	    public static Bitmap ApplyEffects(this Bitmap sourceBitmap, IEnumerable<IEffect> effects, Matrix matrix)
+	    public static IBitmapWithNativeSupport ApplyEffects(this IBitmapWithNativeSupport sourceBitmap, IEnumerable<IEffect> effects, Matrix matrix)
 		{
 			var currentImage = sourceBitmap;
 			var disposeImage = false;
@@ -527,7 +521,7 @@ namespace Greenshot.Gfx
 		///     location
 		/// </param>
 		/// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-		public static Bitmap CreateShadow(this Image sourceBitmap, float darkness, int shadowSize, NativePoint shadowOffset, Matrix matrix, PixelFormat targetPixelformat)
+		public static IBitmapWithNativeSupport CreateShadow(this IBitmapWithNativeSupport sourceBitmap, float darkness, int shadowSize, NativePoint shadowOffset, Matrix matrix, PixelFormat targetPixelformat)
 		{
 		    var offset = shadowOffset.Offset(shadowSize - 1, shadowSize - 1);
 			matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
@@ -549,7 +543,7 @@ namespace Greenshot.Gfx
 			};
 			
 			var shadowRectangle = new NativeRect(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
-			ApplyColorMatrix((Bitmap) sourceBitmap, NativeRect.Empty, returnImage, shadowRectangle, maskMatrix);
+			ApplyColorMatrix(sourceBitmap, NativeRect.Empty, returnImage, shadowRectangle, maskMatrix);
 
 			// blur "shadow", apply to whole new image
 
@@ -557,15 +551,15 @@ namespace Greenshot.Gfx
 			returnImage.ApplyBoxBlur(shadowSize);
 
 			// Draw the original image over the shadow
-			using (var graphics = Graphics.FromImage(returnImage))
+			using (var graphics = Graphics.FromImage(sourceBitmap.NativeBitmap))
 			{
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				// draw original with a TextureBrush so we have nice antialiasing!
-				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp))
+				// draw original with a TextureBrush so we have nice anti-aliasing!
+				using (Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp))
 				{
 					// We need to do a translate-transform otherwise the image is wrapped
 					graphics.TranslateTransform(offset.X, offset.Y);
@@ -580,7 +574,7 @@ namespace Greenshot.Gfx
 		/// </summary>
 		/// <param name="source">Image to apply matrix to</param>
 		/// <param name="colorMatrix">ColorMatrix to apply</param>
-		public static void ApplyColorMatrix(this Bitmap source, ColorMatrix colorMatrix)
+		public static void ApplyColorMatrix(this IBitmapWithNativeSupport source, ColorMatrix colorMatrix)
 		{
 			source.ApplyColorMatrix(NativeRect.Empty, source, NativeRect.Empty, colorMatrix);
 		}
@@ -593,13 +587,13 @@ namespace Greenshot.Gfx
 		/// <param name="destRect">NativeRect to copy to</param>
 		/// <param name="dest">Image to copy to</param>
 		/// <param name="colorMatrix">ColorMatrix to apply</param>
-		public static void ApplyColorMatrix(this Bitmap source, NativeRect sourceRect, Bitmap dest, NativeRect destRect, ColorMatrix colorMatrix)
+		public static void ApplyColorMatrix(this IBitmapWithNativeSupport source, NativeRect sourceRect, IBitmapWithNativeSupport dest, NativeRect destRect, ColorMatrix colorMatrix)
 		{
 			using (var imageAttributes = new ImageAttributes())
 			{
 				imageAttributes.ClearColorMatrix();
 				imageAttributes.SetColorMatrix(colorMatrix);
-				source.ApplyImageAttributes(sourceRect, dest, destRect, imageAttributes);
+                source.ApplyImageAttributes(sourceRect, dest, destRect, imageAttributes);
 			}
 		}
 
@@ -608,9 +602,9 @@ namespace Greenshot.Gfx
 		/// </summary>
 		/// <param name="source">Image to apply matrix to</param>
 		/// <param name="imageAttributes">ImageAttributes to apply</param>
-		public static void ApplyColorMatrix(this Bitmap source, ImageAttributes imageAttributes)
+		public static void ApplyColorMatrix(this IBitmapWithNativeSupport source, ImageAttributes imageAttributes)
 		{
-			source.ApplyImageAttributes(NativeRect.Empty, source, NativeRect.Empty, imageAttributes);
+            source.ApplyImageAttributes(NativeRect.Empty, source, NativeRect.Empty, imageAttributes);
 		}
 
 		/// <summary>
@@ -621,7 +615,7 @@ namespace Greenshot.Gfx
 		/// <param name="destRect">NativeRect to copy to</param>
 		/// <param name="dest">Image to copy to</param>
 		/// <param name="imageAttributes">ImageAttributes to apply</param>
-		public static void ApplyImageAttributes(this Bitmap source, NativeRect sourceRect, Bitmap dest, NativeRect destRect, ImageAttributes imageAttributes)
+		public static void ApplyImageAttributes(this IBitmapWithNativeSupport source, NativeRect sourceRect, IBitmapWithNativeSupport dest, NativeRect destRect, ImageAttributes imageAttributes)
 		{
 			if (sourceRect == NativeRect.Empty)
 			{
@@ -635,7 +629,7 @@ namespace Greenshot.Gfx
 			{
 				destRect = new NativeRect(0, 0, dest.Width, dest.Height);
 			}
-			using (var graphics = Graphics.FromImage(dest))
+			using (var graphics = Graphics.FromImage(dest.NativeBitmap))
 			{
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -644,7 +638,7 @@ namespace Greenshot.Gfx
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingMode = CompositingMode.SourceCopy;
 
-				graphics.DrawImage(source, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
+				graphics.DrawImage(source.NativeBitmap, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
 			}
 		}
 
@@ -653,7 +647,7 @@ namespace Greenshot.Gfx
 		/// </summary>
 		/// <param name="image">bitmap to check</param>
 		/// <returns>bool if we support it</returns>
-		public static bool IsPixelFormatSupported(this Image image)
+		public static bool IsPixelFormatSupported(this IBitmapWithNativeSupport image)
 		{
 			return image.PixelFormat.IsPixelFormatSupported();
 		}
@@ -678,10 +672,10 @@ namespace Greenshot.Gfx
 		/// <param name="sourceBitmap">Image</param>
 		/// <param name="rotateFlipType">RotateFlipType</param>
 		/// <returns>Image</returns>
-		public static Bitmap ApplyRotateFlip(this Bitmap sourceBitmap, RotateFlipType rotateFlipType)
+		public static IBitmapWithNativeSupport ApplyRotateFlip(this IBitmapWithNativeSupport sourceBitmap, RotateFlipType rotateFlipType)
 		{
 			var returnImage = sourceBitmap.CloneBitmap();
-			returnImage.RotateFlip(rotateFlipType);
+			returnImage.NativeBitmap.RotateFlip(rotateFlipType);
 			return returnImage;
 		}
 
@@ -692,7 +686,7 @@ namespace Greenshot.Gfx
         /// <param name="sourceImage">Image</param>
         /// <param name="percent">1-99 to make smaller, use 101 and more to make the picture bigger</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap ScaleByPercent(this Image sourceImage, int percent)
+        public static IBitmapWithNativeSupport ScaleByPercent(this IBitmapWithNativeSupport sourceImage, int percent)
 		{
 			var nPercent = (float) percent / 100;
 
@@ -702,10 +696,10 @@ namespace Greenshot.Gfx
 			var destHeight = (int) (sourceHeight * nPercent);
 
 			var scaledBitmap = BitmapFactory.CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-			using (var graphics = Graphics.FromImage(scaledBitmap))
+			using (var graphics = Graphics.FromImage(scaledBitmap.NativeBitmap))
 			{
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.DrawImage(sourceImage, new NativeRect(0, 0, destWidth, destHeight), new NativeRect(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+				graphics.DrawImage(sourceImage.NativeBitmap, new NativeRect(0, 0, destWidth, destHeight), new NativeRect(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
 			}
 			return scaledBitmap;
 		}
@@ -721,14 +715,14 @@ namespace Greenshot.Gfx
         /// <param name="bottom">int</param>
         /// <param name="matrix">Matrix</param>
         /// <returns>a new bitmap with the source copied on it</returns>
-        public static Bitmap ResizeCanvas(this Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix)
+        public static IBitmapWithNativeSupport ResizeCanvas(this IBitmapWithNativeSupport sourceImage, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix)
 		{
 			matrix.Translate(left, top, MatrixOrder.Append);
 			var newBitmap = BitmapFactory.CreateEmpty(sourceImage.Width + left + right, sourceImage.Height + top + bottom, sourceImage.PixelFormat, backgroundColor,
 				sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-			using (var graphics = Graphics.FromImage(newBitmap))
+			using (var graphics = Graphics.FromImage(newBitmap.NativeBitmap))
 			{
-				graphics.DrawImageUnscaled(sourceImage, left, top);
+				graphics.DrawImageUnscaled(sourceImage.NativeBitmap, left, top);
 			}
 			return newBitmap;
 		}
@@ -743,7 +737,7 @@ namespace Greenshot.Gfx
         /// <param name="matrix">Matrix</param>
         /// <param name="interpolationMode">InterpolationMode</param>
         /// <returns>Image</returns>
-        public static Bitmap Resize(this Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
+        public static IBitmapWithNativeSupport Resize(this IBitmapWithNativeSupport sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
 			return Resize(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix, interpolationMode);
 		}
@@ -760,7 +754,7 @@ namespace Greenshot.Gfx
         /// <param name="matrix">Matrix</param>
         /// <param name="interpolationMode">InterpolationMode</param>
         /// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
-        public static Bitmap Resize(this Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
+        public static IBitmapWithNativeSupport Resize(this IBitmapWithNativeSupport sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
 			var destX = 0;
 			var destY = 0;
@@ -797,7 +791,7 @@ namespace Greenshot.Gfx
 			{
 				newHeight = destHeight;
 			}
-		    Bitmap newBitmap;
+            IBitmapWithNativeSupport newBitmap;
 			if (maintainAspectRatio && canvasUseNewSize)
 			{
 				newBitmap = BitmapFactory.CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
@@ -809,7 +803,7 @@ namespace Greenshot.Gfx
 				matrix?.Scale((float) destWidth / sourceImage.Width, (float) destHeight / sourceImage.Height, MatrixOrder.Append);
 			}
 
-			using (var graphics = Graphics.FromImage(newBitmap))
+			using (var graphics = Graphics.FromImage(newBitmap.NativeBitmap))
 			{
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -818,7 +812,7 @@ namespace Greenshot.Gfx
 				using (var wrapMode = new ImageAttributes())
 				{
 					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-					graphics.DrawImage(sourceImage, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
+					graphics.DrawImage(sourceImage.NativeBitmap, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
 				}
 			}
 			return newBitmap;
@@ -831,7 +825,7 @@ namespace Greenshot.Gfx
 	    /// <param name="colorToCount">Color to count</param>
 	    /// <param name="includeAlpha">true if Alpha needs to be checked</param>
 	    /// <returns>int with the number of pixels which have colorToCount</returns>
-	    public static int CountColor(this Image sourceImage, Color colorToCount, bool includeAlpha = true)
+	    public static int CountColor(this IBitmapWithNativeSupport sourceImage, Color colorToCount, bool includeAlpha = true)
 	    {
             var lockObject = new object();
 	        var colors = 0;
@@ -840,7 +834,7 @@ namespace Greenshot.Gfx
 	        {
 	            toCount = toCount & 0xffffff;
 	        }
-	        using (var bb = FastBitmapFactory.Create((Bitmap)sourceImage))
+	        using (var bb = FastBitmapFactory.Create(sourceImage))
 	        {
 	            Parallel.For(0, bb.Height, () => 0, (y, state, initialColorCount) =>
 	            {
@@ -876,7 +870,7 @@ namespace Greenshot.Gfx
         /// <param name="stream">Stream</param>
         /// <param name="extension"></param>
         /// <returns>Image</returns>
-        public static Bitmap FromStream(Stream stream, string extension = null)
+        public static IBitmapWithNativeSupport FromStream(Stream stream, string extension = null)
 		{
 			if (stream == null)
 			{
@@ -895,7 +889,7 @@ namespace Greenshot.Gfx
 				stream = memoryStream;
 			}
 
-			Bitmap returnBitmap = null;
+            IBitmapWithNativeSupport returnBitmap = null;
 		    if (StreamConverters.TryGetValue(extension ?? "", out var converter))
 			{
 				returnBitmap = converter(stream, extension);
@@ -917,7 +911,7 @@ namespace Greenshot.Gfx
         /// <param name="dpi">double with the dpi value</param>
         /// <param name="baseSize">the base size of the icon, default is 16</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap ScaleIconForDisplaying(this Bitmap original, uint dpi, int baseSize = 16)
+        public static IBitmapWithNativeSupport ScaleIconForDisplaying(this IBitmapWithNativeSupport original, uint dpi, int baseSize = 16)
 		{
 			if (original == null)
 			{
@@ -933,6 +927,7 @@ namespace Greenshot.Gfx
 				return original;
 			}
 
+            
 			if (width == original.Width * 2)
 			{
 				return original.Scale2X();
@@ -957,7 +952,7 @@ namespace Greenshot.Gfx
 	    /// <param name="bitmap1">Bitmap</param>
 	    /// <param name="bitmap2">Bitmap</param>
 	    /// <returns>bool true if they are equal</returns>
-	    public static bool IsEqualTo(this Bitmap bitmap1, Bitmap bitmap2)
+	    public static bool IsEqualTo(this IBitmapWithNativeSupport bitmap1, IBitmapWithNativeSupport bitmap2)
 	    {
 	        if (bitmap1.Width != bitmap2.Width || bitmap1.Height != bitmap2.Height)
 	        {

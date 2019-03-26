@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Collections.Generic;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.ExternalCommand.Entities;
@@ -30,17 +26,11 @@ namespace Greenshot.Addon.ExternalCommand.Configuration.Impl
 {
     internal class ExternalCommandConfigurationImpl : IniSectionBase<IExternalCommandConfiguration>, IExternalCommandConfiguration
     {
-        #region Overrides of IniSectionBase<IExternalCommandConfiguration>
-
         public override void AfterLoad()
         {
             ExternalCommandConfigurationExtensions.AfterLoad(this);
             base.AfterLoad();
         }
-
-        #endregion
-
-        #region Implementation of IFileConfiguration
 
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
@@ -55,15 +45,7 @@ namespace Greenshot.Addon.ExternalCommand.Configuration.Impl
         public string OptimizePNGCommand { get; set; }
         public string OptimizePNGCommandArguments { get; set; }
 
-        #endregion
-
-        #region Implementation of IDestinationFileConfiguration
-
         public bool UseOwnSettings { get; set; }
-
-        #endregion
-
-        #region Implementation of IExternalCommandConfiguration
 
         public IList<string> Commands { get; set; }
         public IDictionary<string, string> Commandline { get; set; }
@@ -71,7 +53,5 @@ namespace Greenshot.Addon.ExternalCommand.Configuration.Impl
         public IDictionary<string, bool> RunInbackground { get; set; }
         public IDictionary<string, CommandBehaviors> Behaviors { get; set; }
         public IList<string> DeletedBuildInCommands { get; set; }
-
-        #endregion
     }
 }

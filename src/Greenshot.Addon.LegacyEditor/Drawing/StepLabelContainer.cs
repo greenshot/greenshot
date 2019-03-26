@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -32,8 +26,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
@@ -48,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		[NonSerialized] private StringFormat _stringFormat = new StringFormat();
 
-		private float fontSize = 16;
+		private float _fontSize = 16;
 
 		public StepLabelContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
@@ -176,7 +168,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			var heightAfter = rect.Height;
 			var factor = ((float) widthAfter / widthBefore + (float) heightAfter / heightBefore) / 2;
 
-			fontSize *= factor;
+			_fontSize *= factor;
 		}
 
 		/// <summary>
@@ -205,7 +197,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 			using (var fam = new FontFamily(FontFamily.GenericSansSerif.Name))
 			{
-				using (var font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
+				using (var font = new Font(fam, _fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
 				{
 					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
 				}
@@ -223,9 +215,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
 		}
 
-		#region Number serializing
-
-		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
+        // Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
 		// Used to store the counter start of the Surface, as the surface is NOT stored.
 		private int _counterStart = 1;
@@ -249,7 +239,5 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				_counterStart = ((Surface) Parent).CounterStart;
 			}
 		}
-
-		#endregion
-	}
+    }
 }

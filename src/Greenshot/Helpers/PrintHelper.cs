@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -39,8 +33,6 @@ using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.Legacy;
-
-#endregion
 
 namespace Greenshot.Helpers
 {
@@ -231,14 +223,14 @@ namespace Greenshot.Helpers
 				pageRect.Height -= footerStringHeight;
 
 				var gu = GraphicsUnit.Pixel;
-				var imageRect = bitmap.GetBounds(ref gu);
+				var imageRect = bitmap.NativeBitmap.GetBounds(ref gu);
 				// rotate the image if it fits the page better
 				if (_coreConfig.OutputPrintAllowRotate)
 				{
 					if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)
 					{
-						bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-						imageRect = bitmap.GetBounds(ref gu);
+						bitmap.NativeBitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+						imageRect = bitmap.NativeBitmap.GetBounds(ref gu);
 						if (alignment.Equals(ContentAlignment.TopLeft))
 						{
 							alignment = ContentAlignment.TopRight;
@@ -267,7 +259,7 @@ namespace Greenshot.Helpers
 						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
 					}
 				}
-				e.Graphics.DrawImage(bitmap, printRect, imageRect, GraphicsUnit.Pixel);
+				e.Graphics.DrawImage(bitmap.NativeBitmap, printRect, imageRect, GraphicsUnit.Pixel);
 			}
 			finally
 			{

@@ -41,12 +41,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 
 		[NonSerialized]
 		private readonly object _freehandPathLock = new object();
-		private NativeRect myBounds = NativeRect.Empty;
-		private NativePoint lastMouse = NativePoint.Empty;
-		private readonly List<NativePointFloat> capturePoints = new List<NativePointFloat>();
+		private NativeRect _myBounds = NativeRect.Empty;
+		private NativePoint _lastMouse = NativePoint.Empty;
+		private readonly List<NativePointFloat> _capturePoints = new List<NativePointFloat>();
         [NonSerialized]
-        private GraphicsPath freehandPath = new GraphicsPath();
-		private bool isRecalculated;
+        private GraphicsPath _freehandPath = new GraphicsPath();
+		private bool _isRecalculated;
 		
 		/// <summary>
 		/// Constructor
@@ -65,10 +65,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 
 		public override void Transform(Matrix matrix)
 		{
-		    var newPoints = capturePoints.Cast<PointF>().ToArray();
+		    var newPoints = _capturePoints.Cast<PointF>().ToArray();
             matrix.TransformPoints(newPoints);
-			capturePoints.Clear();
-			capturePoints.AddRange(newPoints.Cast<NativePointFloat>());
+			_capturePoints.Clear();
+			_capturePoints.AddRange(newPoints.Cast<NativePointFloat>());
 			RecalculatePath();
 		}
 		
@@ -84,9 +84,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			base.Dispose(disposing);
 			if (disposing)
 			{
-				freehandPath?.Dispose();
+				_freehandPath?.Dispose();
 			}
-			freehandPath = null;
+			_freehandPath = null;
 		}
 		
 		/// <summary>
@@ -94,8 +94,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			lastMouse = new NativePoint(mouseX, mouseY);
-			capturePoints.Add(lastMouse);
+			_lastMouse = new NativePoint(mouseX, mouseY);
+			_capturePoints.Add(_lastMouse);
 			return true;
 		}
 
@@ -104,23 +104,23 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
-			NativePoint previousPoint = capturePoints[capturePoints.Count-1];
+			NativePoint previousPoint = _capturePoints[_capturePoints.Count-1];
 
 			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= 2* _editorConfiguration.FreehandSensitivity) {
-				capturePoints.Add(new NativePoint(mouseX, mouseY));
+				_capturePoints.Add(new NativePoint(mouseX, mouseY));
 			}
-		    if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) < _editorConfiguration.FreehandSensitivity)
+		    if (GeometryHelper.Distance2D(_lastMouse.X, _lastMouse.Y, mouseX, mouseY) < _editorConfiguration.FreehandSensitivity)
 		    {
 		        return true;
 		    }
 		    //path.AddCurve(new NativePoint[]{lastMouse, new NativePoint(mouseX, mouseY)});
-		    lastMouse = new NativePoint(mouseX, mouseY);
+		    _lastMouse = new NativePoint(mouseX, mouseY);
 		    lock (_freehandPathLock)
 		    {
-		        freehandPath.AddLine(lastMouse, new NativePoint(mouseX, mouseY));
+		        _freehandPath.AddLine(_lastMouse, new NativePoint(mouseX, mouseY));
                 // Only re-calculate the bounds & redraw when we added something to the path
-		        NativeRectFloat rect = freehandPath.GetBounds();
-                myBounds = rect.Round();
+		        NativeRectFloat rect = _freehandPath.GetBounds();
+                _myBounds = rect.Round();
 		    }
 
 		    Invalidate();
@@ -132,8 +132,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// </summary>
 		public override void HandleMouseUp(int mouseX, int mouseY) {
 			// Make sure we don't loose the ending point
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= _editorConfiguration.FreehandSensitivity) {
-				capturePoints.Add(new NativePoint(mouseX, mouseY));
+			if (GeometryHelper.Distance2D(_lastMouse.X, _lastMouse.Y, mouseX, mouseY) >= _editorConfiguration.FreehandSensitivity) {
+				_capturePoints.Add(new NativePoint(mouseX, mouseY));
 			}
 			RecalculatePath();
 		}
@@ -144,30 +144,30 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		private void RecalculatePath() {
 		    lock (_freehandPathLock)
 		    {
-		        isRecalculated = true;
+		        _isRecalculated = true;
 		        // Dispose the previous path, if we have one
-		        freehandPath?.Dispose();
-		        freehandPath = new GraphicsPath();
+		        _freehandPath?.Dispose();
+		        _freehandPath = new GraphicsPath();
 
 		        // Here we can put some cleanup... like losing all the uninteresting  points.
-		        if (capturePoints.Count >= 3)
+		        if (_capturePoints.Count >= 3)
 		        {
 		            int index = 0;
-		            while ((capturePoints.Count - 1) % 3 != 0)
+		            while ((_capturePoints.Count - 1) % 3 != 0)
 		            {
 		                // duplicate points, first at 50% than 25% than 75%
-		                capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
+		                _capturePoints.Insert((int)(_capturePoints.Count * PointOffset[index]), _capturePoints[(int)(_capturePoints.Count * PointOffset[index++])]);
 		            }
-		            freehandPath.AddBeziers(capturePoints.Cast<PointF>().ToArray());
+		            _freehandPath.AddBeziers(_capturePoints.Cast<PointF>().ToArray());
 		        }
-		        else if (capturePoints.Count == 2)
+		        else if (_capturePoints.Count == 2)
 		        {
-		            freehandPath.AddLine(capturePoints[0], capturePoints[1]);
+		            _freehandPath.AddLine(_capturePoints[0], _capturePoints[1]);
 		        }
 
 		        // Recalculate the bounds
-		        NativeRectFloat rect = freehandPath.GetBounds();
-                myBounds = rect.Round();
+		        NativeRectFloat rect = _freehandPath.GetBounds();
+                _myBounds = rect.Round();
 
             }
 
@@ -200,11 +200,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			    graphics.TranslateTransform(Left, Top);
 			    lock (_freehandPathLock)
 			    {
-			        if (isRecalculated && Selected && renderMode == RenderMode.Edit)
+			        if (_isRecalculated && Selected && renderMode == RenderMode.Edit)
 			        {
-			            DrawSelectionBorder(graphics, pen, freehandPath);
+			            DrawSelectionBorder(graphics, pen, _freehandPath);
 			        }
-			        graphics.DrawPath(pen, freehandPath);
+			        graphics.DrawPath(pen, _freehandPath);
 			    }
 
                 // Move back, otherwise everything is shifted
@@ -238,10 +238,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// </summary>
 		public override NativeRect DrawingBounds {
 			get {
-				if (!myBounds.IsEmpty) {
+				if (!_myBounds.IsEmpty) {
 					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldTypes.LINE_THICKNESS));
 					int safetymargin = 10;
-					return new NativeRect(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
+					return new NativeRect(_myBounds.Left + Left - (safetymargin+lineThickness), _myBounds.Top + Top - (safetymargin+lineThickness), _myBounds.Width + 2*(lineThickness+safetymargin), _myBounds.Height + 2*(lineThickness+safetymargin));
 				}
 				return new NativeRect(0, 0, _parent?.Width??0, _parent?.Height?? 0);
 			}
@@ -259,7 +259,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
                 return false;
             }
 
-            if (obj is FreehandContainer other && Equals(freehandPath, other.freehandPath)) {
+            if (obj is FreehandContainer other && Equals(_freehandPath, other._freehandPath)) {
                 ret = true;
             }
             return ret;
@@ -268,7 +268,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		public override int GetHashCode() {
 		    lock (_freehandPathLock)
 		    {
-		        return freehandPath?.GetHashCode() ?? 0;
+		        return _freehandPath?.GetHashCode() ?? 0;
 		    }
 		}
 
@@ -280,7 +280,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 					pen.Width = lineThickness + 10;
 				    lock (_freehandPathLock)
 				    {
-				        returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
+				        returnValue = _freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
                     }
                 }
 			}

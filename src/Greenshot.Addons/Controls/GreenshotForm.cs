@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,8 +34,6 @@ using Dapplo.Windows.Dpi.Forms;
 using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
 
-#endregion
-
 namespace Greenshot.Addons.Controls
 {
 	/// <summary>
@@ -53,7 +45,7 @@ namespace Greenshot.Addons.Controls
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 	    private readonly ILanguage _language;
 		
-		protected readonly BitmapScaleHandler<string> ScaleHandler;
+		protected readonly BitmapScaleHandler<string, IBitmapWithNativeSupport> ScaleHandler;
 
 #if DEBUG
         public GreenshotForm()
@@ -68,7 +60,7 @@ namespace Greenshot.Addons.Controls
         {
             _language = language;
             // Add the Dapplo.Windows DPI change handler
-            ScaleHandler = BitmapScaleHandler.Create<string>(FormDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            ScaleHandler = BitmapScaleHandler.Create<string, IBitmapWithNativeSupport>(FormDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
         }
 
 	    protected bool ManualLanguageApply { get; set; }

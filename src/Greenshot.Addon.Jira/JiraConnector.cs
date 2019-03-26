@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -18,10 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
-#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -44,8 +38,7 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Credentials;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Jira
 {
@@ -78,7 +71,7 @@ namespace Greenshot.Addon.Jira
 		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url), httpConfiguration);
 		}
 
-		public Bitmap FavIcon { get; private set; }
+		public IBitmapWithNativeSupport FavIcon { get; private set; }
 
 	    public IEnumerable<JiraDetails> RecentJiras => _jiraMonitor.RecentJiras;
         /// <summary>
@@ -130,7 +123,7 @@ namespace Greenshot.Addon.Jira
 				var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
 				try
 				{
-					FavIcon = await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken).ConfigureAwait(true);
+					FavIcon = BitmapWrapper.FromBitmap(await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken).ConfigureAwait(true));
 				}
 				catch (Exception ex)
 				{
@@ -262,9 +255,10 @@ namespace Greenshot.Addon.Jira
         /// <summary>
         ///     Attach the content to the jira
         /// </summary>
-        /// <param name="issueKey"></param>
+        /// <param name="issueKey">string</param>
         /// <param name="surface">ISurface</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="filename">string</param>
+        /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task</returns>
         public async Task AttachAsync(string issueKey, ISurface surface, string filename = null, CancellationToken cancellationToken = default)
 		{

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addons;
@@ -36,8 +29,7 @@ using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Addons.Resources;
 using Greenshot.Core.Enums;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Destinations
 {
@@ -62,7 +54,7 @@ namespace Greenshot.Destinations
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 
-	    public override Bitmap DisplayIcon => GreenshotResources.Instance.GetBitmap("Clipboard.Image");
+	    public override IBitmapWithNativeSupport DisplayIcon => GreenshotResources.Instance.GetBitmap("Clipboard.Image");
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 	    {

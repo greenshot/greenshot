@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
-using System.Drawing;
 using System.Windows.Forms;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addons.Interfaces.Forms
 {
@@ -52,8 +44,8 @@ namespace Greenshot.Addons.Interfaces.Forms
 		///     This is actually a wrapper which calls Surface.GetBitmapForExport().
 		///     Don't forget to call image.Dispose() when finished!!!
 		/// </summary>
-		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
+		/// <returns>IBitmapWithNativeSupport</returns>
+		IBitmapWithNativeSupport GetImageForExport();
 
 		/// <summary>
 		///     Get the ToolStripMenuItem where plugins can place their Menu entrys

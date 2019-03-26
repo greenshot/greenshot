@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
-
-#endregion
 
 namespace Greenshot.Addons.Controls
 {
@@ -53,9 +45,9 @@ namespace Greenshot.Addons.Controls
 
 			checkBox_reduceColors.Checked = Settings.ReduceColors;
 			trackBarJpegQuality.Enabled = OutputFormats.jpg.Equals(outputSettings.Format);
-			trackBarJpegQuality.Value = Settings.JPGQuality;
+			trackBarJpegQuality.Value = Settings.JpgQuality;
 			textBoxJpegQuality.Enabled = OutputFormats.jpg.Equals(outputSettings.Format);
-			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
+			textBoxJpegQuality.Text = Settings.JpgQuality.ToString();
 			ToFront = true;
 		}
 
@@ -63,14 +55,14 @@ namespace Greenshot.Addons.Controls
 
 		private void Button_okClick(object sender, EventArgs e)
 		{
-			Settings.JPGQuality = trackBarJpegQuality.Value;
+			Settings.JpgQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
 		    if (!checkbox_dontaskagain.Checked)
 		    {
 		        return;
 		    }
 
-		    _coreConfiguration.OutputFileJpegQuality = Settings.JPGQuality;
+		    _coreConfiguration.OutputFileJpegQuality = Settings.JpgQuality;
 		    _coreConfiguration.OutputFilePromptQuality = false;
 		    _coreConfiguration.OutputFileReduceColors = Settings.ReduceColors;
 		}

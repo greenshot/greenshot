@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System;
 using System.Collections.Generic;
@@ -57,7 +53,7 @@ namespace Greenshot.Gfx.Stitching
         /// </summary>
         /// <param name="bitmap">Bitmap</param>
         /// <returns>BitmapStitcher for fluent calling</returns>
-        public BitmapStitcher AddBitmap(Bitmap bitmap)
+        public BitmapStitcher AddBitmap(IBitmapWithNativeSupport bitmap)
         {
             if (!_resultPixelFormat.HasValue)
             {
@@ -72,7 +68,7 @@ namespace Greenshot.Gfx.Stitching
         /// Create the resulting bitmap, this needs to be disposed
         /// </summary>
         /// <returns>Bitmap</returns>
-        public Bitmap Result()
+        public IBitmapWithNativeSupport Result()
         {
             if (RemoveHeader)
             {
@@ -94,7 +90,7 @@ namespace Greenshot.Gfx.Stitching
 
             if (Trim)
             {
-                // Remove from the last to first, untill something is left
+                // Remove from the last to first, until something is left
                 foreach (var stitchInfo in _stitchInfos.Reverse())
                 {
                     if (stitchInfo.Trim().SourceRect.Height > 0)
@@ -112,13 +108,13 @@ namespace Greenshot.Gfx.Stitching
                 previous = stitchInfo;
             }
 
-            // Calculate the total hight of the result bitmap
+            // Calculate the total height of the result bitmap
             var totalHeight = _stitchInfos.Sum(info => info.SourceRect.Height);
             // Create the resulting bitmap
             var resultBitmap = BitmapFactory.CreateEmpty(_stitchInfos[0].SourceRect.Width, totalHeight, _resultPixelFormat ?? PixelFormat.Format32bppArgb);
 
             // Now stitch the captures together by copying them onto the result bitmap
-            using (var graphics = Graphics.FromImage(resultBitmap))
+            using (var graphics = Graphics.FromImage(resultBitmap.NativeBitmap))
             {
                 var currentPosition = 0;
                 foreach (var stitchInfo in _stitchInfos)

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
@@ -30,8 +24,6 @@ using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -50,7 +42,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 		/// <param name="applyBitmap"></param>
 		/// <param name="rect"></param>
 		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
 			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -69,7 +61,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			var brightness = GetFieldValueAsFloat(FieldTypes.BRIGHTNESS);
 			using (var ia = AdjustEffect.CreateAdjustAttributes(brightness, 1f, 1f))
 			{
-				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+				graphics.DrawImage(applyBitmap.NativeBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);
 		}

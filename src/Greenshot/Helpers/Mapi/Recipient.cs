@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,25 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
-
-#endregion
-
 namespace Greenshot.Helpers.Mapi
 {
-    #region Public Recipient Class
-
     /// <summary>
     ///     Represents a Recipient for a MapiMailMessage.
     /// </summary>
     public class Recipient
 	{
-		#region Internal Methods
-
-		/// <summary>
+        /// <summary>
 		///     Returns an interop representation of a recepient.
 		/// </summary>
 		/// <returns></returns>
@@ -60,11 +47,7 @@ namespace Greenshot.Helpers.Mapi
 			return interop;
 		}
 
-		#endregion Internal Methods
-
-		#region Public Properties
-
-		/// <summary>
+        /// <summary>
 		///     The email address of this recipient.
 		/// </summary>
 		public string Address;
@@ -79,11 +62,7 @@ namespace Greenshot.Helpers.Mapi
 		/// </summary>
 		public RecipientType RecipientType = RecipientType.To;
 
-		#endregion Public Properties
-
-		#region Constructors
-
-		/// <summary>
+        /// <summary>
 		///     Creates a new recipient with the specified address.
 		/// </summary>
 		public Recipient(string address)
@@ -118,9 +97,5 @@ namespace Greenshot.Helpers.Mapi
 			DisplayName = displayName;
 			RecipientType = recipientType;
 		}
-
-		#endregion Constructors
-	}
-
-	#endregion Public RecipientCollection Class
+    }
 }

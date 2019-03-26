@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -30,8 +24,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -43,7 +35,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			AddField(GetType(), FieldTypes.MAGNIFICATION_FACTOR, 2);
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
 			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -68,7 +60,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			var newWidth = rect.Width / magnificationFactor;
 			var newHeight = rect.Height / magnificationFactor;
 			var source = new NativeRect(rect.X + halfWidth - newWidth / 2, rect.Y + halfHeight - newHeight / 2, newWidth, newHeight);
-			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
+			graphics.DrawImage(applyBitmap.NativeBitmap, rect, source, GraphicsUnit.Pixel);
 			graphics.Restore(state);
 		}
 	}

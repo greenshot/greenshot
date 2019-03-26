@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -32,8 +26,6 @@ using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -48,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
             AddField(GetType(), FieldTypes.PIXEL_SIZE, 5);
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode)
         {
             var pixelSize = GetFieldValueAsInt(FieldTypes.PIXEL_SIZE);
             BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);

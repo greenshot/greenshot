@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -51,9 +44,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
         /// Apply this filter
         /// </summary>
         /// <param name="graphics">Graphics to use</param>
-        /// <param name="bmp">Bitmap to apply to</param>
+        /// <param name="bmp">IBitmapWithNativeSupport to apply to</param>
         /// <param name="rect">NativeRect with the area</param>
         /// <param name="renderMode">RenderMode to use</param>
-        void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
+        void Apply(Graphics graphics, IBitmapWithNativeSupport bmp, NativeRect rect, RenderMode renderMode);
     }
 }

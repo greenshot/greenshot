@@ -4,7 +4,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Addon.Imgur.ViewModels"
-             xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:ImgurConfigViewModel,IsDesignTimeCreatable=False}"
              >

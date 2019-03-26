@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -34,8 +28,6 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Kernel32.Enums;
 using Dapplo.Windows.Kernel32.Structs;
 using Dapplo.Windows.User32;
-
-#endregion
 
 namespace Greenshot.Helpers
 {
@@ -217,18 +209,12 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class OsInfo
 	{
-		#region BITS
-
-		/// <summary>
+        /// <summary>
 		///     Determines if the current application is 32 or 64-bit.
 		/// </summary>
 		public static int Bits => IntPtr.Size * 8;
 
-		#endregion BITS
-
-		#region SERVICE PACK
-
-		/// <summary>
+        /// <summary>
 		///     Gets the service pack information of the operating system running on this computer.
 		/// </summary>
 		public static string ServicePack
@@ -247,11 +233,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		#endregion SERVICE PACK
-
-		#region EDITION
-
-		private static string _sEdition;
+        private static string _sEdition;
 
 		/// <summary>
 		///     Gets the edition of the operating system running on this computer.
@@ -280,9 +262,7 @@ namespace Greenshot.Helpers
 				var productType = osVersionInfo.ProductType;
 				var suiteMask = osVersionInfo.SuiteMask;
 
-				#region VERSION 4
-
-				if (majorVersion == 4)
+                if (majorVersion == 4)
 				{
 					if (productType.HasFlag(WindowsProductTypes.VER_NT_WORKSTATION))
 					{
@@ -294,11 +274,8 @@ namespace Greenshot.Helpers
 						edition = suiteMask.HasFlag(WindowsSuites.Enterprise) ? "Enterprise Server" : "Standard Server";
 					}
 				}
-				#endregion VERSION 4
 
-				#region VERSION 5
-
-				else if (majorVersion == 5)
+                else if (majorVersion == 5)
 				{
 					if (productType.HasFlag(WindowsProductTypes.VER_NT_WORKSTATION))
 					{
@@ -358,11 +335,8 @@ namespace Greenshot.Helpers
 						}
 					}
 				}
-				#endregion VERSION 5
 
-				#region VERSION 6
-
-				else if (majorVersion == 6)
+                else if (majorVersion == 6)
 				{
 				    if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var ed))
 					{
@@ -376,18 +350,12 @@ namespace Greenshot.Helpers
 					}
 				}
 
-				#endregion VERSION 6
-
-				_sEdition = edition;
+                _sEdition = edition;
 				return edition;
 			}
 		}
 
-		#endregion EDITION
-
-		#region NAME
-
-		private static string _name;
+        private static string _name;
 
 		/// <summary>
 		///     Gets the name of the operating system running on this computer.
@@ -547,24 +515,12 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		#endregion NAME
-
-		#region VERSION
-
-		#region BUILD
-
-		/// <summary>
+        /// <summary>
 		///     Gets the build version number of the operating system running on this computer.
 		/// </summary>
 		public static int BuildVersion => Environment.OSVersion.Version.Build;
 
-		#endregion BUILD
-
-		#region FULL
-
-		#region STRING
-
-		/// <summary>
+        /// <summary>
 		///     Gets the full version string of the operating system running on this computer.
 		/// </summary>
 		public static string VersionString
@@ -576,11 +532,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		#endregion STRING
-
-		#region VERSION
-
-		/// <summary>
+        /// <summary>
 		///     Gets the full version of the operating system running on this computer.
 		/// </summary>
 		public static Version Version
@@ -588,13 +540,7 @@ namespace Greenshot.Helpers
 			get { return Environment.OSVersion.Version; }
 		}
 
-		#endregion VERSION
-
-		#endregion FULL
-
-		#region MAJOR
-
-		/// <summary>
+        /// <summary>
 		///     Gets the major version number of the operating system running on this computer.
 		/// </summary>
 		public static int MajorVersion
@@ -602,11 +548,7 @@ namespace Greenshot.Helpers
 			get { return Environment.OSVersion.Version.Major; }
 		}
 
-		#endregion MAJOR
-
-		#region MINOR
-
-		/// <summary>
+        /// <summary>
 		///     Gets the minor version number of the operating system running on this computer.
 		/// </summary>
 		public static int MinorVersion
@@ -614,20 +556,12 @@ namespace Greenshot.Helpers
 			get { return Environment.OSVersion.Version.Minor; }
 		}
 
-		#endregion MINOR
-
-		#region REVISION
-
-		/// <summary>
+        /// <summary>
 		///     Gets the revision version number of the operating system running on this computer.
 		/// </summary>
 		public static int RevisionVersion
 		{
 			get { return Environment.OSVersion.Version.Revision; }
 		}
-
-		#endregion REVISION
-
-		#endregion VERSION
-	}
+    }
 }

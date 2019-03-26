@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
@@ -72,7 +72,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
     <PackageReference Include="Dapplo.Log.XUnit" Version="1.3.11" />
-    <PackageReference Include="Dapplo.Windows" Version="0.8.17" />
+    <PackageReference Include="Dapplo.Windows" Version="0.8.18" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

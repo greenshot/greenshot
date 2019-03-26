@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -31,13 +27,16 @@ using Greenshot.Gfx.Structs;
 namespace Greenshot.Gfx
 {
     /// <summary>
-    /// A bitmap wraper with memory from Marshal.AllocHGlobal
+    /// A bitmap wrapper with memory from Marshal.AllocHGlobal
     /// </summary>
     /// <typeparam name="TPixelLayout">struct for the pixel information</typeparam>
-    public class UnmanagedBitmap<TPixelLayout> : IDisposable where TPixelLayout : unmanaged
+    public class UnmanagedBitmap<TPixelLayout> : IBitmapWithNativeSupport where TPixelLayout : unmanaged
     {
+        private readonly float _horizontalPixelsPerInch;
+        private readonly float _verticalPixelsPerInch;
         private readonly int _stride;
         private IntPtr _hGlobal;
+        private Bitmap _nativeBitmap;
 
         /// <summary>
         /// Width of the bitmap
@@ -54,8 +53,12 @@ namespace Greenshot.Gfx
         /// </summary>
         /// <param name="width">int</param>
         /// <param name="height">int</param>
-        public UnmanagedBitmap(int width, int height)
+        /// <param name="horizontalPixelsPerInch">float</param>
+        /// <param name="verticalPixelsPerInch">float</param>
+        public UnmanagedBitmap(int width, int height, float horizontalPixelsPerInch = 0.96f, float verticalPixelsPerInch = 0.96f)
         {
+            _horizontalPixelsPerInch = horizontalPixelsPerInch;
+            _verticalPixelsPerInch = verticalPixelsPerInch;
             var bytesPerPixel = Marshal.SizeOf<TPixelLayout>();
             Width = width;
             Height = height;
@@ -98,37 +101,58 @@ namespace Greenshot.Gfx
             }
         }
 
+        /// <inheritdoc />
+        public PixelFormat PixelFormat
+        {
+            get
+            {
+                PixelFormat format;
+                TPixelLayout empty = default;
+                switch (empty)
+                {
+                    case Bgr24 _:
+                        format = PixelFormat.Format24bppRgb;
+                        break;
+                    case Bgra32 _:
+                        format = PixelFormat.Format32bppArgb;
+                        break;
+                    case Bgr32 _:
+                        format = PixelFormat.Format32bppRgb;
+                        break;
+                    default:
+                        throw new NotSupportedException("Unknown pixel format");
+                }
+
+                return format;
+            }
+        }
+
+        /// <inheritdoc />
+        public float VerticalResolution => _verticalPixelsPerInch;
+
+        /// <inheritdoc />
+        public float HorizontalResolution => _horizontalPixelsPerInch;
+
         /// <summary>
         /// Convert this to a real bitmap
         /// </summary>
         /// <returns>Bitmap</returns>
-        public Bitmap AsBitmap()
+        public Bitmap NativeBitmap
         {
-            PixelFormat format;
-            TPixelLayout empty = default;
-            switch (empty)
+            get
             {
-                case Bgr24 _:
-                    format = PixelFormat.Format24bppRgb;
-                    break;
-                case Bgra32 _:
-                    format = PixelFormat.Format32bppArgb;
-                    break;
-                case Bgr32 _:
-                    format = PixelFormat.Format32bppRgb;
-                    break;
-                default:
-                    throw new NotSupportedException("Unknown pixel format");
+                return _nativeBitmap ??= new Bitmap(Width, Height, _stride, PixelFormat, _hGlobal);
             }
-            return new Bitmap(Width, Height, _stride, format, _hGlobal);
         }
 
-        #region Implementation of IDisposable
+        public Size Size => new Size(Width, Height);
+
         /// <summary>
         /// The actual dispose
         /// </summary>
         public void Dispose()
         {
+            _nativeBitmap?.Dispose();
             if (_hGlobal == IntPtr.Zero)
             {
                 return;
@@ -137,7 +161,5 @@ namespace Greenshot.Gfx
             _hGlobal = IntPtr.Zero;
             GC.RemoveMemoryPressure(Height * _stride);
         }
-
-        #endregion
     }
 }

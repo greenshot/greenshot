@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -33,6 +27,7 @@ using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
+using Greenshot.Addon.Tfs.Configuration;
 using Greenshot.Addon.Tfs.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -41,8 +36,6 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addon.Tfs
 {
@@ -137,7 +130,7 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
-        public override Bitmap DisplayIcon
+        public override IBitmapWithNativeSupport DisplayIcon
         {
             get
             {

@@ -33,6 +33,7 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Resources;
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing {
 	/// <summary>
@@ -95,7 +96,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 				return null;
 			}
 			set {
-				ParentID = value?.ID ?? Guid.NewGuid();
+				ParentID = value?.Id ?? Guid.NewGuid();
 				foreach (var drawableContainer in this) {
 					var dc = (DrawableContainer) drawableContainer;
 					dc.Parent = value;
@@ -208,7 +209,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// <returns>true if an filter intersects</returns>
 		public bool HasIntersectingFilters(NativeRect clipRectangle) {
 			foreach(var dc in this) {
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE) {
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE) {
 					return true;
 				}
 			}
@@ -233,10 +234,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// Triggers all elements in the list ot be redrawn.
 		/// </summary>
 		/// <param name="g">the to the bitmap related Graphics object</param>
-		/// <param name="bitmap">Bitmap to draw</param>
+		/// <param name="bitmap">IBitmapWithNativeSupport to draw</param>
 		/// <param name="renderMode">the rendermode in which the element is to be drawn</param>
 		/// <param name="clipRectangle"></param>
-		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle) {
+		public void Draw(Graphics g, IBitmapWithNativeSupport bitmap, RenderMode renderMode, NativeRect clipRectangle) {
 			if (Parent == null)
 			{
 				return;
@@ -465,7 +466,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			// Copy
 			item = new ToolStripMenuItem(editorLanguage.EditorCopytoclipboard)
 			{
-				Image = GreenshotResources.Instance.GetBitmap("copyToolStripMenuItem.Image", GetType())
+				Image = GreenshotResources.Instance.GetBitmap("copyToolStripMenuItem.Image", GetType()).NativeBitmap
 			};
 			item.Click += (sender, args) => ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
 			menu.Items.Add(item);
@@ -473,7 +474,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			// Cut
 			item = new ToolStripMenuItem(editorLanguage.EditorCuttoclipboard)
 			{
-				Image = GreenshotResources.Instance.GetBitmap("btnCut.Image", GetType())
+				Image = GreenshotResources.Instance.GetBitmap("btnCut.Image", GetType()).NativeBitmap
 			};
 			item.Click += (sender, args) =>
 			{
@@ -485,7 +486,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			// Delete
 		    item = new ToolStripMenuItem(editorLanguage.EditorDeleteelement)
 		    {
-		        Image = GreenshotResources.Instance.GetBitmap("removeObjectToolStripMenuItem.Image", GetType())
+		        Image = GreenshotResources.Instance.GetBitmap("removeObjectToolStripMenuItem.Image", GetType()).NativeBitmap
 		    };
 		    item.Click += (sender, args) => surface.RemoveElements(this);
 			menu.Items.Add(item);
@@ -571,8 +572,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		    }
 		}
 
-		#region IDisposable Support
-		private bool _disposedValue; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -596,6 +596,5 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
-		#endregion
-	}
+    }
 }

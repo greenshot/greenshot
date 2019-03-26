@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,15 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addons.Interfaces
 {
@@ -40,7 +33,7 @@ namespace Greenshot.Addons.Interfaces
 		ICaptureDetails CaptureDetails { get; set; }
 
         // The captured Image
-	    Bitmap Bitmap { get; set; }
+        IBitmapWithNativeSupport Bitmap { get; set; }
 
 		NativeRect ScreenBounds { get; set; }
 

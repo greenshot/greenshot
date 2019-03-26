@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -73,7 +72,7 @@ namespace Greenshot.Addon.Lutim  {
 
 		public override string Description => _lutimLanguage.UploadMenuItem;
 
-		public override Bitmap DisplayIcon {
+		public override IBitmapWithNativeSupport DisplayIcon {
 			get {
                 // TODO: Optimize this by caching
 			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Lutim.png"))

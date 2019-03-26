@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -48,24 +44,23 @@ namespace Greenshot.Tests
             using (var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400))
             using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255, Unused = 0 });
-                using (var bitmap = bitmapNew.AsBitmap())
+                using (var bitmap = bitmapNew.NativeBitmap)
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                     using (var scaledUnmanagedBitmap = bitmapNew.Scale2X())
-                    using (var scaledNewBitmap = scaledUnmanagedBitmap.AsBitmap())
-                    using (var scaledBitmap = bitmapOld.Scale2X())
+                    using (var scaledBitmap = ScaleX.Scale2X(bitmapOld))
                     {
-                        scaledNewBitmap.Save(@"new2x.png", ImageFormat.Png);
-                        scaledBitmap.Save(@"old2x.png", ImageFormat.Png);
-                        Assert.True(scaledBitmap.IsEqualTo(scaledNewBitmap), "New Scale3X doesn't compare to old.");
+                        scaledUnmanagedBitmap.NativeBitmap.Save(@"new2x.png", ImageFormat.Png);
+                        scaledBitmap.NativeBitmap.Save(@"old2x.png", ImageFormat.Png);
+                        Assert.True(scaledBitmap.IsEqualTo(scaledUnmanagedBitmap), "New Scale2X doesn't compare to old.");
                     }
                 }
             }
@@ -77,24 +72,23 @@ namespace Greenshot.Tests
             using (var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400))
             using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255, Unused = 0 });
-                using (var bitmap = bitmapNew.AsBitmap())
+                using (var bitmap = bitmapNew.NativeBitmap)
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                     using (var scaledUnmanagedBitmap = bitmapNew.Scale3X())
-                    using (var scaledNewBitmap = scaledUnmanagedBitmap.AsBitmap())
-                    using (var scaledBitmap = bitmapOld.Scale3X())
+                    using (var scaledBitmap = ScaleX.Scale2X(bitmapOld))
                     {
-                        scaledNewBitmap.Save(@"new3x.png", ImageFormat.Png);
-                        scaledBitmap.Save(@"old3x.png", ImageFormat.Png);
-                        Assert.True(scaledBitmap.IsEqualTo(scaledNewBitmap), "New Scale3X doesn't compare to old.");
+                        scaledUnmanagedBitmap.NativeBitmap.Save(@"new3x.png", ImageFormat.Png);
+                        scaledBitmap.NativeBitmap.Save(@"old3x.png", ImageFormat.Png);
+                        Assert.True(scaledBitmap.IsEqualTo(scaledUnmanagedBitmap), "New Scale3X doesn't compare to old.");
                     }
                 }
             }

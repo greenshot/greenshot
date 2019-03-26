@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
-
-#endregion
 
 namespace Greenshot.Addon.InternetExplorer
 {
@@ -365,9 +357,7 @@ namespace Greenshot.Addon.InternetExplorer
 			OBJID_WINDOW = 0x00000000
 		}
 
-#region Interop
-
-		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
+        private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
 		{
 			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
 			object obj = null;
@@ -386,7 +376,5 @@ namespace Greenshot.Addon.InternetExplorer
 		[DllImport("oleacc.dll", PreserveSig = false)]
 		[return: MarshalAs(UnmanagedType.Interface)]
 		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
-
-#endregion
-	}
+    }
 }

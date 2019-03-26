@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
@@ -33,8 +29,6 @@ namespace Greenshot.Addon.OneDrive.Configuration.Impl
 #pragma warning disable CS1591
     public class OneDriveLanguageImpl : LanguageBase<IOneDriveLanguage>, IOneDriveLanguage
     {
-        #region Implementation of IOneDriveLanguage
-
         public string CommunicationWait { get; }
         public string LabelUploadFormat { get; }
         public string LabelLinkType { get; }
@@ -43,7 +37,5 @@ namespace Greenshot.Addon.OneDrive.Configuration.Impl
         public string UploadMenuItem { get; }
         public string UsePageLink { get; }
         public string ResetCredentialsButton { get; }
-
-        #endregion
     }
 }

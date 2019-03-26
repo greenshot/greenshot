@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,17 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.FastBitmap
 {
@@ -55,7 +47,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <summary>
 		///     The bitmap for which the FastBitmap is creating access
 		/// </summary>
-		protected Bitmap Bitmap;
+		protected IBitmapWithNativeSupport Bitmap;
 
 		protected bool BitsLocked;
 
@@ -68,7 +60,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// </summary>
 		/// <param name="bitmap">Bitmap</param>
 		/// <param name="area">NativeRect</param>
-		protected FastBitmapBase(Bitmap bitmap, NativeRect? area = null)
+		protected FastBitmapBase(IBitmapWithNativeSupport bitmap, NativeRect? area = null)
 		{
 			Bitmap = bitmap;
 			var bitmapArea = new NativeRect(NativePoint.Empty, bitmap.Size);
@@ -76,7 +68,7 @@ namespace Greenshot.Gfx.FastBitmap
 			// As the lock takes care that only the specified area is made available we need to calculate the offset
 			Left = Area.Left;
 			Top = Area.Top;
-			// Default cliping is done to the area without invert
+			// Default clipping is done to the area without invert
 			Clip = Area;
 			InvertClip = false;
 			// Always lock, so we don't need to do this ourselves
@@ -94,7 +86,7 @@ namespace Greenshot.Gfx.FastBitmap
 
 		public void SetResolution(float horizontal, float vertical)
 		{
-			Bitmap.SetResolution(horizontal, vertical);
+			Bitmap.NativeBitmap.SetResolution(horizontal, vertical);
 		}
 
 		/// <summary>
@@ -165,7 +157,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <summary>
 		///     Returns the underlying bitmap, unlocks it and prevents that it will be disposed
 		/// </summary>
-		public Bitmap UnlockAndReturnBitmap()
+		public IBitmapWithNativeSupport UnlockAndReturnBitmap()
 		{
 			if (BitsLocked)
 			{
@@ -196,7 +188,7 @@ namespace Greenshot.Gfx.FastBitmap
 			{
 				return;
 			}
-			BmData = Bitmap.LockBits(Area, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
+			BmData = Bitmap.NativeBitmap.LockBits(Area, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
 			BitsLocked = true;
 
 			var scan0 = BmData.Scan0;
@@ -213,7 +205,7 @@ namespace Greenshot.Gfx.FastBitmap
 		    {
 		        return;
 		    }
-		    Bitmap.UnlockBits(BmData);
+		    Bitmap.NativeBitmap.UnlockBits(BmData);
 		    BitsLocked = false;
 		}
 
@@ -242,7 +234,7 @@ namespace Greenshot.Gfx.FastBitmap
 				Unlock();
 			}
 
-			graphics.DrawImage(Bitmap, destinationRect, Area, GraphicsUnit.Pixel);
+			graphics.DrawImage(Bitmap.NativeBitmap, destinationRect, Area, GraphicsUnit.Pixel);
 		}
 
 	    /// <inheritdoc />
@@ -339,8 +331,6 @@ namespace Greenshot.Gfx.FastBitmap
 	        }
             return hash.CalculatedHash;
 	    }
-
-        #region IFastBitmapWithClip
 
         /// <summary>
         ///     Test if the bitmap containt the specified coordinates
@@ -485,10 +475,6 @@ namespace Greenshot.Gfx.FastBitmap
 	        SetColorAt(x, y, color, colorIndex);
 	    }
 
-        #endregion
-
-        #region IFastBitmapWithOffset
-
         /// <summary>
         ///     returns true if x & y are inside the FastBitmap
         /// </summary>
@@ -554,7 +540,5 @@ namespace Greenshot.Gfx.FastBitmap
 			y -= ((IFastBitmapWithOffset) this).Top;
 			SetColorAt(x, y, ref color);
 		}
-
-		#endregion
-	}
+    }
 }

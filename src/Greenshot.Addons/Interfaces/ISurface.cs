@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,18 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Addons.Interfaces.Drawing;
+using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
-
-#endregion
 
 namespace Greenshot.Addons.Interfaces
 {
@@ -47,7 +40,7 @@ namespace Greenshot.Addons.Interfaces
 		/// <summary>
 		///     Unique ID of the Surface
 		/// </summary>
-		Guid ID { get; set; }
+		Guid Id { get; set; }
 
 		IDrawableContainerList Elements { get; }
 
@@ -59,7 +52,7 @@ namespace Greenshot.Addons.Interfaces
 		///     The setter will clone the passed bitmap and dispose it when the Surface is disposed
 		///     This means that the supplied image needs to be disposed by the calling code (if needed!)
 		/// </summary>
-		Bitmap Screenshot { get; set; }
+        IBitmapWithNativeSupport Screenshot { get; set; }
 
 		bool HasSelectedElements { get; }
 
@@ -85,7 +78,7 @@ namespace Greenshot.Addons.Interfaces
         ///     Don't forget to call image.Dispose() when finished!!!
         /// </summary>
         /// <returns>Bitmap</returns>
-        Bitmap GetBitmapForExport();
+        IBitmapWithNativeSupport GetBitmapForExport();
 
 		/// <summary>
 		///     Add a TextContainer, at the given location, to the Surface.
@@ -105,7 +98,7 @@ namespace Greenshot.Addons.Interfaces
 		ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic,
 			bool bold, bool shadow, int borderSize, Color color, Color fillColor);
 
-		IBitmapContainer AddImageContainer(Bitmap bitmap, int x, int y);
+		IBitmapContainer AddImageContainer(IBitmapWithNativeSupport bitmap, int x, int y);
 		ICursorContainer AddCursorContainer(Cursor cursor, int x, int y);
 		IIconContainer AddIconContainer(Icon icon, int x, int y);
 		IBitmapContainer AddImageContainer(string filename, int x, int y);
@@ -179,10 +172,10 @@ namespace Greenshot.Addons.Interfaces
 	    void SetCapture(ICapture capture);
 
 	    /// <summary>
-	    /// Use the supplied bitmape in the surface
+	    /// Use the supplied bitmap in the surface
 	    /// </summary>
-	    /// <param name="bitmap">Bitmap</param>
+	    /// <param name="bitmap">IBitmapWithNativeSupport</param>
 	    /// <param name="dispose">specify if the current bitmap must be disposed</param>
-	    void SetBitmap(Bitmap bitmap, bool dispose = false);
+	    void SetBitmap(IBitmapWithNativeSupport bitmap, bool dispose = false);
     }
 }

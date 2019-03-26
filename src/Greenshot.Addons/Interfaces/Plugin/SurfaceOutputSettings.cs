@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,17 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Collections.Generic;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx.Effects;
-
-#endregion
 
 namespace Greenshot.Addons.Interfaces.Plugin
 {
@@ -49,7 +40,7 @@ namespace Greenshot.Addons.Interfaces.Plugin
 		{
 			_disableReduceColors = false;
 			Format = fileConfiguration?.OutputFileFormat ?? OutputFormats.png;
-			JPGQuality = fileConfiguration?.OutputFileJpegQuality ?? 80;
+			JpgQuality = fileConfiguration?.OutputFileJpegQuality ?? 80;
 			ReduceColors = fileConfiguration?.OutputFileReduceColors ?? false;
 		}
 
@@ -60,7 +51,7 @@ namespace Greenshot.Addons.Interfaces.Plugin
 
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality) : this(fileConfiguration, format)
 		{
-			JPGQuality = quality;
+			JpgQuality = quality;
 		}
 
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality, bool reduceColors) : this(fileConfiguration, format, quality)
@@ -70,7 +61,7 @@ namespace Greenshot.Addons.Interfaces.Plugin
 
         public OutputFormats Format { get; set; }
 
-		public int JPGQuality { get; set; }
+		public int JpgQuality { get; set; }
 
 		public bool SaveBackgroundOnly { get; set; }
 

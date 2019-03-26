@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Runtime.InteropServices;
-
-#endregion
 
 namespace Greenshot.Helpers.Mapi
 {
@@ -35,13 +27,7 @@ namespace Greenshot.Helpers.Mapi
     /// </summary>
     internal struct InteropRecipientCollection : IDisposable
     {
-        #region Member Variables
-
         private int _count;
-
-        #endregion Member Variables
-
-        #region Constructors
 
         /// <summary>
         ///     Default constructor for creating InteropRecipientCollection.
@@ -73,15 +59,7 @@ namespace Greenshot.Helpers.Mapi
             }
         }
 
-        #endregion Costructors
-
-        #region Public Properties
-
         public IntPtr Handle { get; private set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         /// <summary>
         ///     Disposes of resources.
@@ -108,7 +86,5 @@ namespace Greenshot.Helpers.Mapi
                 _count = 0;
             }
         }
-
-        #endregion Public Methods
     }
 }

@@ -233,7 +233,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             // 
             this.pipette.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pipette.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.pipette.Image = GreenshotResources.Instance.GetBitmap("pipette.Image", GetType());
+            this.pipette.Image = GreenshotResources.Instance.GetBitmap("pipette.Image", GetType()).NativeBitmap;
             this.pipette.Location = new System.Drawing.Point(510, 56);
             this.pipette.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.pipette.Name = "pipette";

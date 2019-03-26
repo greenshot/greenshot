@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
 
 namespace Greenshot.Tests.Implementation
@@ -14,7 +15,7 @@ namespace Greenshot.Tests.Implementation
         /// </summary>
         /// <param name="destinationBitmap">Bitmap to blur</param>
         /// <param name="range">Must be ODD!</param>
-        public static void ApplyOldBoxBlur(this Bitmap destinationBitmap, int range)
+        public static void ApplyOldBoxBlur(this IBitmapWithNativeSupport destinationBitmap, int range)
         {
             // We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
             using (var fastBitmap = FastBitmapFactory.Create(destinationBitmap))

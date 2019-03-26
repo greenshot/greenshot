@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -37,9 +30,8 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Addons.Resources;
+using Greenshot.Gfx;
 using Microsoft.Office.Interop.Outlook;
-
-#endregion
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -56,7 +48,7 @@ namespace Greenshot.Addon.Office.Destinations
 
 	    private readonly IOfficeConfiguration _officeConfiguration;
 	    private readonly ExportNotification _exportNotification;
-	    private static readonly Bitmap MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
+	    private static readonly IBitmapWithNativeSupport MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
 		private readonly string _exePath;
 		private readonly bool _isActiveFlag;
 		private readonly string _outlookInspectorCaption;
@@ -130,7 +122,7 @@ namespace Greenshot.Addon.Office.Destinations
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
         /// <inherit />
-		public override Bitmap GetDisplayIcon(double dpi)
+		public override IBitmapWithNativeSupport GetDisplayIcon(double dpi)
 		{
 			if (_outlookInspectorCaption == null)
 			{

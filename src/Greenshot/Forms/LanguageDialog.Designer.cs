@@ -67,7 +67,7 @@ namespace Greenshot.Forms {
 			this.btnOK.TabIndex = 1;
 			this.btnOK.Text = "OK";
 			this.btnOK.UseVisualStyleBackColor = true;
-			this.btnOK.Click += new System.EventHandler(this.BtnOKClick);
+			this.btnOK.Click += new System.EventHandler(this.BtnOkClick);
 			// 
 			// LanguageDialog
 			// 

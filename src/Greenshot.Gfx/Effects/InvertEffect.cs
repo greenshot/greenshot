@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,15 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -36,7 +27,7 @@ namespace Greenshot.Gfx.Effects
 	/// </summary>
 	public class InvertEffect : IEffect
 	{
-		public Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateNegative(sourceBitmap);
 		}
@@ -46,7 +37,7 @@ namespace Greenshot.Gfx.Effects
 	    /// </summary>
 	    /// <param name="sourceBitmap">Bitmap to create a negative off</param>
 	    /// <returns>Negative bitmap</returns>
-	    public static Bitmap CreateNegative(Bitmap sourceBitmap)
+	    public static IBitmapWithNativeSupport CreateNegative(IBitmapWithNativeSupport sourceBitmap)
 	    {
 	        var clone = sourceBitmap.CloneBitmap();
 	        var invertMatrix = new ColorMatrix(new[]

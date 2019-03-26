@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,11 +26,9 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.Enums;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces.Forms;
+using Greenshot.Gfx;
 using Microsoft.Win32;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -48,7 +40,7 @@ namespace Greenshot.Addons.Core
 		private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly LogSource Log = new LogSource();
 	    private static bool _isHooked = false;
-		private static readonly Dictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
+		private static readonly Dictionary<string, IBitmapWithNativeSupport> ExeIconCache = new Dictionary<string, IBitmapWithNativeSupport>();
         private static ICoreConfiguration coreConfiguration;
 
         /// <summary>
@@ -79,7 +71,7 @@ namespace Greenshot.Addons.Core
 		        return;
 		    }
 
-		    var cachedImages = new List<Image>();
+		    var cachedImages = new List<IBitmapWithNativeSupport>();
 		    lock (ExeIconCache)
 		    {
 		        foreach (var key in ExeIconCache.Keys)
@@ -136,10 +128,10 @@ namespace Greenshot.Addons.Core
 		/// <param name="index">index of the icon</param>
 		/// <param name="useLargeIcon">true to use the large icon</param>
 		/// <returns>Bitmap with the icon or null if something happended. you are responsible for copying this icon</returns>
-		public static Bitmap GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
+		public static IBitmapWithNativeSupport GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			string cacheKey = $"{path}:{index}";
-		    Bitmap returnValue;
+            IBitmapWithNativeSupport returnValue;
 			lock (ExeIconCache)
 			{
                 if (ExeIconCache.TryGetValue(cacheKey, out returnValue))
@@ -169,7 +161,7 @@ namespace Greenshot.Addons.Core
 		/// <param name="index">index of the icon</param>
 		/// <param name="useLargeIcon">true to use the large icon, if available</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		private static Bitmap GetExeIcon(string path, int index, bool useLargeIcon = true)
+		private static IBitmapWithNativeSupport GetExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			if (!File.Exists(path))
 			{
@@ -180,9 +172,9 @@ namespace Greenshot.Addons.Core
 			    var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, useLargeIcon);
 				if (appIcon != null)
 				{
-					return appIcon;
+					return BitmapWrapper.FromBitmap(appIcon);
 				}
-			    return Shell32.GetFileExtensionIcon<Bitmap>(path, useLargeIcon ? IconSize.Large : IconSize.Small, false);
+			    return BitmapWrapper.FromBitmap(Shell32.GetFileExtensionIcon<Bitmap>(path, useLargeIcon ? IconSize.Large : IconSize.Small, false));
 			}
 			catch (Exception exIcon)
 			{

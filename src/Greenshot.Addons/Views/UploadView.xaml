@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Greenshot.Addons.Views"
              xmlns:viewModels="clr-namespace:Greenshot.Addons.ViewModels"
              mc:Ignorable="d" Height="100" Width="500"
              d:DataContext="{d:DesignInstance viewModels:UploadViewModel,IsDesignTimeCreatable=False}"

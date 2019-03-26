@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -33,8 +27,7 @@ using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Resources;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.LegacyEditor.Controls
 {
@@ -45,7 +38,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 	public sealed class Pipette : Label, IMessageFilter, IDisposable
 	{
 		private const int VkEsc = 27;
-		private readonly Bitmap _image;
+		private readonly IBitmapWithNativeSupport _image;
 		private Cursor _cursor;
 		private bool _dragging;
 		private MovableShowColorForm _movableShowColorForm;
@@ -55,7 +48,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			BorderStyle = BorderStyle.FixedSingle;
 			_dragging = false;
 			_image = GreenshotResources.Instance.GetBitmap("pipette.Image", GetType());
-			Image = _image;
+			Image = _image.NativeBitmap;
 			_cursor = CreateCursor(_image, 1, 14);
 			_movableShowColorForm = new MovableShowColorForm();
 			Application.AddMessageFilter(this);
@@ -69,9 +62,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			Dispose(true);
 		}
 
-		#region IMessageFilter Members
-
-		public bool PreFilterMessage(ref Message m)
+        public bool PreFilterMessage(ref Message m)
 		{
 			if (_dragging)
 			{
@@ -86,20 +77,18 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			return false;
 		}
 
-		#endregion
-
-		public event EventHandler<PipetteUsedArgs> PipetteUsed;
+        public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
 		/// <summary>
-		///     Create a cursor from the supplied bitmap and hotspot coordinates
+		///     Create a cursor from the supplied bitmap and hot-spot coordinates
 		/// </summary>
 		/// <param name="bitmap">Bitmap to create an icon from</param>
 		/// <param name="hotspotX">Hotspot X coordinate</param>
 		/// <param name="hotspotY">Hotspot Y coordinate</param>
 		/// <returns>Cursor</returns>
-		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
+		private static Cursor CreateCursor(IBitmapWithNativeSupport bitmap, int hotspotX, int hotspotY)
 		{
-			using (var iconHandle = new SafeIconHandle(bitmap.GetHicon()))
+			using (var iconHandle = new SafeIconHandle(bitmap.NativeBitmap.GetHicon()))
 			{
 			    NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
 				iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
@@ -189,7 +178,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			else
 			{
 				_dragging = false;
-				Image = _image;
+				Image = _image.NativeBitmap;
 				Cursor = Cursors.Arrow;
 				_movableShowColorForm.Visible = false;
 			}

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Threading;
 using System.Windows;
 using Autofac.Features.OwnedInstances;
@@ -42,8 +35,6 @@ using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
-#endregion
-
 namespace Greenshot.Addon.Confluence
 {
     /// <summary>
@@ -53,7 +44,7 @@ namespace Greenshot.Addon.Confluence
     public class ConfluenceDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
-		private static readonly Bitmap ConfluenceIcon;
+		private static readonly IBitmapWithNativeSupport ConfluenceIcon;
 	    private readonly ExportNotification _exportNotification;
 	    private readonly IConfluenceConfiguration _confluenceConfiguration;
 	    private readonly IConfluenceLanguage _confluenceLanguage;
@@ -125,7 +116,7 @@ namespace Greenshot.Addon.Confluence
 
 	    public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(_confluenceConfiguration.Url);
 
-	    public override Bitmap DisplayIcon => ConfluenceIcon;
+	    public override IBitmapWithNativeSupport DisplayIcon => ConfluenceIcon;
 
 	    public override IEnumerable<IDestination> DynamicDestinations()
 	    {

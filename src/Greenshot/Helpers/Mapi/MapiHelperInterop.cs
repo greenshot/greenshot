@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Runtime.InteropServices;
-
-#endregion
 
 namespace Greenshot.Helpers.Mapi
 {
@@ -35,9 +27,7 @@ namespace Greenshot.Helpers.Mapi
     /// </summary>
     internal class MapiHelperInterop
 	{
-		#region Constructors
-
-		/// <summary>
+        /// <summary>
 		///     Private constructor.
 		/// </summary>
 		private MapiHelperInterop()
@@ -45,9 +35,7 @@ namespace Greenshot.Helpers.Mapi
 			// Intenationally blank
 		}
 
-#endregion Constructors
-
-		[DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
+        [DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
 		public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
 
 	}

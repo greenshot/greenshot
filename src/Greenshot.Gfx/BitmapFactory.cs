@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System;
 using System.Drawing;
@@ -42,7 +38,7 @@ namespace Greenshot.Gfx
         /// <param name="sourceImage">the source bitmap as the specifications for the new bitmap</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmptyLike(this Image sourceImage, Color? backgroundColor = null)
+        public static IBitmapWithNativeSupport CreateEmptyLike(this IBitmapWithNativeSupport sourceImage, Color? backgroundColor = null)
         {
             var pixelFormat = sourceImage.PixelFormat;
             if (backgroundColor.HasValue && backgroundColor.Value.A < 255)
@@ -51,7 +47,7 @@ namespace Greenshot.Gfx
             }
             return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
         }
-
+        
         /// <summary>
         ///     A generic way to create an empty image
         /// </summary>
@@ -62,14 +58,14 @@ namespace Greenshot.Gfx
         /// <param name="horizontalResolution">float</param>
         /// <param name="verticalResolution">float</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmpty(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb, Color? backgroundColor = null, float horizontalResolution = 96f, float verticalResolution = 96f)
+        public static IBitmapWithNativeSupport CreateEmpty(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb, Color? backgroundColor = null, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
             var newImage = new Bitmap(width, height, format);
             newImage.SetResolution(horizontalResolution, verticalResolution);
             if (format == PixelFormat.Format8bppIndexed)
             {
-                return newImage;
+                return BitmapWrapper.FromBitmap(newImage);
             }
             using (var graphics = Graphics.FromImage(newImage))
             {
@@ -87,7 +83,7 @@ namespace Greenshot.Gfx
                     graphics.Clear(Color.White);
                 }
             }
-            return newImage;
+            return BitmapWrapper.FromBitmap(newImage);
         }
 
         /// <summary>
@@ -104,7 +100,27 @@ namespace Greenshot.Gfx
         ///     PixelFormat is not supported)
         /// </param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CloneBitmap(this Bitmap sourceBitmap, PixelFormat targetFormat = PixelFormat.DontCare, NativeRect? sourceRectangle = null)
+        public static IBitmapWithNativeSupport CloneBitmap(this Bitmap sourceBitmap, PixelFormat targetFormat = PixelFormat.DontCare, NativeRect? sourceRectangle = null)
+        {
+            // TODO: Remove this at a later time
+            return BitmapWrapper.FromBitmap(sourceBitmap).CloneBitmap(targetFormat, sourceRectangle);
+        }
+
+        /// <summary>
+        ///     Clone a bitmap, taking some rules into account:
+        ///     1) When sourceRect is the whole bitmap there is a GDI+ bug in Clone
+        ///     Clone will than return the same PixelFormat as the source
+        ///     a quick workaround is using new Bitmap which uses a default of Format32bppArgb
+        ///     2) When going from a transparent to a non transparent bitmap, we draw the background white!
+        /// </summary>
+        /// <param name="sourceBitmap">Source bitmap to clone</param>
+        /// <param name="sourceRectangle">NativeRect to copy from the source, use NativeRect.Empty for all</param>
+        /// <param name="targetFormat">
+        ///     Target Format, use PixelFormat.DontCare if you want the original (or a default if the source
+        ///     PixelFormat is not supported)
+        /// </param>
+        /// <returns>Bitmap</returns>
+        public static IBitmapWithNativeSupport CloneBitmap(this IBitmapWithNativeSupport sourceBitmap, PixelFormat targetFormat = PixelFormat.DontCare, NativeRect? sourceRectangle = null)
         {
             Bitmap newImage;
             var sourceRect = sourceRectangle ?? NativeRect.Empty;
@@ -165,23 +181,23 @@ namespace Greenshot.Gfx
                     // decide fastest copy method
                     if (isAreaEqual)
                     {
-                        graphics.DrawImageUnscaled(sourceBitmap, 0, 0);
+                        graphics.DrawImageUnscaled(sourceBitmap.NativeBitmap, 0, 0);
                     }
                     else
                     {
-                        graphics.DrawImage(sourceBitmap, 0, 0, sourceRect, GraphicsUnit.Pixel);
+                        graphics.DrawImage(sourceBitmap.NativeBitmap, 0, 0, sourceRect, GraphicsUnit.Pixel);
                     }
                 }
             }
             else
             {
                 // Let GDI+ decide how to convert, need to test what is quicker...
-                newImage = sourceBitmap.Clone(sourceRect, targetFormat);
+                newImage = sourceBitmap.NativeBitmap.Clone(sourceRect, targetFormat);
                 // Make sure both images have the same resolution
                 newImage.SetResolution(sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
             }
             // Clone property items (EXIF information etc)
-            foreach (var propertyItem in sourceBitmap.PropertyItems)
+            foreach (var propertyItem in sourceBitmap.NativeBitmap.PropertyItems)
             {
                 try
                 {
@@ -192,7 +208,8 @@ namespace Greenshot.Gfx
                     Log.Warn().WriteLine(ex, "Problem cloning a propertyItem.");
                 }
             }
-            return newImage;
+            
+            return BitmapWrapper.FromBitmap(newImage);
         }
 
     }

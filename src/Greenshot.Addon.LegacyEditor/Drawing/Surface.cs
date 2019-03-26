@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,7 +32,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Memento;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
@@ -46,8 +39,6 @@ using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Interfaces.Drawing.Adorners;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
@@ -59,7 +50,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		private static readonly LogSource Log = new LogSource();
 
         /// <summary>
-        /// The number of Surfaces in existance
+        /// The number of Surfaces in existence
         /// </summary>
         public static int Count { get; private set; }
 
@@ -93,7 +84,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     all selected elements, do not serialize
 		/// </summary>
 		[NonSerialized]
-        private readonly IDrawableContainerList selectedElements;
+        private readonly IDrawableContainerList _selectedElements;
 
 		/// <summary>
 		///     The buffer is only for drawing on it when using filters (to supply access)
@@ -103,7 +94,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     TODO: Check if this buffer is still needed!
 		/// </summary>
 		[NonSerialized]
-        private Bitmap _buffer;
+        private IBitmapWithNativeSupport _buffer;
 
 		/// <summary>
 		///     This value is used to start counting the step labels
@@ -144,7 +135,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     The image is the actual captured image, needed with serialization
 		/// </summary>
-		private Bitmap _screenshot;
+		private IBitmapWithNativeSupport _screenshot;
 
 		/// <summary>
 		///     inUndoRedo makes sure we don't undo/redo while in a undo/redo action
@@ -153,13 +144,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         private bool _inUndoRedo;
 
 		/// <summary>
-		///     Make only one surfacemove cycle undoable, see SurfaceMouseMove
+		///     Make only one surface move cycle undoable, see SurfaceMouseMove
 		/// </summary>
 		[NonSerialized]
         private bool _isSurfaceMoveMadeUndoable;
 
 		/// <summary>
-		///     the keyslocked flag helps with focus issues
+		///     the keys locked flag helps with focus issues
 		/// </summary>
 		[NonSerialized]
         private bool _keysLocked;
@@ -230,10 +221,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration)
 		{
+            _editorConfiguration = editorConfiguration;
+            _coreConfiguration = coreConfiguration;
 			_fieldAggregator = new FieldAggregator(this, editorConfiguration);
 			Count++;
-			_elements = new DrawableContainerList(ID);
-			selectedElements = new DrawableContainerList(ID);
+			_elements = new DrawableContainerList(Id);
+			_selectedElements = new DrawableContainerList(Id);
 			Log.Debug().WriteLine("Creating surface!");
 			MouseDown += SurfaceMouseDown;
 			MouseUp += SurfaceMouseUp;
@@ -244,7 +237,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			DragDrop += OnDragDrop;
 			DragEnter += OnDragEnter;
 			// bind selected & elements to this, otherwise they can't inform of modifications
-			selectedElements.Parent = this;
+			_selectedElements.Parent = this;
 			_elements.Parent = this;
 			// Make sure we are visible
 			Visible = true;
@@ -259,18 +252,22 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         /// <summary>
         ///     Surface constructor with an image
         /// </summary>
-        /// <param name="newBitmap">Bitmap</param>
-        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, Bitmap newBitmap) : this(coreConfiguration, editorConfiguration)
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="editorConfiguration">IEditorConfiguration</param>
+        /// <param name="newBitmap">IBitmapWithNativeSupport</param>
+        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IBitmapWithNativeSupport newBitmap) : this(coreConfiguration, editorConfiguration)
 		{
 			Log.Debug().WriteLine("Got Bitmap with dimensions {0} and format {1}", newBitmap.Size, newBitmap.PixelFormat);
 			SetBitmap(newBitmap, true);
 		}
 
-		/// <summary>
-		///     Surface contructor with a capture
-		/// </summary>
-		/// <param name="capture"></param>
-		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, ICapture capture) : this(coreConfiguration, editorConfiguration)
+        /// <summary>
+        ///     Surface constructor with a capture
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="editorConfiguration">IEditorConfiguration</param>
+        /// <param name="capture">ICapture</param>
+        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, ICapture capture) : this(coreConfiguration, editorConfiguration)
 		{
 			SetCapture(capture);
 		}
@@ -308,9 +305,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public FieldAggregator FieldAggregator
 		{
-			get { return _fieldAggregator; }
-			set { _fieldAggregator = value; }
-		}
+			get => _fieldAggregator;
+            set => _fieldAggregator = value;
+        }
 
 		/// <summary>
 		///     The cursor container has it's own accessor so we can find and remove this (when needed)
@@ -322,26 +319,26 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public Brush TransparencyBackgroundBrush
 		{
-			get { return _transparencyBackgroundBrush; }
-			set { _transparencyBackgroundBrush = value; }
-		}
+			get => _transparencyBackgroundBrush;
+            set => _transparencyBackgroundBrush = value;
+        }
 
 		/// <summary>
 		///     Are the keys on this surface locked?
 		/// </summary>
 		public bool KeysLocked
 		{
-			get { return _keysLocked; }
-			set { _keysLocked = value; }
-		}
+			get => _keysLocked;
+            set => _keysLocked = value;
+        }
 
 		/// <summary>
 		///     The DrawingMode property specifies the mode for drawing, more or less the element type.
 		/// </summary>
 		public DrawingModes DrawingMode
 		{
-			get { return _drawingMode; }
-			set
+			get => _drawingMode;
+            set
 			{
 				_drawingMode = value;
 				if (_drawingModeChanged != null)
@@ -369,46 +366,46 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public event PropertyChangedEventHandler PropertyChanged
 		{
-			add { _propertyChanged += value; }
-			remove { _propertyChanged -= value; }
-		}
+			add => _propertyChanged += value;
+            remove => _propertyChanged -= value;
+        }
 
 		/// <summary>
 		///     The GUID of the surface
 		/// </summary>
-		public Guid ID { get; set; } = Guid.NewGuid();
+		public Guid Id { get; set; } = Guid.NewGuid();
 
 		public event SurfaceElementEventHandler MovingElementChanged
 		{
-			add { _movingElementChanged += value; }
-			remove { _movingElementChanged -= value; }
-		}
+			add => _movingElementChanged += value;
+            remove => _movingElementChanged -= value;
+        }
 
 		public event SurfaceDrawingModeEventHandler DrawingModeChanged
 		{
-			add { _drawingModeChanged += value; }
-			remove { _drawingModeChanged -= value; }
-		}
+			add => _drawingModeChanged += value;
+            remove => _drawingModeChanged -= value;
+        }
 
 		public event SurfaceSizeChangeEventHandler SurfaceSizeChanged
 		{
-			add { _surfaceSizeChanged += value; }
-			remove { _surfaceSizeChanged -= value; }
-		}
+			add => _surfaceSizeChanged += value;
+            remove => _surfaceSizeChanged -= value;
+        }
 
 		public event SurfaceMessageEventHandler SurfaceMessage
 		{
-			add { _surfaceMessage += value; }
-			remove { _surfaceMessage -= value; }
-		}
+			add => _surfaceMessage += value;
+            remove => _surfaceMessage -= value;
+        }
 
 		/// <summary>
 		///     The start value of the counter objects
 		/// </summary>
 		public int CounterStart
 		{
-			get { return _counterStart; }
-			set
+			get => _counterStart;
+            set
 			{
 				if (_counterStart == value)
 				{
@@ -421,10 +418,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 		}
 
-		public Bitmap Screenshot
+		public IBitmapWithNativeSupport Screenshot
 		{
-			get { return _screenshot; }
-			set
+			get => _screenshot;
+            set
 			{
 				_screenshot = value;
 				Size = _screenshot.Size;
@@ -450,18 +447,18 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public bool Modified
 		{
-			get { return _modified; }
-			set { _modified = value; }
-		}
+			get => _modified;
+            set => _modified = value;
+        }
 
 		/// <summary>
 		///     Property for accessing the last save "full" path
 		/// </summary>
 		public string LastSaveFullPath
 		{
-			get { return _lastSaveFullPath; }
-			set { _lastSaveFullPath = value; }
-		}
+			get => _lastSaveFullPath;
+            set => _lastSaveFullPath = value;
+        }
 
 		/// <summary>
 		///     Property for accessing the URL to which the surface was recently uploaded
@@ -621,7 +618,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     This returns the image "result" of this surface, with all the elements rendered on it.
 		/// </summary>
 		/// <returns></returns>
-		public Bitmap GetBitmapForExport()
+		public IBitmapWithNativeSupport GetBitmapForExport()
 		{
 			return GetBitmap(RenderMode.Export);
 		}
@@ -747,7 +744,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     Returns if this surface has selected elements
 		/// </summary>
 		/// <returns></returns>
-		public bool HasSelectedElements => selectedElements != null && selectedElements.Count > 0;
+		public bool HasSelectedElements => _selectedElements != null && _selectedElements.Count > 0;
 
 		/// <summary>
 		///     Remove all the selected elements
@@ -757,7 +754,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			if (HasSelectedElements)
 			{
 				// As RemoveElement will remove the element from the selectedElements list we need to copy the element to another list.
-				RemoveElements(selectedElements);
+				RemoveElements(_selectedElements);
 				if (_movingElementChanged != null)
 				{
 					var eventArgs = new SurfaceElementEventArgs();
@@ -773,7 +770,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			if (HasSelectedElements)
 			{
-				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), _selectedElements);
 				RemoveSelectedElements();
 			}
 		}
@@ -785,7 +782,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			if (HasSelectedElements)
 			{
-				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), _selectedElements);
 			}
 		}
 
@@ -816,7 +813,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				if (dcs != null)
 				{
 					// Make element(s) only move 10,10 if the surface is the same
-					var isSameSurface = dcs.ParentID == ID;
+					var isSameSurface = dcs.ParentID == Id;
 					dcs.Parent = this;
 					var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
 					// Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
@@ -898,16 +895,18 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 				foreach (var clipboardImage in ClipboardHelper.GetBitmaps(clipboard))
 				{
-					if (clipboardImage != null)
-					{
-						DeselectAllElements();
-						var container = AddImageContainer(clipboardImage as Bitmap, x, y);
-						SelectElement(container);
-						clipboardImage.Dispose();
-						x += 10;
-						y += 10;
-					}
-				}
+                    if (clipboardImage == null)
+                    {
+                        continue;
+                    }
+
+                    DeselectAllElements();
+                    var container = AddImageContainer(clipboardImage, x, y);
+                    SelectElement(container);
+                    clipboardImage.Dispose();
+                    x += 10;
+                    y += 10;
+                }
 			}
 			else if (ClipboardHelper.ContainsText(clipboard))
 			{
@@ -927,8 +926,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void DuplicateSelectedElements()
 		{
-			Log.Debug().WriteLine("Duplicating {0} selected elements", selectedElements.Count);
-			var dcs = selectedElements.Clone();
+			Log.Debug().WriteLine("Duplicating {0} selected elements", _selectedElements.Count);
+			var dcs = _selectedElements.Clone();
 			dcs.Parent = this;
 			dcs.MoveBy(10, 10);
 			AddElements(dcs);
@@ -944,11 +943,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public void DeselectElement(IDrawableContainer container, bool generateEvents = true)
 		{
 			container.Selected = false;
-			selectedElements.Remove(container);
+			_selectedElements.Remove(container);
 			FieldAggregator.UnbindElement(container);
 			if (generateEvents && _movingElementChanged != null)
 			{
-				var eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
+				var eventArgs = new SurfaceElementEventArgs {Elements = _selectedElements};
 				_movingElementChanged(this, eventArgs);
 			}
 		}
@@ -958,7 +957,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void DeselectAllElements()
 		{
-			DeselectElements(selectedElements);
+			DeselectElements(_selectedElements);
 		}
 
 		/// <summary>
@@ -969,16 +968,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <param name="generateEvents">false to skip event generation</param>
 		public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
 		{
-			if (!selectedElements.Contains(container))
+			if (!_selectedElements.Contains(container))
 			{
-				selectedElements.Add(container);
+				_selectedElements.Add(container);
 				container.Selected = true;
 				FieldAggregator.BindElement(container);
 				if (generateEvents && _movingElementChanged != null)
 				{
 					var eventArgs = new SurfaceElementEventArgs
 					{
-						Elements = selectedElements
+						Elements = _selectedElements
 					};
 					_movingElementChanged(this, eventArgs);
 				}
@@ -1003,7 +1002,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 			if (_movingElementChanged != null)
 			{
-				var eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
+				var eventArgs = new SurfaceElementEventArgs {Elements = _selectedElements};
 				_movingElementChanged(this, eventArgs);
 			}
 			ResumeLayout();
@@ -1060,7 +1059,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         /// </summary>
         /// <param name="newBitmap">The new bitmap</param>
         /// <param name="dispose">true if the old bitmap needs to be disposed, when using undo this should not be true!!</param>
-        public void SetBitmap(Bitmap newBitmap, bool dispose = false)
+        public void SetBitmap(IBitmapWithNativeSupport newBitmap, bool dispose = false)
 		{
 			// Dispose
 			if (_screenshot != null && dispose)
@@ -1245,7 +1244,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public void Clear(Color newColor)
 		{
 			//create a blank bitmap the same size as original
-			var newBitmap = Screenshot.CreateEmptyLike(Color.Empty);
+			var newBitmap = Screenshot.CreateEmptyLike(newColor);
 			if (newBitmap != null)
 			{
 				// Make undoable
@@ -1296,11 +1295,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			if (IsCropPossible(ref cropRectangle))
 			{
 				var imageRectangle = new NativeRect(NativePoint.Empty, Screenshot.Size);
-				Bitmap tmpImage;
+                IBitmapWithNativeSupport tmpImage;
 				// Make sure we have information, this this fails
 				try
 				{
-					tmpImage = Screenshot.CloneBitmap(PixelFormat.DontCare, cropRectangle) as Bitmap;
+					tmpImage = Screenshot.CloneBitmap(PixelFormat.DontCare, cropRectangle);
 				}
 				catch (Exception ex)
 				{
@@ -1335,7 +1334,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		/// <param name="previous"></param>
 		/// <param name="matrix"></param>
-		public void UndoBackgroundChange(Bitmap previous, Matrix matrix)
+		public void UndoBackgroundChange(IBitmapWithNativeSupport previous, Matrix matrix)
 		{
 			SetBitmap(previous, false);
 			if (matrix != null)
@@ -1353,7 +1352,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns>IAdorner</returns>
 		private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
 		{
-			foreach (var drawableContainer in selectedElements)
+			foreach (var drawableContainer in _selectedElements)
 			{
 				foreach (var adorner in drawableContainer.Adorners)
 				{
@@ -1391,9 +1390,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			if (e.Button == MouseButtons.Right)
 			{
 				IDrawableContainerList selectedList = null;
-				if (selectedElements != null && selectedElements.Count > 0)
+				if (_selectedElements != null && _selectedElements.Count > 0)
 				{
-					selectedList = selectedElements;
+					selectedList = _selectedElements;
 				}
 				else
 				{
@@ -1401,7 +1400,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					var rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
 					if (rightClickedContainer != null)
 					{
-						selectedList = new DrawableContainerList(ID) {rightClickedContainer};
+						selectedList = new DrawableContainerList(Id) {rightClickedContainer};
 					}
 				}
 				if (selectedList != null && selectedList.Count > 0)
@@ -1492,7 +1491,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				if (element != null)
 				{
 					element.Invalidate();
-					var alreadySelected = selectedElements.Contains(element);
+					var alreadySelected = _selectedElements.Contains(element);
 					if (shiftModifier)
 					{
 						if (alreadySelected)
@@ -1519,10 +1518,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				}
 			}
 
-			if (selectedElements.Count > 0)
+			if (_selectedElements.Count > 0)
 			{
-				selectedElements.Invalidate();
-				selectedElements.Selected = true;
+				_selectedElements.Invalidate();
+				_selectedElements.Selected = true;
 			}
 
 			if (_drawingElement != null)
@@ -1573,7 +1572,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				{
 					// an element is currently dragged
 					_mouseDownElement.Invalidate();
-					selectedElements.Invalidate();
+					_selectedElements.Invalidate();
 					// Move the element
 					if (_mouseDownElement.Selected)
 					{
@@ -1581,10 +1580,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 						{
 							// Only allow one undoable per mouse-down/move/up "cycle"
 							_isSurfaceMoveMadeUndoable = true;
-							selectedElements.MakeBoundsChangeUndoable(false);
+							_selectedElements.MakeBoundsChangeUndoable(false);
 						}
 						// dragged element has been selected before -> move all
-						selectedElements.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
+						_selectedElements.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
 					}
 					else
 					{
@@ -1616,8 +1615,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <param name="e"></param>
 		private void SurfaceDoubleClick(object sender, MouseEventArgs e)
 		{
-			selectedElements.OnDoubleClick();
-			selectedElements.Invalidate();
+			_selectedElements.OnDoubleClick();
+			_selectedElements.Invalidate();
 		}
 
 		/// <summary>
@@ -1625,12 +1624,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		/// <param name="renderMode"></param>
 		/// <returns></returns>
-		private Bitmap GetBitmap(RenderMode renderMode)
+		private IBitmapWithNativeSupport GetBitmap(RenderMode renderMode)
 		{
 			// Generate a copy of the original image with a dpi equal to the default...
 			var clone = _screenshot.CloneBitmap();
 			// otherwise we would have a problem drawing the image to the surface... :(
-			using (var graphics = Graphics.FromImage(clone))
+			using (var graphics = Graphics.FromImage(clone.NativeBitmap))
 			{
 			    // do not set SmoothingMode, PixelOffsetMode, CompositingQuality and InterpolationMode the containers need to decide this themselves!
                 _elements.Draw(graphics, clone, renderMode, new NativeRect(NativePoint.Empty, clone.Size));
@@ -1666,27 +1665,27 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Screenshot.Width, Screenshot.Height);
 				}
 				// Elements might need the bitmap, so we copy the part we need
-				using (var graphics = Graphics.FromImage(_buffer))
+				using (var graphics = Graphics.FromImage(_buffer.NativeBitmap))
 				{
                     // do not set SmoothingMode, PixelOffsetMode, CompositingQuality and InterpolationMode the containers need to decide this themselves!
                     DrawBackground(graphics, clipRectangle);
-					graphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+					graphics.DrawImage(Screenshot.NativeBitmap, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					_elements.Draw(graphics, _buffer, RenderMode.Edit, clipRectangle);
 				}
-				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				targetGraphics.DrawImage(_buffer.NativeBitmap, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 			}
 			else
 			{
 				DrawBackground(targetGraphics, clipRectangle);
-				targetGraphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				targetGraphics.DrawImage(Screenshot.NativeBitmap, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				_elements.Draw(targetGraphics, null, RenderMode.Edit, clipRectangle);
 			}
 
 			// No clipping for the adorners
 			targetGraphics.ResetClip();
 			// Draw adorners last
-			foreach (var drawableContainer in selectedElements)
+			foreach (var drawableContainer in _selectedElements)
 			{
 				foreach (var adorner in drawableContainer.Adorners)
 				{
@@ -1725,7 +1724,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         public void ConfirmSelectedConfirmableElements(bool confirm)
 		{
 			// create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
-			var selectedDCs = new List<IDrawableContainer>(selectedElements);
+			var selectedDCs = new List<IDrawableContainer>(_selectedElements);
 			foreach (var dc in selectedDCs)
 			{
 				if (dc.Equals(_cropContainer))
@@ -1763,7 +1762,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				var eventArgs = new SurfaceElementEventArgs
 				{
-					Elements = selectedElements
+					Elements = _selectedElements
 				};
 				_movingElementChanged(this, eventArgs);
 			}
@@ -1785,7 +1784,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns>false if no keys were processed</returns>
 		public bool ProcessCmdKey(Keys k)
 		{
-			if (selectedElements.Count > 0)
+			if (_selectedElements.Count > 0)
 			{
 				var shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
 				var px = shiftModifier ? 10 : 1;
@@ -1835,8 +1834,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				}
 				if (!NativePoint.Empty.Equals(moveBy))
 				{
-					selectedElements.MakeBoundsChangeUndoable(true);
-					selectedElements.MoveBy(moveBy.X, moveBy.Y);
+					_selectedElements.MakeBoundsChangeUndoable(true);
+					_selectedElements.MoveBy(moveBy.X, moveBy.Y);
 				}
 				return true;
 			}
@@ -1848,7 +1847,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void PullElementsUp()
 		{
-			_elements.PullElementsUp(selectedElements);
+			_elements.PullElementsUp(_selectedElements);
 			_elements.Invalidate();
 		}
 
@@ -1857,7 +1856,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void PullElementsToTop()
 		{
-			_elements.PullElementsToTop(selectedElements);
+			_elements.PullElementsToTop(_selectedElements);
 			_elements.Invalidate();
 		}
 
@@ -1866,7 +1865,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void PushElementsDown()
 		{
-			_elements.PushElementsDown(selectedElements);
+			_elements.PushElementsDown(_selectedElements);
 			_elements.Invalidate();
 		}
 
@@ -1875,7 +1874,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		public void PushElementsToBottom()
 		{
-			_elements.PushElementsToBottom(selectedElements);
+			_elements.PushElementsToBottom(_selectedElements);
 			_elements.Invalidate();
 		}
 
@@ -1885,7 +1884,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns>true if selected elements could be pulled up, false otherwise</returns>
 		public bool CanPullSelectionUp()
 		{
-			return _elements.CanPullUp(selectedElements);
+			return _elements.CanPullUp(_selectedElements);
 		}
 
 		/// <summary>
@@ -1894,17 +1893,15 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <returns>true if selected elements could be pushed down, false otherwise</returns>
 		public bool CanPushSelectionDown()
 		{
-			return _elements.CanPushDown(selectedElements);
+			return _elements.CanPushDown(_selectedElements);
 		}
 
 		public void Element_FieldChanged(object sender, FieldChangedEventArgs e)
 		{
-			selectedElements.HandleFieldChangedEvent(sender, e);
+			_selectedElements.HandleFieldChangedEvent(sender, e);
 		}
 
-		#region Plugin interface implementations
-
-		public IBitmapContainer AddImageContainer(Bitmap bitmap, int x, int y)
+        public IBitmapContainer AddImageContainer(IBitmapWithNativeSupport bitmap, int x, int y)
 		{
 			var bitmapContainer = new BitmapContainer(this, _editorConfiguration)
 			{
@@ -1991,11 +1988,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return textContainer;
 		}
 
-		#endregion
-
-		#region DragDrop
-
-		private void OnDragEnter(object sender, DragEventArgs e)
+        private void OnDragEnter(object sender, DragEventArgs e)
 		{
 			if (Log.IsDebugEnabled())
 			{
@@ -2043,7 +2036,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			            {
 			                if (image != null)
 			                {
-			                    AddImageContainer(image, mouse.X, mouse.Y);
+			                    AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
 			                    return;
 			                }
 			            }
@@ -2062,7 +2055,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				    {
 					    if (image != null)
 						{
-							AddImageContainer(image, mouse.X, mouse.Y);
+							AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
 							return;
 						}
 					}
@@ -2076,7 +2069,5 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				image.Dispose();
 			}
 		}
-
-		#endregion
-	}
+    }
 }

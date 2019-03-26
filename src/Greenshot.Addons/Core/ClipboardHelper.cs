@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,14 +34,11 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -357,7 +348,7 @@ EndSelection:<<<<<<<4
         ///     Wrapper for Clipboard.GetBitmap, Created for Bug #3432313
         /// </summary>
         /// <returns>Bitmap if there is an bitmap on the clipboard</returns>
-        public static Bitmap GetBitmap()
+        public static IBitmapWithNativeSupport GetBitmap()
 		{
 			var clipboardData = GetDataObject();
 			// Return the first image
@@ -370,7 +361,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="dataObject"></param>
         /// <returns>IEnumerable of Bitmap</returns>
-        public static IEnumerable<Bitmap> GetBitmaps(IDataObject dataObject)
+        public static IEnumerable<IBitmapWithNativeSupport> GetBitmaps(IDataObject dataObject)
 		{
 			// Get single image, this takes the "best" match
 			var singleImage = GetBitmap(dataObject);
@@ -384,7 +375,7 @@ EndSelection:<<<<<<<4
 				// check if files are supplied
 				foreach (var imageFile in GetImageFilenames(dataObject))
 				{
-				    Bitmap returnBitmap = null;
+                    IBitmapWithNativeSupport returnBitmap = null;
 					try
 					{
 						returnBitmap = BitmapHelper.LoadBitmap(imageFile);
@@ -408,9 +399,9 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="dataObject"></param>
         /// <returns>Bitmap or null</returns>
-        private static Bitmap GetBitmap(IDataObject dataObject)
+        private static IBitmapWithNativeSupport GetBitmap(IDataObject dataObject)
 		{
-			Bitmap returnBitmap = null;
+            IBitmapWithNativeSupport returnBitmap = null;
 		    if (dataObject == null)
 		    {
 		        return null;
@@ -464,14 +455,14 @@ EndSelection:<<<<<<<4
 		/// <param name="format">string with the format</param>
 		/// <param name="dataObject">IDataObject</param>
 		/// <returns>Bitmap or null</returns>
-		private static Bitmap GetBitmapForFormat(string format, IDataObject dataObject)
+		private static IBitmapWithNativeSupport GetBitmapForFormat(string format, IDataObject dataObject)
 		{
 			var clipboardObject = GetFromDataObject(dataObject, format);
 			var imageStream = clipboardObject as MemoryStream;
 			if (!IsValidStream(imageStream))
 			{
 				// TODO: add "HTML Format" support here...
-				return clipboardObject as Bitmap;
+				return BitmapWrapper.FromBitmap(clipboardObject as Bitmap);
 			}
 			if (CoreConfiguration.EnableSpecialDIBClipboardReader)
 			{
@@ -513,12 +504,14 @@ EndSelection:<<<<<<<4
 								{
 									var handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
 									gcHandle = GCHandle.ToIntPtr(handle);
+                                    // TODO: Should be easier
 									return
+                                        BitmapWrapper.FromBitmap(
 										new Bitmap(infoHeader.Width, infoHeader.Height,
 											-(int) (infoHeader.SizeImage / infoHeader.Height),
 											infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
 											new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int) (infoHeader.SizeImage / infoHeader.Height))
-										);
+										));
 								}
 								catch (Exception ex)
 								{
@@ -647,7 +640,7 @@ EndSelection:<<<<<<<4
 			MemoryStream dibStream = null;
 			MemoryStream dibV5Stream = null;
 			MemoryStream pngStream = null;
-			Bitmap bitmapToSave = null;
+			IBitmapWithNativeSupport bitmapToSave = null;
 			var disposeImage = false;
 			try
 			{
@@ -774,7 +767,7 @@ EndSelection:<<<<<<<4
 				// Check if Bitmap is wanted
 				if (CoreConfiguration.ClipboardFormats.Contains(ClipboardFormats.BITMAP))
 				{
-					dataObject.SetImage(bitmapToSave);
+					dataObject.SetImage(bitmapToSave.NativeBitmap);
 					// Place the DataObject to the clipboard
 					SetDataObject(dataObject, true);
 				}
@@ -801,11 +794,11 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="bitmap">Bitmap</param>
 		/// <returns>byte[]</returns>
-		private static byte[] BitmapToByteArray(Bitmap bitmap)
+		private static byte[] BitmapToByteArray(IBitmapWithNativeSupport bitmap)
 		{
 			// Lock the bitmap's bits.  
 			var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
-			var bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+			var bmpData = bitmap.NativeBitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
 			var absStride = Math.Abs(bmpData.Stride);
 			var bytes = absStride * bitmap.Height;
@@ -820,7 +813,7 @@ EndSelection:<<<<<<<4
 			}
 
 			// Unlock the bits.
-			bitmap.UnlockBits(bmpData);
+			bitmap.NativeBitmap.UnlockBits(bmpData);
 
 			return rgbValues;
 		}

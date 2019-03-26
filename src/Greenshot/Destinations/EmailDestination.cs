@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,21 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Resources;
+using Greenshot.Gfx;
 using Greenshot.Helpers.Mapi;
-
-#endregion
 
 namespace Greenshot.Destinations
 {
@@ -44,7 +36,7 @@ namespace Greenshot.Destinations
     public class EmailDestination : AbstractDestination
 	{
 	    private readonly ExportNotification _exportNotification;
-	    private static readonly Bitmap MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
+	    private static readonly IBitmapWithNativeSupport MailIcon = GreenshotResources.Instance.GetBitmap("Email.Image");
 		private static bool _isActiveFlag;
 		private static string _mapiClient;
 
@@ -108,7 +100,7 @@ namespace Greenshot.Destinations
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
-		public override Bitmap DisplayIcon => MailIcon;
+		public override IBitmapWithNativeSupport DisplayIcon => MailIcon;
 
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{

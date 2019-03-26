@@ -29,8 +29,6 @@ namespace Greenshot.Addon.Dropbox.Configuration.Impl
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public class DropboxLanguageImpl: LanguageBase<IDropboxLanguage>, IDropboxLanguage
     {
-        #region Implementation of IDropboxLanguage
-
         public string CommunicationWait { get; }
         public string Configure { get; }
         public string LabelAfterUpload { get; }
@@ -40,7 +38,5 @@ namespace Greenshot.Addon.Dropbox.Configuration.Impl
         public string UploadFailure { get; }
         public string UploadMenuItem { get; }
         public string UploadSuccess { get; }
-
-        #endregion
     }
 }

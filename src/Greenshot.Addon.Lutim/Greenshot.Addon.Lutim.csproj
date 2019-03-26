@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Lutim</RootNamespace>
@@ -50,7 +50,7 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.17" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.18" />
 	<PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0212" />
     <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>

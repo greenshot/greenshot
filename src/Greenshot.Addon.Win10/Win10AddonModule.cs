@@ -21,9 +21,9 @@
 
 using Autofac;
 using Dapplo.Addons;
-using Greenshot.Addons.Interfaces;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Components;
+using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Win10
 {

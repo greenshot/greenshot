@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
-using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,8 +29,7 @@ using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -72,7 +64,7 @@ namespace Greenshot.Addon.ExternalCommand
 	    public override string Description => _externalCommandDefinition.Name;
 
 	    /// <inheritdoc />
-	    public override Bitmap GetDisplayIcon(double dpi)
+	    public override IBitmapWithNativeSupport GetDisplayIcon(double dpi)
 		{
 			return IconCache.IconForCommand(_externalCommandDefinition, dpi > 100);
 		}

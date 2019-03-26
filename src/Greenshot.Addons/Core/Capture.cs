@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -32,8 +26,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -51,7 +43,7 @@ namespace Greenshot.Addons.Core
 
 		private NativePoint _cursorLocation = NativePoint.Empty;
 
-		private Bitmap _bitmap;
+		private IBitmapWithNativeSupport _bitmap;
 
 		private NativeRect _screenBounds;
 
@@ -69,7 +61,7 @@ namespace Greenshot.Addons.Core
         ///     Note: the supplied bitmap can be disposed immediately or when constructor is called.
         /// </summary>
         /// <param name="newBitmap">Bitmap</param>
-        public Capture(Bitmap newBitmap) : this()
+        public Capture(IBitmapWithNativeSupport newBitmap) : this()
 		{
 			Bitmap = newBitmap;
 		}
@@ -93,7 +85,7 @@ namespace Greenshot.Addons.Core
 		/// <summary>
 		///     Get/Set the Bitmap
 		/// </summary>
-		public Bitmap Bitmap
+		public IBitmapWithNativeSupport Bitmap
 		{
 			get => _bitmap;
 		    set
@@ -109,7 +101,8 @@ namespace Greenshot.Addons.Core
 						try
 						{
 							// Default Bitmap PixelFormat is Format32bppArgb
-							_bitmap = new Bitmap(value);
+                            // TODO: fix conversion
+							_bitmap = BitmapWrapper.FromBitmap(new Bitmap(value.NativeBitmap));
 						}
 						finally
 						{

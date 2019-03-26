@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 using Greenshot.Gfx.FastBitmap;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -45,7 +37,7 @@ namespace Greenshot.Gfx.Effects
 			_threshold = threshold;
 		}
 
-		public Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateMonochrome(sourceBitmap, _threshold);
 		}
@@ -56,7 +48,7 @@ namespace Greenshot.Gfx.Effects
 	    /// <param name="sourceBitmap">Bitmap to create a b/w of</param>
 	    /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
 	    /// <returns>b/w bitmap</returns>
-	    public static Bitmap CreateMonochrome(Bitmap sourceBitmap, byte threshold)
+	    public static IBitmapWithNativeSupport CreateMonochrome(IBitmapWithNativeSupport sourceBitmap, byte threshold)
 	    {
 	        using (var fastBitmap = FastBitmapFactory.CreateCloneOf(sourceBitmap, sourceBitmap.PixelFormat))
 	        {

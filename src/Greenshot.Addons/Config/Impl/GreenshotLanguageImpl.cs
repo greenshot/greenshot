@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
@@ -33,14 +29,8 @@ namespace Greenshot.Addons.Config.Impl
 #pragma warning disable CS1591
     internal class GreenshotLanguageImpl : LanguageBase<IGreenshotLanguage>, IGreenshotLanguage
     {
-        #region Implementation of ICoreTranslations
-
         public string Cancel { get; }
         public string Ok { get; }
-
-        #endregion
-
-        #region Implementation of IGreenshotLanguage
 
         public string None { get; }
         public string AboutBugs { get; }
@@ -178,7 +168,5 @@ namespace Greenshot.Addons.Config.Impl
         public string CurrentVersion { get; }
         public string Expert { get; }
         public string DestinationExportFailed { get; }
-
-        #endregion
     }
 }

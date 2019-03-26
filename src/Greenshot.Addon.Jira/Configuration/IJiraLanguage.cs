@@ -17,17 +17,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#region Usings
-
 using System.ComponentModel;
 using Dapplo.Config.Language;
-
-#endregion
 
 namespace Greenshot.Addon.Jira.Configuration
 {
     [Language("Jira")]
-    public interface IJiraLanguage : ILanguage, INotifyPropertyChanged
+    public interface IJiraLanguage : ILanguage
     {
         string Cancel { get; }
 

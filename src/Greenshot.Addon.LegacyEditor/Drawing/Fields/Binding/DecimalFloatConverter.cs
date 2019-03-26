@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
-#endregion
-
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 {
 	/// <summary>
@@ -32,7 +24,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 	/// </summary>
 	public class DecimalFloatConverter : AbstractBindingConverter<float, decimal>
 	{
-		private static DecimalFloatConverter uniqueInstance;
+		private static DecimalFloatConverter _uniqueInstance;
 
 		private DecimalFloatConverter()
 		{
@@ -50,11 +42,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 
 		public static DecimalFloatConverter GetInstance()
 		{
-			if (uniqueInstance == null)
+			if (_uniqueInstance == null)
 			{
-				uniqueInstance = new DecimalFloatConverter();
+				_uniqueInstance = new DecimalFloatConverter();
 			}
-			return uniqueInstance;
+			return _uniqueInstance;
 		}
 	}
 }

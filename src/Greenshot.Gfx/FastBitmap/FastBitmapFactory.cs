@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.FastBitmap
 {
@@ -44,7 +36,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="source">Bitmap to access</param>
 		/// <param name="area">NativeRect which specifies the area to have access to, can be NativeRect.Empty for the whole image</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap Create(Bitmap source, NativeRect? area = null)
+		public static IFastBitmap Create(IBitmapWithNativeSupport source, NativeRect? area = null)
 		{
 			switch (source.PixelFormat)
 			{
@@ -69,7 +61,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="pixelFormat">Pixelformat of the cloned bitmap</param>
 		/// <param name="area">Area of the bitmap to access, can be NativeRect.Empty for the whole</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap CreateCloneOf(Bitmap source, PixelFormat pixelFormat = PixelFormat.DontCare, NativeRect? area = null)
+		public static IFastBitmap CreateCloneOf(IBitmapWithNativeSupport source, PixelFormat pixelFormat = PixelFormat.DontCare, NativeRect? area = null)
 		{
 			var destination = source.CloneBitmap(pixelFormat, area);
 		    if (!(Create(destination) is FastBitmapBase fastBitmap))

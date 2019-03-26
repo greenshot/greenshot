@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -44,20 +40,20 @@ namespace Greenshot.Tests
             using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmapNew))
+                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                     bitmapNew.ApplyBoxBlur(10);
                 }
-                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    bitmapOld.ApplyOldBoxBlur(10);
+                    BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
                 }
-                bitmapOld.Save(@"old.png", ImageFormat.Png);
-                bitmapNew.Save(@"new.png", ImageFormat.Png);
+                bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
+                bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
 
                 Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
             }
@@ -70,16 +66,16 @@ namespace Greenshot.Tests
             using (var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400))
             using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmapOld))
+                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    bitmapOld.ApplyOldBoxBlur(10);
+                    BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
                 }
-                bitmapOld.Save(@"old.png", ImageFormat.Png);
+                bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
 
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
-                using (var bitmap = bitmapNew.AsBitmap())
+                using (var bitmap = bitmapNew.NativeBitmap)
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
@@ -88,7 +84,7 @@ namespace Greenshot.Tests
                     bitmap.Save(@"new.png", ImageFormat.Png);
                 }
 
-                Assert.True(bitmapOld.IsEqualTo(bitmapNew.AsBitmap()), "New blur doesn't compare to old.");
+                Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
             }
         }
     }

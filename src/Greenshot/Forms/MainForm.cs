@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -18,10 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
-#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -64,8 +58,6 @@ using Dapplo.Windows.User32;
 using Greenshot.Addons.Resources;
 using Greenshot.Components;
 
-#endregion
-
 namespace Greenshot.Forms
 {
     /// <summary>
@@ -80,6 +72,7 @@ namespace Greenshot.Forms
         private readonly InternetExplorerCaptureHelper _internetExplorerCaptureHelper;
         private readonly Func<Owned<ConfigViewModel>> _configViewModelFactory;
         private readonly Func<Owned<AboutForm>> _aboutFormFactory;
+        private readonly Func<IBitmapWithNativeSupport, Bitmap> _valueConverter = bitmap => bitmap?.NativeBitmap;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
@@ -400,24 +393,24 @@ namespace Greenshot.Forms
                 notifyIcon.Icon = GreenshotResources.Instance.GetGreenshotIcon();
             });
 
-            var contextMenuResourceScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+            var contextMenuResourceScaleHandler = BitmapScaleHandler.Create<string, IBitmapWithNativeSupport>(ContextMenuDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_settings, "contextmenu_settings.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_help, "contextmenu_help.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_donate, "contextmenu_donate.Image");
-            contextMenuResourceScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image");
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_settings, "contextmenu_settings.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_help, "contextmenu_help.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_donate, "contextmenu_donate.Image", _valueConverter);
+            contextMenuResourceScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image", _valueConverter);
 
             // this is special handling, for the icons which come from the executables
-            var exeBitmapScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler,
+            var exeBitmapScaleHandler = BitmapScaleHandler.Create<string, IBitmapWithNativeSupport>(ContextMenuDpiHandler,
                 (path, dpi) => PluginUtils.GetCachedExeIcon(path, 0, dpi >= 120),
                 (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
-            exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"));
+            exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"), _valueConverter);
 
             // Add cleanup
             Application.ApplicationExit += (sender, args) =>
@@ -428,8 +421,6 @@ namespace Greenshot.Forms
                 exeBitmapScaleHandler.Dispose();
             };
         }
-
-#region mainform events
 
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
@@ -443,10 +434,6 @@ namespace Greenshot.Forms
             Hide();
             ShowInTaskbar = false;
         }
-
-#endregion
-
-#region key handlers
 
         private void CaptureFile()
         {
@@ -472,10 +459,6 @@ namespace Greenshot.Forms
                 CaptureHelper.CaptureIe(_captureSupportInfo, true, null);
             }
         }
-
-#endregion
-
-#region contextmenu
 
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
@@ -523,7 +506,7 @@ namespace Greenshot.Forms
                 now.Month == 3 && now.Day > 13 && now.Day < 21)
             {
                 // birthday
-                contextmenu_donate.Image = GreenshotResources.Instance.GetBitmap("contextmenu_present.Image", GetType());
+                contextmenu_donate.Image = GreenshotResources.Instance.GetBitmap("contextmenu_present.Image", GetType()).NativeBitmap;
             }
         }
 
@@ -566,7 +549,7 @@ namespace Greenshot.Forms
                         }
                         var captureIeTabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
                         var index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
-                        captureIeTabItem.Image = tabData.Key.GetDisplayIcon();
+                        captureIeTabItem.Image = tabData.Key.GetDisplayIcon().NativeBitmap;
                         captureIeTabItem.Tag = new KeyValuePair<IInteropWindow, int>(tabData.Key, index++);
                         captureIeTabItem.Click += Contextmenu_captureiefromlist_Click;
                         contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
@@ -713,7 +696,7 @@ namespace Greenshot.Forms
                 }
                 var captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
-                captureWindowItem.Image = window.GetDisplayIcon(ContextMenuDpiHandler.Dpi > DpiHandler.DefaultScreenDpi);
+                captureWindowItem.Image = window.GetDisplayIcon(ContextMenuDpiHandler.Dpi > DpiHandler.DefaultScreenDpi).NativeBitmap;
                 captureWindowItem.Click += eventHandler;
                 // Only show preview when enabled
                 if (thumbnailPreview)
@@ -1088,7 +1071,5 @@ namespace Greenshot.Forms
             // Rebuild the quick settings menu with the new settings.
             InitializeQuickSettingsMenu();
         }
-
-#endregion
     }
 }

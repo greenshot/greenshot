@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,15 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.FastBitmap
 {
@@ -164,7 +156,7 @@ namespace Greenshot.Gfx.FastBitmap
 		///     Unlock the bitmap and get the underlying bitmap in one call
 		/// </summary>
 		/// <returns></returns>
-		Bitmap UnlockAndReturnBitmap();
+        IBitmapWithNativeSupport UnlockAndReturnBitmap();
 
 		/// <summary>
 		///     Draw the stored bitmap to the destionation bitmap at the supplied point

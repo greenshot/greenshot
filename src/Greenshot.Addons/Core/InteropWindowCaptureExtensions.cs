@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -40,13 +34,10 @@ using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32.Enums;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -79,14 +70,14 @@ namespace Greenshot.Addons.Core
         /// </summary>
         /// <param name="interopWindow">IInteropWindow</param>
         /// <param name="useLargeIcon">true to use the large icon</param>
-        public static Image GetDisplayIcon(this IInteropWindow interopWindow, bool useLargeIcon = true)
+        public static IBitmapWithNativeSupport GetDisplayIcon(this IInteropWindow interopWindow, bool useLargeIcon = true)
         {
             try
             {
                 var appIcon = interopWindow.GetIcon<Bitmap>(useLargeIcon);
                 if (appIcon != null)
                 {
-                    return appIcon;
+                    return BitmapWrapper.FromBitmap(appIcon);
                 }
             }
             catch (Exception ex)
@@ -110,7 +101,7 @@ namespace Greenshot.Addons.Core
         /// <param name="interopWindow">InteropWindow</param>
         /// <param name="clientBounds">true to use the client bounds</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
+        public static IBitmapWithNativeSupport CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
         {
             var bounds = clientBounds ? interopWindow.GetInfo().ClientBounds: interopWindow.GetInfo().Bounds;
             return WindowCapture.CaptureRectangle(bounds);
@@ -139,9 +130,9 @@ namespace Greenshot.Addons.Core
         ///     As GDI+ draws it, it will be without Aero borders!
         ///     TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
         /// </summary>
-        public static Bitmap PrintWindow(this IInteropWindow nativeWindow)
+        public static IBitmapWithNativeSupport PrintWindow(this IInteropWindow nativeWindow)
         {
-            var returnBitmap = nativeWindow.PrintWindow<Bitmap>();
+            var returnBitmap = BitmapWrapper.FromBitmap(nativeWindow.PrintWindow<Bitmap>());
             if (nativeWindow.HasParent || !nativeWindow.IsMaximized())
             {
                 return returnBitmap;
@@ -286,7 +277,7 @@ namespace Greenshot.Addons.Core
                 captureRectangle = captureRectangle.Intersect(capture.ScreenBounds);
 
                 // Destination bitmap for the capture
-                Bitmap capturedBitmap = null;
+                IBitmapWithNativeSupport capturedBitmap = null;
                 // Check if we make a transparent capture
                 if (windowCaptureMode == WindowCaptureModes.AeroTransparent)
                 {
@@ -368,8 +359,8 @@ namespace Greenshot.Addons.Core
                             // Remove corners
                             if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
                             {
-                                Log.Debug().WriteLine("Changing pixelformat to Alpha for the RemoveCorners");
-                                var tmpBitmap = capturedBitmap.CloneBitmap(PixelFormat.Format32bppArgb) as Bitmap;
+                                Log.Debug().WriteLine("Changing pixel format to Alpha for the RemoveCorners");
+                                var tmpBitmap = capturedBitmap.CloneBitmap(PixelFormat.Format32bppArgb);
                                 capturedBitmap.Dispose();
                                 capturedBitmap = tmpBitmap;
                             }
@@ -407,7 +398,7 @@ namespace Greenshot.Addons.Core
         ///     Helper method to remove the corners from a DMW capture
         /// </summary>
         /// <param name="image">The bitmap to remove the corners from.</param>
-        private static void RemoveCorners(Bitmap image)
+        private static void RemoveCorners(IBitmapWithNativeSupport image)
         {
             using (var fastBitmap = FastBitmapFactory.Create(image))
             {
@@ -432,7 +423,7 @@ namespace Greenshot.Addons.Core
         /// <param name="blackBitmap">Bitmap with the black image</param>
         /// <param name="whiteBitmap">Bitmap with the black image</param>
         /// <returns>Bitmap with transparency</returns>
-        private static Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
+        private static IBitmapWithNativeSupport ApplyTransparency(IBitmapWithNativeSupport blackBitmap, IBitmapWithNativeSupport whiteBitmap)
         {
             using (var targetBuffer = FastBitmapFactory.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
             {

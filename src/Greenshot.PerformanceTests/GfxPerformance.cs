@@ -15,26 +15,23 @@ namespace Greenshot.PerformanceTests
     public class GfxPerformance
     {
         private UnmanagedBitmap<Bgr32> _unmanagedTestBitmap;
-        private Bitmap _testBitmap;
 
         [GlobalSetup]
         public void CreateTestImage()
         {
             _unmanagedTestBitmap = new UnmanagedBitmap<Bgr32>(400, 400);
             _unmanagedTestBitmap.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255, Unused = 0});
-            using (var bitmap = _unmanagedTestBitmap.AsBitmap())
+            using (var bitmap = _unmanagedTestBitmap.NativeBitmap)
             using (var graphics = Graphics.FromImage(bitmap))
             using (var pen = new SolidBrush(Color.Blue))
             {
                 graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
             }
-            _testBitmap = _unmanagedTestBitmap.AsBitmap();
         }
 
         [GlobalCleanup]
         public void Dispose()
         {
-            _testBitmap.Dispose();
             _unmanagedTestBitmap.Dispose();
         }
 
@@ -47,7 +44,7 @@ namespace Greenshot.PerformanceTests
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
@@ -55,7 +52,7 @@ namespace Greenshot.PerformanceTests
                 var quantizer = new WuQuantizer(bitmap);
                 using (var quantizedImage = quantizer.GetQuantizedImage())
                 {
-                    quantizedImage.Save(@"quantized.png", ImageFormat.Png);
+                    quantizedImage.NativeBitmap.Save(@"quantized.png", ImageFormat.Png);
                 }
             }
         }
@@ -65,7 +62,7 @@ namespace Greenshot.PerformanceTests
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
@@ -80,7 +77,7 @@ namespace Greenshot.PerformanceTests
             using (var unmanagedBitmap = new UnmanagedBitmap<Bgr32>(400, 400))
             {
                 unmanagedBitmap.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
-                using (var bitmap = unmanagedBitmap.AsBitmap())
+                using (var bitmap = unmanagedBitmap.NativeBitmap)
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
@@ -97,28 +94,28 @@ namespace Greenshot.PerformanceTests
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
-                bitmap.ApplyOldBoxBlur(10);
+                BoxBlurOld.ApplyOldBoxBlur(bitmap, 10);
             }
         }
 
-        [Benchmark]
+        //[Benchmark]
         public void Scale2x_FastBitmap()
         {
-            _testBitmap.Scale2X().Dispose();
+            ScaleX.Scale2X(_unmanagedTestBitmap).Dispose();
         }
 
-        [Benchmark]
+        //[Benchmark]
         public void Scale2x_Unmanaged()
         {
             _unmanagedTestBitmap.Scale2X().Dispose();
         }
 
-        [Benchmark]
+        //[Benchmark]
         public void Scale2x_Unmanaged_Reference()
         {
             _unmanagedTestBitmap.Scale2XReference().Dispose();
@@ -127,13 +124,19 @@ namespace Greenshot.PerformanceTests
         [Benchmark]
         public void Scale3x_FastBitmap()
         {
-            _testBitmap.Scale3X().Dispose();
+            ScaleX.Scale3X(_unmanagedTestBitmap).Dispose();
         }
 
         [Benchmark]
         public void Scale3x_Unmanaged()
         {
             _unmanagedTestBitmap.Scale3X().Dispose();
+        }
+
+        [Benchmark]
+        public void Scale3x_Unmanaged_Reference()
+        {
+            _unmanagedTestBitmap.Scale3XReference().Dispose();
         }
     }
 }

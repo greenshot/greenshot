@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
@@ -31,14 +25,12 @@ using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
 
-#endregion
-
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
 	[Serializable]
 	public class BlurFilter : AbstractFilter
 	{
-		public double previewQuality;
+		private double _previewQuality;
 
 		public BlurFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
@@ -48,15 +40,15 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 
 		public double PreviewQuality
 		{
-			get { return previewQuality; }
-			set
+			get => _previewQuality;
+            set
 			{
-				previewQuality = value;
+				_previewQuality = value;
 				OnPropertyChanged("PreviewQuality");
 			}
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
 			var blurRadius = GetFieldValueAsInt(FieldTypes.BLUR_RADIUS);
 			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);

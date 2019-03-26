@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 {
@@ -38,7 +30,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	{
 	    public static readonly IFieldType ARROWHEADS = new FieldType<ArrowContainer.ArrowHeadCombination>("ARROWHEADS");
 	    public static readonly IFieldType BLUR_RADIUS = new FieldType<int>("BLUR_RADIUS");
-	    public static readonly IFieldType BRIGHTNESS = new FieldType<int>("BRIGHTNESS");
+	    public static readonly IFieldType BRIGHTNESS = new FieldType<float>("BRIGHTNESS");
 	    public static readonly IFieldType FILL_COLOR = new FieldType<Color>("FILL_COLOR");
 	    public static readonly IFieldType FONT_BOLD = new FieldType<bool>("FONT_BOLD");
 	    public static readonly IFieldType FONT_FAMILY = new FieldType<string>("FONT_FAMILY");

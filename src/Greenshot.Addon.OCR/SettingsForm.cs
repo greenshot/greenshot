@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,15 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using Greenshot.Addon.OCR.Configuration;
 using Greenshot.Addons.Controls;
-
-#endregion
 
 namespace Greenshot.Addon.OCR
 {
@@ -36,14 +28,14 @@ namespace Greenshot.Addon.OCR
 	/// </summary>
 	public partial class SettingsForm : GreenshotForm
 	{
-		private readonly IOcrConfiguration config;
+		private readonly IOcrConfiguration _config;
 
 		public SettingsForm(string[] languages, IOcrLanguage ocrLanguage, IOcrConfiguration config) : base(ocrLanguage)
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
-			this.config = config;
+			_config = config;
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
@@ -69,12 +61,12 @@ namespace Greenshot.Addon.OCR
 			}
 		}
 
-		private void ButtonOKClick(object sender, EventArgs e)
+		private void ButtonOkClick(object sender, EventArgs e)
 		{
 			var selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null)
 			{
-				config.Language = selectedString.ToUpper();
+				_config.Language = selectedString.ToUpper();
 			}
 		}
 	}

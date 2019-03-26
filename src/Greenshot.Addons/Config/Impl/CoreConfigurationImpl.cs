@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows;
 using Dapplo.Config.Ini;
-using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Addons.Core;
@@ -37,16 +32,10 @@ namespace Greenshot.Addons.Config.Impl
 {
     public class CoreConfigurationImpl : IniSectionBase<ICoreConfiguration>, ICoreConfiguration
     {
-        #region Overrides of IniSectionBase<ICoreConfiguration>
-
         public override void AfterLoad()
         {
             CoreConfigurationExtensions.AfterLoad(this);
         }
-
-        #endregion
-
-        #region Implementation of IFileConfiguration
 
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
@@ -61,10 +50,6 @@ namespace Greenshot.Addons.Config.Impl
         public string OptimizePNGCommand { get; set; }
         public string OptimizePNGCommandArguments { get; set; }
 
-        #endregion
-
-        #region Implementation of ICaptureConfiguration
-
         public NativeSize Win10BorderCrop { get; set; }
         public bool CaptureMousepointer { get; set; }
         public bool CaptureWindowsInteractive { get; set; }
@@ -77,10 +62,6 @@ namespace Greenshot.Addons.Config.Impl
         public IList<string> NoDWMCaptureForProduct { get; set; }
         public bool WindowCaptureRemoveCorners { get; set; }
         public IList<int> WindowCornerCutShape { get; set; }
-
-        #endregion
-
-        #region Implementation of ICoreConfiguration
 
         public string Language { get; set; }
         public string RegionHotkey { get; set; }
@@ -152,14 +133,8 @@ namespace Greenshot.Addons.Config.Impl
         public bool IsPortable { get; set; }
         public ISet<string> Permissions { get; set; }
 
-        #endregion
-
-        #region Implementation of IUiConfiguration
-
         public WindowStartupLocation DefaultWindowStartupLocation { get; set; }
         public bool AreWindowLocationsStored { get; set; }
         public IDictionary<string, WindowPlacement> WindowLocations { get; set; }
-
-        #endregion
     }
 }

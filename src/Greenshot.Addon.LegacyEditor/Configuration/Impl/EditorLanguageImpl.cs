@@ -10,8 +10,6 @@ namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
 #pragma warning disable CS1591
     public class EditorLanguageImpl : LanguageBase<IEditorLanguage>, IEditorLanguage
     {
-        #region Implementation of IEditorLanguage
-
         public string SettingsDestinationEditor { get; }
         public string EditorAlignBottom { get; }
         public string EditorAlignCenter { get; }
@@ -101,7 +99,5 @@ namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
         public string EditorUndo { get; }
         public string EditorUponelevel { get; }
         public string EditorUptotop { get; }
-
-        #endregion
     }
 }

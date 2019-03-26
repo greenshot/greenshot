@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Dapplo.Log;
@@ -37,14 +30,12 @@ using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Greenshot.Addon.InternetExplorer.InternetExplorerInterop;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
+using Greenshot.Gfx.Structs;
 using mshtml;
-
-#endregion
 
 namespace Greenshot.Addon.InternetExplorer
 {
@@ -427,7 +418,7 @@ namespace Greenshot.Addon.InternetExplorer
 				}
 
 				// bitmap to return
-				Bitmap returnBitmap = null;
+				IBitmapWithNativeSupport returnBitmap = null;
 				try
 				{
 					var pageSize = PrepareCapture(documentContainer, capture);
@@ -649,15 +640,15 @@ namespace Greenshot.Addon.InternetExplorer
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize)
+		private IBitmapWithNativeSupport CapturePage(DocumentContainer documentContainer, Size pageSize)
 		{
 			var contentWindowDetails = documentContainer.ContentWindow;
 
 			//Create a target bitmap to draw into with the calculated page size
-			var returnBitmap = new Bitmap(pageSize.Width, pageSize.Height, PixelFormat.Format24bppRgb);
-			using (var graphicsTarget = Graphics.FromImage(returnBitmap))
+			var returnBitmap = new UnmanagedBitmap<Bgr24>(pageSize.Width, pageSize.Height);
+			using (var graphicsTarget = Graphics.FromImage(returnBitmap.NativeBitmap))
 			{
-				// Clear the target with the backgroundcolor
+				// Clear the target with the background color
 				var clearColor = documentContainer.BackgroundColor;
 				Log.Debug().WriteLine("Clear color: {0}", clearColor);
 				graphicsTarget.Clear(clearColor);
@@ -665,10 +656,10 @@ namespace Greenshot.Addon.InternetExplorer
 				// Get the base document & draw it
 				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 
-				// Loop over the frames and clear their source area so we don't see any artefacts
+				// Loop over the frames and clear their source area so we don't see any artifacts
 				foreach (var frameDocument in documentContainer.Frames)
 				{
-					using (Brush brush = new SolidBrush(clearColor))
+					using (var brush = new SolidBrush(clearColor))
 					{
 						graphicsTarget.FillRectangle(brush, frameDocument.SourceRectangle);
 					}
@@ -764,7 +755,7 @@ namespace Greenshot.Addon.InternetExplorer
 							    targetLocation = targetLocation.Offset(targetOffset);
 								Log.Debug().WriteLine("After offsetting the fragment targetLocation is {0}", targetLocation);
 								Log.Debug().WriteLine("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
-								graphicsTarget.DrawImage(fragment, targetLocation);
+								graphicsTarget.DrawImage(fragment.NativeBitmap, targetLocation);
 								graphicsTarget.Flush();
 							}
 							else
