@@ -40,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 			{
 				return Convert((T2) o);
 			}
-			throw new ArgumentException("Cannot handle argument of type " + o.GetType());
+			throw new ArgumentException($"{GetType()} cannot handle argument of type {o.GetType()}");
 		}
 
 		protected abstract T2 Convert(T1 o);

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
@@ -79,7 +80,7 @@ namespace Greenshot.Addon.LegacyEditor
                                     fieldValue = Color.FromArgb(Convert.ToInt32(preferredValue));
                                 }
                                 break;
-                            case var allignType when fieldType.ValueType == typeof(StringAlignment):
+                            case var alignType when fieldType.ValueType == typeof(StringAlignment):
                                 fieldValue = Enum.Parse(typeof(StringAlignment), preferredStringValue, true);
                                 break;
                             case var fieldFlagType when fieldType.ValueType == typeof(FieldFlag):
@@ -90,6 +91,12 @@ namespace Greenshot.Addon.LegacyEditor
                                 break;
                             case var arrowHeadCombinationType when fieldType.ValueType == typeof(ArrowContainer.ArrowHeadCombination):
                                 fieldValue = Enum.Parse(typeof(ArrowContainer.ArrowHeadCombination), preferredStringValue, true);
+                                break;
+                            case var floatType when fieldType.ValueType == typeof(float):
+                                fieldValue = Convert.ToSingle(preferredValue, CultureInfo.InvariantCulture);
+                                break;
+                            case var doubleType when fieldType.ValueType == typeof(double):
+                                fieldValue = Convert.ToDouble(preferredValue, CultureInfo.InvariantCulture);
                                 break;
                             default:
                                 fieldValue = preferredStringValue;

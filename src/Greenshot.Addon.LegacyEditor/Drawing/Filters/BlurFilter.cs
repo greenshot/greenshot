@@ -35,7 +35,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 		public BlurFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			AddField(GetType(), FieldTypes.BLUR_RADIUS, 3);
-			AddField(GetType(), FieldTypes.PREVIEW_QUALITY, 1.0d);
 		}
 
 		public double PreviewQuality

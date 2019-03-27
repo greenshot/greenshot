@@ -153,7 +153,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		    {
 		        throw new MemberAccessException(
 		            "Could not set property '" + targetProperty + "' to '" + bValue + "' [" + (bValue?.GetType().Name ?? "") + "] on " + targetObject +
-		            ". Probably other type than expected, IBindingCoverter to the rescue.", e);
+		            ". Probably other type than expected, IBindingConverter to the rescue.", e);
 		    }
 		}
 

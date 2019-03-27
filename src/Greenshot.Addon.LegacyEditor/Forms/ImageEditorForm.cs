@@ -676,7 +676,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 new BidirectionalBinding(textHorizontalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
                 new BidirectionalBinding(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.TEXT_VERTICAL_ALIGNMENT), "Value",NotNullValidator.GetInstance()),
                 new BidirectionalBinding(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldTypes.SHADOW), "Value", NotNullValidator.GetInstance()),
-                new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldTypes.PREVIEW_QUALITY), "Value",DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()),
                 new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.PREPARED_FILTER_OBFUSCATE), "Value"),
                 new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldTypes.PREPARED_FILTER_HIGHLIGHT), "Value"),
                 new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance())
@@ -696,7 +695,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 btnLineColor.Visible = props.HasFieldValue(FieldTypes.LINE_COLOR);
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldTypes.LINE_THICKNESS);
                 blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldTypes.BLUR_RADIUS);
-                previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldTypes.PREVIEW_QUALITY);
                 magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldTypes.MAGNIFICATION_FACTOR);
                 pixelSizeLabel.Visible = pixelSizeUpDown.Visible = props.HasFieldValue(FieldTypes.PIXEL_SIZE);
                 brightnessLabel.Visible = brightnessUpDown.Visible = props.HasFieldValue(FieldTypes.BRIGHTNESS);
