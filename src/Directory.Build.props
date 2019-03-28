@@ -48,7 +48,7 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <!--ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.138">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -57,7 +57,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup-->
+  </ItemGroup>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo')) And ($(OsProductName.Contains('Windows 10')) Or (!$(OsProductName.Contains('Windows 10')) And !$(MSBuildProjectName.Contains('Win10'))))">
     <Exec Command="
