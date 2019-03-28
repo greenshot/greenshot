@@ -149,12 +149,17 @@ namespace Greenshot.Gfx.Quantizer
 				}
 			}
 		}
-
+        /// <inheritdoc/>
 		public void Dispose()
 		{
 			Dispose(true);
 		}
 
+		
+		/// <summary>
+		/// Dispose implementation
+		/// </summary>
+		/// <param name="disposing">bool</param>
 		protected virtual void Dispose(bool disposing)
 		{
 		    if (!disposing)
@@ -308,7 +313,7 @@ namespace Greenshot.Gfx.Quantizer
 
 			_tag = new byte[Maxvolume];
 
-			// precalculates lookup tables
+			// pre-calculates lookup tables
 			for (var k = 0; k < allowedColorCount; ++k)
 			{
 				Mark(_cubes[k], k, _tag);

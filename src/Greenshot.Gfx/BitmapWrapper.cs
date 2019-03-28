@@ -19,6 +19,8 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Greenshot.Gfx
 {
@@ -49,7 +51,7 @@ namespace Greenshot.Gfx
 		public int Width => _bitmap.Width;
 
 		/// <inheritdoc />
-		public PixelFormat PixelFormat => _bitmap.PixelFormat;
+		public System.Drawing.Imaging.PixelFormat PixelFormat => _bitmap.PixelFormat;
 
         /// <inheritdoc />
 		public float HorizontalResolution => _bitmap.HorizontalResolution;
@@ -60,6 +62,24 @@ namespace Greenshot.Gfx
         /// <inheritdoc />
 		public Bitmap NativeBitmap => _bitmap;
 
+        /// <inheritdoc />
+        public BitmapSource NativeBitmapSource
+        {
+            get
+            {
+                var bitmapData = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height), ImageLockMode.ReadOnly, _bitmap.PixelFormat);
+                try
+                {
+                    return BitmapSource.Create(bitmapData.Width, bitmapData.Height, _bitmap.HorizontalResolution, _bitmap.VerticalResolution, PixelFormats.Bgr24, null, bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+                }
+                finally
+                {
+                    _bitmap.UnlockBits(bitmapData);
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public Size Size => new Size(Width, Height);
         
         /// <summary>

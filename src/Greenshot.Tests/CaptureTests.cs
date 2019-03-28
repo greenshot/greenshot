@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,6 +127,35 @@ namespace Greenshot.Tests
             {
                 outputStream.Seek(0, SeekOrigin.Begin);
                 await outputStream.CopyToAsync(fileStream);
+            }
+        }
+        
+        
+        /// <summary>
+        /// Test if capturing works
+        /// </summary>
+        [Fact]
+        public void Test_BitmapCapture()
+        {
+            using (var screenBitmapCapture = new BitmapScreenCapture())
+            {
+                screenBitmapCapture.CaptureFrame();
+                
+                Assert.NotNull(screenBitmapCapture.CurrentFrameAsBitmap());
+                
+                var testFile1 = Path.Combine(Path.GetTempPath(), @"test-bitmap.png");
+                screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmap.Save(testFile1, ImageFormat.Png);
+                
+                var testFile2 = Path.Combine(Path.GetTempPath(), @"test-bitmapsource.png");
+                using (var fileStream = new FileStream(testFile2, FileMode.Create))
+                {
+                    var encoder = new PngBitmapEncoder
+                    {
+                        Interlace = PngInterlaceOption.Off
+                    };
+                    encoder.Frames.Add(BitmapFrame.Create(screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmapSource));
+                    encoder.Save(fileStream);
+                }
             }
         }
     }

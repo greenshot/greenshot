@@ -11,7 +11,7 @@ namespace Greenshot.PerformanceTests
     /// <summary>
     /// This defines the benchmarks which can be done
     /// </summary>
-    [MinColumn, MaxColumn, MemoryDiagnoser]
+    [MinColumn, MaxColumn, MemoryDiagnoser, CoreJob, ClrJob]
     public class GfxPerformance
     {
         private UnmanagedBitmap<Bgr32> _unmanagedTestBitmap;

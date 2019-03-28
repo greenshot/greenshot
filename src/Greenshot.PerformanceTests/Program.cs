@@ -30,7 +30,8 @@ namespace Greenshot.PerformanceTests
         // ReSharper disable once UnusedParameter.Local
         private static void Main(string[] args)
         {
-            BenchmarkRunner.Run<GfxPerformance>();
+            //BenchmarkRunner.Run<GfxPerformance>();
+            BenchmarkRunner.Run<CapturePerformance>();
             Console.ReadLine();
         }
     }

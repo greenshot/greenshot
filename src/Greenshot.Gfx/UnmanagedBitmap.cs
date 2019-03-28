@@ -19,10 +19,12 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Greenshot.Gfx.Structs;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace Greenshot.Gfx
 {
@@ -34,8 +36,13 @@ namespace Greenshot.Gfx
     {
         private readonly float _horizontalPixelsPerInch;
         private readonly float _verticalPixelsPerInch;
+        // Bytes per line
         private readonly int _stride;
+        // IntPtr to a global handle with the bitmap data, this will be freed on dispose
         private IntPtr _hGlobal;
+        // IntPtr to the bits of the bitmap, if using the constructor with the IntPtr this will not be freed
+        private readonly IntPtr _bits;
+        // Optionally created when the user calls NativeBitmap
         private Bitmap _nativeBitmap;
 
         /// <summary>
@@ -64,8 +71,28 @@ namespace Greenshot.Gfx
             Height = height;
             _stride = bytesPerPixel * width;
             var bytesAllocated = height * _stride;
-            _hGlobal = Marshal.AllocHGlobal(bytesAllocated);
+            _bits = _hGlobal = Marshal.AllocHGlobal(bytesAllocated);
             GC.AddMemoryPressure(bytesAllocated);
+        }
+
+
+        /// <summary>
+        /// The constructor for the UnmanagedBitmap with already initialized bits
+        /// </summary>
+        /// <param name="bits">IntPtr to the bits, this will not be freed</param>
+        /// <param name="width">int</param>
+        /// <param name="height">int</param>
+        /// <param name="horizontalPixelsPerInch">float</param>
+        /// <param name="verticalPixelsPerInch">float</param>
+        public UnmanagedBitmap(IntPtr bits, int width, int height, float horizontalPixelsPerInch = 0.96f, float verticalPixelsPerInch = 0.96f)
+        {
+            _horizontalPixelsPerInch = horizontalPixelsPerInch;
+            _verticalPixelsPerInch = verticalPixelsPerInch;
+            var bytesPerPixel = Marshal.SizeOf<TPixelLayout>();
+            Width = width;
+            Height = height;
+            _stride = bytesPerPixel * width;
+            _bits = bits;
         }
 
         /// <summary>
@@ -79,7 +106,7 @@ namespace Greenshot.Gfx
             {
                 unsafe
                 {
-                    var pixelRowPointer = _hGlobal + (y * _stride);
+                    var pixelRowPointer = _bits + (y * _stride);
                     return new Span<TPixelLayout>(pixelRowPointer.ToPointer(), Width);
                 }
             }
@@ -96,7 +123,7 @@ namespace Greenshot.Gfx
             {
                 unsafe
                 {
-                    return new Span<TPixelLayout>(_hGlobal.ToPointer(), Height * Width);
+                    return new Span<TPixelLayout>(_bits.ToPointer(), Height * Width);
                 }
             }
         }
@@ -126,6 +153,25 @@ namespace Greenshot.Gfx
                 return format;
             }
         }
+        
+        public System.Windows.Media.PixelFormat WpfPixelFormat
+        {
+            get
+            {
+                TPixelLayout empty = default;
+                switch (empty)
+                {
+                    case Bgr24 _:
+                        return PixelFormats.Bgr24;
+                    case Bgra32 _:
+                        return PixelFormats.Bgra32;
+                    case Bgr32 _:
+                        return PixelFormats.Bgr32;
+                    default:
+                        throw new NotSupportedException("Unknown pixel format");
+                }
+            }
+        }
 
         /// <inheritdoc />
         public float VerticalResolution => _verticalPixelsPerInch;
@@ -141,7 +187,19 @@ namespace Greenshot.Gfx
         {
             get
             {
-                return _nativeBitmap ??= new Bitmap(Width, Height, _stride, PixelFormat, _hGlobal);
+                return _nativeBitmap ??= new Bitmap(Width, Height, _stride, PixelFormat, _bits);
+            }
+        }
+        
+        /// <summary>
+        /// Convert this to a real bitmap
+        /// </summary>
+        /// <returns>BitmapSource</returns>
+        public BitmapSource NativeBitmapSource
+        {
+            get
+            {
+                return BitmapSource.Create(Width, Height, HorizontalResolution, VerticalResolution, WpfPixelFormat, null, _bits, _stride * Height, _stride);
             }
         }
 

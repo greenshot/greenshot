@@ -20,6 +20,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Media.Imaging;
 
 namespace Greenshot.Gfx
 {
@@ -61,9 +62,15 @@ namespace Greenshot.Gfx
     public interface IBitmapWithNativeSupport : IBitmap
     {
         /// <summary>
-        ///     Underlying image, or an on demand rendered version with different attributes as the original
+        ///     Retrieves a Bitmap which only can be used as long as the underlying implementation is not disposed.
+        ///     Do not dispose this.
         /// </summary>
         Bitmap NativeBitmap { get; }
+        
+        /// <summary>
+        ///     Retrieves a BitmapSource which only can be used as long as the underlying implementation is not disposed.
+        /// </summary>
+        BitmapSource NativeBitmapSource { get; }
 
         /// <summary>
         /// Return the Size

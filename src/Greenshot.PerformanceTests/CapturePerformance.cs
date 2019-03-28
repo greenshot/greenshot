@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Drawing.Imaging;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using Dapplo.Log;
@@ -32,7 +33,7 @@ namespace Greenshot.PerformanceTests
     /// <summary>
     /// This defines the benchmarks which can be done
     /// </summary>
-    [MinColumn, MaxColumn, MemoryDiagnoser]
+    [MinColumn, MaxColumn, MemoryDiagnoser, CoreJob, ClrJob]
     public class CapturePerformance
     {
         private static readonly LogSource Log = new LogSource();
@@ -40,6 +41,8 @@ namespace Greenshot.PerformanceTests
         private GdiScreenCapture _screenCapture;
         // A ScreenCapture which captures the whole screen (multi-monitor) but with half the destination size, uses stretch-blt
         private GdiScreenCapture _screenCaptureResized;
+        private BitmapScreenCapture _screenBitmapCapture;
+        private BitmapScreenCapture _screenBitmapCaptureResized;
         private AviWriter _aviWriter;
         private IAviVideoStream _aviVideoStream;
 
@@ -47,8 +50,10 @@ namespace Greenshot.PerformanceTests
         public void Setup()
         {
             _screenCapture = new GdiScreenCapture(DisplayInfo.ScreenBounds);
+            _screenBitmapCapture = new BitmapScreenCapture();
             var resizedSize = new NativeSize(DisplayInfo.ScreenBounds.Width / 2, DisplayInfo.ScreenBounds.Height / 2);
             _screenCaptureResized = new GdiScreenCapture(DisplayInfo.ScreenBounds, resizedSize);
+            _screenBitmapCaptureResized = new BitmapScreenCapture(DisplayInfo.ScreenBounds, resizedSize);
 
             var aviFile = Path.Combine(Path.GetTempPath(), @"test.avi");
             Log.Info().WriteLine("Writing AVI to {0}", aviFile);
@@ -61,12 +66,13 @@ namespace Greenshot.PerformanceTests
                 EmitIndex1 = true
             };
             _aviVideoStream = _aviWriter.AddVideoStream(resizedSize.Width, resizedSize.Height, BitsPerPixel.Bpp24);
+           
         }
 
         /// <summary>
         /// This benchmarks a screen capture which does a lot of additional work
         /// </summary>
-        [Benchmark]
+        //[Benchmark]
         public void Capture()
         {
             using (var capture = WindowCapture.CaptureScreen())
@@ -90,6 +96,15 @@ namespace Greenshot.PerformanceTests
         {
             _screenCapture.CaptureFrame();
         }
+        
+        /// <summary>
+        /// Capture the screen directly into a bitmap
+        /// </summary>
+        [Benchmark]
+        public void CaptureBitmap()
+        {
+            _screenBitmapCapture.CaptureFrame();
+        }
 
         /// <summary>
         /// Capture the screen with buffered settings, but resized (smaller) destination
@@ -99,6 +114,17 @@ namespace Greenshot.PerformanceTests
         {
             _screenCaptureResized.CaptureFrame();
         }
+        
+        
+        /// <summary>
+        /// Capture the screen with buffered settings, but resized (smaller) destination
+        /// </summary>
+        //[Benchmark]
+        public void CapturebitmapResized()
+        {
+            _screenBitmapCaptureResized.CaptureFrame();
+        }
+
 
         /// <summary>
         /// Capture the screen with buffered settings, but resized (smaller) destination
@@ -115,6 +141,8 @@ namespace Greenshot.PerformanceTests
         public void Cleanup()
         {
             _screenCapture.Dispose();
+            _screenBitmapCapture.Dispose();
+            _screenBitmapCaptureResized.Dispose();
             _aviWriter.Close();
         }
     }

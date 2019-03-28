@@ -346,8 +346,7 @@ namespace Greenshot.Addons.Core
                         }
 
                         // get a .NET image object for it
-                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0�80004005 error is to re-try...
-                        var success = false;
+                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0x80004005 error is to re-try...
                         ExternalException exception = null;
                         for (var i = 0; i < 3; i++)
                         {
@@ -408,9 +407,6 @@ namespace Greenshot.Addons.Core
                                     // TODO: Optimize?
                                     return BitmapWrapper.FromBitmap(Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()));
                                 }
-                                // We got through the capture without exception
-                                success = true;
-                                break;
                             }
                             catch (ExternalException ee)
                             {
@@ -418,13 +414,10 @@ namespace Greenshot.Addons.Core
                                 exception = ee;
                             }
                         }
-                        if (!success)
+                        Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
+                        if (exception != null)
                         {
-                            Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
-                            if (exception != null)
-                            {
-                                throw exception;
-                            }
+                            throw exception;
                         }
                     }
                 }

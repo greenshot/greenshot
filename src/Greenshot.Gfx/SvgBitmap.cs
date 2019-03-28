@@ -20,7 +20,11 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Svg;
+using Color = System.Drawing.Color;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 
 namespace Greenshot.Gfx
@@ -111,6 +115,24 @@ namespace Greenshot.Gfx
         /// </summary>
         public Bitmap NativeBitmap => GenerateNativeBitmap();
 
+        /// <inheritdoc />
+        public BitmapSource NativeBitmapSource
+        {
+            get
+            {
+                GenerateNativeBitmap();
+                var bitmapData = _imageClone.LockBits(new Rectangle(0, 0, _imageClone.Width, _imageClone.Height), ImageLockMode.ReadOnly, _imageClone.PixelFormat);
+                try
+                {
+                    return BitmapSource.Create(bitmapData.Width, bitmapData.Height, _imageClone.HorizontalResolution, _imageClone.VerticalResolution, PixelFormats.Bgr24, null, bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+                }
+                finally
+                {
+                    _imageClone.UnlockBits(bitmapData);
+                }
+            }
+        }
+        
         private Bitmap GenerateNativeBitmap()
         {
             if (_imageClone?.Height == Height && _imageClone?.Width == Width)
@@ -127,11 +149,6 @@ namespace Greenshot.Gfx
         }
 
         public Size Size => new Size(Width, Height);
-
-        public void DisposeNativeBitmap(Bitmap nativeBitmap)
-        {
-            // do nothing, we need this
-        }
 
 		/// <summary>
 		///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

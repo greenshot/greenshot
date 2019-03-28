@@ -87,8 +87,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="horizontalResolution">float for horizontal DPI</param>
 		/// <param name="verticalResolution">float for horizontal DPI</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap CreateEmpty(Size newSize, PixelFormat pixelFormat = PixelFormat.DontCare, Color? backgroundColor = null, float horizontalResolution = 96f,
-			float verticalResolution = 96f)
+		public static IFastBitmap CreateEmpty(Size newSize, PixelFormat pixelFormat = PixelFormat.DontCare, Color? backgroundColor = null, float horizontalResolution = 96f, float verticalResolution = 96f)
 		{
 			var destination = BitmapFactory.CreateEmpty(newSize.Width, newSize.Height, pixelFormat, backgroundColor, horizontalResolution, verticalResolution);
 			var fastBitmap = Create(destination);
