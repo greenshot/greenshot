@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,13 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 {
@@ -48,7 +40,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 			{
 				return Convert((T2) o);
 			}
-			throw new ArgumentException("Cannot handle argument of type " + o.GetType());
+			throw new ArgumentException($"{GetType()} cannot handle argument of type {o.GetType()}");
 		}
 
 		protected abstract T2 Convert(T1 o);

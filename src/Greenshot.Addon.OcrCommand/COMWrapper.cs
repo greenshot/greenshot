@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -30,8 +24,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-
-#endregion
 
 namespace Greenshot.Addon.OcrCommand
 {
@@ -314,9 +306,7 @@ namespace Greenshot.Addon.OcrCommand
 			return new ReturnMessage(returnValue, outArgs, outArgsCount, callMessage.LogicalCallContext, callMessage);
 		}
 
-		#region Private Data
-
-		/// <summary>
+        /// <summary>
 		///     Holds reference to the actual COM object which is wrapped by this proxy
 		/// </summary>
 		private readonly object _comObject;
@@ -331,11 +321,7 @@ namespace Greenshot.Addon.OcrCommand
 		/// </summary>
 		private readonly Type _interceptType;
 
-		#endregion
-
-		#region Construction
-
-		/// <summary>
+        /// <summary>
 		///     Gets a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// </summary>
 		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
@@ -510,11 +496,7 @@ namespace Greenshot.Addon.OcrCommand
 			_interceptType = type;
 		}
 
-		#endregion
-
-		#region Clean up
-
-		/// <summary>
+        /// <summary>
 		///     If dispose() is not called, we need to make
 		///     sure that the COM object is still cleaned up.
 		/// </summary>
@@ -560,11 +542,7 @@ namespace Greenshot.Addon.OcrCommand
 			}
 		}
 
-		#endregion
-
-		#region Object methods
-
-		/// <summary>
+        /// <summary>
 		///     Returns a string representing the wrapped object.
 		/// </summary>
 		/// <returns>
@@ -637,7 +615,5 @@ namespace Greenshot.Addon.OcrCommand
 
 			return byRefType;
 		}
-
-		#endregion
-	}
+    }
 }

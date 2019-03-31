@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -74,7 +73,7 @@ namespace Greenshot.Addon.Win10
 		/// <summary>
 		/// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml
 		/// </summary>
-		public override Bitmap DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
+		public override IBitmapWithNativeSupport DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
 
 	    private class ShareInfo
 	    {
@@ -188,7 +187,7 @@ namespace Greenshot.Addon.Win10
 
                 // Create logo
                 RandomAccessStreamReference logoRandomAccessStreamReference;
-                using (var logo = GreenshotResources.Instance.GetGreenshotIcon().ToBitmap())
+                using (var logo = BitmapWrapper.FromBitmap(GreenshotResources.Instance.GetGreenshotIcon().ToBitmap()))
                 using (var logoThumbnail = logo.CreateThumbnail(30, 30))
                 {
                     ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);

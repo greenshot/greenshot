@@ -22,22 +22,22 @@ namespace Greenshot.Tests
             using (var bitmap1 = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
             using (var bitmap2 = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap1))
+                using (var graphics = Graphics.FromImage(bitmap1.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
-                bitmap1.Save("bitmap0.png", ImageFormat.Png);
+                bitmap1.NativeBitmap.Save("bitmap0.png", ImageFormat.Png);
                 bitmap1.ApplyBoxBlur(10);
-                bitmap1.Save("bitmap1.png", ImageFormat.Png);
+                bitmap1.NativeBitmap.Save("bitmap1.png", ImageFormat.Png);
 
-                using (var graphics = Graphics.FromImage(bitmap2))
+                using (var graphics = Graphics.FromImage(bitmap2.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
-                bitmap2.ApplyOldBoxBlur(10);
-                bitmap2.Save("bitmap2.png", ImageFormat.Png);
+                BoxBlurOld.ApplyOldBoxBlur(bitmap2, 10);
+                bitmap2.NativeBitmap.Save("bitmap2.png", ImageFormat.Png);
                 Assert.True(bitmap1.IsEqualTo(bitmap2));
             }
         }

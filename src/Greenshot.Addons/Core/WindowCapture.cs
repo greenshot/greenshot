@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,15 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Dapplo.Log;
@@ -42,11 +35,9 @@ using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-
-#endregion
+using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Addons.Core
 {
@@ -240,7 +231,7 @@ namespace Greenshot.Addons.Core
             {
                 capture = new Capture();
             }
-            Bitmap capturedBitmap = null;
+            IBitmapWithNativeSupport capturedBitmap = null;
             // If the CaptureHandler has a handle use this, otherwise use the CaptureRectangle here
             if (CaptureHandler.CaptureScreenRectangle != null)
             {
@@ -285,9 +276,8 @@ namespace Greenshot.Addons.Core
         /// </summary>
         /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>Bitmap which is captured from the screen at the location specified by the captureBounds</returns>
-        public static Bitmap CaptureRectangle(NativeRect captureBounds)
+        public static IBitmapWithNativeSupport CaptureRectangle(NativeRect captureBounds)
         {
-            Bitmap returnBitmap = null;
             if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
             {
                 Log.Warn().WriteLine("Nothing to capture, ignoring!");
@@ -356,8 +346,7 @@ namespace Greenshot.Addons.Core
                         }
 
                         // get a .NET image object for it
-                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
-                        var success = false;
+                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0x80004005 error is to re-try...
                         ExternalException exception = null;
                         for (var i = 0; i < 3; i++)
                         {
@@ -393,10 +382,10 @@ namespace Greenshot.Addons.Core
                                     using (var tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()))
                                     {
                                         // Create a new bitmap which has a transparent background
-                                        returnBitmap = BitmapFactory.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution,
-                                            tmpBitmap.VerticalResolution);
+                                        var returnBitmap = new UnmanagedBitmap<Bgra32>(tmpBitmap.Width, tmpBitmap.Height, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+                                        returnBitmap.Span.Fill(Color.Transparent.FromColorWithAlpha());
                                         // Content will be copied here
-                                        using (var graphics = Graphics.FromImage(returnBitmap))
+                                        using (var graphics = Graphics.FromImage(returnBitmap.NativeBitmap))
                                         {
                                             // For all screens copy the content to the new bitmap
                                             foreach (var screen in Screen.AllScreens)
@@ -407,17 +396,17 @@ namespace Greenshot.Addons.Core
                                                 graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
                                             }
                                         }
+
+                                        return returnBitmap;
                                     }
                                 }
                                 else
                                 {
                                     // All screens, which are inside the capture, are of equal size
                                     // assign image to Capture, the image will be disposed there..
-                                    returnBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                                    // TODO: Optimize?
+                                    return BitmapWrapper.FromBitmap(Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()));
                                 }
-                                // We got through the capture without exception
-                                success = true;
-                                break;
                             }
                             catch (ExternalException ee)
                             {
@@ -425,18 +414,16 @@ namespace Greenshot.Addons.Core
                                 exception = ee;
                             }
                         }
-                        if (!success)
+                        Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
+                        if (exception != null)
                         {
-                            Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
-                            if (exception != null)
-                            {
-                                throw exception;
-                            }
+                            throw exception;
                         }
                     }
                 }
             }
-            return returnBitmap;
+
+            return null;
         }
     }
 }

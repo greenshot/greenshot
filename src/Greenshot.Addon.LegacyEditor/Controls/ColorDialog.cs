@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -32,8 +26,6 @@ using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Addons;
 using Greenshot.Addons.Controls;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Controls
 {
@@ -78,9 +70,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		    set => PreviewColor(value, this);
 		}
 
-		#region helper functions
-
-		private int GetColorPartIntFromString(string s)
+        private int GetColorPartIntFromString(string s)
 		{
 		    int.TryParse(s, out var ret);
 			if (ret < 0)
@@ -94,16 +84,12 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			return ret;
 		}
 
-		#endregion
-
-		private void PipetteUsed(object sender, PipetteUsedArgs e)
+        private void PipetteUsed(object sender, PipetteUsedArgs e)
 		{
 			Color = e.Color;
 		}
 
-		#region user interface generation
-
-		private IList<Control> CreateColorPalette(int w, int h)
+        private IList<Control> CreateColorPalette(int w, int h)
 		{
 		    int x = 0;
 		    int y = 0;
@@ -191,11 +177,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		    return recentColorButtons;
 		}
 
-		#endregion
-
-		#region update user interface
-
-		private void UpdateRecentColorsButtonRow()
+        private void UpdateRecentColorsButtonRow()
 		{
 			for (var i = 0; i < _editorConfiguration.RecentColors.Count && i < 12; i++)
 			{
@@ -233,11 +215,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			UpdateRecentColorsButtonRow();
 		}
 
-		#endregion
-
-		#region textbox event handlers
-
-		private void TextBoxHexadecimalTextChanged(object sender, EventArgs e)
+        private void TextBoxHexadecimalTextChanged(object sender, EventArgs e)
 		{
 			if (_updateInProgress)
 			{
@@ -291,11 +269,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			}
 		}
 
-		#endregion
-
-		#region button event handlers
-
-		private void ColorButtonClick(object sender, EventArgs e)
+        private void ColorButtonClick(object sender, EventArgs e)
 		{
 			var b = (Button) sender;
 			PreviewColor(b.BackColor, b);
@@ -312,7 +286,5 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 			Hide();
 			AddToRecentColors(colorPanel.BackColor);
 		}
-
-		#endregion
-	}
+    }
 }

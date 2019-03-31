@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -39,7 +35,7 @@ namespace Greenshot.Tests
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))
             {
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
@@ -47,7 +43,7 @@ namespace Greenshot.Tests
                 var quantizer = new WuQuantizer(bitmap);
                 using (var quantizedImage = quantizer.GetQuantizedImage())
                 {
-                    quantizedImage.Save(@"quantized.png", ImageFormat.Png);
+                    quantizedImage.NativeBitmap.Save(@"quantized.png", ImageFormat.Png);
                 }
             }
         }

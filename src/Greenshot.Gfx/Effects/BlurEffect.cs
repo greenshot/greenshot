@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Gfx.FastBitmap;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -40,7 +31,7 @@ namespace Greenshot.Gfx.Effects
 	{
 	    public int Range { get; set; } = 3;
 
-		public virtual Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+		public virtual IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 		    var result = FastBitmapFactory.CreateCloneOf(sourceBitmap);
 		    result.ApplyBoxBlur(Range);

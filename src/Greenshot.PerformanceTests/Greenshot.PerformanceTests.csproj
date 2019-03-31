@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.PerformanceTests</RootNamespace>
@@ -64,9 +64,7 @@
   
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />
-    <PackageReference Include="ClrHeapAllocationAnalyzer" Version="1.0.0.9" />
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
-    <PackageReference Include="JeremyAnsel.ColorQuant" Version="1.0.55" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
       <Version>2.6.3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -75,8 +73,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.10.0" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="2.1.0" />
     <PackageReference Include="SharpAvi" Version="2.1.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />

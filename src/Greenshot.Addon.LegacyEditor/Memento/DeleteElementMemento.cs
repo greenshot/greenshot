@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,15 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Memento
 {
@@ -36,13 +28,13 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 	/// </summary>
 	public class DeleteElementMemento : IMemento
 	{
-		private readonly Surface surface;
-		private IDrawableContainer drawableContainer;
+		private readonly Surface _surface;
+		private IDrawableContainer _drawableContainer;
 
 		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer)
 		{
-			this.surface = surface;
-			this.drawableContainer = drawableContainer;
+			_surface = surface;
+			_drawableContainer = drawableContainer;
 		}
 
 		public void Dispose()
@@ -59,18 +51,18 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 		public IMemento Restore()
 		{
 			// Before
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 
-			var oldState = new AddElementMemento(surface, drawableContainer);
-			surface.AddElement(drawableContainer, false);
+			var oldState = new AddElementMemento(_surface, _drawableContainer);
+			_surface.AddElement(_drawableContainer, false);
 			// The container has a selected flag which represents the state at the moment it was deleted.
-			if (drawableContainer.Selected)
+			if (_drawableContainer.Selected)
 			{
-				surface.SelectElement(drawableContainer);
+				_surface.SelectElement(_drawableContainer);
 			}
 
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
 
@@ -78,10 +70,10 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 		{
 			if (disposing)
 			{
-				if (drawableContainer != null)
+				if (_drawableContainer != null)
 				{
-					drawableContainer.Dispose();
-					drawableContainer = null;
+					_drawableContainer.Dispose();
+					_drawableContainer = null;
 				}
 			}
 		}

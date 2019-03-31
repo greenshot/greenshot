@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using Dapplo.Config.Ini;
 using Greenshot.Core.Enums;
 
@@ -28,8 +24,6 @@ namespace Greenshot.Addon.Confluence.Configuration.Impl
 {
     internal class ConfluenceConfigurationImpl : IniSectionBase<IConfluenceConfiguration>, IConfluenceConfiguration
     {
-        #region Implementation of IConfluenceConfiguration
-
         public string Url { get; set; }
         public int Timeout { get; set; }
         public OutputFormats UploadFormat { get; set; }
@@ -40,7 +34,5 @@ namespace Greenshot.Addon.Confluence.Configuration.Impl
         public bool CopyWikiMarkupForImageToClipboard { get; set; }
         public string SearchSpaceKey { get; set; }
         public bool IncludePersonSpaces { get; set; }
-
-        #endregion
     }
 }

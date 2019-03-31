@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -36,7 +32,7 @@ namespace Greenshot.Gfx.Stitching
     /// </summary>
     public class StitchInfo : IDisposable
     {
-        private readonly Bitmap _bitmap;
+        private readonly IBitmapWithNativeSupport _bitmap;
         private readonly IList<uint> _hashes;
 
         private NativeRect _sourceRect;
@@ -45,7 +41,7 @@ namespace Greenshot.Gfx.Stitching
         /// Create stitching information for this bitmap
         /// </summary>
         /// <param name="bitmap">Bitmap</param>
-        public StitchInfo(Bitmap bitmap)
+        public StitchInfo(IBitmapWithNativeSupport bitmap)
         {
             _bitmap = bitmap;
             using (var fastBitmap = FastBitmapFactory.Create(bitmap))
@@ -188,7 +184,7 @@ namespace Greenshot.Gfx.Stitching
         /// <param name="y">int </param>
         public void DrawTo(Graphics graphics, int y)
         {
-            graphics.DrawImage(_bitmap, new Rectangle(0, y, _sourceRect.Width, _sourceRect.Height), _sourceRect, GraphicsUnit.Pixel);
+            graphics.DrawImage(_bitmap.NativeBitmap, new Rectangle(0, y, _sourceRect.Width, _sourceRect.Height), _sourceRect, GraphicsUnit.Pixel);
         }
     }
 }

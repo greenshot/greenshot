@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -34,8 +28,6 @@ using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
@@ -51,15 +43,17 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     This is the shadow version of the bitmap, rendered once to save performance
 		///     Do not serialize, as the shadow is recreated from the original bitmap if it's not available
 		/// </summary>
-		[NonSerialized] private Image _shadowBitmap;
+		[NonSerialized]
+        private IBitmapWithNativeSupport _shadowBitmap;
 
 		/// <summary>
 		///     This is the offset for the shadow version of the bitmap
 		///     Do not serialize, as the offset is recreated
 		/// </summary>
-		[NonSerialized] private NativePoint _shadowOffset = new NativePoint(-1, -1);
+		[NonSerialized]
+        private NativePoint _shadowOffset = new NativePoint(-1, -1);
 
-		private Bitmap _bitmap;
+		private IBitmapWithNativeSupport _bitmap;
 
 		public BitmapContainer(Surface parent, string filename, IEditorConfiguration editorConfiguration) : this(parent, editorConfiguration)
 		{
@@ -76,7 +70,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public override Size DefaultSize => _bitmap.Size;
 
-		public Bitmap Bitmap
+		public IBitmapWithNativeSupport Bitmap
 		{
 			set
 			{
@@ -257,11 +251,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				if (shadow)
 				{
 					CheckShadow(true);
-					graphics.DrawImage(_shadowBitmap, Bounds);
+					graphics.DrawImage(_shadowBitmap.NativeBitmap, Bounds);
 				}
 				else
 				{
-					graphics.DrawImage(_bitmap, Bounds);
+					graphics.DrawImage(_bitmap.NativeBitmap, Bounds);
 				}
 			}
 		}

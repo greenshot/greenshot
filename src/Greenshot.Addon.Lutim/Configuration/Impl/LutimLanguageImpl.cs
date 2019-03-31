@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
 
@@ -33,8 +29,6 @@ namespace Greenshot.Addon.Lutim.Configuration.Impl
 #pragma warning disable CS1591
     public class LutimLanguageImpl : LanguageBase<ILutimLanguage>, ILutimLanguage
     {
-        #region Implementation of ILutimLanguage
-
         public string Cancel { get; }
         public string ClearQuestion { get; }
         public string CommunicationWait { get; }
@@ -52,7 +46,5 @@ namespace Greenshot.Addon.Lutim.Configuration.Impl
         public string UploadSuccess { get; }
         public string UsePageLink { get; }
         public string AnonymousAccess { get; }
-
-        #endregion
     }
 }

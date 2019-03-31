@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 {
 	/// <summary>
@@ -28,24 +24,24 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 	/// </summary>
 	public class NotNullValidator : IBindingValidator
 	{
-		private static NotNullValidator uniqueInstance;
+		private static NotNullValidator _uniqueInstance;
 
 		private NotNullValidator()
 		{
 		}
 
-		public bool validate(object o)
+		public bool Validate(object o)
 		{
 			return o != null;
 		}
 
 		public static NotNullValidator GetInstance()
 		{
-			if (uniqueInstance == null)
+			if (_uniqueInstance == null)
 			{
-				uniqueInstance = new NotNullValidator();
+				_uniqueInstance = new NotNullValidator();
 			}
-			return uniqueInstance;
+			return _uniqueInstance;
 		}
 	}
 }

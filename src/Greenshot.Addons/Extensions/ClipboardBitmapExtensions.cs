@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System;
 using System.Drawing;
@@ -88,7 +84,7 @@ namespace Greenshot.Addons.Extensions
         /// </summary>
         /// <param name="clipboardAccessToken"></param>
         /// <returns>Bitmap or null</returns>
-        public static Bitmap GetAsDeviceIndependendBitmap(this IClipboardAccessToken clipboardAccessToken)
+        public static IBitmapWithNativeSupport GetAsDeviceIndependendBitmap(this IClipboardAccessToken clipboardAccessToken)
         {
             var formats = clipboardAccessToken.AvailableFormats().ToList();
             if (!formats.Contains(StandardClipboardFormats.Bitmap.AsString()))
@@ -128,7 +124,7 @@ namespace Greenshot.Addons.Extensions
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <returns>Bitmap or null</returns>
-        public static Bitmap GetAsFormat17(this IClipboardAccessToken clipboardAccessToken)
+        public static IBitmapWithNativeSupport GetAsFormat17(this IClipboardAccessToken clipboardAccessToken)
         {
             var formats = clipboardAccessToken.AvailableFormats().ToList();
             if (!formats.Contains("Format17"))
@@ -151,11 +147,13 @@ namespace Greenshot.Addons.Extensions
                 var handle = GCHandle.Alloc(format17Bytes, GCHandleType.Pinned);
                 gcHandle = GCHandle.ToIntPtr(handle);
                 return
-                    new Bitmap(infoHeader.Width, infoHeader.Height,
-                        -(int)(infoHeader.SizeImage / infoHeader.Height),
-                        infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                        new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
-                    );
+                    BitmapWrapper.FromBitmap(
+                        new Bitmap(infoHeader.Width, infoHeader.Height,
+                            -(int) (infoHeader.SizeImage / infoHeader.Height),
+                            infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
+                            new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
+                                       (infoHeader.Height - 1) * (int) (infoHeader.SizeImage / infoHeader.Height))
+                        ));
             }
             catch (Exception ex)
             {
@@ -238,13 +236,13 @@ namespace Greenshot.Addons.Extensions
         ///     Helper method so get the bitmap bytes
         ///     See: http://stackoverflow.com/a/6570155
         /// </summary>
-        /// <param name="bitmap">Bitmap</param>
+        /// <param name="bitmap">IBitmapWithNativeSupport</param>
         /// <returns>byte[]</returns>
-        private static byte[] BitmapToByteArray(Bitmap bitmap)
+        private static byte[] BitmapToByteArray(IBitmapWithNativeSupport bitmap)
         {
             // Lock the bitmap's bits.  
             var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
-            var bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+            var bmpData = bitmap.NativeBitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
             var absStride = Math.Abs(bmpData.Stride);
             var bytes = absStride * bitmap.Height;
@@ -259,7 +257,7 @@ namespace Greenshot.Addons.Extensions
             }
 
             // Unlock the bits.
-            bitmap.UnlockBits(bmpData);
+            bitmap.NativeBitmap.UnlockBits(bmpData);
 
             return rgbValues;
         }

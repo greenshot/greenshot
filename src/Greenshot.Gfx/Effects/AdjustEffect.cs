@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -43,7 +35,7 @@ namespace Greenshot.Gfx.Effects
 
 	    public float Gamma { get; set; } = 1f;
 
-	    public Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+	    public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
         {
 			return Adjust(sourceBitmap, Brightness, Contrast, Gamma);
 		}
@@ -57,7 +49,7 @@ namespace Greenshot.Gfx.Effects
         /// <param name="contrast"></param>
         /// <param name="gamma"></param>
         /// <returns>Bitmap with grayscale</returns>
-        public static Bitmap Adjust(Bitmap sourceBitmap, float brightness, float contrast, float gamma)
+        public static IBitmapWithNativeSupport Adjust(IBitmapWithNativeSupport sourceBitmap, float brightness, float contrast, float gamma)
 	    {
 	        //create a blank bitmap the same size as original
 	        // If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 

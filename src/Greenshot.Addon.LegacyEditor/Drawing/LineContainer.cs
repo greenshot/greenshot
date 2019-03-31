@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -31,8 +25,6 @@ using Greenshot.Addon.LegacyEditor.Drawing.Adorners;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx.Legacy;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {

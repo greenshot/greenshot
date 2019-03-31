@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Linq;
 using System.Threading;
@@ -30,8 +24,6 @@ using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Dapplo.Log;
 using Greenshot.Addons.Resources;
-
-#endregion
 
 namespace Greenshot.Forms
 {
@@ -74,20 +66,15 @@ namespace Greenshot.Forms
 
             // Set datasource last to prevent problems
             // See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-            comboBoxLanguage.DataSource = _languageContainer.AvailableLanguages;
+            comboBoxLanguage.DataSource = _languageContainer.AvailableLanguages.ToList();
 
-            var currentLanguage = _languageContainer.CurrentLanguage;
-
-            if (currentLanguage != null)
-			{
-				Log.Debug().WriteLine("Selecting {0}", currentLanguage);
-				comboBoxLanguage.SelectedValue = currentLanguage;
-			}
-			else
-			{
-				comboBoxLanguage.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
-			}
-
+            var preselectedLanguage = _languageContainer.CurrentLanguage ?? Thread.CurrentThread.CurrentUICulture.Name;
+            if (_languageContainer.AvailableLanguages.ContainsKey(preselectedLanguage))
+            {
+                Log.Debug().WriteLine("Selecting {0}", preselectedLanguage);
+                comboBoxLanguage.SelectedValue = preselectedLanguage;
+            }
+            
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
 		    if (_languageContainer.AvailableLanguages.Count != 1)
@@ -101,7 +88,7 @@ namespace Greenshot.Forms
 		    Close();
 		}
 
-		private void BtnOKClick(object sender, EventArgs e)
+		private void BtnOkClick(object sender, EventArgs e)
 		{
 			_properOkPressed = true;
             _ = _languageContainer.ChangeLanguageAsync(SelectedLanguage);

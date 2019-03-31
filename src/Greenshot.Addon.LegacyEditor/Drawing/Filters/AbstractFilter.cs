@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,18 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -42,11 +35,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 	[Serializable]
 	public abstract class AbstractFilter : AbstractFieldHolder, IFilter
 	{
-		private bool invert;
+		private bool _invert;
 
 		protected DrawableContainer parent;
 
-		[NonSerialized] private PropertyChangedEventHandler propertyChanged;
+		[NonSerialized] private PropertyChangedEventHandler _propertyChanged;
 
 		public AbstractFilter(DrawableContainer parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration)
 		{
@@ -55,31 +48,31 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 
 		public event PropertyChangedEventHandler PropertyChanged
 		{
-			add { propertyChanged += value; }
-			remove { propertyChanged -= value; }
-		}
+			add => _propertyChanged += value;
+            remove => _propertyChanged -= value;
+        }
 
 		public bool Invert
 		{
-			get { return invert; }
-			set
+			get => _invert;
+            set
 			{
-				invert = value;
+				_invert = value;
 				OnPropertyChanged("Invert");
 			}
 		}
 
 		public DrawableContainer Parent
 		{
-			get { return parent; }
-			set { parent = value; }
-		}
+			get => parent;
+            set => parent = value;
+        }
 
-		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
+		public abstract void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode);
 
 		protected void OnPropertyChanged(string propertyName)
 		{
-			propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			_propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

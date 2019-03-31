@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,18 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 {
@@ -44,7 +36,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 		{
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, IBitmapWithNativeSupport applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
 			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -70,7 +62,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
 			using (var ia = new ImageAttributes())
 			{
 				ia.SetColorMatrix(grayscaleMatrix);
-				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+				graphics.DrawImage(applyBitmap.NativeBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);
 		}

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,11 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 #if !NETCOREAPP3_0
-
-#region Usings
 
 using System;
 using System.IO;
@@ -42,8 +36,6 @@ using Greenshot.Core.Enums;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using Application = System.Windows.Application;
-
-#endregion
 
 namespace Greenshot.Components
 {
@@ -105,8 +97,6 @@ namespace Greenshot.Components
 
             return Task.Factory.FromAsync((callback, stateObject) => _host.BeginClose(callback, stateObject), asyncResult => _host.EndClose(asyncResult), null);
         }
-
-#region IGreenshotContract
 
         /// <inheritdoc />
         public void Exit()
@@ -183,7 +173,6 @@ namespace Greenshot.Components
                     break;
             }
         }
-#endregion
     }
 }
 #endif

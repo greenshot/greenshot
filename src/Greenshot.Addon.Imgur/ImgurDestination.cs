@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -32,7 +25,6 @@ using Autofac.Features.OwnedInstances;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
-using Dapplo.Windows.Extensions;
 using Greenshot.Addon.Imgur.Configuration;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addon.Imgur.ViewModels;
@@ -43,8 +35,6 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addon.Imgur
 {
@@ -88,7 +78,7 @@ namespace Greenshot.Addon.Imgur
 
 		public override string Description => _imgurLanguage.UploadMenuItem;
 
-		public override Bitmap DisplayIcon
+		public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
 			{
@@ -140,7 +130,7 @@ namespace Greenshot.Addon.Imgur
                             using (var tmpImage = surfaceToUpload.GetBitmapForExport())
                             using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
                             {
-                                imgurImage.Image = thumbnail.ToBitmapSource();
+                                imgurImage.Image = thumbnail;
                             }
                             if (_imgurConfiguration.AnonymousAccess && _imgurConfiguration.TrackHistory)
                             {

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,7 +32,6 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -46,8 +39,6 @@ using Greenshot.Core.Enums;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
 using Encoder = System.Drawing.Imaging.Encoder;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -126,9 +117,7 @@ namespace Greenshot.Addons.Core
 			return propertyItem;
 		}
 
-		#region save-as
-
-		/// <summary>
+        /// <summary>
 		///     Save with showing a dialog
 		/// </summary>
 		/// <param name="surface"></param>
@@ -167,9 +156,7 @@ namespace Greenshot.Addons.Core
 			return returnValue;
 		}
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		///     Create a tmpfile which has the name like in the configured pattern.
 		///     Used e.g. by the email export
 		/// </summary>
@@ -298,15 +285,13 @@ namespace Greenshot.Addons.Core
 		    File.Delete(path);
 		}
 
-		#region Icon
-
-		/// <summary>
+        /// <summary>
 		///     Write the images to the stream as icon
 		///     Every image is resized to 256x256 (but the content maintains the aspect ratio)
 		/// </summary>
 		/// <param name="stream">Stream to write to</param>
 		/// <param name="bitmaps">List of images</param>
-		public static void WriteIcon(Stream stream, IList<Bitmap> bitmaps)
+		public static void WriteIcon(Stream stream, IList<IBitmapWithNativeSupport> bitmaps)
 		{
 			var binaryWriter = new BinaryWriter(stream);
 			//
@@ -337,7 +322,7 @@ namespace Greenshot.Addons.Core
 				{
 					using (var clonedImage = bitmap.CloneBitmap(PixelFormat.Format32bppArgb))
 					{
-						clonedImage.Save(imageStream, ImageFormat.Png);
+						clonedImage.NativeBitmap.Save(imageStream, ImageFormat.Png);
 						imageSizes.Add(new Size(size, size));
 					}
 				}
@@ -348,7 +333,7 @@ namespace Greenshot.Addons.Core
 					{
 						using (var resizedImage = clonedImage.Resize(true, true, Color.Empty, size, size, null))
 						{
-							resizedImage.Save(imageStream, ImageFormat.Png);
+							resizedImage.NativeBitmap.Save(imageStream, ImageFormat.Png);
 							imageSizes.Add(resizedImage.Size);
 						}
 					}
@@ -391,10 +376,8 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
-        #endregion
 
-
-	    /// <summary>
+        /// <summary>
 	    ///     Load a Greenshot surface from a stream
 	    /// </summary>
 	    /// <param name="surfaceFileStream">Stream</param>
@@ -439,8 +422,6 @@ namespace Greenshot.Addons.Core
 	        return returnSurface;
 	    }
 
-        #region save
-
         /// <summary>
         ///     Saves ISurface to stream with specified output settings
         /// </summary>
@@ -467,7 +448,7 @@ namespace Greenshot.Addons.Core
         /// <param name="surface">surface for the elements, needed if the greenshot format is used</param>
         /// <param name="stream">Stream to save to</param>
         /// <param name="outputSettings">SurfaceOutputSettings</param>
-        public static void SaveToStream(Bitmap bitmapToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
+        public static void SaveToStream(IBitmapWithNativeSupport bitmapToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
 		{
 			var useMemoryStream = false;
 			MemoryStream memoryStream = null;
@@ -528,20 +509,20 @@ namespace Greenshot.Addons.Core
 						{
 							var parameters = new EncoderParameters(1)
 							{
-								Param = {[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality)}
+								Param = {[0] = new EncoderParameter(Encoder.Quality, outputSettings.JpgQuality)}
 							};
 							// Removing transparency if it's not supported in the output
 							if (Image.IsAlphaPixelFormat(bitmapToSave.PixelFormat))
 							{
 								var nonAlphaImage = bitmapToSave.CloneBitmap(PixelFormat.Format24bppRgb);
 								AddTag(nonAlphaImage);
-								nonAlphaImage.Save(targetStream, imageCodec, parameters);
+								nonAlphaImage.NativeBitmap.Save(targetStream, imageCodec, parameters);
 								nonAlphaImage.Dispose();
 							}
 							else
 							{
 								AddTag(bitmapToSave);
-								bitmapToSave.Save(targetStream, imageCodec, parameters);
+								bitmapToSave.NativeBitmap.Save(targetStream, imageCodec, parameters);
 							}
 							foundEncoder = true;
 							break;
@@ -555,7 +536,7 @@ namespace Greenshot.Addons.Core
 				else if (Equals(imageFormat, ImageFormat.Icon))
 				{
                     // FEATURE-916: Added Icon support
-                    IList<Bitmap> bitmaps = new List<Bitmap>
+                    IList<IBitmapWithNativeSupport> bitmaps = new List<IBitmapWithNativeSupport>
                     {
                         bitmapToSave
                     };
@@ -579,7 +560,7 @@ namespace Greenshot.Addons.Core
 					}
 					if (!processed)
 					{
-						bitmapToSave.Save(targetStream, imageFormat);
+						bitmapToSave.NativeBitmap.Save(targetStream, imageFormat);
 					}
 					if (needsDispose)
 					{
@@ -623,7 +604,7 @@ namespace Greenshot.Addons.Core
 		/// <param name="imageToProcess">Image to pass to the external process</param>
 		/// <param name="targetStream">stream to write the processed image to</param>
 		/// <returns></returns>
-		private static bool ProcessPngImageExternally(Image imageToProcess, Stream targetStream)
+		private static bool ProcessPngImageExternally(IBitmapWithNativeSupport imageToProcess, Stream targetStream)
 		{
 			if (string.IsNullOrEmpty(CoreConfiguration.OptimizePNGCommand))
 			{
@@ -640,7 +621,7 @@ namespace Greenshot.Addons.Core
 				using (var tmpStream = File.Create(tmpFileName))
 				{
 					Log.Debug().WriteLine("Writing png to tmp file: {0}", tmpFileName);
-					imageToProcess.Save(tmpStream, ImageFormat.Png);
+					imageToProcess.NativeBitmap.Save(tmpStream, ImageFormat.Png);
 					if (Log.IsDebugEnabled())
 					{
 						Log.Debug().WriteLine("File size before processing {0}", new FileInfo(tmpFileName).Length);
@@ -703,7 +684,7 @@ namespace Greenshot.Addons.Core
 		/// <param name="outputSettings"></param>
 		/// <param name="bitmapToSave"></param>
 		/// <returns>true if the image must be disposed</returns>
-		public static bool CreateBitmapFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Bitmap bitmapToSave)
+		public static bool CreateBitmapFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out IBitmapWithNativeSupport bitmapToSave)
 		{
 			var disposeImage = false;
 
@@ -724,7 +705,7 @@ namespace Greenshot.Addons.Core
 			{
 				return disposeImage;
 			}
-		    Bitmap tmpBitmap;
+            IBitmapWithNativeSupport tmpBitmap;
 			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0)
 			{
 				// apply effects, if there are any
@@ -788,22 +769,24 @@ namespace Greenshot.Addons.Core
 		///     Add the greenshot property!
 		/// </summary>
 		/// <param name="imageToSave"></param>
-		private static void AddTag(Image imageToSave)
+		private static void AddTag(IBitmapWithNativeSupport imageToSave)
 		{
 			// Create meta-data
 			var softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-			if (softwareUsedPropertyItem != null)
-			{
-				try
-				{
-					imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-				}
-				catch (Exception)
-				{
-					Log.Warn().WriteLine("Couldn't set property {0}", softwareUsedPropertyItem.Id);
-				}
-			}
-		}
+            if (softwareUsedPropertyItem == null)
+            {
+                return;
+            }
+
+            try
+            {
+                imageToSave.NativeBitmap.SetPropertyItem(softwareUsedPropertyItem);
+            }
+            catch (Exception)
+            {
+                Log.Warn().WriteLine("Couldn't set property {0}", softwareUsedPropertyItem.Id);
+            }
+        }
 
 		/// <summary>
 		///     Load a Greenshot surface
@@ -894,7 +877,5 @@ namespace Greenshot.Addons.Core
 			}
 			return format;
 		}
-
-		#endregion
-	}
+    }
 }

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,16 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
-
-#endregion
 
 namespace Greenshot.Gfx.Effects
 {
@@ -41,7 +33,7 @@ namespace Greenshot.Gfx.Effects
 
 	    public int Width { get; set; } = 2;
         
-		public Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
+		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateBorder(sourceBitmap, Width, Color, sourceBitmap.PixelFormat, matrix);
 		}
@@ -58,7 +50,7 @@ namespace Greenshot.Gfx.Effects
 	    ///     location
 	    /// </param>
 	    /// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-	    public static Bitmap CreateBorder(Bitmap sourceBitmap, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix)
+	    public static IBitmapWithNativeSupport CreateBorder(IBitmapWithNativeSupport sourceBitmap, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix)
 	    {
 	        // "return" the shifted offset, so the caller can e.g. move elements
 	        var offset = new NativePoint(borderSize, borderSize);
@@ -67,7 +59,7 @@ namespace Greenshot.Gfx.Effects
 	        // Create a new "clean" image
 	        var newImage = BitmapFactory.CreateEmpty(sourceBitmap.Width + borderSize * 2, sourceBitmap.Height + borderSize * 2, targetPixelformat, Color.Empty, sourceBitmap.HorizontalResolution,
 	            sourceBitmap.VerticalResolution);
-	        using (var graphics = Graphics.FromImage(newImage))
+	        using (var graphics = Graphics.FromImage(newImage.NativeBitmap))
 	        {
 	            // Make sure we draw with the best quality!
 	            graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -85,8 +77,8 @@ namespace Greenshot.Gfx.Effects
 	                    graphics.DrawPath(pen, path);
 	                }
 	            }
-	            // draw original with a TextureBrush so we have nice antialiasing!
-	            using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp))
+	            // draw original with a TextureBrush so we have nice anti-aliasing!
+	            using (Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp))
 	            {
 	                // We need to do a translate-tranform otherwise the image is wrapped
 	                graphics.TranslateTransform(offset.X, offset.Y);

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -33,8 +27,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx.Legacy;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
@@ -365,9 +357,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return Contains(x, y);
 		}
 
-		#region TargetGripper serializing code
-
-		// Only used for serializing the TargetGripper location
+        // Only used for serializing the TargetGripper location
 		private NativePoint _storedTargetGripperLocation;
 
 		/// <summary>
@@ -392,7 +382,5 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			base.OnDeserialized(streamingContext);
 			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
-
-		#endregion
-	}
+    }
 }

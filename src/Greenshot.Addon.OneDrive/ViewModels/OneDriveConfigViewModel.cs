@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,8 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Collections.Generic;
 using System.Reactive.Disposables;
@@ -68,7 +64,7 @@ namespace Greenshot.Addon.OneDrive.ViewModels
         /// <param name="oneDriveConfiguration">IOneDriveConfiguration</param>
         /// <param name="oneDriveLanguage">IOneDriveLanguage</param>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>
-        /// <param name="fileConfigPartViewModel"><FileConfigPartViewModel/param>
+        /// <param name="fileConfigPartViewModel">FileConfigPartViewModel</param>
         public OneDriveConfigViewModel(
             IOneDriveConfiguration oneDriveConfiguration,
             IOneDriveLanguage oneDriveLanguage,

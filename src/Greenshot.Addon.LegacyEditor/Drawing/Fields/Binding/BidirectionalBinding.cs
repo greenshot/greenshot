@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,15 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.ComponentModel;
 using System.Reflection;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 {
@@ -152,7 +144,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		    }
 		    try
 		    {
-		        if (_validator == null || _validator.validate(bValue))
+		        if (_validator == null || _validator.Validate(bValue))
 		        {
 		            targetPropertyInfo.SetValue(targetObject, bValue, null);
 		        }
@@ -161,7 +153,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		    {
 		        throw new MemberAccessException(
 		            "Could not set property '" + targetProperty + "' to '" + bValue + "' [" + (bValue?.GetType().Name ?? "") + "] on " + targetObject +
-		            ". Probably other type than expected, IBindingCoverter to the rescue.", e);
+		            ". Probably other type than expected, IBindingConverter to the rescue.", e);
 		    }
 		}
 

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,8 +26,6 @@ using Dapplo.Config.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Core.Configuration;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {

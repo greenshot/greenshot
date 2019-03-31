@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.LegacyEditor</RootNamespace>
@@ -136,8 +136,8 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.21" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
     <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.18" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.17" />
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.17" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.18" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.18" />
     <PackageReference Include="Fody" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

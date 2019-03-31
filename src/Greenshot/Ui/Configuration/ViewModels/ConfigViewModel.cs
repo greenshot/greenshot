@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,15 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
 using Autofac.Features.OwnedInstances;
-using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
@@ -44,8 +39,6 @@ namespace Greenshot.Ui.Configuration.ViewModels
     /// </summary>
     public sealed class ConfigViewModel : Config<IConfigScreen>, IHaveIcon
     {
-        private readonly IEventAggregator _eventAggregator;
-
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
@@ -70,11 +63,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
             IEnumerable<Lazy<IConfigScreen>> configScreens,
             IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations,
-            IEventAggregator eventAggregator,
             Func<Owned<UpdateNotificationViewModel>> updateNotificationViewModelFactory
             )
         {
-            _eventAggregator = eventAggregator;
             ConfigScreens = configScreens;
             GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;

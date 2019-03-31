@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,8 +29,6 @@ namespace Greenshot.Addon.Imgur.Configuration.Impl
 {
     internal class ImgurConfigurationImpl : IniSectionBase<IImgurConfiguration>, IImgurConfiguration
     {
-        #region Implementation of IFileConfiguration
-
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
         public string OutputFileFilenamePattern { get; set; }
@@ -48,15 +42,7 @@ namespace Greenshot.Addon.Imgur.Configuration.Impl
         public string OptimizePNGCommand { get; set; }
         public string OptimizePNGCommandArguments { get; set; }
 
-        #endregion
-
-        #region Implementation of IDestinationFileConfiguration
-
         public bool UseOwnSettings { get; set; }
-
-        #endregion
-
-        #region Implementation of IOAuth2Token
 
         [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuth2AccessToken { get; set; }
@@ -65,10 +51,6 @@ namespace Greenshot.Addon.Imgur.Configuration.Impl
 
         [TypeConverter(typeof(StringEncryptionTypeConverter))]
         public string OAuth2RefreshToken { get; set; }
-
-        #endregion
-
-        #region Implementation of IImgurConfiguration
 
         public string ImgurApi3Url { get; set; }
         public bool CopyLinkToClipboard { get; set; }
@@ -84,7 +66,5 @@ namespace Greenshot.Addon.Imgur.Configuration.Impl
         public IDictionary<string, string> ImgurUploadHistory { get; set; }
         public int Credits { get; set; }
         public IDictionary<string, ImgurImage> RuntimeImgurHistory { get; set; }
-
-        #endregion
     }
 }

@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,7 +27,6 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Addon.LegacyEditor.Configuration.Impl;
 using Greenshot.Addon.LegacyEditor.Drawing.Adorners;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addon.LegacyEditor.Drawing.Filters;
@@ -41,9 +34,8 @@ using Greenshot.Addon.LegacyEditor.Memento;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Interfaces.Drawing.Adorners;
+using Greenshot.Gfx;
 using Greenshot.Gfx.Legacy;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing
 {
@@ -85,16 +77,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		[NonSerialized] private TargetAdorner _targetAdorner;
 
-		private bool accountForShadowChange;
+		private bool _accountForShadowChange;
 
-		private int height;
+		private int _height;
 
 
-		private int left;
+		private int _left;
 
-		private int top;
+		private int _top;
 
-		private int width;
+		private int _width;
 
 		public DrawableContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration)
 		{
@@ -183,73 +175,73 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public int Left
 		{
-			get { return left; }
+			get { return _left; }
 			set
 			{
-				if (value == left)
+				if (value == _left)
 				{
 					return;
 				}
-				left = value;
+				_left = value;
 			}
 		}
 
 		public int Top
 		{
-			get { return top; }
+			get { return _top; }
 			set
 			{
-				if (value == top)
+				if (value == _top)
 				{
 					return;
 				}
-				top = value;
+				_top = value;
 			}
 		}
 
 		public int Width
 		{
-			get { return width; }
+			get { return _width; }
 			set
 			{
-				if (value == width)
+				if (value == _width)
 				{
 					return;
 				}
-				width = value;
+				_width = value;
 			}
 		}
 
 		public int Height
 		{
-			get { return height; }
+			get { return _height; }
 			set
 			{
-				if (value == height)
+				if (value == _height)
 				{
 					return;
 				}
-				height = value;
+				_height = value;
 			}
 		}
 
 		public NativePoint Location
 		{
-			get { return new NativePoint(left, top); }
+			get { return new NativePoint(_left, _top); }
 			set
 			{
-				left = value.X;
-				top = value.Y;
+				_left = value.X;
+				_top = value.Y;
 			}
 		}
 
 		public Size Size
 		{
-			get { return new Size(width, height); }
+			get { return new Size(_width, _height); }
 			set
 			{
-				width = value.Width;
-				height = value.Height;
+				_width = value.Width;
+				_height = value.Height;
 			}
 		}
 
@@ -298,9 +290,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				var offset = lineThickness / 2;
 
 				var shadow = 0;
-				if (accountForShadowChange || HasField(FieldTypes.SHADOW) && GetFieldValueAsBool(FieldTypes.SHADOW))
+				if (_accountForShadowChange || HasField(FieldTypes.SHADOW) && GetFieldValueAsBool(FieldTypes.SHADOW))
 				{
-					accountForShadowChange = false;
+					_accountForShadowChange = false;
 					shadow += 10;
 				}
 				return new NativeRect(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
@@ -354,7 +346,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return true;
 		}
 
-		public bool hasFilters
+		public bool HasFilters
 		{
 			get { return Filters.Count > 0; }
 		}
@@ -536,7 +528,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
-		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+		public virtual void DrawContent(Graphics graphics, IBitmapWithNativeSupport bmp, RenderMode renderMode, NativeRect clipRectangle)
 		{
 			if (Children.Count > 0)
 			{
@@ -645,7 +637,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			Log.Debug().WriteLine("Field {0} changed", e.Field.FieldType);
 			if (Equals(e.Field.FieldType, FieldTypes.SHADOW))
 			{
-				accountForShadowChange = true;
+				_accountForShadowChange = true;
 			}
 		}
 

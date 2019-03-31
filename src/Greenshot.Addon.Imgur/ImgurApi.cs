@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,18 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
 using Dapplo.HttpExtensions.JsonNet;
@@ -42,8 +36,7 @@ using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
-
-#endregion
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Imgur
 {
@@ -263,7 +256,7 @@ namespace Greenshot.Addon.Imgur
             }
             Log.Debug().WriteLine("Retrieving Imgur image for {0} with url {1}", imgurImage.Data.Id, imgurImage.Data.LinkThumbnail);
             ImageHttpBehaviour.MakeCurrent();
-            imgurImage.Image = await imgurImage.Data.LinkThumbnail.GetAsAsync<BitmapSource>(token).ConfigureAwait(true);
+            imgurImage.Image = BitmapWrapper.FromBitmap(await imgurImage.Data.LinkThumbnail.GetAsAsync<Bitmap>(token).ConfigureAwait(true));
         }
 
         /// <summary>

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,13 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,8 +36,6 @@ using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Resources;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addons.Core
 {
@@ -74,12 +65,12 @@ namespace Greenshot.Addons.Core
         public abstract string Description { get; }
 
         /// <inheritdoc />
-        public virtual Bitmap DisplayIcon { get; set; }
+        public virtual IBitmapWithNativeSupport DisplayIcon { get; set; }
 
         /// <inheritdoc />
-        public virtual BitmapSource DisplayIconWpf => DisplayIcon?.ToBitmapSource() ?? GetDisplayIcon(DpiHandler.DefaultScreenDpi).ToBitmapSource();
+        public virtual BitmapSource DisplayIconWpf => DisplayIcon?.NativeBitmap.ToBitmapSource() ?? GetDisplayIcon(DpiHandler.DefaultScreenDpi).NativeBitmap.ToBitmapSource();
 
-        public virtual Bitmap GetDisplayIcon(double dpi)
+        public virtual IBitmapWithNativeSupport GetDisplayIcon(double dpi)
         {
             return DisplayIcon;
         }
@@ -160,7 +151,7 @@ namespace Greenshot.Addons.Core
         /// <param name="destinationClickHandler">EventHandler</param>
         /// <param name="bitmapScaleHandler">BitmapScaleHandler</param>
         /// <returns>ToolStripMenuItem</returns>
-        public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> bitmapScaleHandler)
+        public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination, IBitmapWithNativeSupport> bitmapScaleHandler)
         {
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
@@ -168,7 +159,7 @@ namespace Greenshot.Addons.Core
                 Text = Description
             };
 
-            bitmapScaleHandler.AddTarget(basisMenuItem, this);
+            bitmapScaleHandler.AddTarget(basisMenuItem, this, bitmap => bitmap?.NativeBitmap);
 
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
@@ -217,7 +208,7 @@ namespace Greenshot.Addons.Core
                             {
                                 Tag = subDestination,
                             };
-                            bitmapScaleHandler.AddTarget(destinationMenuItem, subDestination);
+                            bitmapScaleHandler.AddTarget(destinationMenuItem, subDestination, bitmap => bitmap.NativeBitmap);
 
                             destinationMenuItem.Click += destinationClickHandler;
                             AddTagEvents(destinationMenuItem, menu, subDestination.Description);
@@ -290,7 +281,8 @@ namespace Greenshot.Addons.Core
                 TopLevel = true
             };
             var dpiHandler = menu.AttachDpiHandler();
-            var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(
+            // TODO: Check 
+            var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination, IBitmapWithNativeSupport>(
                 dpiHandler,
                 (destination, dpi) => destination.GetDisplayIcon(dpi),
                 (bitmap, d) => bitmap.ScaleIconForDisplaying(d));
@@ -392,7 +384,7 @@ namespace Greenshot.Addons.Core
             menu.Items.Add(new ToolStripSeparator());
             var closeItem = new ToolStripMenuItem(GreenshotLanguage.ContextmenuExit)
             {
-                Image = GreenshotResources.Instance.GetBitmap("Close.Image")
+                Image = GreenshotResources.Instance.GetBitmap("Close.Image").NativeBitmap
             };
             closeItem.Click += (sender, args) =>
             {

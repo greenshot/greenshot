@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,10 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
-#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -48,8 +42,6 @@ using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Core.Enums;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Helpers
 {
@@ -432,7 +424,7 @@ namespace Greenshot.Helpers
                     }
                     break;
                 case CaptureMode.File:
-                    Bitmap fileImage = null;
+                    IBitmapWithNativeSupport fileImage = null;
                     var filename = _capture.CaptureDetails.Filename;
 
                     if (!string.IsNullOrEmpty(filename))
@@ -588,7 +580,7 @@ namespace Greenshot.Helpers
                 // Make sure the resolution is set correctly!
                 if (_capture.CaptureDetails != null)
                 {
-                    _capture.Bitmap?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                    _capture.Bitmap?.NativeBitmap.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
                     // Generate a title
                     if (_capture.CaptureDetails.Title == null)
                     {
@@ -1013,11 +1005,9 @@ namespace Greenshot.Helpers
             previouslyActiveWindow?.ToForegroundAsync(false);
             if (_capture.CaptureDetails != null)
             {
-                _capture.Bitmap?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                _capture.Bitmap?.NativeBitmap.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
             }
         }
-
-        #region capture with feedback
 
         private void CaptureWithFeedback()
         {
@@ -1088,7 +1078,5 @@ namespace Greenshot.Helpers
                 HandleCapture();
             }
         }
-
-        #endregion
     }
 }

@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 using Dapplo.Config.Ini;
 using Greenshot.Core.Enums;
 
@@ -28,8 +24,6 @@ namespace Greenshot.Addon.Jira.Configuration.Impl
 {
     internal class JiraConfigurationImpl : IniSectionBase<IJiraConfiguration>, IJiraConfiguration
     {
-        #region Implementation of IFileConfiguration
-
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
         public string OutputFileFilenamePattern { get; set; }
@@ -43,20 +37,10 @@ namespace Greenshot.Addon.Jira.Configuration.Impl
         public string OptimizePNGCommand { get; set; }
         public string OptimizePNGCommandArguments { get; set; }
 
-        #endregion
-
-        #region Implementation of IDestinationFileConfiguration
-
         public bool UseOwnSettings { get; set; }
-
-        #endregion
-
-        #region Implementation of IJiraConfiguration
 
         public string Url { get; set; }
         public int Timeout { get; set; }
         public int MaxEntries { get; set; }
-
-        #endregion
     }
 }

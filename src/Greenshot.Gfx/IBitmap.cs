@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,40 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
-#endregion
+using System.Windows.Media.Imaging;
 
 namespace Greenshot.Gfx
 {
 	/// <summary>
-	///     The image interface, this abstracts a bitmap
+	///     A new interface for handling bitmaps
 	/// </summary>
 	public interface IBitmap : IDisposable
 	{
 		/// <summary>
 		///     Height of the image, can be set to change
 		/// </summary>
-		int Height { get; set; }
+		int Height { get; }
 
 		/// <summary>
 		///     Width of the image, can be set to change.
 		/// </summary>
-		int Width { get; set; }
+		int Width { get; }
 
-		/// <summary>
-		///     Size of the image
-		/// </summary>
-		Size Size { get; }
-
-		/// <summary>
-		///     Pixelformat of the underlying image
+        /// <summary>
+		///     PixelFormat of the underlying image
 		/// </summary>
 		PixelFormat PixelFormat { get; }
 
@@ -66,9 +54,27 @@ namespace Greenshot.Gfx
 		/// </summary>
 		float HorizontalResolution { get; }
 
-		/// <summary>
-		///     Unterlying image, or an on demand rendered version with different attributes as the original
-		/// </summary>
-		Bitmap Bitmap { get; }
-	}
+    }
+
+    /// <summary>
+    /// This adds native bitmap support to IBitmap
+    /// </summary>
+    public interface IBitmapWithNativeSupport : IBitmap
+    {
+        /// <summary>
+        ///     Retrieves a Bitmap which only can be used as long as the underlying implementation is not disposed.
+        ///     Do not dispose this.
+        /// </summary>
+        Bitmap NativeBitmap { get; }
+        
+        /// <summary>
+        ///     Retrieves a BitmapSource which only can be used as long as the underlying implementation is not disposed.
+        /// </summary>
+        BitmapSource NativeBitmapSource { get; }
+
+        /// <summary>
+        /// Return the Size
+        /// </summary>
+        Size Size { get; }
+    }
 }

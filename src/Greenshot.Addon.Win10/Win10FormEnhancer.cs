@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
 #if !NETCOREAPP3_0
 
 using System;
@@ -33,10 +29,10 @@ namespace Greenshot.Addon.Win10
 {
     public class Win10FormEnhancer : IFormEnhancer
     {
-        private WindowsXamlHost inkCanvasHost;
-        private WindowsXamlHost inkToolbarHost;
-        private Windows.UI.Xaml.Controls.InkCanvas inkCanvas;
-        private Windows.UI.Xaml.Controls.InkToolbar inkToolbar;
+        private WindowsXamlHost _inkCanvasHost;
+        private WindowsXamlHost _inkToolbarHost;
+        private Windows.UI.Xaml.Controls.InkCanvas _inkCanvas;
+        private Windows.UI.Xaml.Controls.InkToolbar _inkToolbar;
 
         public void InitializeComponent(Form target)
         {
@@ -45,17 +41,17 @@ namespace Greenshot.Addon.Win10
                 return;
             }
             // InkCanvas
-            inkCanvasHost = new WindowsXamlHost
+            _inkCanvasHost = new WindowsXamlHost
             {
                 InitialTypeName = "Windows.UI.Xaml.Controls.InkCanvas",
                 Dock = DockStyle.Fill,
                 BackColor = Color.Transparent,
                 
             };
-            inkCanvasHost.ChildChanged += InkCanvas_ChildChanged;
+            _inkCanvasHost.ChildChanged += InkCanvas_ChildChanged;
 
             // InkToolbar
-            inkToolbarHost = new WindowsXamlHost
+            _inkToolbarHost = new WindowsXamlHost
             {
                 InitialTypeName = "Windows.UI.Xaml.Controls.InkToolbar",
                 // Layout
@@ -65,33 +61,33 @@ namespace Greenshot.Addon.Win10
                 Dock = DockStyle.Top,
                 BackColor = Color.Transparent
             };
-            inkToolbarHost.ChildChanged += InkToolbar_ChildChanged;
+            _inkToolbarHost.ChildChanged += InkToolbar_ChildChanged;
 
             // Add to Window
-            target.Controls.Add(inkToolbarHost);
-            target.Controls.Add(inkCanvasHost);
+            target.Controls.Add(_inkToolbarHost);
+            target.Controls.Add(_inkCanvasHost);
         }
 
         private void InkToolbar_ChildChanged(object sender, EventArgs e)
         {
-            inkToolbar = ((WindowsXamlHost)sender).Child as Windows.UI.Xaml.Controls.InkToolbar;
+            _inkToolbar = ((WindowsXamlHost)sender).Child as Windows.UI.Xaml.Controls.InkToolbar;
             InitializeUwpControls();
         }
 
         private void InkCanvas_ChildChanged(object sender, EventArgs e)
         {
-            inkCanvas = ((WindowsXamlHost)sender).Child as Windows.UI.Xaml.Controls.InkCanvas;
+            _inkCanvas = ((WindowsXamlHost)sender).Child as Windows.UI.Xaml.Controls.InkCanvas;
             InitializeUwpControls();
         }
 
         private void InitializeUwpControls()
         {
-            if (inkToolbar == null || inkCanvas == null)
+            if (_inkToolbar == null || _inkCanvas == null)
             {
                 return;
             }
 
-            inkToolbar.TargetInkCanvas = inkCanvas;
+            _inkToolbar.TargetInkCanvas = _inkCanvas;
         }
     }
 }

@@ -9,8 +9,6 @@ namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
 {
     internal class EditorConfigurationImpl : IniSectionBase<IEditorConfiguration>, IEditorConfiguration
     {
-        #region Implementation of IEditorConfiguration
-
         public IList<Color> RecentColors { get; set; }
         public IDictionary<string, object> LastUsedFieldValues { get; set; }
         public bool MatchSizeToCapture { get; set; }
@@ -24,7 +22,5 @@ namespace Greenshot.Addon.LegacyEditor.Configuration.Impl
         public bool SuppressSaveDialogAtClose { get; set; }
         public DropShadowEffect DropShadowEffectSettings { get; set; }
         public TornEdgeEffect TornEdgeEffectSettings { get; set; }
-
-        #endregion
     }
 }

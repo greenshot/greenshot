@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -34,8 +28,6 @@ using Dapplo.Log;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-
-#endregion
 
 namespace Greenshot.Helpers.Mapi
 {
@@ -56,13 +48,9 @@ namespace Greenshot.Helpers.Mapi
         /// </summary>
         internal static ICoreConfiguration CoreConfiguration { get; set; }
 
-        #region Member Variables
-
         private readonly ManualResetEvent _manualResetEvent;
 
-		#endregion Member Variables
-
-		/// <summary>
+        /// <summary>
 		///     Helper Method for creating an Email with Attachment
 		/// </summary>
 		/// <param name="fullPath">Path to file</param>
@@ -114,9 +102,7 @@ namespace Greenshot.Helpers.Mapi
 			}
 		}
 
-		#region Constructors
-
-		/// <summary>
+        /// <summary>
 		///     Creates a blank mail message.
 		/// </summary>
 		public MapiMailMessage()
@@ -143,11 +129,7 @@ namespace Greenshot.Helpers.Mapi
 			Body = body;
 		}
 
-		#endregion Constructors
-
-		#region Public Properties
-
-		/// <summary>
+        /// <summary>
 		///     Gets or sets the subject of this mail message.
 		/// </summary>
 		public string Subject { get; set; }
@@ -167,11 +149,7 @@ namespace Greenshot.Helpers.Mapi
 		/// </summary>
 		public List<string> Files { get; }
 
-		#endregion Public Properties
-
-		#region Public Methods
-
-		/// <summary>
+        /// <summary>
 		///     Displays the mail message dialog asynchronously.
 		/// </summary>
 		public void ShowDialog()
@@ -196,11 +174,7 @@ namespace Greenshot.Helpers.Mapi
 			GC.SuppressFinalize(this);
 		}
 
-		#endregion Public Methods
-
-		#region Private Methods
-
-		protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing)
 			{
@@ -451,7 +425,5 @@ namespace Greenshot.Helpers.Mapi
 			}
 			return error;
 		}
-
-		#endregion Private Methods
-	}
+    }
 }

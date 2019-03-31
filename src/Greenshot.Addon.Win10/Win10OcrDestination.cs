@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -32,6 +31,7 @@ using Greenshot.Addons.Components;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Win10
 {
@@ -50,7 +50,7 @@ namespace Greenshot.Addon.Win10
 		/// <summary>
 		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
 		/// </summary>
-		public override Bitmap DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+		public override IBitmapWithNativeSupport DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
 
 		/// <summary>
 		/// Constructor, this is only debug information

@@ -1,5 +1,3 @@
-#region Greenshot GNU General Public License
-
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
@@ -19,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,8 +34,6 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Forms
 {
@@ -124,7 +116,7 @@ namespace Greenshot.Forms
         private readonly IList<Color> _pixelColors = new List<Color>();
         private readonly IList<RectangleAnimator> _pixels = new List<RectangleAnimator>();
         private readonly Random _rand = new Random();
-        private Bitmap _bitmap;
+        private IBitmapWithNativeSupport _bitmap;
         private int _colorIndex;
         private bool _hasAnimationsLeft;
         private int _scrollCount;
@@ -156,7 +148,7 @@ namespace Greenshot.Forms
 
             // Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
             _bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor);
-            pictureBox1.Image = _bitmap;
+            pictureBox1.Image = _bitmap?.NativeBitmap;
 
             _dpiSubscription = FormDpiHandler.OnDpiChanged.Subscribe(info =>
                 {
@@ -314,7 +306,7 @@ namespace Greenshot.Forms
             }
 
             // Draw the "G"
-            using (var graphics = Graphics.FromImage(_bitmap))
+            using (var graphics = Graphics.FromImage(_bitmap.NativeBitmap))
             {
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;

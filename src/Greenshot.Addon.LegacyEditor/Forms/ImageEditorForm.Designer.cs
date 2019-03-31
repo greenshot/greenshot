@@ -172,8 +172,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.blurRadiusUpDown = new ToolStripNumericUpDown();
 			this.brightnessLabel = new GreenshotToolStripLabel();
 			this.brightnessUpDown = new ToolStripNumericUpDown();
-			this.previewQualityLabel = new GreenshotToolStripLabel();
-			this.previewQualityUpDown = new ToolStripNumericUpDown();
 			this.magnificationFactorLabel = new GreenshotToolStripLabel();
 			this.magnificationFactorUpDown = new ToolStripNumericUpDown();
 			this.pixelSizeLabel = new GreenshotToolStripLabel();
@@ -1001,8 +999,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.blurRadiusUpDown,
 									this.brightnessLabel,
 									this.brightnessUpDown,
-									this.previewQualityLabel,
-									this.previewQualityUpDown,
 									this.magnificationFactorLabel,
 									this.magnificationFactorUpDown,
 									this.pixelSizeLabel,
@@ -1312,40 +1308,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.brightnessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.brightnessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
-			// previewQualityLabel
-			// 
-			this.previewQualityLabel.LanguageKey = "editor.editor_preview_quality";
-			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Text = "Preview quality";
-			// 
-			// previewQualityUpDown
-			// 
-			this.previewQualityUpDown.DecimalPlaces = 0;
-			this.previewQualityUpDown.Increment = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Maximum = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Minimum = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Name = "previewQualityUpDown";
-			this.previewQualityUpDown.Text = "50";
-			this.previewQualityUpDown.Value = new decimal(new int[] {
-									50,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
-			this.previewQualityUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
-			// 
 			// magnificationFactorLabel
 			// 
 			this.magnificationFactorLabel.LanguageKey = "editor.editor_magnification_factor";
@@ -1638,8 +1600,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 		private GreenshotToolStripLabel pixelSizeLabel;
 		private ToolStripNumericUpDown magnificationFactorUpDown;
 		private GreenshotToolStripLabel magnificationFactorLabel;
-		private ToolStripNumericUpDown previewQualityUpDown;
-		private GreenshotToolStripLabel previewQualityLabel;
 		private ToolStripNumericUpDown blurRadiusUpDown;
 		private GreenshotToolStripLabel blurRadiusLabel;
 		private ToolStripEx propertiesToolStrip;

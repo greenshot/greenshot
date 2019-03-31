@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System.Drawing;
 using Greenshot.Addons.Interfaces.Drawing;
-
-#endregion
 
 namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 {
@@ -38,7 +30,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	{
 	    public static readonly IFieldType ARROWHEADS = new FieldType<ArrowContainer.ArrowHeadCombination>("ARROWHEADS");
 	    public static readonly IFieldType BLUR_RADIUS = new FieldType<int>("BLUR_RADIUS");
-	    public static readonly IFieldType BRIGHTNESS = new FieldType<int>("BRIGHTNESS");
+	    public static readonly IFieldType BRIGHTNESS = new FieldType<double>("BRIGHTNESS");
 	    public static readonly IFieldType FILL_COLOR = new FieldType<Color>("FILL_COLOR");
 	    public static readonly IFieldType FONT_BOLD = new FieldType<bool>("FONT_BOLD");
 	    public static readonly IFieldType FONT_FAMILY = new FieldType<string>("FONT_FAMILY");
@@ -51,7 +43,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	    public static readonly IFieldType LINE_THICKNESS = new FieldType<int>("LINE_THICKNESS");
 	    public static readonly IFieldType MAGNIFICATION_FACTOR = new FieldType<int>("MAGNIFICATION_FACTOR");
 	    public static readonly IFieldType PIXEL_SIZE = new FieldType<int>("PIXEL_SIZE");
-	    public static readonly IFieldType PREVIEW_QUALITY = new FieldType<int>("PREVIEW_QUALITY");
 	    public static readonly IFieldType SHADOW = new FieldType<bool>("SHADOW");
 	    public static readonly IFieldType PREPARED_FILTER_OBFUSCATE = new FieldType<FilterContainer.PreparedFilter>("PREPARED_FILTER_OBFUSCATE");
 	    public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType<FilterContainer.PreparedFilter>("PREPARED_FILTER_HIGHLIGHT");
@@ -59,7 +50,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 
 	    public static IFieldType[] Values =
 	    {
-	        ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR, LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS
+	        ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR, LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS
 	    };
 	}
 }

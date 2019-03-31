@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -19,13 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO.Compression;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
@@ -42,8 +35,6 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-
-#endregion
 
 namespace Greenshot.Addon.Jira
 {
@@ -120,11 +111,11 @@ namespace Greenshot.Addon.Jira
 
 		public override bool IsDynamic => true;
 
-		public override Bitmap DisplayIcon
+		public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
 			{
-			    Bitmap displayIcon = null;
+			    IBitmapWithNativeSupport displayIcon = null;
 				if (_jiraConnector != null)
 				{
 					if (_jiraIssue != null)
@@ -150,7 +141,7 @@ namespace Greenshot.Addon.Jira
 				    {
 				        using (var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress))
 				        {
-				            displayIcon = SvgBitmap.FromStream(gzStream).Bitmap;
+				            displayIcon = SvgBitmap.FromStream(gzStream);
 				        }
                         //displayIcon = BitmapHelper.FromStream(bitmapStream);
                     }

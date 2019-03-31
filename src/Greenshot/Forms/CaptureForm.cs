@@ -1,6 +1,4 @@
-﻿#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -18,10 +16,6 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
-#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -45,8 +39,6 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Resources;
 using Greenshot.Gfx.Legacy;
-
-#endregion
 
 namespace Greenshot.Forms
 {
@@ -86,7 +78,7 @@ namespace Greenshot.Forms
         static CaptureForm()
         {
             var backgroundForTransparency = GreenshotResources.Instance.GetBitmap("Checkerboard.Image");
-            BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+            BackgroundBrush = new TextureBrush(backgroundForTransparency.NativeBitmap, WrapMode.Tile);
         }
 
         /// <summary>
@@ -204,8 +196,6 @@ namespace Greenshot.Forms
             Horizontal,
             Vertical
         }
-
-        #region key handling		
 
         /// <summary>
         ///     Handle the key up event
@@ -343,10 +333,6 @@ namespace Greenshot.Forms
                     break;
             }
         }
-
-        #endregion
-
-        #region events
 
         /// <summary>
         ///     The mousedown handler of the capture form
@@ -820,12 +806,11 @@ namespace Greenshot.Forms
                 if (!_isZoomerTransparent)
                 {
                     graphics.FillRectangle(BackgroundBrush, destinationRectangle);
-                    graphics.DrawImage(_capture.Bitmap, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+                    graphics.DrawImage(_capture.Bitmap.NativeBitmap, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
                 }
                 else
                 {
-                    graphics.DrawImage(_capture.Bitmap, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel,
-                        attributes);
+                    graphics.DrawImage(_capture.Bitmap.NativeBitmap, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
                 }
             }
             var alpha = (int) (255 * _coreConfiguration.ZoomerOpacity);
@@ -895,7 +880,7 @@ namespace Greenshot.Forms
         {
             var graphics = e.Graphics;
             var clipRectangle = e.ClipRectangle;
-            graphics.DrawImageUnscaled(_capture.Bitmap, Point.Empty);
+            graphics.DrawImageUnscaled(_capture.Bitmap.NativeBitmap, Point.Empty);
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size)))
             {
@@ -1080,7 +1065,5 @@ namespace Greenshot.Forms
             var destinationRectangle = _zoomAnimator.Current.Offset(_cursorPos);
             DrawZoom(graphics, sourceRectangle, destinationRectangle);
         }
-
-        #endregion
     }
 }
