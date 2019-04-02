@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Photobucket</RootNamespace>
     <AssemblyName>Greenshot.Addon.Photobucket</AssemblyName>
-    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
+    <TargetFramework>netcoreapp3.0</TargetFramework><!-- net472;netcoreapp3.0 -->
   </PropertyGroup>
 
   <ItemGroup>

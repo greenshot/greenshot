@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<language>
-	<resources prefix="OCR">
-		<resource name="language">Bahasa untuk OCR</resource>
-		<resource name="orient_image">Orientasikan gambar</resource>
-		<resource name="straighten_image">Rapikan gambar</resource>
-	</resources>
-</language>

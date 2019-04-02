@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 EndProject
@@ -14,8 +14,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.Imgur", "Greenshot.Addon.Imgur\Greenshot.Addon.Imgur.csproj", "{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.Jira", "Greenshot.Addon.Jira\Greenshot.Addon.Jira.csproj", "{19FEEF09-313F-43C7-819D-F1BCA782B08B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.OCR", "Greenshot.Addon.OCR\Greenshot.Addon.OCR.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.Box", "Greenshot.Addon.Box\Greenshot.Addon.Box.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
 EndProject
@@ -44,8 +42,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.OneDrive", "Greenshot.Addon.OneDrive\Greenshot.Addon.OneDrive.csproj", "{B35272D3-4631-4FA5-9A3E-85D70ECA9A8D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.Tfs", "Greenshot.Addon.Tfs\Greenshot.Addon.Tfs.csproj", "{8B3643A5-AFED-49FF-8D66-6348FB102EB2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Addon.OcrCommand", "Greenshot.Addon.OcrCommand\Greenshot.Addon.OcrCommand.csproj", "{7B8E9055-A054-4290-B537-075EBFDF8BDF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Core", "Greenshot.Core\Greenshot.Core.csproj", "{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}"
 EndProject
@@ -107,14 +103,6 @@ Global
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B}.Release|x86.ActiveCfg = Release|Any CPU
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B}.Release|x86.Build.0 = Release|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Debug|x86.Build.0 = Debug|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|x86.ActiveCfg = Release|Any CPU
-		{C6988EE8-2FEE-4349-9F09-F9628A0D8965}.Release|x86.Build.0 = Release|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{697CF066-9077-4F22-99D9-D989CCE7282B}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -227,14 +215,6 @@ Global
 		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{8B3643A5-AFED-49FF-8D66-6348FB102EB2}.Release|x86.Build.0 = Release|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Debug|x86.Build.0 = Debug|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Release|x86.ActiveCfg = Release|Any CPU
-		{7B8E9055-A054-4290-B537-075EBFDF8BDF}.Release|x86.Build.0 = Release|Any CPU
 		{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF35190D-B2A7-4CFA-B397-51CB384CF0D7}.Debug|x86.ActiveCfg = Debug|Any CPU

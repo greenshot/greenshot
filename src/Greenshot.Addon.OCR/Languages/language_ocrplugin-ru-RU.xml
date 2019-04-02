@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<language>
-	<resources prefix="OCR">
-		<resource name="language">Язык для OCR</resource>
-		<resource name="orient_image">Ориентация изображения</resource>
-		<resource name="straighten_image">Выпрямление изображения</resource>
-	</resources>
-</language>
