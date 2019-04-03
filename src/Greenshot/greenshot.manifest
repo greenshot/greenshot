@@ -1,24 +1,18 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2"
-          xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" manifestVersion="1.0">
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2"
+          xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
     <!-- Make sure windows Vista and above treat Greenshot as "DPI Aware"
     See: http://msdn.microsoft.com/en-us/library/ms633543.aspx -->
     <asmv3:application>
-        <asmv3 xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
-            <dpiAware>True/PM</dpiAware>
-        </asmv3>
-        <asmv3 xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">
+        <asmv3:windowsSettings>
+            <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
             <!-- Important for Greenshot, so it can enumerate immersive windows (UWP etc) from the desktop -->
-            <disableWindowFiltering>true</disableWindowFiltering>
-            <printerDriverIsolation>true</printerDriverIsolation>
-        </asmv3>
-        <asmv3 xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
-            <dpiAwareness>PerMonitorV2,PerMonitor</dpiAwareness>
-        </asmv3>
-        <asmv3 xmlns="http://schemas.microsoft.com/SMI/2017/WindowsSettings">
-            <gdiScaling>true</gdiScaling>
-        </asmv3>
+            <disableWindowFiltering xmlns="https://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
+            <printerDriverIsolation xmlns="https://schemas.microsoft.com/SMI/2011/WindowsSettings">true</printerDriverIsolation>
+            <dpiAwareness xmlns="https://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2,PerMonitor</dpiAwareness>
+            <gdiScaling xmlns="https://schemas.microsoft.com/SMI/2017/WindowsSettings">true</gdiScaling>
+        </asmv3:windowsSettings>
     </asmv3:application>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
         <application>
