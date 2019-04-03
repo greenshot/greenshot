@@ -41,8 +41,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.21" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.21" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.23" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.23" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.18" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.17763.144-preview" />
 	<PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview3.19128.7" />

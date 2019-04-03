@@ -42,15 +42,15 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AutoProperties.Fody" Version="1.20.0" />
+    <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.2.21</Version>
+      <Version>1.2.23</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
-      <Version>1.2.21</Version>
+      <Version>1.2.23</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.21</Version>
+      <Version>1.2.23</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
       <Version>0.9.18</Version>
@@ -70,12 +70,12 @@
     <PackageReference Include="Dapplo.Windows.Icons">
       <Version>0.8.18</Version>
     </PackageReference>
-    <PackageReference Include="Fody" Version="4.0.2">
+    <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>3.0.0-alpha0103</Version>
+      <Version>3.0.0-alpha0140</Version>
     </PackageReference>
     <PackageReference Include="Svg">
       <Version>2.4.2</Version>
