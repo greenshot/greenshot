@@ -9,7 +9,7 @@
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
     <AssemblyTitle>Greenshot</AssemblyTitle>
     <AssemblyName>Greenshot</AssemblyName>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
