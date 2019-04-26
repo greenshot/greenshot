@@ -4,6 +4,7 @@
     <RootNamespace>Greenshot.Addon.Jira</RootNamespace>
     <AssemblyName>Greenshot.Addon.Jira</AssemblyName>
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
