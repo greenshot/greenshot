@@ -42,10 +42,27 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// This provides the ICoreConfiguration to the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; }
+
+        /// <summary>
+        /// This provides the IConfigTranslations to the view
+        /// </summary>
         public IConfigTranslations ConfigTranslations { get; }
+
+        /// <summary>
+        /// This provides the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="configTranslations">IConfigTranslations</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public ClipboardDestinationConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IConfigTranslations configTranslations,
@@ -57,6 +74,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             CoreConfiguration = coreConfiguration;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -75,31 +93,32 @@ namespace Greenshot.Ui.Configuration.ViewModels
             };
             DisplayName = typeof(ClipboardDestination).GetDesignation();
 
-            UsedDestinations.Clear();
+            UsedFormats.Clear();
 
             if (CoreConfiguration.ClipboardFormats.Any())
             {
                 foreach (var clipboardFormat in CoreConfiguration.ClipboardFormats)
                 {
-                    UsedDestinations.Add(clipboardFormat.ToString());
+                    UsedFormats.Add(clipboardFormat.ToString());
                 }
             }
             
-            AvailableDestinations.Clear();
+            AvailableFormats.Clear();
             foreach (var clipboardFormat in Enum.GetNames(typeof(ClipboardFormats)))
             {
                 if (clipboardFormat == ClipboardFormats.NONE.ToString())
                 {
                     continue;
                 }
-                AvailableDestinations.Add(clipboardFormat);
+                AvailableFormats.Add(clipboardFormat);
             }
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         public override void Commit()
         {
-            CoreConfiguration.ClipboardFormats = UsedDestinations.Select(format =>
+            CoreConfiguration.ClipboardFormats = UsedFormats.Select(format =>
             {
                 if (!Enum.TryParse<ClipboardFormats>(format, true, out var clipboardFormat))
                 {
@@ -110,15 +129,22 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Commit();
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
 
-        public ObservableCollection<string> AvailableDestinations { get; } = new ObservableCollection<string>();
+        /// <summary>
+        /// The available clipboard formats
+        /// </summary>
+        public ObservableCollection<string> AvailableFormats { get; } = new ObservableCollection<string>();
 
-        public ObservableCollection<string> UsedDestinations { get; } = new ObservableCollection<string>();
+        /// <summary>
+        /// The used clipboard formats
+        /// </summary>
+        public ObservableCollection<string> UsedFormats { get; } = new ObservableCollection<string>();
         
     }
 }

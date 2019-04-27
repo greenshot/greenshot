@@ -40,12 +40,27 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provides the ICoreConfiguration to the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; }
 
+        /// <summary>
+        /// Provides the IConfigTranslations to the view
+        /// </summary>
         public IConfigTranslations ConfigTranslations { get; }
 
+        /// <summary>
+        /// Provides the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="configTranslations">IConfigTranslations</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public CaptureConfigViewModel(ICoreConfiguration coreConfiguration,
             IConfigTranslations configTranslations,
             IGreenshotLanguage greenshotLanguage)
@@ -55,6 +70,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             GreenshotLanguage = greenshotLanguage;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -75,13 +91,16 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
 
-
+        /// <summary>
+        /// Defines the capture mode which is going to be used
+        /// </summary>
         public WindowCaptureModes SelectedWindowCaptureMode
         {
             get => CoreConfiguration.WindowCaptureMode;
@@ -92,9 +111,14 @@ namespace Greenshot.Ui.Configuration.ViewModels
             }
         }
 
+        /// <summary>
+        /// Available window capture modes
+        /// </summary>
         public IDictionary<WindowCaptureModes, string> WindowCaptureModes => GreenshotLanguage.TranslationValuesForEnum<WindowCaptureModes>();
 
-
+        /// <summary>
+        /// Defines the screen capture mode which is going to be used
+        /// </summary>
         public ScreenCaptureMode SelectedScreenCaptureMode
         {
             get => CoreConfiguration.ScreenCaptureMode;
@@ -105,6 +129,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
             }
         }
 
+        /// <summary>
+        /// Available screen capture modes
+        /// </summary>
         public IDictionary<ScreenCaptureMode, string> ScreenCaptureModes => GreenshotLanguage.TranslationValuesForEnum<ScreenCaptureMode>();
     }
 }

@@ -42,10 +42,28 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provides the ICoreConfiguration for the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; }
+
+        /// <summary>
+        /// Provides the IConfigTranslations for the view
+        /// </summary>
         public IConfigTranslations ConfigTranslations { get; }
+
+        /// <summary>
+        /// Provides the IGreenshotLanguage for the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="configTranslations">IConfigTranslations</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="destinationHolder">DestinationHolder</param>
         public DestinationPickerConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IConfigTranslations configTranslations,
@@ -59,6 +77,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             CoreConfiguration = coreConfiguration;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -109,20 +128,28 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         public override void Commit()
         {
             CoreConfiguration.PickerDestinations = UsedDestinations.Select(d => d.Designation).ToList();
             base.Commit();
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
 
+        /// <summary>
+        /// This is the list of IDestination which are available
+        /// </summary>
         public ObservableCollection<IDestination> AvailableDestinations { get; } = new ObservableCollection<IDestination>();
 
+        /// <summary>
+        /// This is the list of IDestination which are currently used
+        /// </summary>
         public ObservableCollection<IDestination> UsedDestinations { get; } = new ObservableCollection<IDestination>();
         
     }

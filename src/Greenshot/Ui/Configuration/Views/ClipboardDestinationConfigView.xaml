@@ -21,7 +21,7 @@
             </Grid.ColumnDefinitions>
             <Label Content="Available" Grid.Column="0" Grid.Row="0"/>
             <Label Content="Used" Grid.Column="1" Grid.Row="0"/>
-            <ListView ItemsSource="{Binding AvailableDestinations}" Grid.Column="0" Grid.Row="1"
+            <ListView ItemsSource="{Binding AvailableFormats}" Grid.Column="0" Grid.Row="1"
                           dd:DragDrop.IsDragSource="True"
                           dd:DragDrop.IsDropTarget="True">
                 <ListView.ItemTemplate>
@@ -32,7 +32,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <ListView ItemsSource="{Binding UsedDestinations}" Grid.Column="1" Grid.Row="1"
+            <ListView ItemsSource="{Binding UsedFormats}" Grid.Column="1" Grid.Row="1"
                           dd:DragDrop.IsDragSource="True"
                           dd:DragDrop.IsDropTarget="True" >
                 <ListView.ItemTemplate>

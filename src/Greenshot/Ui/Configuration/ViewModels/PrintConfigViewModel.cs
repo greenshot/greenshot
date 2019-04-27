@@ -25,6 +25,9 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
+    /// <summary>
+    /// This is the view model for the printer configuration
+    /// </summary>
     public sealed class PrintConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -32,10 +35,21 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide the ICoreConfiguration to the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; }
 
+        /// <summary>
+        /// Provide the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public PrintConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage
@@ -45,6 +59,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             GreenshotLanguage = greenshotLanguage;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -62,6 +77,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

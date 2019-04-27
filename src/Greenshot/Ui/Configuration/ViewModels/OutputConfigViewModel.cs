@@ -26,6 +26,9 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
+    /// <summary>
+    /// This is the view model for the output settings
+    /// </summary>
     public sealed class OutputConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -33,12 +36,27 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide the ICoreConfiguration to the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; set; }
 
+        /// <summary>
+        /// Provide the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        /// <summary>
+        /// Provide the FileConfigPartViewModel to the view
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; set; }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="fileConfigPartViewModel">FileConfigPartViewModel</param>
         public OutputConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
@@ -49,6 +67,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -66,6 +85,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
