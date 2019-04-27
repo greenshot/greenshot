@@ -23,12 +23,17 @@ using Dapplo.Config.Ini;
 
 namespace Greenshot.Configuration
 {
+    /// <summary>
+    /// This specifies the configuration for MahApps.Metro
+    /// </summary>
     [IniSection("Metro")]
     public interface IMetroConfiguration : IIniSection, IMetroUiConfiguration
     {
+        /// <inheritdoc />
         [DefaultValue("Light")]
         new string Theme { get; set; }
 
+        /// <inheritdoc />
         [DefaultValue("Olive")]
         new string ThemeColor{ get; set; }
     }

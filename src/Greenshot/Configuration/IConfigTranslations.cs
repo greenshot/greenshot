@@ -22,9 +22,15 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Configuration
 {
+    /// <summary>
+    /// This defines the translations for the config
+    /// </summary>
     [Language("Config")]
     public interface IConfigTranslations : Dapplo.CaliburnMicro.Translations.IConfigTranslations, ILanguage
     {
+        /// <summary>
+        /// Theme translation
+        /// </summary>
         [DefaultValue("Theme")]
         string Theme { get; }
     }

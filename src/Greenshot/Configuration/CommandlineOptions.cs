@@ -27,21 +27,39 @@ namespace Greenshot.Configuration
     /// </summary>
     public class CommandlineOptions
     {
+        /// <summary>
+        /// A commandline setting to define what files to open
+        /// </summary>
         [Option('f', "file", HelpText = "Files to open.")]
         public IEnumerable<string> ImageFiles { get; set; }
 
+        /// <summary>
+        /// A commandline setting to define that we need to exit
+        /// </summary>
         [Option(Default = false, HelpText = "Exit the running Greenshot instance.")]
         public bool Exit { get; set; }
 
+        /// <summary>
+        /// A commandline setting to define that a reload is needed
+        /// </summary>
         [Option(Default = false, HelpText = "Reload configuration.")]
         public bool Reload { get; set; }
 
+        /// <summary>
+        /// A commandline setting to define the language
+        /// </summary>
         [Option('l', "language", Default = "en-US", HelpText = "Language to use.")]
         public string Language { get; set; }
 
+        /// <summary>
+        /// A commandline setting to define the directory to use for the configuration files
+        /// </summary>
         [Option('i', "inidirectory", HelpText = "The directory to use to locate the ini file(s). This can be used to use Greenshot with different profiles.")]
         public string IniDirectory { get; set; }
 
+        /// <summary>
+        /// A commandline setting to define verbose
+        /// </summary>
         [Option(Default = false, HelpText = "Prints all messages to standard output.")]
         public bool Verbose { get; set; }
     }

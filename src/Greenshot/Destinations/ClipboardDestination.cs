@@ -41,6 +41,12 @@ namespace Greenshot.Destinations
 	{
 	    private readonly ExportNotification _exportNotification;
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
 	    public ClipboardDestination(
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
@@ -50,12 +56,16 @@ namespace Greenshot.Destinations
 	        _exportNotification = exportNotification;
 	    }
 
+        /// <inheritdoc />
 	    public override string Description => GreenshotLanguage.SettingsDestinationClipboard;
 
+        /// <inheritdoc />
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 
+        /// <inheritdoc />
 	    public override IBitmapWithNativeSupport DisplayIcon => GreenshotResources.Instance.GetBitmap("Clipboard.Image");
 
+        /// <inheritdoc />
 	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 	    {
 			var exportInformation = new ExportInformation(Designation, Description);
