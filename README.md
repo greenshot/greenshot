@@ -1,6 +1,8 @@
 Greenshot - a free screenshot tool optimized for productivity
 =============================================================
-
+[![Backers on Open Collective](https://opencollective.com/greenshot/backers/badge.svg)](#backers)
+ [![Sponsors on Open Collective](https://opencollective.com/greenshot/sponsors/badge.svg)](#sponsors) 
+ 
 Welcome to the source repository for Greenshot
 
 What is Greenshot?
@@ -68,4 +70,34 @@ Currently known errors:
 * Office Addon (if referenced) will not work on dotnet core 3.0 yet
 * Windows 10 Addon (if referenced) will not work on dotnet core 3.0 yet
 * MahApps.Metro doesn't support dotnet core 3.0 yet, working on it (first step ControlzEx: https://github.com/ControlzEx/ControlzEx/pull/66 )
+
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/greenshot/greenshot/graphs/contributors"><img src="https://opencollective.com/greenshot/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/greenshot#backer)]
+
+<a href="https://opencollective.com/greenshot#backers" target="_blank"><img src="https://opencollective.com/greenshot/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/greenshot#sponsor)]
+
+<a href="https://opencollective.com/greenshot/sponsor/0/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/1/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/2/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/3/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/4/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/5/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/6/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/7/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/8/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/greenshot/sponsor/9/website" target="_blank"><img src="https://opencollective.com/greenshot/sponsor/9/avatar.svg"></a>
+
 
