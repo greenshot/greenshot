@@ -7,7 +7,7 @@
 		<resource name="about_host">Greenshot は GitHub によって運営されています :</resource>
 		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license) :</resource>
 		<resource name="about_license">
-			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
 			Greenshot には一切の保障がありません。GNU General Public License に定められた条件下で再配布をおこなうことができます。:
 		</resource>
 		<resource name="about_title">Greenshot について</resource>

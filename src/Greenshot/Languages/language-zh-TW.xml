@@ -7,7 +7,7 @@
 		<resource name="about_host">Greenshot 的專案由 GitHub 託管，位於：</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
 		<resource name="about_license">
-			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
 			Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
 			關於GNU General Public License 詳細資料:
 		</resource>
