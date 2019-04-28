@@ -22,9 +22,13 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addons
 {
+    /// <summary>
+    /// This specifies many translations
+    /// </summary>
     [Language("Core")]
     public interface IGreenshotLanguage : ILanguage, Dapplo.CaliburnMicro.Translations.ICoreTranslations
     {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         string None { get; }
         string AboutBugs { get; }
         string AboutDonations { get; }

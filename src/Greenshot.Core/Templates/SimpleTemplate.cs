@@ -31,7 +31,12 @@ namespace Greenshot.Core.Templates
     /// </summary>
     public class SimpleTemplate : ITemplate<BitmapSource>
     {
+        /// <summary>
+        /// Specify if the mouse should be shown
+        /// </summary>
         public bool DisplayMouse { get; set; } = true;
+
+        /// <inheritdoc/>
         public FrameworkElement Apply(ICapture<BitmapSource> capture)
         {
             var canvas = new Canvas
@@ -43,7 +48,7 @@ namespace Greenshot.Core.Templates
             foreach (var captureCaptureElement in capture.CaptureElements)
             {
                 // Skip mouse cursor
-                if (captureCaptureElement.ElementType == CaptureElementType.Cursor && DisplayMouse)
+                if (captureCaptureElement.ElementType == CaptureElementType.Cursor && !DisplayMouse)
                 {
                     continue;
                 }

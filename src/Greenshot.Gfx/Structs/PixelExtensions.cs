@@ -24,8 +24,16 @@ using System.Drawing;
 
 namespace Greenshot.Gfx.Structs
 {
+    /// <summary>
+    /// These are extensions to help with pixels
+    /// </summary>
     public static class PixelExtensions
     {
+        /// <summary>
+        /// Make a Brga32 from the specified color
+        /// </summary>
+        /// <param name="color">Color</param>
+        /// <returns>Bgr32</returns>
         public static Bgra32 FromColorWithAlpha(this Color color)
         {
             return new Bgra32
@@ -36,6 +44,12 @@ namespace Greenshot.Gfx.Structs
                 B = color.B,
             };
         }
+
+        /// <summary>
+        /// Make a Brg32 from the specified color
+        /// </summary>
+        /// <param name="color">Color</param>
+        /// <returns>Bgr32</returns>
         public static Bgr32 FromColor(this Color color)
         {
             return new Bgr32

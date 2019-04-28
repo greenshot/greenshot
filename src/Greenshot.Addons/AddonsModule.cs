@@ -34,6 +34,7 @@ namespace Greenshot.Addons
     /// <inheritdoc />
     public class AddonsModule : AddonModule
     {
+        /// <inheritdoc/>
         protected override void Load(ContainerBuilder builder)
         {
             builder

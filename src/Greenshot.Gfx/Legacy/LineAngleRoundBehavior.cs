@@ -17,22 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using System.Windows.Forms;
+using System;
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Gfx.Legacy
 {
     /// <summary>
-    /// This is a button which takes it translation via the set language key
+    /// TODO: Describe
     /// </summary>
-	public class GreenshotButton : Button, IGreenshotLanguageBindable
-	{
-        /// <summary>
-        /// The key for the translation to use
-        /// </summary>
-		[Category("Greenshot")]
-		[DefaultValue(null)]
-		[Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey { get; set; }
-	}
+    public class LineAngleRoundBehavior : IDoubleProcessor
+    {
+        public static LineAngleRoundBehavior Instance = new LineAngleRoundBehavior();
+
+        private LineAngleRoundBehavior()
+        {
+        }
+
+        /// <inheritdoc/>
+        public double Process(double angle)
+        {
+            return Math.Round(angle / 15) * 15;
+        }
+    }
+
 }

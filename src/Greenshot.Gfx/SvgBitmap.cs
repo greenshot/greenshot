@@ -148,6 +148,7 @@ namespace Greenshot.Gfx
             return _imageClone;
         }
 
+        /// <inheritdoc/>
         public Size Size => new Size(Width, Height);
 
 		/// <summary>

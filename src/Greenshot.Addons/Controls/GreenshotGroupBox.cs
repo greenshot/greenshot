@@ -22,8 +22,14 @@ using System.Windows.Forms;
 
 namespace Greenshot.Addons.Controls
 {
+    /// <summary>
+    /// This is a group box where you can specify the key for the translation
+    /// </summary>
 	public class GreenshotGroupBox : GroupBox, IGreenshotLanguageBindable
 	{
+        /// <summary>
+        /// Key for the translation
+        /// </summary>
 		[Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]

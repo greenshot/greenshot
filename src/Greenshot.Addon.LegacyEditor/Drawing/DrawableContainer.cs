@@ -110,26 +110,41 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 		}
 
+        /// <summary>
+        /// The adorner for the target
+        /// </summary>
 		public TargetAdorner TargetAdorner
 		{
 			get { return _targetAdorner; }
 		}
 
+        /// <summary>
+        /// Specifies if this contain has a context menu
+        /// </summary>
 		public virtual bool HasContextMenu
 		{
 			get { return true; }
 		}
 
+        /// <summary>
+        /// Specifies if this container has a default size
+        /// </summary>
 		public virtual bool HasDefaultSize
 		{
 			get { return false; }
 		}
 
+        /// <summary>
+        /// The default size
+        /// </summary>
 		public virtual Size DefaultSize
 		{
 			get { throw new NotSupportedException("Object doesn't have a default size"); }
 		}
 
+        /// <summary>
+        /// This specifies the edit status
+        /// </summary>
 		public EditStatus DefaultEditMode
 		{
 			get { return _defaultEditMode; }
@@ -145,18 +160,27 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			GC.SuppressFinalize(this);
 		}
 
+        /// <summary>
+        /// The property change event is triggered when a property is changed
+        /// </summary>
 		public event PropertyChangedEventHandler PropertyChanged
 		{
 			add { _propertyChanged += value; }
 			remove { _propertyChanged -= value; }
 		}
 
+        /// <summary>
+        /// The surface this container belongs to
+        /// </summary>
 		public ISurface Parent
 		{
 			get { return _parent; }
 			set { SwitchParent((Surface) value); }
 		}
 
+        /// <summary>
+        /// Is this container selected?
+        /// </summary>
 		public bool Selected
 		{
 			get { return _selected; }
@@ -493,6 +517,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return (int) Math.Round(f);
 		}
 
+        /// <summary>
+        /// This is called when the container is double clicked
+        /// </summary>
 		public virtual void OnDoubleClick()
 		{
 		}
@@ -502,7 +529,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// </summary>
 		protected void InitAdorner(Color gripperColor, NativePoint location)
 		{
-			_targetAdorner = new TargetAdorner(this, location);
+            // TODO: Pass the gripperColor to the target adorner
+			_targetAdorner = new TargetAdorner(this, location, gripperColor);
 			Adorners.Add(_targetAdorner);
 		}
 
@@ -584,7 +612,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		}
 
 
-		public void ResizeTo(int width, int height, int anchorPosition)
+		public void ResizeTo(int width, int height)
 		{
 			Width = width;
 			Height = height;
@@ -674,7 +702,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			return (int) -Math.Round(radians * 180 / Math.PI);
 		}
 
-		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
+		protected virtual IDoubleProcessor GetAngleRoundProcessor()
 		{
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}

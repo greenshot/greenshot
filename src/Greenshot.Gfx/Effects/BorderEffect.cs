@@ -29,11 +29,18 @@ namespace Greenshot.Gfx.Effects
 	/// </summary>
 	public class BorderEffect : IEffect
 	{
+        /// <summary>
+        /// The color of the border
+        /// </summary>
 	    public Color Color { get; set; } = Color.Black;
 
+        /// <summary>
+        /// The width of the border
+        /// </summary>
 	    public int Width { get; set; } = 2;
-        
-		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
+
+        /// <inheritdoc />
+        public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateBorder(sourceBitmap, Width, Color, sourceBitmap.PixelFormat, matrix);
 		}

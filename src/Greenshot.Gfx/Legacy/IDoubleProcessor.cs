@@ -17,22 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using System.Windows.Forms;
-
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Gfx.Legacy
 {
     /// <summary>
-    /// This is a button which takes it translation via the set language key
+    /// Every 
     /// </summary>
-	public class GreenshotButton : Button, IGreenshotLanguageBindable
+    public interface IDoubleProcessor
 	{
         /// <summary>
-        /// The key for the translation to use
+        /// Do the processing
         /// </summary>
-		[Category("Greenshot")]
-		[DefaultValue(null)]
-		[Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey { get; set; }
+        /// <param name="d">double</param>
+        /// <returns>double</returns>
+		double Process(double d);
 	}
 }

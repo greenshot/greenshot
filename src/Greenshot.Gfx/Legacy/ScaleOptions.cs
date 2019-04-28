@@ -17,22 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using System.Windows.Forms;
+using System;
 
-namespace Greenshot.Addons.Controls
+namespace Greenshot.Gfx.Legacy
 {
+
     /// <summary>
-    /// This is a button which takes it translation via the set language key
+    /// Specify options for scaling
     /// </summary>
-	public class GreenshotButton : Button, IGreenshotLanguageBindable
-	{
+    [Flags]
+    public enum ScaleOptions
+    {
         /// <summary>
-        /// The key for the translation to use
+        ///     Default scale behavior.
         /// </summary>
-		[Category("Greenshot")]
-		[DefaultValue(null)]
-		[Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey { get; set; }
-	}
+        Default = 0x00,
+
+        /// <summary>
+        ///     Scale a rectangle in two our four directions, mirrored at it's center coordinates
+        /// </summary>
+        Centered = 0x01,
+
+        /// <summary>
+        ///     Scale a rectangle maintaining it's aspect ratio
+        /// </summary>
+        Rational = 0x02
+    }
 }

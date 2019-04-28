@@ -19,12 +19,32 @@
 
 namespace Greenshot.Core.Enums
 {
+    /// <summary>
+    /// These are the possible ways to capture a window
+    /// </summary>
 	public enum WindowCaptureModes
 	{
+        /// <summary>
+        /// USe the screen
+        /// </summary>
 		Screen,
+        /// <summary>
+        /// Use GDI "print"
+        /// </summary>
 		Gdi,
+        /// <summary>
+        /// Use Aero to clone the window and the screen to capture.
+        /// This mode will remove transparency
+        /// </summary>
 		Aero,
+        /// <summary>
+        /// Use Aero to clone the window and the screen to capture.
+        /// This mode will maintain transparency
+        /// </summary>
 		AeroTransparent,
+        /// <summary>
+        /// Automatically select the modus
+        /// </summary>
 		Auto
 	}
 }

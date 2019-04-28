@@ -23,10 +23,17 @@ using System.Drawing.Drawing2D;
 namespace Greenshot.Gfx.Effects
 {
 	/// <summary>
-	///     ResizeCanvasEffect
+	/// This effect will enlange the bitmap with the specified pixels to the left, right, top, bottom
 	/// </summary>
 	public class ResizeCanvasEffect : IEffect
 	{
+        /// <summary>
+        /// The constructor which takes the sizes to grow the canvas
+        /// </summary>
+        /// <param name="left">int</param>
+        /// <param name="right">int</param>
+        /// <param name="top">int</param>
+        /// <param name="bottom">int</param>
 		public ResizeCanvasEffect(int left, int right, int top, int bottom)
 		{
 			Left = left;
@@ -36,16 +43,32 @@ namespace Greenshot.Gfx.Effects
 			BackgroundColor = Color.Empty; // Uses the default background color depending on the format
 		}
 
+        /// <summary>
+        /// The pixels which need to be added left
+        /// </summary>
 		public int Left { get; set; }
 
+        /// <summary>
+        /// The pixels which need to be added right
+        /// </summary>
 		public int Right { get; set; }
 
-		public int Top { get; set; }
+        /// <summary>
+        /// The pixels which need to be added top
+        /// </summary>        
+        public int Top { get; set; }
 
+        /// <summary>
+        /// The pixels which need to be added bottom
+        /// </summary>
 		public int Bottom { get; set; }
 
+        /// <summary>
+        /// The color of the new pixels
+        /// </summary>
 		public Color BackgroundColor { get; set; }
 
+        /// <inheritdoc />
 		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return BitmapHelper.ResizeCanvas(sourceBitmap, BackgroundColor, Left, Right, Top, Bottom, matrix);

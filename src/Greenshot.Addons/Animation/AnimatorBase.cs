@@ -185,7 +185,7 @@ namespace Greenshot.Addons.Animation
 		/// <summary>
 		///     Get the next animation frame value object
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>T</returns>
 		public abstract T Next();
 
 		/// <summary>

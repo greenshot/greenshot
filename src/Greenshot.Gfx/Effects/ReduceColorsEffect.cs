@@ -31,9 +31,13 @@ namespace Greenshot.Gfx.Effects
 	{
 		private static readonly LogSource Log = new LogSource();
 
+        /// <summary>
+        /// The amount of colors the bitmap is allowed to have
+        /// </summary>
         public int Colors { get; set; } = 256;
 
-		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
+        /// <inheritdoc />
+        public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			using (var quantizer = new WuQuantizer(sourceBitmap))
 			{

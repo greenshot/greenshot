@@ -19,18 +19,54 @@
 
 namespace Greenshot.Addons.Components
 {
+    /// <summary>
+    /// This is used to order the destinations
+    /// </summary>
     public enum DestinationOrder
     {
+        /// <summary>
+        /// Order for the File without a dialog destination
+        /// </summary>
         FileNoDialog = 0,
+        /// <summary>
+        /// Order for the file with dialog destination
+        /// </summary>
         FileDialog = 0,
+        /// <summary>
+        /// Order for the picker destination
+        /// </summary>
         Picker = 1,
+        /// <summary>
+        /// Order for the Printer destination
+        /// </summary>
         Printer = 2,
+        /// <summary>
+        /// Order for the Clipboard destination
+        /// </summary>
         Clipboard = 2,
+        /// <summary>
+        /// Order for the Email destination
+        /// </summary>
         Email = 3,
+        /// <summary>
+        /// Order for the Outlook destination
+        /// </summary>
         Outlook = 3,
+        /// <summary>
+        /// Order for the Word destination
+        /// </summary>
         Word = 4,
+        /// <summary>
+        /// Order for the PowerPoint destination
+        /// </summary>
         Powerpoint = 4,
+        /// <summary>
+        /// Order for the OneNote destination
+        /// </summary>
         OneNote = 4,
+        /// <summary>
+        /// Order for the Excel destination
+        /// </summary>
         Excel = 5,
         
     }

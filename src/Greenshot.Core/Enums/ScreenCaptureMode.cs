@@ -19,10 +19,22 @@
 
 namespace Greenshot.Core.Enums
 {
+    /// <summary>
+    /// These are the different screen capture modus
+    /// </summary>
 	public enum ScreenCaptureMode
 	{
+        /// <summary>
+        /// Automatically select the mode
+        /// </summary>
 		Auto,
+        /// <summary>
+        /// Capture the whole screen
+        /// </summary>
 		FullScreen,
+        /// <summary>
+        /// Specify the screen to capture
+        /// </summary>
 		Fixed
 	}
 }

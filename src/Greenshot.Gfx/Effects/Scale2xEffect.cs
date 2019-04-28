@@ -24,11 +24,12 @@ using Greenshot.Gfx.Extensions;
 namespace Greenshot.Gfx.Effects
 {
 	/// <summary>
-	///     Scale2x Effect
+	/// This effect scales the bitmap to 2x its size
 	/// </summary>
 	[TypeConverter(typeof(EffectConverter))]
 	public sealed class Scale2xEffect : IEffect
 	{
+        /// <inheritdoc />
 		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			matrix?.Scale(2, 2, MatrixOrder.Append);

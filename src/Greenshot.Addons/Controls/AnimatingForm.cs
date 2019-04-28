@@ -33,6 +33,9 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
+        /// <summary>
+        /// The ICoreConfiguration which can be used in all derived forms
+        /// </summary>
 	    protected readonly ICoreConfiguration _coreConfiguration;
 	    private const int DefaultVerticalRefresh = 60;
 		private static readonly LogSource Log = new LogSource();

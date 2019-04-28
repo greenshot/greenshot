@@ -25,6 +25,9 @@ using Greenshot.Gfx.FastBitmap;
 
 namespace Greenshot.Gfx
 {
+    /// <summary>
+    /// This is the scale X implementation using IFastBitmap
+    /// </summary>
     public static class ScaleX
     {
         /// <summary>

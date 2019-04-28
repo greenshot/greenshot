@@ -25,29 +25,11 @@ using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Gfx.Legacy
 {
-	/// <summary>
-	///     Offers a few helper functions for scaling/aligning an element with another element
-	/// </summary>
-	public static class ScaleHelper
+    /// <summary>
+    ///     Offers a few helper functions for scaling/aligning an element with another element
+    /// </summary>
+    public static partial class ScaleHelper
 	{
-		[Flags]
-		public enum ScaleOptions
-		{
-			/// <summary>
-			///     Default scale behavior.
-			/// </summary>
-			Default = 0x00,
-
-			/// <summary>
-			///     Scale a rectangle in two our four directions, mirrored at it's center coordinates
-			/// </summary>
-			Centered = 0x01,
-
-			/// <summary>
-			///     Scale a rectangle maintaining it's aspect ratio
-			/// </summary>
-			Rational = 0x02
-		}
 
         /// <summary>
         ///     calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
@@ -80,8 +62,8 @@ namespace Greenshot.Gfx.Legacy
 		/// <returns>a new NativeRectFloat object with Location aligned aligned to targetRect</returns>
 		public static NativeRectFloat GetAlignedRectangle(NativeRectFloat currentRect, NativeRectFloat targetRect, ContentAlignment alignment)
 		{
-		    float x = targetRect.Location.X;
-		    float y = targetRect.Location.Y;
+		    var x = targetRect.Location.X;
+		    var y = targetRect.Location.Y;
 
  			switch (alignment)
 			{
@@ -210,10 +192,10 @@ namespace Greenshot.Gfx.Legacy
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
 		private static void ScaleInternal(ref NativeRectFloat originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
 		{
-		    float x = originalRectangle.X;
-		    float y = originalRectangle.Y;
-		    float width = originalRectangle.Width;
-		    float height = originalRectangle.Height;
+		    var x = originalRectangle.X;
+		    var y = originalRectangle.Y;
+		    var width = originalRectangle.Width;
+		    var height = originalRectangle.Height;
 
             switch (resizeHandlePosition)
 			{
@@ -419,54 +401,6 @@ namespace Greenshot.Gfx.Legacy
 				opts |= ScaleOptions.Rational;
 			}
 			return opts;
-		}
-
-		public interface IDoubleProcessor
-		{
-			double Process(double d);
-		}
-
-		public class ShapeAngleRoundBehavior : IDoubleProcessor
-		{
-			public static ShapeAngleRoundBehavior Instance = new ShapeAngleRoundBehavior();
-
-			private ShapeAngleRoundBehavior()
-			{
-			}
-
-			public double Process(double angle)
-			{
-				return Math.Round((angle + 45) / 90) * 90 - 45;
-			}
-		}
-
-		public class LineAngleRoundBehavior : IDoubleProcessor
-		{
-			public static LineAngleRoundBehavior Instance = new LineAngleRoundBehavior();
-
-			private LineAngleRoundBehavior()
-			{
-			}
-
-			public double Process(double angle)
-			{
-				return Math.Round(angle / 15) * 15;
-			}
-		}
-
-		public class FixedAngleRoundBehavior : IDoubleProcessor
-		{
-			private readonly double fixedAngle;
-
-			public FixedAngleRoundBehavior(double fixedAngle)
-			{
-				this.fixedAngle = fixedAngle;
-			}
-
-			public double Process(double angle)
-			{
-				return fixedAngle;
-			}
 		}
 
 

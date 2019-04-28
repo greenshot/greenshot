@@ -24,16 +24,21 @@ namespace Greenshot.Addons.Animation
 	/// </summary>
 	public class IntAnimator : AnimatorBase<int>
 	{
+        /// <summary>
+        /// Create an int animator
+        /// </summary>
+        /// <param name="first">int to start with</param>
+        /// <param name="last">int to end with</param>
+        /// <param name="frames">int with the number of frames</param>
+        /// <param name="easingType">EasingTypes</param>
+        /// <param name="easingMode">EasingModes</param>
 		public IntAnimator(int first, int last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
 			: base(first, last, frames, easingType, easingMode)
 		{
 		}
 
-		/// <summary>
-		///     Calculate the next frame values
-		/// </summary>
-		/// <returns>int</returns>
-		public override int Next()
+        /// <inheritdoc />
+        public override int Next()
 		{
 			if (!NextFrame)
 			{

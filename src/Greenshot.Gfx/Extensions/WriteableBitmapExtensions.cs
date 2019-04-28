@@ -23,14 +23,17 @@ using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Gfx.Extensions
 {
+    /// <summary>
+    /// These extensions are for the writable bitmap
+    /// </summary>
     public static class WriteableBitmapExtensions
     {
         /// <summary>
         /// Copy the rect from source to target 
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="source"></param>
-        /// <param name="rect"></param>
+        /// <param name="target">WriteableBitmap</param>
+        /// <param name="source">BitmapSource</param>
+        /// <param name="rect">BitmapSource</param>
         public static void CopyPixels(this WriteableBitmap target, BitmapSource source, NativeRect rect)
         {
             // Calculate stride of source

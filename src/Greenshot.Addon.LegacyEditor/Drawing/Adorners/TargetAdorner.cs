@@ -31,10 +31,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 	/// </summary>
 	public class TargetAdorner : AbstractAdorner
 	{
-		public TargetAdorner(IDrawableContainer owner, NativePoint location) : base(owner)
+        private readonly Color _color;
+
+        public TargetAdorner(IDrawableContainer owner, NativePoint location, Color color) : base(owner)
 		{
 			Location = location;
-		}
+            _color = color;
+        }
 
 		/// <summary>
 		///     Handle the mouse down
@@ -96,8 +99,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 			var targetGraphics = paintEventArgs.Graphics;
 
 			var bounds = Bounds;
-			targetGraphics.FillRectangle(Brushes.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
-		}
+            using (var brush = new SolidBrush(_color))
+            {
+                targetGraphics.FillRectangle(brush, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+
+            }
+        }
 
 		/// <summary>
 		///     Made sure this adorner is transformed

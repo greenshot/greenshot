@@ -19,7 +19,11 @@
 
 namespace Greenshot.Addons.Core.Enums
 {
-	public enum ClipboardFormats
+    /// <summary>
+    /// Specify the formats of the clipboard
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public enum ClipboardFormats
 	{
         NONE,
 		PNG,

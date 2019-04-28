@@ -22,10 +22,16 @@ using System.Drawing.Drawing2D;
 namespace Greenshot.Gfx.Effects
 {
 	/// <summary>
-	///     ResizeEffect
+	/// This effect resizes the bitmap
 	/// </summary>
 	public class ResizeEffect : IEffect
 	{
+        /// <summary>
+        /// The constructor which takes the new width and height and if the aspect ratio should be maintained
+        /// </summary>
+        /// <param name="width">int</param>
+        /// <param name="height">int</param>
+        /// <param name="maintainAspectRatio">bool</param>
 		public ResizeEffect(int width, int height, bool maintainAspectRatio)
 		{
 			Width = width;
@@ -33,12 +39,22 @@ namespace Greenshot.Gfx.Effects
 			MaintainAspectRatio = maintainAspectRatio;
 		}
 
+        /// <summary>
+        /// The new width
+        /// </summary>
 		public int Width { get; set; }
 
+        /// <summary>
+        /// The new height
+        /// </summary>
 		public int Height { get; set; }
 
+        /// <summary>
+        /// Do we need to maintain the aspect ration
+        /// </summary>
 		public bool MaintainAspectRatio { get; set; }
 
+        /// <inheritdoc />
 		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return sourceBitmap.Resize(MaintainAspectRatio, Width, Height, matrix);

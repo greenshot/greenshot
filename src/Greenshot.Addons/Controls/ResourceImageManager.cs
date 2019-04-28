@@ -32,6 +32,11 @@ namespace Greenshot.Addons.Controls
 	{
         private readonly Type _resourceType;
 		private readonly List<IBitmapWithNativeSupport> _images = new List<IBitmapWithNativeSupport>();
+
+        /// <summary>
+        /// A constructor where one specifies the type which contains the resources
+        /// </summary>
+        /// <param name="resourceType">Type</param>
 		public ResourceImageManager(Type resourceType)
 		{
             _resourceType = resourceType;
@@ -63,11 +68,15 @@ namespace Greenshot.Addons.Controls
 			}
 		}
 
+        /// <inheritdoc />
 		public void Dispose()
 		{
 			ReleaseUnmanagedResources();
 		}
 
+        /// <summary>
+        /// Destructor
+        /// </summary>
 		~ResourceImageManager()
 		{
 			ReleaseUnmanagedResources();

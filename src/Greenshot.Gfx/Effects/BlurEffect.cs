@@ -29,9 +29,13 @@ namespace Greenshot.Gfx.Effects
     [TypeConverter(typeof(EffectConverter))]
 	public class BlurEffect : IEffect
 	{
+        /// <summary>
+        /// The range for the blur
+        /// </summary>
 	    public int Range { get; set; } = 3;
 
-		public virtual IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
+        /// <inheritdoc />
+        public virtual IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 		    var result = FastBitmapFactory.CreateCloneOf(sourceBitmap);
 		    result.ApplyBoxBlur(Range);

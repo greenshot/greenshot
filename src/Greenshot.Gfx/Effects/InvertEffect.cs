@@ -27,7 +27,9 @@ namespace Greenshot.Gfx.Effects
 	/// </summary>
 	public class InvertEffect : IEffect
 	{
-		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
+
+        /// <inheritdoc />
+        public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateNegative(sourceBitmap);
 		}

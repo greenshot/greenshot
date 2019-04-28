@@ -27,16 +27,24 @@ namespace Greenshot.Gfx.FastBitmap
 	/// </summary>
 	public unsafe class Fast32ArgbBitmap : FastBitmapBase, IFastBitmapWithBlend
 	{
-		public Fast32ArgbBitmap(IBitmapWithNativeSupport source, NativeRect? area = null) : base(source, area)
+        /// <summary>
+        /// Constructor which takes an IBitmap to wrap the fastbitmap logic around it
+        /// </summary>
+        /// <param name="source">IBitmapWithNativeSupport</param>
+        /// <param name="area">NativeRect optional</param>
+        public Fast32ArgbBitmap(IBitmapWithNativeSupport source, NativeRect? area = null) : base(source, area)
 		{
 			BackgroundBlendColor = Color.White;
 		}
 
-	    public override int BytesPerPixel { get; } = 4;
+        /// <inheritdoc />
+        public override int BytesPerPixel { get; } = 4;
 
+        /// <inheritdoc />
         public override bool HasAlphaChannel => true;
 
-		public Color BackgroundBlendColor { get; set; }
+        /// <inheritdoc />
+        public Color BackgroundBlendColor { get; set; }
 
 		/// <inheritdoc />
 		public override Color GetColorAt(int x, int y)

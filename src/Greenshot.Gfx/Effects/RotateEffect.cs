@@ -24,17 +24,25 @@ using System.Drawing.Drawing2D;
 namespace Greenshot.Gfx.Effects
 {
 	/// <summary>
-	///     RotateEffect
+	/// This effect rotates the bitmap, this will also resize the bitmap
 	/// </summary>
 	public class RotateEffect : IEffect
 	{
+        /// <summary>
+        /// The constructor which takes the angle
+        /// </summary>
+        /// <param name="angle">int with the angle</param>
 		public RotateEffect(int angle)
 		{
 			Angle = angle;
 		}
 
+        /// <summary>
+        /// The angle
+        /// </summary>
 		public int Angle { get; set; }
 
+        /// <inheritdoc />
 		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			RotateFlipType flipType;

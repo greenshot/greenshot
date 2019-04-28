@@ -26,16 +26,31 @@ namespace Greenshot.Addons.Animation
     /// </summary>
     public static class EaseSine
 	{
+        /// <summary>
+        /// Calculate the ease in
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <returns>double</returns>
 		public static double EaseIn(double s)
 		{
 			return Math.Sin(s * (Math.PI / 2) - Math.PI / 2) + 1;
 		}
 
+        /// <summary>
+        /// Calculate the ease in out
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <returns>double</returns>
 		public static double EaseInOut(double s)
 		{
 			return Math.Sin(s * Math.PI - Math.PI / 2 + 1) / 2;
 		}
 
+        /// <summary>
+        /// Calculate the ease out
+        /// </summary>
+        /// <param name="s">double</param>
+        /// <returns>double</returns>
 		public static double EaseOut(double s)
 		{
 			return Math.Sin(s * (Math.PI / 2));

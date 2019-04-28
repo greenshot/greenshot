@@ -20,17 +20,41 @@
 namespace Greenshot.Gfx.Legacy
 {
 	/// <summary>
-	///     Position
+	/// This specifies the position of something
 	/// </summary>
 	public enum Positions
 	{
+        /// <summary>
+        /// Position top left
+        /// </summary>
 		TopLeft = 0,
-		TopCenter = 1,
-		TopRight = 2,
-		MiddleRight = 3,
-		BottomRight = 4,
-		BottomCenter = 5,
-		BottomLeft = 6,
-		MiddleLeft = 7
+        /// <summary>
+        /// Position top center
+        /// </summary>
+        TopCenter = 1,
+        /// <summary>
+        /// Position top right
+        /// </summary>
+        TopRight = 2,
+        /// <summary>
+        /// Position middle right
+        /// </summary>
+        MiddleRight = 3,
+        /// <summary>
+        /// Position bottom right
+        /// </summary>
+        BottomRight = 4,
+        /// <summary>
+        /// Position bottom center
+        /// </summary>
+        BottomCenter = 5,
+        /// <summary>
+        /// Position bottom left
+        /// </summary>
+        BottomLeft = 6,
+        /// <summary>
+        /// Position middle left
+        /// </summary>
+        MiddleLeft = 7
 	}
 }

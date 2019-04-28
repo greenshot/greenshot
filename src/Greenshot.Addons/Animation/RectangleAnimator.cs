@@ -31,11 +31,8 @@ namespace Greenshot.Addons.Animation
 		{
 		}
 
-		/// <summary>
-		///     Calculate the next frame object
-		/// </summary>
-		/// <returns>NativeRect</returns>
-		public override NativeRect Next()
+        /// <inheritdoc />
+        public override NativeRect Next()
 		{
 			if (!NextFrame)
 			{

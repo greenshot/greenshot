@@ -26,6 +26,7 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class FormWithoutActivation : Form
 	{
+        /// <inheritdoc />
 		protected override bool ShowWithoutActivation
 		{
 			get { return true; }

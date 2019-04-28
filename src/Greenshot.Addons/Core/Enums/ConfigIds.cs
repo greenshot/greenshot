@@ -19,6 +19,10 @@
 
 namespace Greenshot.Addons.Core.Enums
 {
+    /// <summary>
+    /// This is used to specify where configuration viewmodels are located
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public enum ConfigIds
     {
         Ui,

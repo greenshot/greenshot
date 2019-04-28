@@ -476,11 +476,11 @@ namespace Greenshot.Gfx.FastBitmap
 	    }
 
         /// <summary>
-        ///     returns true if x & y are inside the FastBitmap
+        ///     returns true if x and y are inside the FastBitmap
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <returns>true if x & y are inside the FastBitmap</returns>
+        /// <returns>true if x and y are inside the FastBitmap</returns>
         bool IFastBitmapWithOffset.Contains(int x, int y)
 		{
 			return Area.Contains(x - Left, y - Top);

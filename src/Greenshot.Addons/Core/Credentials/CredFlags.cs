@@ -21,16 +21,17 @@ using System;
 
 namespace Greenshot.Addons.Core.Credentials
 {
-	/// <summary>
-	///     http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
-	///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
-	///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
-	/// </summary>
-	[Flags]
+    /// <summary>
+    ///     http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
+    ///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
+    ///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    [Flags]
 	public enum CredFlags
 	{
-		IncorrectPassword = 0x1,
-		DoNotPersist = 0x2,
+        IncorrectPassword = 0x1,
+        DoNotPersist = 0x2,
 		RequestAdministrator = 0x4,
 		ExcludeCertificates = 0x8,
 		RequireCertificate = 0x10,

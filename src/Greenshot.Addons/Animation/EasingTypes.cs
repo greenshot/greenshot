@@ -24,12 +24,33 @@ namespace Greenshot.Addons.Animation
 	/// </summary>
 	public enum EasingTypes
 	{
+        /// <summary>
+        /// Use easing with steps
+        /// </summary>
 		Step,
+        /// <summary>
+        /// Use linear easing
+        /// </summary>
 		Linear,
+        /// <summary>
+        /// Use sine easing
+        /// </summary>
 		Sine,
+        /// <summary>
+        /// Use quadratic easing
+        /// </summary>
 		Quadratic,
+        /// <summary>
+        /// Use cubic easing
+        /// </summary>
 		Cubic,
+        /// <summary>
+        /// Use quartic easing
+        /// </summary>
 		Quartic,
+        /// <summary>
+        /// Use quintic easing
+        /// </summary>
 		Quintic
 	}
 }

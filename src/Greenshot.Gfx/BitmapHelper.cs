@@ -125,6 +125,9 @@ namespace Greenshot.Gfx
 			};
 		}
 
+        /// <summary>
+        /// This defines all available bitmap reader functions, registered to an "extension" is called with a stream to a IBitmap. 
+        /// </summary>
 		public static IDictionary<string, Func<Stream, string, IBitmapWithNativeSupport>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, IBitmapWithNativeSupport>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>

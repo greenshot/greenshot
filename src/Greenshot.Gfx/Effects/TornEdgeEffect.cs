@@ -33,16 +33,32 @@ namespace Greenshot.Gfx.Effects
 	[TypeConverter(typeof(EffectConverter))]
 	public sealed class TornEdgeEffect : DropShadowEffect
 	{
+        /// <summary>
+        /// Height of the teeth
+        /// </summary>
 	    public int ToothHeight { get; set; } = 12;
 
+        /// <summary>
+        /// How many teeth are horizontally displayed
+        /// </summary>
 	    public int HorizontalToothRange { get; set; } = 20;
 
+        /// <summary>
+        /// How many teeth are vertically displayed
+        /// </summary>
 	    public int VerticalToothRange { get; set; } = 20;
 
+        /// <summary>
+        /// Specify which edges should get teeth
+        /// </summary>
 		public bool[] Edges { get; set; } = { true, true, true, true };
 
+        /// <summary>
+        /// Generate a shadow?
+        /// </summary>
         public bool GenerateShadow { get; set; } = true;
 
+        /// <inheritdoc/>
 		public override IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			var tmpTornImage = CreateTornEdge(sourceBitmap, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
@@ -55,7 +71,6 @@ namespace Greenshot.Gfx.Effects
 		        return tmpTornImage.CreateShadow(Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
 		    }
 		}
-
 
 	    /// <summary>
 	    ///     Helper method for the tornedge

@@ -27,7 +27,12 @@ namespace Greenshot.Gfx.FastBitmap
 	/// </summary>
 	public unsafe class Fast32RgbBitmap : FastBitmapBase
 	{
-		public Fast32RgbBitmap(IBitmapWithNativeSupport source, NativeRect? area = null) : base(source, area)
+        /// <summary>
+        /// Constructor which takes an IBitmap to wrap the fastbitmap logic around it
+        /// </summary>
+        /// <param name="source">IBitmapWithNativeSupport</param>
+        /// <param name="area">NativeRect optional</param>
+        public Fast32RgbBitmap(IBitmapWithNativeSupport source, NativeRect? area = null) : base(source, area)
 		{
 		}
 

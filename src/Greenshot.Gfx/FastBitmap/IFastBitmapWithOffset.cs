@@ -26,9 +26,15 @@ namespace Greenshot.Gfx.FastBitmap
 	/// </summary>
 	public unsafe interface IFastBitmapWithOffset : IFastBitmap
 	{
+        /// <summary>
+        /// Specify the x offset for the IFastBitmap
+        /// </summary>
 		new int Left { get; set; }
 
-		new int Top { get; set; }
+        /// <summary>
+        /// Specify the y offset for the IFastBitmap
+        /// </summary>
+        new int Top { get; set; }
 
 		/// <summary>
 		///     Return true if the coordinates are inside the FastBitmap

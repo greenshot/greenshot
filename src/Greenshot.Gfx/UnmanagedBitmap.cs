@@ -154,6 +154,9 @@ namespace Greenshot.Gfx
             }
         }
         
+        /// <summary>
+        /// Returns the pixel format for this Unmanaged bitmap
+        /// </summary>
         public System.Windows.Media.PixelFormat WpfPixelFormat
         {
             get
@@ -203,6 +206,7 @@ namespace Greenshot.Gfx
             }
         }
 
+        /// <inheritdoc/>
         public Size Size => new Size(Width, Height);
 
         /// <summary>

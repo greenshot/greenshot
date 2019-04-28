@@ -38,8 +38,13 @@ namespace Greenshot.Addons.Controls
         private readonly ICaptureDetails _captureDetails;
 		private DirectoryInfo _eagerlyCreatedDirectory;
 		private FilterOption[] _filterOptions;
-		protected SaveFileDialog SaveFileDialog;
+		private SaveFileDialog SaveFileDialog;
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
         public SaveImageFileDialog(ICoreConfiguration coreConfiguration, ICaptureDetails captureDetails = null)
 		{
             _coreConfiguration = coreConfiguration;
@@ -108,11 +113,13 @@ namespace Greenshot.Addons.Controls
 			}
 		}
 
+        /// <inheritdoc />
 		public void Dispose()
 		{
 			Dispose(true);
 		}
 
+        /// <inheritdoc />
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
@@ -196,6 +203,10 @@ namespace Greenshot.Addons.Controls
 			}
 		}
 
+        /// <summary>
+        /// Show the save file dialog
+        /// </summary>
+        /// <returns></returns>
 		public DialogResult ShowDialog()
 		{
 			var ret = SaveFileDialog.ShowDialog();

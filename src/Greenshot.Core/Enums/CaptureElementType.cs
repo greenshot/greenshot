@@ -20,17 +20,41 @@
 namespace Greenshot.Core.Enums
 {
     /// <summary>
-    /// This is used to specified what type of capture
+    /// This is used to specified what type elements in an capture are
     /// </summary>
     public enum CaptureElementType
     {
+        /// <summary>
+        /// Not specified
+        /// </summary>
         Unknown,
+        /// <summary>
+        /// Screen
+        /// </summary>
         Screen,
+        /// <summary>
+        /// Mouse
+        /// </summary>
         Mouse,
+        /// <summary>
+        /// Cursor
+        /// </summary>
         Cursor,
+        /// <summary>
+        /// Icon
+        /// </summary>
         Icon,
+        /// <summary>
+        /// Popup
+        /// </summary>
         Popup,
+        /// <summary>
+        /// Window
+        /// </summary>
         Window,
+        /// <summary>
+        /// File
+        /// </summary>
         File
     }
 }

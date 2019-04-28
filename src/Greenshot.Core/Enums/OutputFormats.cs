@@ -19,14 +19,38 @@
 
 namespace Greenshot.Core.Enums
 {
+    /// <summary>
+    /// The output formats we support
+    /// </summary>
 	public enum OutputFormats
 	{
+        /// <summary>
+        /// Specify bmp to write bitmap files
+        /// </summary>
 		bmp,
-		gif,
-		jpg,
-		png,
-		tiff,
-		greenshot,
-		ico
-	}
+        /// <summary>
+        /// Specify gif to write gif files
+        /// </summary>
+        gif,
+        /// <summary>
+        /// Specify jpg to write bitjpgmap files
+        /// </summary>
+        jpg,
+        /// <summary>
+        /// Specify png to write png files
+        /// </summary>
+        png,
+        /// <summary>
+        /// Specify tiff to write tiff files
+        /// </summary>
+        tiff,
+        /// <summary>
+        /// Specify greenshot to write greenshot files with annotations and a PNG bitmap
+        /// </summary>
+        greenshot,
+        /// <summary>
+        /// Specify ico to write icon files
+        /// </summary>
+        ico
+    }
 }

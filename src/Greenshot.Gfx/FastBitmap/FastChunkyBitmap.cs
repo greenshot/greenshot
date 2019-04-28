@@ -33,6 +33,11 @@ namespace Greenshot.Gfx.FastBitmap
 		// Used for indexed images
 		private readonly Color[] _colorEntries;
 
+        /// <summary>
+        /// This contructor creates a FastBitmap for the specified source
+        /// </summary>
+        /// <param name="source">IBitmapWithNativeSupport</param>
+        /// <param name="area">NativeRect</param>
 		public FastChunkyBitmap(IBitmapWithNativeSupport source, NativeRect? area = null) : base(source, area)
 		{
 			_colorEntries = Bitmap.NativeBitmap.Palette.Entries;

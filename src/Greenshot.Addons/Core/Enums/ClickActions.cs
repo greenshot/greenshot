@@ -19,7 +19,11 @@
 
 namespace Greenshot.Addons.Core.Enums
 {
-	public enum ClickActions
+    /// <summary>
+    /// Specify what action a click resolves to
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public enum ClickActions
 	{
 		DO_NOTHING,
 		OPEN_LAST_IN_EXPLORER,

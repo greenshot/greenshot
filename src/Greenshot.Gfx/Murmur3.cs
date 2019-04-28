@@ -41,8 +41,14 @@ namespace Greenshot.Gfx
         private uint _hash;
         private uint _length;
 
+        /// <inheritdoc />
         public override int HashSize => 32;
 
+        /// <summary>
+        /// Constructor for the Murmur3 algorythm
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="length"></param>
         public Murmur3(uint seed, uint length = 0)
         {
             _seed = seed;

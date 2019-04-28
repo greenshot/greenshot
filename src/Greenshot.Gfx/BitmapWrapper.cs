@@ -32,6 +32,10 @@ namespace Greenshot.Gfx
 		// Underlying image
 		private readonly Bitmap _bitmap;
 
+        /// <summary>
+        /// Constructor taking a Bitmap
+        /// </summary>
+        /// <param name="bitmap"></param>
 		public BitmapWrapper(Bitmap bitmap)
 		{
 			// Make sure the orientation is set correctly so Greenshot can process the image correctly
@@ -39,6 +43,7 @@ namespace Greenshot.Gfx
 			_bitmap = bitmap;
 		}
 
+        /// <inheritdoc/>
 		public void Dispose()
 		{
 			_bitmap.Dispose();

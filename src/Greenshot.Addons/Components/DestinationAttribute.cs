@@ -22,10 +22,16 @@ using System.ComponentModel.Composition;
 
 namespace Greenshot.Addons.Components
 {
+    /// <summary>
+    /// This attribute is used on a destination
+    /// </summary>
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class DestinationAttribute : Attribute
     {
+        /// <summary>
+        /// This is needed to make sure the values do not need to be specified
+        /// </summary>
         public DestinationAttribute()
         {
 
@@ -55,7 +61,10 @@ namespace Greenshot.Addons.Components
             }
         }
 
+        /// <inheritdoc />
         public string Designation { get; set; }
+
+        /// <inheritdoc />
         public int Priority { get; set; } = 10;
     }
 }

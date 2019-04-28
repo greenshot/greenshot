@@ -27,16 +27,25 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public class GreenshotCheckBox : CheckBox, IGreenshotLanguageBindable, IGreenshotConfigBindable
 	{
+        /// <summary>
+        /// Name of the section to use for the checkbox value
+        /// </summary>
 		[Category("Greenshot")]
 		[DefaultValue("Core")]
 		[Description("Specifies the Ini-Section to map this control with.")]
 		public string SectionName { get; set; } = "Core";
 
+        /// <summary>
+        /// Name of the propety to use for the checkbox value
+        /// </summary>
 		[Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies the property name to map the configuration.")]
 		public string PropertyName { get; set; }
 
+        /// <summary>
+        /// Key for the translation of the label belonging to the checkbox
+        /// </summary>
 		[Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]

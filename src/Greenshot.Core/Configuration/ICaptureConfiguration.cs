@@ -6,6 +6,10 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Core.Configuration
 {
+    /// <summary>
+    /// The configuration for capturing
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public interface ICaptureConfiguration
     {
         [Description("The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1")]

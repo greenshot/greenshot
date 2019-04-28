@@ -36,12 +36,18 @@ namespace Greenshot.Core.Sources
         private readonly ICaptureConfiguration _captureConfiguration;
         private readonly Func<IInteropWindow> _retrieveWindowFunc;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="captureConfiguration">ICaptureConfiguration</param>
+        /// <param name="retrieveWindowFunc">Func to select the window</param>
         public DwmWindowSource(ICaptureConfiguration captureConfiguration, Func<IInteropWindow> retrieveWindowFunc = null)
         {
             _captureConfiguration = captureConfiguration;
             _retrieveWindowFunc = retrieveWindowFunc ?? InteropWindowQuery.GetForegroundWindow;
         }
 
+        /// <inheritdoc/>
         public ValueTask<ICaptureElement<BitmapSource>> Import(CancellationToken cancellationToken = default)
         {
             var window = _retrieveWindowFunc();

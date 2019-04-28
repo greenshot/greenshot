@@ -42,6 +42,10 @@ namespace Greenshot.Addons.Controls
 	    private readonly CancellationTokenSource _cancellationTokenSource;
 	    private Thread _waitFor;
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
 		public PleaseWaitForm(IGreenshotLanguage greenshotLanguage)
 		{
 		    _greenshotLanguage = greenshotLanguage;
@@ -52,11 +56,17 @@ namespace Greenshot.Addons.Controls
 			Icon = GreenshotResources.Instance.GetGreenshotIcon();
 		}
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="cancellationTokenSource">CancellationTokenSource</param>
 	    public PleaseWaitForm(IGreenshotLanguage greenshotLanguage, CancellationTokenSource cancellationTokenSource = default) : this(greenshotLanguage)
 	    {
 	        _cancellationTokenSource = cancellationTokenSource;
         }
 
+        /// <inheritdoc/>
         protected override CreateParams CreateParams
 		{
 			get

@@ -25,6 +25,9 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addons.Controls
 {
+    /// <summary>
+    /// A special combox box which can show a list of translated enum values
+    /// </summary>
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable
 	{
 	    private readonly ILanguage _language;
@@ -104,7 +107,6 @@ namespace Greenshot.Addons.Controls
 		/// </summary>
 		private void StoreSelectedEnum()
 		{
-			var enumTypeName = _enumType.Name;
 			var selectedValue = SelectedItem as string;
 			var availableValues = Enum.GetValues(_enumType);
 			object returnValue = null;

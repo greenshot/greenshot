@@ -26,16 +26,21 @@ namespace Greenshot.Addons.Animation
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color>
 	{
+        /// <summary>
+        /// Create a color animator
+        /// </summary>
+        /// <param name="first">Color to start with</param>
+        /// <param name="last">Color to end with</param>
+        /// <param name="frames">int amount of frames to animate</param>
+        /// <param name="easingType">EasingTypes, the easing type to use</param>
+        /// <param name="easingMode">EasingModes, the easing mode to use</param>
 		public ColorAnimator(Color first, Color last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
 			: base(first, last, frames, easingType, easingMode)
 		{
 		}
 
-		/// <summary>
-		///     Calculate the next frame values
-		/// </summary>
-		/// <returns>Color</returns>
-		public override Color Next()
+        /// <inheritdoc />
+        public override Color Next()
 		{
 			if (!NextFrame)
 			{

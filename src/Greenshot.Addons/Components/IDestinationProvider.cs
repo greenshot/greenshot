@@ -27,6 +27,10 @@ namespace Greenshot.Addons.Components
     /// </summary>
     public interface IDestinationProvider
     {
+        /// <summary>
+        /// Provide destinations
+        /// </summary>
+        /// <returns>IEnumerable with lazy IDestinations</returns>
         IEnumerable<Lazy<IDestination, DestinationAttribute>> Provide();
     }
 }

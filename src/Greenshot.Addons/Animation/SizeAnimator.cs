@@ -31,10 +31,7 @@ namespace Greenshot.Addons.Animation
 		{
 		}
 
-        /// <summary>
-        ///     Calculate the next frame values
-        /// </summary>
-        /// <returns>NativeSize</returns>
+        /// <inheritdoc />
         public override NativeSize Next()
 		{
 			if (!NextFrame)

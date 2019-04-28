@@ -19,10 +19,11 @@
 
 namespace Greenshot.Addons.Interfaces
 {
-	/// <summary>
-	///     The capture mode for Greenshot
-	/// </summary>
-	public enum CaptureMode
+    /// <summary>
+    ///     The capture mode for Greenshot
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public enum CaptureMode
 	{
 		None,
 		Region,

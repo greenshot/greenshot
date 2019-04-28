@@ -45,6 +45,9 @@ namespace Greenshot.Addons.Controls
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 	    private readonly ILanguage _language;
 		
+        /// <summary>
+        /// This is the bitmap scale handler
+        /// </summary>
 		protected readonly BitmapScaleHandler<string, IBitmapWithNativeSupport> ScaleHandler;
 
 #if DEBUG
@@ -63,8 +66,14 @@ namespace Greenshot.Addons.Controls
             ScaleHandler = BitmapScaleHandler.Create<string, IBitmapWithNativeSupport>(FormDpiHandler, (imageName, dpi) => GreenshotResources.Instance.GetBitmap(imageName, GetType()), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
         }
 
+        /// <summary>
+        /// manually apply the language
+        /// </summary>
 	    protected bool ManualLanguageApply { get; set; }
 
+        /// <summary>
+        /// Manually apply the field values
+        /// </summary>
 		protected bool ManualStoreFields { get; set; }
 
 		/// <summary>
@@ -72,11 +81,15 @@ namespace Greenshot.Addons.Controls
 		/// </summary>
 		protected bool ToFront { get; set; }
 
+        /// <summary>
+        /// The kex for the translation
+        /// </summary>
 		[Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey { get; set; }
 
+        /// <inheritdoc />
 		protected override void OnLoad(EventArgs e)
 		{
 			// Every GreenshotForm should have it's default icon
@@ -383,6 +396,9 @@ namespace Greenshot.Addons.Controls
 			OnFieldsFilled();
 		}
 
+        /// <summary>
+        /// This is called when the fields are filled
+        /// </summary>
 		protected virtual void OnFieldsFilled()
 		{
 		}

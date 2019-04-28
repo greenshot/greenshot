@@ -23,10 +23,11 @@ using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Gfx.Legacy
 {
-	/// <summary>
-	///     TODO: currently this is only used in the capture form, we might move this code directly to there!
-	/// </summary>
-	public abstract class RoundedRectangle
+    /// <summary>
+    ///     TODO: currently this is only used in the capture form, we might move this code directly to there!
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public abstract class RoundedRectangle
 	{
 		[Flags]
 		public enum RectangleCorners
@@ -55,8 +56,8 @@ namespace Greenshot.Gfx.Legacy
 			return gp;
 		}
 
-		public static GraphicsPath Create(int x, int y, int width, int height, int radius, RectangleCorners corners)
-		{
+        public static GraphicsPath Create(int x, int y, int width, int height, int radius, RectangleCorners corners)
+        {
 			var xw = x + width;
 			var yh = y + height;
 			var xwr = xw - radius;

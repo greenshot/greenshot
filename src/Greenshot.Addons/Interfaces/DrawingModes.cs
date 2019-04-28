@@ -19,7 +19,11 @@
 
 namespace Greenshot.Addons.Interfaces
 {
-	public enum DrawingModes
+    /// <summary>
+    /// What are we drawing?
+    /// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public enum DrawingModes
 	{
 		None,
 		Rect,

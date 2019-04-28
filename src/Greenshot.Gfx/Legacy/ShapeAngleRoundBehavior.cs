@@ -1,4 +1,4 @@
-// Greenshot - a free and open source screenshot tool
+﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
@@ -17,13 +17,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Greenshot.Addons.Core.Enums
+using System;
+
+namespace Greenshot.Gfx.Legacy
 {
-	public enum BuildStates
+    public static partial class ScaleHelper
 	{
-		ALPHA,
-		BETA,
-		RELEASE_CANDIDATE,
-		RELEASE
+        public class ShapeAngleRoundBehavior : IDoubleProcessor
+		{
+			public static ShapeAngleRoundBehavior Instance = new ShapeAngleRoundBehavior();
+
+			private ShapeAngleRoundBehavior()
+			{
+			}
+
+			public double Process(double angle)
+			{
+				return Math.Round((angle + 45) / 90) * 90 - 45;
+			}
+		}
+
+
+		/*public static int FindGripperPostition(float anchorX, float anchorY, float gripperX, float gripperY) {
+			if(gripperY > anchorY) {
+				if(gripperX > anchorY) return Gripper.POSITION_BOTTOM_RIGHT;
+				else return Gripper.POSITION_BOTTOM_LEFT;
+			} else {
+				if(gripperX > anchorY) return Gripper.POSITION_TOP_RIGHT;
+				else return Gripper.POSITION_TOP_LEFT;
+			}
+		}*/
 	}
 }

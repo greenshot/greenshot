@@ -37,7 +37,8 @@ namespace Greenshot.Gfx.Effects
 			_threshold = threshold;
 		}
 
-		public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
+        /// <inheritdoc />
+        public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
 		{
 			return CreateMonochrome(sourceBitmap, _threshold);
 		}

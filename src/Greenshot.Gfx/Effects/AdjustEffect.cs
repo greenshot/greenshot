@@ -29,12 +29,22 @@ namespace Greenshot.Gfx.Effects
 	/// </summary>
 	public class AdjustEffect : IEffect
 	{
+        /// <summary>
+        /// The contrast for the effect
+        /// </summary>
 	    public float Contrast { get; set; } = 1f;
 
+        /// <summary>
+        /// The brightness for the effect
+        /// </summary>
 	    public float Brightness { get; set; } = 1f;
 
+        /// <summary>
+        /// The gamma for the effect
+        /// </summary>
 	    public float Gamma { get; set; } = 1f;
 
+        /// <inheritdoc />
 	    public IBitmapWithNativeSupport Apply(IBitmapWithNativeSupport sourceBitmap, Matrix matrix)
         {
 			return Adjust(sourceBitmap, Brightness, Contrast, Gamma);

@@ -34,6 +34,7 @@ namespace Greenshot.Addons.Core
     /// </summary>
     [IniSection("Core")]
     [Description("Greenshot core configuration")]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public interface ICoreConfiguration : IIniSection, IFileConfiguration, ICaptureConfiguration, IUiConfiguration
     {
         [Description("The language in IETF format (e.g. en-US)")]
