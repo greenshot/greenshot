@@ -38,7 +38,7 @@ steps:
     arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
-- task: CmdLine@
+- task: CmdLine@2
   displayName: Rename single-exe x64
   inputs:
     script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x64\publish\Greenshot.exe $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x64\publish\Greenshot-x64.exe'
