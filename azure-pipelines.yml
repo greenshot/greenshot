@@ -38,6 +38,10 @@ steps:
     arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
+- task: CmdLine@2
+  inputs:
+    script: 'move win-x64\publish\Greenshot.exe win-x64\publish\Greenshot-x64.exe'
+
 - task: DotNetCoreCLI@2
   displayName: Publish single-exe x86
   inputs:
@@ -47,15 +51,19 @@ steps:
     arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x86'
     zipAfterPublish: false
 
+- task: CmdLine@2
+  inputs:
+    script: 'move win-x86\publish\Greenshot.exe win-x86\publish\Greenshot-x86.exe' 
+
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0'
     Contents: |
-     win-x64\publish\Greenshot.exe
-     win-x86\publish\Greenshot.exe
+     win-x64\publish\Greenshot-x64.exe
+     win-x86\publish\Greenshot-x86.exe
     TargetFolder: '$(build.artifactstagingdirectory)'
-    flattenFolders: false
+    flattenFolders: true
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
