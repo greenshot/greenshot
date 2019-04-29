@@ -59,8 +59,7 @@ namespace Greenshot.Helpers
 
 		public static string EnvironmentToString(bool newline)
 		{
-			var environment = new StringBuilder();
-			environment.Append("Software version: " + Application.ProductVersion);
+			var environment = new StringBuilder("Software version: " + Application.ProductVersion);
 			environment.Append(" (" + OsInfo.Bits + " bit)");
 
 			if (newline)
@@ -88,6 +87,16 @@ namespace Greenshot.Helpers
 
 			if (IsWindows)
 			{
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
+
+				environment.AppendFormat("OS: {0} {1} {2} (x{3}) {4}", OsInfo.Name, OsInfo.Edition, OsInfo.ServicePack, OsInfo.Bits, OsInfo.VersionString);
 				if (newline)
 				{
 					environment.AppendLine();
@@ -96,17 +105,19 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.Append(string.Format("OS: {0} {1} {2} (x{3})  {4}", OsInfo.Name, OsInfo.Edition, OsInfo.ServicePack, OsInfo.Bits, OsInfo.VersionString));
-				if (newline)
-				{
-					environment.AppendLine();
-				}
-				else
-				{
-					environment.Append(", ");
-				}
-				// Get some important information for fixing GDI related Problems
-				environment.AppendFormat("GDI object count: {0}", User32Api.GetGuiResourcesGdiCount());
+
+                environment.AppendFormat("Location: {0}", Assembly.GetEntryAssembly()?.Location);
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
+
+                // Get some important information for fixing GDI related Problems
+                environment.AppendFormat("GDI object count: {0}", User32Api.GetGuiResourcesGdiCount());
 				if (newline)
 				{
 					environment.AppendLine();

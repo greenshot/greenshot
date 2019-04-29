@@ -29,20 +29,31 @@ steps:
     restoreSolution: '$(solution)'
     feedsToUse: config
 
-- task: VSBuild@1
-  displayName: 'Build solution **\*.sln'
+- task: DotNetCoreCLI@2
+  displayName: Publish single-exe x64
   inputs:
-    vsVersion: 'latest'
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'src\Greenshot\Greenshot.csproj'
+    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64'
+    zipAfterPublish: false
+
+- task: DotNetCoreCLI@2
+  displayName: Publish single-exe x86
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'src\Greenshot\Greenshot.csproj'
+    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x86'
+    zipAfterPublish: false
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\$(BuildConfiguration)'
+    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0'
     Contents: |
-     **
+     win-x64\publish\Greenshot.exe
+     win-x86\publish\Greenshot.exe
     TargetFolder: '$(build.artifactstagingdirectory)'
     flattenFolders: false
 

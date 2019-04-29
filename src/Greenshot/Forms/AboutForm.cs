@@ -34,6 +34,9 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.Dpi;
+using System.Text;
 
 namespace Greenshot.Forms
 {
@@ -354,7 +357,10 @@ namespace Greenshot.Forms
                         DialogResult = DialogResult.Cancel;
                         break;
                     case Keys.E:
-                        MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
+                        var info = new StringBuilder(EnvironmentInfo.EnvironmentToString(true));
+                        var screenboundsSize = DisplayInfo.ScreenBounds.Size;
+                        info.AppendFormat("Screen: {0} at {1}%", $"{screenboundsSize.Width} x {screenboundsSize.Height}", FormDpiHandler.ScaleWithCurrentDpi(100));
+                        MessageBox.Show(info.ToString(), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                     case Keys.L:
                         // TODO: Open the log file
