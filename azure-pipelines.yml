@@ -15,7 +15,7 @@ steps:
 - task: DotNetCoreInstaller@0
   displayName: 'Install .NET Core SDK 3.0'
   inputs:
-    version: '3.0.100-preview6-011644'
+    version: '3.0.100-preview6-011657'
 
 - task: NuGetToolInstaller@0
   displayName: 'Use NuGet 4.9.3'
@@ -38,9 +38,10 @@ steps:
     arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
-- task: CmdLine@2
+- task: CmdLine@
+  displayName: Rename single-exe x64
   inputs:
-    script: 'move win-x64\publish\Greenshot.exe win-x64\publish\Greenshot-x64.exe'
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x64\publish\Greenshot.exe $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x64\publish\Greenshot-x64.exe'
 
 - task: DotNetCoreCLI@2
   displayName: Publish single-exe x86
@@ -52,8 +53,9 @@ steps:
     zipAfterPublish: false
 
 - task: CmdLine@2
+  displayName: Rename single-exe x86
   inputs:
-    script: 'move win-x86\publish\Greenshot.exe win-x86\publish\Greenshot-x86.exe' 
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x86\publish\Greenshot.exe $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x86\publish\Greenshot-x86.exe' 
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
