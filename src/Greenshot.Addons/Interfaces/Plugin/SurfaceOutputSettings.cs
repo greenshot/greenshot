@@ -33,7 +33,7 @@ namespace Greenshot.Addons.Interfaces.Plugin
 		private bool _reduceColors;
 
         /// <summary>
-        /// Constructor
+        /// Default constructor
         /// </summary>
         /// <param name="fileConfiguration">IFileConfiguration</param>
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration)
@@ -44,29 +44,62 @@ namespace Greenshot.Addons.Interfaces.Plugin
 			ReduceColors = fileConfiguration?.OutputFileReduceColors ?? false;
 		}
 
-		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format) : this(fileConfiguration)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileConfiguration">IFileConfiguration</param>
+        /// <param name="format">OutputFormats</param>
+        public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format) : this(fileConfiguration)
 		{
 			Format = format;
 		}
 
-		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality) : this(fileConfiguration, format)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileConfiguration">IFileConfiguration</param>
+        /// <param name="format">OutputFormats</param>
+        /// <param name="quality">int</param>
+        public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality) : this(fileConfiguration, format)
 		{
 			JpgQuality = quality;
 		}
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileConfiguration">IFileConfiguration</param>
+        /// <param name="format">OutputFormats</param>
+        /// <param name="quality">int</param>
+        /// <param name="reduceColors">bool</param>
 		public SurfaceOutputSettings(IFileConfiguration fileConfiguration, OutputFormats format, int quality, bool reduceColors) : this(fileConfiguration, format, quality)
 		{
 			ReduceColors = reduceColors;
 		}
 
+        /// <summary>
+        /// Format to output to
+        /// </summary>
         public OutputFormats Format { get; set; }
 
+		/// <summary>
+		/// Jpg-Quality to output with
+		/// </summary>
 		public int JpgQuality { get; set; }
 
+		/// <summary>
+		/// Only save the background (capture)
+		/// </summary>
 		public bool SaveBackgroundOnly { get; set; }
 
+		/// <summary>
+		/// List of effects to use on the output
+		/// </summary>
 		public List<IEffect> Effects { get; } = new List<IEffect>();
 
+		/// <summary>
+		/// Do the colors need to be reduced?
+		/// </summary>
 		public bool ReduceColors
 		{
 			get

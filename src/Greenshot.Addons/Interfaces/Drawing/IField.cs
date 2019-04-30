@@ -22,16 +22,28 @@ using System.ComponentModel;
 namespace Greenshot.Addons.Interfaces.Drawing
 {
     /// <summary>
-    /// THs interface for a field
+    /// The interface for a field
     /// </summary>
 	public interface IField : INotifyPropertyChanged
 	{
+		/// <summary>
+		/// The field value
+		/// </summary>
 		object Value { get; set; }
 
+		/// <summary>
+		/// Field type
+		/// </summary>
 		IFieldType FieldType { get; set; }
 
+		/// <summary>
+		/// The scope of the field
+		/// </summary>
 		string Scope { get; set; }
 
+		/// <summary>
+		/// Does the field have a value
+		/// </summary>
 		bool HasValue { get; }
 	}
 }

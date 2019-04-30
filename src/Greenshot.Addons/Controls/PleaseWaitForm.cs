@@ -43,7 +43,7 @@ namespace Greenshot.Addons.Controls
 	    private Thread _waitFor;
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>
 		public PleaseWaitForm(IGreenshotLanguage greenshotLanguage)
@@ -57,7 +57,7 @@ namespace Greenshot.Addons.Controls
 		}
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         /// <param name="cancellationTokenSource">CancellationTokenSource</param>

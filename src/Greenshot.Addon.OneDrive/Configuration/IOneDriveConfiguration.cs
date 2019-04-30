@@ -25,10 +25,14 @@ using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.OneDrive.Configuration
 {
+    /// <summary>
+    /// The one drive configuration
+    /// </summary>
     [IniSection("OneDrive")]
     [Description("Greenshot OneDrive Addon configuration")]
     public interface IOneDriveConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
     {
+#pragma warning disable 1591
         [Description("After upload copy OneDrive link to clipboard.")]
         [DefaultValue("true")]
         bool AfterUploadLinkToClipBoard { get; set; }

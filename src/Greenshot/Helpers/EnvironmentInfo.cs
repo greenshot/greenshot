@@ -32,12 +32,15 @@ using Dapplo.Windows.User32;
 namespace Greenshot.Helpers
 {
 	/// <summary>
-	///     Description of EnvironmentInfo.
+	/// EnvironmentInfo provides information on the current environment
 	/// </summary>
 	public static class EnvironmentInfo
 	{
 		private static bool? _isWindows;
 
+		/// <summary>
+		/// Are we running on Windows?
+		/// </summary>
 		public static bool IsWindows
 		{
 			get
@@ -51,13 +54,22 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public static bool IsNet45OrNewer()
+        /// <summary>
+        /// Are we using Net45 or newer?
+        /// </summary>
+        /// <returns>bool</returns>
+        public static bool IsNet45OrNewer()
 		{
 			// Class "ReflectionContext" exists from .NET 4.5 onwards.
 			return Type.GetType("System.Reflection.ReflectionContext", false) != null;
 		}
 
-		public static string EnvironmentToString(bool newline)
+        /// <summary>
+        /// Create a description of the environment
+        /// </summary>
+        /// <param name="newline">bool specifying if a newline or , nees to be used</param>
+        /// <returns>string</returns>
+        public static string EnvironmentToString(bool newline)
 		{
 			var environment = new StringBuilder("Software version: " + Application.ProductVersion);
 			environment.Append(" (" + OsInfo.Bits + " bit)");
@@ -154,7 +166,12 @@ namespace Greenshot.Helpers
 			return environment.ToString();
 		}
 
-		public static string ExceptionToString(Exception ex)
+        /// <summary>
+        /// Create a nice string for the specified exception
+        /// </summary>
+        /// <param name="ex">Exception</param>
+        /// <returns>string</returns>
+        public static string ExceptionToString(Exception ex)
 		{
 			if (ex == null)
 			{

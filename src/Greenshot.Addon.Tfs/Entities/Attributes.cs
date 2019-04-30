@@ -21,9 +21,15 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities
 {
+    /// <summary>
+    /// This is the attribute entity for the TFS communication
+    /// </summary>
     [JsonObject]
     public class Attributes
     {
+        /// <summary>
+        /// A comment in the attribute
+        /// </summary>
         [JsonProperty("comment")]
         public string Comment { get; set; }
     }

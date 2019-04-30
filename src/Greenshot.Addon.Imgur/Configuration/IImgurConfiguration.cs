@@ -28,13 +28,15 @@ using Greenshot.Addons.Core;
 namespace Greenshot.Addon.Imgur.Configuration
 {
 	/// <summary>
-	///     Description of ImgurConfiguration.
+	///  Configuration for the Imgur add-on
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
 	public interface IImgurConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
 	{
-		[Description("Url to Imgur system.")]
+#pragma warning disable 1591
+
+        [Description("Url to Imgur system.")]
 		[DefaultValue("https://api.imgur.com/3")]
 		string ImgurApi3Url { get; set; }
 

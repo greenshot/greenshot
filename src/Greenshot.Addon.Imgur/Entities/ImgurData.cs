@@ -29,6 +29,7 @@ namespace Greenshot.Addon.Imgur.Entities
     /// </summary>
     public class ImgurData
     {
+#pragma warning disable 1591
         /// <summary>
         /// Id of the image
         /// </summary>

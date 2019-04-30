@@ -56,7 +56,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 			}
 		}
 
-		public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
+		public virtual EditStatus EditStatus { get; protected set; } = EditStatus.Idle;
 
 		/// <summary>
 		///     Returns the cursor for when the mouse is over the adorner
@@ -101,7 +101,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <param name="mouseEventArgs"></param>
 		public virtual void MouseUp(object sender, MouseEventArgs mouseEventArgs)
 		{
-			EditStatus = EditStatus.IDLE;
+			EditStatus = EditStatus.Idle;
 		}
 
 		/// <summary>
@@ -109,7 +109,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// </summary>
 		public virtual bool IsActive
 		{
-			get { return EditStatus != EditStatus.IDLE && EditStatus != EditStatus.UNDRAWN; }
+			get { return EditStatus != EditStatus.Idle && EditStatus != EditStatus.Undrawn; }
 		}
 
 		/// <summary>

@@ -34,13 +34,21 @@ namespace Greenshot.Addons.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="greenshotLanguage"></param>
         public UploadViewModel(IGreenshotLanguage greenshotLanguage)
         {
             GreenshotLanguage = greenshotLanguage;
         }
 
+        /// <inheritdoc />
         protected override void OnActivate()
         {
             // Prepare disposables
@@ -52,6 +60,7 @@ namespace Greenshot.Addons.ViewModels
             base.OnActivate();
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

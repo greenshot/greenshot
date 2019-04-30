@@ -27,6 +27,7 @@ namespace Greenshot.Addon.Imgur.Entities
     /// </summary>
     public class ImgurImage
     {
+#pragma warning disable 1591
         [JsonIgnore]
         public IBitmapWithNativeSupport Image { get; set; }
 

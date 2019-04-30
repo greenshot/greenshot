@@ -65,7 +65,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		// will store current bounds of this DrawableContainer before starting a resize
 		protected NativeRect _boundsBeforeResize = NativeRect.Empty;
 
-		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
+		protected EditStatus _defaultEditMode = EditStatus.Drawing;
 
 		[NonSerialized] internal Surface _parent;
 
@@ -73,7 +73,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		[NonSerialized] private bool _selected;
 
-		[NonSerialized] private EditStatus _status = EditStatus.UNDRAWN;
+		[NonSerialized] private EditStatus _status = EditStatus.Undrawn;
 
 		[NonSerialized] private TargetAdorner _targetAdorner;
 
@@ -325,7 +325,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public virtual void Invalidate()
 		{
-			if (Status != EditStatus.UNDRAWN)
+			if (Status != EditStatus.Undrawn)
 			{
 				_parent?.Invalidate(DrawingBounds);
 			}
@@ -351,15 +351,15 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				Left = _parent.Width / 2 - Width / 2 - lineThickness / 2;
 			}
 
-			if (verticalAlignment == VerticalAlignment.TOP)
+			if (verticalAlignment == VerticalAlignment.Top)
 			{
 				Top = lineThickness / 2;
 			}
-			if (verticalAlignment == VerticalAlignment.BOTTOM)
+			if (verticalAlignment == VerticalAlignment.Bottom)
 			{
 				Top = _parent.Height - Height - lineThickness / 2;
 			}
-			if (verticalAlignment == VerticalAlignment.CENTER)
+			if (verticalAlignment == VerticalAlignment.Center)
 			{
 				Top = _parent.Height / 2 - Height / 2 - lineThickness / 2;
 			}
@@ -560,7 +560,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			if (Children.Count > 0)
 			{
-				if (Status != EditStatus.IDLE)
+				if (Status != EditStatus.Idle)
 				{
 					DrawSelectionBorder(graphics, Bounds);
 				}

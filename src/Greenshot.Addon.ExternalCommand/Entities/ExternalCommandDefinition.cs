@@ -19,6 +19,9 @@
 
 namespace Greenshot.Addon.ExternalCommand.Entities
 {
+    /// <summary>
+    /// This defines an external command
+    /// </summary>
     public class ExternalCommandDefinition
     {
         /// <summary>

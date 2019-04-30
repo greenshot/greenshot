@@ -44,6 +44,9 @@ using Greenshot.Gfx;
 
 namespace Greenshot.Addon.Box
 {
+    /// <summary>
+    /// This is the destination for the Box service
+    /// </summary>
     [Destination("Box")]
     public class BoxDestination : AbstractDestination
 	{
@@ -58,7 +61,18 @@ namespace Greenshot.Addon.Box
         private static readonly Uri UploadFileUri = new Uri("https://upload.box.com/api/2.0/files/content");
         private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
-		public BoxDestination(
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        /// <param name="boxConfiguration">IBoxConfiguration</param>
+        /// <param name="boxLanguage">IBoxLanguage</param>
+        /// <param name="pleaseWaitFormFactory">Func factory for PleaseWaitForm</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        public BoxDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
             ExportNotification exportNotification,
@@ -96,9 +110,11 @@ namespace Greenshot.Addon.Box
             };
         }
 
-	    public override string Description => _boxLanguage.UploadMenuItem;
+        /// <inheritdoc />
+        public override string Description => _boxLanguage.UploadMenuItem;
 
-	    public override IBitmapWithNativeSupport DisplayIcon
+        /// <inheritdoc />
+        public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
 			{
@@ -110,7 +126,8 @@ namespace Greenshot.Addon.Box
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        /// <inheritdoc />
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			var uploadUrl = await UploadAsync(surface).ConfigureAwait(true);

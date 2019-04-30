@@ -37,7 +37,7 @@ using Newtonsoft.Json.Linq;
 namespace Greenshot.Addon.Tfs
 {
     /// <summary>
-    /// This capsulates the TFS api calls
+    /// This encapsulates the TFS api calls
     /// </summary>
     public class TfsClient
     {
@@ -45,6 +45,12 @@ namespace Greenshot.Addon.Tfs
         private readonly ITfsConfiguration _tfsConfiguration;
         private readonly HttpBehaviour _tfsHttpBehaviour;
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="tfsConfiguration">ITfsConfiguration</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
         public TfsClient(
             ICoreConfiguration coreConfiguration,
             ITfsConfiguration tfsConfiguration,
@@ -69,9 +75,20 @@ namespace Greenshot.Addon.Tfs
 
         }
 
+        /// <summary>
+        /// Is it possible to update?
+        /// </summary>
         public bool CanUpdate => _tfsConfiguration.TfsUri != null && !string.IsNullOrEmpty(_tfsConfiguration.ApiKey);
+
+        /// <summary>
+        /// The work items for this client
+        /// </summary>
         public IDictionary<long, WorkItem> WorkItems { get; } = new Dictionary<long, WorkItem>();
 
+        /// <summary>
+        /// Request a work item update
+        /// </summary>
+        /// <returns></returns>
         public async Task UpdateWorkItems()
         {
             if (!CanUpdate)
@@ -85,7 +102,7 @@ namespace Greenshot.Addon.Tfs
             }
         }
         /// <summary>
-        /// Retrieve the own workitems
+        /// Retrieve the own work items
         /// </summary>
         /// <returns>WorkItemList</returns>
         public async Task<WorkItemList> GetOwnWorkitems()

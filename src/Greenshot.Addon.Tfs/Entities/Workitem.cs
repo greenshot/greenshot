@@ -22,18 +22,33 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities
 {
+    /// <summary>
+    /// The workitem entity
+    /// </summary>
     [JsonObject]
     public class WorkItem
     {
+        /// <summary>
+        /// ID of the workitem
+        /// </summary>
         [JsonProperty("id")]
         public long Id { get; set; }
 
+        /// <summary>
+        /// The revision of the workitem
+        /// </summary>
         [JsonProperty("rev")]
-        public int Reversion { get; set; }
+        public int Revision { get; set; }
 
+        /// <summary>
+        /// The URL of the workitem
+        /// </summary>
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
+        /// <summary>
+        /// The fields of the workitem
+        /// </summary>
         [JsonProperty("fields")]
         public WorkItemFields Fields { get; set; }
     }

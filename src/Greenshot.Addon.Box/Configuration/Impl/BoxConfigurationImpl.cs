@@ -27,6 +27,7 @@ namespace Greenshot.Addon.Box.Configuration.Impl
 {
     internal class BoxConfigurationImpl : IniSectionBase<IBoxConfiguration>, IBoxConfiguration
     {
+#pragma warning disable 1591
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
         public string OutputFileFilenamePattern { get; set; }

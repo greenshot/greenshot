@@ -40,7 +40,7 @@ using Greenshot.Gfx;
 namespace Greenshot.Addon.Tfs
 {
     /// <summary>
-    ///     Description of OneDriveDestination.
+    /// This is the TFS destination
     /// </summary>
     [Destination("Tfs")]
     public class TfsDestination : AbstractDestination
@@ -54,6 +54,17 @@ namespace Greenshot.Addon.Tfs
         private readonly ExportNotification _exportNotification;
         private readonly WorkItem _workItem;
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="tfsConfiguration">ITfsConfiguration</param>
+        /// <param name="tfsLanguage">ITfsLanguage</param>
+        /// <param name="tfsClient">TfsClient</param>
+        /// <param name="pleaseWaitFormFactory">Func to create please wait forms</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public TfsDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
@@ -72,6 +83,18 @@ namespace Greenshot.Addon.Tfs
             _exportNotification = exportNotification;
         }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="tfsConfiguration">ITfsConfiguration</param>
+        /// <param name="tfsLanguage">ITfsLanguage</param>
+        /// <param name="tfsClient">TfsClient</param>
+        /// <param name="pleaseWaitFormFactory">Func to create please wait forms</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        /// <param name="workItem">WorkItem which is exported to</param>
         protected TfsDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
@@ -86,12 +109,16 @@ namespace Greenshot.Addon.Tfs
             _workItem = workItem;
         }
 
+        /// <inheritdoc />
         public override bool IsActive => base.IsActive && _tfsClient.CanUpdate;
 
+        /// <inheritdoc />
         public override bool UseDynamicsOnly => true;
 
+        /// <inheritdoc />
         public override bool IsDynamic => true;
 
+        /// <inheritdoc />
         protected override async Task PrepareDynamicDestinations(ToolStripMenuItem destinationToolStripMenuItem)
         {
             if (!destinationToolStripMenuItem.HasDropDownItems)
@@ -103,19 +130,21 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
+        /// <inheritdoc />
         public override IEnumerable<IDestination> DynamicDestinations()
         {
-            var workitems = _tfsClient.WorkItems.Values;
-            if (workitems.Count == 0)
+            var workItems = _tfsClient.WorkItems.Values;
+            if (workItems.Count == 0)
             {
                 yield break;
             }
-            foreach (var workitem in workitems)
+            foreach (var workItem in workItems)
             {
-                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _pleaseWaitFormFactory, _resourceProvider, _exportNotification, workitem);
+                yield return new TfsDestination(CoreConfiguration, GreenshotLanguage, _tfsConfiguration, _tfsLanguage, _tfsClient, _pleaseWaitFormFactory, _resourceProvider, _exportNotification, workItem);
             }
         }
 
+        /// <inheritdoc />
         public override string Description
         {
             get
@@ -130,6 +159,7 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
+        /// <inheritdoc />
         public override IBitmapWithNativeSupport DisplayIcon
         {
             get
@@ -142,6 +172,7 @@ namespace Greenshot.Addon.Tfs
             }
         }
 
+        /// <inheritdoc />
         public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             if (_workItem == null)

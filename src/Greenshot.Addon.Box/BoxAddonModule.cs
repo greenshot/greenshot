@@ -32,6 +32,7 @@ namespace Greenshot.Addon.Box
     /// <inheritdoc />
     public class BoxAddonModule : AddonModule
     {
+        /// <inheritdoc />
         protected override void Load(ContainerBuilder builder)
         {
             builder

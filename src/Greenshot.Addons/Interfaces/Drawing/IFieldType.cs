@@ -21,10 +21,19 @@ using System;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// This is the interface which defines a field type
+	/// </summary>
 	public interface IFieldType
 	{
+		/// <summary>
+		/// Name of the field type
+		/// </summary>
 		string Name { get; }
 
+        /// <summary>
+        /// Type of the field value
+        /// </summary>
         Type ValueType { get; }
 	}
 }

@@ -196,11 +196,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                 {
                     HideTextBox();
                 }
-                else if (Selected && Status == EditStatus.DRAWING)
+                else if (Selected && Status == EditStatus.Drawing)
                 {
                     ShowTextBox();
                 }
-                else if (_parent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible)
+                else if (_parent != null && Selected && Status == EditStatus.Idle && _textBox.Visible)
                 {
                     // Fix (workaround) for BUG-1698
                     _parent.KeysLocked = true;

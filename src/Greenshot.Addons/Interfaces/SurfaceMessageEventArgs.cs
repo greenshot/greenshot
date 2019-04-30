@@ -21,12 +21,24 @@ using System;
 
 namespace Greenshot.Addons.Interfaces
 {
+	/// <summary>
+	/// This is the event arguments for a surface message
+	/// </summary>
 	public class SurfaceMessageEventArgs : EventArgs
 	{
+		/// <summary>
+		/// Type of the message
+		/// </summary>
 		public SurfaceMessageTyp MessageType { get; set; }
 
+		/// <summary>
+		/// Message string
+		/// </summary>
 		public string Message { get; set; }
 
+		/// <summary>
+		/// Surface which sent the event
+		/// </summary>
 		public ISurface Surface { get; set; }
 	}
 }

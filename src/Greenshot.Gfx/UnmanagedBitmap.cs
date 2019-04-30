@@ -190,7 +190,11 @@ namespace Greenshot.Gfx
         {
             get
             {
-                return _nativeBitmap ??= new Bitmap(Width, Height, _stride, PixelFormat, _bits);
+                if (_nativeBitmap == null)
+                {
+                    _nativeBitmap = new Bitmap(Width, Height, _stride, PixelFormat, _bits);
+                }
+                return _nativeBitmap;
             }
         }
         

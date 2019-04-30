@@ -19,9 +19,13 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Language;
+#pragma warning disable 1591
 
 namespace Greenshot.Addon.ExternalCommand.Configuration
 {
+    /// <summary>
+    /// These are the translations for the external command settings
+    /// </summary>
     [Language("ExternalCommand")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public interface IExternalCommandLanguage : ILanguage

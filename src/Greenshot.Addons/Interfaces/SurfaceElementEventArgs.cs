@@ -22,8 +22,14 @@ using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Addons.Interfaces
 {
+	/// <summary>
+	/// This is the event arguments which contain surface elements
+	/// </summary>
 	public class SurfaceElementEventArgs : EventArgs
 	{
+		/// <summary>
+		/// The elements
+		/// </summary>
 		public IDrawableContainerList Elements { get; set; }
 	}
 }

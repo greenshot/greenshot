@@ -119,7 +119,8 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
-		public void NullBitmap()
+        /// <inheritdoc />
+        public void NullBitmap()
 		{
 			_bitmap = null;
 		}

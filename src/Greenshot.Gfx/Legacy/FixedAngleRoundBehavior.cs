@@ -19,18 +19,26 @@
 
 namespace Greenshot.Gfx.Legacy
 {
+    /// <summary>
+    /// TODO: Comment
+    /// </summary>
     public class FixedAngleRoundBehavior : IDoubleProcessor
     {
-        private readonly double fixedAngle;
+        private readonly double _fixedAngle;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fixedAngle">double</param>
         public FixedAngleRoundBehavior(double fixedAngle)
         {
-            this.fixedAngle = fixedAngle;
+            _fixedAngle = fixedAngle;
         }
 
+        /// <inheritdoc />
         public double Process(double angle)
         {
-            return fixedAngle;
+            return _fixedAngle;
         }
     }
 }

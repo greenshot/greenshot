@@ -21,11 +21,23 @@ using System;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// Flags for a field, which define a behavior
+	/// </summary>
 	[Flags]
 	public enum FieldFlag
 	{
-		NONE = 0,
-		CONFIRMABLE = 1,
-		COUNTER = 2
+        /// <summary>
+        /// No flags
+        /// </summary>
+		None = 0,
+        /// <summary>
+        /// This field needs to be confirmed
+        /// </summary>
+		Confirmable = 1,
+        /// <summary>
+        /// This field is a counter
+        /// </summary>
+		Counter = 2
 	}
 }

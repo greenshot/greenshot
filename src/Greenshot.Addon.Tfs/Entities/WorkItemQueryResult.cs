@@ -22,9 +22,15 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities
 {
+    /// <summary>
+    /// The result of a query
+    /// </summary>
     [JsonObject]
     public class WorkItemQueryResult
     {
+        /// <summary>
+        /// The work items
+        /// </summary>
         [JsonProperty("workItems")]
         public IList<WorkItem> Items { get; set; }
     }

@@ -22,9 +22,13 @@ using System.Windows.Forms;
 
 namespace Greenshot.Addons.Controls
 {
+	/// <summary>
+	/// This is a tool-strip button with translations
+	/// </summary>
 	public class GreenshotToolStripButton : ToolStripButton, IGreenshotLanguageBindable
 	{
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey { get; set; }

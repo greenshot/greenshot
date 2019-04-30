@@ -34,33 +34,18 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	[Serializable]
 	public abstract class FilterContainer : DrawableContainer
 	{
-		public enum PreparedFilter
-		{
-			BLUR,
-			PIXELIZE,
-			TEXT_HIGHTLIGHT,
-			AREA_HIGHLIGHT,
-			GRAYSCALE,
-			MAGNIFICATION
-		}
-
-		public enum PreparedFilterMode
-		{
-			OBFUSCATE,
-			HIGHLIGHT
-		}
-
+        /// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="editorConfiguration"></param>
 		public FilterContainer(Surface parent, IEditorConfiguration editorConfiguration) : base(parent, editorConfiguration)
 		{
 			Init();
 		}
 
-		public PreparedFilter Filter
-		{
-			get { return (PreparedFilter) GetFieldValue(FieldTypes.PREPARED_FILTER_HIGHLIGHT); }
-		}
-
-		protected override void OnDeserialized(StreamingContext streamingContext)
+        /// <inheritdoc />
+        protected override void OnDeserialized(StreamingContext streamingContext)
 		{
 			base.OnDeserialized(streamingContext);
 			Init();
@@ -71,14 +56,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			CreateDefaultAdorners();
 		}
 
-		protected override void InitializeFields()
+        /// <inheritdoc />
+        protected override void InitializeFields()
 		{
 			AddField(GetType(), FieldTypes.LINE_THICKNESS, 0);
 			AddField(GetType(), FieldTypes.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldTypes.SHADOW, false);
 		}
 
-		public override void Draw(Graphics graphics, RenderMode rm)
+        /// <inheritdoc />
+        public override void Draw(Graphics graphics, RenderMode rm)
 		{
 			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
@@ -93,8 +80,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				//draw shadow first
 				if (shadow)
 				{
-					var basealpha = 100;
-					var alpha = basealpha;
+					var baseAlpha = 100;
+					var alpha = baseAlpha;
 					var steps = 5;
 					var currentStep = lineVisible ? 1 : 0;
 					while (currentStep <= steps)
@@ -104,7 +91,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 							var shadowRect = new NativeRect(Left + currentStep, Top + currentStep, Width, Height).Normalize();
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
-							alpha = alpha - basealpha / steps;
+							alpha = alpha - baseAlpha / steps;
 						}
 					}
 				}

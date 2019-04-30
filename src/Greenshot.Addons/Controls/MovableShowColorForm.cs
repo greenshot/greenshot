@@ -31,11 +31,17 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public partial class MovableShowColorForm : Form
 	{
+		/// <summary>
+		/// Default constructor for a control
+		/// </summary>
 		public MovableShowColorForm()
 		{
 			InitializeComponent();
 		}
 
+		/// <summary>
+		/// The color under the cursor
+		/// </summary>
 		public Color ColorUnderCursor => preview.BackColor;
 
 	    /// <summary>

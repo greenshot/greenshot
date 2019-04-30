@@ -23,8 +23,13 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Ini.Converters;
 using Greenshot.Addons.Core;
 
+#pragma warning disable 1591
+
 namespace Greenshot.Addon.Tfs.Configuration
 {
+    /// <summary>
+    /// This contains the TFS add-on configuration
+    /// </summary>
     [IniSection("Tfs")]
     [Description("Greenshot Tfs Addon configuration")]
     public interface ITfsConfiguration : IIniSection, IDestinationFileConfiguration

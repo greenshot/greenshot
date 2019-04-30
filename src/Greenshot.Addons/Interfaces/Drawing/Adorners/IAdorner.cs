@@ -23,6 +23,9 @@ using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Addons.Interfaces.Drawing.Adorners
 {
+	/// <summary>
+	/// Defines an adorner interface
+	/// </summary>
 	public interface IAdorner
 	{
 		/// <summary>

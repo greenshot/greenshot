@@ -50,7 +50,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			get
 			{
-				if (Status != EditStatus.UNDRAWN)
+				if (Status != EditStatus.Undrawn)
 				{
 					var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 					var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
@@ -324,7 +324,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				return true;
 			}
 			var clickedPoint = new NativePoint(x, y);
-			if (Status != EditStatus.UNDRAWN)
+			if (Status != EditStatus.Undrawn)
 			{
 				var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 				var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);

@@ -26,8 +26,15 @@ namespace Greenshot.Addons.Interfaces.Drawing
     /// </summary>
 	public interface IBitmapContainer : IDrawableContainer
 	{
-		IBitmapWithNativeSupport Bitmap { get; set; }
+        /// <summary>
+        /// The actual IBitmap
+        /// </summary>
+        IBitmapWithNativeSupport Bitmap { get; set; }
 
+		/// <summary>
+		/// Load a bitmap into this container
+		/// </summary>
+		/// <param name="filename">string</param>
 		void Load(string filename);
 	}
 }

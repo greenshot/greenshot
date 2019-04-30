@@ -58,6 +58,16 @@ namespace Greenshot.Addon.Photobucket
 	    private readonly OAuth1HttpBehaviour _oAuthHttpBehaviour;
 	    private IList<string> _albumsCache;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public PhotobucketDestination(
             IPhotobucketConfiguration photobucketConfiguration,
             IPhotobucketLanguage photobucketLanguage,
@@ -133,7 +143,18 @@ namespace Greenshot.Addon.Photobucket
             _oAuthHttpBehaviour = oAuthHttpBehaviour;
         }
 
-	    protected PhotobucketDestination(
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="albumPath">string</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        protected PhotobucketDestination(
 	        IPhotobucketConfiguration photobucketConfiguration,
 	        IPhotobucketLanguage photobucketLanguage,
 	        IHttpConfiguration httpConfiguration,
@@ -147,7 +168,8 @@ namespace Greenshot.Addon.Photobucket
 			_albumPath = albumPath;
 		}
 
-		public override string Description
+        /// <inheritdoc />
+        public override string Description
 		{
 			get
 			{
@@ -159,7 +181,8 @@ namespace Greenshot.Addon.Photobucket
 			}
 		}
 
-		public override IBitmapWithNativeSupport DisplayIcon
+        /// <inheritdoc />
+        public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
 			{
@@ -171,9 +194,11 @@ namespace Greenshot.Addon.Photobucket
             }
 		}
 
-		public override bool IsDynamic => true;
+        /// <inheritdoc />
+        public override bool IsDynamic => true;
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+        /// <inheritdoc />
+        public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			IList<string> albums = null;
 			try

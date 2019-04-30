@@ -46,7 +46,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <param name="mouseEventArgs"></param>
 		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
 		{
-			EditStatus = EditStatus.MOVING;
+			EditStatus = EditStatus.Moving;
 		}
 
 		/// <summary>
@@ -56,7 +56,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <param name="mouseEventArgs"></param>
 		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
 		{
-			if (EditStatus != EditStatus.MOVING)
+			if (EditStatus != EditStatus.Moving)
 			{
 				return;
 			}

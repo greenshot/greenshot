@@ -63,6 +63,9 @@ namespace Greenshot.Addons.Controls
 			FormClosing += (sender, args) => UnregisterThumbnail();
 		}
 
+		/// <summary>
+		/// Hide the thumbnail form
+		/// </summary>
 		public new void Hide()
 		{
 			UnregisterThumbnail();

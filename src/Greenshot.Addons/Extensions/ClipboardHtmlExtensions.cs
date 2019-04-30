@@ -29,6 +29,9 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addons.Extensions
 {
+    /// <summary>
+    /// Extensions for the Clipboard functionality which have to do with HTML
+    /// </summary>
     public static class ClipboardHtmlExtensions
     {
         // Defintion of the Html Clipboard format
@@ -132,6 +135,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
         public static void SetAsHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
             var pngOutputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.png, 100, false);
@@ -148,6 +152,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="clipboardAccessToken">IClipboardAccessToken</param>
         /// <param name="surface">ISurface</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
         public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
             using (var pngStream = new MemoryStream())

@@ -93,7 +93,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		public override bool InitContent()
 		{
-			_defaultEditMode = EditStatus.IDLE;
+			_defaultEditMode = EditStatus.Idle;
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
 
@@ -119,7 +119,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			AddField(GetType(), FieldTypes.FILL_COLOR, Color.DarkRed);
 			AddField(GetType(), FieldTypes.LINE_COLOR, Color.White);
-			AddField(GetType(), FieldTypes.FLAGS, FieldFlag.COUNTER);
+			AddField(GetType(), FieldTypes.FLAGS, FieldFlag.Counter);
 		}
 
 		/// <summary>

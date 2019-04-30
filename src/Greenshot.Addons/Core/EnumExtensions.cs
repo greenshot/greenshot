@@ -21,9 +21,19 @@ using System;
 
 namespace Greenshot.Addons.Core
 {
+	/// <summary>
+	/// Extensions for helping with enumerations
+	/// </summary>
 	public static class EnumerationExtensions
 	{
-		public static bool Has<T>(this Enum type, T value)
+        /// <summary>
+        /// Check if a value is in an enum
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>bool</returns>
+        public static bool Has<T>(this Enum type, T value)
 		{
 			var underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try

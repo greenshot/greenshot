@@ -48,7 +48,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public IGreenshotLanguage GreenshotLanguage { get; }
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="httpConfiguration"></param>
         /// <param name="greenshotLanguage"></param>

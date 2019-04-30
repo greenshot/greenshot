@@ -23,6 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.ExternalCommand.Entities;
 using Greenshot.Addons.Core;
+#pragma warning disable 1591
 
 namespace Greenshot.Addon.ExternalCommand.Configuration
 {

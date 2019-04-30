@@ -19,5 +19,10 @@
 
 namespace Greenshot.Addons.Interfaces
 {
-	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs e);
+    /// <summary>
+    /// This is the SurfaceDrawingModeEventHandler delegate
+    /// </summary>
+    /// <param name="sender">object</param>
+    /// <param name="e">SurfaceDrawingModeEventArgs</param>
+    public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs e);
 }

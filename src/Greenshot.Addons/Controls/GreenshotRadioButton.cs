@@ -22,22 +22,25 @@ using System.Windows.Forms;
 
 namespace Greenshot.Addons.Controls
 {
-	/// <summary>
-	///     Description of GreenshotCheckbox.
-	/// </summary>
-	public class GreenshotRadioButton : RadioButton, IGreenshotLanguageBindable, IGreenshotConfigBindable
+    /// <summary>
+    /// GreenshotRadioButton allow to work on a configuration and have translations
+    /// </summary>
+    public class GreenshotRadioButton : RadioButton, IGreenshotLanguageBindable, IGreenshotConfigBindable
 	{
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue("Core")]
 		[Description("Specifies the Ini-Section to map this control with.")]
 		public string SectionName { get; set; } = "Core";
 
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies the property name to map the configuration.")]
 		public string PropertyName { get; set; }
 
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey { get; set; }

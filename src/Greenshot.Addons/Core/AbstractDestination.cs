@@ -40,15 +40,27 @@ using Greenshot.Gfx;
 namespace Greenshot.Addons.Core
 {
     /// <summary>
-    ///     Description of AbstractDestination.
+    /// This is the basic implementation of the IDestination
     /// </summary>
     public abstract class AbstractDestination : IDestination
     {
         private static readonly LogSource Log = new LogSource();
 
+        /// <summary>
+        /// Provide the IGreenshotLanguage to the destination
+        /// </summary>
         protected IGreenshotLanguage GreenshotLanguage { get; }
+
+        /// <summary>
+        /// Provide the ICoreConfiguration to the destination
+        /// </summary>
         protected ICoreConfiguration CoreConfiguration { get; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         protected AbstractDestination(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage)
@@ -70,13 +82,16 @@ namespace Greenshot.Addons.Core
         /// <inheritdoc />
         public virtual BitmapSource DisplayIconWpf => DisplayIcon?.NativeBitmap.ToBitmapSource() ?? GetDisplayIcon(DpiHandler.DefaultScreenDpi).NativeBitmap.ToBitmapSource();
 
+        /// <inheritdoc />
         public virtual IBitmapWithNativeSupport GetDisplayIcon(double dpi)
         {
             return DisplayIcon;
         }
 
+        /// <inheritdoc />
         public virtual bool HasDisplayIcon => true;
 
+        /// <inheritdoc />
         public virtual Keys EditorShortcutKeys => Keys.None;
 
         /// <summary>
@@ -108,6 +123,7 @@ namespace Greenshot.Addons.Core
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
@@ -125,32 +141,26 @@ namespace Greenshot.Addons.Core
         /// <inheritdoc />
         public virtual bool IsActive => true;
 
+        /// <summary>
+        /// This is a replacement of the ExportCaptureAsync
+        /// </summary>
+        /// <param name="manuallyInitiated">bool</param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        /// <returns>ExportInformation</returns>
         protected virtual ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             return null;
         }
 
-        /// <summary>
-        /// This is the Async version of the export Capture, and by default it calls the ExportCapture.
-        /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public virtual Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             var syncResult = ExportCapture(manuallyInitiated, surface, captureDetails);
             return Task.FromResult(syncResult);
         }
 
-        /// <summary>
-        ///     Return a menu item
-        /// </summary>
-        /// <param name="addDynamics">bool is dynamic entries need to be added</param>
-        /// <param name="menu">ContextMenuStrip</param>
-        /// <param name="destinationClickHandler">EventHandler</param>
-        /// <param name="bitmapScaleHandler">BitmapScaleHandler</param>
-        /// <returns>ToolStripMenuItem</returns>
+        /// <inheritdoc />
         public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination, IBitmapWithNativeSupport> bitmapScaleHandler)
         {
             var basisMenuItem = new ToolStripMenuItem(Description)
@@ -222,11 +232,16 @@ namespace Greenshot.Addons.Core
             return basisMenuItem;
         }
 
+        /// <summary>
+        /// Override this to have your disposed called
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             //if (disposing) {}
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return Description;

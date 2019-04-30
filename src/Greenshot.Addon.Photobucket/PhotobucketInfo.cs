@@ -24,16 +24,25 @@ using Dapplo.Log;
 namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
-	///     Description of PhotobucketInfo.
+	///     Information about a photobucket upload
 	/// </summary>
 	public class PhotobucketInfo
 	{
 		private static readonly LogSource Log = new LogSource();
 
+		/// <summary>
+		/// Link to the original file
+		/// </summary>
 		public string Original { get; set; }
 
+		/// <summary>
+		/// Link to the page
+		/// </summary>
 		public string Page { get; set; }
 
+		/// <summary>
+		/// Link to the thumbnail
+		/// </summary>
 		public string Thumbnail { get; set; }
 
 		/// <summary>

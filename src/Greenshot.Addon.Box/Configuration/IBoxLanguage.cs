@@ -24,6 +24,7 @@ namespace Greenshot.Addon.Box.Configuration
     [Language("Box")]
     public interface IBoxLanguage : ILanguage
     {
+#pragma warning disable 1591
         string CommunicationWait { get; }
 
         string Configure { get; }

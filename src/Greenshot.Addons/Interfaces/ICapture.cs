@@ -29,23 +29,44 @@ namespace Greenshot.Addons.Interfaces
 	/// </summary>
 	public interface ICapture : IDisposable
 	{
-		// The Capture Details
-		ICaptureDetails CaptureDetails { get; set; }
+        /// <summary>
+        /// The Capture Details
+        /// </summary>
+        ICaptureDetails CaptureDetails { get; set; }
 
-        // The captured Image
+        /// <summary>
+        /// The captured Image
+        /// </summary>
         IBitmapWithNativeSupport Bitmap { get; set; }
 
+		/// <summary>
+		/// Bounds of the capture
+		/// </summary>
 		NativeRect ScreenBounds { get; set; }
 
+		/// <summary>
+		/// Cursor on the capture
+		/// </summary>
 		Icon Cursor { get; set; }
 
-		// Boolean to specify if the cursor is available
-		bool CursorVisible { get; set; }
+        /// <summary>
+        /// Boolean to specify if the cursor is available
+        /// </summary>
+        bool CursorVisible { get; set; }
 
+        /// <summary>
+        /// Location of the cursor
+        /// </summary>
 	    NativePoint CursorLocation { get; set; }
 
+        /// <summary>
+        /// Location of the capture
+        /// </summary>
 	    NativePoint Location { get; set; }
 
+        /// <summary>
+        /// Clear the capture
+        /// </summary>
 		void NullBitmap();
 
         /// <summary>

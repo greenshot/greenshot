@@ -25,13 +25,19 @@ using Greenshot.Core.Enums;
 namespace Greenshot.Addons.Controls
 {
 	/// <summary>
-	///     Description of JpegQualityDialog.
+	/// This is a dialog where the user can specify the quality of the written bitmap
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm
 	{
 		private readonly ICoreConfiguration _coreConfiguration;
 
-		public QualityDialog(
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="outputSettings">SurfaceOutputSettings</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        public QualityDialog(
 		    SurfaceOutputSettings outputSettings,
             ICoreConfiguration coreConfiguration,
 		    IGreenshotLanguage greenshotLanguage) : base(greenshotLanguage)
@@ -51,7 +57,10 @@ namespace Greenshot.Addons.Controls
 			ToFront = true;
 		}
 
-		public SurfaceOutputSettings Settings { get; set; }
+        /// <summary>
+        /// This SurfaceOutputSettings which result from this form
+        /// </summary>
+        public SurfaceOutputSettings Settings { get; set; }
 
 		private void Button_okClick(object sender, EventArgs e)
 		{

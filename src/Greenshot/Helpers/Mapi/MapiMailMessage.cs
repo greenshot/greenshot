@@ -34,12 +34,12 @@ namespace Greenshot.Helpers.Mapi
     /// <summary>
     ///     Author: Andrew Baker
     ///     Datum: 10.03.2006
-    ///     Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
+    ///     Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71">here</a>
     /// </summary>
     /// <summary>
     ///     Represents an email message to be sent through MAPI.
     /// </summary>
-    public partial class MapiMailMessage : IDisposable
+    public class MapiMailMessage : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
 
@@ -168,12 +168,17 @@ namespace Greenshot.Helpers.Mapi
 			_manualResetEvent.Reset();
 		}
 
-		public void Dispose()
+        /// <inheritdoc />
+        public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+        /// <summary>
+        /// Actual dispose implementation
+        /// </summary>
+        /// <param name="disposing">bool</param>
         protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -208,9 +213,9 @@ namespace Greenshot.Helpers.Mapi
 				// Signal the creating thread (make the remaining code async)
 				_manualResetEvent.Set();
 
-				const int MAPI_DIALOG = 0x8;
+				const int mapiDialog = 0x8;
 				//const int MAPI_LOGON_UI = 0x1;
-				var error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
+				var error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, mapiDialog, 0);
 
 				if (Files.Count > 0)
 				{

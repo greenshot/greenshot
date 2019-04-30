@@ -133,7 +133,7 @@ namespace Greenshot.Addon.InternetExplorer
 		}
 
 		/// <summary>
-		///     Gets a list of all IE Windows & tabs with the captions of the instances
+		///     Gets a list of all IE Windows and tabs with the captions of the instances
 		/// </summary>
 		/// <returns>List with KeyValuePair of InteropWindow and string</returns>
 		public IList<KeyValuePair<IInteropWindow, string>> GetBrowserTabs()

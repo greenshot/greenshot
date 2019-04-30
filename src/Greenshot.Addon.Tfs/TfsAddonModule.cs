@@ -32,6 +32,7 @@ namespace Greenshot.Addon.Tfs
     /// <inheritdoc />
     public class TfsAddonModule : AddonModule
     {
+        /// <inheritdoc />
         protected override void Load(ContainerBuilder builder)
         {
             builder

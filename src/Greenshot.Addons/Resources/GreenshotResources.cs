@@ -28,7 +28,7 @@ using Greenshot.Gfx;
 namespace Greenshot.Addons.Resources
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Centralized storage of the icons and bitmaps
 	/// </summary>
 	public class GreenshotResources
 	{

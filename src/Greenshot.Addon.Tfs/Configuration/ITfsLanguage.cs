@@ -17,13 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace Greenshot.Addon.Tfs
+namespace Greenshot.Addon.Tfs.Configuration
 {
+    /// <summary>
+    /// This contains the translations which are available for the TFS add-on
+    /// </summary>
     [Language("Tfs")]
-    public interface ITfsLanguage : ILanguage, INotifyPropertyChanged
+#pragma warning disable 1591
+    public interface ITfsLanguage : ILanguage
     {
         string CommunicationWait { get; }
 

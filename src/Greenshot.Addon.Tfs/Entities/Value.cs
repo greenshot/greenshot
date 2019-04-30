@@ -22,15 +22,27 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities
 {
+    /// <summary>
+    /// Describes a value
+    /// </summary>
     [JsonObject]
     public class Value
     {
+        /// <summary>
+        /// The relation
+        /// </summary>
         [JsonProperty("rel")]
         public string Relation { get; set; }
 
+        /// <summary>
+        /// The URL
+        /// </summary>
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
+        /// <summary>
+        /// The attributes
+        /// </summary>
         [JsonProperty("attributes")]
         public Attributes Attributes { get; set; }
     }

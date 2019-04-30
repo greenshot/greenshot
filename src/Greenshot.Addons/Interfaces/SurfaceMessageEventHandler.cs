@@ -19,5 +19,10 @@
 
 namespace Greenshot.Addons.Interfaces
 {
-	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs e);
+    /// <summary>
+    /// Delegate definition for the SurfaceMessageEventHandler
+    /// </summary>
+    /// <param name="sender">object</param>
+    /// <param name="e">SurfaceMessageEventArgs</param>
+    public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs e);
 }

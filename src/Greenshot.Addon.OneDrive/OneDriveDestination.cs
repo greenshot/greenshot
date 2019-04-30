@@ -63,6 +63,17 @@ namespace Greenshot.Addon.OneDrive
 
         private readonly HttpBehaviour _oneDriveHttpBehaviour;
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="oneDriveConfiguration">IOneDriveConfiguration</param>
+        /// <param name="oneDriveLanguage">IOneDriveLanguage</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="pleaseWaitFormFactory">Func</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
         public OneDriveDestination(
             IOneDriveConfiguration oneDriveConfiguration,
             IOneDriveLanguage oneDriveLanguage,
@@ -106,8 +117,10 @@ namespace Greenshot.Addon.OneDrive
             };
         }
 
+        /// <inheritdoc />
         public override string Description => _oneDriveLanguage.UploadMenuItem;
 
+        /// <inheritdoc />
         public override IBitmapWithNativeSupport DisplayIcon
         {
             get
@@ -120,6 +133,7 @@ namespace Greenshot.Addon.OneDrive
             }
         }
 
+        /// <inheritdoc />
         public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface,
             ICaptureDetails captureDetails)
         {

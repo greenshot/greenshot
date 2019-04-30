@@ -22,11 +22,16 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Flickr.Configuration
 {
+	/// <summary>
+	/// Translations for the flickr add-on
+	/// </summary>
 	[Language("Flickr")]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
     public interface IFlickrLanguage : ILanguage
 	{
-		string CommunicationWait { get; }
+#pragma warning disable 1591
+
+        string CommunicationWait { get; }
 
 		string Configure { get; }
 

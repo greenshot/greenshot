@@ -22,10 +22,15 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.GooglePhotos.Configuration
 {
+    /// <summary>
+    /// Translations for the google photos add-on
+    /// </summary>
     [Language("GooglePhotos")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public interface IGooglePhotosLanguage : ILanguage
     {
+#pragma warning disable 1591
+
         string CommunicationWait { get; }
 
         string Configure { get; }

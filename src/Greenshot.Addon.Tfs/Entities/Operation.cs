@@ -27,11 +27,21 @@ namespace Greenshot.Addon.Tfs.Entities
     [JsonObject]
     public class Operation
     {
+        /// <summary>
+        /// Type of the operation
+        /// </summary>
         [JsonProperty("op")]
         public string OperationType { get; set; }
 
+        /// <summary>
+        /// Path of the operation
+        /// </summary>
         [JsonProperty("path")]
         public string Path { get; set; }
+
+        /// <summary>
+        /// Value for the operation
+        /// </summary>
         [JsonProperty("value")]
         public Value Value { get; set; }
     }

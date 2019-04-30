@@ -22,9 +22,13 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Photobucket.Configuration
 {
+	/// <summary>
+	/// This contains the translations for the photo bucket add-on
+	/// </summary>
 	[Language("Photobucket")]
 	public interface IPhotobucketLanguage : ILanguage, INotifyPropertyChanged
 	{
+#pragma warning disable 1591
 		string CommunicationWait { get; }
 
 		string Configure { get; }

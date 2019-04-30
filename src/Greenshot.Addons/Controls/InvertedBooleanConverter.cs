@@ -23,14 +23,18 @@ using System.Windows.Data;
 
 namespace Greenshot.Addons.Controls
 {
+    /// <summary>
+    /// This is a boolean converter for WPF which allows to invert the value (true -> false and false -> true)
+    /// </summary>
     public class InvertedBooleanConverter : IValueConverter
     {
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return !(bool)(value ?? false);
-
         }
 
+        /// <inheritdoc />
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return !(bool)(value ?? false);

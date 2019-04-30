@@ -17,14 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma warning disable 1591
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// The edit status, used to decide how to draw
+	/// </summary>
 	public enum EditStatus
 	{
-		UNDRAWN,
-		DRAWING,
-		MOVING,
-		RESIZING,
-		IDLE
+		Undrawn,
+		Drawing,
+		Moving,
+		Resizing,
+		Idle
 	}
 }

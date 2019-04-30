@@ -22,9 +22,13 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Lutim.Configuration
 {
+    /// <summary>
+    /// Translations for the Lutim add-on
+    /// </summary>
     [Language("Lutim")]
-    public interface ILutimLanguage : ILanguage, INotifyPropertyChanged
+    public interface ILutimLanguage : ILanguage
     {
+#pragma warning disable 1591
         string Cancel { get; }
 
         string ClearQuestion { get; }

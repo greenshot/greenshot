@@ -128,7 +128,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <param name="mouseEventArgs"></param>
 		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
 		{
-			EditStatus = EditStatus.RESIZING;
+			EditStatus = EditStatus.Resizing;
 			_boundsBeforeResize = new NativeRectFloat(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
 			_boundsAfterResize = _boundsBeforeResize;
 		}
@@ -140,7 +140,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 		/// <param name="mouseEventArgs"></param>
 		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
 		{
-			if (EditStatus != EditStatus.RESIZING)
+			if (EditStatus != EditStatus.Resizing)
 			{
 				return;
 			}

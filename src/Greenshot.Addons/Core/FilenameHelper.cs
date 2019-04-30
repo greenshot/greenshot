@@ -29,6 +29,9 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addons.Core
 {
+	/// <summary>
+	/// Code for handling filenames, with patterns etc
+	/// </summary>
 	public static class FilenameHelper
 	{
 		private const int MaxTitleLength = 80;
@@ -98,22 +101,25 @@ namespace Greenshot.Addons.Core
 			return path;
 		}
 
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern)
-		{
-			return GetFilenameWithoutExtensionFromPattern(pattern, null);
-		}
-
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
+        /// <summary>
+        /// Create a filename without extension for the pattern based upon the specified details
+        /// </summary>
+        /// <param name="pattern">string</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        /// <returns>string with filename</returns>
+        public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
 		{
 			return FillPattern(pattern, captureDetails, true);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, OutputFormats imageFormat)
-		{
-			return GetFilenameFromPattern(pattern, imageFormat, null);
-		}
-
-		public static string GetFilenameFromPattern(string pattern, OutputFormats imageFormat, ICaptureDetails captureDetails)
+        /// <summary>
+        /// Create a filename for the pattern based upon the specified details
+        /// </summary>
+        /// <param name="pattern">string</param>
+        /// <param name="imageFormat">OutputFormats</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        /// <returns>string with filename</returns>
+        public static string GetFilenameFromPattern(string pattern, OutputFormats imageFormat, ICaptureDetails captureDetails)
 		{
 			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 		}

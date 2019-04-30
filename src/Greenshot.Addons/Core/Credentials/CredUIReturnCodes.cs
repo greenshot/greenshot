@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma warning disable 1591
 namespace Greenshot.Addons.Core.Credentials
 {
 	/// <summary>http://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>

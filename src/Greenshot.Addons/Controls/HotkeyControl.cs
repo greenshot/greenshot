@@ -37,14 +37,36 @@ namespace Greenshot.Addons.Controls
 	/// </summary>
 	public sealed class HotkeyControl : GreenshotTextBox
 	{
+		/// <summary>
+		/// Modifiers are the additional keys which are pressed together with the "key", like ctrl or shift.
+		/// </summary>
 		[SuppressMessage("ReSharper", "InconsistentNaming")]
+        [Flags]
 		public enum Modifiers : uint
 		{
+            /// <summary>
+			/// no modifier is pressed
+			/// </summary>
 			NONE = 0,
+            /// <summary>
+            /// The alt key is pressed
+            /// </summary>
 			ALT = 1,
+            /// <summary>
+            /// The ctrl key is pressed
+            /// </summary>
 			CTRL = 2,
+            /// <summary>
+            /// The shift key is pressed
+            /// </summary>
 			SHIFT = 4,
+            /// <summary>
+            /// The win key is pressed
+            /// </summary>
 			WIN = 8,
+            /// <summary>
+            /// When registering hotkeys, this can be specified to prevent repeating keys
+            /// </summary>
 			NO_REPEAT = 0x4000
 		}
 
@@ -364,11 +386,17 @@ namespace Greenshot.Addons.Controls
 			Text = HotkeyToLocalizedString(_modifiers, _hotkey);
 		}
 
-		public override string ToString()
+        /// <inheritdoc />
+        public override string ToString()
 		{
 			return HotkeyToString(HotkeyModifiers, Hotkey);
 		}
 
+		/// <summary>
+		/// Get a localized version, for displaying, of a hotkey string
+		/// </summary>
+		/// <param name="hotkeyString"></param>
+		/// <returns></returns>
 		public static string GetLocalizedHotkeyStringFromString(string hotkeyString)
 		{
 			var virtualKeyCode = HotkeyFromString(hotkeyString);
@@ -376,12 +404,23 @@ namespace Greenshot.Addons.Controls
 			return HotkeyToLocalizedString(modifiers, virtualKeyCode);
 		}
 
-		public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode)
+        /// <summary>
+        /// Create a string representation from a hotkey
+        /// </summary>
+        /// <param name="modifierKeyCode">Keys</param>
+        /// <param name="virtualKeyCode">Keys</param>
+        /// <returns>string</returns>
+        public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode)
 		{
 			return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
 		}
 
-		public static string HotkeyModifiersToString(Keys modifierKeyCode)
+        /// <summary>
+        ///  Create a string representation from modifiers
+        /// </summary>
+        /// <param name="modifierKeyCode">Keys</param>
+        /// <returns>string</returns>
+        public static string HotkeyModifiersToString(Keys modifierKeyCode)
 		{
 			var hotkeyString = new StringBuilder();
 			if ((modifierKeyCode & Keys.Alt) > 0)
@@ -404,12 +443,23 @@ namespace Greenshot.Addons.Controls
 		}
 
 
-		public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode)
+        /// <summary>
+        /// Get a localized version, for displaying, of a hotkey
+        /// </summary>
+        /// <param name="modifierKeyCode">Keys</param>
+        /// <param name="virtualKeyCode">Keys</param>
+        /// <returns>string</returns>
+        public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode)
 		{
 			return HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
 		}
 
-		public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
+        /// <summary>
+        /// Get a localized version, for displaying, of modifiers
+        /// </summary>
+        /// <param name="modifierKeyCode">Keys</param>
+        /// <returns>string</returns>
+        public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
 		{
 			var hotkeyString = new StringBuilder();
 			if ((modifierKeyCode & Keys.Alt) > 0)
@@ -431,8 +481,12 @@ namespace Greenshot.Addons.Controls
 			return hotkeyString.ToString();
 		}
 
-
-		public static Keys HotkeyModifiersFromString(string modifiersString)
+        /// <summary>
+        /// Create modifiers from a string
+        /// </summary>
+        /// <param name="modifiersString">string</param>
+        /// <returns>Keys</returns>
+        public static Keys HotkeyModifiersFromString(string modifiersString)
 		{
 			var modifiers = Keys.None;
 			if (!string.IsNullOrEmpty(modifiersString))
@@ -457,7 +511,12 @@ namespace Greenshot.Addons.Controls
 			return modifiers;
 		}
 
-		public static Keys HotkeyFromString(string hotkey)
+        /// <summary>
+        /// Create hotkey from a string
+        /// </summary>
+        /// <param name="hotkey">string</param>
+        /// <returns>Keys</returns>
+        public static Keys HotkeyFromString(string hotkey)
 		{
 			var key = Keys.None;
 			if (!string.IsNullOrEmpty(hotkey))
@@ -469,16 +528,6 @@ namespace Greenshot.Addons.Controls
 				key = (Keys) Enum.Parse(typeof(Keys), hotkey);
 			}
 			return key;
-		}
-
-		public static void RegisterHotkeyHwnd(IntPtr hWnd)
-		{
-			_hotkeyHwnd = hWnd;
-		}
-
-		public static int RegisterHotKey(string hotkey, HotKeyHandler handler)
-		{
-			return RegisterHotKey(HotkeyModifiersFromString(hotkey), HotkeyFromString(hotkey), handler);
 		}
 
 		/// <summary>
@@ -527,34 +576,6 @@ namespace Greenshot.Addons.Controls
 			return -1;
 		}
 
-		public static void UnregisterHotkeys()
-		{
-			foreach (var hotkey in KeyHandlers.Keys)
-			{
-				UnregisterHotKey(_hotkeyHwnd, hotkey);
-			}
-			// Remove all key handlers
-			KeyHandlers.Clear();
-		}
-
-		public static void UnregisterHotkey(int hotkey)
-		{
-			var removeHotkey = false;
-			foreach (var availableHotkey in KeyHandlers.Keys)
-			{
-				if (availableHotkey == hotkey)
-				{
-					UnregisterHotKey(_hotkeyHwnd, hotkey);
-					removeHotkey = true;
-				}
-			}
-			if (removeHotkey)
-			{
-				// Remove key handler
-				KeyHandlers.Remove(hotkey);
-			}
-		}
-
 		/// <summary>
 		///     Handle WndProc messages for the hotkey
 		/// </summary>
@@ -579,7 +600,12 @@ namespace Greenshot.Addons.Controls
 			return true;
 		}
 
-		public static string GetKeyName(Keys givenKey)
+        /// <summary>
+        /// Get the key name
+        /// </summary>
+        /// <param name="givenKey">Keys</param>
+        /// <returns>string</returns>
+        public static string GetKeyName(Keys givenKey)
 		{
 			var keyName = new StringBuilder();
 			const uint numpad = 55;

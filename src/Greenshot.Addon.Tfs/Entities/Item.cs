@@ -28,9 +28,15 @@ namespace Greenshot.Addon.Tfs.Entities
     [JsonObject]
     public class CreateAttachmentResult
     {
+        /// <summary>
+        /// The ID of the attachment
+        /// </summary>
         [JsonProperty("id")]
-        public string id { get; set; }
+        public string Id { get; set; }
 
+        /// <summary>
+        /// The URL where the attachment can be found
+        /// </summary>
         [JsonProperty("url")]
         public Uri Url { get; set; }
     }

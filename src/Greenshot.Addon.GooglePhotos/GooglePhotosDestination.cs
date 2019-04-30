@@ -94,9 +94,11 @@ namespace Greenshot.Addon.GooglePhotos
             };
         }
 
-		public override string Description => _googlePhotosLanguage.UploadMenuItem;
+        /// <inheritdoc />
+        public override string Description => _googlePhotosLanguage.UploadMenuItem;
 
-		public override IBitmapWithNativeSupport DisplayIcon
+        /// <inheritdoc />
+        public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
 			{
@@ -108,7 +110,8 @@ namespace Greenshot.Addon.GooglePhotos
 			}
 		}
 
-	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        /// <inheritdoc />
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 		    var uploadUrl = await Upload(surface).ConfigureAwait(true);

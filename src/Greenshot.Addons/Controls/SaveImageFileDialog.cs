@@ -41,7 +41,7 @@ namespace Greenshot.Addons.Controls
 		private SaveFileDialog SaveFileDialog;
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="captureDetails">ICaptureDetails</param>

@@ -24,13 +24,14 @@ using Greenshot.Core.Enums;
 namespace Greenshot.Addon.Confluence.Configuration
 {
 	/// <summary>
-	///     Description of ConfluenceConfiguration.
+	///     The configuration for the confluence add-on
 	/// </summary>
 	[IniSection("Confluence")]
 	[Description("Greenshot Confluence Plugin configuration")]
 	public interface IConfluenceConfiguration : IIniSection
 	{
-		[Description("Url to Confluence system, including wsdl.")]
+#pragma warning disable 1591
+        [Description("Url to Confluence system, including wsdl.")]
 		[DefaultValue("https://confluence")]
 		string Url { get; set; }
 

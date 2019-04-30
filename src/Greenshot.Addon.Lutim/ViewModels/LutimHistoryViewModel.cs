@@ -34,6 +34,9 @@ using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Lutim.ViewModels
 {
+    /// <summary>
+    /// The view model for the Lutim history
+    /// </summary>
     public sealed class LutimHistoryViewModel : Screen
     {
         private static readonly LogSource Log = new LogSource();
@@ -44,10 +47,28 @@ namespace Greenshot.Addon.Lutim.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide ILutimConfiguration to the view
+        /// </summary>
         public ILutimConfiguration LutimConfiguration { get; set; }
+
+        /// <summary>
+        /// Provide ILutimLanguage to the view
+        /// </summary>
         public ILutimLanguage LutimLanguage { get; set; }
+
+        /// <summary>
+        /// Provide IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="lutimConfiguration">ILutimConfiguration</param>
+        /// <param name="lutimLanguage">ILutimLanguage</param>
+        /// <param name="lutimApi">LutimApi</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public LutimHistoryViewModel(
             ILutimConfiguration lutimConfiguration,
             ILutimLanguage lutimLanguage,
@@ -64,6 +85,7 @@ namespace Greenshot.Addon.Lutim.ViewModels
         /// </summary>
         public IList<LutimInfo> LutimHistory { get; } = new BindableCollection<LutimInfo>();
 
+        /// <inheritdoc />
         protected override void OnActivate()
         {
              // Prepare disposables
@@ -77,6 +99,7 @@ namespace Greenshot.Addon.Lutim.ViewModels
             _disposables.Add(lutimHistoryLanguageBinding);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();
@@ -128,17 +151,33 @@ namespace Greenshot.Addon.Lutim.ViewModels
             }
         }
 
+        /// <summary>
+        /// The currently selected Lutim entry
+        /// </summary>
         public AddResult SelectedLutim { get; private set; }
 
+        /// <summary>
+        /// Is it possible to delete
+        /// </summary>
         public bool CanDelete => true;
 
+        /// <summary>
+        /// Delete the current selected Lutim
+        /// </summary>
+        /// <returns>Task</returns>
         public async Task Delete()
         {
             await _lutimApi.DeleteLutimImage(SelectedLutim);
         }
 
+        /// <summary>
+        /// Can the current selected Lutim entry be copied to the clipboard
+        /// </summary>
         public bool CanCopyToClipboard => true;
 
+        /// <summary>
+        /// Copy current selected Lutim entry to the clipboard
+        /// </summary>
         public void CopyToClipboard()
         {
             // TODO: Build url
@@ -149,6 +188,9 @@ namespace Greenshot.Addon.Lutim.ViewModels
             }
         }
 
+        /// <summary>
+        /// Clear the whole history
+        /// </summary>
         public void ClearHistory()
         {
             LutimConfiguration.RuntimeLutimHistory.Clear();
@@ -156,9 +198,12 @@ namespace Greenshot.Addon.Lutim.ViewModels
             LutimHistory.Clear();
         }
 
+        /// <summary>
+        /// Show the current selected Lutim entry in the browser
+        /// </summary>
         public void Show()
         {
-            var link = SelectedLutim.LutimInfo.Short;
+            var link = SelectedLutim?.LutimInfo.Short;
             if (link != null)
             {
                 Process.Start(link);

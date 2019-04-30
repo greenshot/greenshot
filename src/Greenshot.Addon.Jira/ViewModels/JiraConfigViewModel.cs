@@ -26,6 +26,9 @@ using Greenshot.Addons.ViewModels;
 
 namespace Greenshot.Addon.Jira.ViewModels
 {
+    /// <summary>
+    /// This is the view model for the Jira configuration
+    /// </summary>
     public sealed class JiraConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -33,12 +36,27 @@ namespace Greenshot.Addon.Jira.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide IJiraConfiguration to the view
+        /// </summary>
         public IJiraConfiguration JiraConfiguration { get; }
 
+        /// <summary>
+        /// Provide IJiraLanguage to the view
+        /// </summary>
         public IJiraLanguage JiraLanguage { get; }
 
+        /// <summary>
+        /// Provide FileConfigPartViewModel to the view
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="jiraConfiguration">IJiraConfiguration</param>
+        /// <param name="jiraLanguage">IJiraLanguage</param>
+        /// <param name="fileConfigPartViewModel">FileConfigPartViewModel</param>
         public JiraConfigViewModel(
             IJiraConfiguration jiraConfiguration,
             IJiraLanguage jiraLanguage,
@@ -50,6 +68,7 @@ namespace Greenshot.Addon.Jira.ViewModels
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = JiraConfiguration;
@@ -71,6 +90,7 @@ namespace Greenshot.Addon.Jira.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

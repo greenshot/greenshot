@@ -22,11 +22,16 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Imgur.Configuration
 {
+	/// <summary>
+	/// Translations for the Imgur add-on
+	/// </summary>
 	[Language("Imgur")]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public interface IImgurLanguage : ILanguage
 	{
-		string Cancel { get; }
+#pragma warning disable 1591
+
+        string Cancel { get; }
 
 		string ClearQuestion { get; }
 

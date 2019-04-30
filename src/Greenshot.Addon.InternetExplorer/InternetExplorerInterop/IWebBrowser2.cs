@@ -18,20 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Runtime.InteropServices;
+#pragma warning disable 1591
 
 namespace Greenshot.Addon.InternetExplorer.InternetExplorerInterop
 {
-	// IWebBrowser: EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B
-//	[ComVisible(true), ComImport(), Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E"),
-//	 TypeLibType(TypeLibTypeFlags.FDual),
-//	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
-//	public interface IWebBrowser2  {
-//		[DispId(203)]
-//		object Document {
-//			[return: MarshalAs(UnmanagedType.IDispatch)]
-//			get;
-//		}
-//	}
+    /// <summary>
+    /// The IWebBrowser2 is used to communicate and automate Internet Explorer
+    /// </summary>
 	[ComImport]
 	[TypeLibType(TypeLibTypeFlags.FOleAutomation |
 	             TypeLibTypeFlags.FDual |

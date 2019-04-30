@@ -23,6 +23,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Ini.Converters;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addons.Core;
+#pragma warning disable 1591
 
 namespace Greenshot.Addon.Photobucket.Configuration
 {

@@ -37,6 +37,9 @@ namespace Greenshot.Addons.Interfaces.Forms
 		/// </summary>
 		ICaptureDetails CaptureDetails { get; }
 
+		/// <summary>
+		/// The surface for this editor
+		/// </summary>
 		ISurface Surface { get; set; }
 
 		/// <summary>

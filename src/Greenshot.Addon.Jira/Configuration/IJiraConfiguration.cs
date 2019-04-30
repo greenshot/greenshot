@@ -30,7 +30,8 @@ namespace Greenshot.Addon.Jira.Configuration
     [Description("Greenshot Jira Plugin configuration")]
 	public interface IJiraConfiguration : IIniSection, IDestinationFileConfiguration
 	{
-		[Description("Base url to Jira system, without anything else")]
+#pragma warning disable 1591
+        [Description("Base url to Jira system, without anything else")]
 		[DefaultValue("https://jira")]
 		string Url { get; set; }
 

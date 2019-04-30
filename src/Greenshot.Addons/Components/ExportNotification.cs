@@ -39,7 +39,7 @@ namespace Greenshot.Addons.Components
         private readonly Func<IDestination, ExportInformation, ISurface, IConfigScreen, Owned<ExportNotificationViewModel>> _toastFactory;
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="eventAggregator">IEventAggregator</param>

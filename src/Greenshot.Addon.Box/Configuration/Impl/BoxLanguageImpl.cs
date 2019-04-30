@@ -27,8 +27,9 @@ namespace Greenshot.Addon.Box.Configuration.Impl
     /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
 #pragma warning disable CS1591
-    public class BoxLanguageImpl : LanguageBase<IBoxLanguage>, IBoxLanguage
+    internal class BoxLanguageImpl : LanguageBase<IBoxLanguage>, IBoxLanguage
     {
+#pragma warning disable 1591
         public string CommunicationWait { get; }
         public string Configure { get; }
         public string LabelAfterUpload { get; }

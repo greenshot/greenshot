@@ -22,9 +22,13 @@ using System.Windows.Forms;
 
 namespace Greenshot.Addons.Controls
 {
-	public class GreenshotLabel : Label, IGreenshotLanguageBindable
+    /// <summary>
+    /// This is a System.Windows.Forms which has a language key for the translation
+    /// </summary>
+    public class GreenshotLabel : Label, IGreenshotLanguageBindable
 	{
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey { get; set; }

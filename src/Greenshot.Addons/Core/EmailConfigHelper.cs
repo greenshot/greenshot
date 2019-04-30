@@ -23,7 +23,7 @@ using Microsoft.Win32;
 namespace Greenshot.Addons.Core
 {
 	/// <summary>
-	///     Description of EmailConfigHelper.
+	/// Contains some helper functionality for MAPI
 	/// </summary>
 	public static class EmailConfigHelper
 	{
@@ -32,6 +32,10 @@ namespace Greenshot.Addons.Core
 		private const string MapiLocationKey = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
 		private const string MapiKey = @"MAPI";
 
+		/// <summary>
+		/// Retrieve the name of the installed MAPI client
+		/// </summary>
+		/// <returns></returns>
 		public static string GetMapiClient()
 		{
 			using (var key = Registry.CurrentUser.OpenSubKey(MapiClientKey, false))
@@ -47,7 +51,11 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
-		public static bool HasMapi()
+        /// <summary>
+        /// Check if a MAPI client is installed
+        /// </summary>
+        /// <returns>bool</returns>
+        public static bool HasMapi()
 		{
 			using (var key = Registry.LocalMachine.OpenSubKey(MapiLocationKey, false))
 			{
@@ -55,7 +63,11 @@ namespace Greenshot.Addons.Core
 			}
 		}
 
-		public static string GetOutlookExePath()
+        /// <summary>
+        /// Get the path of Outlook from the registry
+        /// </summary>
+        /// <returns>string</returns>
+        public static string GetOutlookExePath()
 		{
 			using (var key = Registry.LocalMachine.OpenSubKey(OutlookPathKey, false))
 			{

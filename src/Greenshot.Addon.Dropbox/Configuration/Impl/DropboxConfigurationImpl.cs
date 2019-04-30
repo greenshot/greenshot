@@ -25,8 +25,13 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Dropbox.Configuration.Impl
 {
+    /// <summary>
+    /// Implementation of the IDropboxConfiguration
+    /// </summary>
     public class DropboxConfigurationImpl : IniSectionBase<IDropboxConfiguration>, IDropboxConfiguration
     {
+#pragma warning disable 1591
+
         public string OutputFilePath { get; set; }
         public bool OutputFileAllowOverwrite { get; set; }
         public string OutputFileFilenamePattern { get; set; }

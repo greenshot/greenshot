@@ -209,7 +209,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// <returns>true if an filter intersects</returns>
 		public bool HasIntersectingFilters(NativeRect clipRectangle) {
 			foreach(var dc in this) {
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE) {
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.Idle) {
 					return true;
 				}
 			}
@@ -233,11 +233,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// <summary>
 		/// Triggers all elements in the list ot be redrawn.
 		/// </summary>
-		/// <param name="g">the to the bitmap related Graphics object</param>
+		/// <param name="graphics">the to the bitmap related Graphics object</param>
 		/// <param name="bitmap">IBitmapWithNativeSupport to draw</param>
 		/// <param name="renderMode">the rendermode in which the element is to be drawn</param>
 		/// <param name="clipRectangle"></param>
-		public void Draw(Graphics g, IBitmapWithNativeSupport bitmap, RenderMode renderMode, NativeRect clipRectangle) {
+		public void Draw(Graphics graphics, IBitmapWithNativeSupport bitmap, RenderMode renderMode, NativeRect clipRectangle) {
 			if (Parent == null)
 			{
 				return;
@@ -251,7 +251,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 				}
 				if (dc.DrawingBounds.IntersectsWith(clipRectangle))
 				{
-					dc.DrawContent(g, bitmap, renderMode, clipRectangle);
+					dc.DrawContent(graphics, bitmap, renderMode, clipRectangle);
 				}
 			}
 		}

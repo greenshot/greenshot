@@ -34,10 +34,21 @@ namespace Greenshot.Addons.ViewModels
         private IDestinationFileConfiguration _destinationFileConfiguration;
         private bool _useOwnSettings;
 
+        /// <summary>
+        /// Provide the ICoreConfiguration to the view
+        /// </summary>
         public ICoreConfiguration CoreConfiguration { get; }
 
+        /// <summary>
+        /// Provide the IGreenshotLanguage to the view
+        /// </summary>
         public IGreenshotLanguage GreenshotLanguage { get; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         public FileConfigPartViewModel(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage
@@ -69,6 +80,9 @@ namespace Greenshot.Addons.ViewModels
             }
         }
 
+        /// <summary>
+        /// Provide the IFileConfiguration to the view
+        /// </summary>
         public IFileConfiguration FileConfiguration => 
             DestinationFileConfiguration?.UseOwnSettings == true
             ? (IFileConfiguration)DestinationFileConfiguration

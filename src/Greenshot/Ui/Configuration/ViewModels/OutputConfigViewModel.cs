@@ -52,7 +52,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public FileConfigPartViewModel FileConfigPartViewModel { get; set; }
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>

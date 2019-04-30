@@ -29,6 +29,9 @@ using Greenshot.Core.Enums;
 
 namespace Greenshot.Addon.Confluence.ViewModels
 {
+    /// <summary>
+    /// View model for the confluence configuration
+    /// </summary>
     public sealed class ConfluenceConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
@@ -50,6 +53,7 @@ namespace Greenshot.Addon.Confluence.ViewModels
             GreenshotLanguage = greenshotLanguage;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -69,6 +73,7 @@ namespace Greenshot.Addon.Confluence.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

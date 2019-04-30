@@ -21,9 +21,13 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Confluence.Configuration
 {
+    /// <summary>
+    /// The translations for the Confluence add-on
+    /// </summary>
     [Language("Confluence")]
     public interface IConfluenceLanguage : ILanguage
     {
+#pragma warning disable 1591
         string PluginSettings { get; }
         string LoginError { get; }
         string LabelUrl { get; }

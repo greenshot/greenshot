@@ -21,10 +21,20 @@ using System.Drawing;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// The interface for an icon container
+	/// </summary>
 	public interface IIconContainer : IDrawableContainer
 	{
+		/// <summary>
+		/// The actual icon for the container
+		/// </summary>
 		Icon Icon { get; set; }
 
+        /// <summary>
+        /// Load an icon from a file into this container
+        /// </summary>
+        /// <param name="filename">string</param>
 		void Load(string filename);
 	}
 }

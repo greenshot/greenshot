@@ -42,7 +42,7 @@ namespace Greenshot.Destinations
 	    private readonly ExportNotification _exportNotification;
 
         /// <summary>
-        /// DI Constructor
+        /// DI constructor
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>

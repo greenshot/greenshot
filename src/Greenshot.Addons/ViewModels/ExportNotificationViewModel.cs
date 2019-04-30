@@ -40,6 +40,15 @@ namespace Greenshot.Addons.ViewModels
         private readonly IConfigScreen _configScreen;
         private static readonly LogSource Log = new LogSource();
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="source">IDestination</param>
+        /// <param name="exportInformation">ExportInformation</param>
+        /// <param name="exportedSurface">ISurface</param>
+        /// <param name="windowManager">IWindowManager</param>
+        /// <param name="configViewModel">Config</param>
+        /// <param name="configScreen">IConfigScreen</param>
         public ExportNotificationViewModel(
             IDestination source,
             ExportInformation exportInformation,
@@ -60,16 +69,34 @@ namespace Greenshot.Addons.ViewModels
             }
         }
 
+        /// <summary>
+        /// The greenshot icon
+        /// </summary>
         public ImageSource GreenshotIcon => GreenshotResources.Instance.GreenshotIconAsBitmapSource();
 
+        /// <summary>
+        /// The export as ImageSource
+        /// </summary>
         public ImageSource ExportBitmapSource { get; }
 
+        /// <summary>
+        /// Which destination exported this?
+        /// </summary>
         public IDestination Source { get; }
 
+        /// <summary>
+        /// Information on the export
+        /// </summary>
         public ExportInformation Information { get; }
 
+        /// <summary>
+        /// Can we configure this?
+        /// </summary>
         public bool CanConfigure => _configScreen != null;
 
+        /// <summary>
+        /// Trigger the configuration
+        /// </summary>
         public void Configure()
         {
             if (!CanConfigure)

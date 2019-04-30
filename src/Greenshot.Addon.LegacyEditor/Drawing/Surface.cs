@@ -637,9 +637,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				container.FieldChanged += Element_FieldChanged;
 			}
 			element.Parent = this;
-			if (element.Status == EditStatus.UNDRAWN)
+			if (element.Status == EditStatus.Undrawn)
 			{
-				element.Status = EditStatus.IDLE;
+				element.Status = EditStatus.Idle;
 			}
 			if (element.Selected)
 			{
@@ -914,7 +914,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				if (text != null)
 				{
 					DeselectAllElements();
-					var textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.CENTER,
+					var textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.Center,
 						FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Black, Color.Transparent);
 					SelectElement(textContainer);
 				}
@@ -1229,7 +1229,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			_undrawnElement.Top = cropRectangle.Y;
 			_undrawnElement.Width = cropRectangle.Width;
 			_undrawnElement.Height = cropRectangle.Height;
-			_undrawnElement.Status = EditStatus.UNDRAWN;
+			_undrawnElement.Status = EditStatus.Undrawn;
 			AddElement(_undrawnElement);
 			SelectElement(_undrawnElement);
 			_drawingElement = null;
@@ -1454,7 +1454,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 				if (_mouseDownElement != null)
 				{
-					_mouseDownElement.Status = EditStatus.MOVING;
+					_mouseDownElement.Status = EditStatus.Moving;
 				}
 			}
 		}
@@ -1476,10 +1476,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 			var currentMouse = new NativePoint(e.X, e.Y);
 
-			_elements.Status = EditStatus.IDLE;
+			_elements.Status = EditStatus.Idle;
 			if (_mouseDownElement != null)
 			{
-				_mouseDownElement.Status = EditStatus.IDLE;
+				_mouseDownElement.Status = EditStatus.Idle;
 			}
 			_mouseDown = false;
 			_mouseDownElement = null;

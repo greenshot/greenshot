@@ -19,6 +19,9 @@
 
 namespace Greenshot.Addons.Controls
 {
+	/// <summary>
+	/// Specifies that a control can be bound to a configuration value
+	/// </summary>
 	public interface IGreenshotConfigBindable
 	{
 		/// <summary>

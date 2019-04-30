@@ -19,27 +19,61 @@
 
 namespace Greenshot.Addons.Interfaces
 {
+	/// <summary>
+	/// This contains information about an export
+	/// </summary>
 	public class ExportInformation
 	{
-		public ExportInformation(string destinationDesignation, string destinationDescription)
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        /// <param name="destinationDesignation">string</param>
+        /// <param name="destinationDescription">string</param>
+        public ExportInformation(string destinationDesignation, string destinationDescription)
 		{
 			DestinationDesignation = destinationDesignation;
 			DestinationDescription = destinationDescription;
 		}
 
-		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade) : this(destinationDesignation, destinationDescription)
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        /// <param name="destinationDesignation">string</param>
+        /// <param name="destinationDescription">string</param>
+        /// <param name="exportMade">bool</param>
+        public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade) : this(destinationDesignation, destinationDescription)
 		{
 			ExportMade = exportMade;
 		}
 
+	    /// <summary>
+	    /// Was there an error in this export?
+	    /// </summary>
 	    public bool IsError => !string.IsNullOrEmpty(ErrorMessage);
+
+        /// <summary>
+        /// Was there not an error in tthishe export?
+        /// </summary>
 	    public bool IsOk => string.IsNullOrEmpty(ErrorMessage);
 
+        /// <summary>
+        /// Did we export to file?
+        /// </summary>
         public bool IsFileExport => !string.IsNullOrEmpty(Filepath);
+
+        /// <summary>
+        /// Did we export to a "cloud" service?
+        /// </summary>
 	    public bool IsCloudExport => !string.IsNullOrEmpty(Uri);
 
+        /// <summary>
+        /// What is the designation of the destination this was exported to?
+        /// </summary>
         public string DestinationDesignation { get; }
 
+        /// <summary>
+        /// What is the description of the destination
+        /// </summary>
 		public string DestinationDescription { get; set; }
 
 		/// <summary>
@@ -47,10 +81,19 @@ namespace Greenshot.Addons.Interfaces
 		/// </summary>
 		public bool ExportMade { get; set; }
 
+		/// <summary>
+		/// The uri where the export can be found
+		/// </summary>
 		public string Uri { get; set; }
 
+        /// <summary>
+        /// The error message when an error occured
+        /// </summary>
 		public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// The path to the file where the export can be found
+        /// </summary>
 		public string Filepath { get; set; }
 	}
 }

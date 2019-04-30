@@ -27,8 +27,9 @@ namespace Greenshot.Addon.Confluence.Configuration.Impl
     /// </summary>
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
 #pragma warning disable CS1591
-    public class ConfluenceLanguageImpl : LanguageBase<IConfluenceLanguage>, IConfluenceLanguage
+    internal class ConfluenceLanguageImpl : LanguageBase<IConfluenceLanguage>, IConfluenceLanguage
     {
+#pragma warning disable 1591
         public string PluginSettings { get; }
         public string LoginError { get; }
         public string LabelUrl { get; }

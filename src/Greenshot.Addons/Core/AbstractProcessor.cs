@@ -21,12 +21,13 @@ using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addons.Core
 {
-	/// <summary>
-	///     Description of AbstractProcessor.
-	/// </summary>
-	public abstract class AbstractProcessor : IProcessor
+    /// <summary>
+    /// This implements a basic IProcessor
+    /// </summary>
+    public abstract class AbstractProcessor : IProcessor
 	{
-		public virtual int CompareTo(object obj)
+        /// <inheritdoc />
+        public virtual int CompareTo(object obj)
 		{
             if (!(obj is IProcessor other))
             {
@@ -39,21 +40,31 @@ namespace Greenshot.Addons.Core
 			return Priority - other.Priority;
 		}
 
-		public abstract string Designation { get; }
+        /// <inheritdoc />
+        public abstract string Designation { get; }
 
-		public abstract string Description { get; }
+        /// <inheritdoc />
+        public abstract string Description { get; }
 
-		public virtual int Priority => 10;
+        /// <inheritdoc />
+        public virtual int Priority => 10;
 
-	    public void Dispose()
+        /// <inheritdoc />
+        public void Dispose()
 		{
 			Dispose(true);
 		}
 
-		public virtual bool IsActive => true;
+        /// <inheritdoc />
+        public virtual bool IsActive => true;
 
-	    public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+        /// <inheritdoc />
+        public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
 
+		/// <summary>
+		/// Override this to have dispose functionality
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
 		{
 			//if (disposing) {}

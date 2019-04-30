@@ -35,11 +35,14 @@ namespace Greenshot.Processors
             _coreConfiguration = coreConfiguration;
         }
 
-		public override string Designation => "TitleFix";
+        /// <inheritdoc />
+        public override string Designation => "TitleFix";
 
-		public override string Description => Designation;
+        /// <inheritdoc />
+        public override string Description => Designation;
 
-		public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        /// <inheritdoc />
+        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
 		{
 			var changed = false;
 			var title = captureDetails.Title;

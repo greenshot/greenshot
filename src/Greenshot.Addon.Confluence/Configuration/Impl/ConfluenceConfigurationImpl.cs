@@ -24,6 +24,7 @@ namespace Greenshot.Addon.Confluence.Configuration.Impl
 {
     internal class ConfluenceConfigurationImpl : IniSectionBase<IConfluenceConfiguration>, IConfluenceConfiguration
     {
+#pragma warning disable 1591
         public string Url { get; set; }
         public int Timeout { get; set; }
         public OutputFormats UploadFormat { get; set; }

@@ -124,6 +124,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _metroThemeManager.ChangeTheme(MetroConfiguration.Theme, MetroConfiguration.ThemeColor);
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             // Prepare disposables
@@ -167,6 +168,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

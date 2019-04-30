@@ -22,13 +22,23 @@ using System.Windows.Forms;
 
 namespace Greenshot.Helpers
 {
-	public class WindowWrapper : IWin32Window
+    /// <summary>
+    /// This is a little wrapper around an IntPtr with a Window handle, it implements IWin32Window
+    /// </summary>
+    public class WindowWrapper : IWin32Window
 	{
-		public WindowWrapper(IntPtr handle)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="handle">IntPtr</param>
+        public WindowWrapper(IntPtr handle)
 		{
 			Handle = handle;
 		}
 
+		/// <summary>
+		/// The hwnd
+		/// </summary>
 		public IntPtr Handle { get; }
 	}
 }

@@ -36,12 +36,27 @@ namespace Greenshot.Addon.Dropbox.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide IDropboxConfiguration to the view
+        /// </summary>
         public IDropboxConfiguration DropboxConfiguration { get; set; }
 
+        /// <summary>
+        /// Provide IDropboxLanguage to the view
+        /// </summary>
         public IDropboxLanguage DropboxLanguage { get; set; }
 
+        /// <summary>
+        /// Provide FileConfigPartViewModel to the view
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; private set; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="dropboxConfiguration">IDropboxConfiguration</param>
+        /// <param name="dropboxLanguage">IDropboxLanguage</param>
+        /// <param name="fileConfigPartViewModel">FileConfigPartViewModel</param>
         public DropboxConfigViewModel(
             IDropboxConfiguration dropboxConfiguration,
             IDropboxLanguage dropboxLanguage,
@@ -53,6 +68,7 @@ namespace Greenshot.Addon.Dropbox.ViewModels
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = DropboxConfiguration;
@@ -75,6 +91,7 @@ namespace Greenshot.Addon.Dropbox.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

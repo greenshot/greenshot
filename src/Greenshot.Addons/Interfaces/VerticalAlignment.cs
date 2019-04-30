@@ -20,13 +20,21 @@
 namespace Greenshot.Addons.Interfaces
 {
 	/// <summary>
-	///     Alignment Enums for possitioning
+	///     Alignment for positioning
 	/// </summary>
-	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
 	public enum VerticalAlignment
 	{
-		TOP,
-		CENTER,
-		BOTTOM
+		/// <summary>
+		/// Align at the top
+		/// </summary>
+		Top,
+        /// <summary>
+        /// Align in the center
+        /// </summary>
+		Center,
+        /// <summary>
+        /// Align at the bottom
+        /// </summary>
+		Bottom
 	}
 }

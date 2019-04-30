@@ -42,7 +42,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		protected override void InitializeFields()
 		{
 			base.InitializeFields();
-			AddField(GetType(), FieldTypes.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
+			AddField(GetType(), FieldTypes.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TextHightlight);
 		}
 
 		protected override void OnDeserialized(StreamingContext context)
@@ -77,10 +77,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 			switch (preset)
 			{
-				case PreparedFilter.TEXT_HIGHTLIGHT:
+				case PreparedFilter.TextHightlight:
 					Add(new HighlightFilter(this, _editorConfiguration));
 					break;
-				case PreparedFilter.AREA_HIGHLIGHT:
+				case PreparedFilter.AreaHighlight:
 					var brightnessFilter = new BrightnessFilter(this, _editorConfiguration)
 					{
 						Invert = true
@@ -92,14 +92,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					};
 					Add(blurFilter);
 					break;
-				case PreparedFilter.GRAYSCALE:
+				case PreparedFilter.Grayscale:
                     AbstractFilter f = new GrayscaleFilter(this, _editorConfiguration)
                     {
                         Invert = true
                     };
                     Add(f);
 					break;
-				case PreparedFilter.MAGNIFICATION:
+				case PreparedFilter.Magnification:
 					Add(new MagnifierFilter(this, _editorConfiguration));
 					break;
 			}

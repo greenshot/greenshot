@@ -65,7 +65,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void InitializeFields()
 		{
-			AddField(GetType(), FieldTypes.FLAGS, FieldFlag.CONFIRMABLE);
+			AddField(GetType(), FieldTypes.FLAGS, FieldFlag.Confirmable);
 		}
 
 		public override void Invalidate()

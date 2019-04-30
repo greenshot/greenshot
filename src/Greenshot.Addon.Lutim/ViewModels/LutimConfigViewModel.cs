@@ -36,10 +36,27 @@ namespace Greenshot.Addon.Lutim.ViewModels
         /// </summary>
         private CompositeDisposable _disposables;
 
+        /// <summary>
+        /// Provide ILutimConfiguration to the view
+        /// </summary>
         public ILutimConfiguration LutimConfiguration { get; }
+
+        /// <summary>
+        /// Provide ILutimLanguage to the view
+        /// </summary>
         public ILutimLanguage LutimLanguage { get; }
+
+        /// <summary>
+        /// Provide FileConfigPartViewModel to the view
+        /// </summary>
         public FileConfigPartViewModel FileConfigPartViewModel { get; }
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="lutimConfiguration">ILutimConfiguration</param>
+        /// <param name="lutimLanguage">ILutimLanguage</param>
+        /// <param name="fileConfigPartViewModel">FileConfigPartViewModel</param>
         public LutimConfigViewModel(
             ILutimConfiguration lutimConfiguration,
             ILutimLanguage lutimLanguage,
@@ -50,6 +67,7 @@ namespace Greenshot.Addon.Lutim.ViewModels
             FileConfigPartViewModel = fileConfigPartViewModel;
         }
 
+        /// <inheritdoc />
         public override void Initialize(IConfig config)
         {
             FileConfigPartViewModel.DestinationFileConfiguration = LutimConfiguration;
@@ -72,6 +90,7 @@ namespace Greenshot.Addon.Lutim.ViewModels
             base.Initialize(config);
         }
 
+        /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
             _disposables.Dispose();

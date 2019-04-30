@@ -21,15 +21,27 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Tfs.Entities
 {
+    /// <summary>
+    /// Work item fields
+    /// </summary>
     [JsonObject]
     public class WorkItemFields
     {
+        /// <summary>
+        /// Title of the work item
+        /// </summary>
         [JsonProperty("System.Title")]
         public string Title { get; set; }
 
+        /// <summary>
+        /// Type for the work item
+        /// </summary>
         [JsonProperty("System.WorkItemType")]
         public string WorkItemType { get; set; }
 
+        /// <summary>
+        /// State of the work item
+        /// </summary>
         [JsonProperty("System.State")]
         public string State { get; set; }
     }

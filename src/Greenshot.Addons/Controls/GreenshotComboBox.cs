@@ -34,23 +34,33 @@ namespace Greenshot.Addons.Controls
 	    private Type _enumType;
 		private Enum _selectedEnum;
 
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		/// <param name="language"></param>
 		public GreenshotComboBox(ILanguage language)
 		{
 		    _language = language;
 		    SelectedIndexChanged += (sender, args) => StoreSelectedEnum();
 		}
 
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue("Core")]
 		[Description("Specifies the Ini-Section to map this control with.")]
 		public string SectionName { get; set; } = "Core";
 
-		[Category("Greenshot")]
+        /// <inheritdoc />
+        [Category("Greenshot")]
 		[DefaultValue(null)]
 		[Description("Specifies the property name to map the configuration.")]
 		public string PropertyName { get; set; }
 
-		public void SetValue(Enum currentValue)
+        /// <summary>
+        /// Set the value
+        /// </summary>
+        /// <param name="currentValue">Enum</param>
+        public void SetValue(Enum currentValue)
 		{
 		    if (currentValue == null)
 		    {
@@ -71,7 +81,7 @@ namespace Greenshot.Addons.Controls
 		}
 
 		/// <summary>
-		///     This is a method to popululate the ComboBox
+		///     This is a method to populate the ComboBox
 		///     with the items from the enumeration
 		/// </summary>
 		/// <param name="enumType">TEnum to populate with</param>

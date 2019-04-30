@@ -19,6 +19,9 @@
 
 namespace Greenshot.Addon.OneDrive
 {
+    /// <summary>
+    /// Defines the type of link in the one-drive export
+    /// </summary>
     public enum OneDriveLinkType
     {
         @private,//only user can access

@@ -86,8 +86,8 @@ namespace Greenshot.Addon.LegacyEditor
                             case var fieldFlagType when fieldType.ValueType == typeof(FieldFlag):
                                 fieldValue = Enum.Parse(typeof(FieldFlag), preferredStringValue, true);
                                 break;
-                            case var preparedFilterType when fieldType.ValueType == typeof(FilterContainer.PreparedFilter):
-                                fieldValue = Enum.Parse(typeof(FilterContainer.PreparedFilter), preferredStringValue, true);
+                            case var preparedFilterType when fieldType.ValueType == typeof(PreparedFilter):
+                                fieldValue = Enum.Parse(typeof(PreparedFilter), preferredStringValue, true);
                                 break;
                             case var arrowHeadCombinationType when fieldType.ValueType == typeof(ArrowContainer.ArrowHeadCombination):
                                 fieldValue = Enum.Parse(typeof(ArrowContainer.ArrowHeadCombination), preferredStringValue, true);

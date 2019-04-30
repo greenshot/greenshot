@@ -21,10 +21,20 @@ using System.Windows.Forms;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// Interface for a cursor container
+	/// </summary>
 	public interface ICursorContainer : IDrawableContainer
 	{
+		/// <summary>
+		/// This is the cursor
+		/// </summary>
 		Cursor Cursor { get; set; }
 
+        /// <summary>
+        /// Load a cursor into this container
+        /// </summary>
+        /// <param name="filename">string</param>
 		void Load(string filename);
 	}
 }

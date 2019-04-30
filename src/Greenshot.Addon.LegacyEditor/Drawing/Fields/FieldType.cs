@@ -41,12 +41,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 	    /// </summary>
 	    public Type ValueType { get; }= typeof(T);
 
-	    public override string ToString()
+        /// <inheritdoc />
+        public override string ToString()
 		{
 			return Name;
 		}
 
-		public override int GetHashCode()
+        /// <inheritdoc />
+        public override int GetHashCode()
 		{
 			var hashCode = 0;
 			unchecked
@@ -59,7 +61,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 			return hashCode;
 		}
 
-		public override bool Equals(object obj)
+        /// <inheritdoc />
+        public override bool Equals(object obj)
 		{
 			var other = obj as FieldType<T>;
 			if (other == null)
@@ -69,12 +72,24 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 			return Equals(Name, other.Name);
 		}
 
-		public static bool operator ==(FieldType<T> a, FieldType<T> b)
+        /// <summary>
+        /// Implements a equals operator
+        /// </summary>
+        /// <param name="a">FieldType</param>
+        /// <param name="b">FieldType</param>
+        /// <returns>bool</returns>
+        public static bool operator ==(FieldType<T> a, FieldType<T> b)
 		{
 			return Equals(a, b);
 		}
 
-		public static bool operator !=(FieldType<T> a, FieldType<T> b)
+        /// <summary>
+        /// Implements a not equals operator
+        /// </summary>
+        /// <param name="a">FieldType</param>
+        /// <param name="b">FieldType</param>
+        /// <returns>bool</returns>
+        public static bool operator !=(FieldType<T> a, FieldType<T> b)
 		{
 			return !Equals(a, b);
 		}

@@ -21,10 +21,21 @@ using System.Drawing.Imaging;
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// This is the interface for a meta-file container (wmf)
+	/// This is obsolete??
+	/// </summary>
 	public interface IMetafileContainer : IDrawableContainer
 	{
+		/// <summary>
+		/// The actual meta file
+		/// </summary>
 		Metafile Metafile { get; set; }
 
+        /// <summary>
+        /// Load a meta file into this container
+        /// </summary>
+        /// <param name="filename"></param>
 		void Load(string filename);
 	}
 }

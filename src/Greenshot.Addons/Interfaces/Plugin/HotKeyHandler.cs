@@ -19,5 +19,8 @@
 
 namespace Greenshot.Addons.Interfaces.Plugin
 {
+	/// <summary>
+	/// This defines a hotkey handler
+	/// </summary>
 	public delegate void HotKeyHandler();
 }

@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		protected override void InitializeFields()
 		{
 			base.InitializeFields();
-			AddField(GetType(), FieldTypes.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
+			AddField(GetType(), FieldTypes.PREPARED_FILTER_OBFUSCATE, PreparedFilter.Pixelize);
 		}
 
 		protected override void OnDeserialized(StreamingContext context)
@@ -74,10 +74,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			}
 			switch (preset)
 			{
-				case PreparedFilter.BLUR:
+				case PreparedFilter.Blur:
 					Add(new BlurFilter(this, _editorConfiguration));
 					break;
-				case PreparedFilter.PIXELIZE:
+				case PreparedFilter.Pixelize:
 					Add(new PixelizationFilter(this, _editorConfiguration));
 					break;
 			}

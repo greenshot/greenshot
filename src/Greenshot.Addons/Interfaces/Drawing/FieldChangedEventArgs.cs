@@ -26,11 +26,18 @@ namespace Greenshot.Addons.Interfaces.Drawing
 	/// </summary>
 	public class FieldChangedEventArgs : EventArgs
 	{
-		public FieldChangedEventArgs(IField field)
+        /// <summary>
+        /// Constructor for the event args
+        /// </summary>
+        /// <param name="field">IField</param>
+        public FieldChangedEventArgs(IField field)
 		{
 			Field = field;
 		}
 
-		public IField Field { get; private set; }
+		/// <summary>
+		/// Field which is changed
+		/// </summary>
+		public IField Field { get; }
 	}
 }

@@ -19,10 +19,19 @@
 
 namespace Greenshot.Addons.Interfaces.Drawing
 {
+	/// <summary>
+	/// This is the interface for a text container
+	/// </summary>
 	public interface ITextContainer : IDrawableContainer
 	{
+		/// <summary>
+		/// The actual text to display
+		/// </summary>
 		string Text { get; set; }
 
+		/// <summary>
+		/// Fit the container to the text
+		/// </summary>
 		void FitToText();
 	}
 }

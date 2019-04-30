@@ -27,14 +27,15 @@ using Greenshot.Addons.Core;
 namespace Greenshot.Addon.GooglePhotos.Configuration
 {
 	/// <summary>
-	///     Description of GooglePhotosConfiguration.
+	///     Configuration for the google photos add-on
 	/// </summary>
 	[IniSection("GooglePhotos")]
 	[Description("Greenshot Google Photos Plugin configuration")]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
     public interface IGooglePhotosConfiguration : IIniSection, IDestinationFileConfiguration, IOAuth2Token
     {
-		[Description("After upload send Google Photos link to clipboard.")]
+#pragma warning disable 1591
+        [Description("After upload send Google Photos link to clipboard.")]
 		[DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard { get; set; }
 

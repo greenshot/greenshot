@@ -23,27 +23,49 @@ using Greenshot.Addons.Components;
 
 namespace Greenshot.Addons.Interfaces
 {
-	//, Video };
-
 	/// <summary>
 	///     Details for the capture, like the window title and date/time etc.
 	/// </summary>
 	public interface ICaptureDetails
 	{
+		/// <summary>
+		/// The filename for the capture
+		/// </summary>
 		string Filename { get; set; }
 
+        /// <summary>
+        /// Title of the capture
+        /// </summary>
 		string Title { get; set; }
 
+        /// <summary>
+        /// Date and time when the capture was taken
+        /// </summary>
 		DateTime DateTime { get; set; }
 
+        /// <summary>
+        /// A list of destinations (TODO: to what end?
+        /// </summary>
 		List<IDestination> CaptureDestinations { get; set; }
 
+        /// <summary>
+        /// Meta data for the capture
+        /// </summary>
 		Dictionary<string, string> MetaData { get; }
 
+        /// <summary>
+        /// What mode the capture was taken with
+        /// </summary>
 		CaptureMode CaptureMode { get; set; }
 
+        /// <summary>
+        /// DPI-X settings for the capture
+        /// </summary>
 		float DpiX { get; set; }
 
+        /// <summary>
+        /// DPI-Y settings for the capture
+        /// </summary>
 		float DpiY { get; set; }
 
 		/// <summary>
@@ -53,9 +75,28 @@ namespace Greenshot.Addons.Interfaces
 		/// <param name="value">The value for the meta-data</param>
 		void AddMetaData(string key, string value);
 
+        /// <summary>
+        /// Clear all destinations
+        /// </summary>
 		void ClearDestinations();
+
+        /// <summary>
+        /// Remove a destination
+        /// </summary>
+        /// <param name="captureDestination"></param>
 		void RemoveDestination(IDestination captureDestination);
+
+        /// <summary>
+        /// Add a destination
+        /// </summary>
+        /// <param name="captureDestination"></param>
 		void AddDestination(IDestination captureDestination);
+
+        /// <summary>
+        /// Is a certain destination available?
+        /// </summary>
+        /// <param name="designation">string</param>
+        /// <returns>bool</returns>
 		bool HasDestination(string designation);
 	}
 }

@@ -21,10 +21,14 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Dropbox.Configuration
 {
+    /// <summary>
+    /// Translations for the dropbox add-on
+    /// </summary>
 	[Language("Dropbox")]
 	public interface IDropboxLanguage : ILanguage
 	{
-		string CommunicationWait { get; }
+#pragma warning disable 1591
+        string CommunicationWait { get; }
 
 		string Configure { get; }
 

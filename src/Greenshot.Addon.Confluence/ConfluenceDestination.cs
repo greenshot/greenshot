@@ -98,9 +98,13 @@ namespace Greenshot.Addon.Confluence
 	        _page = page;
 	    }
 
+        /// <summary>
+        /// Is the destination initialized?
+        /// </summary>
         public static bool IsInitialized { get; private set; }
 
-	    public override string Description
+        /// <inheritdoc />
+        public override string Description
 		{
 			get
 			{
@@ -112,9 +116,11 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-		public override bool IsDynamic => true;
+        /// <inheritdoc />
+        public override bool IsDynamic => true;
 
-	    public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(_confluenceConfiguration.Url);
+        /// <inheritdoc />
+        public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(_confluenceConfiguration.Url);
 
 	    public override IBitmapWithNativeSupport DisplayIcon => ConfluenceIcon;
 
@@ -131,7 +137,8 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-	    protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        /// <inheritdoc />
+        protected override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// force password check to take place before the pages load

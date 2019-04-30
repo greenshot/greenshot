@@ -707,9 +707,9 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldTypes.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldTypes.SHADOW);
                 counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldTypes.FLAGS)
-                                                               && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
+                                                               && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.Counter) == FieldFlag.Counter;
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldTypes.FLAGS)
-                                                         && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                                                         && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.Confirmable) == FieldFlag.Confirmable;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldTypes.PREPARED_FILTER_OBFUSCATE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldTypes.PREPARED_FILTER_HIGHLIGHT);
@@ -749,7 +749,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             var props = _surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
             // since we demand confirmation or cancel for confirmable element
-            if (props.HasFieldValue(FieldTypes.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
+            if (props.HasFieldValue(FieldTypes.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldTypes.FLAGS) & FieldFlag.Confirmable) == FieldFlag.Confirmable)
             {
                 // disable most controls
                 if (!_controlsDisabledDueToConfirmable)

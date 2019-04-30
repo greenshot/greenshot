@@ -45,6 +45,9 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Addon.Dropbox
 {
+    /// <summary>
+    /// This is the destination implementation to export to dropbox
+    /// </summary>
     [Destination("Dropbox")]
     public sealed class DropboxDestination : AbstractDestination
 	{
@@ -60,7 +63,18 @@ namespace Greenshot.Addon.Dropbox
 	    private OAuth2Settings _oAuth2Settings;
 	    private IHttpBehaviour _oAuthHttpBehaviour;
 
-	    public DropboxDestination(
+        /// <summary>
+        /// DI Coonstructor
+        /// </summary>
+        /// <param name="dropboxPluginConfiguration">IDropboxConfiguration</param>
+        /// <param name="dropboxLanguage">IDropboxLanguage</param>
+        /// <param name="httpConfiguration">IHttpConfiguration</param>
+        /// <param name="resourceProvider">IResourceProvider</param>
+        /// <param name="coreConfiguration">ICoreConfiguration</param>
+        /// <param name="greenshotLanguage">IGreenshotLanguage</param>
+        /// <param name="exportNotification">ExportNotification</param>
+        /// <param name="pleaseWaitFormFactory">Func</param>
+        public DropboxDestination(
 	        IDropboxConfiguration dropboxPluginConfiguration,
 	        IDropboxLanguage dropboxLanguage,
 	        IHttpConfiguration httpConfiguration,
@@ -105,6 +119,7 @@ namespace Greenshot.Addon.Dropbox
 	        httpBehaviour.HttpSettings = httpConfiguration;
         }
 
+        /// <inheritdoc />
         public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
@@ -117,9 +132,11 @@ namespace Greenshot.Addon.Dropbox
             }
 		}
 
-		public override string Description => _dropboxLanguage.UploadMenuItem;
+        /// <inheritdoc />
+        public override string Description => _dropboxLanguage.UploadMenuItem;
 
-	    public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        /// <inheritdoc />
+        public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 		    var uploadUrl = await UploadAsync(surface).ConfigureAwait(true);

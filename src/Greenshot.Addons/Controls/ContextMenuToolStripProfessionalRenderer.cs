@@ -32,6 +32,10 @@ namespace Greenshot.Addons.Controls
 	{
 	    private readonly ICoreConfiguration _coreConfiguration;
 
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="coreConfiguration"></param>
         public ContextMenuToolStripProfessionalRenderer(ICoreConfiguration coreConfiguration)
         {
             _coreConfiguration = coreConfiguration;
@@ -39,7 +43,9 @@ namespace Greenshot.Addons.Controls
 
         private IBitmapWithNativeSupport _scaledCheckbox;
 		private bool _newImage;
-		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
+
+        /// <inheritdoc />
+        protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{
 			if (_scaledCheckbox == null || (NativeSize)_scaledCheckbox.Size != _coreConfiguration.IconSize)
 			{
