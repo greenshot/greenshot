@@ -819,11 +819,16 @@ namespace Greenshot.Forms
         /// </summary>
         public void ShowSetting()
         {
-            using(var ownedConfigViewModel = _configViewModelFactory())
+            var lang = _coreConfiguration.Language;
+            using (var ownedConfigViewModel = _configViewModelFactory())
             {
                 _windowManager.ShowDialog(ownedConfigViewModel.Value);
             }
-            InitializeQuickSettingsMenu();
+            if (!Equals(lang, _coreConfiguration.Language))
+            {
+                ApplyLanguage();
+                InitializeQuickSettingsMenu();
+            }
         }
 
         /// <summary>

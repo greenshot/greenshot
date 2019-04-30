@@ -21,10 +21,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
+using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Config.Intercepting;
+using Dapplo.Config.Language;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
@@ -36,6 +38,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
     public sealed class UiConfigViewModel : SimpleConfigScreen
     {
         private readonly MetroThemeManager _metroThemeManager;
+        private readonly LanguageContainer _languageContainer;
 
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -57,17 +60,16 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         // TODO: Fix
-        public IDictionary<string, string> AvailableLanguages => new Dictionary<string, string>();//LanguageLoader.Current.AvailableLanguages;
+        public IDictionary<string, string> AvailableLanguages { get; }
 
         /// <summary>
         ///     Can the login button be pressed?
         /// </summary>
         // TODO: Fix
         public bool CanChangeLanguage
-            => !string.IsNullOrWhiteSpace(CoreConfiguration.Language); // && CoreConfiguration.Language != LanguageLoader.Current.CurrentLanguage;
+            => !string.IsNullOrWhiteSpace(CoreConfiguration.Language) && CoreConfiguration.Language != _languageContainer.CurrentLanguage;
 
         public IMetroConfiguration MetroConfiguration { get; }
-
         public IConfigTranslations ConfigTranslations { get; }
 
         public ICoreConfiguration CoreConfiguration { get; }
@@ -87,10 +89,13 @@ namespace Greenshot.Ui.Configuration.ViewModels
             IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations,
             IMetroConfiguration metroConfiguration,
-            MetroThemeManager metroThemeManager
+            MetroThemeManager metroThemeManager,
+            LanguageContainer languageContainer
             )
         {
+            AvailableLanguages = languageContainer.AvailableLanguages;
             _metroThemeManager = metroThemeManager;
+            _languageContainer = languageContainer;
             CoreConfiguration = coreConfiguration;
             GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;
@@ -105,8 +110,8 @@ namespace Greenshot.Ui.Configuration.ViewModels
             MetroConfiguration.CommitTransaction();
 
             CoreConfiguration.CommitTransaction();
-            // TODO: Fix
-            //Execute.OnUIThread(async () => { await LanguageLoader.Current.ChangeLanguageAsync(CoreConfiguration.Language).ConfigureAwait(false); });
+            Execute.OnUIThread(async () => {
+                await _languageContainer.ChangeLanguageAsync(CoreConfiguration.Language).ConfigureAwait(false); });
 
         }
 

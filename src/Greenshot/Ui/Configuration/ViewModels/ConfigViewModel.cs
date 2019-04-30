@@ -20,13 +20,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Autofac.Features.OwnedInstances;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.Config.Language;
 using Greenshot.Addons;
+using Greenshot.Addons.Core;
 using Greenshot.Configuration;
 using Greenshot.Ui.Notifications.ViewModels;
 using MahApps.Metro.IconPacks;
@@ -60,9 +63,11 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public IConfigTranslations ConfigTranslations { get; }
 
         public ConfigViewModel(
+            ICoreConfiguration coreConfiguration,
             IEnumerable<Lazy<IConfigScreen>> configScreens,
             IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations,
+            LanguageContainer languageContainer,
             Func<Owned<UpdateNotificationViewModel>> updateNotificationViewModelFactory
             )
         {
@@ -73,9 +78,8 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // automatically update the DisplayName
             GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
 
-            // TODO: Check if we need to set the current language (this should update all registered OnPropertyChanged anyway, so it can run in the background
-            //var lang = demoConfiguration.Language;
-            //Task.Run(async () => await LanguageLoader.Current.ChangeLanguageAsync(lang).ConfigureAwait(false));
+            var lang = coreConfiguration.Language;
+            Task.Run(async () => await languageContainer.ChangeLanguageAsync(lang).ConfigureAwait(false));
         }
 
         /// <summary>

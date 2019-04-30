@@ -359,6 +359,7 @@ namespace Greenshot.Forms
                     case Keys.E:
                         var info = new StringBuilder(EnvironmentInfo.EnvironmentToString(true));
                         var screenboundsSize = DisplayInfo.ScreenBounds.Size;
+                        info.AppendLine();
                         info.AppendFormat("Screen: {0} at {1}%", $"{screenboundsSize.Width} x {screenboundsSize.Height}", FormDpiHandler.ScaleWithCurrentDpi(100));
                         MessageBox.Show(info.ToString(), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;

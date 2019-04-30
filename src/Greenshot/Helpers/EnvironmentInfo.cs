@@ -156,13 +156,6 @@ namespace Greenshot.Helpers
 			{
 				environment.AppendLine();
 			}
-			else
-			{
-				environment.Append(", ");
-			}
-			// TODO: Is this needed?
-			// environment.AppendFormat("Surface count: {0}", Surface.Count);
-
 			return environment.ToString();
 		}
 
