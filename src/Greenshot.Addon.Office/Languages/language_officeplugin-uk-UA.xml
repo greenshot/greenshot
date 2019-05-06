@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources prefix="Office">
+    <resource name="settings_title">Налаштування Office</resource>
+    <resource name="word_lockaspect">Фіксувати співвідношення сторін зображення при експорті у Word</resource>
+    <resource name="outlook_allowmeetings">Дозволити експорт до зустрічей</resource>
+    <resource name="outlook_subject_pattern">Шаблон для теми Outlook</resource>
+    <resource name="outlook_email_format">Формат для нових повідомлень е-пошти</resource>
+    <resource name="outlook_email_include_signature">Вставляти типовий підпис для новий повідомлень</resource>
+    <resource name="outlook_emailto">Типова адреса Кому</resource>
+    <resource name="outlook_emailcc">Типова адреса Копія</resource>
+    <resource name="outlook_emailbcc">Типова адреса Прихована копія</resource>
+    <resource name="powerpoint_slide_layout">Макет слайду для експорту</resource>
+    <resource name="powerpoint_lockaspect">Фіксувати співвідношення сторін зображення при експорті у PowerPoint</resource>
+  </resources>
+</language>
