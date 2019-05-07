@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+    <resources prefix="OneDrive">
+        <resource name="communication_wait">З’єднання з OneDrive. Будь ласка, зачекайте...</resource>
+        <resource name="label_link_type">Тип посилання</resource>
+        <resource name="settings_title">Налаштування OneDrive</resource>
+        <resource name="upload_failure">Під час вивантаження на OneDrive сталася помилка:</resource>
+        <resource name="upload_menu_item">Вивантажити на OneDrive</resource>
+        <resource name="label_url">URL-адреса</resource>
+        <resource name="reset_credentials_button">Скинути облікові дані OneDrive</resource>
+    </resources>
+</language>

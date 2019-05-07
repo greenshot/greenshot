@@ -1,20 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Lutim">
-	<resource name="upload_menu_item">Вивантажити на Lutim</resource>
-	<resource name="settings_title">Параметри Lutim</resource>
-	<resource name="label_url">Посилання</resource>
-	<resource name="OK">Гаразд</resource>
-	<resource name="CANCEL">Скасувати</resource>
-	<resource name="upload_success">Зображення вдало вивантажено на Lutim!</resource>
-	<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Lutim:</resource>
-	<resource name="communication_wait">З’єднання з Lutim. Будь ласка, зачекайте...</resource>
-	<resource name="delete_question">Чи дійсно Ви хочете видалити зображення {0} з Lutim?</resource>
-	<resource name="clear_question">Чи дійсно Ви хочете видалити локальну історію Lutim?</resource>
-	<resource name="delete_title">Видалити Lutim {0}</resource>
-	<resource name="anonymous_access">Використовувати анонімний доступ</resource>
-	<resource name="use_page_link">Використовувати посилання на сторінку замість посилання на зображення</resource>
-	<resource name="history">Історія</resource>
-	<resource name="configure">Налаштувати</resource>
-  </resources>
+		<resource name="upload_menu_item">Вивантажити на Lutim</resource>
+		<resource name="settings_title">Налаштування Lutim</resource>
+		<resource name="label_url">URL-адреса</resource>
+		<resource name="OK">Гаразд</resource>
+		<resource name="CANCEL">Скасувати</resource>
+		<resource name="upload_success">Зображення успішно вивантажено на Lutim!</resource>
+		<resource name="upload_failure">При вивантаженні на Lutim сталася помилка:</resource>
+		<resource name="communication_wait">З’єднання з Lutim. Будь ласка, зачекайте...</resource>
+		<resource name="delete_question">Ви дійсно хочете видалити зображення {0} з Lutim?</resource>
+		<resource name="clear_question">Ви дійсно хочете видалити локальну історію Lutim?</resource>
+		<resource name="delete_title">Видалити Lutim {0}</resource>
+		<resource name="anonymous_access">Використовувати анонімний доступ</resource>
+		<resource name="use_page_link">Використовувати посилання на сторінку замість посилання на зображення</resource>
+		<resource name="history">Історія</resource>
+		<resource name="configure">Налаштувати</resource>
+	</resources>
 </language>

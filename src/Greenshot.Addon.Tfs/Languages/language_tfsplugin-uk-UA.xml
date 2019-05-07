@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+    <resources prefix="Tfs">
+        <resource name="communication_wait">З’єднання з TFS. Будь ласка, зачекайте...</resource>
+        <resource name="label_link_type">Тип посилання</resource>
+        <resource name="settings_title">Налаштування TFS</resource>
+        <resource name="upload_failure">Під час вивантаження на TFS сталася помилка:</resource>
+        <resource name="upload_menu_item">Вивантажити на TFS</resource>
+        <resource name="label_url">URL-адреса</resource>
+        <resource name="label_apikey">Ключ API</resource>
+    </resources>
+</language>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <language>
 	<resources prefix="Dropbox">
@@ -7,9 +7,9 @@
 		<resource name="label_AfterUpload">Після вивантаження</resource>
 		<resource name="Configure">Налаштувати Dropbox</resource>
 		<resource name="upload_menu_item">Вивантажити на Dropbox</resource>
-		<resource name="settings_title">Параметри Dropbox</resource>
-		<resource name="upload_success">Зображення вдало вивантажено на Dropbox!</resource>
-		<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Dropbox:</resource>
+		<resource name="settings_title">Налаштування Dropbox</resource>
+		<resource name="upload_success">Зображення успішно вивантажено на Dropbox!</resource>
+		<resource name="upload_failure">При вивантаженні на Dropbox сталася помилка:</resource>
 		<resource name="communication_wait">З’єднання з Dropbox. Будь ласка, зачекайте...</resource>
 	</resources>
 </language>

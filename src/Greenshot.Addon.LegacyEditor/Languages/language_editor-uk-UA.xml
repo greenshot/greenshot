@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <language>
 	<resources prefix="Editor">
@@ -7,24 +7,24 @@
 		<resource name="editor_align_center">По центру</resource>
 		<resource name="editor_align_horizontal">Горизонтальне вирівнювання</resource>
 		<resource name="editor_align_left">По лівому краю</resource>
-		<resource name="editor_align_middle">По середині</resource>
+		<resource name="editor_align_middle">Посередині</resource>
 		<resource name="editor_align_right">По правому краю</resource>
-		<resource name="editor_align_top">Вгорі</resource>
+		<resource name="editor_align_top">Згори</resource>
 		<resource name="editor_align_vertical">Вертикальне вирівнювання</resource>
 		<resource name="editor_arrange">Впорядкувати</resource>
 		<resource name="editor_arrowheads">Кінці стрілки</resource>
 		<resource name="editor_arrowheads_both">З обох сторін</resource>
-		<resource name="editor_arrowheads_end">Наприкінці</resource>
+		<resource name="editor_arrowheads_end">Кінцева точка</resource>
 		<resource name="editor_arrowheads_none">Немає</resource>
-		<resource name="editor_arrowheads_start">На початку</resource>
-		<resource name="editor_autocrop">Автоматичне обрізання</resource>
+		<resource name="editor_arrowheads_start">Початкова точка</resource>
+		<resource name="editor_autocrop">Авто обтинання</resource>
 		<resource name="editor_backcolor">Колір заливки</resource>
 		<resource name="editor_blur_radius">Радіус розмиття</resource>
 		<resource name="editor_bold">Жирний</resource>
 		<resource name="editor_border">Межа</resource>
 		<resource name="editor_brightness">Яскравість</resource>
 		<resource name="editor_cancel">Скасувати</resource>
-		<resource name="editor_clipboardfailed">Помилка доступу до буферу обміну. Будь ласка, спробуйте ще.</resource>
+		<resource name="editor_clipboardfailed">Помилка доступу до буфера обміну. Будь ласка, спробуйте знову.</resource>
 		<resource name="editor_close">Закрити</resource>
 		<resource name="editor_close_on_save">Зберегти знімок екрану?</resource>
 		<resource name="editor_close_on_save_title">Зберегти зображення?</resource>
@@ -32,23 +32,23 @@
 		<resource name="editor_copyimagetoclipboard">Копіювати зображення у буфер обміну</resource>
 		<resource name="editor_copypathtoclipboard">Копіювати шлях у буфер обміну</resource>
 		<resource name="editor_copytoclipboard">Копіювати</resource>
-		<resource name="editor_crop">Обрізати (С)</resource>
-		<resource name="editor_cursortool">Інструмент вибору (Esc)</resource>
+		<resource name="editor_crop">Обітнути (С)</resource>
+		<resource name="editor_cursortool">Засіб вибору (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Вирізати</resource>
 		<resource name="editor_deleteelement">Видалити</resource>
-		<resource name="editor_downonelevel">Вниз на один рівень</resource>
-		<resource name="editor_downtobottom">На задній план</resource>
+		<resource name="editor_downonelevel">Один рівень вниз</resource>
+		<resource name="editor_downtobottom">До кінця вниз</resource>
 		<resource name="editor_drawarrow">Стрілка (Ф)</resource>
 		<resource name="editor_drawellipse">Еліпс (У)</resource>
 		<resource name="editor_drawfreehand">Від руки (А)</resource>
 		<resource name="editor_drawhighlighter">Підсвічування (Р)</resource>
 		<resource name="editor_drawline">Лінія (Д)</resource>
 		<resource name="editor_drawrectangle">Прямокутник (К)</resource>
-		<resource name="editor_drawtextbox">Додати текст (Е)</resource>
+		<resource name="editor_drawtextbox">Текст (Е)</resource>
 		<resource name="editor_duplicate">Дублювати вибраний елемент</resource>
 		<resource name="editor_edit">Змінити</resource>
 		<resource name="editor_effects">Ефекти</resource>
-		<resource name="editor_email">Ел. пошта</resource>
+		<resource name="editor_email">Е-Пошта</resource>
 		<resource name="editor_file">Файл</resource>
 		<resource name="editor_fontsize">Розмір</resource>
 		<resource name="editor_forecolor">Колір лінії</resource>
@@ -63,7 +63,7 @@
 		<resource name="editor_insertwindow">Вставити вікно</resource>
 		<resource name="editor_invert">Інверсія</resource>
 		<resource name="editor_italic">Курсив</resource>
-		<resource name="editor_load_objects">Завантажити об’єкти з файла</resource>
+		<resource name="editor_load_objects">Завантажити об’єкти з файлу</resource>
 		<resource name="editor_magnification_factor">Коефіцієнт збільшення</resource>
 		<resource name="editor_match_capture_size">Відповідає розміру захоплення</resource>
 		<resource name="editor_obfuscate">Затемнення (Щ)</resource>
@@ -71,21 +71,21 @@
 		<resource name="editor_obfuscate_mode">Режим затемнення</resource>
 		<resource name="editor_obfuscate_pixelize">Пікселізація</resource>
 		<resource name="editor_object">Об’єкт</resource>
-		<resource name="editor_opendirinexplorer">Відкрити катлог у Провіднику Windows</resource>
+		<resource name="editor_opendirinexplorer">Відкрити каталог у Провіднику Windows</resource>
 		<resource name="editor_pastefromclipboard">Вставити</resource>
-		<resource name="editor_pixel_size">Розмір піксела</resource>
-		<resource name="editor_preview_quality">Якість попереднього перегляду</resource>
-		<resource name="editor_print">Роздрукувати</resource>
+		<resource name="editor_pixel_size">Розмір пікселя</resource>
+		<resource name="editor_preview_quality">Якість перегляду</resource>
+		<resource name="editor_print">Друкувати</resource>
 		<resource name="editor_redo">Повторити {0}</resource>
 		<resource name="editor_resetsize">Скинути розмір</resource>
 		<resource name="editor_resize_percent">відсотків</resource>
 		<resource name="editor_resize_pixel">пікселів</resource>
-		<resource name="editor_rotateccw">Оберт проти годинникової стрілки (Ctrl + Б)</resource>
-		<resource name="editor_rotatecw">Оберт за годинниковою стрілкою (Ctrl + Ю)</resource>
+		<resource name="editor_rotateccw">Обернути проти годинникової стрілки (Ctrl + Б)</resource>
+		<resource name="editor_rotatecw">Обернути за годинниковою стрілкою (Ctrl + Ю)</resource>
 		<resource name="editor_save">Зберегти</resource>
 		<resource name="editor_save_objects">Зберегти об’єкти в файл</resource>
 		<resource name="editor_saveas">Зберегти як...</resource>
-		<resource name="editor_selectall">Виділити все</resource>
+		<resource name="editor_selectall">Вибрати все</resource>
 		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
 		<resource name="editor_shadow">Тінь</resource>
 		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
@@ -93,8 +93,8 @@
 		<resource name="editor_title">Редактор зображень Greenshot</resource>
 		<resource name="editor_torn_edge">Розірваний край</resource>
 		<resource name="editor_undo">Скасувати {0}</resource>
-		<resource name="editor_uponelevel">Вгору на один рівень</resource>
-		<resource name="editor_uptotop">На передній план</resource>
+		<resource name="editor_uponelevel">Один рівень вгору</resource>
+		<resource name="editor_uptotop">До кінця вгору</resource>
 		<resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
 		<resource name="editor_dropshadow_offset">Зсув тіні</resource>
 		<resource name="editor_dropshadow_settings">Параметри тіні</resource>
@@ -116,5 +116,6 @@
 		<resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
 		<resource name="editor_resize_width">Ширина</resource>
 		<resource name="editor_resize_height">Висота</resource>
+		<resource name="editor_counter_startvalue">Початок відліку</resource>
 	</resources>
 </language>

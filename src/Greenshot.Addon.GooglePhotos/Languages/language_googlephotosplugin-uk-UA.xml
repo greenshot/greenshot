@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="GooglePhotos">
-	<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
-	<resource name="label_AfterUpload">Після вивантаження</resource>
-	<resource name="Configure">Налаштувати Google Photos</resource>
-	<resource name="upload_menu_item">Вивантажити на Google Photos</resource>
-	<resource name="settings_title">Параметри Google Photos</resource>
-	<resource name="upload_success">Зображення вдало вивантажено на Google Photos!</resource>
-	<resource name="upload_failure">Відбулась помилка під час вивантаження на Google Photos:</resource>
-	<resource name="communication_wait">З’єднання з Google Photos. Будь ласка, зачекайте...</resource>
-  </resources>
+		<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
+		<resource name="label_AfterUpload">Після вивантаження</resource>
+		<resource name="Configure">Налаштувати Google Photos</resource>
+		<resource name="upload_menu_item">Вивантажити на Google Photos</resource>
+		<resource name="settings_title">Налаштування Google Photos</resource>
+		<resource name="upload_success">Зображення успішно вивантажено на Google Photos!</resource>
+		<resource name="upload_failure">Під час вивантаження на Google Photos сталася помилка:</resource>
+		<resource name="communication_wait">З’єднання з Google Photos. Будь ласка, зачекайте...</resource>
+	</resources>
 </language>
