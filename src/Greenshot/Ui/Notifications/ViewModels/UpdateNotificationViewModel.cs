@@ -55,7 +55,12 @@ namespace Greenshot.Ui.Notifications.ViewModels
         {
             try
             {
-                Process.Start(StableDownloadLink);
+                var processStartInfo = new ProcessStartInfo(StableDownloadLink)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
             }
             catch (Exception ex)
             {

@@ -126,7 +126,12 @@ namespace Greenshot.Addons.ViewModels
 
                 if (Information.IsCloudExport)
                 {
-                    Process.Start(Information.Uri);
+                    var processStartInfo = new ProcessStartInfo(Information.Uri)
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = true
+                    };
+                    Process.Start(processStartInfo);
                 }
             }
             catch (Exception ex)

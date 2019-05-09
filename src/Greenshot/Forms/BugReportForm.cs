@@ -57,7 +57,12 @@ namespace Greenshot.Forms
 			try
 			{
 				link.LinkVisited = true;
-				Process.Start(link.Text);
+                var processStartInfo = new ProcessStartInfo(link.Text)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
 			}
 			catch (Exception)
 			{

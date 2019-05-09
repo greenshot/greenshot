@@ -158,7 +158,7 @@ namespace Greenshot.Forms
                     pictureBox1.Size = FormDpiHandler.ScaleWithCurrentDpi(new NativeSize(90,90));
                 });
 
-            var versionInfo = $@"Greenshot {versionProvider.CurrentVersion} {(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit)";
+            var versionInfo = $@"Greenshot {versionProvider.CurrentVersion} {(SingleExeHelper.IsRunningAsSingleExe? "SE " : "")}({OsInfo.Bits} bit)";
             if (versionProvider.IsUpdateAvailable)
             {
                 versionInfo += $" latest is: {versionProvider.LatestVersion}";
@@ -247,7 +247,12 @@ namespace Greenshot.Forms
             try
             {
                 linkLabel.LinkVisited = true;
-                Process.Start(linkLabel.Text);
+                var processStartInfo = new ProcessStartInfo(linkLabel.Text)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
             }
             catch (Exception)
             {

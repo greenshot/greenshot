@@ -801,7 +801,15 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_donateClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { Process.Start("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version); });
+            BeginInvoke((MethodInvoker) delegate
+            {
+                var processStartInfo = new ProcessStartInfo("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly()?.GetName().Version)
+                {
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
+            });
         }
 
         /// <summary>

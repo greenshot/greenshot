@@ -40,12 +40,19 @@ namespace Greenshot.Addons.Core
 			{
 				return false;
 			}
+            
+            
 			try
 			{
 				// Check if path is a directory
 				if (Directory.Exists(path))
 				{
-					using (Process.Start(path))
+                    var processStartInfo = new ProcessStartInfo(path)
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = true
+                    };
+					using (Process.Start(processStartInfo))
 					{
 						return true;
 					}
@@ -53,8 +60,14 @@ namespace Greenshot.Addons.Core
 				// Check if path is a file
 				if (File.Exists(path))
 				{
+                    var processStartInfo = new ProcessStartInfo("explorer.exe")
+                    {
+                        Arguments = $"/select,\"{path}\"",
+                        CreateNoWindow = true,
+                        UseShellExecute = true
+                    };
 					// Start the explorer process and select the file
-					using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
+					using (var explorer = Process.Start(processStartInfo))
 					{
 						explorer?.WaitForInputIdle(500);
 						return true;

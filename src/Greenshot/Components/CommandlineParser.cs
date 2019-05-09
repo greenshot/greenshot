@@ -73,7 +73,7 @@ namespace Greenshot.Components
                 if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
                 {
                     // Try to attach to the console
-                    var attachedToConsole = Kernel32Api.AttachConsole(Kernel32Api.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+                    var attachedToConsole = Kernel32Api.AttachConsole();
                     // If attach didn't work, open a console
                     if (!attachedToConsole)
                     {
@@ -186,7 +186,7 @@ namespace Greenshot.Components
                 if (arguments.Length > 0 && arguments[0].ToLower().Equals("/capture"))
                 {
                     // Try to attach to the console
-                    bool attachedToConsole = Kernel32Api.AttachConsole(Kernel32Api.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+                    bool attachedToConsole = Kernel32Api.AttachConsole();
                     // If attach didn't work, open a console
                     if (!attachedToConsole)
                     {

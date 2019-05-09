@@ -638,7 +638,7 @@ namespace Greenshot.Addons.Core
 					CreateNoWindow = true,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
-					UseShellExecute = false
+					UseShellExecute = true
 				};
 				using (var process = Process.Start(processStartInfo))
 				{

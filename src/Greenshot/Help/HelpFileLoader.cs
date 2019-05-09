@@ -36,7 +36,12 @@ namespace Greenshot.Help
 		public static void LoadHelp()
 		{
             var uri = FindOnlineHelpUrl("en-US");// Language.CurrentLanguage);// ?? Language.HelpFilePath;
-			Process.Start(uri);
+            var processStartInfo = new ProcessStartInfo(uri)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = true
+            };
+            Process.Start(processStartInfo);
 		}
 
 		/// <returns>
