@@ -37,10 +37,10 @@ namespace Greenshot.Addon.Office
     public class OfficeAddonModule : AddonModule
     {
         private const string Word = "Word.Application";
-        private const string Excel = "Exceldd.Application";
+        private const string Excel = "Excel.Application";
         private const string PowerPoint = "PowerPoint.Application";
         private const string OneNote = "OneNote.Application";
-        private const string Outlook = @"Outlook.Application";
+        private const string Outlook = "Outlook.Application";
 
         /// <summary>
         /// Helper method to test the registry for the existence of an application
