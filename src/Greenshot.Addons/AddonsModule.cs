@@ -28,6 +28,8 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
 using Greenshot.Addons.ViewModels;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Formats;
 
 namespace Greenshot.Addons
 {
@@ -95,6 +97,16 @@ namespace Greenshot.Addons
                 .AsSelf()
                 .SingleInstance()
                 .AutoActivate();
+
+            builder
+                .RegisterType<GreenshotFormatReader>()
+                .As<IImageFormatReader>()
+                .SingleInstance()
+                .AutoActivate()
+                .OnActivated(args =>
+                {
+                    BitmapHelper.StreamConverters["greenshot"] = args.Instance;
+                });
 
             base.Load(builder);
         }

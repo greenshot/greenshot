@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Addon.LegacyEditor.Forms;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Forms;
 
@@ -38,13 +37,10 @@ namespace Greenshot.Addon.LegacyEditor
 
         public EditorFactory(
             IEditorConfiguration editorConfiguration,
-            Func<ImageEditorForm> imageEditorFactory,
-            Func<ISurface> surfaceExportFactory)
+            Func<ImageEditorForm> imageEditorFactory)
         {
             _editorConfiguration = editorConfiguration;
             _imageEditorFactory = imageEditorFactory;
-            // Factory for surface objects
-            ImageOutput.SurfaceFactory = surfaceExportFactory;
         }
 
         /// <summary>

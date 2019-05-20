@@ -62,16 +62,6 @@ namespace Greenshot.Addons.Core
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
 		private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
-	    static ImageOutput()
-	    {
-	        BitmapHelper.StreamConverters["greenshot"] = (stream, s) =>
-	        {
-                // TODO: Create surface from stream
-	            var surface = SurfaceFactory();
-                surface.LoadElementsFromStream(stream);
-	            return surface.GetBitmapForExport();
-	        };
-	    }
 
 	    /// <summary>
 	    ///     This is a factory method to create a surface, set from the Greenshot main project
@@ -390,7 +380,7 @@ namespace Greenshot.Addons.Core
 
 	        // We create a copy of the bitmap, so everything else can be disposed
 	        surfaceFileStream.Position = 0;
-	        var fileImage = BitmapHelper.FromStreamReader(surfaceFileStream, ".greenshot"); 
+	        var fileImage = BitmapHelper.FromStream(surfaceFileStream, ".greenshot"); 
 
 	        // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
 	        const int markerSize = 14;

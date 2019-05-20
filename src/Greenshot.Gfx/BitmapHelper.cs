@@ -32,6 +32,7 @@ using Dapplo.Windows.Dpi;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.Extensions;
 using Greenshot.Gfx.FastBitmap;
+using Greenshot.Gfx.Formats;
 using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Gfx
@@ -45,90 +46,9 @@ namespace Greenshot.Gfx
 		private static readonly LogSource Log = new LogSource();
 
         /// <summary>
-        /// A function which usage image.fromstream
-        /// </summary>
-        public static readonly Func<Stream, string, IBitmapWithNativeSupport> FromStreamReader = (stream, s) =>
-	    {
-	        using (var tmpImage = Image.FromStream(stream, true, true))
-	        {
-	            if (!(tmpImage is Bitmap bitmap))
-	            {
-	                return null;
-	            }
-	            Log.Debug().WriteLine("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", bitmap.Width, bitmap.Height, bitmap.PixelFormat);
-	            return bitmap.CloneBitmap(PixelFormat.Format32bppArgb);
-	        }
-	    };
-
-        static BitmapHelper()
-		{
-			// Fallback
-			StreamConverters[""] = FromStreamReader;
-
-			StreamConverters["gif"] = FromStreamReader;
-			StreamConverters["bmp"] = FromStreamReader;
-			StreamConverters["jpg"] = FromStreamReader;
-			StreamConverters["jpeg"] = FromStreamReader;
-			StreamConverters["png"] = FromStreamReader;
-			StreamConverters["wmf"] = FromStreamReader;
-			StreamConverters["svg"] = (stream, s) =>
-			{
-				stream.Position = 0;
-				try
-				{
-					return SvgBitmap.FromStream(stream);
-				}
-				catch (Exception ex)
-				{
-					Log.Error().WriteLine(ex, "Can't load SVG");
-				}
-				return null;
-			};
-
-			StreamConverters["ico"] = (stream, extension) =>
-			{
-				// Icon logic, try to get the Vista icon, else the biggest possible
-				try
-				{
-					using (var tmpBitmap = stream.ExtractVistaIcon())
-					{
-						if (tmpBitmap != null)
-						{
-							return tmpBitmap.CloneBitmap(PixelFormat.Format32bppArgb);
-						}
-					}
-				}
-				catch (Exception vistaIconException)
-				{
-					Log.Warn().WriteLine(vistaIconException, "Can't read icon");
-				}
-				try
-				{
-					// No vista icon, try normal icon
-					stream.Position = 0;
-					// We create a copy of the bitmap, so everything else can be disposed
-					using (var tmpIcon = new Icon(stream, new Size(1024, 1024)))
-					{
-						using (var tmpImage = tmpIcon.ToBitmap())
-						{
-							return tmpImage.CloneBitmap(PixelFormat.Format32bppArgb);
-						}
-					}
-				}
-				catch (Exception iconException)
-				{
-					Log.Warn().WriteLine(iconException, "Can't read icon");
-				}
-
-				stream.Position = 0;
-				return FromStreamReader(stream, extension);
-			};
-		}
-
-        /// <summary>
         /// This defines all available bitmap reader functions, registered to an "extension" is called with a stream to a IBitmap. 
         /// </summary>
-		public static IDictionary<string, Func<Stream, string, IBitmapWithNativeSupport>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, IBitmapWithNativeSupport>>(StringComparer.OrdinalIgnoreCase);
+		public static IDictionary<string, IImageFormatReader> StreamConverters { get; } = new Dictionary<string, IImageFormatReader>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		///     Make sure the image is orientated correctly
@@ -401,48 +321,6 @@ namespace Greenshot.Gfx
 					fileBitmap.HorizontalResolution, fileBitmap.VerticalResolution);
 			}
 			return fileBitmap;
-		}
-
-		/// <summary>
-		///     Based on: http://www.codeproject.com/KB/cs/IconExtractor.aspx
-		///     And a hint from: http://www.codeproject.com/KB/cs/IconLib.aspx
-		/// </summary>
-		/// <param name="iconStream">Stream with the icon information</param>
-		/// <returns>Bitmap with the Vista Icon (256x256)</returns>
-		private static IBitmapWithNativeSupport ExtractVistaIcon(this Stream iconStream)
-		{
-			const int sizeIconDir = 6;
-			const int sizeIconDirEntry = 16;
-            IBitmapWithNativeSupport bmpPngExtracted = null;
-			try
-			{
-				var srcBuf = new byte[iconStream.Length];
-				iconStream.Read(srcBuf, 0, (int) iconStream.Length);
-				int iCount = BitConverter.ToInt16(srcBuf, 4);
-				for (var iIndex = 0; iIndex < iCount; iIndex++)
-				{
-					int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-					int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-				    if (iWidth != 0 || iHeight != 0)
-				    {
-				        continue;
-				    }
-				    var iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-				    var iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-				    using (var destStream = new MemoryStream())
-				    {
-				        destStream.Write(srcBuf, iImageOffset, iImageSize);
-				        destStream.Seek(0, SeekOrigin.Begin);
-				        bmpPngExtracted = BitmapWrapper.FromBitmap(new Bitmap(destStream)); // This is PNG! :)
-				    }
-				    break;
-				}
-			}
-			catch
-			{
-				return null;
-			}
-			return bmpPngExtracted;
 		}
 
 		/// <summary>
@@ -893,17 +771,10 @@ namespace Greenshot.Gfx
 			}
 
             IBitmapWithNativeSupport returnBitmap = null;
-		    if (StreamConverters.TryGetValue(extension ?? "", out var converter))
+		    if (StreamConverters.TryGetValue(extension ?? "", out var reader))
 			{
-				returnBitmap = converter(stream, extension);
+				returnBitmap = reader.Read(stream, extension);
 			}
-		    if (returnBitmap != null || converter == FromStreamReader)
-		    {
-		        return returnBitmap;
-		    }
-		    // Fallback to default converter
-		    stream.Position = 0;
-		    returnBitmap = FromStreamReader(stream, extension);
 		    return returnBitmap;
 		}
 
