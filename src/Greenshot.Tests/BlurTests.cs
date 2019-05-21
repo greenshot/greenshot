@@ -70,19 +70,18 @@ namespace Greenshot.Tests
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
                 }
+                BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
                 bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
 
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
-                using (var bitmap = bitmapNew.NativeBitmap)
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    bitmapNew.ApplyBoxBlur(10);
-                    bitmap.Save(@"new.png", ImageFormat.Png);
                 }
+                bitmapNew.ApplyBoxBlur(10);
+                bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
 
                 Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
             }

@@ -37,7 +37,7 @@ namespace Greenshot.Tests
         {
             LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
         }
-
+        
         [Fact]
         public void Test_Scale2X_UnmanagedBitmap()
         {
@@ -50,8 +50,7 @@ namespace Greenshot.Tests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255, Unused = 0 });
-                using (var bitmap = bitmapNew.NativeBitmap)
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
@@ -78,13 +77,12 @@ namespace Greenshot.Tests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255, Unused = 0 });
-                using (var bitmap = bitmapNew.NativeBitmap)
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
                 {
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                     using (var scaledUnmanagedBitmap = bitmapNew.Scale3X())
-                    using (var scaledBitmap = ScaleX.Scale2X(bitmapOld))
+                    using (var scaledBitmap = ScaleX.Scale3X(bitmapOld))
                     {
                         scaledUnmanagedBitmap.NativeBitmap.Save(@"new3x.png", ImageFormat.Png);
                         scaledBitmap.NativeBitmap.Save(@"old3x.png", ImageFormat.Png);

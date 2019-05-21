@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Threading.Tasks;
 using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Gfx
@@ -89,61 +88,61 @@ namespace Greenshot.Gfx
         {
             var halfRange = range / 2;
 
-            Parallel.For(0, unmanagedBitmap.Height, y =>
+            for(var y = 0; y <unmanagedBitmap.Height; y++)
             {
-                unsafe {
-                    var rgb32 = unmanagedBitmap[y];
-                    Span<Bgr32> averages = stackalloc Bgr32[range];
-                    var r = 0;
-                    var g = 0;
-                    var b = 0;
-                    var hits = halfRange;
-                    for (var x = 0; x < halfRange; x++)
-                    {
-                        ref Bgr32 color = ref rgb32[x];
+                var rgb32 = unmanagedBitmap[y];
+                Span<Bgr32> averages = stackalloc Bgr32[range];
+                var r = 0;
+                var g = 0;
+                var b = 0;
+                var hits = halfRange;
+                for (var x = 0; x < halfRange; x++)
+                {
+                    ref var color = ref rgb32[x];
 
+                    r += color.R;
+                    g += color.G;
+                    b += color.B;
+                }
+                for (var x = 0; x < unmanagedBitmap.Width; x++)
+                {
+                    var leftSide = x - halfRange - 1;
+                    if (leftSide >= 0)
+                    {
+                        // Get value at the left side of range
+                        ref var color = ref rgb32[leftSide];
+                        r -= color.R;
+                        g -= color.G;
+                        b -= color.B;
+                        hits--;
+                    }
+
+                    var rightSide = x + halfRange;
+                    if (rightSide < unmanagedBitmap.Width)
+                    {
+                        ref var color = ref rgb32[rightSide];
                         r += color.R;
                         g += color.G;
                         b += color.B;
+                        hits++;
                     }
-                    for (var x = 0; x < unmanagedBitmap.Width; x++)
+
+                    ref var average = ref averages[x % range];
+                    average.R = (byte)(r / hits);
+                    average.G = (byte)(g / hits);
+                    average.B = (byte)(b / hits);
+
+                    if (leftSide < 0)
                     {
-                        var leftSide = x - halfRange - 1;
-                        if (leftSide >= 0)
-                        {
-                            // Get value at the left side of range
-                            ref Bgr32 color = ref rgb32[leftSide];
-                            r -= color.R;
-                            g -= color.G;
-                            b -= color.B;
-                            hits--;
-                        }
-
-                        var rightSide = x + halfRange;
-                        if (rightSide < unmanagedBitmap.Width)
-                        {
-                            ref Bgr32 color = ref rgb32[rightSide];
-                            r += color.R;
-                            g += color.G;
-                            b += color.B;
-                            hits++;
-                        }
-
-                        ref Bgr32 average = ref averages[x % range];
-                        average.R = (byte)(r / hits);
-                        average.G = (byte)(g / hits);
-                        average.B = (byte)(b / hits);
-
-                        if (leftSide >= 0)
-                        {
-                            // Now we can write the value from the calculated avarages
-                            var readLocation = (leftSide % range);
-
-                            rgb32[leftSide] = averages[readLocation];
-                        }
+                        continue;
                     }
+
+                    // Now we can write the value from the calculated averages
+                    var readLocation = (leftSide % range);
+
+                    rgb32[leftSide] = averages[readLocation];
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -154,61 +153,61 @@ namespace Greenshot.Gfx
         private static void BoxBlurVertical(UnmanagedBitmap<Bgr32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
-            Parallel.For(0, unmanagedBitmap.Width, x =>
+            for(var x = 0; x <unmanagedBitmap.Width; x++)
             {
-                unsafe {
-                    var rgb32 = unmanagedBitmap.Span;
-                    Span<Bgr32> averages = stackalloc Bgr32[range];
-                    var hits = 0;
-                    var r = 0;
-                    var g = 0;
-                    var b = 0;
-                    for (var y = 0; y < halfRange; y++)
+                var rgb32 = unmanagedBitmap.Span;
+                Span<Bgr32> averages = stackalloc Bgr32[range];
+                var hits = 0;
+                var r = 0;
+                var g = 0;
+                var b = 0;
+                for (var y = 0; y < halfRange; y++)
+                {
+                    ref var color = ref rgb32[(y * unmanagedBitmap.Width) + x];
+                    r += color.R;
+                    g += color.G;
+                    b += color.B;
+                    hits++;
+                }
+                for (var y = 0; y < unmanagedBitmap.Height; y++)
+                {
+                    var topSide = y - halfRange - 1;
+                    if (topSide >= 0)
                     {
-                        ref Bgr32 color = ref rgb32[(y * unmanagedBitmap.Width) + x];
+                        // Get value at the top side of range
+                        ref var color = ref rgb32[x + (topSide * unmanagedBitmap.Width)];
+                        r -= color.R;
+                        g -= color.G;
+                        b -= color.B;
+                        hits--;
+                    }
+
+                    var bottomSide = y + halfRange;
+                    if (bottomSide < unmanagedBitmap.Height)
+                    {
+                        ref var color = ref rgb32[x + (bottomSide * unmanagedBitmap.Width)];
                         r += color.R;
                         g += color.G;
                         b += color.B;
                         hits++;
                     }
-                    for (var y = 0; y < unmanagedBitmap.Height; y++)
+
+                    ref var average = ref averages[y % range];
+                    average.R = (byte)(r / hits);
+                    average.G = (byte)(g / hits);
+                    average.B = (byte)(b / hits);
+
+                    if (topSide < 0)
                     {
-                        var topSide = y - halfRange - 1;
-                        if (topSide >= 0)
-                        {
-                            // Get value at the top side of range
-                            ref Bgr32 color = ref rgb32[x + (topSide * unmanagedBitmap.Width)];
-                            r -= color.R;
-                            g -= color.G;
-                            b -= color.B;
-                            hits--;
-                        }
-
-                        var bottomSide = y + halfRange;
-                        if (bottomSide < unmanagedBitmap.Height)
-                        {
-                            ref Bgr32 color = ref rgb32[x + (bottomSide * unmanagedBitmap.Width)];
-                            r += color.R;
-                            g += color.G;
-                            b += color.B;
-                            hits++;
-                        }
-
-                        ref Bgr32 average = ref averages[y % range];
-                        average.R = (byte)(r / hits);
-                        average.G = (byte)(g / hits);
-                        average.B = (byte)(b / hits);
-
-                        if (topSide >= 0)
-                        {
-                            // Write the value from the calculated avarages
-                            var readLocation = topSide % range;
-
-                            rgb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
-                        }
+                        continue;
                     }
+
+                    // Write the value from the calculated averages
+                    var readLocation = topSide % range;
+
+                    rgb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -220,65 +219,65 @@ namespace Greenshot.Gfx
         {
             var halfRange = range / 2;
 
-            Parallel.For(0, unmanagedBitmap.Height, y =>
+            for(var y = 0; y <unmanagedBitmap.Height; y++)
             {
-                unsafe {
-                    var argb32 = unmanagedBitmap[y];
-                    Span<Bgra32> averages = stackalloc Bgra32[range];
-                    var a = 0;
-                    var r = 0;
-                    var g = 0;
-                    var b = 0;
-                    var hits = halfRange;
-                    for (var x = 0; x < halfRange; x++)
+                var argb32 = unmanagedBitmap[y];
+                Span<Bgra32> averages = stackalloc Bgra32[range];
+                var a = 0;
+                var r = 0;
+                var g = 0;
+                var b = 0;
+                var hits = halfRange;
+                for (var x = 0; x < halfRange; x++)
+                {
+                    ref var color = ref argb32[x];
+                    a += color.A;
+                    r += color.R;
+                    g += color.G;
+                    b += color.B;
+                }
+                for (var x = 0; x < unmanagedBitmap.Width; x++)
+                {
+                    var leftSide = x - halfRange - 1;
+                    if (leftSide >= 0)
                     {
-                        ref Bgra32 color = ref argb32[x];
+                        // Get value at the left side of range
+                        ref var color = ref argb32[leftSide];
+                        a -= color.A;
+                        r -= color.R;
+                        g -= color.G;
+                        b -= color.B;
+                        hits--;
+                    }
+
+                    var rightSide = x + halfRange;
+                    if (rightSide < unmanagedBitmap.Width)
+                    {
+                        ref var color = ref argb32[rightSide];
                         a += color.A;
                         r += color.R;
                         g += color.G;
                         b += color.B;
+                        hits++;
                     }
-                    for (var x = 0; x < unmanagedBitmap.Width; x++)
+
+                    ref var average = ref averages[x % range];
+                    average.A = (byte)(a / hits);
+                    average.R = (byte)(r / hits);
+                    average.G = (byte)(g / hits);
+                    average.B = (byte)(b / hits);
+
+                    if (leftSide < 0)
                     {
-                        var leftSide = x - halfRange - 1;
-                        if (leftSide >= 0)
-                        {
-                            // Get value at the left side of range
-                            ref Bgra32 color = ref argb32[leftSide];
-                            a -= color.A;
-                            r -= color.R;
-                            g -= color.G;
-                            b -= color.B;
-                            hits--;
-                        }
-
-                        var rightSide = x + halfRange;
-                        if (rightSide < unmanagedBitmap.Width)
-                        {
-                            ref Bgra32 color = ref argb32[rightSide];
-                            a += color.A;
-                            r += color.R;
-                            g += color.G;
-                            b += color.B;
-                            hits++;
-                        }
-
-                        ref Bgra32 average = ref averages[x % range];
-                        average.A = (byte)(a / hits);
-                        average.R = (byte)(r / hits);
-                        average.G = (byte)(g / hits);
-                        average.B = (byte)(b / hits);
-
-                        if (leftSide >= 0)
-                        {
-                            // Now we can write the value from the calculated avarages
-                            var readLocation = leftSide % range;
-
-                            argb32[leftSide] = averages[readLocation];
-                        }
+                        continue;
                     }
+
+                    // Now we can write the value from the calculated averages
+                    var readLocation = leftSide % range;
+
+                    argb32[leftSide] = averages[readLocation];
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -289,67 +288,66 @@ namespace Greenshot.Gfx
         private static void BoxBlurVertical(UnmanagedBitmap<Bgra32> unmanagedBitmap, int range)
         {
             var halfRange = range / 2;
-            Parallel.For(0, unmanagedBitmap.Width, x =>
+            for(var x = 0; x <unmanagedBitmap.Width; x++)
             {
-                unsafe
+                var argb32 = unmanagedBitmap.Span;
+                Span<Bgra32> averages = stackalloc Bgra32[range];
+                var hits = 0;
+                var a = 0;
+                var r = 0;
+                var g = 0;
+                var b = 0;
+                for (var y = 0; y < halfRange; y++)
                 {
-                    var argb32 = unmanagedBitmap.Span;
-                    Span<Bgra32> averages = stackalloc Bgra32[range];
-                    var hits = 0;
-                    var a = 0;
-                    var r = 0;
-                    var g = 0;
-                    var b = 0;
-                    for (var y = 0; y < halfRange; y++)
+                    ref var color = ref argb32[x + (y * unmanagedBitmap.Width)];
+                    a += color.A;
+                    r += color.R;
+                    g += color.G;
+                    b += color.B;
+                    hits++;
+                }
+                for (var y = 0; y < unmanagedBitmap.Height; y++)
+                {
+                    var topSide = y - halfRange - 1;
+                    if (topSide >= 0)
                     {
-                        ref Bgra32 color = ref argb32[x + (y * unmanagedBitmap.Width)];
+                        // Get value at the top side of range
+                        ref var color = ref argb32[x + (topSide * unmanagedBitmap.Width)];
+                        a -= color.A;
+                        r -= color.R;
+                        g -= color.G;
+                        b -= color.B;
+                        hits--;
+                    }
+
+                    var bottomSide = y + halfRange;
+                    if (bottomSide < unmanagedBitmap.Height)
+                    {
+                        ref var color = ref argb32[x + (bottomSide * unmanagedBitmap.Width)];
                         a += color.A;
                         r += color.R;
                         g += color.G;
                         b += color.B;
                         hits++;
                     }
-                    for (var y = 0; y < unmanagedBitmap.Height; y++)
+
+                    ref var average = ref averages[(y % range)];
+                    average.A = (byte)(a / hits);
+                    average.R = (byte)(r / hits);
+                    average.G = (byte)(g / hits);
+                    average.B = (byte)(b / hits);
+
+                    if (topSide < 0)
                     {
-                        var topSide = y - halfRange - 1;
-                        if (topSide >= 0)
-                        {
-                            // Get value at the top side of range
-                            ref Bgra32 color = ref argb32[x + (topSide * unmanagedBitmap.Width)];
-                            a -= color.A;
-                            r -= color.R;
-                            g -= color.G;
-                            b -= color.B;
-                            hits--;
-                        }
-
-                        var bottomSide = y + halfRange;
-                        if (bottomSide < unmanagedBitmap.Height)
-                        {
-                            ref Bgra32 color = ref argb32[x + (bottomSide * unmanagedBitmap.Width)];
-                            a += color.A;
-                            r += color.R;
-                            g += color.G;
-                            b += color.B;
-                            hits++;
-                        }
-
-                        ref Bgra32 average = ref averages[(y % range)];
-                        average.A = (byte)(a / hits);
-                        average.R = (byte)(r / hits);
-                        average.G = (byte)(g / hits);
-                        average.B = (byte)(b / hits);
-
-                        if (topSide >= 0)
-                        {
-                            // Write the value from the calculated avarages
-                            var readLocation = (topSide % range);
-
-                            argb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
-                        }
+                        continue;
                     }
+
+                    // Write the value from the calculated averages
+                    var readLocation = (topSide % range);
+
+                    argb32[x + (topSide * unmanagedBitmap.Width)] = averages[readLocation];
                 }
-            });
+            }
         }
     }
 }
