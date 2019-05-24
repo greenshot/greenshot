@@ -23,7 +23,7 @@
 		<resource name="bugreport_title">Fehler</resource>
 		<resource name="CANCEL">Abbrechen</resource>
 		<resource name="clipboard_error">Ein unerwarteter Fehler beim Schreiben in die Zwischenablage ist aufgetreten.</resource>
-		<resource name="clipboard_inuse">Greenshot kann nicht in die Zwischenablage schreiben, da sie vom Prozess {0} blockiert ist.</resource>
+		<resource name="clipboard_inuse">Greenshot kann nicht in die Zwischenablage schreiben, da es vom Prozess {0} blockiert ist.</resource>
 		<resource name="clipboard_noimage">Kein Bild in der Zwischenablage gefunden.</resource>
 		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
 		<resource name="ClipboardFormats.DIB">Geräteunabhängiges Bitmap (DIB)</resource>
