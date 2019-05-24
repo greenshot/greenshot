@@ -15,7 +15,7 @@
       <Version>2.4.3</Version>
     </PackageReference>
     <PackageReference Include="System.Memory">
-      <Version>4.5.2</Version>
+      <Version>4.5.3</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

@@ -50,11 +50,33 @@ namespace Greenshot.Gfx
         /// </summary>
 		public static IDictionary<string, IImageFormatReader> StreamConverters { get; } = new Dictionary<string, IImageFormatReader>(StringComparer.OrdinalIgnoreCase);
 
-		/// <summary>
-		///     Make sure the image is orientated correctly
-		/// </summary>
-		/// <param name="image">Image</param>
-		public static void Orientate(this Image image)
+        /// <summary>
+        /// Register a IImageFormatReader by type
+        /// </summary>
+        /// <typeparam name="TFormatReader">Type which extends IImageFormatReader</typeparam>
+        public static void RegisterFormatReader<TFormatReader>() where TFormatReader : IImageFormatReader, new()
+        {
+            RegisterFormatReader(new TFormatReader());
+        }
+
+        /// <summary>
+        /// Register an instance of an IImageFormatReader
+        /// </summary>
+        /// <typeparam name="TFormatReader">Type which extends IImageFormatReader</typeparam>
+        /// <param name="formatReader">IImageFormatReader</param>
+        public static void RegisterFormatReader<TFormatReader>(TFormatReader formatReader) where TFormatReader : IImageFormatReader
+        {
+            foreach (var extension in formatReader.SupportedFormats)
+            {
+                StreamConverters[extension] = formatReader;
+            }
+        }
+
+        /// <summary>
+        ///     Make sure the image is orientated correctly
+        /// </summary>
+        /// <param name="image">Image</param>
+        public static void Orientate(this Image image)
 		{
 			try
 			{

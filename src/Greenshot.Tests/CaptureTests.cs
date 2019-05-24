@@ -121,16 +121,16 @@ namespace Greenshot.Tests
 
             var template = new SimpleTemplate();
             var bitmapSource = template.Apply(capture).ToBitmapSource();
-            Assert.Equal(bounds.Size, bitmapSource.Size());
             using (var outputStream = bitmapSource.ToStream(OutputFormats.png))
             using (var fileStream = File.Create("Test_CaptureFlow_DwmWindowSource.png"))
             {
                 outputStream.Seek(0, SeekOrigin.Begin);
                 await outputStream.CopyToAsync(fileStream);
             }
+            Assert.Equal(bounds.Size, bitmapSource.Size());
         }
-        
-        
+
+
         /// <summary>
         /// Test if capturing works
         /// </summary>

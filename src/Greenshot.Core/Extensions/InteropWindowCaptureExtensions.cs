@@ -160,7 +160,7 @@ namespace Greenshot.Core.Extensions
                 // Calculate the location of the temp form
                 var windowRectangle = interopWindow.GetInfo().Bounds;
                 var formLocation = windowRectangle.Location;
-                var borderSize = new Size();
+                var borderSize = Size.Empty;
                 var doesCaptureFit = false;
                 if (!interopWindow.IsMaximized())
                 {

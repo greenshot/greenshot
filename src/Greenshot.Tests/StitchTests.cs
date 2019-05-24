@@ -19,6 +19,7 @@
 
 using System.Drawing.Imaging;
 using Greenshot.Gfx;
+using Greenshot.Gfx.Formats;
 using Greenshot.Gfx.Stitching;
 using Xunit;
 
@@ -26,6 +27,11 @@ namespace Greenshot.Tests
 {
     public class StitchTests
     {
+        public StitchTests()
+        {
+            BitmapHelper.RegisterFormatReader<GenericGdiFormatReader>();
+        }
+
         [Fact]
         public void BitmapStitcher_Default()
         {

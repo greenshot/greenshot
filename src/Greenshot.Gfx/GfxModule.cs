@@ -27,14 +27,6 @@ namespace Greenshot.Gfx
     /// <inheritdoc />
     public class GfxModule : AddonModule
     {
-        private void Register(IImageFormatReader reader)
-        {
-            foreach(var extension in reader.SupportedFormats)
-            {
-                BitmapHelper.StreamConverters[extension] = reader;
-            }
-        }
-
         /// <inheritdoc/>
         protected override void Load(ContainerBuilder builder)
         {
@@ -46,7 +38,7 @@ namespace Greenshot.Gfx
                 .AutoActivate()
                 .OnActivated(args =>
                 {
-                    Register(args.Instance);
+                    BitmapHelper.RegisterFormatReader(args.Instance);
                 });
 
             builder
@@ -56,7 +48,7 @@ namespace Greenshot.Gfx
                 .AutoActivate()
                 .OnActivated(args =>
                 {
-                    Register(args.Instance);
+                    BitmapHelper.RegisterFormatReader(args.Instance);
                 });
 
             builder
@@ -66,7 +58,7 @@ namespace Greenshot.Gfx
                 .AutoActivate()
                 .OnActivated(args =>
                 {
-                    Register(args.Instance);
+                    BitmapHelper.RegisterFormatReader(args.Instance);
                 });
 
             base.Load(builder);

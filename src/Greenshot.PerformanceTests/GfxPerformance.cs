@@ -1,4 +1,23 @@
-﻿using System.Drawing;
+﻿// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Drawing;
 using System.Drawing.Imaging;
 using BenchmarkDotNet.Attributes;
 using Greenshot.Gfx;
@@ -35,7 +54,7 @@ namespace Greenshot.PerformanceTests
         }
 
 
-        //[Benchmark]
+        [Benchmark]
         [Arguments(PixelFormat.Format24bppRgb)]
         [Arguments(PixelFormat.Format32bppRgb)]
         [Arguments(PixelFormat.Format32bppArgb)]
@@ -57,9 +76,12 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void Blur_FastBitmap()
+        [Arguments(PixelFormat.Format24bppRgb)]
+        [Arguments(PixelFormat.Format32bppRgb)]
+        [Arguments(PixelFormat.Format32bppArgb)]
+        public void Blur_FastBitmap(PixelFormat pixelFormat)
         {
-            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
+            using (var bitmap = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
             {
                 using (var graphics = Graphics.FromImage(bitmap.NativeBitmap))
                 using (var pen = new SolidBrush(Color.Blue))
@@ -101,37 +123,37 @@ namespace Greenshot.PerformanceTests
             }
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale2x_FastBitmap()
         {
             ScaleX.Scale2X(_unmanagedTestBitmap).Dispose();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale2x_Unmanaged()
         {
             _unmanagedTestBitmap.Scale2X().Dispose();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale2x_Unmanaged_Reference()
         {
             _unmanagedTestBitmap.Scale2XReference().Dispose();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale3x_FastBitmap()
         {
             ScaleX.Scale3X(_unmanagedTestBitmap).Dispose();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale3x_Unmanaged()
         {
             _unmanagedTestBitmap.Scale3X().Dispose();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale3x_Unmanaged_Reference()
         {
             _unmanagedTestBitmap.Scale3XReference().Dispose();

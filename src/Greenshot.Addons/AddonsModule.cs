@@ -105,7 +105,7 @@ namespace Greenshot.Addons
                 .AutoActivate()
                 .OnActivated(args =>
                 {
-                    BitmapHelper.StreamConverters["greenshot"] = args.Instance;
+                    BitmapHelper.RegisterFormatReader(args.Instance);
                 });
 
             base.Load(builder);
