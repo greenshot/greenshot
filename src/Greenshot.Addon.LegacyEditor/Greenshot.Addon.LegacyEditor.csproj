@@ -112,8 +112,6 @@
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.26" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.26" />
     <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.18" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.28" />
     <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.28" />

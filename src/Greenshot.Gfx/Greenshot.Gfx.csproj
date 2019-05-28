@@ -9,7 +9,7 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.26</Version>
+      <Version>1.2.28</Version>
     </PackageReference>
     <PackageReference Include="Svg">
       <Version>2.4.3</Version>

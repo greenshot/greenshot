@@ -23,13 +23,13 @@
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.2.26</Version>
+      <Version>1.2.28</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
-      <Version>1.2.26</Version>
+      <Version>1.2.28</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.26</Version>
+      <Version>1.2.28</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
       <Version>0.9.18</Version>

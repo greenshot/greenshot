@@ -21,6 +21,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Windows.Desktop;
@@ -40,6 +41,13 @@ namespace Greenshot.Tests
     /// </summary>
     public class CaptureTests
     {
+
+        public CaptureTests()
+        {
+            // Make sure the tests work
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+        }
+
         /// <summary>
         /// Test if a capture with the screen works
         /// </summary>
@@ -113,7 +121,9 @@ namespace Greenshot.Tests
             var bounds = windowToCapture.GetInfo().Bounds;
             var captureFlow = new CaptureFlow<BitmapSource>
             {
-                Sources = { new DwmWindowSource(config, () => windowToCapture) }
+                Sources = {
+                    new DwmWindowSource(config, () => windowToCapture)
+                }
             };
             var capture = await captureFlow.Execute();
             Assert.NotNull(capture);

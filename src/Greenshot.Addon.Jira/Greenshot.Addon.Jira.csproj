@@ -22,8 +22,6 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.26" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.26" />
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
     <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
     <PackageReference Include="Dapplo.Utils" Version="1.1.18" />
