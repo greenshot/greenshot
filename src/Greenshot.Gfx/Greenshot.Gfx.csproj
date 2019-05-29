@@ -1,16 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework><!-- net472;netcoreapp3.0 -->
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8</LangVersion>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.28</Version>
-    </PackageReference>
+    <PackageReference Include="Dapplo.Windows.Common" Version="0.8.30" />
     <PackageReference Include="Svg">
       <Version>2.4.3</Version>
     </PackageReference>

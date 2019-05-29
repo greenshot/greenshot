@@ -23,13 +23,14 @@
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.2.28</Version>
+      <Version>1.2.29</Version>
     </PackageReference>
+    <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="1.2.29" />
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
-      <Version>1.2.28</Version>
+      <Version>1.2.29</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.28</Version>
+      <Version>1.2.29</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.HttpExtensions">
       <Version>0.9.18</Version>
@@ -40,14 +41,15 @@
     <PackageReference Include="Dapplo.HttpExtensions.OAuth">
       <Version>0.9.18</Version>
     </PackageReference>
+    <PackageReference Include="Dapplo.Windows" Version="0.8.30" />
     <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.8.28</Version>
+      <Version>0.8.30</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Dpi">
-      <Version>0.8.28</Version>
+      <Version>0.8.30</Version>
     </PackageReference>
     <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.8.28</Version>
+      <Version>0.8.30</Version>
     </PackageReference>
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>

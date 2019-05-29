@@ -109,22 +109,6 @@ namespace Greenshot.PerformanceTests
         }
 
         [Benchmark]
-        public void Blur_UnmanagedBitmapReference()
-        {
-            using (var unmanagedBitmap = new UnmanagedBitmap<Bgr32>(400, 400))
-            {
-                unmanagedBitmap.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
-                using (var graphics = Graphics.FromImage(unmanagedBitmap.NativeBitmap))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                }
-
-                unmanagedBitmap.ApplyBoxBlurReference(10);
-            }
-        }
-
-        [Benchmark]
         public void Blur_Old()
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))

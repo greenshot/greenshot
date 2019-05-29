@@ -5,12 +5,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.8.28</Version>
-    </PackageReference>
-  </ItemGroup>
 
   <ItemGroup>
    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />

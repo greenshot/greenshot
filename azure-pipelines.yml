@@ -15,7 +15,7 @@ steps:
 - task: DotNetCoreInstaller@0
   displayName: 'Install .NET Core SDK 3.0'
   inputs:
-    version: '3.0.100-preview6-012096'
+    version: '3.0.100-preview6-012102'
 
 - task: NuGetToolInstaller@0
   displayName: 'Use NuGet 5.0.0'
@@ -35,7 +35,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64 /p:PublishReadyToRun=true'
+    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x64 /p:PublishReadyToRun=true /p:PublishTrimmed=true'
     zipAfterPublish: false
 
 - task: CmdLine@2
@@ -49,7 +49,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x86 /p:PublishReadyToRun=true'
+    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:UseAppHost=true /p:RuntimeIdentifier=win-x86 /p:PublishReadyToRun=true /p:PublishTrimmed=true'
     zipAfterPublish: false
 
 - task: CmdLine@2
