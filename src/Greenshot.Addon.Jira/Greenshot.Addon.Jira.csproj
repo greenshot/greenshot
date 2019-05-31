@@ -22,7 +22,7 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-	<PackageReference Include="Dapplo.Jira" Version="0.8.9" />
+	<PackageReference Include="Dapplo.Jira" Version="0.8.15" />
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
