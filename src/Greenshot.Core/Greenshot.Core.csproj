@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.33" />
+  </ItemGroup>
+
+  <ItemGroup>
    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
   </ItemGroup>
 

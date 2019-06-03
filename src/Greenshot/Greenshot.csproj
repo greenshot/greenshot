@@ -58,7 +58,7 @@
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
     <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="1.2.29" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="1.2.31" />
     <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.20" />
     <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.20" />
     <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.8.33" />
