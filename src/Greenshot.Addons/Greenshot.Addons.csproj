@@ -5,10 +5,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
-	<PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Checkerboard.Image.png" />
@@ -22,43 +18,23 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration">
-      <Version>1.2.28</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Toasts">
-      <Version>1.2.28</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations">
-      <Version>1.2.28</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions">
-      <Version>0.9.18</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet">
-      <Version>0.9.18</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth">
-      <Version>0.9.18</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Clipboard">
-      <Version>0.8.28</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Dpi">
-      <Version>0.8.28</Version>
-    </PackageReference>
-    <PackageReference Include="Dapplo.Windows.Icons">
-      <Version>0.8.28</Version>
-    </PackageReference>
+    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.31" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="1.2.31" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Toasts" Version="1.2.31" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.31" />
+    <PackageReference Include="Dapplo.HttpExtensions" Version="0.9.21" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.21" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.21" />
+    <PackageReference Include="Dapplo.Windows" Version="0.8.33" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.33" />
+    <PackageReference Include="Dapplo.Windows.Dpi" Version="0.8.33" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.33" />
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MahApps.Metro.IconPacks">
-      <Version>3.0.0-alpha0146</Version>
-    </PackageReference>
-    <PackageReference Include="Svg">
-      <Version>2.4.3</Version>
-    </PackageReference>
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0146" />
+    <PackageReference Include="Svg" Version="2.4.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,24 +19,6 @@
     </None>
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' ">
-    <PackageReference Include="System.Collections" Version="4.3.0" />
-    <PackageReference Include="System.Console" Version="4.3.1" />
-    <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
-    <PackageReference Include="System.Globalization" Version="4.3.0" />
-    <PackageReference Include="System.IO" Version="4.3.0" />
-    <PackageReference Include="System.Linq" Version="4.3.0" />
-    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
-    <PackageReference Include="System.Management" Version="4.5.0" />
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
-    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
-    <PackageReference Include="System.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="4.5.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Resources\camera.wav" />
     <EmbeddedResource Include="Resources\contextmenu_capturearea.Image.png" />
@@ -58,24 +40,15 @@
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
     <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="1.2.28" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Configuration" Version="1.2.28" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="1.2.28" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Toasts" Version="1.2.28" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="1.2.28" />
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.9.18" />
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.9.18" />
-    <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.11" />
-    <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.11" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.28" />
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.28" />
-    <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.8.28" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="1.2.31" />
+    <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.20" />
+    <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.20" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.8.33" />
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.0.1" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0146" />
     <PackageReference Include="Svg" Version="2.4.3" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />

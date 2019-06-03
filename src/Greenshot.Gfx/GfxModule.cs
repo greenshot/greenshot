@@ -19,7 +19,6 @@
 
 using Autofac;
 using Dapplo.Addons;
-using Greenshot.Gfx;
 using Greenshot.Gfx.Formats;
 
 namespace Greenshot.Gfx

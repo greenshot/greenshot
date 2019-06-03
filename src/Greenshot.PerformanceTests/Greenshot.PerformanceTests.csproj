@@ -9,18 +9,6 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="System.Console" Version="4.3.1" />
-    <PackageReference Include="System.IO" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
-    <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
@@ -35,6 +23,5 @@
     <PackageReference Include="SharpAvi" Version="2.1.1" />
     <PackageReference Include="System.Memory" Version="4.5.3" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 </Project>

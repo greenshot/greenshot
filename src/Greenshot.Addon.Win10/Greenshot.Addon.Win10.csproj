@@ -19,9 +19,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.8.28" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2002-preview" />
-	<PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview4.19212.13" />
+    <PackageReference Include="System.Runtime.WindowsRuntime" Version="4.6.0-preview4.19212.13" />
     <PackageReference Include="Microsoft.Toolkit.Forms.UI.Controls" Version="6.0.0-preview4.1" />
   </ItemGroup>
 </Project>
