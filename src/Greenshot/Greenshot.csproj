@@ -57,9 +57,13 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addon.ExternalCommand\Greenshot.Addon.ExternalCommand.csproj" />
+    <TrimmerRootAssembly Include="Greenshot.Addon.ExternalCommand" />
     <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
+    <TrimmerRootAssembly Include="Greenshot.Addon.InternetExplorer" />
     <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
+    <TrimmerRootAssembly Include="Greenshot.Addon.LegacyEditor" />
     <ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
+    <TrimmerRootAssembly Include="Greenshot.Addon.Office" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />

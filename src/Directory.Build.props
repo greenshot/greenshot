@@ -53,6 +53,10 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('.Addon.'))">
+    <RootPackageReference>true</RootPackageReference>
+  </PropertyGroup>
+
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.167">
       <PrivateAssets>all</PrivateAssets>
