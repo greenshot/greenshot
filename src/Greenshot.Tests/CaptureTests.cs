@@ -20,6 +20,7 @@
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
@@ -117,7 +118,19 @@ namespace Greenshot.Tests
         {
             ICoreConfiguration config = new CoreConfigurationImpl();
 
-            var windowToCapture = InteropWindowQuery.GetTopLevelWindows().First(window => window.GetCaption().Contains("Notepad"));
+            var textValue = System.Guid.NewGuid().ToString();
+            var form = new Form
+            {
+                Text = textValue,
+                TopLevel = true
+            };
+            form.Show();
+            // Important, otherwise Windows doesn't have time to display the window!
+            Application.DoEvents();
+
+            await Task.Delay(400);
+            var windowToCapture = await WindowsEnumerator.EnumerateWindowsAsync().Where(info => info.GetCaption().Contains(textValue)).FirstOrDefaultAsync();
+
             var bounds = windowToCapture.GetInfo().Bounds;
             var captureFlow = new CaptureFlow<BitmapSource>
             {
