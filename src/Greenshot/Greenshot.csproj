@@ -53,7 +53,6 @@
     <ProjectReference Include="..\Greenshot.Addon.InternetExplorer\Greenshot.Addon.InternetExplorer.csproj" />
     <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj" />
     <ProjectReference Include="..\Greenshot.Addon.Office\Greenshot.Addon.Office.csproj" />
-    <ProjectReference Include="..\Greenshot.Addon.Win10\Greenshot.Addon.Win10.csproj" />
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
