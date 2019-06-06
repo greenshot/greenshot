@@ -34,16 +34,18 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 		private readonly List<NativePoint> _points = new List<NativePoint>();
 		private readonly List<Size> _sizes = new List<Size>();
 		private IDrawableContainerList _listOfdrawableContainer;
+        private readonly IEditorLanguage _editorLanguage;
 
-		public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfdrawableContainer)
+        public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfdrawableContainer, IEditorLanguage editorLanguage)
 		{
 			_listOfdrawableContainer = listOfdrawableContainer;
-			StoreBounds();
+            _editorLanguage = editorLanguage;
+            StoreBounds();
 		}
 
 		public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer)
 		{
-			_listOfdrawableContainer = new DrawableContainerList
+			_listOfdrawableContainer = new DrawableContainerList(_editorLanguage)
 			{
 				drawableContainer
 			};
@@ -73,7 +75,7 @@ namespace Greenshot.Addon.LegacyEditor.Memento
 
 		public IMemento Restore()
 		{
-			var oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer);
+			var oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer, _editorLanguage);
 			for (var index = 0; index < _listOfdrawableContainer.Count; index++)
 			{
 				var drawableContainer = _listOfdrawableContainer[index];

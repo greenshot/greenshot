@@ -42,15 +42,20 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 	[Serializable]
 	public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
 	{
-		public Guid ParentID {
+        private readonly IEditorLanguage _editorLanguage;
+
+        public Guid ParentID {
 			get;
 			private set;
 		}
 
-		public DrawableContainerList() {
-		}
+		public DrawableContainerList(IEditorLanguage editorLanguage)
+        {
+            _editorLanguage = editorLanguage;
+        }
 
-		public DrawableContainerList(Guid parentId) {
+		public DrawableContainerList(Guid parentId, IEditorLanguage editorLanguage) : this(editorLanguage)
+        {
 			ParentID = parentId;
 		}
 		
@@ -114,9 +119,9 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		        return;
 		    }
 
-		    var clone = new DrawableContainerList();
+		    var clone = new DrawableContainerList(_editorLanguage);
 		    clone.AddRange(this);
-		    Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
+		    Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone, _editorLanguage), allowMerge);
 		}
 
 		/// <summary>
@@ -411,20 +416,18 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			bool push = surface.Elements.CanPushDown(this);
 			bool pull = surface.Elements.CanPullUp(this);
 
-		    var editorLanguage = CommonServiceLocator.ServiceLocator.Current.GetInstance<IEditorLanguage>();
-
 			ToolStripMenuItem item;
 
 			// Pull "up"
 			if (pull) {
-				item = new ToolStripMenuItem(editorLanguage.EditorUptotop);
+				item = new ToolStripMenuItem(_editorLanguage.EditorUptotop);
 				item.Click += (sender, args) =>
 				{
 				    surface.Elements.PullElementsToTop(this);
 				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(editorLanguage.EditorUponelevel);
+				item = new ToolStripMenuItem(_editorLanguage.EditorUponelevel);
 				item.Click += (sender, args) =>
 				{
 				    surface.Elements.PullElementsUp(this);
@@ -434,14 +437,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			}
 			// Push "down"
 			if (push) {
-				item = new ToolStripMenuItem(editorLanguage.EditorDowntobottom);
+				item = new ToolStripMenuItem(_editorLanguage.EditorDowntobottom);
 				item.Click += (sender, args) =>
 				{
 				    surface.Elements.PushElementsToBottom(this);
 				    surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(editorLanguage.EditorDownonelevel);
+				item = new ToolStripMenuItem(_editorLanguage.EditorDownonelevel);
 				item.Click += (sender, args) =>
 				{
 				    surface.Elements.PushElementsDown(this);
@@ -451,7 +454,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			}
 
 			// Duplicate
-			item = new ToolStripMenuItem(editorLanguage.EditorDuplicate);
+			item = new ToolStripMenuItem(_editorLanguage.EditorDuplicate);
 			item.Click += (sender, args) =>
 			{
 			    IDrawableContainerList dcs = this.Clone();
@@ -464,7 +467,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Copy
-			item = new ToolStripMenuItem(editorLanguage.EditorCopytoclipboard)
+			item = new ToolStripMenuItem(_editorLanguage.EditorCopytoclipboard)
 			{
 				Image = GreenshotResources.Instance.GetBitmap("copyToolStripMenuItem.Image", GetType()).NativeBitmap
 			};
@@ -472,7 +475,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Cut
-			item = new ToolStripMenuItem(editorLanguage.EditorCuttoclipboard)
+			item = new ToolStripMenuItem(_editorLanguage.EditorCuttoclipboard)
 			{
 				Image = GreenshotResources.Instance.GetBitmap("btnCut.Image", GetType()).NativeBitmap
 			};
@@ -484,7 +487,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Delete
-		    item = new ToolStripMenuItem(editorLanguage.EditorDeleteelement)
+		    item = new ToolStripMenuItem(_editorLanguage.EditorDeleteelement)
 		    {
 		        Image = GreenshotResources.Instance.GetBitmap("removeObjectToolStripMenuItem.Image", GetType()).NativeBitmap
 		    };
@@ -507,7 +510,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		        return;
 		    }
 
-		    item = new ToolStripMenuItem(editorLanguage.EditorResetsize);
+		    item = new ToolStripMenuItem(_editorLanguage.EditorResetsize);
 		    //item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
 		    item.Click += (sender, args) =>
 		    {

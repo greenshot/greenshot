@@ -14,10 +14,7 @@
     <FileVersion>1.0.0</FileVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <OsProductName>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@ProductName)</OsProductName>
-    <!--RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers-->
-    <ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
-    <ExtrasEnableWinFormsProjectSetup>true</ExtrasEnableWinFormsProjectSetup>
+    <RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
@@ -28,6 +25,16 @@
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   
+  <!-- ILLinker and single file settings -->
+  <ItemGroup Condition="$(MSBuildProjectName) == 'Greenshot'">
+    <TrimmerRootAssembly Include="netstandard" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName) == 'Greenshot'">
+	<IncludeSymbolsInSingleFile>false</IncludeSymbolsInSingleFile>
+	<ShowLinkerSizeComparison>true</ShowLinkerSizeComparison>
+  </PropertyGroup>
+	  
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
@@ -53,19 +60,15 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('.Addon.'))">
-    <RootPackageReference>true</RootPackageReference>
-  </PropertyGroup>
-
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.167">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All"/>
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo')) And ($(OsProductName.Contains('Windows 10')) Or (!$(OsProductName.Contains('Windows 10')) And !$(MSBuildProjectName.Contains('Win10'))))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
     xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;

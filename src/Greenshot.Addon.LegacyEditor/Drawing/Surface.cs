@@ -63,6 +63,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         [NonSerialized]
         private readonly IEditorConfiguration _editorConfiguration;
 
+        private readonly IEditorLanguage _editorLanguage;
+
         [NonSerialized]
         private readonly ICoreConfiguration _coreConfiguration;
 
@@ -102,7 +104,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		private int _counterStart = 1;
 
 		/// <summary>
-		///     the cropcontainer, when cropping this is set, do not serialize
+		///     the crop container, when cropping this is set, do not serialize
 		/// </summary>
 		[NonSerialized]
         private IDrawableContainer _cropContainer;
@@ -219,14 +221,15 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <summary>
 		///     Base Surface constructor
 		/// </summary>
-		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration)
+		public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IEditorLanguage editorLanguage)
 		{
             _editorConfiguration = editorConfiguration;
+            _editorLanguage = editorLanguage;
             _coreConfiguration = coreConfiguration;
-			_fieldAggregator = new FieldAggregator(this, editorConfiguration);
+			_fieldAggregator = new FieldAggregator(this, editorConfiguration, editorLanguage);
 			Count++;
-			_elements = new DrawableContainerList(Id);
-			_selectedElements = new DrawableContainerList(Id);
+			_elements = new DrawableContainerList(Id, _editorLanguage);
+			_selectedElements = new DrawableContainerList(Id, _editorLanguage);
 			Log.Debug().WriteLine("Creating surface!");
 			MouseDown += SurfaceMouseDown;
 			MouseUp += SurfaceMouseUp;
@@ -255,7 +258,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="editorConfiguration">IEditorConfiguration</param>
         /// <param name="newBitmap">IBitmapWithNativeSupport</param>
-        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IBitmapWithNativeSupport newBitmap) : this(coreConfiguration, editorConfiguration)
+        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IEditorLanguage editorLanguage, IBitmapWithNativeSupport newBitmap) : this(coreConfiguration, editorConfiguration, editorLanguage)
 		{
 			Log.Debug().WriteLine("Got Bitmap with dimensions {0} and format {1}", newBitmap.Size, newBitmap.PixelFormat);
 			SetBitmap(newBitmap, true);
@@ -267,7 +270,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="editorConfiguration">IEditorConfiguration</param>
         /// <param name="capture">ICapture</param>
-        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, ICapture capture) : this(coreConfiguration, editorConfiguration)
+        public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IEditorLanguage editorLanguage, ICapture capture) : this(coreConfiguration, editorConfiguration, editorLanguage)
 		{
 			SetCapture(capture);
 		}
@@ -665,7 +668,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public void RemoveElements(IDrawableContainerList elementsToRemove, bool makeUndoable = true)
 		{
 			// fix potential issues with iterating a changing list
-			var cloned = new DrawableContainerList();
+			var cloned = new DrawableContainerList(_editorLanguage);
 			cloned.AddRange(elementsToRemove);
 			if (makeUndoable)
 			{
@@ -724,7 +727,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		public void AddElements(IDrawableContainerList elementsToAdd, bool makeUndoable = true)
 		{
 			// fix potential issues with iterating a changing list
-			var cloned = new DrawableContainerList();
+			var cloned = new DrawableContainerList(_editorLanguage);
 			cloned.AddRange(elementsToAdd);
 			if (makeUndoable)
 			{
@@ -1400,7 +1403,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					var rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
 					if (rightClickedContainer != null)
 					{
-						selectedList = new DrawableContainerList(Id) {rightClickedContainer};
+						selectedList = new DrawableContainerList(Id, _editorLanguage) {rightClickedContainer};
 					}
 				}
 				if (selectedList != null && selectedList.Count > 0)

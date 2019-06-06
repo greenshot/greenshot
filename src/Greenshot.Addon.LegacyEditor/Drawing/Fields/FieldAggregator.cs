@@ -43,14 +43,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
 		private readonly IDrawableContainerList _boundContainers;
 		private bool _internalUpdateRunning;
 
-		public FieldAggregator(ISurface parent, IEditorConfiguration editorConfiguration) : base(editorConfiguration) 
+		public FieldAggregator(ISurface parent, IEditorConfiguration editorConfiguration, IEditorLanguage editorLanguage) : base(editorConfiguration) 
 		{
 			foreach (var fieldType in FieldTypes.Values)
 			{
 				var field = new Field(fieldType, GetType());
 				AddField(field);
 			}
-			_boundContainers = new DrawableContainerList
+			_boundContainers = new DrawableContainerList(editorLanguage)
 			{
 				Parent = parent
 			};

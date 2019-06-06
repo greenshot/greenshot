@@ -28,9 +28,7 @@ using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
-#if !NETCOREAPP3_0
 using Dapplo.Jira.Converters;
-#endif
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
 using Greenshot.Addon.Jira.Configuration;
@@ -98,15 +96,13 @@ namespace Greenshot.Addon.Jira
 
 		public void UpdateSvgSize(int size)
 		{
-#if !NETCOREAPP3_0
 			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = size, Height = size });
-#endif
 		}
 
 		/// <summary>
 		///     Internal login which catches the exceptions
 		/// </summary>
-		/// <returns>true if login was done sucessfully</returns>
+		/// <returns>true if login was done successfully</returns>
 		private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken = default)
 		{
 			if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))

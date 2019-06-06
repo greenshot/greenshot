@@ -72,9 +72,6 @@ namespace Greenshot
                 .WithMutex("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08")
                 .WithCaliburnMicro()
                 .WithoutCopyOfEmbeddedAssemblies()
-#if !NETCOREAPP3_0
-                .WithoutCopyOfAssembliesToProbingPath()
-#endif
                 .WithAssemblyPatterns("Greenshot.Addon.*")
                 .BuildApplicationConfig();
 
@@ -93,7 +90,7 @@ namespace Greenshot
                 return -1;
             }
 
-            //RegisterErrorHandlers(application);
+            RegisterErrorHandlers(application);
 
             application.Run();
             return 0;
@@ -118,27 +115,38 @@ namespace Greenshot
         /// <param name="exception">Exception</param>
         private static async void DisplayErrorViewModel(Dapplication application, Exception exception)
         {
-            var windowManager = application.Bootstrapper.Container?.Resolve<IWindowManager>();
-            if (windowManager == null)
+            var log = new LogSource();
+            log.Error().WriteLine(exception, "An error occured:", null);
+            try
             {
-                Debugger.Break();
-                return;
-            }
-            using (var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>())
-            {
-                if (errorViewModel == null)
+                var windowManager = application.Bootstrapper.Container?.Resolve<IWindowManager>();
+                if (windowManager == null)
                 {
+                    Debugger.Break();
                     return;
                 }
-                errorViewModel.Value.SetExceptionToDisplay(exception);
-                if (!UiContext.HasUiAccess)
+
+                using (var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>())
                 {
-                    await UiContext.RunOn(() => windowManager.ShowDialog(errorViewModel.Value));
+                    if (errorViewModel == null)
+                    {
+                        return;
+                    }
+
+                    errorViewModel.Value.SetExceptionToDisplay(exception);
+                    if (!UiContext.HasUiAccess)
+                    {
+                        await UiContext.RunOn(() => windowManager.ShowDialog(errorViewModel.Value));
+                    }
+                    else
+                    {
+                        windowManager.ShowDialog(errorViewModel.Value);
+                    }
                 }
-                else
-                {
-                    windowManager.ShowDialog(errorViewModel.Value);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error().WriteLine(ex, "An error occured while displaying the error:", null);
             }
         }
 
@@ -174,7 +182,6 @@ namespace Greenshot
             using (var multiInstanceForm = new DpiAwareForm
             {
 
-                // TODO: Fix a problem that in this case instance is null 
                 Icon = greenshotResources.GetGreenshotIcon(),
                 ShowInTaskbar = true,
                 MaximizeBox = false,

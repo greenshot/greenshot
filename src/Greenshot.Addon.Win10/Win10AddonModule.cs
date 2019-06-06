@@ -33,25 +33,31 @@ namespace Greenshot.Addon.Win10
         /// <inheritdoc />
         protected override void Load(ContainerBuilder builder)
         {
-            if (WindowsVersion.IsWindows10OrLater)
+            if (!WindowsVersion.IsWindows10OrLater)
             {
-                builder
-                    .RegisterType<Win10OcrDestination>()
-                    .As<IDestination>()
-                    .SingleInstance();
-
-#if !NETCOREAPP3_0
-                builder
-                    .RegisterType<Win10FormEnhancer>()
-                    .As<IFormEnhancer>()
-                    .SingleInstance();
-#endif
-
-                builder
-                    .RegisterType<Win10ShareDestination>()
-                    .As<IDestination>()
-                    .SingleInstance();
+                // Workaround: Remove the assembly out of the visibility of CaliburnMicro so we don't get an exception
+                builder.RegisterBuildCallback(container =>
+                {
+                    var assemblyResolver = container.Resolve<IAssemblyResolver>();
+                    assemblyResolver.LoadedAssemblies.Remove(ThisAssembly.GetName().Name);
+                });
+                return;
             }
+
+            builder
+                .RegisterType<Win10OcrDestination>()
+                .As<IDestination>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<Win10FormEnhancer>()
+                .As<IFormEnhancer>()
+                .SingleInstance();
+
+            builder
+                .RegisterType<Win10ShareDestination>()
+                .As<IDestination>()
+                .SingleInstance();
             base.Load(builder);
         }
     }

@@ -61,6 +61,7 @@ namespace Greenshot.Addon.LegacyEditor
                 .RegisterType<EditorFactory>()
                 .AsSelf()
                 .SingleInstance();
+
             builder
                 .RegisterType<ResizeSettingsForm>()
                 .AsSelf();
