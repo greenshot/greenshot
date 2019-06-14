@@ -33,6 +33,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.0.3" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="3.0.0-alpha0146" />
     <PackageReference Include="Svg" Version="2.4.3" />
   </ItemGroup>

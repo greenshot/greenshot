@@ -20,6 +20,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
@@ -56,6 +57,9 @@ namespace Greenshot
         [STAThread]
         public static int Main(string[] arguments)
         {
+            // Workaround for https://github.com/dotnet/wpf/issues/684 & https://github.com/dotnet/wpf/issues/913
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
             // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
             StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
