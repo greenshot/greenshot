@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.Office</RootNamespace>
     <AssemblyName>Greenshot.Addon.Office</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +18,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
+    <PackageReference Include="AutoProperties.Fody" Version="1.22.0" />
     <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
     <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1003" />

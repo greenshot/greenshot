@@ -3,11 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.33" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.34" />
   </ItemGroup>
 
   <ItemGroup>

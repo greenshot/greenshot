@@ -3,28 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Com">
-      <Version>0.8.33</Version>
-    </PackageReference>
+    <PackageReference Include="Dapplo.Windows.Com" Version="0.8.34" />
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>
   
     <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
-      <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
-      <Name>Greenshot.Addons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
-      <Project>{bf35190d-b2a7-4cfa-b397-51cb384cf0d7}</Project>
-      <Name>Greenshot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
-      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
-      <Name>Greenshot.Gfx</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj" />
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
   </ItemGroup>
 </Project>

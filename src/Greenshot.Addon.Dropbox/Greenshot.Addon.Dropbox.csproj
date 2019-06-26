@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.Dropbox</RootNamespace>
     <AssemblyName>Greenshot.Addon.Dropbox</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

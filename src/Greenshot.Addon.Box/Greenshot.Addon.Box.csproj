@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.Box</RootNamespace>
     <AssemblyName>Greenshot.Addon.Box</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms><!-- net472;netcoreapp3.0 -->
   </PropertyGroup>
 
   <ItemGroup>

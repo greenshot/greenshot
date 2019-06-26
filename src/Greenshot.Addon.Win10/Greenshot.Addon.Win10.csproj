@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.Win10</RootNamespace>
     <AssemblyName>Greenshot.Addon.Win10</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

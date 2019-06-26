@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.Confluence</RootNamespace>
     <AssemblyName>Greenshot.Addon.Confluence</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +25,7 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-    <PackageReference Include="Dapplo.Confluence" Version="0.8.19" />
+    <PackageReference Include="Dapplo.Confluence" Version="0.8.20" />
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

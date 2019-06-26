@@ -34,6 +34,8 @@ using Dapplo.Config.Language;
 using Dapplo.Log;
 #if DEBUG
 using Dapplo.Log.Loggers;
+#else
+using Dapplo.Log.LogFile;
 #endif
 using Dapplo.Utils;
 using Dapplo.Windows.Common.Structs;
@@ -65,6 +67,8 @@ namespace Greenshot
 #if DEBUG
             // Initialize a debug logger for Dapplo packages
             LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Debug);
+#else
+            LogSettings.RegisterDefaultLogger<ForwardingLogger>(LogLevels.Debug);
 #endif
             var applicationConfig = ApplicationConfigBuilder
                 .Create()

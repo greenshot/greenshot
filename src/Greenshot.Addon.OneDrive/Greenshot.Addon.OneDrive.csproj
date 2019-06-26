@@ -4,7 +4,6 @@
     <RootNamespace>Greenshot.Addon.OneDrive</RootNamespace>
     <AssemblyName>Greenshot.Addon.OneDrive</AssemblyName>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
