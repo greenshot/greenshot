@@ -23,7 +23,6 @@ using Autofac;
 using Dapplo.Addons;
 using Dapplo.Windows.Common;
 using Greenshot.Addons.Components;
-using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Win10
 {
@@ -50,14 +49,10 @@ namespace Greenshot.Addon.Win10
                 .SingleInstance();
 
             builder
-                .RegisterType<Win10FormEnhancer>()
-                .As<IFormEnhancer>()
-                .SingleInstance();
-
-            builder
                 .RegisterType<Win10ShareDestination>()
                 .As<IDestination>()
                 .SingleInstance();
+
             base.Load(builder);
         }
     }
