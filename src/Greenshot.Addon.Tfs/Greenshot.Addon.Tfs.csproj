@@ -23,7 +23,7 @@
   
   <ItemGroup>
     <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-	<PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0316" />
+	<PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0391" />
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

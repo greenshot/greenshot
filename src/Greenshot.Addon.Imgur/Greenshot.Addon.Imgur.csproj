@@ -28,6 +28,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0316" />
+    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0391" />
   </ItemGroup>
 </Project>
