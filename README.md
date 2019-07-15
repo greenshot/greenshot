@@ -2,7 +2,9 @@ Greenshot - a free screenshot tool optimized for productivity
 =============================================================
 [![Backers on Open Collective](https://opencollective.com/greenshot/backers/badge.svg)](#backers)
  [![Sponsors on Open Collective](https://opencollective.com/greenshot/sponsors/badge.svg)](#sponsors) 
- 
+
+[![Build Status](https://dev.azure.com/greenshot/Greenshot/_apis/build/status/greenshot?branchName=develop)](https://dev.azure.com/greenshot/Greenshot/_build/latest?definitionId=1&branchName=develop)
+
 Welcome to the source repository for Greenshot
 
 What is Greenshot?
@@ -35,7 +37,7 @@ Quick start for developers
 * Open the solution from the src directory in Visual Studio
 * Rebuild and start...
 
-If you can't use Visual Studio 2019 (preview) try the following:
+If you can't use Visual Studio 2019, Rider from Jetbrains is also supported and you can also work with the commandline:
 * Open a powershell / shell in the directory where you cloned this repo
 * run dotnet build src/Greenshot.sln
 
