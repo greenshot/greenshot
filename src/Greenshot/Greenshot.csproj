@@ -46,6 +46,7 @@
     </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.0.3" />
     <PackageReference Include="Svg" Version="2.4.3" />
+	<TrimmerRootAssembly Include="System.Diagnostics.Debug" />
   </ItemGroup>
   
   <ItemGroup>
