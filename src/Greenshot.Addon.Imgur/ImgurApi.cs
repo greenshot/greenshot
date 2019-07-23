@@ -25,12 +25,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
 using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Greenshot.Addon.Imgur.Configuration;
 using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Core;
@@ -101,7 +101,7 @@ namespace Greenshot.Addon.Imgur
             var localBehaviour = Behaviour.ShallowClone();
             if (progress != null)
             {
-                localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+                localBehaviour.UploadProgress = percent => Execute.OnUIThread(() => progress.Report((int)(percent * 100)));
             }
 
             using (var imageStream = new MemoryStream())
@@ -132,7 +132,7 @@ namespace Greenshot.Addon.Imgur
             var localBehaviour = Behaviour.ShallowClone();
             if (progress != null)
             {
-                localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+                localBehaviour.UploadProgress = percent => Execute.OnUIThread(() => progress.Report((int) (percent * 100)));
             }
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
             using (var imageStream = new MemoryStream())

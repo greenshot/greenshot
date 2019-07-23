@@ -127,7 +127,7 @@ namespace Greenshot.Addons.Core
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
 		/// <param name="useLargeIcon">true to use the large icon</param>
-		/// <returns>Bitmap with the icon or null if something happended. you are responsible for copying this icon</returns>
+		/// <returns>Bitmap with the icon or null if something happened. you are responsible for copying this icon</returns>
 		public static IBitmapWithNativeSupport GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			string cacheKey = $"{path}:{index}";

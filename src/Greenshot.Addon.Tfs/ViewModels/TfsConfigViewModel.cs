@@ -105,7 +105,7 @@ namespace Greenshot.Addon.Tfs.ViewModels
         /// <inheritdoc />
         protected override void OnDeactivate(bool close)
         {
-            var ignoreTask = TfsClient.UpdateWorkItems();
+            _ = TfsClient.UpdateWorkItems();
             _disposables.Dispose();
             base.OnDeactivate(close);
         }

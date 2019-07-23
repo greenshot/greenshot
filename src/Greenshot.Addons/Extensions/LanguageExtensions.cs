@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dapplo.Config.Extensions;
 using Dapplo.Config.Language;
-using Dapplo.Utils.Extensions;
 
 namespace Greenshot.Addons.Extensions
 {

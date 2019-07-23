@@ -25,12 +25,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.OneDrive.Configuration;
 using Greenshot.Addon.OneDrive.Entities;
@@ -224,7 +224,7 @@ namespace Greenshot.Addon.OneDrive
             var localBehaviour = _oneDriveHttpBehaviour.ShallowClone();
             if (progress != null)
             {
-                localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+                localBehaviour.UploadProgress = percent => { Execute.OnUIThread(() => progress.Report((int)(percent * 100))); };
             }
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
             using (var imageStream = new MemoryStream())

@@ -24,12 +24,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Greenshot.Addon.Photobucket.Configuration;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
@@ -265,7 +265,7 @@ namespace Greenshot.Addon.Photobucket
             // Use UploadProgress
             if (progress != null)
             {
-                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+                oAuthHttpBehaviour.UploadProgress = percent => { Execute.OnUIThread(() => progress.Report((int)(percent * 100))); };
             }
             _oAuthHttpBehaviour.MakeCurrent();
             if (_photobucketConfiguration.Username == null || _photobucketConfiguration.SubDomain == null)

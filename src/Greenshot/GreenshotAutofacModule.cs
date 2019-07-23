@@ -24,6 +24,7 @@ using Autofac;
 using Autofac.Features.AttributeFilters;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro.Configuration;
+using Dapplo.CaliburnMicro.Metro;
 using Dapplo.CaliburnMicro.Security;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
@@ -31,7 +32,6 @@ using Greenshot.Addons.Components;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Configuration;
-using Greenshot.Configuration.Impl;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Helpers.Mapi;
@@ -64,7 +64,19 @@ namespace Greenshot
                 .SingleInstance();
 
             builder
-                .RegisterType<MetroConfigurationImpl>()
+                .Register(c =>
+                {
+                    var metroConfiguration = IniSection<IMetroConfiguration>.Create();
+
+                    // add specific code
+                    var metroThemeManager = c.Resolve<MetroThemeManager>();
+
+                    metroConfiguration.RegisterAfterLoad(iniSection =>
+                    {
+                        metroThemeManager.ChangeTheme(metroConfiguration.Theme, metroConfiguration.ThemeColor);
+                    });
+                    return metroConfiguration;
+                })
                 .As<IMetroConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
@@ -80,7 +92,7 @@ namespace Greenshot
                 });
 
             builder
-                .RegisterType<ConfigTranslationsImpl>()
+                .Register(c => Language<IConfigTranslations>.Create())
                 .As<IConfigTranslations>()
                 .As<ILanguage>()
                 .SingleInstance();

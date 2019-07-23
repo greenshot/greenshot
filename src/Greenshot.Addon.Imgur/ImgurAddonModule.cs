@@ -23,7 +23,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Imgur.Configuration;
-using Greenshot.Addon.Imgur.Configuration.Impl;
 using Greenshot.Addon.Imgur.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -35,13 +34,13 @@ namespace Greenshot.Addon.Imgur
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ImgurConfigurationImpl>()
+                .Register(c => IniSection<IImgurConfiguration>.Create())
                 .As<IImgurConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .RegisterType<ImgurLanguageImpl>()
+                .Register(c => Language<IImgurLanguage>.Create())
                 .As<IImgurLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();

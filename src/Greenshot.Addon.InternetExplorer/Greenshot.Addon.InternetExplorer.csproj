@@ -6,7 +6,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Com" Version="0.8.34" />
+    <PackageReference Include="Dapplo.Windows.Com" Version="0.9.5" />
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300" />
   </ItemGroup>
   

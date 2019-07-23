@@ -17,23 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Config.Ini;
-using Greenshot.Core.Enums;
+using System.Windows.Media.Imaging;
+using Dapplo.Jira.Entities;
 
-namespace Greenshot.Addon.Confluence.Configuration.Impl
+namespace Greenshot.Addon.Jira
 {
-    internal class ConfluenceConfigurationImpl : IniSectionBase<IConfluenceConfiguration>, IConfluenceConfiguration
+    /// <summary>
+    /// This is a cached item
+    /// </summary>
+    public class IssueTypeIcon
     {
-#pragma warning disable 1591
-        public string Url { get; set; }
-        public int Timeout { get; set; }
-        public OutputFormats UploadFormat { get; set; }
-        public int UploadJpegQuality { get; set; }
-        public bool UploadReduceColors { get; set; }
-        public string OutputFileFilenamePattern { get; set; }
-        public bool OpenPageAfterUpload { get; set; }
-        public bool CopyWikiMarkupForImageToClipboard { get; set; }
-        public string SearchSpaceKey { get; set; }
-        public bool IncludePersonSpaces { get; set; }
+        public IssueTypeIcon(IssueType key, BitmapSource icon)
+        {
+            Key = key;
+            Icon = icon;
+        }
+        public IssueType Key { get; }
+        public BitmapSource Icon { get; }
     }
 }

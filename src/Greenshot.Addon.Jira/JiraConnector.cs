@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -31,6 +32,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
+using DynamicData;
 using Greenshot.Addon.Jira.Configuration;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Credentials;
@@ -52,7 +54,7 @@ namespace Greenshot.Addon.Jira
 
 	    // Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
-		private IssueTypeBitmapCache _issueTypeBitmapCache;
+		private readonly SourceCache<IssueTypeIcon, IssueType> _issueTypeBitmapCache = new SourceCache<IssueTypeIcon, IssueType>(icon => icon.Key);
 		private readonly IJiraClient _jiraClient;
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
@@ -110,10 +112,9 @@ namespace Greenshot.Addon.Jira
 				return false;
 			}
 
-			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
 			try
 			{
-				await _jiraClient.Session.StartAsync(user, password, cancellationToken).ConfigureAwait(true);
+                _jiraClient.SetBasicAuthentication(user, password);
 				await _jiraMonitor.AddJiraInstanceAsync(_jiraClient, cancellationToken).ConfigureAwait(true);
 
 				var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
@@ -187,37 +188,28 @@ namespace Greenshot.Addon.Jira
 		/// <summary>
 		///     End the session, if there was one
 		/// </summary>
-		public async Task LogoutAsync(CancellationToken cancellationToken = default)
+		public Task LogoutAsync(CancellationToken cancellationToken = default)
 		{
 			if (_jiraClient != null && IsLoggedIn)
 			{
                 // TODO: Remove Jira Client?
-			    //_jiraMonitor.Dispose();
-				await _jiraClient.Session.EndAsync(cancellationToken);
+                //_jiraMonitor.Dispose();
 				IsLoggedIn = false;
 			}
-		}
+
+            return Task.CompletedTask;
+        }
 
 		/// <summary>
 		///     check the login credentials, to prevent timeouts of the session, or makes a login
 		///     Do not use ConfigureAwait to call this, as it will move await from the UI thread.
 		/// </summary>
 		/// <returns></returns>
-		private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
+		private Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
 		{
-			if (IsLoggedIn)
-			{
-				if (_loggedInTime.AddMinutes(_jiraConfiguration.Timeout - 1).CompareTo(DateTime.Now) < 0)
-				{
-					await LogoutAsync(cancellationToken);
-					await LoginAsync(cancellationToken);
-				}
-			}
-			else
-			{
-				await LoginAsync(cancellationToken);
-			}
-		}
+			// TODO: Do we need to do something?
+            return Task.CompletedTask;
+        }
 
 		/// <summary>
 		///     Get the favourite filters
@@ -304,8 +296,19 @@ namespace Greenshot.Addon.Jira
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Bitmap</returns>
 		public async Task<BitmapSource> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default)
-		{
-			return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
+        {
+            var result = _issueTypeBitmapCache.Lookup(issue.Fields.IssueType);
+            if (result.HasValue)
+            {
+                return result.Value.Icon;
+            }
+
+            _issueTypeBitmapCache.ExpireAfter(icon => TimeSpan.FromMinutes(30), Scheduler.Default);
+            var bitmap = await _jiraClient.Server.GetUriContentAsync<BitmapSource>(issue.Fields.IssueType.IconUri, cancellationToken).ConfigureAwait(false);
+
+            var item = new IssueTypeIcon(issue.Fields.IssueType, bitmap);
+            _issueTypeBitmapCache.AddOrUpdate(item);
+			return bitmap;
 		}
 	}
 }

@@ -27,7 +27,6 @@ using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Config.Intercepting;
 using Dapplo.Config.Language;
-using Dapplo.Utils.Extensions;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -84,6 +83,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// <param name="configTranslations">IConfigTranslations</param>
         /// <param name="metroConfiguration">IMetroConfiguration</param>
         /// <param name="metroThemeManager">MetroThemeManager</param>
+        /// <param name="languageContainer">LanguageContainer</param>
         public UiConfigViewModel(
             ICoreConfiguration coreConfiguration,
             IGreenshotLanguage greenshotLanguage,
@@ -136,8 +136,15 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables?.Dispose();
 
             AvailableThemes.Clear();
-            MetroThemeManager.AvailableThemes.ForEach(themeBaseColor => AvailableThemes.Add(themeBaseColor));
-            MetroThemeManager.AvailableThemeColors.ForEach(colorScheme => AvailableThemeColors.Add(colorScheme));
+
+            foreach (var theme in MetroThemeManager.AvailableThemes)
+            {
+                AvailableThemes.Add(theme);
+            }
+            foreach (var themeColor in MetroThemeManager.AvailableThemeColors)
+            {
+                AvailableThemeColors.Add(themeColor);
+            }
 
             // Place this under the Ui parent
             ParentId = nameof(ConfigIds.Ui);

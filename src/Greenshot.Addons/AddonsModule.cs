@@ -23,7 +23,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addons.Components;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Resources;
@@ -40,7 +39,15 @@ namespace Greenshot.Addons
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<CoreConfigurationImpl>()
+                .Register(c =>
+                {
+                    var coreConfiguration = IniSection<ICoreConfiguration>.Create();
+                    coreConfiguration.RegisterAfterLoad(iniSection =>
+                    {
+                        coreConfiguration.AfterLoad();
+                    });
+                    return coreConfiguration;
+                })
                 .As<ICoreConfiguration>()
                 .As<IUiConfiguration>()
                 .As<IIniSection>()
@@ -57,7 +64,7 @@ namespace Greenshot.Addons
                 });
 
             builder
-                .RegisterType<GreenshotLanguageImpl>()
+                .Register(c => Language<IGreenshotLanguage>.Create())
                 .As<IGreenshotLanguage>()
                 .As<ILanguage>()
                 .SingleInstance()
@@ -68,7 +75,7 @@ namespace Greenshot.Addons
                 });
 
             builder
-                .RegisterType<HttpConfigurationImpl>()
+                .Register(c => IniSection<IHttpConfiguration>.Create())
                 .As<IHttpConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();

@@ -24,7 +24,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Office.Configuration;
-using Greenshot.Addon.Office.Configuration.Impl;
 using Greenshot.Addon.Office.Destinations;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Addon.Office.ViewModels;
@@ -117,14 +116,14 @@ namespace Greenshot.Addon.Office
             if (hasDestination)
             {
                 builder
-                    .RegisterType<OfficeConfigurationImpl>()
+                    .Register(c => IniSection<IOfficeConfiguration>.Create())
                     .As<IOfficeConfiguration>()
                     .As<IIniSection>()
                     .SingleInstance();
 
 
                 builder
-                    .RegisterType<OfficeLanguageImpl>()
+                    .Register(c => Language<IOfficeLanguage>.Create())
                     .As<IOfficeLanguage>()
                     .As<ILanguage>()
                     .SingleInstance();

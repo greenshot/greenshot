@@ -23,7 +23,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addon.ExternalCommand.Configuration;
-using Greenshot.Addon.ExternalCommand.Configuration.Impl;
 using Greenshot.Addon.ExternalCommand.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -35,13 +34,21 @@ namespace Greenshot.Addon.ExternalCommand
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<ExternalCommandConfigurationImpl>()
+                .Register(c =>
+                {
+                    var config = IniSection<IExternalCommandConfiguration>.Create();
+                    config.RegisterAfterLoad(iniSection =>
+                    {
+                        config.AfterLoad();
+                    });
+                    return config;
+                })
                 .As<IExternalCommandConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .RegisterType<ExternalCommandLanguageImpl>()
+                .Register(c => Language<IExternalCommandLanguage>.Create())
                 .As<IExternalCommandLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();

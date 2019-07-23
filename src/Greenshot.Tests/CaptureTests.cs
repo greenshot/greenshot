@@ -19,14 +19,13 @@
 
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.Config;
 using Dapplo.Windows.Desktop;
-using Greenshot.Addons.Config.Impl;
 using Greenshot.Addons.Core;
 using Greenshot.Core;
 using Greenshot.Core.Enums;
@@ -116,7 +115,7 @@ namespace Greenshot.Tests
         [WpfFact]
         public async Task Test_CaptureFlow_DwmWindowSource()
         {
-            ICoreConfiguration config = new CoreConfigurationImpl();
+            var config = DictionaryConfiguration<ICoreConfiguration>.Create();
 
             var textValue = System.Guid.NewGuid().ToString();
             var form = new Form

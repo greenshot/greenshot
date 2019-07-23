@@ -23,7 +23,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Box.Configuration;
-using Greenshot.Addon.Box.Configuration.Impl;
 using Greenshot.Addon.Box.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -36,13 +35,13 @@ namespace Greenshot.Addon.Box
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<BoxConfigurationImpl>()
+                .Register(c => IniSection<IBoxConfiguration>.Create())
                 .As<IBoxConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .RegisterType<BoxLanguageImpl>()
+                .Register(c => Language<IBoxLanguage>.Create())
                 .As<IBoxLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();

@@ -38,7 +38,6 @@ using Dapplo.Log.Loggers;
 #else
 using Dapplo.Log.LogFile;
 #endif
-using Dapplo.Utils;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
@@ -142,14 +141,7 @@ namespace Greenshot
                     }
 
                     errorViewModel.Value.SetExceptionToDisplay(exception);
-                    if (!UiContext.HasUiAccess)
-                    {
-                        await UiContext.RunOn(() => windowManager.ShowDialog(errorViewModel.Value));
-                    }
-                    else
-                    {
-                        windowManager.ShowDialog(errorViewModel.Value);
-                    }
+                    await Execute.OnUIThreadAsync(() => windowManager.ShowDialog(errorViewModel.Value));
                 }
             }
             catch (Exception ex)

@@ -26,11 +26,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.Box.Configuration;
 using Greenshot.Addon.Box.Entities;
@@ -200,7 +200,7 @@ namespace Greenshot.Addon.Box
             // Use UploadProgress
             if (progress != null)
             {
-                oauthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100))); };
+                oauthHttpBehaviour.UploadProgress = percent => { Execute.OnUIThread(() => progress.Report((int)(percent * 100))); };
             }
 
             oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(_oauth2Settings, oauthHttpBehaviour, httpMessageHandler);

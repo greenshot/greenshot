@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using Autofac.Features.OwnedInstances;
+using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.GooglePhotos.Configuration;
 using Greenshot.Addons;
@@ -177,7 +177,7 @@ namespace Greenshot.Addon.GooglePhotos
             // Use UploadProgress
             if (progress != null)
             {
-                oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+                oAuthHttpBehaviour.UploadProgress = percent => { Execute.OnUIThread(() => progress.Report((int)(percent * 100))); };
             }
             oAuthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(_oAuth2Settings, oAuthHttpBehaviour, httpMessageHandler);
             if (_googlePhotosConfiguration.AddFilename)

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.8.34" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.9.5" />
   </ItemGroup>
 
   <ItemGroup>

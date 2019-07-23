@@ -3,14 +3,14 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Jira</RootNamespace>
     <AssemblyName>Greenshot.Addon.Jira</AssemblyName>
-    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-	  <EmbeddedResource Include="jira.svgz" />
+	<EmbeddedResource Include="jira.svgz" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,11 +20,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AutoProperties.Fody" Version="1.21.0" />
-	<PackageReference Include="Dapplo.Jira" Version="0.8.17" />
-    <PackageReference Include="Fody" Version="4.2.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+	<PackageReference Include="Dapplo.Jira" Version="0.8.19" />
+	<PackageReference Include="DynamicData" Version="6.12.9" />
   </ItemGroup>
 </Project>

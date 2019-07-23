@@ -23,7 +23,6 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Jira.Configuration;
-using Greenshot.Addon.Jira.Configuration.Impl;
 using Greenshot.Addon.Jira.ViewModels;
 using Greenshot.Addons.Components;
 
@@ -35,13 +34,13 @@ namespace Greenshot.Addon.Jira
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<JiraConfigurationImpl>()
+                .Register(c => IniSection<IJiraConfiguration>.Create())
                 .As<IJiraConfiguration>()
                 .As<IIniSection>()
                 .SingleInstance();
 
             builder
-                .RegisterType<JiraLanguageImpl>()
+                .Register(c => Language<IJiraLanguage>.Create())
                 .As<IJiraLanguage>()
                 .As<ILanguage>()
                 .SingleInstance();
