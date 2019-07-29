@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -8,8 +8,8 @@
   <ItemGroup>
     <PackageReference Include="Dapplo.Addons" Version="1.2.17" />
     <PackageReference Include="Dapplo.Log" Version="1.3.21" />
-    <PackageReference Include="Dapplo.Windows" Version="0.9.5" />
-    <PackageReference Include="Dapplo.Windows.Dpi" Version="0.9.5" />
+    <PackageReference Include="Dapplo.Windows" Version="0.9.7" />
+    <PackageReference Include="Dapplo.Windows.Dpi" Version="0.9.7" />
     <PackageReference Include="Svg" Version="2.4.3" />
     <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>

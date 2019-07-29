@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.9.5" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.9.7" />
   </ItemGroup>
 
   <ItemGroup>
