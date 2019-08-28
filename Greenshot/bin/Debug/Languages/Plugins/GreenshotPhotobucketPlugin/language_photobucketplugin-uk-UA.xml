@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">Вивантажити на Photobucket</resource>
+	<resource name="settings_title">Параметри Photobucket</resource>
+	<resource name="OK">Гаразд</resource>
+	<resource name="CANCEL">Скасувати</resource>
+	<resource name="upload_success">Зображення вдало вивантажено на Photobucket!</resource>
+	<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Photobucket:</resource>
+	<resource name="label_upload_format">Формат зображення</resource>
+	<resource name="communication_wait">З’єднання з Photobucket. Будь ласка, зачекайте...</resource>
+	<resource name="use_page_link">Використовувати посилання на сторінку замість посилання на зображення</resource>
+	<resource name="configure">Налаштувати Photobucket</resource>
+  </resources>
+</language>

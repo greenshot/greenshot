@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Ladda upp till Photobucket
+	</resource>
+	<resource name="settings_title">
+		Photobucket-inställningar
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Avbryt
+	</resource>
+	<resource name="upload_success">
+		Skärmdumpen laddades upp till Photobucket!
+	</resource>
+	<resource name="upload_failure">
+		Ett fel uppstod vid uppladdning till Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Bildformat
+	</resource>
+	<resource name="communication_wait">
+		Kommunicerar med Photobucket. Vänta...
+	</resource>
+	<resource name="use_page_link">
+		Använd sidolänk istället för bildlänk i urklipp
+	</resource>
+	<resource name="configure">
+    Konfigurera Photobucket
+  </resource>
+  </resources>
+</language>

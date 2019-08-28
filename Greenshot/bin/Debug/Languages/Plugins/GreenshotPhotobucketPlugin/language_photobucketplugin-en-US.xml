@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Upload to Photobucket
+	</resource>
+	<resource name="settings_title">
+		Photobucket settings
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancel
+	</resource>
+	<resource name="upload_success">
+		Successfully uploaded image to Photobucket!
+	</resource>
+	<resource name="upload_failure">
+		An error occured while uploading to Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Image format
+	</resource>
+	<resource name="communication_wait">
+		Communicating with Photobucket. Please wait...
+	</resource>
+	<resource name="use_page_link">
+		Use page link instead of image link on clipboard
+	</resource>
+	<resource name="configure">
+    Configure Photobucket
+  </resource>
+  </resources>
+</language>

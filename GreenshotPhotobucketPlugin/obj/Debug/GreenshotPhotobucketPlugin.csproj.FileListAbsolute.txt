@@ -1,0 +1,10 @@
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\GreenshotPhotobucketPlugin.dll
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\GreenshotPhotobucketPlugin.pdb
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\GreenshotPlugin.dll
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\log4net.dll
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\LinqBridge.dll
+D:\projects\greenshot\GreenshotPhotobucketPlugin\bin\Debug\GreenshotPlugin.pdb
+D:\projects\greenshot\GreenshotPhotobucketPlugin\obj\Debug\GreenshotPhotobucketPlugin.PhotobucketPlugin.resources
+D:\projects\greenshot\GreenshotPhotobucketPlugin\obj\Debug\GreenshotPhotobucketPlugin.csproj.GenerateResource.Cache
+D:\projects\greenshot\GreenshotPhotobucketPlugin\obj\Debug\GreenshotPhotobucketPlugin.dll
+D:\projects\greenshot\GreenshotPhotobucketPlugin\obj\Debug\GreenshotPhotobucketPlugin.pdb

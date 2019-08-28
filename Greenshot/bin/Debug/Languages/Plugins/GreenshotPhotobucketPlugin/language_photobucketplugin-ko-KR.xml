@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Photobucket로 업로드
+	</resource>
+	<resource name="settings_title">
+		Photobucket 설정
+	</resource>
+	<resource name="OK">
+		확인
+	</resource>
+	<resource name="CANCEL">
+		취소
+	</resource>
+	<resource name="upload_success">
+		Photobucket로 이미지 얼로드 성공!
+	</resource>
+	<resource name="upload_failure">
+		Photobucket로 업로드시 오류 발생:
+	</resource>
+	<resource name="label_upload_format">
+		이미지 형식
+	</resource>
+	<resource name="communication_wait">
+		Photobucket와 연결 중 잠시 기다리세요...
+	</resource>
+	<resource name="use_page_link">
+		클립보드에서 이미지 링크대신 페이지 링크를 사용
+	</resource>
+	<resource name="configure">
+    Photobucket 설정
+  </resource>
+  </resources>
+</language>

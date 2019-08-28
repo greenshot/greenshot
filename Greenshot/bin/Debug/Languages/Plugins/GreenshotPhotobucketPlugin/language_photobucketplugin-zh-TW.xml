@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="CANCEL">取消</resource>
+		<resource name="communication_wait">正在與 Photobucket 通訊，請稍候...</resource>
+		<resource name="configure">組態 Photobucket</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="OK">確定</resource>
+		<resource name="settings_title">Photobucket 設定</resource>
+		<resource name="upload_failure">上傳到 Photobucket 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到 Photobucket</resource>
+		<resource name="upload_success">上傳圖片到 Photobucket 成功!</resource>
+		<resource name="use_page_link">在剪貼簿使用空白連結而不是圖片連結</resource>
+	</resources>
+</language>

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+  <resources>
+	<resource name="upload_menu_item">
+		Augšupieladēt uz Photobucket
+	</resource>
+	<resource name="settings_title">
+		Photobucket iestatījumi
+	</resource>
+	<resource name="OK">
+		Labi
+	</resource>
+	<resource name="CANCEL">
+		Atcelt
+	</resource>
+	<resource name="upload_success">
+		Attēls veiksmīgi augšupielādēts uz Photobucket!
+	</resource>
+	<resource name="upload_failure">
+		Kļūda augšupielādējot uz Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Attēla formāts
+	</resource>
+	<resource name="communication_wait">
+		Savienojos ar Photobucket. Lūdzu uzgaidiet...
+	</resource>
+	<resource name="use_page_link">
+		Starpliktuvē lieto atsauci uz lapu nevis attēlu
+	</resource>
+	<resource name="configure">
+    Photobucket  iestatījumi
+  </resource>
+  </resources>
+</language>

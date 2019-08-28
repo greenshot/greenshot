@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Zu Photobucket hochladen
+	</resource>
+	<resource name="settings_title">
+		Photobucket Einstellungen
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancel
+	</resource>
+	<resource name="upload_success">
+		Das Hochladen zu Photobucket war erfolgreich.
+	</resource>
+	<resource name="upload_failure">
+		Es gab einen Fehler beim Hochladen zu Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Bildformat
+	</resource>
+	<resource name="communication_wait">
+		Übermittle Daten zu Photobucket. Bitte warten...
+	</resource>
+	<resource name="use_page_link">
+		Benutze der Seite-URL statt Bild-URL im Zwischenablage
+	</resource>
+	<resource name="configure">
+		Photobucket Einstellungen
+	</resource>
+  </resources>
+</language>

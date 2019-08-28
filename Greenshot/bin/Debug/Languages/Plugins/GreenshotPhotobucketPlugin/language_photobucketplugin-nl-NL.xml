@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Nederlands" ietf="nl-NL" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Naar Photobucket uploaden
+	</resource>
+	<resource name="settings_title">
+		Photobucket instellingen
+	</resource>
+	<resource name="upload_success">
+		Het uploaden naar Photobucket is geslaagt!
+	</resource>
+	<resource name="upload_failure">
+		Tijdens het uploaden naar Photobucket is een fout opgetreden:
+	</resource>
+	<resource name="label_upload_format">
+		Beeld formaat
+	</resource>
+	<resource name="communication_wait">
+		Data overdraging naar Photobucket, wachten AUB...
+	</resource>
+	<resource name="use_page_link">
+		Kopieer de pagina link in plaats van de beeld link in het klembord
+	</resource>
+	<resource name="configure">
+    Photobucket Instellingen
+  </resource>
+  </resources>
+</language>
