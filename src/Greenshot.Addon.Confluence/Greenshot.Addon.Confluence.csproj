@@ -24,6 +24,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.Confluence" Version="0.8.22" />
+    <PackageReference Include="Dapplo.Confluence" Version="0.8.23" />
   </ItemGroup>
 </Project>

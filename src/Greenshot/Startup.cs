@@ -20,7 +20,6 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
@@ -44,6 +43,9 @@ using Dapplo.Windows.Kernel32;
 using Greenshot.Addons;
 using Greenshot.Addons.Resources;
 using Greenshot.Ui.Misc.ViewModels;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 namespace Greenshot
 {
@@ -58,8 +60,7 @@ namespace Greenshot
         [STAThread]
         public static int Main(string[] arguments)
         {
-            // Workaround for https://github.com/dotnet/wpf/issues/684 & https://github.com/dotnet/wpf/issues/913
-            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+            AppCenter.Start("adcb4672-7ce0-4863-8407-729a0006e07f", typeof(Analytics), typeof(Crashes));
 
             // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
