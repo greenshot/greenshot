@@ -45,7 +45,7 @@ namespace Greenshot.Addons.Extensions
         /// Find the matching IDestination
         /// </summary>
         /// <param name="destinations">IEnumerable of IDestination</param>
-        /// <param name="destination">strng with the destination</param>
+        /// <param name="destination">string with the destination</param>
         /// <returns>IDestination or null</returns>
         public static IDestination Find(this IEnumerable<IDestination> destinations, string destination)
         {

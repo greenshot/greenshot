@@ -433,11 +433,11 @@ namespace Greenshot.Helpers
                         {
                             if (filename.ToLower().EndsWith("." + OutputFormats.greenshot))
                             {
-
                                 var surface = ImageOutput.SurfaceFactory();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                _destinationHolder.SortedActiveDestinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Wait();
+                                var exportInformation = _destinationHolder.SortedActiveDestinations.Find("Editor")?.ExportCaptureAsync(true, surface, _capture.CaptureDetails).Result;
+                                exportInformation.HandleAppCenterEvent();
                                 break;
                             }
                         }
@@ -627,7 +627,9 @@ namespace Greenshot.Helpers
 
             if (captureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
             {
-                _destinationHolder.SortedActiveDestinations.Find(typeof(PickerDestination))?.ExportCaptureAsync(false, surface, captureDetails).Wait();
+                var exportInformation = _destinationHolder.SortedActiveDestinations.Find(typeof(PickerDestination))?.ExportCaptureAsync(false, surface, captureDetails).Result;
+                exportInformation.HandleAppCenterEvent();
+
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }
@@ -652,6 +654,7 @@ namespace Greenshot.Helpers
                     Log.Info().WriteLine("Calling destination {0}", destination.Description);
 
                     var exportInformation = destination.ExportCaptureAsync(false, surface, captureDetails).Result;
+                    exportInformation.HandleAppCenterEvent();
                     if ("Editor".Equals(destination.Designation) && exportInformation.ExportMade)
                     {
                         canDisposeSurface = false;
