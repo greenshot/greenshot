@@ -23,7 +23,7 @@ using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.SafeHandles;
-using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Resources;

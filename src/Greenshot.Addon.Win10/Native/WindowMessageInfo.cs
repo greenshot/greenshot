@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 
 namespace Greenshot.Addon.Win10.Native
 {

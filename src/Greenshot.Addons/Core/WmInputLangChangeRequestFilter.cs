@@ -19,7 +19,7 @@
 
 using System.Windows.Forms;
 using Dapplo.Log;
-using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 
 namespace Greenshot.Addons.Core
 {

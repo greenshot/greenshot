@@ -30,7 +30,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Dapplo.Log;
-using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Addon.Win10.Native;
 using Greenshot.Addons;
 using Greenshot.Addons.Components;
