@@ -43,17 +43,7 @@ If you can't use Visual Studio 2019, Rider from Jetbrains is also supported and 
 
 For users the major changes since 1.2.x are:
 * dotnet core 3.0 support (why, read here: https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/ )
-* A newer and more modern configuration UI, using MahApps.Metro
-* Due to the update of .NET 2.0 to .NET 4.7.1 a lot of bugs are solved
-* Added Windows 10 destinations, OCR & share
-* Better DPI support
-* Simplified code should make development easier and quicker
-* Bug fixes
-
-
-For developers, the major changes since 1.2.x are:
-* Move to dotnet core 3.0
-* A newer and more modern configuration UI, using MahApps.Metro
+* A newer and more modern configuration UI, using [MahApps.Metro](https://github.com/MahApps/MahApps.Metro "MahApps.Metro")
 * Due to the update of .NET 2.0 to .NET 4.7.1 a lot of bugs are solved
 * Added Windows 10 destinations, OCR & share
 * Better DPI support
