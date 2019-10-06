@@ -20,7 +20,7 @@
   </ItemGroup>
   
   <ItemGroup>
-	<PackageReference Include="Dapplo.Jira" Version="0.8.20" />
-	<PackageReference Include="DynamicData" Version="6.13.1" />
+	<PackageReference Include="Dapplo.Jira" Version="0.9.2" />
+	<PackageReference Include="DynamicData" Version="6.13.13" />
   </ItemGroup>
 </Project>

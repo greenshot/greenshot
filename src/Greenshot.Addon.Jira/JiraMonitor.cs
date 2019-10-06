@@ -60,7 +60,7 @@ namespace Greenshot.Addon.Jira
 	    public void Startup()
 	    {
             // Subscribe the windows events which tell us a title was changed
-	        _winEventObservable = WinEventHook.WindowTileChangeObservable()
+	        _winEventObservable = WinEventHook.WindowTitleChangeObservable()
 	            .Select(info => User32Api.GetText(info.Handle))
 	            .Where(title => !string.IsNullOrEmpty(title))
 	            .Subscribe(MonitorTitleChangeEvent);
