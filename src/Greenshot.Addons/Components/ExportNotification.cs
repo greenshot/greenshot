@@ -65,7 +65,7 @@ namespace Greenshot.Addons.Components
         {
             if (exportInformation == null || !_coreConfiguration.ShowTrayNotification)
             {
-                Log.Info().WriteLine("No notification due to ShowTrayNotification = {0} - or export made = {1}", _coreConfiguration.ShowTrayNotification);
+                Log.Info().WriteLine("No notification due to ShowTrayNotification = {0} - or exportInformation is null", _coreConfiguration.ShowTrayNotification);
                 return;
             }
 
