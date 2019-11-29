@@ -495,8 +495,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                 HideTextBox();
                 e.SuppressKeyPress = true;
             }
-
-            if (e.Control && e.KeyCode == Keys.A)
+            if (e.Control && !e.Alt && e.KeyCode == Keys.A)
             {
                 _textBox.SelectAll();
             }
