@@ -3,7 +3,7 @@
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Chyby prosím hlaste na adrese</resource>
-		<resource name="about_donations">Pokud se vám Greenshot líbí, uvítáme Vaší podporu:</resource>
+		<resource name="about_donations">Pokud se vám Greenshot líbí, uvítáme Vaši podporu:</resource>
 		<resource name="about_host">Greenshot hostuje na GitHub</resource>
 		<resource name="about_icons">Ikony pochází ze sady Yusuke Kamiyamane's Fugue (licence Creative Commons Attribution 3.0)</resource>
 		<resource name="about_license">Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
@@ -11,14 +11,14 @@ Greenshot je ABSOLUTNĚ BEZ ZÁRUKY. Toto je svobodný software, můžete jej d�
 Podrobnosti o GNU General Public License:</resource>
 		<resource name="about_title">O programu Greenshot</resource>
 		<resource name="about_translation">Překlad: Zdeněk Chalupský &lt;chalzd@gmail.com&gt;. Korektura: Petr Toman</resource>
-		<resource name="application_title">Greenshot - revoluční utilita pro snímání obrazovky</resource>
+		<resource name="application_title">Greenshot – revoluční utilita pro snímání obrazovky</resource>
 		<resource name="bugreport_cancel">Zavřít</resource>
 		<resource name="bugreport_info">Omlouváme se, ale došlo k neočekávané chybě.
 Dobrá zpráva: můžete nám pomoci odstranit chybu, když o ní podáte hlášení.
 Navštivte prosím níže uvedenou adresu, vytvořte nové hlášení o chybě a vložte popis chyby.
 
 			Prosím, přidejte pouze smysluplné shrnutí a připojte informace, které považujete za užitečné pro popis hlášeného problému.
-			Také bychom velmi ocenili, kdyby jste zkontrolovali, zda položka pro tuto chybu již neexistuje. (Můžete použít rychlé vyhledávání.) Děkuji vám :)
+			Také bychom velmi ocenili, kdybyste zkontrolovali, zda položka pro tuto chybu již neexistuje. (Můžete použít rychlé vyhledávání.) Děkuji vám :)
 		</resource>
 		<resource name="bugreport_title">Chyba</resource>
 		<resource name="CANCEL">Zrušit</resource>
@@ -62,7 +62,7 @@ Navštivte prosím níže uvedenou adresu, vytvořte nové hlášení o chybě a
 		<resource name="contextmenu_openfile">Otevřít obrázek ze souboru</resource>
 		<resource name="contextmenu_openrecentcapture">Otevřít poslední místo uložení</resource>
 		<resource name="contextmenu_quicksettings">Rychlé nastavení</resource>
-		<resource name="contextmenu_settings">Předvolby...</resource>
+		<resource name="contextmenu_settings">Předvolby…</resource>
 		<resource name="destination_exportfailed">Při exportu {0} došlo k chybě. Opakujte akci.</resource>
 		<resource name="EmailFormats.Html">Aplikace Outlook s HTML textem</resource>
 		<resource name="EmailFormats.Text">Aplikace Outlook s prostým textem</resource>
@@ -179,7 +179,7 @@ Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} vytvoří ve výchozím úlo�
 		<resource name="settings_windowscapture">Snímek okna</resource>	
 		<resource name="tooltip_firststart">Klikněte pravým tlačítkem myši nebo stiskněte klávesu PrtSc.</resource>
 		<resource name="update_found">K dispozici je novější verze Greenshot! Přejete si stáhnout Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Počkejte prosím než bude zachycena stránka v aplikaci Internet Explorer...</resource>	
+		<resource name="wait_ie_capture">Počkejte prosím, než bude zachycena stránka v aplikaci Internet Explorer…</resource>	
 		<resource name="warning">Upozornění</resource>
 		<resource name="warning_hotkeys">Klávesovou(é) zkratku(y) "{0}" nelze použít. Tento problém je pravděpodobně způsoben jiným programem používajícím tytéž klávesové zkratky! Můžete změnit nastavení klávesových zkratek, deaktivovat je nebo změnit nastavení softwaru využívajícího shodné klávesové zkratky.
 
