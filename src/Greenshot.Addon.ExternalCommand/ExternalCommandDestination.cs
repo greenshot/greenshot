@@ -89,12 +89,10 @@ namespace Greenshot.Addon.ExternalCommand
 	            {
 	                exportInformation.Uri = uriMatches[0].Groups[1].Value;
 
-	                using (var clipboardAccessToken = ClipboardNative.Access())
-	                {
-	                    clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(exportInformation.Uri);
-	                }
-	            }
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(exportInformation.Uri);
+                }
 	        }
 
 	        if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.DeleteOnExit))

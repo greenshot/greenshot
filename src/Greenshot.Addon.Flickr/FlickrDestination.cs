@@ -123,12 +123,10 @@ namespace Greenshot.Addon.Flickr
 		public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
-			{
+            {
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "flickr.png"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "flickr.png");
+                return BitmapHelper.FromStream(bitmapStream);
             }
 		}
 
@@ -174,12 +172,10 @@ namespace Greenshot.Addon.Flickr
 	                return null;
 	            }
 	            if (_flickrConfiguration.AfterUploadLinkToClipBoard)
-	            {
-	                using (var clipboardAccessToken = ClipboardNative.Access())
-	                {
-	                    clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(uploadUrl);
-	                }
+                {
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(uploadUrl);
                 }
 	            
 	        }
@@ -222,23 +218,21 @@ namespace Greenshot.Addon.Flickr
                 {
                     surfaceToUpload.WriteToStream(stream, CoreConfiguration, _flickrConfiguration);
                     stream.Position = 0;
-                    using (var streamContent = new StreamContent(stream))
+                    using var streamContent = new StreamContent(stream);
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _flickrConfiguration));
+                    streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                     {
-                        streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _flickrConfiguration));
-                        streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-                        {
-                            Name = "\"photo\"",
-                            FileName = "\"" + filename + "\""
-                        };
-                        HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
-                        {
-                            Properties = signedParameters
-                        });
-                        var response = await FlickrUploadUri.PostAsync<XDocument>(streamContent, token).ConfigureAwait(false);
-                        photoId = (from element in response?.Root?.Elements() ?? Enumerable.Empty<XElement>()
-                                   where element.Name == "photoid"
-                                   select element.Value).FirstOrDefault();
-                    }
+                        Name = "\"photo\"",
+                        FileName = "\"" + filename + "\""
+                    };
+                    HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
+                    {
+                        Properties = signedParameters
+                    });
+                    var response = await FlickrUploadUri.PostAsync<XDocument>(streamContent, token).ConfigureAwait(false);
+                    photoId = (from element in response?.Root?.Elements() ?? Enumerable.Empty<XElement>()
+                        where element.Name == "photoid"
+                        select element.Value).FirstOrDefault();
                 }
 
                 // Get Photo Info

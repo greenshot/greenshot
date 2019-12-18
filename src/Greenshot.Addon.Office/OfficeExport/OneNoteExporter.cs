@@ -57,22 +57,20 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>bool true if export worked</returns>
         public bool ExportToNewPage(ISurface surfaceToUpload)
         {
-            using (var oneNoteApplication = GetOrCreateOneNoteApplication())
+            using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            var newPage = new OneNotePage();
+            string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
+            if (unfiledNotesSectionId == null)
             {
-                var newPage = new OneNotePage();
-                string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
-                if (unfiledNotesSectionId == null)
-                {
-                    return false;
-                }
-
-                string pageId;
-                oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
-                newPage.Id = pageId;
-                // Set the new name, this is automatically done in the export to page
-                newPage.Name = surfaceToUpload.CaptureDetails.Title;
-                return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
+                return false;
             }
+
+            string pageId;
+            oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
+            newPage.Id = pageId;
+            // Set the new name, this is automatically done in the export to page
+            newPage.Name = surfaceToUpload.CaptureDetails.Title;
+            return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
         }
 
         /// <summary>
@@ -83,10 +81,8 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>bool true if everything worked</returns>
         public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
         {
-            using (var oneNoteApplication = GetOrCreateOneNoteApplication())
-            {
-                return ExportToPage(oneNoteApplication, surfaceToUpload, page);
-            }
+            using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            return ExportToPage(oneNoteApplication, surfaceToUpload, page);
         }
 
         /// <summary>
@@ -103,25 +99,23 @@ namespace Greenshot.Addon.Office.OfficeExport
                 return false;
             }
 
-            using (var pngStream = new MemoryStream())
+            using var pngStream = new MemoryStream();
+            var pngOutputSettings = new SurfaceOutputSettings(_coreConfiguration, OutputFormats.png, 100, false);
+            ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
+            var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+            var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
+            var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
+            Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
+            oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
+            try
             {
-                var pngOutputSettings = new SurfaceOutputSettings(_coreConfiguration, OutputFormats.png, 100, false);
-                ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-                var base64String = Convert.ToBase64String(pngStream.GetBuffer());
-                var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
-                var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
-                Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
-                oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
-                try
-                {
-                    oneNoteApplication.ComObject.NavigateTo(page.Id, null, false);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
-                }
-                return true;
+                oneNoteApplication.ComObject.NavigateTo(page.Id, null, false);
             }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
+            }
+            return true;
         }
 
         /// <summary>
@@ -166,80 +160,78 @@ namespace Greenshot.Addon.Office.OfficeExport
             var pages = new List<OneNotePage>();
             try
             {
-                using (var oneNoteApplication = GetOrCreateOneNoteApplication())
+                using var oneNoteApplication = GetOrCreateOneNoteApplication();
+                if (oneNoteApplication != null)
                 {
-                    if (oneNoteApplication != null)
+                    // ReSharper disable once RedundantAssignment
+                    string notebookXml = "";
+                    oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+                    if (!string.IsNullOrEmpty(notebookXml))
                     {
-                        // ReSharper disable once RedundantAssignment
-                        string notebookXml = "";
-                        oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-                        if (!string.IsNullOrEmpty(notebookXml))
+                        Log.Debug().WriteLine(notebookXml);
+                        StringReader reader = null;
+                        try
                         {
-                            Log.Debug().WriteLine(notebookXml);
-                            StringReader reader = null;
-                            try
+                            reader = new StringReader(notebookXml);
+                            using var xmlReader = new XmlTextReader(reader);
+                            reader = null;
+                            OneNoteSection currentSection = null;
+                            OneNoteNotebook currentNotebook = null;
+                            while (xmlReader.Read())
                             {
-                                reader = new StringReader(notebookXml);
-                                using (var xmlReader = new XmlTextReader(reader))
+                                if ("one:Notebook".Equals(xmlReader.Name))
                                 {
-                                    reader = null;
-                                    OneNoteSection currentSection = null;
-                                    OneNoteNotebook currentNotebook = null;
-                                    while (xmlReader.Read())
+                                    string id = xmlReader.GetAttribute("ID");
+                                    if ((id != null) && ((currentNotebook == null) || !id.Equals(currentNotebook.Id)))
                                     {
-                                        if ("one:Notebook".Equals(xmlReader.Name))
+                                        currentNotebook = new OneNoteNotebook
                                         {
-                                            string id = xmlReader.GetAttribute("ID");
-                                            if ((id != null) && ((currentNotebook == null) || !id.Equals(currentNotebook.Id)))
-                                            {
-                                                currentNotebook = new OneNoteNotebook();
-                                                currentNotebook.Id = xmlReader.GetAttribute("ID");
-                                                currentNotebook.Name = xmlReader.GetAttribute("name");
-                                            }
-                                        }
-                                        if ("one:Section".Equals(xmlReader.Name))
-                                        {
-                                            string id = xmlReader.GetAttribute("ID");
-                                            if ((id != null) && ((currentSection == null) || !id.Equals(currentSection.Id)))
-                                            {
-                                                currentSection = new OneNoteSection
-                                                {
-                                                    Id = xmlReader.GetAttribute("ID"),
-                                                    Name = xmlReader.GetAttribute("name"),
-                                                    Parent = currentNotebook
-                                                };
-                                            }
-                                        }
-                                        if ("one:Page".Equals(xmlReader.Name))
-                                        {
-                                            // Skip deleted items
-                                            if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
-                                            {
-                                                continue;
-                                            }
-
-                                            var page = new OneNotePage
-                                            {
-                                                Parent = currentSection,
-                                                Name = xmlReader.GetAttribute("name"),
-                                                Id = xmlReader.GetAttribute("ID")
-                                            };
-                                            if ((page.Id == null) || (page.Name == null))
-                                            {
-                                                continue;
-                                            }
-                                            page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
-                                            pages.Add(page);
-                                        }
+                                            Id = xmlReader.GetAttribute("ID"),
+                                            Name = xmlReader.GetAttribute("name")
+                                        };
                                     }
                                 }
-                            }
-                            finally
-                            {
-                                if (reader != null)
+                                if ("one:Section".Equals(xmlReader.Name))
                                 {
-                                    reader.Dispose();
+                                    string id = xmlReader.GetAttribute("ID");
+                                    if (id != null && (currentSection == null || !id.Equals(currentSection.Id)))
+                                    {
+                                        currentSection = new OneNoteSection
+                                        {
+                                            Id = xmlReader.GetAttribute("ID"),
+                                            Name = xmlReader.GetAttribute("name"),
+                                            Parent = currentNotebook
+                                        };
+                                    }
                                 }
+                                if ("one:Page".Equals(xmlReader.Name))
+                                {
+                                    // Skip deleted items
+                                    if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
+                                    {
+                                        continue;
+                                    }
+
+                                    var page = new OneNotePage
+                                    {
+                                        Parent = currentSection,
+                                        Name = xmlReader.GetAttribute("name"),
+                                        Id = xmlReader.GetAttribute("ID")
+                                    };
+                                    if ((page.Id == null) || (page.Name == null))
+                                    {
+                                        continue;
+                                    }
+                                    page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
+                                    pages.Add(page);
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            if (reader != null)
+                            {
+                                reader.Dispose();
                             }
                         }
                     }
@@ -294,20 +286,18 @@ namespace Greenshot.Addon.Office.OfficeExport
                 try
                 {
                     reader = new StringReader(notebookXml);
-                    using (var xmlReader = new XmlTextReader(reader))
+                    using var xmlReader = new XmlTextReader(reader);
+                    while (xmlReader.Read())
                     {
-                        while (xmlReader.Read())
+                        if (!"one:Section".Equals(xmlReader.Name))
                         {
-                            if (!"one:Section".Equals(xmlReader.Name))
-                            {
-                                continue;
-                            }
-                            string id = xmlReader.GetAttribute("ID");
-                            string path = xmlReader.GetAttribute("path");
-                            if (unfiledNotesPath.Equals(path))
-                            {
-                                return id;
-                            }
+                            continue;
+                        }
+                        string id = xmlReader.GetAttribute("ID");
+                        string path = xmlReader.GetAttribute("path");
+                        if (unfiledNotesPath.Equals(path))
+                        {
+                            return id;
                         }
                     }
                 }

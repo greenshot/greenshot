@@ -67,12 +67,10 @@ namespace Greenshot.Addons.Core
                         UseShellExecute = true
                     };
 					// Start the explorer process and select the file
-					using (var explorer = Process.Start(processStartInfo))
-					{
-						explorer?.WaitForInputIdle(500);
-						return true;
-					}
-				}
+                    using var explorer = Process.Start(processStartInfo);
+                    explorer?.WaitForInputIdle(500);
+                    return true;
+                }
 			}
 			catch (Exception ex)
 			{

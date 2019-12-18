@@ -262,8 +262,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             };
 
             _textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
-            _textBox.LostFocus += textBox_LostFocus;
-            _textBox.KeyDown += textBox_KeyDown;
+            _textBox.LostFocus += TextBox_LostFocus;
+            _textBox.KeyDown += TextBox_KeyDown;
         }
 
         private void ShowTextBox()
@@ -306,7 +306,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             _parent.Focus();
             _textBox?.Hide();
             _parent.KeysLocked = false;
-            _parent.Controls.Remove(_textBox);
+            if (_textBox != null)
+            {
+                _parent.Controls.Remove(_textBox);
+            }
         }
 
         /// <summary>
@@ -336,43 +339,41 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             var fontStyle = FontStyle.Regular;
 
             bool hasStyle = false;
-            using (var fontFamily = new FontFamily(fontFamilyName))
+            using var fontFamily = new FontFamily(fontFamilyName);
+            bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
+            if (fontBold && boldAvailable)
             {
-                bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
-                if (fontBold && boldAvailable)
-                {
-                    fontStyle |= FontStyle.Bold;
-                    hasStyle = true;
-                }
-
-                bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
-                if (fontItalic && italicAvailable)
-                {
-                    fontStyle |= FontStyle.Italic;
-                    hasStyle = true;
-                }
-
-                if (!hasStyle)
-                {
-                    bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
-                    if (regularAvailable)
-                    {
-                        fontStyle = FontStyle.Regular;
-                    }
-                    else
-                    {
-                        if (boldAvailable)
-                        {
-                            fontStyle = FontStyle.Bold;
-                        }
-                        else if (italicAvailable)
-                        {
-                            fontStyle = FontStyle.Italic;
-                        }
-                    }
-                }
-                return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
+                fontStyle |= FontStyle.Bold;
+                hasStyle = true;
             }
+
+            bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
+            if (fontItalic && italicAvailable)
+            {
+                fontStyle |= FontStyle.Italic;
+                hasStyle = true;
+            }
+
+            if (!hasStyle)
+            {
+                bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
+                if (regularAvailable)
+                {
+                    fontStyle = FontStyle.Regular;
+                }
+                else
+                {
+                    if (boldAvailable)
+                    {
+                        fontStyle = FontStyle.Bold;
+                    }
+                    else if (italicAvailable)
+                    {
+                        fontStyle = FontStyle.Italic;
+                    }
+                }
+            }
+            return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
         }
 
         /// <summary>
@@ -487,7 +488,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             _textBox.ForeColor = lineColor;
         }
 
-        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             // ESC and Enter/Return (w/o Shift) hide text editor
             if (e.KeyCode == Keys.Escape || ((e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) && e.Modifiers == Keys.None))
@@ -518,7 +519,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
             }
         }
 
-        private void textBox_LostFocus(object sender, EventArgs e)
+        private void TextBox_LostFocus(object sender, EventArgs e)
         {
             // next change will be made undoable
             makeUndoable = true;
@@ -593,12 +594,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
                     {
                         shadowRect = shadowRect.Inflate(-textOffset, -textOffset);
                     }
-                    using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100)))
-                    {
-                        graphics.DrawString(text, font, fontBrush, (Rectangle)shadowRect, stringFormat);
-                        currentStep++;
-                        alpha = alpha - basealpha / steps;
-                    }
+
+                    using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
+                    graphics.DrawString(text, font, fontBrush, (Rectangle)shadowRect, stringFormat);
+                    currentStep++;
+                    alpha = alpha - basealpha / steps;
                 }
             }
 

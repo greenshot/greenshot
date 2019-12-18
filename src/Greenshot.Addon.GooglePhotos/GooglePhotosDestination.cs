@@ -101,13 +101,11 @@ namespace Greenshot.Addon.GooglePhotos
         public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
-			{
+            {
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "GooglePhotos.png"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
-			}
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "GooglePhotos.png");
+                return BitmapHelper.FromStream(bitmapStream);
+            }
 		}
 
         /// <inheritdoc />
@@ -144,12 +142,10 @@ namespace Greenshot.Addon.GooglePhotos
 	            }
 
 	            if (url != null && _googlePhotosConfiguration.AfterUploadLinkToClipBoard)
-	            {
-	                using (var clipboardAccessToken = ClipboardNative.Access())
-	                {
-	                    clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(url);
-	                }
+                {
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(url);
                 }
 	            return url;
 	        }
@@ -191,13 +187,11 @@ namespace Greenshot.Addon.GooglePhotos
             {
                 surface.WriteToStream(imageStream, CoreConfiguration, _googlePhotosConfiguration);
                 imageStream.Position = 0;
-                using (var content = new StreamContent(imageStream))
-                {
-                    content.Headers.Add("Content-Type", surface.GenerateMimeType(CoreConfiguration, _googlePhotosConfiguration));
+                using var content = new StreamContent(imageStream);
+                content.Headers.Add("Content-Type", surface.GenerateMimeType(CoreConfiguration, _googlePhotosConfiguration));
 
-                    oAuthHttpBehaviour.MakeCurrent();
-                    response = await uploadUri.PostAsync<string>(content, token).ConfigureAwait(true);
-                }
+                oAuthHttpBehaviour.MakeCurrent();
+                response = await uploadUri.PostAsync<string>(content, token).ConfigureAwait(true);
             }
 
             return ParseResponse(response);

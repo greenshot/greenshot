@@ -69,12 +69,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				return;
 			}
-			using (var fileIcon = new Icon(filename))
-			{
-				Icon = fileIcon;
-				Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-			}
-		}
+
+            using var fileIcon = new Icon(filename);
+            Icon = fileIcon;
+            Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+        }
 
 		protected override void OnDeserialized(StreamingContext streamingContext)
 		{

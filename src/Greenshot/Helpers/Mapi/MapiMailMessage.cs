@@ -56,25 +56,23 @@ namespace Greenshot.Helpers.Mapi
 		/// <param name="fullPath">Path to file</param>
 		/// <param name="title"></param>
 		public static void SendImage(string fullPath, string title)
-		{
-			using (var message = new MapiMailMessage(title, null))
-			{
-				message.Files.Add(fullPath);
-				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiTo))
-				{
-					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiTo, RecipientType.To));
-				}
-				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiCC))
-				{
-					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiCC, RecipientType.CC));
-				}
-				if (!string.IsNullOrEmpty(CoreConfiguration.MailApiBCC))
-				{
-					message.Recipients.Add(new Recipient(CoreConfiguration.MailApiBCC, RecipientType.BCC));
-				}
-				message.ShowDialog();
-			}
-		}
+        {
+            using var message = new MapiMailMessage(title, null);
+            message.Files.Add(fullPath);
+            if (!string.IsNullOrEmpty(CoreConfiguration.MailApiTo))
+            {
+                message.Recipients.Add(new Recipient(CoreConfiguration.MailApiTo, RecipientType.To));
+            }
+            if (!string.IsNullOrEmpty(CoreConfiguration.MailApiCC))
+            {
+                message.Recipients.Add(new Recipient(CoreConfiguration.MailApiCC, RecipientType.CC));
+            }
+            if (!string.IsNullOrEmpty(CoreConfiguration.MailApiBCC))
+            {
+                message.Recipients.Add(new Recipient(CoreConfiguration.MailApiBCC, RecipientType.BCC));
+            }
+            message.ShowDialog();
+        }
 
 
 		/// <summary>
@@ -195,52 +193,50 @@ namespace Greenshot.Helpers.Mapi
 		{
 			var message = new MapiMessage();
 
-			using (var interopRecipients = Recipients.GetInteropRepresentation())
-			{
-				message.Subject = Subject;
-				message.NoteText = Body;
+            using var interopRecipients = Recipients.GetInteropRepresentation();
+            message.Subject = Subject;
+            message.NoteText = Body;
 
-				message.Recipients = interopRecipients.Handle;
-				message.RecipientCount = Recipients.Count;
+            message.Recipients = interopRecipients.Handle;
+            message.RecipientCount = Recipients.Count;
 
-				// Check if we need to add attachments
-				if (Files.Count > 0)
-				{
-					// Add attachments
-					message.Files = _AllocAttachments(out message.FileCount);
-				}
+            // Check if we need to add attachments
+            if (Files.Count > 0)
+            {
+                // Add attachments
+                message.Files = _AllocAttachments(out message.FileCount);
+            }
 
-				// Signal the creating thread (make the remaining code async)
-				_manualResetEvent.Set();
+            // Signal the creating thread (make the remaining code async)
+            _manualResetEvent.Set();
 
-				const int mapiDialog = 0x8;
-				//const int MAPI_LOGON_UI = 0x1;
-				var error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, mapiDialog, 0);
+            const int mapiDialog = 0x8;
+            //const int MAPI_LOGON_UI = 0x1;
+            var error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, mapiDialog, 0);
 
-				if (Files.Count > 0)
-				{
-					// Deallocate the files
-					_DeallocFiles(message);
-				}
-				var errorCode = (MapiCodes) Enum.ToObject(typeof(MapiCodes), error);
+            if (Files.Count > 0)
+            {
+                // Deallocate the files
+                _DeallocFiles(message);
+            }
+            var errorCode = (MapiCodes) Enum.ToObject(typeof(MapiCodes), error);
 
-				// Check for error
-				if (errorCode == MapiCodes.SUCCESS || errorCode == MapiCodes.USER_ABORT)
-				{
-					return;
-				}
-				var errorText = GetMapiError(errorCode);
-				Log.Error().WriteLine(null, "Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
-				MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				// Recover from bad settings, show again
-				if (errorCode != MapiCodes.INVALID_RECIPS)
-				{
-					return;
-				}
-				Recipients = new RecipientCollection();
-				_ShowMail();
-			}
-		}
+            // Check for error
+            if (errorCode == MapiCodes.SUCCESS || errorCode == MapiCodes.USER_ABORT)
+            {
+                return;
+            }
+            var errorText = GetMapiError(errorCode);
+            Log.Error().WriteLine(null, "Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+            MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // Recover from bad settings, show again
+            if (errorCode != MapiCodes.INVALID_RECIPS)
+            {
+                return;
+            }
+            Recipients = new RecipientCollection();
+            _ShowMail();
+        }
 
 		/// <summary>
 		///     Deallocates the files in a message.

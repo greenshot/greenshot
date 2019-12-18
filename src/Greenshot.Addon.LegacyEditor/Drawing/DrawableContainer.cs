@@ -602,14 +602,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		}
 
 		protected void DrawSelectionBorder(Graphics g, NativeRect rect)
-		{
-			using (var pen = new Pen(Color.MediumSeaGreen))
-			{
-				pen.DashPattern = new float[] {1, 2};
-				pen.Width = 1;
-				g.DrawRectangle(pen, rect);
-			}
-		}
+        {
+            using var pen = new Pen(Color.MediumSeaGreen)
+            {
+                DashPattern = new float[] {1, 2},
+                Width = 1
+            };
+            g.DrawRectangle(pen, rect);
+        }
 
 
 		public void ResizeTo(int width, int height)

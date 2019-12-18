@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Drawing.Imaging;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using Dapplo.Log;
@@ -75,16 +74,14 @@ namespace Greenshot.PerformanceTests
         //[Benchmark]
         public void Capture()
         {
-            using (var capture = WindowCapture.CaptureScreen())
+            using var capture = WindowCapture.CaptureScreen();
+            if (capture.Bitmap == null)
             {
-                if (capture.Bitmap == null)
-                {
-                    throw new NotSupportedException();
-                }
-                if (capture.Bitmap.Width <= 0 || capture.Bitmap.Height <= 0)
-                {
-                    throw new NotSupportedException();
-                }
+                throw new NotSupportedException();
+            }
+            if (capture.Bitmap.Width <= 0 || capture.Bitmap.Height <= 0)
+            {
+                throw new NotSupportedException();
             }
         }
         

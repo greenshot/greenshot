@@ -49,10 +49,8 @@ namespace Greenshot.Addon.Office
         private bool HasApplication(string applicationName)
         {
             string registryPath = $@"{applicationName}\CLSID";
-            using (var registryKey = Registry.ClassesRoot.OpenSubKey(registryPath, false))
-            {
-                return registryKey != null && Guid.TryParse(registryKey.GetValue(null) as string, out _);
-            }
+            using var registryKey = Registry.ClassesRoot.OpenSubKey(registryPath, false);
+            return registryKey != null && Guid.TryParse(registryKey.GetValue(null) as string, out _);
         }
         
         /// <summary>

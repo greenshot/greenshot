@@ -49,17 +49,18 @@ namespace Greenshot.Addon.Office.Destinations
         /// <summary>
         /// Constructor used for dependency wiring
         /// </summary>
+        /// <param name="oneNoteExporter">OneNoteExporter</param>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>
         /// <param name="exportNotification">ExportNotification</param>
-		public OneNoteDestination(
+        public OneNoteDestination(
             OneNoteExporter oneNoteExporter,
 	        ICoreConfiguration coreConfiguration,
 	        IGreenshotLanguage greenshotLanguage,
 	        ExportNotification exportNotification
         ) : base(coreConfiguration, greenshotLanguage)
         {
-            this._oneNoteExporter = oneNoteExporter;
+            _oneNoteExporter = oneNoteExporter;
             _exportNotification = exportNotification;
             _exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 		    if (_exePath != null && !File.Exists(_exePath))
@@ -71,6 +72,7 @@ namespace Greenshot.Addon.Office.Destinations
         /// <summary>
         /// Constructor used for dependency wiring, and being able to specify a page
         /// </summary>
+        /// <param name="oneNoteExporter">OneNoteExporter</param>
         /// <param name="page">OneNotePage</param>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="greenshotLanguage">IGreenshotLanguage</param>

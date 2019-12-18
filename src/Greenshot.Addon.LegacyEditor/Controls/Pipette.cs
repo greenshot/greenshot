@@ -39,7 +39,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 	{
 		private const int VkEsc = 27;
 		private readonly IBitmapWithNativeSupport _image;
-		private Cursor _cursor;
+		private readonly Cursor _cursor;
 		private bool _dragging;
 		private MovableShowColorForm _movableShowColorForm;
 
@@ -87,16 +87,14 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		/// <param name="hotspotY">Hotspot Y coordinate</param>
 		/// <returns>Cursor</returns>
 		private static Cursor CreateCursor(IBitmapWithNativeSupport bitmap, int hotspotX, int hotspotY)
-		{
-			using (var iconHandle = new SafeIconHandle(bitmap.NativeBitmap.GetHicon()))
-			{
-			    NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
-				iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
-				iconInfo.IsIcon = false;
-				var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
-				return new Cursor(icon);
-			}
-		}
+        {
+            using var iconHandle = new SafeIconHandle(bitmap.NativeBitmap.GetHicon());
+            NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
+            iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
+            iconInfo.IsIcon = false;
+            var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
+            return new Cursor(icon);
+        }
 
 		/// <summary>
 		///     This Dispose is called from the Dispose and the Destructor.
@@ -106,15 +104,12 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 		{
 			if (disposing)
 			{
-				if (_cursor != null)
-				{
-					_cursor.Dispose();
-				}
+				_cursor.Dispose();
 				_movableShowColorForm?.Dispose();
+                _image.Dispose();
 			}
 			_movableShowColorForm = null;
-			_cursor = null;
-			base.Dispose(disposing);
+            base.Dispose(disposing);
 		}
 
 		/// <summary>

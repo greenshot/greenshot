@@ -63,10 +63,8 @@ namespace Greenshot.Addons.ViewModels
             Information = exportInformation;
             Source = source;
 
-            using (var bitmap = exportedSurface.GetBitmapForExport())
-            {
-                ExportBitmapSource = bitmap.NativeBitmap.ToBitmapSource();
-            }
+            using var bitmap = exportedSurface.GetBitmapForExport();
+            ExportBitmapSource = bitmap.NativeBitmap.ToBitmapSource();
         }
 
         /// <summary>

@@ -28,12 +28,10 @@ namespace Greenshot.Gfx.Formats
             // Icon logic, try to get the Vista icon, else the biggest possible
             try
             {
-                using (var tmpBitmap = ExtractVistaIcon(stream))
+                using var tmpBitmap = ExtractVistaIcon(stream);
+                if (tmpBitmap != null)
                 {
-                    if (tmpBitmap != null)
-                    {
-                        return tmpBitmap.CloneBitmap(PixelFormat.Format32bppArgb);
-                    }
+                    return tmpBitmap.CloneBitmap(PixelFormat.Format32bppArgb);
                 }
             }
             catch (Exception vistaIconException)
@@ -45,13 +43,9 @@ namespace Greenshot.Gfx.Formats
                 // No vista icon, try normal icon
                 stream.Position = 0;
                 // We create a copy of the bitmap, so everything else can be disposed
-                using (var tmpIcon = new Icon(stream, new Size(1024, 1024)))
-                {
-                    using (var tmpImage = tmpIcon.ToBitmap())
-                    {
-                        return tmpImage.CloneBitmap(PixelFormat.Format32bppArgb);
-                    }
-                }
+                using var tmpIcon = new Icon(stream, new Size(1024, 1024));
+                using var tmpImage = tmpIcon.ToBitmap();
+                return tmpImage.CloneBitmap(PixelFormat.Format32bppArgb);
             }
             catch (Exception iconException)
             {
@@ -89,12 +83,10 @@ namespace Greenshot.Gfx.Formats
                     }
                     var iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
                     var iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                    using (var destStream = new MemoryStream())
-                    {
-                        destStream.Write(srcBuf, iImageOffset, iImageSize);
-                        destStream.Seek(0, SeekOrigin.Begin);
-                        bmpPngExtracted = BitmapWrapper.FromBitmap(new Bitmap(destStream)); // This is PNG! :)
-                    }
+                    using var destStream = new MemoryStream();
+                    destStream.Write(srcBuf, iImageOffset, iImageSize);
+                    destStream.Seek(0, SeekOrigin.Begin);
+                    bmpPngExtracted = BitmapWrapper.FromBitmap(new Bitmap(destStream)); // This is PNG! :)
                     break;
                 }
             }

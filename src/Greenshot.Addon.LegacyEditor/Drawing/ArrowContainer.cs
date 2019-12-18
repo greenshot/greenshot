@@ -57,21 +57,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			        return NativeRect.Empty;
 			    }
 
-			    using (var pen = new Pen(Color.White))
-			    {
-			        pen.Width = lineThickness;
-			        SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
-			        using (var path = new GraphicsPath())
-			        {
-			            path.AddLine(Left, Top, Left + Width, Top + Height);
-			            using (var matrix = new Matrix())
-			            {
-			                NativeRectFloat drawingBounds = path.GetBounds(matrix, pen);
-			                return drawingBounds.Inflate(2, 2).Round();
-			            }
-			        }
-			    }
-			}
+                using var pen = new Pen(Color.White) {Width = lineThickness};
+                SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
+                using var path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                using var matrix = new Matrix();
+                NativeRectFloat drawingBounds = path.GetBounds(matrix, pen);
+                return drawingBounds.Inflate(2, 2).Round();
+            }
 		}
 
 		/// <summary>
@@ -109,28 +102,25 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 						var steps = 5;
 						var currentStep = 1;
 						while (currentStep <= steps)
-						{
-							using (var shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness))
-							{
-								SetArrowHeads(heads, shadowCapPen);
+                        {
+                            using var shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                            SetArrowHeads(heads, shadowCapPen);
 
-								graphics.DrawLine(shadowCapPen,
-									Left + currentStep,
-									Top + currentStep,
-									Left + currentStep + Width,
-									Top + currentStep + Height);
+                            graphics.DrawLine(shadowCapPen,
+                                Left + currentStep,
+                                Top + currentStep,
+                                Left + currentStep + Width,
+                                Top + currentStep + Height);
 
-								currentStep++;
-								alpha = alpha - basealpha / steps;
-							}
-						}
+                            currentStep++;
+                            alpha = alpha - basealpha / steps;
+                        }
 					}
-					using (var pen = new Pen(lineColor, lineThickness))
-					{
-						SetArrowHeads(heads, pen);
-						graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
-					}
-				}
+
+                    using var pen = new Pen(lineColor, lineThickness);
+                    SetArrowHeads(heads, pen);
+                    graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+                }
 			}
 		}
 
@@ -150,18 +140,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 10;
 			if (lineThickness > 0)
-			{
-				using (var pen = new Pen(Color.White))
-				{
-					pen.Width = lineThickness;
-					SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
-					using (var path = new GraphicsPath())
-					{
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+            {
+                using var pen = new Pen(Color.White) {Width = lineThickness};
+                SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldTypes.ARROWHEADS), pen);
+                using var path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 	}

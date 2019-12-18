@@ -260,38 +260,22 @@ namespace Greenshot.Helpers
                                         name = "Windows 2000";
                                         break;
                                     case 1:
-                                        switch (suiteMask)
+                                        name = suiteMask switch
                                         {
-                                            case WindowsSuites.Personal:
-                                                name = "Windows XP Professional";
-                                                break;
-                                            default:
-                                                name = "Windows XP";
-                                                break;
-                                        }
+                                            WindowsSuites.Personal => "Windows XP Professional",
+                                            _ => "Windows XP"
+                                        };
                                         break;
                                     case 2:
-                                        switch (suiteMask)
+                                        name = suiteMask switch
                                         {
-                                            case WindowsSuites.Personal:
-                                                name = "Windows XP Professional x64";
-                                                break;
-                                            case WindowsSuites.Enterprise:
-                                                name = "Windows Server 2003 Enterprise";
-                                                break;
-                                            case WindowsSuites.DataCenter:
-                                                name = "Windows Server 2003 Data Center";
-                                                break;
-                                            case WindowsSuites.Blade:
-                                                name = "Windows Server 2003 Web Edition";
-                                                break;
-                                            case WindowsSuites.WHServer:
-                                                name = "Windows Home Server";
-                                                break;
-                                            default:
-                                                name = "Windows Server 2003";
-                                                break;
-                                        }
+                                            WindowsSuites.Personal => "Windows XP Professional x64",
+                                            WindowsSuites.Enterprise => "Windows Server 2003 Enterprise",
+                                            WindowsSuites.DataCenter => "Windows Server 2003 Data Center",
+                                            WindowsSuites.Blade => "Windows Server 2003 Web Edition",
+                                            WindowsSuites.WHServer => "Windows Home Server",
+                                            _ => "Windows Server 2003"
+                                        };
                                         break;
                                 }
                                 break;
@@ -299,26 +283,18 @@ namespace Greenshot.Helpers
                                 switch (minorVersion)
                                 {
                                     case 0:
-                                        switch (productType)
+                                        name = productType switch
                                         {
-                                            case WindowsProductTypes.VER_NT_SERVER:
-                                                name = "Windows Server 2008";
-                                                break;
-                                            default:
-                                                name = "Windows Vista";
-                                                break;
-                                        }
+                                            WindowsProductTypes.VER_NT_SERVER => "Windows Server 2008",
+                                            _ => "Windows Vista"
+                                        };
                                         break;
                                     case 1:
-                                        switch (productType)
+                                        name = productType switch
                                         {
-                                            case WindowsProductTypes.VER_NT_SERVER:
-                                                name = "Windows Server 2008 R2";
-                                                break;
-                                            default:
-                                                name = "Windows 7";
-                                                break;
-                                        }
+                                            WindowsProductTypes.VER_NT_SERVER => "Windows Server 2008 R2",
+                                            _ => "Windows 7"
+                                        };
                                         break;
                                     case 2:
                                         name = "Windows 8";

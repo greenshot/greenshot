@@ -95,85 +95,79 @@ namespace Greenshot.Core.Sources
                 }
 
                 // create a device context we can copy to
-                using (var safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle))
+                using var safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle);
+                // Check if the device context is there, if not throw an error with as much info as possible!
+                if (safeCompatibleDcHandle.IsInvalid)
                 {
-                    // Check if the device context is there, if not throw an error with as much info as possible!
-                    if (safeCompatibleDcHandle.IsInvalid)
+                    // Get Exception before the error is lost
+                    var exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
+                    // throw exception
+                    throw exceptionToThrow;
+                }
+                // Create BITMAPINFOHEADER for CreateDIBSection
+                var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
+
+                // Make sure the last error is set to 0
+                Win32.SetLastError(0);
+
+                // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
+                using var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, 0, out var _, IntPtr.Zero, 0);
+                if (safeDibSectionHandle.IsInvalid)
+                {
+                    // Get Exception before the error is lost
+                    var exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
+                    exceptionToThrow.Data.Add("hdcDest", safeCompatibleDcHandle.DangerousGetHandle().ToInt32());
+                    exceptionToThrow.Data.Add("hdcSrc", desktopDcHandle.DangerousGetHandle().ToInt32());
+
+                    // Throw so people can report the problem
+                    throw exceptionToThrow;
+                }
+                // select the bitmap object and store the old handle
+                using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
+                {
+                    // bitblt over (make copy)
+                    // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+                    Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
+                        RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
+                }
+
+                // Create BitmapSource from the DibSection
+                capturedBitmapSource = Imaging.CreateBitmapSourceFromHBitmap(safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+                // Now cut away invisible parts
+
+                // Collect all screens inside this capture
+                var displaysInsideCapture = new List<DisplayInfo>();
+                foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+                {
+                    if (displayInfo.Bounds.IntersectsWith(captureBounds))
                     {
-                        // Get Exception before the error is lost
-                        var exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
-                        // throw exception
-                        throw exceptionToThrow;
+                        displaysInsideCapture.Add(displayInfo);
                     }
-                    // Create BITMAPINFOHEADER for CreateDIBSection
-                    var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
-
-                    // Make sure the last error is set to 0
-                    Win32.SetLastError(0);
-
-                    // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                    using (var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, 0, out var _, IntPtr.Zero, 0))
+                }
+                // Check all all screens are of an equal size
+                bool offscreenContent;
+                using (var captureRegion = new Region(captureBounds))
+                {
+                    // Exclude every visible part
+                    foreach (var displayInfo in displaysInsideCapture)
                     {
-                        if (safeDibSectionHandle.IsInvalid)
-                        {
-                            // Get Exception before the error is lost
-                            var exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
-                            exceptionToThrow.Data.Add("hdcDest", safeCompatibleDcHandle.DangerousGetHandle().ToInt32());
-                            exceptionToThrow.Data.Add("hdcSrc", desktopDcHandle.DangerousGetHandle().ToInt32());
-
-                            // Throw so people can report the problem
-                            throw exceptionToThrow;
-                        }
-                        // select the bitmap object and store the old handle
-                        using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
-                        {
-                            // bitblt over (make copy)
-                            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-                            Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
-                                RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
-                        }
-
-                        // Create BitmapSource from the DibSection
-                        capturedBitmapSource = Imaging.CreateBitmapSourceFromHBitmap(safeDibSectionHandle.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-                        // Now cut away invisible parts
-
-                        // Collect all screens inside this capture
-                        var displaysInsideCapture = new List<DisplayInfo>();
-                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                        {
-                            if (displayInfo.Bounds.IntersectsWith(captureBounds))
-                            {
-                                displaysInsideCapture.Add(displayInfo);
-                            }
-                        }
-                        // Check all all screens are of an equal size
-                        bool offscreenContent;
-                        using (var captureRegion = new Region(captureBounds))
-                        {
-                            // Exclude every visible part
-                            foreach (var displayInfo in displaysInsideCapture)
-                            {
-                                captureRegion.Exclude(displayInfo.Bounds);
-                            }
-                            // If the region is not empty, we have "offscreenContent"
-                            using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                            {
-                                offscreenContent = !captureRegion.IsEmpty(screenGraphics);
-                            }
-                        }
-                        // Check if we need to have a transparent background, needed for offscreen content
-                        if (offscreenContent)
-                        {
-                            var modifiedImage = new WriteableBitmap(capturedBitmapSource.PixelWidth, capturedBitmapSource.PixelHeight, capturedBitmapSource.DpiX, capturedBitmapSource.DpiY, PixelFormats.Bgr32, capturedBitmapSource.Palette);
-                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                            {
-                                modifiedImage.CopyPixels(capturedBitmapSource, displayInfo.Bounds);
-                            }
-
-                            capturedBitmapSource = modifiedImage;
-                        }
+                        captureRegion.Exclude(displayInfo.Bounds);
                     }
+                    // If the region is not empty, we have "offscreenContent"
+                    using var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow());
+                    offscreenContent = !captureRegion.IsEmpty(screenGraphics);
+                }
+                // Check if we need to have a transparent background, needed for offscreen content
+                if (offscreenContent)
+                {
+                    var modifiedImage = new WriteableBitmap(capturedBitmapSource.PixelWidth, capturedBitmapSource.PixelHeight, capturedBitmapSource.DpiX, capturedBitmapSource.DpiY, PixelFormats.Bgr32, capturedBitmapSource.Palette);
+                    foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+                    {
+                        modifiedImage.CopyPixels(capturedBitmapSource, displayInfo.Bounds);
+                    }
+
+                    capturedBitmapSource = modifiedImage;
                 }
             }
             var result = new CaptureElement<BitmapSource>(captureBounds.Location, capturedBitmapSource)

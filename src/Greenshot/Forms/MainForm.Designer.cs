@@ -37,7 +37,10 @@ namespace Greenshot.Forms {
 				if (components != null) {
 					components.Dispose();
 				}
-			}
+                _thumbnailForm?.Dispose();
+                _doubleClickTimer.Dispose();
+
+            }
 			base.Dispose(disposing);
 		}
 		

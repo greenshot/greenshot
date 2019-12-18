@@ -81,12 +81,10 @@ namespace Greenshot.Addon.Imgur
 		public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
-			{
-			    // TODO: Optimize this, by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Imgur.png"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
+            {
+                // TODO: Optimize this, by caching
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Imgur.png");
+                return BitmapHelper.FromStream(bitmapStream);
             }
 		}
 
@@ -128,10 +126,11 @@ namespace Greenshot.Addon.Imgur
                         {
                             // Create thumbnail
                             using (var tmpImage = surfaceToUpload.GetBitmapForExport())
-                            using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
                             {
+                                using var thumbnail = tmpImage.CreateThumbnail(90, 90);
                                 imgurImage.Image = thumbnail;
                             }
+
                             if (_imgurConfiguration.AnonymousAccess && _imgurConfiguration.TrackHistory)
                             {
                                 Log.Debug().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurImage.Data.Id, imgurImage.Data.Deletehash);
@@ -159,11 +158,9 @@ namespace Greenshot.Addon.Imgur
 
                     try
                     {
-                        using (var clipboardAccessToken = ClipboardNative.Access())
-                        {
-                            clipboardAccessToken.ClearContents();
-                            clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
-                        }
+                        using var clipboardAccessToken = ClipboardNative.Access();
+                        clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(uploadUrl.AbsoluteUri);
                     }
                     catch (Exception ex)
                     {

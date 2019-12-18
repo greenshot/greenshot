@@ -40,14 +40,12 @@ namespace Greenshot.Tests
         public void UpdateTest()
         {
             var updateService = new UpdateService(null, null, null);
-            using (var reader = XmlReader.Create(@"TestFiles\project-feed.xml"))
-            {
-                var feed = SyndicationFeed.Load(reader);
-                updateService.ProcessFeed(feed);
-                Assert.Equal(new Version("1.2.10.6"), updateService.LatestVersion);
-                Assert.Equal(new Version("1.3.0.0"), updateService.BetaVersion);
-                Assert.Equal(new Version("1.2.20.99"), updateService.ReleaseCandidateVersion);
-            }
+            using var reader = XmlReader.Create(@"TestFiles\project-feed.xml");
+            var feed = SyndicationFeed.Load(reader);
+            updateService.ProcessFeed(feed);
+            Assert.Equal(new Version("1.2.10.6"), updateService.LatestVersion);
+            Assert.Equal(new Version("1.3.0.0"), updateService.BetaVersion);
+            Assert.Equal(new Version("1.2.20.99"), updateService.ReleaseCandidateVersion);
         }
     }
 }

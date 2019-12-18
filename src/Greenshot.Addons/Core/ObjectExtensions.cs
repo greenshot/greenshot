@@ -52,13 +52,11 @@ namespace Greenshot.Addons.Core
 			}
 
 			IFormatter formatter = new BinaryFormatter();
-			using (var stream = new MemoryStream())
-			{
-				formatter.Serialize(stream, source);
-				stream.Seek(0, SeekOrigin.Begin);
-				return (T) formatter.Deserialize(stream);
-			}
-		}
+            using var stream = new MemoryStream();
+            formatter.Serialize(stream, source);
+            stream.Seek(0, SeekOrigin.Begin);
+            return (T) formatter.Deserialize(stream);
+        }
 
 		/// <summary>
 		///     Clone the content from source to destination

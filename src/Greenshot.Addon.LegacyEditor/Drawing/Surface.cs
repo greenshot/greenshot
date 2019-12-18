@@ -257,6 +257,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         /// </summary>
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         /// <param name="editorConfiguration">IEditorConfiguration</param>
+        /// <param name="editorLanguage">IEditorLanguage</param>
         /// <param name="newBitmap">IBitmapWithNativeSupport</param>
         public Surface(ICoreConfiguration coreConfiguration, IEditorConfiguration editorConfiguration, IEditorLanguage editorLanguage, IBitmapWithNativeSupport newBitmap) : this(coreConfiguration, editorConfiguration, editorLanguage)
 		{
@@ -563,7 +564,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		/// <param name="effect"></param>
 		public void ApplyBitmapEffect(IEffect effect)
 		{
-			var backgroundForm = new BackgroundForm("Effect", "Please wait");
+			using var backgroundForm = new BackgroundForm("Effect", "Please wait");
 			backgroundForm.Show();
 			Application.DoEvents();
 			try
@@ -1079,7 +1080,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing)
+            // TODO: Check if we need to dispose _cursorContainer 
+            if (disposing)
 			{
 				Count--;
 				Log.Debug().WriteLine("Disposing surface!");
@@ -2035,14 +2037,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			        {
 			            var uri = new Uri(possibleUrl);
 
-			            using (var image = uri.GetAsAsync<Bitmap>().Result)
-			            {
-			                if (image != null)
-			                {
-			                    AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
-			                    return;
-			                }
-			            }
+                        using var image = uri.GetAsAsync<Bitmap>().Result;
+                        if (image != null)
+                        {
+                            AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
+                            return;
+                        }
                     }
 			    }
 			    catch (Exception ex)
@@ -2054,15 +2054,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				{
 				    var uri = new Uri(possibleUrl);
 
-				    using (var image = uri.GetAsAsync<Bitmap>().Result)
-				    {
-					    if (image != null)
-						{
-							AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
-							return;
-						}
-					}
-				}
+                    using var image = uri.GetAsAsync<Bitmap>().Result;
+                    if (image != null)
+                    {
+                        AddImageContainer(BitmapWrapper.FromBitmap(image), mouse.X, mouse.Y);
+                        return;
+                    }
+                }
 			}
 
 			foreach (var image in ClipboardHelper.GetBitmaps(e.Data))

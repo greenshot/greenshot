@@ -55,18 +55,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 					var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
 					var shadow = GetFieldValueAsBool(FieldTypes.SHADOW);
-					using (var pen = new Pen(lineColor, lineThickness))
-					{
-						var inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
-						using (var tailPath = CreateTail())
-						{
-                            NativeRectFloat tailBounds = tailPath.GetBounds(new Matrix(), pen);
-                            var bounds = new NativeRect(Left, Top, Width, Height).Normalize();
+                    using var pen = new Pen(lineColor, lineThickness);
+                    var inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
+                    using var tailPath = CreateTail();
+                    NativeRectFloat tailBounds = tailPath.GetBounds(new Matrix(), pen);
+                    var bounds = new NativeRect(Left, Top, Width, Height).Normalize();
 
-                            return tailBounds.Round().Union(bounds).Inflate(inflateValue, inflateValue);
-						}
-					}
-				}
+                    return tailBounds.Round().Union(bounds).Inflate(inflateValue, inflateValue);
+                }
 				return NativeRect.Empty;
 			}
 		}
@@ -237,37 +233,33 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				var alpha = basealpha;
 				const int steps = 5;
 				var currentStep = lineVisible ? 1 : 0;
-				using (var shadowMatrix = new Matrix())
-				using (var bubbleClone = (GraphicsPath) bubble.Clone())
-				using (var tailClone = (GraphicsPath) tail.Clone())
-				{
-					shadowMatrix.Translate(1, 1);
-					while (currentStep <= steps)
-					{
-						using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
-						{
-							shadowPen.Width = lineVisible ? lineThickness : 1;
-							tailClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, tailClone);
-							bubbleClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, bubbleClone);
-						}
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
-				}
-			}
+                using var shadowMatrix = new Matrix();
+                using var bubbleClone = (GraphicsPath) bubble.Clone();
+                using var tailClone = (GraphicsPath) tail.Clone();
+                shadowMatrix.Translate(1, 1);
+                while (currentStep <= steps)
+                {
+                    using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
+                    {
+                        shadowPen.Width = lineVisible ? lineThickness : 1;
+                        tailClone.Transform(shadowMatrix);
+                        graphics.DrawPath(shadowPen, tailClone);
+                        bubbleClone.Transform(shadowMatrix);
+                        graphics.DrawPath(shadowPen, bubbleClone);
+                    }
+                    currentStep++;
+                    alpha = alpha - basealpha / steps;
+                }
+            }
 
 			var state = graphics.Save();
 			// draw the tail border where the bubble is not visible
 			using (var clipRegion = new Region(bubble))
 			{
 				graphics.SetClip(clipRegion, CombineMode.Exclude);
-				using (var pen = new Pen(lineColor, lineThickness))
-				{
-					graphics.DrawPath(pen, tail);
-				}
-			}
+                using var pen = new Pen(lineColor, lineThickness);
+                graphics.DrawPath(pen, tail);
+            }
 			graphics.Restore(state);
 
 			if (Colors.IsVisible(fillColor))
@@ -289,12 +281,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				using (var clipRegion = new Region(tail))
 				{
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
-					using (var pen = new Pen(lineColor, lineThickness))
-					{
-						//pen.EndCap = pen.StartCap = LineCap.Round;
-						graphics.DrawPath(pen, bubble);
-					}
-				}
+                    using var pen = new Pen(lineColor, lineThickness);
+                    //pen.EndCap = pen.StartCap = LineCap.Round;
+                    graphics.DrawPath(pen, bubble);
+                }
 				graphics.Restore(state);
 			}
 
@@ -328,26 +318,23 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 				var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
-				using (var pen = new Pen(lineColor, lineThickness))
-				{
-					using (var bubblePath = CreateBubble(lineThickness))
-					{
-						bubblePath.Widen(pen);
-						if (bubblePath.IsVisible(clickedPoint))
-						{
-							return true;
-						}
-					}
-					using (var tailPath = CreateTail())
-					{
-						tailPath.Widen(pen);
-						if (tailPath.IsVisible(clickedPoint))
-						{
-							return true;
-						}
-					}
-				}
-			}
+                using var pen = new Pen(lineColor, lineThickness);
+                using (var bubblePath = CreateBubble(lineThickness))
+                {
+                    bubblePath.Widen(pen);
+                    if (bubblePath.IsVisible(clickedPoint))
+                    {
+                        return true;
+                    }
+                }
+
+                using var tailPath = CreateTail();
+                tailPath.Widen(pen);
+                if (tailPath.IsVisible(clickedPoint))
+                {
+                    return true;
+                }
+            }
 
 			return false;
 		}

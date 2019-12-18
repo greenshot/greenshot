@@ -91,7 +91,11 @@ namespace Greenshot.Addon.Jira
 		{
 			if (_jiraClient != null)
 			{
-				Task.Run(async () => await LogoutAsync()).Wait();
+				Task.Run(async () =>
+                {
+                    await LogoutAsync();
+                    _issueTypeBitmapCache.Dispose();
+                }).Wait();
 			}
 			FavIcon?.Dispose();
 		}
@@ -251,14 +255,12 @@ namespace Greenshot.Addon.Jira
         public async Task AttachAsync(string issueKey, ISurface surface, string filename = null, CancellationToken cancellationToken = default)
 		{
 			await CheckCredentialsAsync(cancellationToken).ConfigureAwait(true);
-			using (var memoryStream = new MemoryStream())
-			{
-			    surface.WriteToStream(memoryStream, _coreConfiguration, _jiraConfiguration);
-				memoryStream.Seek(0, SeekOrigin.Begin);
-			    var contentType = surface.GenerateMimeType(_coreConfiguration, _jiraConfiguration);
-                await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, filename ?? surface.GenerateFilename(_coreConfiguration, _jiraConfiguration), contentType, cancellationToken).ConfigureAwait(false);
-			}
-		}
+            using var memoryStream = new MemoryStream();
+            surface.WriteToStream(memoryStream, _coreConfiguration, _jiraConfiguration);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var contentType = surface.GenerateMimeType(_coreConfiguration, _jiraConfiguration);
+            await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, filename ?? surface.GenerateFilename(_coreConfiguration, _jiraConfiguration), contentType, cancellationToken).ConfigureAwait(false);
+        }
 
 		/// <summary>
 		///     Add a comment to the supplied issue

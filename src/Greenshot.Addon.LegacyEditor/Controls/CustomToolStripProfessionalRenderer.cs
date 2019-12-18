@@ -51,52 +51,42 @@ namespace Greenshot.Addon.LegacyEditor.Controls
             }
             var graphics = e.Graphics;
             var dropDownRect = e.ArrowRectangle;
-            using (var brush = new SolidBrush(e.ArrowColor))
+            using var brush = new SolidBrush(e.ArrowColor);
+            int halfHeight = e.ArrowRectangle.Height / 2;
+            int halfWidth = e.ArrowRectangle.Width / 2;
+            var middle = new Point(dropDownRect.Left + halfWidth, dropDownRect.Top + halfHeight);
+
+            Point[] arrow;
+
+            int verticalArrowStart = middle.Y - halfHeight / 3;
+            int verticalArrowEnd = middle.Y + halfHeight / 3;
+            int horizontalArrowStart = middle.X - halfWidth;
+            int horizontalArrowEnd = middle.X + halfWidth;
+
+            arrow = e.Direction switch
             {
-                int halfHeight = e.ArrowRectangle.Height / 2;
-                int halfWidth = e.ArrowRectangle.Width / 2;
-                var middle = new Point(dropDownRect.Left + halfWidth, dropDownRect.Top + halfHeight);
-
-                Point[] arrow;
-
-                int verticalArrowStart = middle.Y - halfHeight / 3;
-                int verticalArrowEnd = middle.Y + halfHeight / 3;
-                int horizontalArrowStart = middle.X - halfWidth;
-                int horizontalArrowEnd = middle.X + halfWidth;
-
-                switch (e.Direction)
+                ArrowDirection.Up => new[]
                 {
-                    case ArrowDirection.Up:
-
-                        arrow = new[] {
-                                     new Point(horizontalArrowStart, verticalArrowEnd),
-                                     new Point(horizontalArrowEnd, verticalArrowEnd),
-                                     new Point(middle.X, verticalArrowStart)};
-
-                        break;
-                    case ArrowDirection.Left:
-                        arrow = new[] {
-                                     new Point(horizontalArrowEnd, verticalArrowStart),
-                                     new Point(horizontalArrowEnd, verticalArrowEnd),
-                                     new Point(horizontalArrowStart, middle.Y)};
-
-                        break;
-                    case ArrowDirection.Right:
-                        arrow = new[] {
-                                     new Point(horizontalArrowStart, verticalArrowStart),
-                                     new Point(horizontalArrowStart, verticalArrowEnd),
-                                     new Point(horizontalArrowEnd, middle.Y)};
-
-                        break;
-                    default:
-                        arrow = new[] {
-                                 new Point(horizontalArrowStart, verticalArrowStart),
-                                 new Point(horizontalArrowEnd, verticalArrowStart),
-                                 new Point(middle.X, verticalArrowEnd) };
-                        break;
+                    new Point(horizontalArrowStart, verticalArrowEnd),
+                    new Point(horizontalArrowEnd, verticalArrowEnd), new Point(middle.X, verticalArrowStart)
+                },
+                ArrowDirection.Left => new[]
+                {
+                    new Point(horizontalArrowEnd, verticalArrowStart),
+                    new Point(horizontalArrowEnd, verticalArrowEnd), new Point(horizontalArrowStart, middle.Y)
+                },
+                ArrowDirection.Right => new[]
+                {
+                    new Point(horizontalArrowStart, verticalArrowStart),
+                    new Point(horizontalArrowStart, verticalArrowEnd), new Point(horizontalArrowEnd, middle.Y)
+                },
+                _ => new[]
+                {
+                    new Point(horizontalArrowStart, verticalArrowStart),
+                    new Point(horizontalArrowEnd, verticalArrowStart), new Point(middle.X, verticalArrowEnd)
                 }
-                graphics.FillPolygon(brush, arrow);
-            }
+            };
+            graphics.FillPolygon(brush, arrow);
         }
     }
 }

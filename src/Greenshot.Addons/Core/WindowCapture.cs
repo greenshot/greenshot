@@ -116,10 +116,8 @@ namespace Greenshot.Addons.Core
                     // Set the location
                     capture.CursorLocation = new NativePoint(x, y);
 
-                    using (var icon = Icon.FromHandle(safeIcon.DangerousGetHandle()))
-                    {
-                        capture.Cursor = icon;
-                    }
+                    using var icon = Icon.FromHandle(safeIcon.DangerousGetHandle());
+                    capture.Cursor = icon;
                 }
             }
             return capture;
@@ -305,121 +303,113 @@ namespace Greenshot.Addons.Core
                 }
 
                 // create a device context we can copy to
-                using (var safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle))
+                using var safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle);
+                // Check if the device context is there, if not throw an error with as much info as possible!
+                if (safeCompatibleDcHandle.IsInvalid)
                 {
-                    // Check if the device context is there, if not throw an error with as much info as possible!
-                    if (safeCompatibleDcHandle.IsInvalid)
+                    // Get Exception before the error is lost
+                    var exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
+                    // throw exception
+                    throw exceptionToThrow;
+                }
+                // Create BitmapInfoHeader for CreateDIBSection
+                var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
+
+                // TODO: Enable when the function is available again
+                // Make sure the last error is set to 0
+                Win32.SetLastError(0);
+
+                // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
+                // the returned (out) IntPtr _ is not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
+                using var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, DibColors.PalColors, out _, IntPtr.Zero, 0);
+                if (safeDibSectionHandle.IsInvalid)
+                {
+                    // Get Exception before the error is lost
+                    var exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
+                    exceptionToThrow.Data.Add("hdcDest", safeCompatibleDcHandle.DangerousGetHandle().ToInt32());
+                    exceptionToThrow.Data.Add("hdcSrc", desktopDcHandle.DangerousGetHandle().ToInt32());
+
+                    // Throw so people can report the problem
+                    throw exceptionToThrow;
+                }
+                // select the bitmap object and store the old handle
+                using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
+                {
+                    // bit-blt over (make copy)
+                    // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+                    Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
+                        RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
+                }
+
+                // get a .NET image object for it
+                // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0x80004005 error is to re-try...
+                ExternalException exception = null;
+                for (var i = 0; i < 3; i++)
+                {
+                    try
                     {
-                        // Get Exception before the error is lost
-                        var exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
-                        // throw exception
-                        throw exceptionToThrow;
-                    }
-                    // Create BitmapInfoHeader for CreateDIBSection
-                    var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
-
-                    // TODO: Enable when the function is available again
-                    // Make sure the last error is set to 0
-                    Win32.SetLastError(0);
-
-                    // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                    // the returned (out) IntPtr _ is not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-                    using (var safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bmi, DibColors.PalColors, out _, IntPtr.Zero, 0))
-                    {
-                        if (safeDibSectionHandle.IsInvalid)
+                        // Collect all screens inside this capture
+                        var screensInsideCapture = new List<Screen>();
+                        foreach (var screen in Screen.AllScreens)
                         {
-                            // Get Exception before the error is lost
-                            var exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
-                            exceptionToThrow.Data.Add("hdcDest", safeCompatibleDcHandle.DangerousGetHandle().ToInt32());
-                            exceptionToThrow.Data.Add("hdcSrc", desktopDcHandle.DangerousGetHandle().ToInt32());
-
-                            // Throw so people can report the problem
-                            throw exceptionToThrow;
-                        }
-                        // select the bitmap object and store the old handle
-                        using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
-                        {
-                            // bit-blt over (make copy)
-                            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-                            Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
-                                RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
-                        }
-
-                        // get a .NET image object for it
-                        // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0x80004005 error is to re-try...
-                        ExternalException exception = null;
-                        for (var i = 0; i < 3; i++)
-                        {
-                            try
+                            if (screen.Bounds.IntersectsWith(captureBounds))
                             {
-                                // Collect all screens inside this capture
-                                var screensInsideCapture = new List<Screen>();
+                                screensInsideCapture.Add(screen);
+                            }
+                        }
+                        // Check all all screens are of an equal size
+                        bool offscreenContent;
+                        using (var captureRegion = new Region(captureBounds))
+                        {
+                            // Exclude every visible part
+                            foreach (var screen in screensInsideCapture)
+                            {
+                                captureRegion.Exclude(screen.Bounds);
+                            }
+                            // If the region is not empty, we have "offscreenContent"
+                            using var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow());
+                            offscreenContent = !captureRegion.IsEmpty(screenGraphics);
+                        }
+                        // Check if we need to have a transparent background, needed for offscreen content
+                        if (offscreenContent)
+                        {
+                            using var tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                            // Create a new bitmap which has a transparent background
+                            var returnBitmap = new UnmanagedBitmap<Bgra32>(tmpBitmap.Width, tmpBitmap.Height, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+                            returnBitmap.Span.Fill(Color.Transparent.FromColorWithAlpha());
+                            // Content will be copied here
+                            using (var graphics = Graphics.FromImage(returnBitmap.NativeBitmap))
+                            {
+                                // For all screens copy the content to the new bitmap
                                 foreach (var screen in Screen.AllScreens)
                                 {
-                                    if (screen.Bounds.IntersectsWith(captureBounds))
-                                    {
-                                        screensInsideCapture.Add(screen);
-                                    }
+                                    // Make sure the bounds are with an offset to the capture bounds
+                                    var screenBounds = screen.Bounds;
+                                    screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
+                                    graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
                                 }
-                                // Check all all screens are of an equal size
-                                bool offscreenContent;
-                                using (var captureRegion = new Region(captureBounds))
-                                {
-                                    // Exclude every visible part
-                                    foreach (var screen in screensInsideCapture)
-                                    {
-                                        captureRegion.Exclude(screen.Bounds);
-                                    }
-                                    // If the region is not empty, we have "offscreenContent"
-                                    using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                                    {
-                                        offscreenContent = !captureRegion.IsEmpty(screenGraphics);
-                                    }
-                                }
-                                // Check if we need to have a transparent background, needed for offscreen content
-                                if (offscreenContent)
-                                {
-                                    using (var tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()))
-                                    {
-                                        // Create a new bitmap which has a transparent background
-                                        var returnBitmap = new UnmanagedBitmap<Bgra32>(tmpBitmap.Width, tmpBitmap.Height, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
-                                        returnBitmap.Span.Fill(Color.Transparent.FromColorWithAlpha());
-                                        // Content will be copied here
-                                        using (var graphics = Graphics.FromImage(returnBitmap.NativeBitmap))
-                                        {
-                                            // For all screens copy the content to the new bitmap
-                                            foreach (var screen in Screen.AllScreens)
-                                            {
-                                                // Make sure the bounds are with an offset to the capture bounds
-                                                var screenBounds = screen.Bounds;
-                                                screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
-                                                graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
-                                            }
-                                        }
+                            }
 
-                                        return returnBitmap;
-                                    }
-                                }
-                                else
-                                {
-                                    // All screens, which are inside the capture, are of equal size
-                                    // assign image to Capture, the image will be disposed there..
-                                    // TODO: Optimize?
-                                    return BitmapWrapper.FromBitmap(Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()));
-                                }
-                            }
-                            catch (ExternalException ee)
-                            {
-                                Log.Warn().WriteLine(ee, "Problem getting bitmap at try " + i + " : ");
-                                exception = ee;
-                            }
+                            return returnBitmap;
                         }
-                        Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
-                        if (exception != null)
+                        else
                         {
-                            throw exception;
+                            // All screens, which are inside the capture, are of equal size
+                            // assign image to Capture, the image will be disposed there..
+                            // TODO: Optimize?
+                            return BitmapWrapper.FromBitmap(Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()));
                         }
                     }
+                    catch (ExternalException ee)
+                    {
+                        Log.Warn().WriteLine(ee, "Problem getting bitmap at try " + i + " : ");
+                        exception = ee;
+                    }
+                }
+                Log.Error().WriteLine(null, "Still couldn't create Bitmap!");
+                if (exception != null)
+                {
+                    throw exception;
                 }
             }
 

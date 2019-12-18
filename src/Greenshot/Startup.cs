@@ -134,16 +134,14 @@ namespace Greenshot
                     return;
                 }
 
-                using (var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>())
+                using var errorViewModel = application.Bootstrapper.Container.Resolve<Owned<ErrorViewModel>>();
+                if (errorViewModel == null)
                 {
-                    if (errorViewModel == null)
-                    {
-                        return;
-                    }
-
-                    errorViewModel.Value.SetExceptionToDisplay(exception);
-                    await Execute.OnUIThreadAsync(() => windowManager.ShowDialog(errorViewModel.Value));
+                    return;
                 }
+
+                errorViewModel.Value.SetExceptionToDisplay(exception);
+                await Execute.OnUIThreadAsync(() => windowManager.ShowDialog(errorViewModel.Value));
             }
             catch (Exception ex)
             {
@@ -180,7 +178,7 @@ namespace Greenshot
             IGreenshotLanguage language = null;
 
             // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-            using (var multiInstanceForm = new DpiAwareForm
+            using var multiInstanceForm = new DpiAwareForm
             {
 
                 Icon = greenshotResources.GetGreenshotIcon(),
@@ -193,51 +191,49 @@ namespace Greenshot
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 StartPosition = FormStartPosition.CenterScreen
-            })
+            };
+            var flowLayoutPanel = new FlowLayoutPanel
             {
-                var flowLayoutPanel = new FlowLayoutPanel
-                {
-                    AutoScroll = true,
-                    FlowDirection = System.Windows.Forms.FlowDirection.TopDown,
-                    WrapContents = false,
-                    AutoSize = true,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink
-                };
-                var internalFlowLayoutPanel = new FlowLayoutPanel
-                {
-                    AutoScroll = true,
-                    FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight,
-                    WrapContents = false,
-                    AutoSize = true,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink
-                };
-                var pictureBox = new PictureBox
-                {
-                    Dock = DockStyle.Left,
-                    Image = SystemIcons.Error.ToBitmap(),
-                    SizeMode = PictureBoxSizeMode.AutoSize
-                };
-                internalFlowLayoutPanel.Controls.Add(pictureBox);
-                var textbox = new Label
-                {
-                    Text = language.TranslationOrDefault(l => l.ErrorMultipleinstances) + Environment.NewLine + instanceInfo,
-                    AutoSize = true
-                };
-                internalFlowLayoutPanel.Controls.Add(textbox);
-                flowLayoutPanel.Controls.Add(internalFlowLayoutPanel);
-                var cancelButton = new Button
-                {
-                    Text = language.TranslationOrDefault(l => l.BugreportCancel),
-                    Dock = DockStyle.Bottom,
-                    Height = 25
-                };
-                flowLayoutPanel.Controls.Add(cancelButton);
-                multiInstanceForm.Controls.Add(flowLayoutPanel);
+                AutoScroll = true,
+                FlowDirection = System.Windows.Forms.FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+            var internalFlowLayoutPanel = new FlowLayoutPanel
+            {
+                AutoScroll = true,
+                FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+            var pictureBox = new PictureBox
+            {
+                Dock = DockStyle.Left,
+                Image = SystemIcons.Error.ToBitmap(),
+                SizeMode = PictureBoxSizeMode.AutoSize
+            };
+            internalFlowLayoutPanel.Controls.Add(pictureBox);
+            var textbox = new Label
+            {
+                Text = language.TranslationOrDefault(l => l.ErrorMultipleinstances) + Environment.NewLine + instanceInfo,
+                AutoSize = true
+            };
+            internalFlowLayoutPanel.Controls.Add(textbox);
+            flowLayoutPanel.Controls.Add(internalFlowLayoutPanel);
+            var cancelButton = new Button
+            {
+                Text = language.TranslationOrDefault(l => l.BugreportCancel),
+                Dock = DockStyle.Bottom,
+                Height = 25
+            };
+            flowLayoutPanel.Controls.Add(cancelButton);
+            multiInstanceForm.Controls.Add(flowLayoutPanel);
 
-                multiInstanceForm.CancelButton = cancelButton;
+            multiInstanceForm.CancelButton = cancelButton;
 
-                multiInstanceForm.ShowDialog();
-            }
+            multiInstanceForm.ShowDialog();
         }
 
     }

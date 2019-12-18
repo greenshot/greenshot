@@ -932,41 +932,37 @@ namespace Greenshot.Forms
                     // horizontal ruler
                     if (fixedRect.Width > hSpace + 3)
                     {
-                        using (var p = RoundedRectangle.Create2(
+                        using var p = RoundedRectangle.Create2(
                             fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3,
                             fixedRect.Y - dist - 7,
                             measureWidth.Width - 3,
                             measureWidth.Height,
-                            3))
-                        {
-                            graphics.FillPath(bgBrush, p);
-                            graphics.DrawPath(rulerPen, p);
-                            graphics.DrawString(captureWidth, rulerFont, rulerPen.Brush, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3, fixedRect.Y - dist - 7);
-                            graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2), fixedRect.Y - dist);
-                            graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width / 2 + hSpace / 2, fixedRect.Y - dist, fixedRect.X + fixedRect.Width, fixedRect.Y - dist);
-                            graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist - 3, fixedRect.X, fixedRect.Y - dist + 3);
-                            graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width, fixedRect.Y - dist - 3, fixedRect.X + fixedRect.Width, fixedRect.Y - dist + 3);
-                        }
+                            3);
+                        graphics.FillPath(bgBrush, p);
+                        graphics.DrawPath(rulerPen, p);
+                        graphics.DrawString(captureWidth, rulerFont, rulerPen.Brush, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3, fixedRect.Y - dist - 7);
+                        graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2), fixedRect.Y - dist);
+                        graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width / 2 + hSpace / 2, fixedRect.Y - dist, fixedRect.X + fixedRect.Width, fixedRect.Y - dist);
+                        graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist - 3, fixedRect.X, fixedRect.Y - dist + 3);
+                        graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width, fixedRect.Y - dist - 3, fixedRect.X + fixedRect.Width, fixedRect.Y - dist + 3);
                     }
 
                     // vertical ruler
                     if (fixedRect.Height > vSpace + 3)
                     {
-                        using (var p = RoundedRectangle.Create2(
+                        using var p = RoundedRectangle.Create2(
                             fixedRect.X - measureHeight.Width + 1,
                             fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2) + 2,
                             measureHeight.Width - 3,
                             measureHeight.Height - 1,
-                            3))
-                        {
-                            graphics.FillPath(bgBrush, p);
-                            graphics.DrawPath(rulerPen, p);
-                            graphics.DrawString(captureHeight, rulerFont, rulerPen.Brush, fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2) + 2);
-                            graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2));
-                            graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y + fixedRect.Height / 2 + vSpace / 2, fixedRect.X - dist, fixedRect.Y + fixedRect.Height);
-                            graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
-                            graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
-                        }
+                            3);
+                        graphics.FillPath(bgBrush, p);
+                        graphics.DrawPath(rulerPen, p);
+                        graphics.DrawString(captureHeight, rulerFont, rulerPen.Brush, fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2) + 2);
+                        graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2));
+                        graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y + fixedRect.Height / 2 + vSpace / 2, fixedRect.X - dist, fixedRect.Y + fixedRect.Height);
+                        graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
+                        graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
                     }
 
                     rulerPen.Dispose();
@@ -975,50 +971,44 @@ namespace Greenshot.Forms
 
                 // Display size of selected rectangle
                 // Prepare the font and text.
-                using (var sizeFont = new Font(FontFamily.GenericSansSerif, 12))
+                using var sizeFont = new Font(FontFamily.GenericSansSerif, 12);
+                // When capturing a Region we need to add 1 to the height/width for correction
+                string sizeText;
+                if (UsedCaptureMode == CaptureMode.Region)
                 {
-                    // When capturing a Region we need to add 1 to the height/width for correction
-                    string sizeText;
-                    if (UsedCaptureMode == CaptureMode.Region)
+                    // correct the GUI width to real width for the shown size
+                    sizeText = _captureRect.Width + 1 + " x " + (_captureRect.Height + 1);
+                }
+                else
+                {
+                    sizeText = _captureRect.Width + " x " + _captureRect.Height;
+                }
+
+                // Calculate the scaled font size.
+                var extent = graphics.MeasureString(sizeText, sizeFont);
+                var hRatio = _captureRect.Height / (extent.Height * 2);
+                var wRatio = _captureRect.Width / (extent.Width * 2);
+                var ratio = hRatio < wRatio ? hRatio : wRatio;
+                var newSize = sizeFont.Size * ratio;
+
+                if (newSize >= 4)
+                {
+                    // Only show if 4pt or larger.
+                    if (newSize > 20)
                     {
-                        // correct the GUI width to real width for the shown size
-                        sizeText = _captureRect.Width + 1 + " x " + (_captureRect.Height + 1);
+                        newSize = 20;
                     }
-                    else
+                    // Draw the size.
+                    using var newSizeFont = new Font(FontFamily.GenericSansSerif, newSize, FontStyle.Bold);
+                    var sizeLocation = new PointF(fixedRect.X + _captureRect.Width / 2 - extent.Width / 2, fixedRect.Y + _captureRect.Height / 2 - newSizeFont.GetHeight() / 2);
+                    graphics.DrawString(sizeText, newSizeFont, Brushes.LightSeaGreen, sizeLocation);
+
+                    if (_showDebugInfo && SelectedCaptureWindow != null)
                     {
-                        sizeText = _captureRect.Width + " x " + _captureRect.Height;
-                    }
-
-                    // Calculate the scaled font size.
-                    var extent = graphics.MeasureString(sizeText, sizeFont);
-                    var hRatio = _captureRect.Height / (extent.Height * 2);
-                    var wRatio = _captureRect.Width / (extent.Width * 2);
-                    var ratio = hRatio < wRatio ? hRatio : wRatio;
-                    var newSize = sizeFont.Size * ratio;
-
-                    if (newSize >= 4)
-                    {
-                        // Only show if 4pt or larger.
-                        if (newSize > 20)
-                        {
-                            newSize = 20;
-                        }
-                        // Draw the size.
-                        using (var newSizeFont = new Font(FontFamily.GenericSansSerif, newSize, FontStyle.Bold))
-                        {
-                            var sizeLocation = new PointF(fixedRect.X + _captureRect.Width / 2 - extent.Width / 2, fixedRect.Y + _captureRect.Height / 2 - newSizeFont.GetHeight() / 2);
-                            graphics.DrawString(sizeText, newSizeFont, Brushes.LightSeaGreen, sizeLocation);
-
-                            if (_showDebugInfo && SelectedCaptureWindow != null)
-                            {
-                                using (var process = Process.GetProcessById(SelectedCaptureWindow.GetProcessId()))
-                                {
-                                    string title = $"#{SelectedCaptureWindow.Handle.ToInt64():X} - {(SelectedCaptureWindow.Text.Length > 0 ? SelectedCaptureWindow.Text : process.ProcessName)}";
-                                    var debugLocation = new PointF(fixedRect.X, fixedRect.Y);
-                                    graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
-                                }
-                            }
-                        }
+                        using var process = Process.GetProcessById(SelectedCaptureWindow.GetProcessId());
+                        string title = $"#{SelectedCaptureWindow.Handle.ToInt64():X} - {(SelectedCaptureWindow.Text.Length > 0 ? SelectedCaptureWindow.Text : process.ProcessName)}";
+                        var debugLocation = new PointF(fixedRect.X, fixedRect.Y);
+                        graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
                     }
                 }
             }
@@ -1033,22 +1023,18 @@ namespace Greenshot.Forms
                 }
 
                 var xy = _cursorPos.X + " x " + _cursorPos.Y;
-                using (var f = new Font(FontFamily.GenericSansSerif, 8))
+                using var f = new Font(FontFamily.GenericSansSerif, 8);
+                var xySize = TextRenderer.MeasureText(xy, f);
+                using var gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3);
+                using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227)))
                 {
-                    var xySize = TextRenderer.MeasureText(xy, f);
-                    using (var gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3))
-                    {
-                        using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227)))
-                        {
-                            graphics.FillPath(bgBrush, gp);
-                        }
-                        using (var pen = new Pen(Color.SeaGreen))
-                        {
-                            graphics.DrawPath(pen, gp);
-                            var coordinatePosition = new Point(_cursorPos.X + 5, _cursorPos.Y + 5);
-                            graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
-                        }
-                    }
+                    graphics.FillPath(bgBrush, gp);
+                }
+                using (var pen = new Pen(Color.SeaGreen))
+                {
+                    graphics.DrawPath(pen, gp);
+                    var coordinatePosition = new Point(_cursorPos.X + 5, _cursorPos.Y + 5);
+                    graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
                 }
             }
 

@@ -79,23 +79,22 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				return;
 			}
-			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100)))
-			{
-				var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
-				var selectionRect = new NativeRect(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
 
-				DrawSelectionBorder(g, selectionRect);
+            using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
+            var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+            var selectionRect = new NativeRect(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
 
-				// top
-				g.FillRectangle(cropBrush, new NativeRect(0, 0, _parent.Width, cropRectangle.Top));
-				// left
-				g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
-				// right
-				g.FillRectangle(cropBrush,
-					new NativeRect(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, _parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
-				// bottom
-				g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
-			}
-		}
+            DrawSelectionBorder(g, selectionRect);
+
+            // top
+            g.FillRectangle(cropBrush, new NativeRect(0, 0, _parent.Width, cropRectangle.Top));
+            // left
+            g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
+            // right
+            g.FillRectangle(cropBrush,
+                new NativeRect(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, _parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
+            // bottom
+            g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
+        }
 	}
 }

@@ -127,28 +127,22 @@ namespace Greenshot.Destinations
 			var exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(_printerName))
-			{
-				using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
-				{
-					printerSettings = ownedPrintHelper.Value.PrintTo(_printerName);
-				}
-			}
+            {
+                using var ownedPrintHelper = _printHelperFactory(surface, captureDetails);
+                printerSettings = ownedPrintHelper.Value.PrintTo(_printerName);
+            }
 			else if (!manuallyInitiated)
 			{
 				var settings = new PrinterSettings();
 
-			    using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
-			    {
-			        printerSettings = ownedPrintHelper.Value.PrintTo(settings.PrinterName);
-			    }
-			}
+                using var ownedPrintHelper = _printHelperFactory(surface, captureDetails);
+                printerSettings = ownedPrintHelper.Value.PrintTo(settings.PrinterName);
+            }
 			else
-			{
-			    using (var ownedPrintHelper = _printHelperFactory(surface, captureDetails))
-			    {
-			        printerSettings = ownedPrintHelper.Value.PrintWithDialog();
-                }
-			}
+            {
+                using var ownedPrintHelper = _printHelperFactory(surface, captureDetails);
+                printerSettings = ownedPrintHelper.Value.PrintWithDialog();
+            }
 			if (printerSettings != null)
 			{
 				exportInformation.ExportMade = true;

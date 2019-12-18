@@ -123,12 +123,10 @@ namespace Greenshot.Addon.Dropbox
         public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
-			{
+            {
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Dropbox.gif"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Dropbox.gif");
+                return BitmapHelper.FromStream(bitmapStream);
             }
 		}
 
@@ -145,12 +143,10 @@ namespace Greenshot.Addon.Dropbox
 				exportInformation.Uri = uploadUrl;
 				exportInformation.ExportMade = true;
 				if (_dropboxPluginConfiguration.AfterUploadLinkToClipBoard)
-				{
-				    using (var clipboardAccessToken = ClipboardNative.Access())
-				    {
-				        clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(uploadUrl);
-				    }
+                {
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(uploadUrl);
                 }
 			}
 		    _exportNotification.NotifyOfExport(this, exportInformation, surface);
@@ -166,30 +162,24 @@ namespace Greenshot.Addon.Dropbox
 	        try
 	        {
 	            var cancellationTokenSource = new CancellationTokenSource();
-                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource))
-	            {
-	                ownedPleaseWaitForm.Value.SetDetails("Dropbox", _dropboxLanguage.CommunicationWait);
-                    ownedPleaseWaitForm.Value.Show();
-	                try
-	                {
-	                    var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _dropboxPluginConfiguration);
-	                    using (var imageStream = new MemoryStream())
-	                    {
-                            surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _dropboxPluginConfiguration);
-	                        imageStream.Position = 0;
-	                        using (var streamContent = new StreamContent(imageStream))
-	                        {
-	                            streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _dropboxPluginConfiguration));
-	                            dropboxUrl = await UploadAsync(filename, streamContent, null, cancellationToken).ConfigureAwait(false);
-	                        }
-	                    }
-	                }
-	                finally
-	                {
-	                    ownedPleaseWaitForm.Value.Close();
-	                }
-	            }
-	        }
+                using var ownedPleaseWaitForm = _pleaseWaitFormFactory(cancellationTokenSource);
+                ownedPleaseWaitForm.Value.SetDetails("Dropbox", _dropboxLanguage.CommunicationWait);
+                ownedPleaseWaitForm.Value.Show();
+                try
+                {
+                    var filename = surfaceToUpload.GenerateFilename(CoreConfiguration, _dropboxPluginConfiguration);
+                    using var imageStream = new MemoryStream();
+                    surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _dropboxPluginConfiguration);
+                    imageStream.Position = 0;
+                    using var streamContent = new StreamContent(imageStream);
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue(surfaceToUpload.GenerateMimeType(CoreConfiguration, _dropboxPluginConfiguration));
+                    dropboxUrl = await UploadAsync(filename, streamContent, null, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    ownedPleaseWaitForm.Value.Close();
+                }
+            }
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e);

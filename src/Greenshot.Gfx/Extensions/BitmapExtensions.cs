@@ -34,35 +34,25 @@ namespace Greenshot.Gfx.Extensions
         /// </summary>
         /// <param name="bitmap">IBitmapWithNativeSupport</param>
         /// <returns>IBitmapWithNativeSupport</returns>
-        public static IBitmapWithNativeSupport Scale2X(this IBitmapWithNativeSupport bitmap)
-        {
-            switch (bitmap)
+        public static IBitmapWithNativeSupport Scale2X(this IBitmapWithNativeSupport bitmap) =>
+            bitmap switch
             {
-                case UnmanagedBitmap<Bgra32> unmanagedBitmap:
-                    return unmanagedBitmap.Scale2X();
-                case UnmanagedBitmap<Bgr32> unmanagedBitmap:
-                    return unmanagedBitmap.Scale2X();
-            }
+                UnmanagedBitmap<Bgra32> unmanagedBitmap => unmanagedBitmap.Scale2X(),
+                UnmanagedBitmap<Bgr32> unmanagedBitmap => unmanagedBitmap.Scale2X(),
+                _ => ScaleX.Scale2X(bitmap)
+            };
 
-            return ScaleX.Scale2X(bitmap);
-        }
-        
         /// <summary>
         /// Scale3x
         /// </summary>
         /// <param name="bitmap">IBitmapWithNativeSupport</param>
         /// <returns>IBitmapWithNativeSupport</returns>
-        public static IBitmapWithNativeSupport Scale3X(this IBitmapWithNativeSupport bitmap)
-        {
-            switch (bitmap)
+        public static IBitmapWithNativeSupport Scale3X(this IBitmapWithNativeSupport bitmap) =>
+            bitmap switch
             {
-                case UnmanagedBitmap<Bgra32> unmanagedBitmap:
-                    return unmanagedBitmap.Scale3X();
-                case UnmanagedBitmap<Bgr32> unmanagedBitmap:
-                    return unmanagedBitmap.Scale3X();
-            }
-
-            return ScaleX.Scale3X(bitmap);
-        }
+                UnmanagedBitmap<Bgra32> unmanagedBitmap => unmanagedBitmap.Scale3X(),
+                UnmanagedBitmap<Bgr32> unmanagedBitmap => unmanagedBitmap.Scale3X(),
+                _ => ScaleX.Scale3X(bitmap)
+            };
     }
 }

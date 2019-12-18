@@ -35,15 +35,15 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
-    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="2.1.3" />
+    <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="2.1.4" />
     <PackageReference Include="Dapplo.Log.LogFile" Version="1.3.26" />
     <PackageReference Include="Dapplo.Log.Loggers" Version="1.3.26" />
     <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.11.6" />
-    <PackageReference Include="gong-wpf-dragdrop" Version="2.1.0" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.2.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.6.292" />
-    <PackageReference Include="Svg" Version="3.0.49" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="2.4.0-preview" />
-    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="2.4.0-preview" />
+    <PackageReference Include="Svg" Version="3.0.84" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="2.6.4" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="2.6.4" />
     <TrimmerRootAssembly Include="System.Diagnostics.Debug" />
   </ItemGroup>
   

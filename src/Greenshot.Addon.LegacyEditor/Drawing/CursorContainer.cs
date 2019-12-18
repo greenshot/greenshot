@@ -75,12 +75,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				return;
 			}
-			using (var fileCursor = new Cursor(filename))
-			{
-				Cursor = fileCursor;
-				Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-			}
-		}
+
+            using var fileCursor = new Cursor(filename);
+            Cursor = fileCursor;
+            Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+        }
 
 		protected override void OnDeserialized(StreamingContext streamingContext)
 		{

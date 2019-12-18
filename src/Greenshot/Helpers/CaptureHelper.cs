@@ -53,7 +53,9 @@ namespace Greenshot.Helpers
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly bool _captureMouseCursor;
+#pragma warning disable IDE0069 // Disable disposable fields should be disposed, as this cannot be disposed!
         private ICapture _capture;
+#pragma warning restore IDE0069 // Disposable fields should be disposed
         private readonly CaptureSupportInfo _captureSupportInfo;
         private CaptureMode _captureMode;
         private NativeRect _captureRect = NativeRect.Empty;
@@ -132,102 +134,83 @@ namespace Greenshot.Helpers
 
         public static void CaptureClipboard(CaptureSupportInfo captureSupportInfo, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Clipboard, false, destination))
-            {
-                captureHelper.MakeCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Clipboard, false, destination);
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse, destination))
-            {
-                captureHelper.MakeCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse, destination);
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse, NativeRect region)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse))
-            {
-                captureHelper.MakeCapture(region);
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Region, captureMouse);
+            captureHelper.MakeCapture(region);
         }
 
         public static void CaptureFullscreen(CaptureSupportInfo captureSupportInfo, bool captureMouse, ScreenCaptureMode screenCaptureMode, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.FullScreen, captureMouse, destination))
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.FullScreen, captureMouse, destination)
             {
-                captureHelper._screenCaptureMode = screenCaptureMode;
-                captureHelper.MakeCapture();
-            }
+                _screenCaptureMode = screenCaptureMode
+            };
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureLastRegion(CaptureSupportInfo captureSupportInfo, bool captureMouse)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.LastRegion, captureMouse))
-            {
-                captureHelper.MakeCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.LastRegion, captureMouse);
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureIe(CaptureSupportInfo captureSupportInfo, bool captureMouse, IInteropWindow windowToCapture)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.IE, captureMouse))
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.IE, captureMouse)
             {
-                captureHelper.SelectedCaptureWindow = windowToCapture;
-                captureHelper.MakeCapture();
-            }
+                SelectedCaptureWindow = windowToCapture
+            };
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureWindow(CaptureSupportInfo captureSupportInfo, bool captureMouse, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow, captureMouse, destination))
-            {
-                captureHelper.MakeCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow, captureMouse, destination);
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureWindow(CaptureSupportInfo captureSupportInfo, IInteropWindow windowToCapture)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow))
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.ActiveWindow)
             {
-                captureHelper.SelectedCaptureWindow = windowToCapture;
-                captureHelper.MakeCapture();
-            }
+                SelectedCaptureWindow = windowToCapture
+            };
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureWindowInteractive(CaptureSupportInfo captureSupportInfo, bool captureMouse)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Window))
-            {
-                captureHelper.MakeCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.Window);
+            captureHelper.MakeCapture();
         }
 
         public static void CaptureFile(CaptureSupportInfo captureSupportInfo, string filename)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
-            {
-                captureHelper.MakeCapture(filename);
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File);
+            captureHelper.MakeCapture(filename);
         }
 
         public static void CaptureFile(CaptureSupportInfo captureSupportInfo, string filename, IDestination destination)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
-            {
-                captureHelper.AddDestination(destination).MakeCapture(filename);
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File);
+            captureHelper.AddDestination(destination).MakeCapture(filename);
         }
 
         public static void ImportCapture(CaptureSupportInfo captureSupportInfo, ICapture captureToImport)
         {
-            using (var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File))
-            {
-                captureHelper._capture = captureToImport;
-                captureHelper.HandleCapture();
-            }
+            using var captureHelper = new CaptureHelper(captureSupportInfo, CaptureMode.File) {_capture = captureToImport};
+            captureHelper.HandleCapture();
         }
 
         public CaptureHelper AddDestination(IDestination destination)
@@ -888,43 +871,43 @@ namespace Greenshot.Helpers
                                     if (blackPercentageGdi >= 1)
                                     {
                                         var screenPixels = windowRectangle.Width * windowRectangle.Height;
-                                        using (ICapture screenCapture = new Capture())
+                                        using ICapture screenCapture = new Capture
                                         {
-                                            screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
-                                            if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
+                                            CaptureDetails = captureForWindow.CaptureDetails
+                                        };
+                                        if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
+                                        {
+                                            var blackCountScreen = screenCapture.Bitmap.CountColor(Color.Black, false);
+                                            var blackPercentageScreen = blackCountScreen * 100 / screenPixels;
+                                            if (screenPixels == gdiPixels)
                                             {
-                                                var blackCountScreen = screenCapture.Bitmap.CountColor(Color.Black, false);
-                                                var blackPercentageScreen = blackCountScreen * 100 / screenPixels;
-                                                if (screenPixels == gdiPixels)
+                                                // "easy compare", both have the same size
+                                                // If GDI has more black, use the screen capture.
+                                                if (blackPercentageGdi > blackPercentageScreen)
                                                 {
-                                                    // "easy compare", both have the same size
-                                                    // If GDI has more black, use the screen capture.
-                                                    if (blackPercentageGdi > blackPercentageScreen)
-                                                    {
-                                                        Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
-                                                        // changeing the image will automatically dispose the previous
-                                                        tmpCapture.Bitmap = screenCapture.Bitmap;
-                                                        // Make sure it's not disposed, else the picture is gone!
-                                                        screenCapture.NullBitmap();
-                                                    }
+                                                    Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
+                                                    // changeing the image will automatically dispose the previous
+                                                    tmpCapture.Bitmap = screenCapture.Bitmap;
+                                                    // Make sure it's not disposed, else the picture is gone!
+                                                    screenCapture.NullBitmap();
                                                 }
-                                                else if (screenPixels < gdiPixels)
+                                            }
+                                            else if (screenPixels < gdiPixels)
+                                            {
+                                                // Screen capture is cropped, window is outside of screen
+                                                if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
                                                 {
-                                                    // Screen capture is cropped, window is outside of screen
-                                                    if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
-                                                    {
-                                                        Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
-                                                        // changeing the image will automatically dispose the previous
-                                                        tmpCapture.Bitmap = screenCapture.Bitmap;
-                                                        // Make sure it's not disposed, else the picture is gone!
-                                                        screenCapture.NullBitmap();
-                                                    }
+                                                    Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
+                                                    // changeing the image will automatically dispose the previous
+                                                    tmpCapture.Bitmap = screenCapture.Bitmap;
+                                                    // Make sure it's not disposed, else the picture is gone!
+                                                    screenCapture.NullBitmap();
                                                 }
-                                                else
-                                                {
-                                                    // Use the GDI capture by doing nothing
-                                                    Log.Debug().WriteLine("This should not happen, how can there be more screen as GDI pixels?");
-                                                }
+                                            }
+                                            else
+                                            {
+                                                // Use the GDI capture by doing nothing
+                                                Log.Debug().WriteLine("This should not happen, how can there be more screen as GDI pixels?");
                                             }
                                         }
                                     }
@@ -1023,63 +1006,61 @@ namespace Greenshot.Helpers
             //	}
             //}
 
-            using (var captureForm = new CaptureForm(_coreConfiguration, _capture, _windows, _captureSupportInfo.FormEnhancers))
+            using var captureForm = new CaptureForm(_coreConfiguration, _capture, _windows, _captureSupportInfo.FormEnhancers);
+            // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
+            DialogResult result;
+            try
             {
-                // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
-                DialogResult result;
-                try
-                {
-                    result = captureForm.ShowDialog(MainForm.Instance);
-                }
-                finally
-                {
-                    captureForm.Hide();
-                    // Make sure it's gone
-                    Application.DoEvents();
-                }
-                if (result != DialogResult.OK)
-                {
-                    return;
-                }
-                SelectedCaptureWindow = captureForm.SelectedCaptureWindow;
-                _captureRect = captureForm.CaptureRectangle;
-                // Get title
-                if (SelectedCaptureWindow != null)
-                {
-                    _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
-                }
-
-                // Scroll test:
-                var windowScroller = captureForm.WindowScroller;
-                if (windowScroller != null)
-                {
-                    var scrollingCapture = new ScrollingCapture(windowScroller);
-
-                    var resultImage = scrollingCapture.Capture();
-                    if (resultImage != null)
-                    {
-                        _capture = new Capture(resultImage)
-                        {
-                            CaptureDetails = _capture.CaptureDetails
-                        };
-                        HandleCapture();
-                        return;
-                    }
-                }
-
-                if (_captureRect.Height * _captureRect.Width <= 0)
-                {
-                    return;
-                }
-                // Take the captureRect, this already is specified as bitmap coordinates
-                _capture.Crop(_captureRect);
-
-                // save for re-capturing later and show recapture context menu option
-                // Important here is that the location needs to be offsetted back to screen coordinates!
-                var tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-                _coreConfiguration.LastCapturedRegion = tmpRectangle;
-                HandleCapture();
+                result = captureForm.ShowDialog(MainForm.Instance);
             }
+            finally
+            {
+                captureForm.Hide();
+                // Make sure it's gone
+                Application.DoEvents();
+            }
+            if (result != DialogResult.OK)
+            {
+                return;
+            }
+            SelectedCaptureWindow = captureForm.SelectedCaptureWindow;
+            _captureRect = captureForm.CaptureRectangle;
+            // Get title
+            if (SelectedCaptureWindow != null)
+            {
+                _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
+            }
+
+            // Scroll test:
+            var windowScroller = captureForm.WindowScroller;
+            if (windowScroller != null)
+            {
+                var scrollingCapture = new ScrollingCapture(windowScroller);
+
+                var resultImage = scrollingCapture.Capture();
+                if (resultImage != null)
+                {
+                    _capture = new Capture(resultImage)
+                    {
+                        CaptureDetails = _capture.CaptureDetails
+                    };
+                    HandleCapture();
+                    return;
+                }
+            }
+
+            if (_captureRect.Height * _captureRect.Width <= 0)
+            {
+                return;
+            }
+            // Take the captureRect, this already is specified as bitmap coordinates
+            _capture.Crop(_captureRect);
+
+            // save for re-capturing later and show recapture context menu option
+            // Important here is that the location needs to be offsetted back to screen coordinates!
+            var tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+            _coreConfiguration.LastCapturedRegion = tmpRectangle;
+            HandleCapture();
         }
     }
 }

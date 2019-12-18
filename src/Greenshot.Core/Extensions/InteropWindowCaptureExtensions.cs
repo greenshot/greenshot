@@ -166,35 +166,33 @@ namespace Greenshot.Core.Extensions
                 {
                     // Assume using it's own location
                     formLocation = windowRectangle.Location;
-                    using (var workingArea = new Region())
+                    using var workingArea = new Region();
+                    // Find the screen where the window is and check if it fits
+                    foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                     {
-                        // Find the screen where the window is and check if it fits
+                        workingArea.Union(displayInfo.WorkingArea);
+                    }
+
+                    // If the formLocation is not inside the visible area
+                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
+                    {
+                        // If none found we find the biggest screen
                         foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
-                            workingArea.Union(displayInfo.WorkingArea);
-                        }
-
-                        // If the formLocation is not inside the visible area
-                        if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
-                        {
-                            // If none found we find the biggest screen
-                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+                            var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
+                            if (!workingArea.AreRectangleCornersVisisble(newWindowRectangle))
                             {
-                                var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
-                                if (!workingArea.AreRectangleCornersVisisble(newWindowRectangle))
-                                {
-                                    continue;
-                                }
-
-                                formLocation = displayInfo.Bounds.Location;
-                                doesCaptureFit = true;
-                                break;
+                                continue;
                             }
-                        }
-                        else
-                        {
+
+                            formLocation = displayInfo.Bounds.Location;
                             doesCaptureFit = true;
+                            break;
                         }
+                    }
+                    else
+                    {
+                        doesCaptureFit = true;
                     }
                 }
                 else if (!WindowsVersion.IsWindows8OrLater)
@@ -229,13 +227,11 @@ namespace Greenshot.Core.Extensions
                         if (!doesCaptureFit)
                         {
                             // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-                            using (var thisWindowProcess = Process.GetProcessById(interopWindow.GetProcessId()))
+                            using var thisWindowProcess = Process.GetProcessById(interopWindow.GetProcessId());
+                            if (!interopWindow.IsApp() && IsGdiAllowed(thisWindowProcess, captureConfiguration))
                             {
-                                if (!interopWindow.IsApp() && IsGdiAllowed(thisWindowProcess, captureConfiguration))
-                                {
-                                    // we return null which causes the capturing code to try another method.
-                                    return null;
-                                }
+                                // we return null which causes the capturing code to try another method.
+                                return null;
                             }
                         }
                     }

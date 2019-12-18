@@ -99,11 +99,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Adorners
 			var targetGraphics = paintEventArgs.Graphics;
 
 			var bounds = Bounds;
-            using (var brush = new SolidBrush(_color))
-            {
-                targetGraphics.FillRectangle(brush, bounds.X, bounds.Y, bounds.Width, bounds.Height);
-
-            }
+            using var brush = new SolidBrush(_color);
+            targetGraphics.FillRectangle(brush, bounds.X, bounds.Y, bounds.Width, bounds.Height);
         }
 
 		/// <summary>

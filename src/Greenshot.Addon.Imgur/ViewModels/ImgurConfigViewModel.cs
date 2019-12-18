@@ -120,10 +120,8 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         public void ShowHistory()
         {
-            using (var imgurHistoryViewModel = ImgurHistoryViewModelFactory())
-            {
-                WindowManager.ShowDialog(imgurHistoryViewModel.Value);
-            }
+            using var imgurHistoryViewModel = ImgurHistoryViewModelFactory();
+            WindowManager.ShowDialog(imgurHistoryViewModel.Value);
         }
 
         /// <summary>

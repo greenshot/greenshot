@@ -187,36 +187,34 @@ namespace Greenshot.Addons.Core
                 {
                     // Assume using it's own location
                     formLocation = windowRectangle.Location;
-                    using (var workingArea = new Region(Screen.PrimaryScreen.Bounds))
+                    using var workingArea = new Region(Screen.PrimaryScreen.Bounds);
+                    // Find the screen where the window is and check if it fits
+                    foreach (var screen in Screen.AllScreens)
                     {
-                        // Find the screen where the window is and check if it fits
+                        if (!Equals(screen, Screen.PrimaryScreen))
+                        {
+                            workingArea.Union(screen.Bounds);
+                        }
+                    }
+
+                    // If the formLocation is not inside the visible area
+                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
+                    {
+                        // If none found we find the biggest screen
                         foreach (var screen in Screen.AllScreens)
                         {
-                            if (!Equals(screen, Screen.PrimaryScreen))
+                            var newWindowRectangle = new NativeRect(screen.WorkingArea.Location, windowRectangle.Size);
+                            if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
                             {
-                                workingArea.Union(screen.Bounds);
+                                formLocation = screen.Bounds.Location;
+                                doesCaptureFit = true;
+                                break;
                             }
                         }
-
-                        // If the formLocation is not inside the visible area
-                        if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
-                        {
-                            // If none found we find the biggest screen
-                            foreach (var screen in Screen.AllScreens)
-                            {
-                                var newWindowRectangle = new NativeRect(screen.WorkingArea.Location, windowRectangle.Size);
-                                if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
-                                {
-                                    formLocation = screen.Bounds.Location;
-                                    doesCaptureFit = true;
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            doesCaptureFit = true;
-                        }
+                    }
+                    else
+                    {
+                        doesCaptureFit = true;
                     }
                 }
                 else if (!WindowsVersion.IsWindows8OrLater)
@@ -251,13 +249,11 @@ namespace Greenshot.Addons.Core
                         if (!doesCaptureFit)
                         {
                             // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-                            using (var thisWindowProcess = Process.GetProcessById(interopWindow.GetProcessId()))
+                            using var thisWindowProcess = Process.GetProcessById(interopWindow.GetProcessId());
+                            if (!interopWindow.IsApp() && WindowCapture.IsGdiAllowed(thisWindowProcess))
                             {
-                                if (!interopWindow.IsApp() && WindowCapture.IsGdiAllowed(thisWindowProcess))
-                                {
-                                    // we return null which causes the capturing code to try another method.
-                                    return null;
-                                }
+                                // we return null which causes the capturing code to try another method.
+                                return null;
                             }
                         }
                     }
@@ -289,25 +285,21 @@ namespace Greenshot.Addons.Core
 
                     try
                     {
-                        using (var whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle))
+                        using var whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+                        // Apply a white color
+                        tempForm.BackColor = Color.Black;
+                        // Make sure everything is visible
+                        tempForm.Refresh();
+                        if (!interopWindow.IsApp())
                         {
-                            // Apply a white color
-                            tempForm.BackColor = Color.Black;
-                            // Make sure everything is visible
-                            tempForm.Refresh();
-                            if (!interopWindow.IsApp())
-                            {
-                                // Make sure the application window is active, so the colors & buttons are right
-                                // TODO: Await?
-                                interopWindow.ToForegroundAsync();
-                            }
-                            // Make sure all changes are processed and visible
-                            Application.DoEvents();
-                            using (var blackBitmap = WindowCapture.CaptureRectangle(captureRectangle))
-                            {
-                                capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
-                            }
+                            // Make sure the application window is active, so the colors & buttons are right
+                            // TODO: Await?
+                            interopWindow.ToForegroundAsync();
                         }
+                        // Make sure all changes are processed and visible
+                        Application.DoEvents();
+                        using var blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+                        capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
                     }
                     catch (Exception e)
                     {
@@ -400,17 +392,15 @@ namespace Greenshot.Addons.Core
         /// <param name="image">The bitmap to remove the corners from.</param>
         private static void RemoveCorners(IBitmapWithNativeSupport image)
         {
-            using (var fastBitmap = FastBitmapFactory.Create(image))
+            using var fastBitmap = FastBitmapFactory.Create(image);
+            for (var y = 0; y < CoreConfiguration.WindowCornerCutShape.Count; y++)
             {
-                for (var y = 0; y < CoreConfiguration.WindowCornerCutShape.Count; y++)
+                for (var x = 0; x < CoreConfiguration.WindowCornerCutShape[y]; x++)
                 {
-                    for (var x = 0; x < CoreConfiguration.WindowCornerCutShape[y]; x++)
-                    {
-                        fastBitmap.SetColorAt(x, y, ref _transparentColor);
-                        fastBitmap.SetColorAt(image.Width - 1 - x, y, ref _transparentColor);
-                        fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, ref _transparentColor);
-                        fastBitmap.SetColorAt(x, image.Height - 1 - y, ref _transparentColor);
-                    }
+                    fastBitmap.SetColorAt(x, y, ref _transparentColor);
+                    fastBitmap.SetColorAt(image.Width - 1 - x, y, ref _transparentColor);
+                    fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, ref _transparentColor);
+                    fastBitmap.SetColorAt(x, image.Height - 1 - y, ref _transparentColor);
                 }
             }
         }
@@ -425,50 +415,46 @@ namespace Greenshot.Addons.Core
         /// <returns>Bitmap with transparency</returns>
         private static IBitmapWithNativeSupport ApplyTransparency(IBitmapWithNativeSupport blackBitmap, IBitmapWithNativeSupport whiteBitmap)
         {
-            using (var targetBuffer = FastBitmapFactory.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
+            using var targetBuffer = FastBitmapFactory.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent);
+            targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
+            using (var blackBuffer = FastBitmapFactory.Create(blackBitmap))
             {
-                targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-                using (var blackBuffer = FastBitmapFactory.Create(blackBitmap))
+                using var whiteBuffer = FastBitmapFactory.Create(whiteBitmap);
+                for (var y = 0; y < blackBuffer.Height; y++)
                 {
-                    using (var whiteBuffer = FastBitmapFactory.Create(whiteBitmap))
+                    for (var x = 0; x < blackBuffer.Width; x++)
                     {
-                        for (var y = 0; y < blackBuffer.Height; y++)
+                        var c0 = blackBuffer.GetColorAt(x, y);
+                        var c1 = whiteBuffer.GetColorAt(x, y);
+                        // Calculate alpha as double in range 0-1
+                        var alpha = c0.R - c1.R + 255;
+                        if (alpha == 255)
                         {
-                            for (var x = 0; x < blackBuffer.Width; x++)
-                            {
-                                var c0 = blackBuffer.GetColorAt(x, y);
-                                var c1 = whiteBuffer.GetColorAt(x, y);
-                                // Calculate alpha as double in range 0-1
-                                var alpha = c0.R - c1.R + 255;
-                                if (alpha == 255)
-                                {
-                                    // Alpha == 255 means no change!
-                                    targetBuffer.SetColorAt(x, y, ref c0);
-                                }
-                                else if (alpha == 0)
-                                {
-                                    // Complete transparency, use transparent pixel
-                                    targetBuffer.SetColorAt(x, y, ref _transparentColor);
-                                }
-                                else
-                                {
-                                    // Calculate original color
-                                    var originalAlpha = (byte) Math.Min(255, alpha);
-                                    var alphaFactor = alpha / 255d;
-                                    //Log.Debug().WriteLine("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-                                    var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
-                                    var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
-                                    var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
-                                    var originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
-                                    //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-                                    targetBuffer.SetColorAt(x, y, ref originalColor);
-                                }
-                            }
+                            // Alpha == 255 means no change!
+                            targetBuffer.SetColorAt(x, y, ref c0);
+                        }
+                        else if (alpha == 0)
+                        {
+                            // Complete transparency, use transparent pixel
+                            targetBuffer.SetColorAt(x, y, ref _transparentColor);
+                        }
+                        else
+                        {
+                            // Calculate original color
+                            var originalAlpha = (byte) Math.Min(255, alpha);
+                            var alphaFactor = alpha / 255d;
+                            //Log.Debug().WriteLine("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
+                            var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
+                            var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
+                            var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
+                            var originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
+                            //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
+                            targetBuffer.SetColorAt(x, y, ref originalColor);
                         }
                     }
                 }
-                return targetBuffer.UnlockAndReturnBitmap();
             }
+            return targetBuffer.UnlockAndReturnBitmap();
         }
     }
 }

@@ -56,12 +56,10 @@ namespace Greenshot.Addons.Core
         /// </summary>
         /// <returns>bool</returns>
         public static bool HasMapi()
-		{
-			using (var key = Registry.LocalMachine.OpenSubKey(MapiLocationKey, false))
-			{
-				return key != null && "1".Equals(key.GetValue(MapiKey, "0"));
-			}
-		}
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(MapiLocationKey, false);
+            return key != null && "1".Equals(key.GetValue(MapiKey, "0"));
+        }
 
         /// <summary>
         /// Get the path of Outlook from the registry

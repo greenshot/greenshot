@@ -117,13 +117,11 @@ namespace Greenshot.Addon.Box
         public override IBitmapWithNativeSupport DisplayIcon
 		{
 			get
-			{
+            {
                 // TODO: Optimize this
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "box.png"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
-			}
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "box.png");
+                return BitmapHelper.FromStream(bitmapStream);
+            }
 		}
 
         /// <inheritdoc />
@@ -163,12 +161,10 @@ namespace Greenshot.Addon.Box
 	            }
 
 	            if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
-	            {
-	                using (var clipboardAccessToken = ClipboardNative.Access())
-	                {
-	                    clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(url);
-	                }
+                {
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(url);
                 }
 
 	            return url;
@@ -206,58 +202,56 @@ namespace Greenshot.Addon.Box
             oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(_oauth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
             // TODO: See if the PostAsync<Bitmap> can be used? Or at least the HttpContentFactory?
-            using (var imageStream = new MemoryStream())
+            using var imageStream = new MemoryStream();
+            var multiPartContent = new MultipartFormDataContent();
+            var parentIdContent = new StringContent(_boxConfiguration.FolderId);
+            parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
-                var multiPartContent = new MultipartFormDataContent();
-                var parentIdContent = new StringContent(_boxConfiguration.FolderId);
-                parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-                {
-                    Name = "\"parent_id\""
-                };
-                multiPartContent.Add(parentIdContent);
-                surface.WriteToStream(imageStream, CoreConfiguration, _boxConfiguration);
-                imageStream.Position = 0;
+                Name = "\"parent_id\""
+            };
+            multiPartContent.Add(parentIdContent);
+            surface.WriteToStream(imageStream, CoreConfiguration, _boxConfiguration);
+            imageStream.Position = 0;
 
-                BoxFile response;
-                using (var streamContent = new StreamContent(imageStream))
+            BoxFile response;
+            using (var streamContent = new StreamContent(imageStream))
+            {
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
+                streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                 {
-                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
-                    streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-                    {
-                        Name = "\"file\"",
-                        FileName = "\"" + filename + "\""
-                    }; // the extra quotes are important here
-                    multiPartContent.Add(streamContent);
+                    Name = "\"file\"",
+                    FileName = "\"" + filename + "\""
+                }; // the extra quotes are important here
+                multiPartContent.Add(streamContent);
 
-                    oauthHttpBehaviour.MakeCurrent();
-                    response = await UploadFileUri.PostAsync<BoxFile>(multiPartContent, cancellationToken).ConfigureAwait(false);
-                }
-
-                if (response == null)
-                {
-                    return null;
-                }
-
-                if (_boxConfiguration.UseSharedLink)
-                {
-                    if (response.SharedLink?.Url == null)
-                    {
-                        var uriForSharedLink = FilesUri.AppendSegments(response.Id);
-                        var updateAccess = new
-                        {
-                            shared_link = new
-                            {
-                                access = "open"
-                            }
-                        };
-                        oauthHttpBehaviour.MakeCurrent();
-                        response = await uriForSharedLink.PostAsync<BoxFile>(updateAccess, cancellationToken).ConfigureAwait(false);
-                    }
-                    
-                    return response.SharedLink.Url;
-                }
-                return $"http://www.box.com/files/0/f/0/1/f_{response.Id}";
+                oauthHttpBehaviour.MakeCurrent();
+                response = await UploadFileUri.PostAsync<BoxFile>(multiPartContent, cancellationToken).ConfigureAwait(false);
             }
+
+            if (response == null)
+            {
+                return null;
+            }
+
+            if (_boxConfiguration.UseSharedLink)
+            {
+                if (response.SharedLink?.Url == null)
+                {
+                    var uriForSharedLink = FilesUri.AppendSegments(response.Id);
+                    var updateAccess = new
+                    {
+                        shared_link = new
+                        {
+                            access = "open"
+                        }
+                    };
+                    oauthHttpBehaviour.MakeCurrent();
+                    response = await uriForSharedLink.PostAsync<BoxFile>(updateAccess, cancellationToken).ConfigureAwait(false);
+                }
+                    
+                return response.SharedLink.Url;
+            }
+            return $"http://www.box.com/files/0/f/0/1/f_{response.Id}";
         }
 
     }

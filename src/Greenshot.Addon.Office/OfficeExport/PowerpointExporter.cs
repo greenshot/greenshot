@@ -81,72 +81,64 @@ namespace Greenshot.Addon.Office.OfficeExport
                             slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, _officeConfiguration.PowerpointSlideLayout));
                         }
 
-                        using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
+                        using var shapes = DisposableCom.Create(slide.ComObject.Shapes);
+                        using var shapeForLocation = DisposableCom.Create(shapes.ComObject[2]);
+                        // Shapes[2] is the image shape on this layout.
+                        shapeForCaption = DisposableCom.Create(shapes.ComObject[1]);
+                        if (width > shapeForLocation.ComObject.Width)
                         {
-                            using (var shapeForLocation = DisposableCom.Create(shapes.ComObject[2]))
-                            {
-                                // Shapes[2] is the image shape on this layout.
-                                shapeForCaption = DisposableCom.Create(shapes.ComObject[1]);
-                                if (width > shapeForLocation.ComObject.Width)
-                                {
-                                    width = shapeForLocation.ComObject.Width;
-                                    left = shapeForLocation.ComObject.Left;
-                                    hasScaledWidth = true;
-                                }
-                                else
-                                {
-                                    shapeForLocation.ComObject.Left = left;
-                                }
-                                shapeForLocation.ComObject.Width = imageSize.Width;
-
-                                if (height > shapeForLocation.ComObject.Height)
-                                {
-                                    height = shapeForLocation.ComObject.Height;
-                                    top = shapeForLocation.ComObject.Top;
-                                    hasScaledHeight = true;
-                                }
-                                else
-                                {
-                                    top = shapeForLocation.ComObject.Top + shapeForLocation.ComObject.Height / 2 - imageSize.Height / 2f;
-                                }
-                                shapeForLocation.ComObject.Height = imageSize.Height;
-                            }
+                            width = shapeForLocation.ComObject.Width;
+                            left = shapeForLocation.ComObject.Left;
+                            hasScaledWidth = true;
                         }
+                        else
+                        {
+                            shapeForLocation.ComObject.Left = left;
+                        }
+                        shapeForLocation.ComObject.Width = imageSize.Width;
+
+                        if (height > shapeForLocation.ComObject.Height)
+                        {
+                            height = shapeForLocation.ComObject.Height;
+                            top = shapeForLocation.ComObject.Top;
+                            hasScaledHeight = true;
+                        }
+                        else
+                        {
+                            top = shapeForLocation.ComObject.Top + shapeForLocation.ComObject.Height / 2 - imageSize.Height / 2f;
+                        }
+                        shapeForLocation.ComObject.Height = imageSize.Height;
                     }
                     catch (Exception e)
                     {
                         Log.Error().WriteLine(e, "Powerpoint shape creating failed");
-                        using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
-                        {
-                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
-                        }
+                        using var slides = DisposableCom.Create(presentation.ComObject.Slides);
+                        slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
                     }
                     using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
                     {
-                        using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height)))
+                        using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height));
+                        if (_officeConfiguration.PowerpointLockAspectRatio)
                         {
-                            if (_officeConfiguration.PowerpointLockAspectRatio)
-                            {
-                                shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
-                            }
-                            else
-                            {
-                                shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
-                            }
-                            shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-                            shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
-                            if (hasScaledWidth)
-                            {
-                                shape.ComObject.Width = width;
-                            }
-                            if (hasScaledHeight)
-                            {
-                                shape.ComObject.Height = height;
-                            }
-                            shape.ComObject.Left = left;
-                            shape.ComObject.Top = top;
-                            shape.ComObject.AlternativeText = title;
+                            shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
                         }
+                        else
+                        {
+                            shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
+                        }
+                        shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+                        shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
+                        if (hasScaledWidth)
+                        {
+                            shape.ComObject.Width = width;
+                        }
+                        if (hasScaledHeight)
+                        {
+                            shape.ComObject.Height = height;
+                        }
+                        shape.ComObject.Left = left;
+                        shape.ComObject.Top = top;
+                        shape.ComObject.AlternativeText = title;
                     }
                     if (shapeForCaption != null)
                     {
@@ -155,13 +147,9 @@ namespace Greenshot.Addon.Office.OfficeExport
                             using (shapeForCaption)
                             {
                                 // Using try/catch to make sure problems with the text range don't give an exception.
-                                using (var textFrame = DisposableCom.Create(shapeForCaption.ComObject.TextFrame))
-                                {
-                                    using (var textRange = DisposableCom.Create(textFrame.ComObject.TextRange))
-                                    {
-                                        textRange.ComObject.Text = title;
-                                    }
-                                }
+                                using var textFrame = DisposableCom.Create(shapeForCaption.ComObject.TextFrame);
+                                using var textRange = DisposableCom.Create(textFrame.ComObject.TextRange);
+                                textRange.ComObject.Text = title;
                             }
                         }
                         catch (Exception ex)
@@ -172,16 +160,10 @@ namespace Greenshot.Addon.Office.OfficeExport
                     // Activate/Goto the slide
                     try
                     {
-                        using (var application = DisposableCom.Create(presentation.ComObject.Application))
-                        {
-                            using (var activeWindow = DisposableCom.Create(application.ComObject.ActiveWindow))
-                            {
-                                using (var view = DisposableCom.Create(activeWindow.ComObject.View))
-                                {
-                                    view.ComObject.GotoSlide(slide.ComObject.SlideNumber);
-                                }
-                            }
-                        }
+                        using var application = DisposableCom.Create(presentation.ComObject.Application);
+                        using var activeWindow = DisposableCom.Create(application.ComObject.ActiveWindow);
+                        using var view = DisposableCom.Create(activeWindow.ComObject.View);
+                        view.ComObject.GotoSlide(slide.ComObject.SlideNumber);
                     }
                     catch (Exception ex)
                     {
@@ -211,31 +193,28 @@ namespace Greenshot.Addon.Office.OfficeExport
                 {
                     return false;
                 }
-                using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+
+                using var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations);
+                Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
+                for (int i = 1; i <= presentations.ComObject.Count; i++)
                 {
-                    Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
-                    for (int i = 1; i <= presentations.ComObject.Count; i++)
+                    using var presentation = DisposableCom.Create(presentations.ComObject[i]);
+                    if (presentation == null)
                     {
-                        using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
-                        {
-                            if (presentation == null)
-                            {
-                                continue;
-                            }
-                            if (!presentation.ComObject.Name.StartsWith(presentationName))
-                            {
-                                continue;
-                            }
-                            try
-                            {
-                                AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-                                return true;
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error().WriteLine(e, "Adding picture to powerpoint failed");
-                            }
-                        }
+                        continue;
+                    }
+                    if (!presentation.ComObject.Name.StartsWith(presentationName))
+                    {
+                        continue;
+                    }
+                    try
+                    {
+                        AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error().WriteLine(e, "Adding picture to powerpoint failed");
                     }
                 }
             }
@@ -286,39 +265,33 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns></returns>
         public IEnumerable<string> GetPowerpointPresentations()
         {
-            using (var powerpointApplication = GetPowerPointApplication())
+            using var powerpointApplication = GetPowerPointApplication();
+            if (powerpointApplication == null)
             {
-                if (powerpointApplication == null)
-                {
-                    yield break;
-                }
+                yield break;
+            }
 
-                using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+            using var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations);
+            Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
+            for (int i = 1; i <= presentations.ComObject.Count; i++)
+            {
+                using var presentation = DisposableCom.Create(presentations.ComObject[i]);
+                if (presentation == null)
                 {
-                    Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
-                    for (int i = 1; i <= presentations.ComObject.Count; i++)
+                    continue;
+                }
+                if (presentation.ComObject.ReadOnly == MsoTriState.msoTrue)
+                {
+                    continue;
+                }
+                if (IsAfter2003())
+                {
+                    if (presentation.ComObject.Final)
                     {
-                        using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
-                        {
-                            if (presentation == null)
-                            {
-                                continue;
-                            }
-                            if (presentation.ComObject.ReadOnly == MsoTriState.msoTrue)
-                            {
-                                continue;
-                            }
-                            if (IsAfter2003())
-                            {
-                                if (presentation.ComObject.Final)
-                                {
-                                    continue;
-                                }
-                            }
-                            yield return presentation.ComObject.Name;
-                        }
+                        continue;
                     }
                 }
+                yield return presentation.ComObject.Name;
             }
         }
 
@@ -355,20 +328,16 @@ namespace Greenshot.Addon.Office.OfficeExport
                 {
                     powerpointApplication.ComObject.Activate();
                     powerpointApplication.ComObject.Visible = MsoTriState.msoTrue;
-                    using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
+                    using var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations);
+                    using var presentation = DisposableCom.Create(presentations.ComObject.Add());
+                    try
                     {
-                        using (var presentation = DisposableCom.Create(presentations.ComObject.Add()))
-                        {
-                            try
-                            {
-                                AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-                                isPictureAdded = true;
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error().WriteLine(e, "Powerpoint add picture to presentation failed");
-                            }
-                        }
+                        AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                        isPictureAdded = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error().WriteLine(e, "Powerpoint add picture to presentation failed");
                     }
                 }
             }

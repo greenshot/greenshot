@@ -133,24 +133,14 @@ namespace Greenshot.Gfx
         {
             get
             {
-                PixelFormat format;
                 TPixelLayout empty = default;
-                switch (empty)
+                return empty switch
                 {
-                    case Bgr24 _:
-                        format = PixelFormat.Format24bppRgb;
-                        break;
-                    case Bgra32 _:
-                        format = PixelFormat.Format32bppArgb;
-                        break;
-                    case Bgr32 _:
-                        format = PixelFormat.Format32bppRgb;
-                        break;
-                    default:
-                        throw new NotSupportedException("Unknown pixel format");
-                }
-
-                return format;
+                    Bgr24 _ => PixelFormat.Format24bppRgb,
+                    Bgra32 _ => PixelFormat.Format32bppArgb,
+                    Bgr32 _ => PixelFormat.Format32bppRgb,
+                    _ => throw new NotSupportedException("Unknown pixel format")
+                };
             }
         }
         
@@ -162,17 +152,13 @@ namespace Greenshot.Gfx
             get
             {
                 TPixelLayout empty = default;
-                switch (empty)
+                return empty switch
                 {
-                    case Bgr24 _:
-                        return PixelFormats.Bgr24;
-                    case Bgra32 _:
-                        return PixelFormats.Bgra32;
-                    case Bgr32 _:
-                        return PixelFormats.Bgr32;
-                    default:
-                        throw new NotSupportedException("Unknown pixel format");
-                }
+                    Bgr24 _ => PixelFormats.Bgr24,
+                    Bgra32 _ => PixelFormats.Bgra32,
+                    Bgr32 _ => PixelFormats.Bgr32,
+                    _ => throw new NotSupportedException("Unknown pixel format")
+                };
             }
         }
 

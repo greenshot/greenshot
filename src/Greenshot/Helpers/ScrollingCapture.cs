@@ -93,11 +93,9 @@ namespace Greenshot.Helpers
                     region.Exclude(_windowScroller.ScrollBar.Value.Bounds);
                 }
                 // Get the bounds of the region
-                using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                {
-                    var rectangleF = region.GetBounds(screenGraphics);
-                    clientBounds = new NativeRect((int)rectangleF.X, (int)rectangleF.Y, (int)rectangleF.Width, (int)rectangleF.Height);
-                }
+                using var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow());
+                var rectangleF = region.GetBounds(screenGraphics);
+                clientBounds = new NativeRect((int)rectangleF.X, (int)rectangleF.Y, (int)rectangleF.Width, (int)rectangleF.Height);
             }
 
             if (clientBounds.Width * clientBounds.Height <= 0)
@@ -126,25 +124,22 @@ namespace Greenshot.Helpers
 
                 if (_windowScroller.IsAtStart)
                 {
-                    using (var bitmapStitcher = new BitmapStitcher())
+                    using var bitmapStitcher = new BitmapStitcher();
+                    bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
+
+                    // Loop as long as we are not at the end yet
+                    while (!_windowScroller.IsAtEnd && !breakScroll)
                     {
+                        // Next "page"
+                        _windowScroller.Next();
+                        // Wait a bit, so the window can update
+                        Application.DoEvents();
+                        Thread.Sleep(Delay);
+                        Application.DoEvents();
+                        // Capture inside loop
                         bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-
-                        // Loop as long as we are not at the end yet
-                        while (!_windowScroller.IsAtEnd && !breakScroll)
-                        {
-                            // Next "page"
-                            _windowScroller.Next();
-                            // Wait a bit, so the window can update
-                            Application.DoEvents();
-                            Thread.Sleep(Delay);
-                            Application.DoEvents();
-                            // Capture inside loop
-                            bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-                        }
-                        resultImage = bitmapStitcher.Result();
                     }
-
+                    resultImage = bitmapStitcher.Result();
                 }
                 else
                 {

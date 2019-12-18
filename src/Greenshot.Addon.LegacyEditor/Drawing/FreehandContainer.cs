@@ -186,31 +186,29 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			
 			int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
 			var lineColor = GetFieldValueAsColor(FieldTypes.LINE_COLOR);
-			using (var pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
-			    if (!(pen.Width > 0))
-			    {
-			        return;
-			    }
-			    // Make sure the lines are nicely rounded
-			    pen.EndCap = LineCap.Round;
-			    pen.StartCap = LineCap.Round;
-			    pen.LineJoin = LineJoin.Round;
-			    // Move to where we need to draw
-			    graphics.TranslateTransform(Left, Top);
-			    lock (_freehandPathLock)
-			    {
-			        if (_isRecalculated && Selected && renderMode == RenderMode.Edit)
-			        {
-			            DrawSelectionBorder(graphics, pen, _freehandPath);
-			        }
-			        graphics.DrawPath(pen, _freehandPath);
-			    }
+            using var pen = new Pen(lineColor) {Width = lineThickness};
+            if (!(pen.Width > 0))
+            {
+                return;
+            }
+            // Make sure the lines are nicely rounded
+            pen.EndCap = LineCap.Round;
+            pen.StartCap = LineCap.Round;
+            pen.LineJoin = LineJoin.Round;
+            // Move to where we need to draw
+            graphics.TranslateTransform(Left, Top);
+            lock (_freehandPathLock)
+            {
+                if (_isRecalculated && Selected && renderMode == RenderMode.Edit)
+                {
+                    DrawSelectionBorder(graphics, pen, _freehandPath);
+                }
+                graphics.DrawPath(pen, _freehandPath);
+            }
 
-                // Move back, otherwise everything is shifted
-                graphics.TranslateTransform(-Left,-Top);
-			}
-		}
+            // Move back, otherwise everything is shifted
+            graphics.TranslateTransform(-Left,-Top);
+        }
 
         /// <summary>
         /// Draw a selectionborder around the freehand path
@@ -218,20 +216,19 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
         /// <param name="graphics">Graphics</param>
         /// <param name="linePen">Pen</param>
         /// <param name="path">GraphicsPath</param>
-        protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path) {
-			using (var selectionPen = (Pen) linePen.Clone()) {
-				using (var selectionPath = (GraphicsPath)path.Clone()) {
-					selectionPen.Width += 5;
-					selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
-					graphics.DrawPath(selectionPen, selectionPath);
-					selectionPath.Widen(selectionPen);
-					selectionPen.DashPattern = new float[]{2,2};
-					selectionPen.Color = Color.LightSeaGreen;
-					selectionPen.Width = 1;
-					graphics.DrawPath(selectionPen, selectionPath);
-				}
-			}
-		}
+        protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path)
+        {
+            using var selectionPen = (Pen) linePen.Clone();
+            using var selectionPath = (GraphicsPath)path.Clone();
+            selectionPen.Width += 5;
+            selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
+            graphics.DrawPath(selectionPen, selectionPath);
+            selectionPath.Widen(selectionPen);
+            selectionPen.DashPattern = new float[]{2,2};
+            selectionPen.Color = Color.LightSeaGreen;
+            selectionPen.Width = 1;
+            graphics.DrawPath(selectionPen, selectionPath);
+        }
 		
 		/// <summary>
 		/// Get the bounds in which we have something drawn, plus safety margin, these are not the normal bounds...
@@ -276,14 +273,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
 				int lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS);
-				using (var pen = new Pen(Color.White)) {
-					pen.Width = lineThickness + 10;
-				    lock (_freehandPathLock)
-				    {
-				        returnValue = _freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
-                    }
+                using var pen = new Pen(Color.White) {Width = lineThickness + 10};
+                lock (_freehandPathLock)
+                {
+                    returnValue = _freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
                 }
-			}
+            }
 			return returnValue;
 		}
 	}

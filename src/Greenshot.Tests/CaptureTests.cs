@@ -86,12 +86,11 @@ namespace Greenshot.Tests
         [Fact]
         public void Test_GdiScreenCapture()
         {
-            using (var gdiScreenCapture = new GdiScreenCapture())
+            using var gdiScreenCapture = new GdiScreenCapture();
+            gdiScreenCapture.CaptureFrame();
+            using (var bitmap = gdiScreenCapture.CurrentFrameAsBitmap())
             {
-                gdiScreenCapture.CaptureFrame();
-                using (var bitmap = gdiScreenCapture.CurrentFrameAsBitmap())
-                {
-                    Assert.True(bitmap.Width > 0);
+                Assert.True(bitmap.Width > 0);
 
 /*
                     // Write the capture to a file, for analysis
@@ -100,13 +99,12 @@ namespace Greenshot.Tests
                         ImageOutput.SaveToStream(bitmap, null, stream, new SurfaceOutputSettings(null, OutputFormats.png));
                     }
 */
-                }
-
-                var bitmapSource = gdiScreenCapture.CurrentFrameAsBitmapSource();
-                Assert.True(bitmapSource.Width > 0);
-
-                gdiScreenCapture.CaptureFrame();
             }
+
+            var bitmapSource = gdiScreenCapture.CurrentFrameAsBitmapSource();
+            Assert.True(bitmapSource.Width > 0);
+
+            gdiScreenCapture.CaptureFrame();
         }
 
         /// <summary>
@@ -144,11 +142,12 @@ namespace Greenshot.Tests
             var template = new SimpleTemplate();
             var bitmapSource = template.Apply(capture).ToBitmapSource();
             using (var outputStream = bitmapSource.ToStream(OutputFormats.png))
-            using (var fileStream = File.Create("Test_CaptureFlow_DwmWindowSource.png"))
             {
+                using var fileStream = File.Create("Test_CaptureFlow_DwmWindowSource.png");
                 outputStream.Seek(0, SeekOrigin.Begin);
                 await outputStream.CopyToAsync(fileStream);
             }
+
             Assert.Equal(bounds.Size, bitmapSource.Size());
         }
 
@@ -159,26 +158,22 @@ namespace Greenshot.Tests
         [Fact]
         public void Test_BitmapCapture()
         {
-            using (var screenBitmapCapture = new BitmapScreenCapture())
+            using var screenBitmapCapture = new BitmapScreenCapture();
+            screenBitmapCapture.CaptureFrame();
+                
+            Assert.NotNull(screenBitmapCapture.CurrentFrameAsBitmap());
+                
+            var testFile1 = Path.Combine(Path.GetTempPath(), @"test-bitmap.png");
+            screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmap.Save(testFile1, ImageFormat.Png);
+                
+            var testFile2 = Path.Combine(Path.GetTempPath(), @"test-bitmapsource.png");
+            using var fileStream = new FileStream(testFile2, FileMode.Create);
+            var encoder = new PngBitmapEncoder
             {
-                screenBitmapCapture.CaptureFrame();
-                
-                Assert.NotNull(screenBitmapCapture.CurrentFrameAsBitmap());
-                
-                var testFile1 = Path.Combine(Path.GetTempPath(), @"test-bitmap.png");
-                screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmap.Save(testFile1, ImageFormat.Png);
-                
-                var testFile2 = Path.Combine(Path.GetTempPath(), @"test-bitmapsource.png");
-                using (var fileStream = new FileStream(testFile2, FileMode.Create))
-                {
-                    var encoder = new PngBitmapEncoder
-                    {
-                        Interlace = PngInterlaceOption.Off
-                    };
-                    encoder.Frames.Add(BitmapFrame.Create(screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmapSource));
-                    encoder.Save(fileStream);
-                }
-            }
+                Interlace = PngInterlaceOption.Off
+            };
+            encoder.Frames.Add(BitmapFrame.Create(screenBitmapCapture.CurrentFrameAsBitmap().NativeBitmapSource));
+            encoder.Save(fileStream);
         }
     }
 }

@@ -122,26 +122,24 @@ EndSelection:<<<<<<<4
 					try
 					{
 					    User32Api.GetWindowThreadProcessId(hWnd, out var pid);
-						using (var me = Process.GetCurrentProcess())
-						using (var ownerProcess = Process.GetProcessById(pid))
-						{
-							// Exclude myself
-							if (me.Id != ownerProcess.Id)
-							{
-								// Get Process Name
-								owner = ownerProcess.ProcessName;
-								// Try to get the starting Process Filename, this might fail.
-								try
-								{
-									owner = ownerProcess.Modules[0].FileName;
-								}
-								catch (Exception)
-								{
-									// Ignore
-								}
-							}
-						}
-					}
+                        using var me = Process.GetCurrentProcess();
+                        using var ownerProcess = Process.GetProcessById(pid);
+                        // Exclude myself
+                        if (me.Id != ownerProcess.Id)
+                        {
+                            // Get Process Name
+                            owner = ownerProcess.ProcessName;
+                            // Try to get the starting Process Filename, this might fail.
+                            try
+                            {
+                                owner = ownerProcess.Modules[0].FileName;
+                            }
+                            catch (Exception)
+                            {
+                                // Ignore
+                            }
+                        }
+                    }
 					catch (Exception e)
 					{
 						Log.Warn().WriteLine(e, "Non critical error: Couldn't get clipboard process, trying to use the title.");
@@ -483,18 +481,16 @@ EndSelection:<<<<<<<4
 								var fileHeader = BitmapFileHeader.Create(infoHeader);
 								var fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
-								using (var bitmapStream = new MemoryStream())
-								{
-									bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-									bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-									bitmapStream.Seek(0, SeekOrigin.Begin);
-									var image = BitmapHelper.FromStream(bitmapStream);
-									if (image != null)
-									{
-										return image;
-									}
-								}
-							}
+                                using var bitmapStream = new MemoryStream();
+                                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+                                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+                                bitmapStream.Seek(0, SeekOrigin.Begin);
+                                var image = BitmapHelper.FromStream(bitmapStream);
+                                if (image != null)
+                                {
+                                    return image;
+                                }
+                            }
 							else
 							{
 								Log.Info().WriteLine("Using special DIBV5 / Format17 format reader");

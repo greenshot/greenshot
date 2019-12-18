@@ -45,10 +45,8 @@ namespace Greenshot.Helpers
             string currentProcessPath = null;
             try
             {
-                using (var currentProcess = Process.GetCurrentProcess())
-                {
-                    currentProcessPath = currentProcess.GetProcessPath();
-                }
+                using var currentProcess = Process.GetCurrentProcess();
+                currentProcessPath = currentProcess.GetProcessPath();
             }
             catch 
             {

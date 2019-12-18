@@ -60,14 +60,12 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 				}
 
 				if (Image != null)
-				{
-					using (var graphics = Graphics.FromImage(Image))
-					{
-						int quarterSize = Image.Height / 4;
-						var colorArea = new Rectangle(0, Image.Height - quarterSize, Image.Width, quarterSize);
-						graphics.FillRectangle(brush, colorArea);
-					}
-				}
+                {
+                    using var graphics = Graphics.FromImage(Image);
+                    int quarterSize = Image.Height / 4;
+                    var colorArea = new Rectangle(0, Image.Height - quarterSize, Image.Width, quarterSize);
+                    graphics.FillRectangle(brush, colorArea);
+                }
 
 				// cleanup GDI Object
 				brush.Dispose();
@@ -84,7 +82,7 @@ namespace Greenshot.Addon.LegacyEditor.Controls
 
 		private void ColorButtonClick(object sender, EventArgs e)
 		{
-			var colorDialog = new ColorDialog(_editorConfiguration, _greenshotLanguage)
+			using var colorDialog = new ColorDialog(_editorConfiguration, _greenshotLanguage)
 			{
 				Color = SelectedColor
 			};

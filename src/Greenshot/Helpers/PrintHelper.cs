@@ -26,7 +26,6 @@ using Greenshot.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
@@ -43,7 +42,6 @@ namespace Greenshot.Helpers
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly ICoreConfiguration _coreConfig;
-	    private readonly IGreenshotLanguage _greenshotLanguage;
 	    private readonly Func<Owned<PrintOptionsDialog>> _printOptionsDialogFactory;
 	    private readonly ICaptureDetails _captureDetails;
 		private PrintDialog _printDialog = new PrintDialog();
@@ -53,13 +51,11 @@ namespace Greenshot.Helpers
 
 		public PrintHelper(
 		    ICoreConfiguration coreConfiguration,
-            IGreenshotLanguage greenshotLanguage,
             Func<Owned<PrintOptionsDialog>> printOptionsDialogFactory,
 		    ISurface surface,
 		    ICaptureDetails captureDetails)
 		{
 		    _coreConfig = coreConfiguration;
-		    _greenshotLanguage = greenshotLanguage;
 		    _printOptionsDialogFactory = printOptionsDialogFactory;
 
 		    _surface = surface;
@@ -121,7 +117,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error().WriteLine(e, "An error ocurred while trying to print");
+				Log.Error().WriteLine(e, "An error occurred while trying to print");
                 // TODO: Translation
                 //MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
             }
@@ -155,7 +151,7 @@ namespace Greenshot.Helpers
 		    }
 		    catch (Exception e)
 		    {
-		        Log.Error().WriteLine(e, "An error ocurred while trying to print");
+		        Log.Error().WriteLine(e, "An error occurred while trying to print");
                 // TODO: Translation
                 //MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
             }
@@ -178,15 +174,13 @@ namespace Greenshot.Helpers
 		        return null;
 		    }
 
-		    using (var ownedPrintOptionsDialog = _printOptionsDialogFactory())
-		    {
-		        return ownedPrintOptionsDialog.Value.ShowDialog();
-		    }
-		}
+            using var ownedPrintOptionsDialog = _printOptionsDialogFactory();
+            return ownedPrintOptionsDialog.Value.ShowDialog();
+        }
 
 		private void DrawImageForPrint(object sender, PrintPageEventArgs e)
 		{
-			// Create the output settins
+			// Create the output settings
 			var printOutputSettings = new SurfaceOutputSettings(_coreConfig, OutputFormats.png, 100, false);
 
 			ApplyEffects(printOutputSettings);
@@ -203,12 +197,10 @@ namespace Greenshot.Helpers
 				if (_coreConfig.OutputPrintFooter)
 				{
 					footerString = FilenameHelper.FillPattern(_coreConfig.OutputPrintFooterPattern, _captureDetails, false);
-					using (var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular))
-					{
-						footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
-						footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
-					}
-				}
+                    using var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
+                    footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
+                }
 
 				// Get a rectangle representing the printable Area
 				var pageRect = e.PageSettings.PrintableArea;
@@ -252,13 +244,11 @@ namespace Greenshot.Helpers
 				// align the image
 				printRect = ScaleHelper.GetAlignedRectangle(printRect, new NativeRect(0, 0, new NativeSizeFloat(pageRect.Width, pageRect.Height).Round()), alignment).Round();
 				if (_coreConfig.OutputPrintFooter)
-				{
-					//printRect = new NativeRect(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
-					using (var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular))
-					{
-						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
-					}
-				}
+                {
+                    //printRect = new NativeRect(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
+                    using var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
+                }
 				e.Graphics.DrawImage(bitmap.NativeBitmap, printRect, imageRect, GraphicsUnit.Pixel);
 			}
 			finally

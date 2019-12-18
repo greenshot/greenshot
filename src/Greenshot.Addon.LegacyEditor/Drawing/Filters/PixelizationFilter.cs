@@ -57,59 +57,58 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Filters
             {
                 pixelSize = rect.Height;
             }
-            using (var dest = FastBitmapFactory.CreateCloneOf(applyBitmap, area: rect))
+
+            using var dest = FastBitmapFactory.CreateCloneOf(applyBitmap, area: rect);
+            using (var src = FastBitmapFactory.Create(applyBitmap, rect))
             {
-                using (var src = FastBitmapFactory.Create(applyBitmap, rect))
+                var halbPixelSize = pixelSize / 2;
+                // Create a list of x values
+                var xValues = new List<int>();
+                for (var x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize)
                 {
-                    var halbPixelSize = pixelSize / 2;
-                    // Create a list of x values
-                    var xValues = new List<int>();
-                    for (var x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize)
-                    {
-                        xValues.Add(x);
-                    }
-                    for (var y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize)
-                    {
-                        Parallel.ForEach(xValues, x =>
-                        {
-                            // TODO: Use stackalloc, or byte[]?
-                            var colors = new List<Color>();
-                            for (var yy = y; yy < y + pixelSize; yy++)
-                            {
-                                if (yy < src.Top || yy >= src.Bottom)
-                                {
-                                    continue;
-                                }
-                                for (var xx = x; xx < x + pixelSize; xx++)
-                                {
-                                    if (xx < src.Left || xx >= src.Right)
-                                    {
-                                        continue;
-                                    }
-                                    colors.Add(src.GetColorAt(xx, yy));
-                                }
-                            }
-                            var currentAvgColor = Colors.Mix(colors);
-                            for (var yy = y; yy <= y + pixelSize; yy++)
-                            {
-                                if (yy < src.Top || yy >= src.Bottom)
-                                {
-                                    continue;
-                                }
-                                for (var xx = x; xx <= x + pixelSize; xx++)
-                                {
-                                    if (xx < src.Left || xx >= src.Right)
-                                    {
-                                        continue;
-                                    }
-                                    dest.SetColorAt(xx, yy, ref currentAvgColor);
-                                }
-                            }
-                        });
-                    }
+                    xValues.Add(x);
                 }
-                dest.DrawTo(graphics, rect.Location);
+                for (var y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize)
+                {
+                    Parallel.ForEach(xValues, x =>
+                    {
+                        // TODO: Use stackalloc, or byte[]?
+                        var colors = new List<Color>();
+                        for (var yy = y; yy < y + pixelSize; yy++)
+                        {
+                            if (yy < src.Top || yy >= src.Bottom)
+                            {
+                                continue;
+                            }
+                            for (var xx = x; xx < x + pixelSize; xx++)
+                            {
+                                if (xx < src.Left || xx >= src.Right)
+                                {
+                                    continue;
+                                }
+                                colors.Add(src.GetColorAt(xx, yy));
+                            }
+                        }
+                        var currentAvgColor = Colors.Mix(colors);
+                        for (var yy = y; yy <= y + pixelSize; yy++)
+                        {
+                            if (yy < src.Top || yy >= src.Bottom)
+                            {
+                                continue;
+                            }
+                            for (var xx = x; xx <= x + pixelSize; xx++)
+                            {
+                                if (xx < src.Left || xx >= src.Right)
+                                {
+                                    continue;
+                                }
+                                dest.SetColorAt(xx, yy, ref currentAvgColor);
+                            }
+                        }
+                    });
+                }
             }
+            dest.DrawTo(graphics, rect.Location);
         }
     }
 }

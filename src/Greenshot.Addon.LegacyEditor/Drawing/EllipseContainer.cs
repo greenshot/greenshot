@@ -82,32 +82,28 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 				var steps = 5;
 				var currentStep = lineVisible ? 1 : 0;
 				while (currentStep <= steps)
-				{
-					using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
-					{
-						shadowPen.Width = lineVisible ? lineThickness : 1;
-						var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
-						graphics.DrawEllipse(shadowPen, shadowRect);
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
-				}
+                {
+                    using var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))
+                    {
+                        Width = lineVisible ? lineThickness : 1
+                    };
+                    var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
+                    graphics.DrawEllipse(shadowPen, shadowRect);
+                    currentStep++;
+                    alpha = alpha - basealpha / steps;
+                }
 			}
 			//draw the original shape
 			if (Colors.IsVisible(fillColor))
-			{
-				using (Brush brush = new SolidBrush(fillColor))
-				{
-					graphics.FillEllipse(brush, rect);
-				}
-			}
+            {
+                using Brush brush = new SolidBrush(fillColor);
+                graphics.FillEllipse(brush, rect);
+            }
 			if (lineVisible)
-			{
-				using (var pen = new Pen(lineColor, lineThickness))
-				{
-					graphics.DrawEllipse(pen, rect);
-				}
-			}
+            {
+                using var pen = new Pen(lineColor, lineThickness);
+                graphics.DrawEllipse(pen, rect);
+            }
 		}
 
 		public override bool Contains(int x, int y)
@@ -151,16 +147,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 
 			// check the rest of the lines
 			if (lineThickness > 0)
-			{
-				using (var pen = new Pen(Color.White, lineThickness))
-				{
-					using (var path = new GraphicsPath())
-					{
-						path.AddEllipse(rect);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+            {
+                using var pen = new Pen(Color.White, lineThickness);
+                using var path = new GraphicsPath();
+                path.AddEllipse(rect);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 	}

@@ -109,14 +109,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				Log.Debug().WriteLine("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
-				using (var tmpMatrix = new Matrix())
-				{
-					using (_bitmap)
-					{
-						_bitmap = _bitmap.ApplyEffect(new RotateEffect(rotateAngle), tmpMatrix);
-					}
-				}
-			}
+                using var tmpMatrix = new Matrix();
+                using (_bitmap)
+                {
+                    _bitmap = _bitmap.ApplyEffect(new RotateEffect(rotateAngle), tmpMatrix);
+                }
+            }
 			base.Transform(matrix);
 		}
 
@@ -225,12 +223,10 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		private void CheckShadow(bool shadow)
 		{
 			if (shadow && _shadowBitmap == null)
-			{
-				using (var matrix = new Matrix())
-				{
-					_shadowBitmap = _bitmap.ApplyEffect(new DropShadowEffect(), matrix);
-				}
-			}
+            {
+                using var matrix = new Matrix();
+                _shadowBitmap = _bitmap.ApplyEffect(new DropShadowEffect(), matrix);
+            }
 		}
 
 		/// <summary>

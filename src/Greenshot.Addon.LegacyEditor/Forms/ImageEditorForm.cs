@@ -350,24 +350,22 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         /// <param name="e"></param>
         private void PropertiesToolStrip_Paint(object sender, PaintEventArgs e)
         {
-            using (var cbBorderPen = new Pen(SystemColors.ActiveBorder))
+            using var cbBorderPen = new Pen(SystemColors.ActiveBorder);
+            // Loop over all items in the propertiesToolStrip
+            foreach (ToolStripItem item in propertiesToolStrip.Items)
             {
-                // Loop over all items in the propertiesToolStrip
-                foreach (ToolStripItem item in propertiesToolStrip.Items)
+                // Only ToolStripComboBox that are visible
+                if (!(item is ToolStripComboBox cb) || !cb.Visible)
                 {
-                    // Only ToolStripComboBox that are visible
-                    if (!(item is ToolStripComboBox cb) || !cb.Visible)
-                    {
-                        continue;
-                    }
-                    // Calculate the rectangle
-                    if (cb.ComboBox != null)
-                    {
-                        var r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+                    continue;
+                }
+                // Calculate the rectangle
+                if (cb.ComboBox != null)
+                {
+                    var r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
-                        // Draw the rectangle
-                        e.Graphics.DrawRectangle(cbBorderPen, r);
-                    }
+                    // Draw the rectangle
+                    e.Graphics.DrawRectangle(cbBorderPen, r);
                 }
             }
         }
@@ -901,15 +899,14 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 return;
             }
-            using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName))
-            {
-                _surface.SaveElementsToStream(streamWrite);
-            }
+
+            using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+            _surface.SaveElementsToStream(streamWrite);
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var openFileDialog = new OpenFileDialog
+            using var openFileDialog = new OpenFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst"
             };
@@ -1105,14 +1102,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private void BtnResizeClick(object sender, EventArgs e)
         {
             var resizeEffect = new ResizeEffect(_surface.Screenshot.Width, _surface.Screenshot.Height, true);
-            using (var resizeSettingsForm = _resizeSettingsFormFactory(resizeEffect))
+            using var resizeSettingsForm = _resizeSettingsFormFactory(resizeEffect);
+            var result = resizeSettingsForm.Value.ShowDialog(this);
+            if (result == DialogResult.OK)
             {
-                var result = resizeSettingsForm.Value.ShowDialog(this);
-                if (result == DialogResult.OK)
-                {
-                    _surface.ApplyBitmapEffect(resizeEffect);
-                    UpdateUndoRedoSurfaceDependencies();
-                }
+                _surface.ApplyBitmapEffect(resizeEffect);
+                UpdateUndoRedoSurfaceDependencies();
             }
         }
 

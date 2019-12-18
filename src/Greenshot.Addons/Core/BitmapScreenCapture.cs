@@ -132,6 +132,7 @@ namespace Greenshot.Addons.Core
             _safeDibSectionHandle.Dispose();
             _safeCompatibleDcHandle.Dispose();
             _desktopDcHandle.Dispose();
+            _bitmap.Dispose();
         }
  
     }

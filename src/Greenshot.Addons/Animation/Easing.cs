@@ -47,27 +47,18 @@ namespace Greenshot.Addons.Animation
         /// <param name="linearStep">double</param>
         /// <param name="type">EasingTypes</param>
         /// <returns>double</returns>
-		public static double EaseIn(double linearStep, EasingTypes type)
-		{
-			switch (type)
-			{
-				case EasingTypes.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingTypes.Linear:
-					return linearStep;
-				case EasingTypes.Sine:
-					return EaseSine.EaseIn(linearStep);
-				case EasingTypes.Quadratic:
-					return EasePower.EaseIn(linearStep, 2);
-				case EasingTypes.Cubic:
-					return EasePower.EaseIn(linearStep, 3);
-				case EasingTypes.Quartic:
-					return EasePower.EaseIn(linearStep, 4);
-				case EasingTypes.Quintic:
-					return EasePower.EaseIn(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
+		public static double EaseIn(double linearStep, EasingTypes type) =>
+            type switch
+            {
+                EasingTypes.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingTypes.Linear => linearStep,
+                EasingTypes.Sine => EaseSine.EaseIn(linearStep),
+                EasingTypes.Quadratic => EasePower.EaseIn(linearStep, 2),
+                EasingTypes.Cubic => EasePower.EaseIn(linearStep, 3),
+                EasingTypes.Quartic => EasePower.EaseIn(linearStep, 4),
+                EasingTypes.Quintic => EasePower.EaseIn(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
 
         /// <summary>
         /// Apply ease in-out
@@ -87,54 +78,36 @@ namespace Greenshot.Addons.Animation
         /// <param name="linearStep">double</param>
         /// <param name="type">EasingTypes</param>
         /// <returns>double</returns>
-		public static double EaseInOut(double linearStep, EasingTypes type)
-		{
-			switch (type)
-			{
-				case EasingTypes.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingTypes.Linear:
-					return linearStep;
-				case EasingTypes.Sine:
-					return EaseSine.EaseInOut(linearStep);
-				case EasingTypes.Quadratic:
-					return EasePower.EaseInOut(linearStep, 2);
-				case EasingTypes.Cubic:
-					return EasePower.EaseInOut(linearStep, 3);
-				case EasingTypes.Quartic:
-					return EasePower.EaseInOut(linearStep, 4);
-				case EasingTypes.Quintic:
-					return EasePower.EaseInOut(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
+		public static double EaseInOut(double linearStep, EasingTypes type) =>
+            type switch
+            {
+                EasingTypes.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingTypes.Linear => linearStep,
+                EasingTypes.Sine => EaseSine.EaseInOut(linearStep),
+                EasingTypes.Quadratic => EasePower.EaseInOut(linearStep, 2),
+                EasingTypes.Cubic => EasePower.EaseInOut(linearStep, 3),
+                EasingTypes.Quartic => EasePower.EaseInOut(linearStep, 4),
+                EasingTypes.Quintic => EasePower.EaseInOut(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
 
-	    /// <summary>
+        /// <summary>
 	    /// Apply easy out 
 	    /// </summary>
 	    /// <param name="linearStep">double</param>
 	    /// <param name="type">EasingTypes</param>
 	    /// <returns>double</returns>
-        public static double EaseOut(double linearStep, EasingTypes type)
-		{
-			switch (type)
-			{
-				case EasingTypes.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingTypes.Linear:
-					return linearStep;
-				case EasingTypes.Sine:
-					return EaseSine.EaseOut(linearStep);
-				case EasingTypes.Quadratic:
-					return EasePower.EaseOut(linearStep, 2);
-				case EasingTypes.Cubic:
-					return EasePower.EaseOut(linearStep, 3);
-				case EasingTypes.Quartic:
-					return EasePower.EaseOut(linearStep, 4);
-				case EasingTypes.Quintic:
-					return EasePower.EaseOut(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
-	}
+        public static double EaseOut(double linearStep, EasingTypes type) =>
+            type switch
+            {
+                EasingTypes.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingTypes.Linear => linearStep,
+                EasingTypes.Sine => EaseSine.EaseOut(linearStep),
+                EasingTypes.Quadratic => EasePower.EaseOut(linearStep, 2),
+                EasingTypes.Cubic => EasePower.EaseOut(linearStep, 3),
+                EasingTypes.Quartic => EasePower.EaseOut(linearStep, 4),
+                EasingTypes.Quintic => EasePower.EaseOut(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
+    }
 }

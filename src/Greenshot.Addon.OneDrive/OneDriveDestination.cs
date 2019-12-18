@@ -126,10 +126,8 @@ namespace Greenshot.Addon.OneDrive
             get
             {
                 // TODO: Optimize this by caching
-                using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "onedrive.png"))
-                {
-                    return BitmapHelper.FromStream(bitmapStream);
-                }
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "onedrive.png");
+                return BitmapHelper.FromStream(bitmapStream);
             }
         }
 
@@ -188,11 +186,9 @@ namespace Greenshot.Addon.OneDrive
 
                 if (_oneDriveConfiguration.AfterUploadLinkToClipBoard)
                 {
-                    using (var clipboardAccessToken = ClipboardNative.Access())
-                    {
-                        clipboardAccessToken.ClearContents();
-                        clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
-                    }
+                    using var clipboardAccessToken = ClipboardNative.Access();
+                    clipboardAccessToken.ClearContents();
+                    clipboardAccessToken.SetAsUrl(response.AbsoluteUri);
                 }
 
                 return response;
@@ -227,17 +223,13 @@ namespace Greenshot.Addon.OneDrive
                 localBehaviour.UploadProgress = percent => { Execute.OnUIThread(() => progress.Report((int)(percent * 100))); };
             }
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
-            using (var imageStream = new MemoryStream())
-            {
-                surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _oneDriveConfiguration);
-                imageStream.Position = 0;
-                using (var content = new StreamContent(imageStream))
-                {
-                    content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(CoreConfiguration, _oneDriveConfiguration));
-                    oauthHttpBehaviour.MakeCurrent();
-                    return await uploadUri.PutAsync<OneDriveUploadResponse>(content, token);
-                }
-            }
+            using var imageStream = new MemoryStream();
+            surfaceToUpload.WriteToStream(imageStream, CoreConfiguration, _oneDriveConfiguration);
+            imageStream.Position = 0;
+            using var content = new StreamContent(imageStream);
+            content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(CoreConfiguration, _oneDriveConfiguration));
+            oauthHttpBehaviour.MakeCurrent();
+            return await uploadUri.PutAsync<OneDriveUploadResponse>(content, token);
         }
 
         private async Task<OneDriveGetLinkResponse> CreateSharableLinkAync(OAuth2Settings oAuth2Settings,

@@ -82,24 +82,19 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns>IEnumerable with names of the workbooks</returns>
         public static IEnumerable<string> GetWorkbooks()
         {
-            using (var excelApplication = GetExcelApplication())
+            using var excelApplication = GetExcelApplication();
+            if ((excelApplication == null) || (excelApplication.ComObject == null))
             {
-                if ((excelApplication == null) || (excelApplication.ComObject == null))
+                yield break;
+            }
+
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            for (int i = 1; i <= workbooks.ComObject.Count; i++)
+            {
+                using var workbook = DisposableCom.Create(workbooks.ComObject[i]);
+                if (workbook != null)
                 {
-                    yield break;
-                }
-                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
-                {
-                    for (int i = 1; i <= workbooks.ComObject.Count; i++)
-                    {
-                        using (var workbook = DisposableCom.Create(workbooks.ComObject[i]))
-                        {
-                            if (workbook != null)
-                            {
-                                yield return workbook.ComObject.Name;
-                            }
-                        }
-                    }
+                    yield return workbook.ComObject.Name;
                 }
             }
         }
@@ -129,24 +124,19 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="imageSize"></param>
         public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
         {
-            using (var excelApplication = GetExcelApplication())
+            using var excelApplication = GetExcelApplication();
+            if ((excelApplication == null) || (excelApplication.ComObject == null))
             {
-                if ((excelApplication == null) || (excelApplication.ComObject == null))
+                return;
+            }
+
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            for (int i = 1; i <= workbooks.ComObject.Count; i++)
+            {
+                using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]);
+                if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
                 {
-                    return;
-                }
-                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
-                {
-                    for (int i = 1; i <= workbooks.ComObject.Count; i++)
-                    {
-                        using (var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]))
-                        {
-                            if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
-                            {
-                                InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-                            }
-                        }
-                    }
+                    InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
                 }
             }
         }
@@ -159,40 +149,33 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="imageSize"></param>
         private static void InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
         {
-            using (var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet))
+            using var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet);
+            if (workSheet == null)
             {
-                if (workSheet == null)
-                {
-                    return;
-                }
-                using (var shapes = DisposableCom.Create(workSheet.ComObject.Shapes))
-                {
-                    if (shapes == null)
-                    {
-                        return;
-                    }
-
-                    using (var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height)))
-                    {
-                        if (shape == null)
-                        {
-                            return;
-                        }
-
-                        shape.ComObject.Top = 40;
-                        shape.ComObject.Left = 40;
-                        shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
-                        shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-                        shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-                        workbook.ComObject.Activate();
-                        using (var application = DisposableCom.Create(workbook.ComObject.Application))
-                        {
-                            var excelWindow = InteropWindowFactory.CreateFor((IntPtr) application.ComObject.Hwnd);
-                            excelWindow.ToForegroundAsync();
-                        }
-                    }
-                }
+                return;
             }
+
+            using var shapes = DisposableCom.Create(workSheet.ComObject.Shapes);
+            if (shapes == null)
+            {
+                return;
+            }
+
+            using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height));
+            if (shape == null)
+            {
+                return;
+            }
+
+            shape.ComObject.Top = 40;
+            shape.ComObject.Left = 40;
+            shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
+            shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+            shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+            workbook.ComObject.Activate();
+            using var application = DisposableCom.Create(workbook.ComObject.Application);
+            var excelWindow = InteropWindowFactory.CreateFor((IntPtr) application.ComObject.Hwnd);
+            excelWindow.ToForegroundAsync();
         }
 
         /// <summary>
@@ -202,22 +185,16 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="imageSize"></param>
         public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
         {
-            using (var excelApplication = GetOrCreateExcelApplication())
+            using var excelApplication = GetOrCreateExcelApplication();
+            if (excelApplication == null)
             {
-                if (excelApplication == null)
-                {
-                    return;
-                }
-
-                excelApplication.ComObject.Visible = true;
-                using (var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks))
-                {
-                    using (var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add()))
-                    {
-                        InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-                    }
-                }
+                return;
             }
+
+            excelApplication.ComObject.Visible = true;
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add());
+            InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
         }
     }
 

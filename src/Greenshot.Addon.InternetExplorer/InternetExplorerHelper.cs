@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Microsoft.Win32;
 
@@ -31,8 +30,6 @@ namespace Greenshot.Addon.InternetExplorer {
     /// Util code for Internet Explorer
     /// </summary>
     public  class InternetExplorerHelper {
-		private static readonly LogSource Log = new LogSource();
-
 		// Internet explorer Registry key
 		private const string IeKey = @"Software\Microsoft\Internet Explorer";
 

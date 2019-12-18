@@ -326,8 +326,9 @@ namespace Greenshot.Addons.Core.Credentials
 			info.pszCaptionText = Caption;
 			info.pszMessageText = Message;
 			if (Banner != null)
-			{
-				info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+            {
+                using var bitmap = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight);
+                info.hbmBanner = bitmap.GetHbitmap();
 			}
 			info.cbSize = Marshal.SizeOf(info);
 			return info;
@@ -380,36 +381,21 @@ namespace Greenshot.Addons.Core.Credentials
 
 		/// <summary>Returns a DialogResult from the specified code.</summary>
 		/// <param name="code">The credential return code.</param>
-		private DialogResult GetDialogResult(CredUiReturnCodes code)
-		{
-			DialogResult result;
-			switch (code)
-			{
-				case CredUiReturnCodes.NoError:
-					result = DialogResult.OK;
-					break;
-				case CredUiReturnCodes.ErrorCancelled:
-					result = DialogResult.Cancel;
-					break;
-				case CredUiReturnCodes.ErrorNoSuchLogonSession:
-					throw new ApplicationException("No such logon session.");
-				case CredUiReturnCodes.ErrorNotFound:
-					throw new ApplicationException("Not found.");
-				case CredUiReturnCodes.ErrorInvalidAccountName:
-					throw new ApplicationException("Invalid account name.");
-				case CredUiReturnCodes.ErrorInsufficientBuffer:
-					throw new ApplicationException("Insufficient buffer.");
-				case CredUiReturnCodes.ErrorInvalidParameter:
-					throw new ApplicationException("Invalid parameter.");
-				case CredUiReturnCodes.ErrorInvalidFlags:
-					throw new ApplicationException("Invalid flags.");
-				default:
-					throw new ApplicationException("Unknown credential result encountered.");
-			}
-			return result;
-		}
+		private DialogResult GetDialogResult(CredUiReturnCodes code) =>
+            code switch
+            {
+                CredUiReturnCodes.NoError => DialogResult.OK,
+                CredUiReturnCodes.ErrorCancelled => DialogResult.Cancel,
+                CredUiReturnCodes.ErrorNoSuchLogonSession => throw new ApplicationException("No such logon session."),
+                CredUiReturnCodes.ErrorNotFound => throw new ApplicationException("Not found."),
+                CredUiReturnCodes.ErrorInvalidAccountName => throw new ApplicationException("Invalid account name."),
+                CredUiReturnCodes.ErrorInsufficientBuffer => throw new ApplicationException("Insufficient buffer."),
+                CredUiReturnCodes.ErrorInvalidParameter => throw new ApplicationException("Invalid parameter."),
+                CredUiReturnCodes.ErrorInvalidFlags => throw new ApplicationException("Invalid flags."),
+                _ => throw new ApplicationException("Unknown credential result encountered.")
+            };
 
-	    /// <summary>
+        /// <summary>
 	    ///     http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
 	    ///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
 	    /// </summary>

@@ -37,54 +37,54 @@ namespace Greenshot.Tests
         [InlineData(PixelFormat.Format32bppArgb)]
         public void Test_Blur(PixelFormat pixelFormat)
         {
-            using (var bitmapNew = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
-            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White))
+            using var bitmapNew = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White);
+            using var bitmapOld = BitmapFactory.CreateEmpty(400, 400, pixelFormat, Color.White);
+            using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
             {
-                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    bitmapNew.ApplyBoxBlur(10);
-                }
-                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                    BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
-                }
-                bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
-                bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
-
-                Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
+                using var pen = new SolidBrush(Color.Blue);
+                graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                bitmapNew.ApplyBoxBlur(10);
             }
+
+            using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
+            {
+                using var pen = new SolidBrush(Color.Blue);
+                graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+                BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
+            }
+
+            bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
+            bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
+
+            Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
         }
 
 
         [Fact]
         public void Test_Blur_UnmanagedBitmap()
         {
-            using (var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400))
-            using (var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White))
+            using var bitmapNew = new UnmanagedBitmap<Bgr32>(400, 400);
+            using var bitmapOld = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format32bppRgb, Color.White);
+            using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
             {
-                using (var graphics = Graphics.FromImage(bitmapOld.NativeBitmap))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                }
-                BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
-                bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
-
-                bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
-                using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
-                using (var pen = new SolidBrush(Color.Blue))
-                {
-                    graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
-                }
-                bitmapNew.ApplyBoxBlur(10);
-                bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
-
-                Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
+                using var pen = new SolidBrush(Color.Blue);
+                graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
             }
+
+            BoxBlurOld.ApplyOldBoxBlur(bitmapOld, 10);
+            bitmapOld.NativeBitmap.Save(@"old.png", ImageFormat.Png);
+
+            bitmapNew.Span.Fill(new Bgr32 { B = 255, G = 255, R = 255 });
+            using (var graphics = Graphics.FromImage(bitmapNew.NativeBitmap))
+            {
+                using var pen = new SolidBrush(Color.Blue);
+                graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
+            }
+
+            bitmapNew.ApplyBoxBlur(10);
+            bitmapNew.NativeBitmap.Save(@"new.png", ImageFormat.Png);
+
+            Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
         }
     }
 }

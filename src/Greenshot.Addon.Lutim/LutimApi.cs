@@ -29,7 +29,6 @@ using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Greenshot.Addon.Lutim.Configuration;
 using Greenshot.Addon.Lutim.Entities;
-using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Addon.Lutim
@@ -41,12 +40,10 @@ namespace Greenshot.Addon.Lutim
 	{
 	    private static readonly LogSource Log = new LogSource();
 	    private readonly ILutimConfiguration _lutimConfiguration;
-	    private readonly ICoreConfiguration _coreConfiguration;
 
-	    public LutimApi(ILutimConfiguration lutimConfiguration, ICoreConfiguration coreConfiguration)
+	    public LutimApi(ILutimConfiguration lutimConfiguration)
 	    {
 	        _lutimConfiguration = lutimConfiguration;
-	        _coreConfiguration = coreConfiguration;
 	    }
 
 		/// <summary>
@@ -87,13 +84,13 @@ namespace Greenshot.Addon.Lutim
 				}
 				catch (ArgumentException)
 				{
-					Log.Info().WriteLine("Bad format of lutim history item for short {0}", key);
+					Log.Info().WriteLine("Bad format of Lutim history item for short {0}", key);
 				    _lutimConfiguration.LutimUploadHistory.Remove(key);
 				    _lutimConfiguration.RuntimeLutimHistory.Remove(key);
 				}
 				catch (Exception e)
 				{
-					Log.Error().WriteLine(e, "Problem loading lutim history for short " + key);
+					Log.Error().WriteLine(e, "Problem loading Lutim history for short " + key);
 				}
 			}
 		}

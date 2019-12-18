@@ -181,11 +181,9 @@ namespace Greenshot.Addon.Lutim.ViewModels
         public void CopyToClipboard()
         {
             // TODO: Build url
-            using (var clipboardAccessToken = ClipboardNative.Access())
-            {
-                clipboardAccessToken.ClearContents();
-                clipboardAccessToken.SetAsUrl(SelectedLutim.LutimInfo.Short);
-            }
+            using var clipboardAccessToken = ClipboardNative.Access();
+            clipboardAccessToken.ClearContents();
+            clipboardAccessToken.SetAsUrl(SelectedLutim.LutimInfo.Short);
         }
 
         /// <summary>

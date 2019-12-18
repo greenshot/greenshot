@@ -39,7 +39,8 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
 				if (components != null) {
 					components.Dispose();
 				}
-			}
+                _toolTip.Dispose();
+            }
 			base.Dispose(disposing);
 		}
 		

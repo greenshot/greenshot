@@ -94,34 +94,33 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 				int alpha = basealpha;
 				int steps = 5;
 				int currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps) {
-					using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-						shadowPen.Width = lineVisible ? lineThickness : 1;
-						var shadowRect = new NativeRect(
-							rect.Left + currentStep,
-							rect.Top + currentStep,
-                            rect.Width,
-                            rect.Height).Normalize();
-						graphics.DrawRectangle(shadowPen, shadowRect);
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
-				}
+				while (currentStep <= steps)
+                {
+                    using var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)) {Width = lineVisible ? lineThickness : 1};
+                    var shadowRect = new NativeRect(
+                        rect.Left + currentStep,
+                        rect.Top + currentStep,
+                        rect.Width,
+                        rect.Height).Normalize();
+                    graphics.DrawRectangle(shadowPen, shadowRect);
+                    currentStep++;
+                    alpha = alpha - basealpha / steps;
+                }
 			}
 
 
-			if (Colors.IsVisible(fillColor)) {
-				using (Brush brush = new SolidBrush(fillColor)) {
-					graphics.FillRectangle(brush, rect);
-				}
-			}
+			if (Colors.IsVisible(fillColor))
+            {
+                using Brush brush = new SolidBrush(fillColor);
+                graphics.FillRectangle(brush, rect);
+            }
 
 			graphics.SmoothingMode = SmoothingMode.HighSpeed;
-			if (lineVisible) {
-				using (var pen = new Pen(lineColor, lineThickness)) {
-					graphics.DrawRectangle(pen, rect);
-				}
-			}
+			if (lineVisible)
+            {
+                using var pen = new Pen(lineColor, lineThickness);
+                graphics.DrawRectangle(pen, rect);
+            }
 
 		}
 		public override bool ClickableAt(int x, int y) {
@@ -143,14 +142,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			}
 
 			// check the rest of the lines
-			if (lineThickness > 0) {
-				using (var pen = new Pen(Color.White, lineThickness)) {
-					using (var path = new GraphicsPath()) {
-						path.AddRectangle(rect);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+			if (lineThickness > 0)
+            {
+                using var pen = new Pen(Color.White, lineThickness);
+                using var path = new GraphicsPath();
+                path.AddRectangle(rect);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 	}

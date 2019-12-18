@@ -47,11 +47,9 @@ namespace Greenshot.Addons.Resources
         /// </summary>
         /// <returns>BitmapSource</returns>
 	    public BitmapSource GreenshotIconAsBitmapSource()
-	    {
-            using (var icon = GetGreenshotIcon())
-            {
-                return icon.ToBitmapSource();
-            }
+        {
+            using var icon = GetGreenshotIcon();
+            return icon.ToBitmapSource();
         }
 
         /// <summary>
@@ -70,12 +68,10 @@ namespace Greenshot.Addons.Resources
         /// <param name="type">Type</param>
         /// <returns>Icon</returns>
 	    public Icon GetIcon(string name, Type type = null)
-	    {
-	        using (var iconStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", $"{name}.Icon.ico"))
-	        {
-	            return new Icon(iconStream);
-	        }
-	    }
+        {
+            using var iconStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", $"{name}.Icon.ico");
+            return new Icon(iconStream);
+        }
 
         /// <summary>
         /// Get the Greenshot logo as a Bitmap
@@ -99,11 +95,10 @@ namespace Greenshot.Addons.Resources
 	            name += ".png";
 
 	        }
-	        using (var imageStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources",  name))
-	        {
-	            return BitmapHelper.FromStream(imageStream);
-	        }
-	    }
+
+            using var imageStream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources",  name);
+            return BitmapHelper.FromStream(imageStream);
+        }
 
         /// <summary>
         /// Get a byte[] from an embedded resource
@@ -113,12 +108,10 @@ namespace Greenshot.Addons.Resources
         /// <returns>bate[]</returns>
 	    public byte[] GetBytes(string name, Type type = null)
         {
-            using (var stream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", name))
-            using (var memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                return memoryStream.ToArray();
-            }
+            using var stream = _resourceProvider.ResourceAsStream((type ?? GetType()).Assembly, "Resources", name);
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

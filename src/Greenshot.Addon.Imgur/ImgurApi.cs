@@ -104,17 +104,13 @@ namespace Greenshot.Addon.Imgur
                 localBehaviour.UploadProgress = percent => Execute.OnUIThread(() => progress.Report((int)(percent * 100)));
             }
 
-            using (var imageStream = new MemoryStream())
-            {
-                surfaceToUpload.WriteToStream(imageStream, _coreConfiguration, _imgurConfiguration);
-                imageStream.Position = 0;
-                using (var content = new StreamContent(imageStream))
-                {
-                    content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(_coreConfiguration, _imgurConfiguration));
-                    localBehaviour.MakeCurrent();
-                    return await uploadUri.PostAsync<ImgurImage>(content, token).ConfigureAwait(false);
-                }
-            }
+            using var imageStream = new MemoryStream();
+            surfaceToUpload.WriteToStream(imageStream, _coreConfiguration, _imgurConfiguration);
+            imageStream.Position = 0;
+            using var content = new StreamContent(imageStream);
+            content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(_coreConfiguration, _imgurConfiguration));
+            localBehaviour.MakeCurrent();
+            return await uploadUri.PostAsync<ImgurImage>(content, token).ConfigureAwait(false);
         }
 
 	    /// <summary>
@@ -135,17 +131,13 @@ namespace Greenshot.Addon.Imgur
                 localBehaviour.UploadProgress = percent => Execute.OnUIThread(() => progress.Report((int) (percent * 100)));
             }
             var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
-            using (var imageStream = new MemoryStream())
-            {
-                surfaceToUpload.WriteToStream(imageStream, _coreConfiguration, _imgurConfiguration);
-                imageStream.Position = 0;
-                using (var content = new StreamContent(imageStream))
-                {
-                    content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(_coreConfiguration, _imgurConfiguration));
-                    oauthHttpBehaviour.MakeCurrent();
-                    return await uploadUri.PostAsync<ImgurImage>(content, token).ConfigureAwait(false);
-                }
-            }
+            using var imageStream = new MemoryStream();
+            surfaceToUpload.WriteToStream(imageStream, _coreConfiguration, _imgurConfiguration);
+            imageStream.Position = 0;
+            using var content = new StreamContent(imageStream);
+            content.Headers.Add("Content-Type", surfaceToUpload.GenerateMimeType(_coreConfiguration, _imgurConfiguration));
+            oauthHttpBehaviour.MakeCurrent();
+            return await uploadUri.PostAsync<ImgurImage>(content, token).ConfigureAwait(false);
         }
 
 
@@ -187,27 +179,25 @@ namespace Greenshot.Addon.Imgur
         {
             var creditsUri = new Uri($"{_imgurConfiguration.ApiUrl}/credits.json");
             Behaviour.MakeCurrent();
-            using (var client = HttpClientFactory.Create(creditsUri))
+            using var client = HttpClientFactory.Create(creditsUri);
+            var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
+            await response.HandleErrorAsync().ConfigureAwait(false);
+            var creditsJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
+            if ((creditsJson != null) && creditsJson.ContainsKey("data"))
             {
-                var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
-                await response.HandleErrorAsync().ConfigureAwait(false);
-                var creditsJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
-                if ((creditsJson != null) && creditsJson.ContainsKey("data"))
+                dynamic data = creditsJson.data;
+                int credits = 0;
+                if (data.ContainsKey("ClientRemaining"))
                 {
-                    dynamic data = creditsJson.data;
-                    int credits = 0;
-                    if (data.ContainsKey("ClientRemaining"))
-                    {
-                        credits = (int)data.ClientRemaining;
-                        Log.Debug().WriteLine("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
-                    }
-                    if (data.ContainsKey("UserRemaining"))
-                    {
-                        credits = Math.Min(credits, (int)data.UserRemaining);
-                        Log.Debug().WriteLine("{0}={1}", "UserRemaining", (int)data.UserRemaining);
-                    }
-                    _imgurConfiguration.Credits = credits;
+                    credits = (int)data.ClientRemaining;
+                    Log.Debug().WriteLine("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
                 }
+                if (data.ContainsKey("UserRemaining"))
+                {
+                    credits = Math.Min(credits, (int)data.UserRemaining);
+                    Log.Debug().WriteLine("{0}={1}", "UserRemaining", (int)data.UserRemaining);
+                }
+                _imgurConfiguration.Credits = credits;
             }
         }
 
@@ -224,17 +214,15 @@ namespace Greenshot.Addon.Imgur
             Log.Debug().WriteLine("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
             Behaviour.MakeCurrent();
-            using (var client = HttpClientFactory.Create(imageUri))
+            using var client = HttpClientFactory.Create(imageUri);
+            var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
+            // retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
+            if ((response.StatusCode == HttpStatusCode.NotFound) || (response.StatusCode == HttpStatusCode.Redirect) || (response.StatusCode == HttpStatusCode.Unauthorized))
             {
-                var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
-                // retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
-                if ((response.StatusCode == HttpStatusCode.NotFound) || (response.StatusCode == HttpStatusCode.Redirect) || (response.StatusCode == HttpStatusCode.Unauthorized))
-                {
-                    return null;
-                }
-                await response.HandleErrorAsync().ConfigureAwait(false);
-                return await response.GetAsAsync<ImgurImage>(token).ConfigureAwait(false);
+                return null;
             }
+            await response.HandleErrorAsync().ConfigureAwait(false);
+            return await response.GetAsAsync<ImgurImage>(token).ConfigureAwait(false);
         }
 
         /// <summary>

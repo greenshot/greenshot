@@ -155,15 +155,13 @@ EndSelection:<<<<<<<4
         /// <param name="coreConfiguration">ICoreConfiguration</param>
         public static void SetAsEmbeddedHtml(this IClipboardAccessToken clipboardAccessToken, ISurface surface, ICoreConfiguration coreConfiguration)
         {
-            using (var pngStream = new MemoryStream())
-            {
-                var pngOutputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.png, 100, false);
-                ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
-                pngStream.Seek(0, SeekOrigin.Begin);
-                // Set the PNG stream
-                var htmlText = GenerateHtmlDataUrlString(new NativeSize(surface.Width, surface.Height), pngStream);
-                clipboardAccessToken.SetAsHtml(htmlText);
-            }
+            using var pngStream = new MemoryStream();
+            var pngOutputSettings = new SurfaceOutputSettings(coreConfiguration, OutputFormats.png, 100, false);
+            ImageOutput.SaveToStream(surface, pngStream, pngOutputSettings);
+            pngStream.Seek(0, SeekOrigin.Begin);
+            // Set the PNG stream
+            var htmlText = GenerateHtmlDataUrlString(new NativeSize(surface.Width, surface.Height), pngStream);
+            clipboardAccessToken.SetAsHtml(htmlText);
         }
 
         /// <summary>

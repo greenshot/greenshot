@@ -184,12 +184,10 @@ namespace Greenshot.Helpers
 				return;
 			}
 			try
-			{
-				using (var key = Registry.LocalMachine.OpenSubKey(RunKey, true))
-				{
-					key?.DeleteValue(ApplicationName);
-				}
-			}
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(RunKey, true);
+                key?.DeleteValue(ApplicationName);
+            }
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "Error in deleteRunAll.");
@@ -201,11 +199,10 @@ namespace Greenshot.Helpers
 				{
 					return;
 				}
-				using (var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false))
-				{
-					key?.DeleteValue(ApplicationName);
-				}
-			}
+
+                using var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false);
+                key?.DeleteValue(ApplicationName);
+            }
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "Error in deleteRunAll.");
@@ -222,12 +219,10 @@ namespace Greenshot.Helpers
 				return;
 			}
 			try
-			{
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true))
-				{
-					key?.DeleteValue(ApplicationName);
-				}
-			}
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
+                key?.DeleteValue(ApplicationName);
+            }
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "Error in deleteRunUser.");
@@ -239,11 +234,10 @@ namespace Greenshot.Helpers
 				{
 					return;
 				}
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false))
-				{
-					key?.DeleteValue(ApplicationName);
-				}
-			}
+
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false);
+                key?.DeleteValue(ApplicationName);
+            }
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "Error in deleteRunUser.");
@@ -256,12 +250,10 @@ namespace Greenshot.Helpers
 		public static void SetRunUser()
 		{
 			try
-			{
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true))
-				{
-					key?.SetValue(ApplicationName, GetExecutablePath());
-				}
-			}
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
+                key?.SetValue(ApplicationName, GetExecutablePath());
+            }
 			catch (Exception e)
 			{
 				Log.Error().WriteLine(e, "Error in setRunUser.");

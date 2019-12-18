@@ -35,7 +35,6 @@ using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Gfx;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.Dpi;
 using System.Text;
 
 namespace Greenshot.Forms
@@ -138,9 +137,6 @@ namespace Greenshot.Forms
         {
             _greenshotlanguage = greenshotlanguage;
             _versionProvider = versionProvider;
-            // Make sure our resources are removed again.
-            Disposed += Cleanup;
-            FormClosing += Cleanup;
 
             // Enable animation for this form, when we don't set this the timer doesn't start as soon as the form is loaded.
             EnableAnimation = true;
@@ -220,10 +216,15 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
-        ///     Cleanup all the allocated resources
+        /// Disposes resources used by the form.
         /// </summary>
-        private void Cleanup(object sender, EventArgs e)
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                components?.Dispose();
+            }
             if (_bitmap != null)
             {
                 _bitmap.Dispose();
@@ -231,6 +232,7 @@ namespace Greenshot.Forms
             }
             _dpiSubscription.Dispose();
 
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -326,20 +328,18 @@ namespace Greenshot.Forms
                 graphics.TranslateTransform(2, -2);
                 graphics.RotateTransform(20);
 
-                using (var brush = new SolidBrush(_pixelColor))
+                using var brush = new SolidBrush(_pixelColor);
+                var index = 0;
+                // We asume there is nothing to animate in the next Animate loop
+                _hasAnimationsLeft = false;
+                // Pixels of the G
+                foreach (var pixel in _pixels)
                 {
-                    var index = 0;
-                    // We asume there is nothing to animate in the next Animate loop
-                    _hasAnimationsLeft = false;
-                    // Pixels of the G
-                    foreach (var pixel in _pixels)
-                    {
-                        brush.Color = _pixelColors[index++];
-                        graphics.FillEllipse(brush, pixel.Current);
-                        // If a pixel still has frames left, the hasAnimationsLeft will be true
-                        _hasAnimationsLeft = _hasAnimationsLeft || pixel.HasNext;
-                        pixel.Next();
-                    }
+                    brush.Color = _pixelColors[index++];
+                    graphics.FillEllipse(brush, pixel.Current);
+                    // If a pixel still has frames left, the hasAnimationsLeft will be true
+                    _hasAnimationsLeft = _hasAnimationsLeft || pixel.HasNext;
+                    pixel.Next();
                 }
             }
             pictureBox1.Invalidate();

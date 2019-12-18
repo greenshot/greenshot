@@ -76,22 +76,19 @@ namespace Greenshot.Gfx.Effects
 	            using (var path = new GraphicsPath())
 	            {
 	                path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
-	                using (var pen = new Pen(borderColor, borderSize))
-	                {
-	                    pen.LineJoin = LineJoin.Round;
-	                    pen.StartCap = LineCap.Round;
-	                    pen.EndCap = LineCap.Round;
-	                    graphics.DrawPath(pen, path);
-	                }
-	            }
+                    using var pen = new Pen(borderColor, borderSize) {
+                        LineJoin = LineJoin.Round,
+                        StartCap = LineCap.Round,
+                        EndCap = LineCap.Round
+                    };
+                    graphics.DrawPath(pen, path);
+                }
 	            // draw original with a TextureBrush so we have nice anti-aliasing!
-	            using (Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp))
-	            {
-	                // We need to do a translate-tranform otherwise the image is wrapped
-	                graphics.TranslateTransform(offset.X, offset.Y);
-	                graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
-	            }
-	        }
+                using Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp);
+                // We need to do a translate-tranform otherwise the image is wrapped
+                graphics.TranslateTransform(offset.X, offset.Y);
+                graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+            }
 	        return newImage;
 	    }
 

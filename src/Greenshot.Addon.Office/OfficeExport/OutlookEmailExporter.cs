@@ -86,100 +86,94 @@ namespace Greenshot.Addon.Office.OfficeExport
                 if (_outlookVersion.Major >= (int)OfficeVersions.Office2013)
                 {
                     // Check inline "panel" for Outlook 2013
-                    using (var activeExplorer = DisposableCom.Create((_Explorer)outlookApplication.ComObject.ActiveExplorer()))
+                    using var activeExplorer = DisposableCom.Create((_Explorer)outlookApplication.ComObject.ActiveExplorer());
+                    // Only if we have one and if the capture is the one we selected
+                    if ((activeExplorer != null) && activeExplorer.ComObject.Caption.StartsWith(inspectorCaption))
                     {
-                        // Only if we have one and if the capture is the one we selected
-                        if ((activeExplorer != null) && activeExplorer.ComObject.Caption.StartsWith(inspectorCaption))
+                        var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
+                        using (DisposableCom.Create(untypedInlineResponse))
                         {
-                            var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
-                            using (DisposableCom.Create(untypedInlineResponse))
+                            switch (untypedInlineResponse)
                             {
-                                switch (untypedInlineResponse)
-                                {
-                                    case MailItem mailItem:
-                                        if (!mailItem.Sent)
+                                case MailItem mailItem:
+                                    if (!mailItem.Sent)
+                                    {
+                                        return ExportToInspector(null, activeExplorer, mailItem.Class, mailItem, tmpFile, attachmentName);
+                                    }
+                                    break;
+                                case AppointmentItem appointmentItem:
+                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                    {
+                                        if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                         {
-                                            return ExportToInspector(null, activeExplorer, mailItem.Class, mailItem, tmpFile, attachmentName);
+                                            return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
                                         }
-                                        break;
-                                    case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
-                                        {
-                                            if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
-                                            {
-                                                return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
-                                            }
-                                        }
-                                        break;
-                                }
+                                    }
+                                    break;
                             }
                         }
                     }
                 }
 
-                using (var inspectors = DisposableCom.Create(outlookApplication.ComObject.Inspectors))
+                using var inspectors = DisposableCom.Create(outlookApplication.ComObject.Inspectors);
+                if ((inspectors == null) || (inspectors.ComObject.Count == 0))
                 {
-                    if ((inspectors == null) || (inspectors.ComObject.Count == 0))
+                    return false;
+                }
+                Log.Debug().WriteLine("Got {0} inspectors to check", inspectors.ComObject.Count);
+                for (int i = 1; i <= inspectors.ComObject.Count; i++)
+                {
+                    using var inspector = DisposableCom.Create((_Inspector)inspectors.ComObject[i]);
+                    string currentCaption = inspector.ComObject.Caption;
+                    if (!currentCaption.StartsWith(inspectorCaption))
                     {
-                        return false;
+                        continue;
                     }
-                    Log.Debug().WriteLine("Got {0} inspectors to check", inspectors.ComObject.Count);
-                    for (int i = 1; i <= inspectors.ComObject.Count; i++)
-                    {
-                        using (var inspector = DisposableCom.Create((_Inspector)inspectors.ComObject[i]))
-                        {
-                            string currentCaption = inspector.ComObject.Caption;
-                            if (!currentCaption.StartsWith(inspectorCaption))
-                            {
-                                continue;
-                            }
 
-                            var currentItemUntyped = inspector.ComObject.CurrentItem;
-                            using (DisposableCom.Create(currentItemUntyped))
-                            {
-                                switch (currentItemUntyped)
+                    var currentItemUntyped = inspector.ComObject.CurrentItem;
+                    using (DisposableCom.Create(currentItemUntyped))
+                    {
+                        switch (currentItemUntyped)
+                        {
+                            case MailItem mailItem:
+                                if (mailItem.Sent)
                                 {
-                                    case MailItem mailItem:
-                                        if (mailItem.Sent)
-                                        {
-                                            continue;
-                                        }
-                                        try
-                                        {
-                                            return ExportToInspector(inspector, null, mailItem.Class, mailItem, tmpFile, attachmentName);
-                                        }
-                                        catch (Exception exExport)
-                                        {
-                                            Log.Error().WriteLine(exExport, "Export to {0} failed.", currentCaption);
-                                        }
-                                        break;
-                                    case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
-                                        {
-                                            if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
-                                            {
-                                                Log.Debug().WriteLine("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
-                                                continue;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            // skip, can't export to olAppointment
-                                            continue;
-                                        }
-                                        try
-                                        {
-                                            return ExportToInspector(inspector, null, appointmentItem.Class, null, tmpFile, attachmentName);
-                                        }
-                                        catch (Exception exExport)
-                                        {
-                                            Log.Error().WriteLine(exExport, "Export to {0} failed.", currentCaption);
-                                        }
-                                        break;
-                                    default:
-                                        continue;
+                                    continue;
                                 }
-                            }
+                                try
+                                {
+                                    return ExportToInspector(inspector, null, mailItem.Class, mailItem, tmpFile, attachmentName);
+                                }
+                                catch (Exception exExport)
+                                {
+                                    Log.Error().WriteLine(exExport, "Export to {0} failed.", currentCaption);
+                                }
+                                break;
+                            case AppointmentItem appointmentItem:
+                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                {
+                                    if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
+                                    {
+                                        Log.Debug().WriteLine("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    // skip, can't export to olAppointment
+                                    continue;
+                                }
+                                try
+                                {
+                                    return ExportToInspector(inspector, null, appointmentItem.Class, null, tmpFile, attachmentName);
+                                }
+                                catch (Exception exExport)
+                                {
+                                    Log.Error().WriteLine(exExport, "Export to {0} failed.", currentCaption);
+                                }
+                                break;
+                            default:
+                                continue;
                         }
                     }
                 }
@@ -239,20 +233,18 @@ namespace Greenshot.Addon.Office.OfficeExport
                     {
                         using (wordDocument)
                         {
-                            using (var application = DisposableCom.Create(wordDocument.ComObject.Application))
+                            using var application = DisposableCom.Create(wordDocument.ComObject.Application);
+                            try
                             {
-                                try
+                                if (_wordExporter.InsertIntoExistingDocument(application, wordDocument, tmpFile, null, null))
                                 {
-                                    if (_wordExporter.InsertIntoExistingDocument(application, wordDocument, tmpFile, null, null))
-                                    {
-                                        Log.Info().WriteLine("Inserted into Wordmail");
-                                        return true;
-                                    }
+                                    Log.Info().WriteLine("Inserted into Wordmail");
+                                    return true;
                                 }
-                                catch (Exception exportException)
-                                {
-                                    Log.Error().WriteLine(exportException, "Error exporting to the word editor, trying to do it via another method");
-                                }
+                            }
+                            catch (Exception exportException)
+                            {
+                                Log.Error().WriteLine(exportException, "Error exporting to the word editor, trying to do it via another method");
                             }
                         }
                     }
@@ -296,8 +288,7 @@ namespace Greenshot.Addon.Office.OfficeExport
                     // The following might cause a security popup... can't ignore it.
                     try
                     {
-                        var document2 = inspector.ComObject.HTMLEditor as IHTMLDocument2;
-                        if (document2 != null)
+                        if (inspector.ComObject.HTMLEditor is IHTMLDocument2 document2)
                         {
                             var selection = document2.selection;
                             if (selection != null)
@@ -332,24 +323,20 @@ namespace Greenshot.Addon.Office.OfficeExport
                 }
 
                 // Create the attachment (if inlined the attachment isn't visible as attachment!)
-                using (var attachments = DisposableCom.Create(mailItem.Attachments))
+                using var attachments = DisposableCom.Create(mailItem.Attachments);
+                using var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName));
+                if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
                 {
-                    using (var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)))
+                    // Add the content id to the attachment, this only works for Outlook >= 2007
+                    try
                     {
-                        if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
-                        {
-                            // Add the content id to the attachment, this only works for Outlook >= 2007
-                            try
-                            {
-                                var propertyAccessor = attachment.ComObject.PropertyAccessor;
-                                propertyAccessor.SetProperty(AttachmentContentId, contentId);
-                            }
-                            // ReSharper disable once EmptyGeneralCatchClause
-                            catch
-                            {
-                                // Ignore
-                            }
-                        }
+                        var propertyAccessor = attachment.ComObject.PropertyAccessor;
+                        propertyAccessor.SetProperty(AttachmentContentId, contentId);
+                    }
+                    // ReSharper disable once EmptyGeneralCatchClause
+                    catch
+                    {
+                        // Ignore
                     }
                 }
             }
@@ -401,135 +388,127 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="url"></param>
         private void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
         {
-            using (var newItem = DisposableCom.Create((MailItem)outlookApplication.ComObject.CreateItem(OlItemType.olMailItem)))
+            using var newItem = DisposableCom.Create((MailItem)outlookApplication.ComObject.CreateItem(OlItemType.olMailItem));
+            if (newItem == null)
             {
-                if (newItem == null)
-                {
-                    return;
-                }
-                var newMail = newItem.ComObject;
-                newMail.Subject = subject;
-                if (!string.IsNullOrEmpty(to))
-                {
-                    newMail.To = to;
-                }
-                if (!string.IsNullOrEmpty(cc))
-                {
-                    newMail.CC = cc;
-                }
-                if (!string.IsNullOrEmpty(bcc))
-                {
-                    newMail.BCC = bcc;
-                }
-                newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-                string bodyString = null;
-                // Read the default signature, if nothing found use empty email
-                try
-                {
-                    bodyString = GetOutlookSignature(format);
-                }
-                catch (Exception e)
-                {
-                    Log.Error().WriteLine("Problem reading signature!", e);
-                }
-                switch (format)
-                {
-                    case EmailFormat.Text:
-                        // Create the attachment (and dispose the COM object after using)
-                        using (var attachments = DisposableCom.Create(newMail.Attachments))
+                return;
+            }
+            var newMail = newItem.ComObject;
+            newMail.Subject = subject;
+            if (!string.IsNullOrEmpty(to))
+            {
+                newMail.To = to;
+            }
+            if (!string.IsNullOrEmpty(cc))
+            {
+                newMail.CC = cc;
+            }
+            if (!string.IsNullOrEmpty(bcc))
+            {
+                newMail.BCC = bcc;
+            }
+            newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+            string bodyString = null;
+            // Read the default signature, if nothing found use empty email
+            try
+            {
+                bodyString = GetOutlookSignature(format);
+            }
+            catch (Exception e)
+            {
+                Log.Error().WriteLine("Problem reading signature!", e);
+            }
+            switch (format)
+            {
+                case EmailFormat.Text:
+                    // Create the attachment (and dispose the COM object after using)
+                    using (var attachments = DisposableCom.Create(newMail.Attachments))
+                    {
+                        using (DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName)))
                         {
-                            using (DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName)))
+                            newMail.BodyFormat = OlBodyFormat.olFormatPlain;
+                            if (bodyString == null)
                             {
-                                newMail.BodyFormat = OlBodyFormat.olFormatPlain;
-                                if (bodyString == null)
-                                {
-                                    bodyString = "";
-                                }
-                                newMail.Body = bodyString;
+                                bodyString = "";
+                            }
+                            newMail.Body = bodyString;
+                        }
+                    }
+                    break;
+                default:
+                    string contentId = Path.GetFileName(tmpFile);
+                    // Create the attachment (and dispose the COM object after using)
+                    using (var attachments = DisposableCom.Create(newMail.Attachments))
+                    {
+                        using var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName));
+                        // add content ID to the attachment
+                        if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
+                        {
+                            try
+                            {
+                                contentId = Guid.NewGuid().ToString();
+                                using var propertyAccessor = DisposableCom.Create(attachment.ComObject.PropertyAccessor);
+                                propertyAccessor.ComObject.SetProperty(AttachmentContentId, contentId);
+                            }
+                            catch
+                            {
+                                Log.Info().WriteLine("Error working with the PropertyAccessor, using filename as contentid");
+                                contentId = Path.GetFileName(tmpFile);
                             }
                         }
-                        break;
-                    default:
-                        string contentId = Path.GetFileName(tmpFile);
-                        // Create the attachment (and dispose the COM object after using)
-                        using (var attachments = DisposableCom.Create(newMail.Attachments))
-                        {
-                            using (var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)))
-                            {
-                                // add content ID to the attachment
-                                if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
-                                {
-                                    try
-                                    {
-                                        contentId = Guid.NewGuid().ToString();
-                                        using (var propertyAccessor = DisposableCom.Create(attachment.ComObject.PropertyAccessor))
-                                        {
-                                            propertyAccessor.ComObject.SetProperty(AttachmentContentId, contentId);
-                                        }
-                                    }
-                                    catch
-                                    {
-                                        Log.Info().WriteLine("Error working with the PropertyAccessor, using filename as contentid");
-                                        contentId = Path.GetFileName(tmpFile);
-                                    }
-                                }
-                            }
-                        }
+                    }
 
-                        newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-                        string href = "";
-                        string hrefEnd = "";
-                        if (!string.IsNullOrEmpty(url))
+                    newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+                    string href = "";
+                    string hrefEnd = "";
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        href = string.Format("<A HREF=\"{0}\">", url);
+                        hrefEnd = "</A>";
+                    }
+                    string htmlImgEmbedded = string.Format("<BR/>{0}<IMG border=0 hspace=0 alt=\"{1}\" align=baseline src=\"cid:{2}\">{3}<BR/>", href, attachmentName, contentId, hrefEnd);
+                    string fallbackBody = string.Format("<HTML><BODY>{0}</BODY></HTML>", htmlImgEmbedded);
+                    if (bodyString == null)
+                    {
+                        bodyString = fallbackBody;
+                    }
+                    else
+                    {
+                        int bodyIndex = bodyString.IndexOf("<body", StringComparison.CurrentCultureIgnoreCase);
+                        if (bodyIndex >= 0)
                         {
-                            href = string.Format("<A HREF=\"{0}\">", url);
-                            hrefEnd = "</A>";
-                        }
-                        string htmlImgEmbedded = string.Format("<BR/>{0}<IMG border=0 hspace=0 alt=\"{1}\" align=baseline src=\"cid:{2}\">{3}<BR/>", href, attachmentName, contentId, hrefEnd);
-                        string fallbackBody = string.Format("<HTML><BODY>{0}</BODY></HTML>", htmlImgEmbedded);
-                        if (bodyString == null)
-                        {
-                            bodyString = fallbackBody;
-                        }
-                        else
-                        {
-                            int bodyIndex = bodyString.IndexOf("<body", StringComparison.CurrentCultureIgnoreCase);
+                            bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
                             if (bodyIndex >= 0)
                             {
-                                bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
-                                if (bodyIndex >= 0)
-                                {
-                                    bodyString = bodyString.Insert(bodyIndex, htmlImgEmbedded);
-                                }
-                                else
-                                {
-                                    bodyString = fallbackBody;
-                                }
+                                bodyString = bodyString.Insert(bodyIndex, htmlImgEmbedded);
                             }
                             else
                             {
                                 bodyString = fallbackBody;
                             }
                         }
-                        newMail.HTMLBody = bodyString;
-                        break;
-                }
-                // So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
-                newMail.Display(false);
-
-                using (var inspector = DisposableCom.Create((_Inspector)newMail.GetInspector))
-                {
-                    if (inspector != null)
-                    {
-                        try
+                        else
                         {
-                            inspector.ComObject.Activate();
-                        }
-                        // ReSharper disable once EmptyGeneralCatchClause
-                        catch
-                        {
-                            // Ignore
+                            bodyString = fallbackBody;
                         }
                     }
+                    newMail.HTMLBody = bodyString;
+                    break;
+            }
+            // So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
+            newMail.Display(false);
+
+            using var inspector = DisposableCom.Create((_Inspector)newMail.GetInspector);
+            if (inspector != null)
+            {
+                try
+                {
+                    inspector.ComObject.Activate();
+                }
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
+                {
+                    // Ignore
                 }
             }
         }
@@ -620,49 +599,40 @@ namespace Greenshot.Addon.Office.OfficeExport
                 }
                 string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
                 Log.Debug().WriteLine("defaultProfile={0}", defaultProfile);
-                using (var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
+                using var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false);
+                if (profileKey != null)
                 {
-                    if (profileKey != null)
+                    string[] numbers = profileKey.GetSubKeyNames();
+                    foreach (string number in numbers)
                     {
-                        string[] numbers = profileKey.GetSubKeyNames();
-                        foreach (string number in numbers)
+                        Log.Debug().WriteLine("Found subkey {0}", number);
+                        using var numberKey = profileKey.OpenSubKey(number, false);
+                        if (numberKey != null)
                         {
-                            Log.Debug().WriteLine("Found subkey {0}", number);
-                            using (var numberKey = profileKey.OpenSubKey(number, false))
+                            byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
+                            if (val == null)
                             {
-                                if (numberKey != null)
+                                continue;
+                            }
+                            string signatureName = "";
+                            foreach (byte b in val)
+                            {
+                                if (b != 0)
                                 {
-                                    byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
-                                    if (val == null)
-                                    {
-                                        continue;
-                                    }
-                                    string signatureName = "";
-                                    foreach (byte b in val)
-                                    {
-                                        if (b != 0)
-                                        {
-                                            signatureName += (char)b;
-                                        }
-                                    }
-                                    Log.Debug().WriteLine("Found email signature: {0}", signatureName);
-                                    string extension;
-                                    switch (format)
-                                    {
-                                        case EmailFormat.Text:
-                                            extension = ".txt";
-                                            break;
-                                        default:
-                                            extension = ".htm";
-                                            break;
-                                    }
-                                    string signatureFile = Path.Combine(SignaturePath, signatureName + extension);
-                                    if (File.Exists(signatureFile))
-                                    {
-                                        Log.Debug().WriteLine("Found email signature file: {0}", signatureFile);
-                                        return File.ReadAllText(signatureFile, Encoding.Default);
-                                    }
+                                    signatureName += (char)b;
                                 }
+                            }
+                            Log.Debug().WriteLine("Found email signature: {0}", signatureName);
+                            var extension = format switch
+                            {
+                                EmailFormat.Text => ".txt",
+                                _ => ".htm"
+                            };
+                            string signatureFile = Path.Combine(SignaturePath, signatureName + extension);
+                            if (File.Exists(signatureFile))
+                            {
+                                Log.Debug().WriteLine("Found email signature file: {0}", signatureFile);
+                                return File.ReadAllText(signatureFile, Encoding.Default);
                             }
                         }
                     }
@@ -694,10 +664,8 @@ namespace Greenshot.Addon.Office.OfficeExport
                 {
                     using (var mapiNamespace = DisposableCom.Create(outlookApplication.ComObject.GetNamespace("MAPI")))
                     {
-                        using (var currentUser = DisposableCom.Create(mapiNamespace.ComObject.CurrentUser))
-                        {
-                            _currentUser = currentUser.ComObject.Name;
-                        }
+                        using var currentUser = DisposableCom.Create(mapiNamespace.ComObject.CurrentUser);
+                        _currentUser = currentUser.ComObject.Name;
                     }
                     Log.Info().WriteLine("Current user: {0}", _currentUser);
                 }
@@ -717,99 +685,91 @@ namespace Greenshot.Addon.Office.OfficeExport
             IDictionary<string, OlObjectClass> inspectorCaptions = new SortedDictionary<string, OlObjectClass>();
             try
             {
-                using (var outlookApplication = GetOutlookApplication())
+                using var outlookApplication = GetOutlookApplication();
+                if (outlookApplication == null)
                 {
-                    if (outlookApplication == null)
-                    {
-                        return inspectorCaptions;
-                    }
+                    return inspectorCaptions;
+                }
 
-                    // The activeexplorer inline response only works with >= 2013, Microsoft Outlook 15.0 Object Library
-                    if (_outlookVersion.Major >= (int)OfficeVersions.Office2013)
+                // The activeexplorer inline response only works with >= 2013, Microsoft Outlook 15.0 Object Library
+                if (_outlookVersion.Major >= (int)OfficeVersions.Office2013)
+                {
+                    // Check inline "panel" for Outlook 2013
+                    using var activeExplorer = DisposableCom.Create(outlookApplication.ComObject.ActiveExplorer());
+                    if (activeExplorer != null)
                     {
-                        // Check inline "panel" for Outlook 2013
-                        using (var activeExplorer = DisposableCom.Create(outlookApplication.ComObject.ActiveExplorer()))
+                        var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
+                        if (untypedInlineResponse != null)
                         {
-                            if (activeExplorer != null)
+                            string caption = activeExplorer.ComObject.Caption;
+                            using (DisposableCom.Create(untypedInlineResponse))
                             {
-                                var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
-                                if (untypedInlineResponse != null)
+                                switch (untypedInlineResponse)
                                 {
-                                    string caption = activeExplorer.ComObject.Caption;
-                                    using (DisposableCom.Create(untypedInlineResponse))
-                                    {
-                                        switch (untypedInlineResponse)
+                                    case MailItem mailItem:
+                                        if (!mailItem.Sent)
                                         {
-                                            case MailItem mailItem:
-                                                if (!mailItem.Sent)
-                                                {
-                                                    inspectorCaptions.Add(caption, mailItem.Class);
-                                                }
-                                                break;
-                                            case AppointmentItem appointmentItem:
-                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
-                                                {
-                                                    if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
-                                                    {
-                                                        inspectorCaptions.Add(caption, appointmentItem.Class);
-                                                    }
-                                                }
-                                                break;
+                                            inspectorCaptions.Add(caption, mailItem.Class);
                                         }
-                                    }
+                                        break;
+                                    case AppointmentItem appointmentItem:
+                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                        {
+                                            if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
+                                            {
+                                                inspectorCaptions.Add(caption, appointmentItem.Class);
+                                            }
+                                        }
+                                        break;
                                 }
                             }
                         }
                     }
+                }
 
-                    using (var inspectors = DisposableCom.Create(outlookApplication.ComObject.Inspectors))
+                using var inspectors = DisposableCom.Create(outlookApplication.ComObject.Inspectors);
+                if ((inspectors != null) && (inspectors.ComObject.Count > 0))
+                {
+                    for (int i = 1; i <= inspectors.ComObject.Count; i++)
                     {
-                        if ((inspectors != null) && (inspectors.ComObject.Count > 0))
+                        using var inspector = DisposableCom.Create(inspectors.ComObject[i]);
+                        string caption = inspector.ComObject.Caption;
+                        // Fix double entries in the directory, TODO: store on something uniq
+                        if (inspectorCaptions.ContainsKey(caption))
                         {
-                            for (int i = 1; i <= inspectors.ComObject.Count; i++)
+                            continue;
+                        }
+
+                        var currentItemUntyped = inspector.ComObject.CurrentItem;
+                        using (DisposableCom.Create(currentItemUntyped))
+                        {
+                            switch (currentItemUntyped)
                             {
-                                using (var inspector = DisposableCom.Create(inspectors.ComObject[i]))
-                                {
-                                    string caption = inspector.ComObject.Caption;
-                                    // Fix double entries in the directory, TODO: store on something uniq
-                                    if (inspectorCaptions.ContainsKey(caption))
+                                case MailItem mailItem:
+                                    if (mailItem.Sent)
                                     {
                                         continue;
                                     }
-
-                                    var currentItemUntyped = inspector.ComObject.CurrentItem;
-                                    using (DisposableCom.Create(currentItemUntyped))
+                                    inspectorCaptions.Add(caption, mailItem.Class);
+                                    break;
+                                case AppointmentItem appointmentItem:
+                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                     {
-                                        switch (currentItemUntyped)
+                                        if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                         {
-                                            case MailItem mailItem:
-                                                if (mailItem.Sent)
-                                                {
-                                                    continue;
-                                                }
-                                                inspectorCaptions.Add(caption, mailItem.Class);
-                                                break;
-                                            case AppointmentItem appointmentItem:
-                                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
-                                                {
-                                                    if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
-                                                    {
-                                                        Log.Debug().WriteLine("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
-                                                        continue;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    // skip, can't export to olAppointment
-                                                    continue;
-                                                }
-                                                inspectorCaptions.Add(caption, appointmentItem.Class);
-                                                break;
-                                            default:
-                                                continue;
+                                            Log.Debug().WriteLine("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
+                                            continue;
                                         }
                                     }
-                                }
+                                    else
+                                    {
+                                        // skip, can't export to olAppointment
+                                        continue;
+                                    }
+                                    inspectorCaptions.Add(caption, appointmentItem.Class);
+                                    break;
+                                default:
+                                    continue;
                             }
                         }
                     }

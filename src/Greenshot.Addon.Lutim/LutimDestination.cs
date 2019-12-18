@@ -84,12 +84,11 @@ namespace Greenshot.Addon.Lutim  {
 
         /// <inheritdoc />
         public override IBitmapWithNativeSupport DisplayIcon {
-			get {
+			get
+            {
                 // TODO: Optimize this by caching
-			    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Lutim.png"))
-			    {
-			        return BitmapHelper.FromStream(bitmapStream);
-			    }
+                using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "Lutim.png");
+                return BitmapHelper.FromStream(bitmapStream);
             }
 		}
 
@@ -155,11 +154,9 @@ namespace Greenshot.Addon.Lutim  {
                     }
                     try
                     {
-                        using (var clipboardAccessToken = ClipboardNative.Access())
-                        {
-                            clipboardAccessToken.ClearContents();
-                            clipboardAccessToken.SetAsUrl(uploadUrl);
-                        }
+                        using var clipboardAccessToken = ClipboardNative.Access();
+                        clipboardAccessToken.ClearContents();
+                        clipboardAccessToken.SetAsUrl(uploadUrl);
                     }
                     catch (Exception ex)
                     {

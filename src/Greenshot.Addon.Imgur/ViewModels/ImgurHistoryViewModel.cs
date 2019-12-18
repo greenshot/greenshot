@@ -177,11 +177,9 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// </summary>
         public void CopyToClipboard()
         {
-            using (var clipboardAccessToken = ClipboardNative.Access())
-            {
-                clipboardAccessToken.ClearContents();
-                clipboardAccessToken.SetAsUrl(SelectedImgur.Data.Link?.AbsoluteUri);
-            }
+            using var clipboardAccessToken = ClipboardNative.Access();
+            clipboardAccessToken.ClearContents();
+            clipboardAccessToken.SetAsUrl(SelectedImgur.Data.Link?.AbsoluteUri);
         }
 
         /// <summary>

@@ -136,16 +136,12 @@ namespace Greenshot.Addon.Jira
 					}
 				}
 				if (displayIcon == null)
-				{
-				    using (var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "jira.svgz"))
-				    {
-				        using (var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress))
-				        {
-				            displayIcon = SvgBitmap.FromStream(gzStream);
-				        }
-                        //displayIcon = BitmapHelper.FromStream(bitmapStream);
-                    }
-				}
+                {
+                    using var bitmapStream = _resourceProvider.ResourceAsStream(GetType().Assembly, "jira.svgz");
+                    using var gzStream = new GZipStream(bitmapStream, CompressionMode.Decompress);
+                    displayIcon = SvgBitmap.FromStream(gzStream);
+                    //displayIcon = BitmapHelper.FromStream(bitmapStream);
+                }
 				return displayIcon;
 			}
 		}
@@ -192,43 +188,41 @@ namespace Greenshot.Addon.Jira
 				}
 			}
 			else
-			{
+            {
                 // TODO: set filename
 			    // _jiraViewModel.SetFilename(filename);
-			    using (var jiraViewModel = _jiraViewModelFactory())
-			    {
-			        if (_windowManager.ShowDialog(jiraViewModel.Value) == true)
-			        {
-			            try
-			            {
-			                surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraViewModel.Value.JiraIssue.Key).AbsoluteUri;
-			                // Run upload in the background
-			                using (var ownedPleaseWaitForm = _pleaseWaitFormFactory())
-			                {
-			                    ownedPleaseWaitForm.Value.ShowAndWait(Description, _jiraLanguage.CommunicationWait,
-			                        async () =>
-			                        {
-			                            await _jiraConnector.AttachAsync(jiraViewModel.Value.JiraIssue.Key, surface,
-			                                jiraViewModel.Value.Filename).ConfigureAwait(true);
+                using var jiraViewModel = _jiraViewModelFactory();
+                if (_windowManager.ShowDialog(jiraViewModel.Value) == true)
+                {
+                    try
+                    {
+                        surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraViewModel.Value.JiraIssue.Key).AbsoluteUri;
+                        // Run upload in the background
+                        using (var ownedPleaseWaitForm = _pleaseWaitFormFactory())
+                        {
+                            ownedPleaseWaitForm.Value.ShowAndWait(Description, _jiraLanguage.CommunicationWait,
+                                async () =>
+                                {
+                                    await _jiraConnector.AttachAsync(jiraViewModel.Value.JiraIssue.Key, surface,
+                                        jiraViewModel.Value.Filename).ConfigureAwait(true);
 
-			                            if (!string.IsNullOrEmpty(jiraViewModel.Value.Comment))
-			                            {
-			                                await _jiraConnector.AddCommentAsync(jiraViewModel.Value.JiraIssue.Key,
-			                                    jiraViewModel.Value.Comment).ConfigureAwait(true);
-			                            }
-			                        }
-			                    );
-			                }
+                                    if (!string.IsNullOrEmpty(jiraViewModel.Value.Comment))
+                                    {
+                                        await _jiraConnector.AddCommentAsync(jiraViewModel.Value.JiraIssue.Key,
+                                            jiraViewModel.Value.Comment).ConfigureAwait(true);
+                                    }
+                                }
+                            );
+                        }
 
-			                Log.Debug().WriteLine("Uploaded to Jira {0}", jiraViewModel.Value.JiraIssue.Key);
-			                exportInformation.ExportMade = true;
-			                exportInformation.Uri = surface.UploadUrl;
-			            }
-			            catch (Exception e)
-			            {
-			                MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
-			            }
-			        }
+                        Log.Debug().WriteLine("Uploaded to Jira {0}", jiraViewModel.Value.JiraIssue.Key);
+                        exportInformation.ExportMade = true;
+                        exportInformation.Uri = surface.UploadUrl;
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(_jiraLanguage.UploadFailure + " " + e.Message);
+                    }
                 }
             }
 		    _exportNotification.NotifyOfExport(this, exportInformation, surface);

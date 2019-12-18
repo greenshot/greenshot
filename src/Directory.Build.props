@@ -58,11 +58,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.26">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.28">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19351-01" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Addon.')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">

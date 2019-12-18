@@ -47,17 +47,17 @@ namespace Greenshot.Tests
 
         private uint TestHash(string testString, uint seed)
         {
-            var hashAlgoritm = new Murmur3(seed);
+            using var hashAlgorithm = new Murmur3(seed);
             var testBytes = Encoding.UTF8.GetBytes(testString);
-            var hash = hashAlgoritm.ComputeHash(testBytes);
+            var hash = hashAlgorithm.ComputeHash(testBytes);
             return hash.ToUInt32();
         }
 
         private uint TestHash2(string testString, uint seed)
         {
-            var hashAlgoritm = new Murmur3(seed);
+            using var hashAlgorithm = new Murmur3(seed);
             var testBytes = Encoding.UTF8.GetBytes(testString);
-            return hashAlgoritm.GenerateHash(testBytes);
+            return hashAlgorithm.GenerateHash(testBytes);
         }
     }
 }

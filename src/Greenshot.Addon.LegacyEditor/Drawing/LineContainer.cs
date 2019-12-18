@@ -91,28 +91,24 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 					var steps = 5;
 					var currentStep = 1;
 					while (currentStep <= steps)
-					{
-						using (var shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness))
-						{
-							graphics.DrawLine(shadowCapPen,
-								Left + currentStep,
-								Top + currentStep,
-								Left + currentStep + Width,
-								Top + currentStep + Height);
+                    {
+                        using var shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                        graphics.DrawLine(shadowCapPen,
+                            Left + currentStep,
+                            Top + currentStep,
+                            Left + currentStep + Width,
+                            Top + currentStep + Height);
 
-							currentStep++;
+                        currentStep++;
 #pragma warning disable IDE0054 // Use compound assignment
-                            alpha = alpha - basealpha / steps;
+                        alpha = alpha - basealpha / steps;
 #pragma warning restore IDE0054 // Use compound assignment
-                        }
-					}
+                    }
 				}
 
-				using (var pen = new Pen(lineColor, lineThickness))
-				{
-					graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
-				}
-			}
+                using var pen = new Pen(lineColor, lineThickness);
+                graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+            }
 		}
 
         /// <inheritdoc />
@@ -120,17 +116,12 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		{
 			var lineThickness = GetFieldValueAsInt(FieldTypes.LINE_THICKNESS) + 5;
 			if (lineThickness > 0)
-			{
-				using (var pen = new Pen(Color.White))
-				{
-					pen.Width = lineThickness;
-					using (var path = new GraphicsPath())
-					{
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+            {
+                using var pen = new Pen(Color.White) {Width = lineThickness};
+                using var path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 

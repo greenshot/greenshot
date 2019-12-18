@@ -41,8 +41,9 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 					components.Dispose();
 				}
 			}
-			// Make sure that clipboard changes are not longer processed.
-			_clipboardSubscription?.Dispose();
+            _destinationScaleHandler.Dispose();
+            // Make sure that clipboard changes are not longer processed.
+            _clipboardSubscription?.Dispose();
 			// Remove all other stuff
 			_disposables.Dispose();
 			base.Dispose(disposing);

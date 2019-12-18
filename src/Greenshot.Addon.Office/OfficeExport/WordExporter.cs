@@ -55,18 +55,16 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns></returns>
         private IDisposableCom<InlineShape> AddPictureToSelection(IDisposableCom<Selection> selection, string tmpFile)
         {
-            using (var shapes = DisposableCom.Create(selection.ComObject.InlineShapes))
+            using var shapes = DisposableCom.Create(selection.ComObject.InlineShapes);
+            var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
+            // Lock aspect ratio
+            if (_officeConfiguration.WordLockAspectRatio)
             {
-                var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
-                // Lock aspect ratio
-                if (_officeConfiguration.WordLockAspectRatio)
-                {
-                    shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
-                }
-                selection.ComObject.InsertAfter("\r\n");
-                selection.ComObject.MoveDown(WdUnits.wdLine, 1, Type.Missing);
-                return shape;
+                shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
             }
+            selection.ComObject.InsertAfter("\r\n");
+            selection.ComObject.MoveDown(WdUnits.wdLine, 1, Type.Missing);
+            return shape;
         }
 
         /// <summary>
@@ -113,36 +111,30 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <returns></returns>
         public IEnumerable<string> GetWordDocuments()
         {
-            using (var wordApplication = GetWordApplication())
+            using var wordApplication = GetWordApplication();
+            if (wordApplication == null)
             {
-                if (wordApplication == null)
+                yield break;
+            }
+
+            using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
+            for (int i = 1; i <= documents.ComObject.Count; i++)
+            {
+                using var document = DisposableCom.Create(documents.ComObject[i]);
+                if (document.ComObject.ReadOnly)
                 {
-                    yield break;
+                    continue;
                 }
-                using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
+                if (IsAfter2003())
                 {
-                    for (int i = 1; i <= documents.ComObject.Count; i++)
+                    if (document.ComObject.Final)
                     {
-                        using (var document = DisposableCom.Create(documents.ComObject[i]))
-                        {
-                            if (document.ComObject.ReadOnly)
-                            {
-                                continue;
-                            }
-                            if (IsAfter2003())
-                            {
-                                if (document.ComObject.Final)
-                                {
-                                    continue;
-                                }
-                            }
-                            using (var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow))
-                            {
-                                yield return activeWindow.ComObject.Caption;
-                            }
-                        }
+                        continue;
                     }
                 }
+
+                using var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow);
+                yield return activeWindow.ComObject.Caption;
             }
         }
 
@@ -177,20 +169,15 @@ namespace Greenshot.Addon.Office.OfficeExport
                 {
                     return false;
                 }
-                using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
+
+                using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
+                for (int i = 1; i <= documents.ComObject.Count; i++)
                 {
-                    for (int i = 1; i <= documents.ComObject.Count; i++)
+                    using var wordDocument = DisposableCom.Create((_Document)documents.ComObject[i]);
+                    using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
+                    if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
                     {
-                        using (var wordDocument = DisposableCom.Create((_Document)documents.ComObject[i]))
-                        {
-                            using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
-                            {
-                                if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
-                                {
-                                    return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
-                                }
-                            }
-                        }
+                        return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
                     }
                 }
             }
@@ -219,81 +206,72 @@ namespace Greenshot.Addon.Office.OfficeExport
             {
                 Log.Warn().WriteLine(ex);
             }
-            using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
+
+            using var selection = DisposableCom.Create(wordApplication.ComObject.Selection);
+            if (selection == null)
             {
-                if (selection == null)
-                {
-                    Log.Info().WriteLine("No selection to insert {0} into found.", tmpFile);
-                    return false;
-                }
-                // Add Picture
-                using (var shape = AddPictureToSelection(selection, tmpFile))
-                {
-                    if (!string.IsNullOrEmpty(address))
-                    {
-                        object screentip = Type.Missing;
-                        if (!string.IsNullOrEmpty(tooltip))
-                        {
-                            screentip = tooltip;
-                        }
-                        try
-                        {
-                            using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks))
-                            {
-                                hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
-                        }
-                    }
-                }
-                try
-                {
-                    using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
-                    {
-                        activeWindow.ComObject.Activate();
-                        using (var activePane = DisposableCom.Create(activeWindow.ComObject.ActivePane))
-                        {
-                            using (var view = DisposableCom.Create(activePane.ComObject.View))
-                            {
-                                view.ComObject.Zoom.Percentage = 100;
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (e.InnerException != null)
-                    {
-                        Log.Warn().WriteLine("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
-                    }
-                    else
-                    {
-                        Log.Warn().WriteLine("Couldn't set zoom to 100, error: {0}", e.Message);
-                    }
-                }
-                try
-                {
-                    wordApplication.ComObject.Activate();
-                    // ReSharper disable once EmptyGeneralCatchClause
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn().WriteLine(ex);
-                }
-                try
-                {
-                    wordDocument.ComObject.Activate();
-                    // ReSharper disable once EmptyGeneralCatchClause
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn().WriteLine(ex);
-                }
-                return true;
+                Log.Info().WriteLine("No selection to insert {0} into found.", tmpFile);
+                return false;
             }
+            // Add Picture
+            using (var shape = AddPictureToSelection(selection, tmpFile))
+            {
+                if (!string.IsNullOrEmpty(address))
+                {
+                    object screentip = Type.Missing;
+                    if (!string.IsNullOrEmpty(tooltip))
+                    {
+                        screentip = tooltip;
+                    }
+                    try
+                    {
+                        using var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks);
+                        hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
+                    }
+                }
+            }
+            try
+            {
+                using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
+                activeWindow.ComObject.Activate();
+                using var activePane = DisposableCom.Create(activeWindow.ComObject.ActivePane);
+                using var view = DisposableCom.Create(activePane.ComObject.View);
+                view.ComObject.Zoom.Percentage = 100;
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException != null)
+                {
+                    Log.Warn().WriteLine("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
+                }
+                else
+                {
+                    Log.Warn().WriteLine("Couldn't set zoom to 100, error: {0}", e.Message);
+                }
+            }
+            try
+            {
+                wordApplication.ComObject.Activate();
+                // ReSharper disable once EmptyGeneralCatchClause
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex);
+            }
+            try
+            {
+                wordDocument.ComObject.Activate();
+                // ReSharper disable once EmptyGeneralCatchClause
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex);
+            }
+            return true;
         }
 
         /// <summary>
@@ -304,75 +282,63 @@ namespace Greenshot.Addon.Office.OfficeExport
         /// <param name="tooltip">string</param>
         public void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
         {
-            using (var wordApplication = GetOrCreateWordApplication())
+            using var wordApplication = GetOrCreateWordApplication();
+            if (wordApplication == null)
             {
-                if (wordApplication == null)
+                return;
+            }
+            wordApplication.ComObject.Visible = true;
+            wordApplication.ComObject.Activate();
+            // Create new Document
+            object template = string.Empty;
+            object newTemplate = false;
+            object documentType = 0;
+            object documentVisible = true;
+            using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
+            using var wordDocument = DisposableCom.Create(documents.ComObject.Add(template, newTemplate, documentType, documentVisible));
+            using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
+            {
+                // Add Picture
+                using var shape = AddPictureToSelection(selection, tmpFile);
+                if (!string.IsNullOrEmpty(address))
                 {
-                    return;
-                }
-                wordApplication.ComObject.Visible = true;
-                wordApplication.ComObject.Activate();
-                // Create new Document
-                object template = string.Empty;
-                object newTemplate = false;
-                object documentType = 0;
-                object documentVisible = true;
-                using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
-                {
-                    using (var wordDocument = DisposableCom.Create(documents.ComObject.Add(template, newTemplate, documentType, documentVisible)))
+                    object screentip = Type.Missing;
+                    if (!string.IsNullOrEmpty(tooltip))
                     {
-                        using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
+                        screentip = tooltip;
+                    }
+                    try
+                    {
+                        using var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks);
+                        using (DisposableCom.Create(hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing)))
                         {
-                            // Add Picture
-                            using (var shape = AddPictureToSelection(selection, tmpFile))
-                            {
-                                if (!string.IsNullOrEmpty(address))
-                                {
-                                    object screentip = Type.Missing;
-                                    if (!string.IsNullOrEmpty(tooltip))
-                                    {
-                                        screentip = tooltip;
-                                    }
-                                    try
-                                    {
-                                        using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks))
-                                        {
-                                            using (DisposableCom.Create(hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing)))
-                                            {
-                                                // Do nothing
-                                            }
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
-                                    }
-                                }
-                            }
-                        }
-                        try
-                        {
-                            wordDocument.ComObject.Activate();
-                            // ReSharper disable once EmptyGeneralCatchClause
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn().WriteLine(ex);
-                        }
-                        try
-                        {
-                            using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
-                            {
-                                activeWindow.ComObject.Activate();
-                            }
-                            // ReSharper disable once EmptyGeneralCatchClause
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn().WriteLine(ex);
+                            // Do nothing
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
+                    }
                 }
+            }
+            try
+            {
+                wordDocument.ComObject.Activate();
+                // ReSharper disable once EmptyGeneralCatchClause
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex);
+            }
+            try
+            {
+                using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
+                activeWindow.ComObject.Activate();
+                // ReSharper disable once EmptyGeneralCatchClause
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex);
             }
         }
 

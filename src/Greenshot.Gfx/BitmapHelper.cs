@@ -462,13 +462,11 @@ namespace Greenshot.Gfx
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				// draw original with a TextureBrush so we have nice anti-aliasing!
-				using (Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp))
-				{
-					// We need to do a translate-transform otherwise the image is wrapped
-					graphics.TranslateTransform(offset.X, offset.Y);
-					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
-				}
-			}
+                using Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp);
+                // We need to do a translate-transform otherwise the image is wrapped
+                graphics.TranslateTransform(offset.X, offset.Y);
+                graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+            }
 			return returnImage;
 		}
 
@@ -491,14 +489,12 @@ namespace Greenshot.Gfx
 		/// <param name="dest">Image to copy to</param>
 		/// <param name="colorMatrix">ColorMatrix to apply</param>
 		public static void ApplyColorMatrix(this IBitmapWithNativeSupport source, NativeRect sourceRect, IBitmapWithNativeSupport dest, NativeRect destRect, ColorMatrix colorMatrix)
-		{
-			using (var imageAttributes = new ImageAttributes())
-			{
-				imageAttributes.ClearColorMatrix();
-				imageAttributes.SetColorMatrix(colorMatrix);
-                source.ApplyImageAttributes(sourceRect, dest, destRect, imageAttributes);
-			}
-		}
+        {
+            using var imageAttributes = new ImageAttributes();
+            imageAttributes.ClearColorMatrix();
+            imageAttributes.SetColorMatrix(colorMatrix);
+            source.ApplyImageAttributes(sourceRect, dest, destRect, imageAttributes);
+        }
 
 		/// <summary>
 		///     Apply image attributes to the image
@@ -532,18 +528,17 @@ namespace Greenshot.Gfx
 			{
 				destRect = new NativeRect(0, 0, dest.Width, dest.Height);
 			}
-			using (var graphics = Graphics.FromImage(dest.NativeBitmap))
-			{
-				// Make sure we draw with the best quality!
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.CompositingMode = CompositingMode.SourceCopy;
 
-				graphics.DrawImage(source.NativeBitmap, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
-			}
-		}
+            using var graphics = Graphics.FromImage(dest.NativeBitmap);
+            // Make sure we draw with the best quality!
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+
+            graphics.DrawImage(source.NativeBitmap, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
+        }
 
 		/// <summary>
 		///     Checks if the supplied Bitmap has a PixelFormat we support
@@ -712,12 +707,10 @@ namespace Greenshot.Gfx
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = interpolationMode;
-				using (var wrapMode = new ImageAttributes())
-				{
-					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-					graphics.DrawImage(sourceImage.NativeBitmap, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
-				}
-			}
+                using var wrapMode = new ImageAttributes();
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                graphics.DrawImage(sourceImage.NativeBitmap, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
+            }
 			return newBitmap;
 		}
 
@@ -737,35 +730,34 @@ namespace Greenshot.Gfx
 	        {
 	            toCount = toCount & 0xffffff;
 	        }
-	        using (var bb = FastBitmapFactory.Create(sourceImage))
-	        {
-	            Parallel.For(0, bb.Height, () => 0, (y, state, initialColorCount) =>
-	            {
-	                var currentColors = initialColorCount;
-	                for (var x = 0; x < bb.Width; x++)
-	                {
-	                    var bitmapcolor = bb.GetColorAt(x, y).ToArgb();
-	                    if (!includeAlpha)
-	                    {
-	                        bitmapcolor = bitmapcolor & 0xffffff;
-	                    }
-	                    if (bitmapcolor == toCount)
-	                    {
-	                        currentColors++;
-	                    }
-	                }
-                    return currentColors;
-	            }, lineColorCount =>
-	            {
-	                lock (lockObject)
-	                {
-	                    colors += lineColorCount;
-	                }
-	            });
+
+            using var bb = FastBitmapFactory.Create(sourceImage);
+            Parallel.For(0, bb.Height, () => 0, (y, state, initialColorCount) =>
+            {
+                var currentColors = initialColorCount;
+                for (var x = 0; x < bb.Width; x++)
+                {
+                    var bitmapcolor = bb.GetColorAt(x, y).ToArgb();
+                    if (!includeAlpha)
+                    {
+                        bitmapcolor = bitmapcolor & 0xffffff;
+                    }
+                    if (bitmapcolor == toCount)
+                    {
+                        currentColors++;
+                    }
+                }
+                return currentColors;
+            }, lineColorCount =>
+            {
+                lock (lockObject)
+                {
+                    colors += lineColorCount;
+                }
+            });
                 
-	            return colors;
-	        }
-	    }
+            return colors;
+        }
 
         /// <summary>
         ///     Create an image from a stream, if an extension is supplied more formats are supported.
@@ -833,12 +825,10 @@ namespace Greenshot.Gfx
 				return original.Scale3X();
 			}
 			if (width == original.Width * 4)
-			{
-				using (var scale2X = original.Scale2X())
-				{
-					return scale2X.Scale2X();
-				}
-			}
+            {
+                using var scale2X = original.Scale2X();
+                return scale2X.Scale2X();
+            }
 			return original.Resize(true, width, width, interpolationMode: InterpolationMode.NearestNeighbor);
 		}
 
@@ -865,30 +855,31 @@ namespace Greenshot.Gfx
 	        }
 	        bool result = true;
 	        using (var fastBitmap1 = FastBitmapFactory.Create(bitmap1))
-	        using (var fastBitmap2 = FastBitmapFactory.Create(bitmap2))
-	        {
-	            Parallel.For(0, fastBitmap1.Height, (y, state) =>
-	            {
-	                unsafe
-	                {
-	                    var tmpColor1 = stackalloc byte[4];
-	                    var tmpColor2 = stackalloc byte[4];
-	                    for (int x = 0; x < fastBitmap1.Width; x++)
-	                    {
-	                        fastBitmap1.GetColorAt(x, y, tmpColor1);
-	                        fastBitmap2.GetColorAt(x, y, tmpColor2);
-	                        if (AreColorsSame(tmpColor1, tmpColor2, fastBitmap1.HasAlphaChannel))
-	                        {
-	                            continue;
-	                        }
-	                        Log.Debug().WriteLine("Different colors at {0},{1}", x, y);
+            {
+                using var fastBitmap2 = FastBitmapFactory.Create(bitmap2);
+                Parallel.For(0, fastBitmap1.Height, (y, state) =>
+                {
+                    unsafe
+                    {
+                        var tmpColor1 = stackalloc byte[4];
+                        var tmpColor2 = stackalloc byte[4];
+                        for (int x = 0; x < fastBitmap1.Width; x++)
+                        {
+                            fastBitmap1.GetColorAt(x, y, tmpColor1);
+                            fastBitmap2.GetColorAt(x, y, tmpColor2);
+                            if (AreColorsSame(tmpColor1, tmpColor2, fastBitmap1.HasAlphaChannel))
+                            {
+                                continue;
+                            }
+                            Log.Debug().WriteLine("Different colors at {0},{1}", x, y);
                             result = false;
-	                        state.Break();
-	                    }
-	                }
-	            });
-	        }
-	        return result;
+                            state.Break();
+                        }
+                    }
+                });
+            }
+
+            return result;
 	    }
 
 	    /// <summary>

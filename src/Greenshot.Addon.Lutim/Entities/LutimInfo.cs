@@ -48,10 +48,8 @@ namespace Greenshot.Addon.Lutim.Entities
         {
             get
             {
-                using (var memoryStream = new MemoryStream(Convert.FromBase64String(ThumbBase64)))
-                {
-                    return Image.FromStream(memoryStream);
-                }
+                using var memoryStream = new MemoryStream(Convert.FromBase64String(ThumbBase64));
+                return Image.FromStream(memoryStream);
             }
         }
 

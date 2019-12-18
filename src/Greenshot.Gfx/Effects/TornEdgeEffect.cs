@@ -193,19 +193,15 @@ namespace Greenshot.Gfx.Effects
 	            path.CloseFigure();
 
 	            // Draw the created figure with the original image by using a TextureBrush so we have anti-aliasing
-	            using (var graphics = Graphics.FromImage(returnBitmap.NativeBitmap))
-	            {
-	                graphics.SmoothingMode = SmoothingMode.HighQuality;
-	                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-	                graphics.CompositingQuality = CompositingQuality.HighQuality;
-	                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-	                using (Brush brush = new TextureBrush(sourceBitmap.NativeBitmap))
-	                {
-	                    // Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
-	                    graphics.FillPath(brush, path);
-	                }
-	            }
-	        }
+                using var graphics = Graphics.FromImage(returnBitmap.NativeBitmap);
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                using Brush brush = new TextureBrush(sourceBitmap.NativeBitmap);
+                // Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
+                graphics.FillPath(brush, path);
+            }
 	        return returnBitmap;
 	    }
 

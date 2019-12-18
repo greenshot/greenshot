@@ -195,14 +195,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 			{
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
-			using (var fam = new FontFamily(FontFamily.GenericSansSerif.Name))
-			{
-				using (var font = new Font(fam, _fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
-				{
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
-				}
-			}
-		}
+
+            using var fam = new FontFamily(FontFamily.GenericSansSerif.Name);
+            using var font = new Font(fam, _fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
+        }
 
 		public override bool ClickableAt(int x, int y)
 		{
