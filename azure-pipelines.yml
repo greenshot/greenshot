@@ -38,7 +38,7 @@ steps:
 - task: CmdLine@2
   displayName: Rename single-exe x64
   inputs:
-    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x64\publish\Greenshot.exe Greenshot-x64.exe'
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1\win-x64\publish\Greenshot.exe Greenshot-x64.exe'
 
 - task: DotNetCoreCLI@2
   displayName: Publish single-exe x86
@@ -52,12 +52,12 @@ steps:
 - task: CmdLine@2
   displayName: Rename single-exe x86
   inputs:
-    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0\win-x86\publish\Greenshot.exe Greenshot-x86.exe' 
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1\win-x86\publish\Greenshot.exe Greenshot-x86.exe' 
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.0'
+    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1'
     Contents: |
      win-x64\publish\Greenshot-x64.exe
      win-x86\publish\Greenshot-x86.exe
