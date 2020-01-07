@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Tfs</RootNamespace>
     <AssemblyName>Greenshot.Addon.Tfs</AssemblyName>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

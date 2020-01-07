@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Confluence</RootNamespace>
     <AssemblyName>Greenshot.Addon.Confluence</AssemblyName>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +24,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dapplo.Confluence" Version="0.9.2" />
+    <PackageReference Include="Dapplo.Confluence" Version="0.9.3" />
   </ItemGroup>
 </Project>

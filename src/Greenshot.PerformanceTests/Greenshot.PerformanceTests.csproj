@@ -4,7 +4,7 @@
     <RootNamespace>Greenshot.PerformanceTests</RootNamespace>
     <AssemblyName>Greenshot.PerformanceTests</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -17,7 +17,7 @@
   
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
-    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.0" />
     <PackageReference Include="SharpAvi" Version="2.1.2" />
     <PackageReference Include="System.Memory" Version="4.5.3" />

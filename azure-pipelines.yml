@@ -15,10 +15,10 @@ steps:
 - task: NuGetToolInstaller@1
 
 - task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 3.0'
+  displayName: 'Use .NET Core sdk 3.1'
   inputs:
     packageType: sdk
-    version: 3.0.100
+    version: 3.1.100
 
 - task: NuGetCommand@2
   displayName: NuGet restore
@@ -32,7 +32,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
+    arguments: '-f netcoreapp3.1 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
 - task: CmdLine@2
@@ -46,7 +46,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.0 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x86'
+    arguments: '-f netcoreapp3.1 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x86'
     zipAfterPublish: false
 
 - task: CmdLine@2
