@@ -1,19 +1,19 @@
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
-// 
+//
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,7 +30,6 @@ namespace Greenshot.Gfx.Legacy
     /// </summary>
     public static partial class ScaleHelper
 	{
-
         /// <summary>
         ///     calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
         /// </summary>
@@ -323,7 +322,7 @@ namespace Greenshot.Gfx.Legacy
 		}
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="boundsBeforeResize"></param>
         /// <param name="cursorX"></param>
@@ -335,7 +334,7 @@ namespace Greenshot.Gfx.Legacy
 		}
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="boundsBeforeResize"></param>
         /// <param name="cursorX"></param>
@@ -348,7 +347,7 @@ namespace Greenshot.Gfx.Legacy
 		}
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="boundsBeforeResize"></param>
         /// <param name="gripperPosition"></param>
@@ -377,12 +376,16 @@ namespace Greenshot.Gfx.Legacy
 
 			    boundsAfterResize = boundsAfterResize.Resize((float)Math.Round(dist * Math.Cos(angle / 180 * Math.PI)), (float)Math.Round(dist * Math.Sin(angle / 180 * Math.PI)));
 			}
+			else
+			{
+				boundsAfterResize = boundsAfterResize.Resize(cursorX - boundsBeforeResize.Left, cursorY - boundsBeforeResize.Top);
+			}
 
 			if (centeredScale)
 			{
 				var wdiff = boundsAfterResize.Width - boundsBeforeResize.Width;
 				var hdiff = boundsAfterResize.Height - boundsBeforeResize.Height;
-                boundsAfterResize = boundsAfterResize.Offset(-wdiff, -hdiff).Resize(boundsAfterResize.Width + wdiff, boundsAfterResize.Height + hdiff);
+				boundsAfterResize = boundsAfterResize.Offset(-wdiff, -hdiff).Resize(boundsAfterResize.Width + wdiff, boundsAfterResize.Height + hdiff);
 			}
 		}
 
