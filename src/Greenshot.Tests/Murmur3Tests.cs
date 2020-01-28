@@ -32,63 +32,14 @@ namespace Greenshot.Tests
     {
         private static readonly uint Seed = 0x9747b28c;
         private static readonly string TestString = "The quick brown fox jumps over the lazy dog";
-
+        
         [Fact]
-        public void Murmur3_basic1_Test()
+        public void Murmur3_Test()
         {
-            var hash = TestHash("Hello, world!", 1234);
-            Assert.Equal(0xfaf6cdb3u, hash);
-        }
-
-        [Fact]
-        public void Murmur3_basic2_Test()
-        {
-            var hash = TestHash(TestString, Seed);
-            Assert.Equal(0x2FA826CDu, hash);
-            hash = TestHash2(TestString, Seed);
-            Assert.Equal(0x2FA826CDu, hash);
-        }
-
-        [Fact]
-        public void Murmur3_Span_Test()
-        {
-            var hash = TestHash(TestString, Seed);
-            Assert.Equal(0x2FA826CDu, hash);
-            var murmur3Span = new Murmur3Span(Seed);
+            var murmur3Span = new Murmur3(Seed);
             var testBytes = Encoding.UTF8.GetBytes(TestString);
-            hash = murmur3Span.CalculateHash(testBytes.AsSpan());
+            var hash = murmur3Span.CalculateHash(testBytes.AsSpan());
             Assert.Equal(0x2FA826CDu, hash);
-        }
-
-        [Fact]
-        public void Murmur3_SpanChar_Test()
-        {
-            var hash = TestHashUnicode(TestString, Seed);
-            var murmur3Span = new Murmur3Span(Seed);
-            Assert.Equal(hash, murmur3Span.CalculateHash(TestString.AsSpan()));
-        }
-
-        private uint TestHash(string testString, uint seed)
-        {
-            using var hashAlgorithm = new Murmur3(seed);
-            var testBytes = Encoding.UTF8.GetBytes(testString);
-            var hash = hashAlgorithm.ComputeHash(testBytes);
-            return hash.ToUInt32();
-        }
-
-        private uint TestHash2(string testString, uint seed)
-        {
-            using var hashAlgorithm = new Murmur3(seed);
-            var testBytes = Encoding.UTF8.GetBytes(testString);
-            return hashAlgorithm.GenerateHash(testBytes);
-        }
-
-        private uint TestHashUnicode(string testString, uint seed)
-        {
-            using var hashAlgorithm = new Murmur3(seed);
-            var testBytes = Encoding.Unicode.GetBytes(testString);
-            var hash = hashAlgorithm.ComputeHash(testBytes);
-            return hash.ToUInt32();
         }
     }
 }

@@ -17,38 +17,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Drawing.Imaging;
 using System.IO;
-using Greenshot.Gfx;
-using Greenshot.Gfx.Formats;
-using Greenshot.Gfx.Stitching;
+using System.Security.Cryptography;
+using System.Text;
 using Xunit;
 
 namespace Greenshot.Tests
 {
-    public class StitchTests
+    public static class FileAssert
     {
-        public StitchTests()
+        static string GetFileHash(string filename)
         {
-            BitmapHelper.RegisterFormatReader<GenericGdiFormatReader>();
+            Assert.True(File.Exists(filename));
+
+            using (var hash = new SHA1Managed())
+            {
+                var clearBytes = File.ReadAllBytes(filename);
+                var hashedBytes = hash.ComputeHash(clearBytes);
+                return ConvertBytesToHex(hashedBytes);
+            }
         }
 
-        [Fact]
-        public void BitmapStitcher_Default()
+        static string ConvertBytesToHex(byte[] bytes)
         {
-            using var bitmapStitcher = new BitmapStitcher();
-            bitmapStitcher
-                .AddBitmap(BitmapHelper.LoadBitmap(@"TestFiles\scroll0.png"))
-                .AddBitmap(BitmapHelper.LoadBitmap(@"TestFiles\scroll35.png"))
-                .AddBitmap(BitmapHelper.LoadBitmap(@"TestFiles\scroll70.png"))
-                .AddBitmap(BitmapHelper.LoadBitmap(@"TestFiles\scroll105.png"))
-                .AddBitmap(BitmapHelper.LoadBitmap(@"TestFiles\scroll124.png"));
+            var sb = new StringBuilder();
 
-            using var completedBitmap = bitmapStitcher.Result();
-            completedBitmap.NativeBitmap.Save("scroll.png", ImageFormat.Png);
-            FileAssert.AreEqual(@"TestFiles\scroll-result.png", "scroll.png");
+            foreach (var t in bytes)
+            {
+                sb.Append(t.ToString("x"));
+            }
+            return sb.ToString();
+        }
 
-            File.Delete("scroll.png");
+        public static void AreEqual(string filename1, string filename2)
+        {
+            string hash1 = GetFileHash(filename1);
+            string hash2 = GetFileHash(filename2);
+
+            Assert.Equal(hash1, hash2);
         }
     }
 }

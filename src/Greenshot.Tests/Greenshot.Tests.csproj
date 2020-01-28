@@ -49,5 +49,11 @@
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj" />
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="TestFiles\scroll-result.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 	
 </Project>

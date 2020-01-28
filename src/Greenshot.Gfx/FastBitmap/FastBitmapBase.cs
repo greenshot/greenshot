@@ -333,31 +333,12 @@ namespace Greenshot.Gfx.FastBitmap
         /// <param name="left">optional x ending coordinate of the hash calculation</param>
 	    /// <returns>uint with the hash</returns>
         public uint HorizontalHash(int y, int? right = null, int? left = null)
-	    {
+        {
             var offset = (left ?? Left) * BytesPerPixel + y * Stride;
-
-	        var length = (right ?? Right) - (left ?? Left) * BytesPerPixel;
-            var hash = new Murmur3(Seed, (uint) length);
-
-	        while (length >= 4)
-	        {
-                hash.AddBytes(Pointer[offset++], Pointer[offset++], Pointer[offset++], Pointer[offset++]);
-	            length -= 4;
-	        }
-	        switch (length)
-	        {
-	            case 3:
-	                hash.AddTrailingBytes(Pointer[offset++], Pointer[offset++], Pointer[offset]);
-	                break;
-	            case 2:
-	                hash.AddTrailingBytes(Pointer[offset++], Pointer[offset]);
-	                break;
-	            case 1:
-	                hash.AddTrailingBytes(Pointer[offset]);
-	                break;
-	        }
-            return hash.CalculatedHash;
-	    }
+            var length = (right ?? Right) - (left ?? Left) * BytesPerPixel;
+            var hash = new Murmur3(Seed);
+            return hash.CalculateHash(Pointer, offset, length);
+        }
 
         /// <summary>
         ///     Test if the bitmap containt the specified coordinates

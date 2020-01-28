@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Text;
 using BenchmarkDotNet.Attributes;
 using Greenshot.Gfx;
 
@@ -31,19 +30,11 @@ namespace Greenshot.PerformanceTests
     public class Murmur3Performance
     {
         private static readonly string TestString = "The quick brown fox jumps over the lazy dog";
-        private static readonly byte[] TestBytes = Encoding.UTF8.GetBytes(TestString);
 
         [Benchmark]
-        public void  MurmurPerformanceTestArray()
+        public void MurmurPerformanceTest()
         {
-            using var hashAlgorithm = new Murmur3(0x9747b28c);
-            hashAlgorithm.GenerateHash(TestBytes);
-        }
-
-        [Benchmark]
-        public void MurmurPerformanceTestSpan()
-        {
-            var hashAlgorithm = new Murmur3Span(0x9747b28c);
+            var hashAlgorithm = new Murmur3(0x9747b28c);
             hashAlgorithm.CalculateHash(TestString.AsSpan());
         }
     }
