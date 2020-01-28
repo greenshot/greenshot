@@ -25,7 +25,7 @@
 
             <DockPanel LastChildFill="True">
                 <Label Content="{Binding GreenshotLanguage.SettingsOutput}" Width="100" />
-                <Button Content="..." Name="SelectOutputPath" />
+                <Button Content="..." Name="SelectOutputPath" ToolTip="{Binding GreenshotLanguage.SettingsOutput}"/>
                 <TextBox Text="{Binding FileConfiguration.OutputFilePath}"/>
             </DockPanel>
             
