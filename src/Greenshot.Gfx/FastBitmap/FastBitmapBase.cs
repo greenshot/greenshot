@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -334,7 +334,8 @@ namespace Greenshot.Gfx.FastBitmap
 	    /// <returns>uint with the hash</returns>
         public uint HorizontalHash(int y, int? right = null, int? left = null)
 	    {
-	        var offset = (left ?? Left) * BytesPerPixel + y * Stride;
+            var offset = (left ?? Left) * BytesPerPixel + y * Stride;
+
 	        var length = (right ?? Right) - (left ?? Left) * BytesPerPixel;
             var hash = new Murmur3(Seed, (uint) length);
 

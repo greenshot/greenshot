@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -85,7 +85,7 @@ namespace Greenshot.Gfx.Effects
                 }
 	            // draw original with a TextureBrush so we have nice anti-aliasing!
                 using Brush textureBrush = new TextureBrush(sourceBitmap.NativeBitmap, WrapMode.Clamp);
-                // We need to do a translate-tranform otherwise the image is wrapped
+                // We need to do a translate-transform otherwise the image is wrapped
                 graphics.TranslateTransform(offset.X, offset.Y);
                 graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
             }

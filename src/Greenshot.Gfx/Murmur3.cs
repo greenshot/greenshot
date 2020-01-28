@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2019 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -45,7 +45,7 @@ namespace Greenshot.Gfx
         public override int HashSize => 32;
 
         /// <summary>
-        /// Constructor for the Murmur3 algorythm
+        /// Constructor for the Murmur3 algorithm
         /// </summary>
         /// <param name="seed"></param>
         /// <param name="length"></param>
@@ -100,7 +100,7 @@ namespace Greenshot.Gfx
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
             _length = (uint)cbSize;
- 
+
             var curLength = cbSize;
             var currentIndex = ibStart;
             while (curLength >= 4)

@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Copyright>Copyright © Greenshot 2004-2018</Copyright>
+    <Copyright>Copyright © Greenshot 2004-2020</Copyright>
     <Authors>Greenshot</Authors>
     <PackageIconUrl>https://getgreenshot.org/favicon.ico</PackageIconUrl>
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
@@ -58,7 +58,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.48">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

@@ -20,16 +20,16 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Metro" Version="2.1.7" />
     <PackageReference Include="Dapplo.CaliburnMicro.Toasts" Version="2.1.7" />
     <PackageReference Include="Dapplo.CaliburnMicro.Translations" Version="2.1.7" />
-    <PackageReference Include="Dapplo.HttpExtensions" Version="0.10.7" />
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.10.7" />
-    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.10.7" />
-    <PackageReference Include="Dapplo.Windows" Version="0.11.11" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.11.11" />
-    <PackageReference Include="Dapplo.Windows.Dpi" Version="0.11.11" />
-    <PackageReference Include="Dapplo.Windows.Icons" Version="0.11.11" />
+    <PackageReference Include="Dapplo.HttpExtensions" Version="0.10.9" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.10.9" />
+    <PackageReference Include="Dapplo.HttpExtensions.OAuth" Version="0.10.9" />
+    <PackageReference Include="Dapplo.Windows" Version="0.11.14" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.11.14" />
+    <PackageReference Include="Dapplo.Windows.Dpi" Version="0.11.14" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="0.11.14" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.2.0" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.1.0" />
-    <PackageReference Include="Svg" Version="3.0.84" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.2.0" />
+    <PackageReference Include="Svg" Version="3.0.102" />
   </ItemGroup>
 
   <ItemGroup>
