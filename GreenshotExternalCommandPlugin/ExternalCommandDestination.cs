@@ -171,47 +171,46 @@ namespace ExternalCommand {
 			string arguments = config.Argument[commando];
 			output = null;
 			error = null;
-			if (!string.IsNullOrEmpty(commandline)) {
-				using (Process process = new Process())
-				{
-					// Fix variables
-					commandline = FilenameHelper.FillVariables(commandline, true);
-					commandline = FilenameHelper.FillCmdVariables(commandline, true);
+			if (!string.IsNullOrEmpty(commandline))
+            {
+                using Process process = new Process();
+                // Fix variables
+                commandline = FilenameHelper.FillVariables(commandline, true);
+                commandline = FilenameHelper.FillCmdVariables(commandline, true);
 
-					arguments = FilenameHelper.FillVariables(arguments, false);
-					arguments = FilenameHelper.FillCmdVariables(arguments, false);
+                arguments = FilenameHelper.FillVariables(arguments, false);
+                arguments = FilenameHelper.FillCmdVariables(arguments, false);
 
-					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
-					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
-					process.StartInfo.UseShellExecute = false;
-					if (config.RedirectStandardOutput) {
-						process.StartInfo.RedirectStandardOutput = true;
-					}
-					if (config.RedirectStandardError) {
-						process.StartInfo.RedirectStandardError = true;
-					}
-					if (verb != null) {
-						process.StartInfo.Verb = verb;
-					}
-					LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-					process.Start();
-					process.WaitForExit();
-					if (config.RedirectStandardOutput) {
-						output = process.StandardOutput.ReadToEnd();
-						if (config.ShowStandardOutputInLog && output.Trim().Length > 0) {
-							LOG.InfoFormat("Output:\n{0}", output);
-						}
-					}
-					if (config.RedirectStandardError) {
-						error = process.StandardError.ReadToEnd();
-						if (error.Trim().Length > 0) {
-							LOG.WarnFormat("Error:\n{0}", error);
-						}
-					}
-					LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-					return process.ExitCode;
-				}
-			}
+                process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
+                process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
+                process.StartInfo.UseShellExecute = false;
+                if (config.RedirectStandardOutput) {
+                    process.StartInfo.RedirectStandardOutput = true;
+                }
+                if (config.RedirectStandardError) {
+                    process.StartInfo.RedirectStandardError = true;
+                }
+                if (verb != null) {
+                    process.StartInfo.Verb = verb;
+                }
+                LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+                process.Start();
+                process.WaitForExit();
+                if (config.RedirectStandardOutput) {
+                    output = process.StandardOutput.ReadToEnd();
+                    if (config.ShowStandardOutputInLog && output.Trim().Length > 0) {
+                        LOG.InfoFormat("Output:\n{0}", output);
+                    }
+                }
+                if (config.RedirectStandardError) {
+                    error = process.StandardError.ReadToEnd();
+                    if (error.Trim().Length > 0) {
+                        LOG.WarnFormat("Error:\n{0}", error);
+                    }
+                }
+                LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+                return process.ExitCode;
+            }
 			return -1;
 		}
 

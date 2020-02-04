@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,8 +29,7 @@ namespace GreenshotPlugin.Core {
 	public abstract class AbstractProcessor : IProcessor {
 		
 		public virtual int CompareTo(object obj) {
-			IProcessor other = obj as IProcessor;
-			if (other == null) {
+            if (!(obj is IProcessor other)) {
 				return 1;
 			}
 			if (Priority == other.Priority) {

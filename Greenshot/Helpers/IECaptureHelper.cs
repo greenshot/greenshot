@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -192,8 +192,7 @@ namespace Greenshot.Helpers {
 			}
 
 			Log.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
-			UIntPtr response;
-			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
+            User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out var response);
 			IHTMLDocument2 document2;
 			if (response != UIntPtr.Zero) {
 				document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
@@ -560,11 +559,11 @@ namespace Greenshot.Helpers {
 				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 				
 				// Loop over the frames and clear their source area so we don't see any artefacts
-				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-					using(Brush brush = new SolidBrush(clearColor)) {
-						graphicsTarget.FillRectangle(brush, frameDocument.SourceRectangle);
-					}
-				}
+				foreach(DocumentContainer frameDocument in documentContainer.Frames)
+                {
+                    using Brush brush = new SolidBrush(clearColor);
+                    graphicsTarget.FillRectangle(brush, frameDocument.SourceRectangle);
+                }
 				// Loop over the frames and capture their content
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
 					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -45,8 +45,7 @@ namespace Greenshot.Memento {
 		}
 
 		public bool Merge(IMemento otherMemento) {
-			TextChangeMemento other = otherMemento as TextChangeMemento;
-			if (other != null) {
+            if (otherMemento is TextChangeMemento other) {
 				if (other.textContainer.Equals(textContainer)) {
 					// Match, do not store anything as the initial state is what we want.
 					return true;

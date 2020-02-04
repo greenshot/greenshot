@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -76,11 +76,9 @@ namespace Greenshot.Help
 		private static HttpStatusCode? GetHttpStatus(string url) {
 			try {
 				HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
-				using (HttpWebResponse res = (HttpWebResponse)req.GetResponse())
-				{
-					return res.StatusCode;
-				}
-			} catch (WebException e) {
+                using HttpWebResponse res = (HttpWebResponse)req.GetResponse();
+                return res.StatusCode;
+            } catch (WebException e) {
 				return ((HttpWebResponse) e.Response)?.StatusCode;
 			}
 		}

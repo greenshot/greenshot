@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -80,8 +80,7 @@ namespace Greenshot.Drawing.Fields
 
 		public void BindElement(IDrawableContainer dc)
 		{
-			DrawableContainer container = dc as DrawableContainer;
-			if (container == null || _boundContainers.Contains(container))
+            if (!(dc is DrawableContainer container) || _boundContainers.Contains(container))
 			{
 				return;
 			}
@@ -100,8 +99,7 @@ namespace Greenshot.Drawing.Fields
 
 		public void UpdateElement(IDrawableContainer dc)
 		{
-			DrawableContainer container = dc as DrawableContainer;
-			if (container == null)
+            if (!(dc is DrawableContainer container))
 			{
 				return;
 			}
@@ -168,30 +166,26 @@ namespace Greenshot.Drawing.Fields
 			if (_boundContainers.Count > 0)
 			{
 				// take all fields from the least selected container...
-				DrawableContainer leastSelectedContainer = _boundContainers[_boundContainers.Count - 1] as DrawableContainer;
-				if (leastSelectedContainer != null)
+                if (_boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer)
 				{
 					returnFields = leastSelectedContainer.GetFields();
 					for (int i = 0; i < _boundContainers.Count - 1; i++)
 					{
-						DrawableContainer dc = _boundContainers[i] as DrawableContainer;
-						if (dc != null)
-						{
-							IList<IField> fieldsToRemove = new List<IField>();
-							foreach (IField field in returnFields)
-							{
-								// ... throw out those that do not apply to one of the other containers
-								if (!dc.HasField(field.FieldType))
-								{
-									fieldsToRemove.Add(field);
-								}
-							}
-							foreach (var field in fieldsToRemove)
-							{
-								returnFields.Remove(field);
-							}
-						}
-					}
+                        if (!(_boundContainers[i] is DrawableContainer dc)) continue;
+                        IList<IField> fieldsToRemove = new List<IField>();
+                        foreach (IField field in returnFields)
+                        {
+                            // ... throw out those that do not apply to one of the other containers
+                            if (!dc.HasField(field.FieldType))
+                            {
+                                fieldsToRemove.Add(field);
+                            }
+                        }
+                        foreach (var field in fieldsToRemove)
+                        {
+                            returnFields.Remove(field);
+                        }
+                    }
 				}
 			}
 			return returnFields ?? new List<IField>();

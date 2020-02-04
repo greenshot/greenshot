@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -55,11 +55,11 @@ namespace Greenshot.Controls {
 					brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
 				}
 
-				if (Image != null) {
-					using (Graphics graphics = Graphics.FromImage(Image)) {
-						graphics.FillRectangle(brush, new Rectangle(4,17,16,3));
-					}
-				}
+				if (Image != null)
+                {
+                    using Graphics graphics = Graphics.FromImage(Image);
+                    graphics.FillRectangle(brush, new Rectangle(4,17,16,3));
+                }
 
 				// cleanup GDI Object
 				brush.Dispose();

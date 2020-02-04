@@ -10,13 +10,7 @@ namespace TranslationByMarkupExtension
     /// </summary>
     public class TranslateExtension : MarkupExtension
     {
-        #region Private Members
-
         private string _key;
-
-        #endregion
-
-        #region Construction
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TranslateExtension"/> class.
@@ -26,8 +20,6 @@ namespace TranslationByMarkupExtension
         {
             _key = key;
         }
-
-        #endregion
 
         [ConstructorArgument("key")]
         public string Key

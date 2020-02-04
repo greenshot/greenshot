@@ -1,0 +1,77 @@
+﻿<Project>
+  <PropertyGroup>
+    <Copyright>Copyright © Greenshot 2004-2020</Copyright>
+    <Authors>Greenshot</Authors>
+    <PackageIconUrl>https://getgreenshot.org/favicon.ico</PackageIconUrl>
+    <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
+    <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
+    <PackageLicenseExpression>GPL</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
+    <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+  
+  <!-- ILLinker and single file settings -->
+  <ItemGroup Condition="$(MSBuildProjectName) == 'Greenshot'">
+    <TrimmerRootAssembly Include="netstandard" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName) == 'Greenshot'">
+	<IncludeSymbolsInSingleFile>false</IncludeSymbolsInSingleFile>
+	<ShowLinkerSizeComparison>true</ShowLinkerSizeComparison>
+  </PropertyGroup>
+	  
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Tests')) Or $(MSBuildProjectName.Contains('Demo'))">
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>  
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugSymbols>True</DebugSymbols>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>true</Optimize>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+    <Exec Command="
+    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;
+    IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
+        IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
+            mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+        )&#xD;&#xA;
+        xcopy /q /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+	)" />
+  </Target>
+</Project>

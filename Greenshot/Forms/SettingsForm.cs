@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -305,8 +305,7 @@ namespace Greenshot {
 		/// </summary>
 		private void UpdateDestinationDescriptions() {
 			foreach (ListViewItem item in listview_destinations.Items) {
-				IDestination destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null) {
+                if (item.Tag is IDestination destinationFromTag) {
 					item.Text = destinationFromTag.Description;
 				}
 			}
@@ -457,9 +456,8 @@ namespace Greenshot {
 			}
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
-				
-				IDestination destinationFromTag = item.Tag as IDestination;
-				if (item.Checked && destinationFromTag != null) {
+
+                if (item.Checked && item.Tag is IDestination destinationFromTag) {
 					destinations.Add(destinationFromTag.Designation);
 				}
 			}
@@ -587,8 +585,7 @@ namespace Greenshot {
 			
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
-				IDestination destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {
+                if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
 					break;
 				}
@@ -644,14 +641,13 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e) {
-			CheckBox checkBox = sender as CheckBox;
-			if (checkBox != null) {
+		private void Checkbox_enableexpert_CheckedChanged(object sender, EventArgs e) {
+            if (sender is CheckBox checkBox) {
 				ExpertSettingsEnableState(checkBox.Checked);
 			}
 		}
 
-		private void radiobutton_CheckedChanged(object sender, EventArgs e) {
+		private void Radiobutton_CheckedChanged(object sender, EventArgs e) {
 			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
 		}
 	}
@@ -669,9 +665,8 @@ namespace Greenshot {
 			ListViewItem l2 = (ListViewItem)y;
 
 			IDestination firstDestination = l1.Tag as IDestination;
-			IDestination secondDestination = l2.Tag as IDestination;
 
-			if (secondDestination == null) {
+            if (!(l2.Tag is IDestination secondDestination)) {
 				return 1;
 			}
 			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {

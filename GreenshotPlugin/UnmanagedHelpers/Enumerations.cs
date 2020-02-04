@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -153,12 +153,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Activates the window and displays it as a maximized window.
 		/// </summary>      
 		ShowMaximized = 3,
-		/// <summary>
-		/// Displays a window in its most recent size and position. This value
-		/// is similar to <see cref="ShowWindowCommand.Normal"/>, except
-		/// the window is not actived.
-		/// </summary>
-		ShowNoActivate = 4,
+        /// <summary>
+        /// Displays a window in its most recent size and position. This value
+        /// is similar to <see cref="Normal"/>, except
+        /// the window is not actived.
+        /// </summary>
+        ShowNoActivate = 4,
 		/// <summary>
 		/// Activates the window and displays it in its current size and position.
 		/// </summary>
@@ -168,18 +168,18 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// window in the Z order.
 		/// </summary>
 		Minimize = 6,
-		/// <summary>
-		/// Displays the window as a minimized window. This value is similar to
-		/// <see cref="ShowWindowCommand.ShowMinimized"/>, except the
-		/// window is not activated.
-		/// </summary>
-		ShowMinNoActive = 7,
-		/// <summary>
-		/// Displays the window in its current size and position. This value is
-		/// similar to <see cref="ShowWindowCommand.Show"/>, except the
-		/// window is not activated.
-		/// </summary>
-		ShowNA = 8,
+        /// <summary>
+        /// Displays the window as a minimized window. This value is similar to
+        /// <see cref="ShowMinimized"/>, except the
+        /// window is not activated.
+        /// </summary>
+        ShowMinNoActive = 7,
+        /// <summary>
+        /// Displays the window in its current size and position. This value is
+        /// similar to <see cref="Show"/>, except the
+        /// window is not activated.
+        /// </summary>
+        ShowNA = 8,
 		/// <summary>
 		/// Activates and displays the window. If the window is minimized or
 		/// maximized, the system restores it to its original size and position.

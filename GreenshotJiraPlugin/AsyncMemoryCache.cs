@@ -1,6 +1,4 @@
-﻿#region Dapplo 2016 - GNU Lesser General Public License
-
-// Dapplo - building blocks for .NET applications
+﻿// Dapplo - building blocks for .NET applications
 // Copyright (C) 2016 Dapplo
 // 
 // For more information see: http://dapplo.net/
@@ -21,17 +19,11 @@
 // You should have a copy of the GNU Lesser General Public License
 // along with Dapplo.Utils. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
-#endregion
-
-#region Usings
-
 using System;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Log;
-
-#endregion
 
 
 namespace GreenshotJiraPlugin
@@ -76,7 +68,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="key">TKey</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		protected abstract Task<TResult> CreateAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken));
+		protected abstract Task<TResult> CreateAsync(TKey key, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		///     Creates a key under which the object is stored or retrieved, default is a toString on the object.
@@ -94,7 +86,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="keyObject">object for the key</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		public async Task DeleteAsync(TKey keyObject, CancellationToken cancellationToken = default(CancellationToken))
+		public async Task DeleteAsync(TKey keyObject, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -126,7 +118,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="keyObject">object for the key</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task with TResult</returns>
-		public Task<TResult> GetOrCreateAsync(TKey keyObject, CancellationToken cancellationToken = default(CancellationToken))
+		public Task<TResult> GetOrCreateAsync(TKey keyObject, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, null, cancellationToken);
@@ -139,7 +131,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="cacheItemPolicy">CacheItemPolicy for when you want more control over the item</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task with TResult</returns>
-		public Task<TResult> GetOrCreateAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy, CancellationToken cancellationToken = default(CancellationToken))
+		public Task<TResult> GetOrCreateAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, cacheItemPolicy, cancellationToken);
@@ -152,7 +144,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="cacheItemPolicy">CacheItemPolicy for when you want more control over the item</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null, CancellationToken cancellationToken = default(CancellationToken))
+		private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			var completionSource = new TaskCompletionSource<TResult>();
@@ -174,9 +166,8 @@ namespace GreenshotJiraPlugin
 				}
 			}
 
-			var result = _cache.AddOrGetExisting(key, completionSource.Task, cacheItemPolicy) as Task<TResult>;
-			// Test if we got an existing object or our own
-			if (result != null && !completionSource.Task.Equals(result))
+            // Test if we got an existing object or our own
+			if (_cache.AddOrGetExisting(key, completionSource.Task, cacheItemPolicy) is Task<TResult> result && !completionSource.Task.Equals(result))
 			{
 				return await result.ConfigureAwait(false);
 			}
@@ -225,8 +216,7 @@ namespace GreenshotJiraPlugin
 		protected virtual void RemovedCallback(CacheEntryRemovedArguments cacheEntryRemovedArguments)
 		{
 			_log.Verbose().WriteLine("Item {0} removed due to {1}.", cacheEntryRemovedArguments.CacheItem.Key, cacheEntryRemovedArguments.RemovedReason);
-			var disposable = cacheEntryRemovedArguments.CacheItem.Value as IDisposable;
-			if (disposable != null)
+            if (cacheEntryRemovedArguments.CacheItem.Value is IDisposable disposable)
 			{
 				_log.Debug().WriteLine("Disposed cached item.");
 				disposable.Dispose();

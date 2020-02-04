@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -79,8 +79,7 @@ namespace GreenshotPlugin.Core {
 				Group formatGroup = m.Groups["format"];
 				Group endGroup = m.Groups["end"];
 
-				object value;
-				values.Add(properties.TryGetValue(propertyGroup.Value, out value) ? value : source);
+                values.Add(properties.TryGetValue(propertyGroup.Value, out var value) ? value : source);
 				return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
 			});
 
@@ -97,18 +96,16 @@ namespace GreenshotPlugin.Core {
 			try {
 				byte[] clearTextBytes = Encoding.ASCII.GetBytes(clearText);
 				SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-	
-				using (MemoryStream ms = new MemoryStream()) {
-					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					byte[] key = Encoding.ASCII.GetBytes(KEY);
-					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write)) {
-						cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-						cs.FlushFinalBlock();
 
-						returnValue = Convert.ToBase64String(ms.ToArray());
-					}
-				}
-			} catch (Exception ex) {
+                using MemoryStream ms = new MemoryStream();
+                byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
+                byte[] key = Encoding.ASCII.GetBytes(KEY);
+                using CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
+                cs.Write(clearTextBytes, 0, clearTextBytes.Length);
+                cs.FlushFinalBlock();
+
+                returnValue = Convert.ToBase64String(ms.ToArray());
+            } catch (Exception ex) {
 				LOG.ErrorFormat("Error encrypting, error: {0}", ex.Message);
 			}
 			return returnValue;
@@ -123,21 +120,18 @@ namespace GreenshotPlugin.Core {
 			string returnValue = encryptedText;
 			try {
 				byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText);
-				using (MemoryStream ms = new MemoryStream()) {
-					SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
+                using MemoryStream ms = new MemoryStream();
+                SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 	
 	
-					byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					byte[] key = Encoding.ASCII.GetBytes(KEY);
+                byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
+                byte[] key = Encoding.ASCII.GetBytes(KEY);
 
-					using (CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write)) {
-						cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
-						cs.FlushFinalBlock();
-						returnValue = Encoding.ASCII.GetString(ms.ToArray());
-					}
-	
-				}
-			} catch (Exception ex) {
+                using CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
+                cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
+                cs.FlushFinalBlock();
+                returnValue = Encoding.ASCII.GetString(ms.ToArray());
+            } catch (Exception ex) {
 				LOG.ErrorFormat("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
 			}
 

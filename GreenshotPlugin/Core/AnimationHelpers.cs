@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -220,18 +220,15 @@ namespace GreenshotPlugin.Core {
 		/// Get the easing value, which is from 0-1 and depends on the frame
 		/// </summary>
 		protected double EasingValue {
-			get {
-				switch (EasingMode) {
-					case EasingMode.EaseOut:
-						return Easing.EaseOut(CurrentFrameNr / (double)Frames, EasingType);
-					case EasingMode.EaseInOut:
-						return Easing.EaseInOut(CurrentFrameNr / (double)Frames, EasingType);
-					case EasingMode.EaseIn:
-					default:
-						return Easing.EaseIn(CurrentFrameNr / (double)Frames, EasingType);
-				}
-			}
-		}
+			get =>
+                EasingMode switch
+                {
+                    EasingMode.EaseOut => Easing.EaseOut(CurrentFrameNr / (double) Frames, EasingType),
+                    EasingMode.EaseInOut => Easing.EaseInOut(CurrentFrameNr / (double) Frames, EasingType),
+                    EasingMode.EaseIn => Easing.EaseIn(CurrentFrameNr / (double) Frames, EasingType),
+                    _ => Easing.EaseIn(CurrentFrameNr / (double) Frames, EasingType)
+                };
+        }
 
 		/// <summary>
 		/// Get the current (previous) frame object
@@ -455,71 +452,50 @@ namespace GreenshotPlugin.Core {
 			return ((easedStep - linearStep) * Math.Abs(acceleration) + linearStep);
 		}
 
-		public static double EaseIn(double linearStep, EasingType type) {
-			switch (type) {
-				case EasingType.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingType.Linear:
-					return linearStep;
-				case EasingType.Sine:
-					return Sine.EaseIn(linearStep);
-				case EasingType.Quadratic:
-					return Power.EaseIn(linearStep, 2);
-				case EasingType.Cubic:
-					return Power.EaseIn(linearStep, 3);
-				case EasingType.Quartic:
-					return Power.EaseIn(linearStep, 4);
-				case EasingType.Quintic:
-					return Power.EaseIn(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
+		public static double EaseIn(double linearStep, EasingType type) =>
+            type switch
+            {
+                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Linear => linearStep,
+                EasingType.Sine => Sine.EaseIn(linearStep),
+                EasingType.Quadratic => Power.EaseIn(linearStep, 2),
+                EasingType.Cubic => Power.EaseIn(linearStep, 3),
+                EasingType.Quartic => Power.EaseIn(linearStep, 4),
+                EasingType.Quintic => Power.EaseIn(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
 
-		public static double EaseOut(double linearStep, EasingType type) {
-			switch (type) {
-				case EasingType.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingType.Linear:
-					return linearStep;
-				case EasingType.Sine:
-					return Sine.EaseOut(linearStep);
-				case EasingType.Quadratic:
-					return Power.EaseOut(linearStep, 2);
-				case EasingType.Cubic:
-					return Power.EaseOut(linearStep, 3);
-				case EasingType.Quartic:
-					return Power.EaseOut(linearStep, 4);
-				case EasingType.Quintic:
-					return Power.EaseOut(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
+        public static double EaseOut(double linearStep, EasingType type) =>
+            type switch
+            {
+                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Linear => linearStep,
+                EasingType.Sine => Sine.EaseOut(linearStep),
+                EasingType.Quadratic => Power.EaseOut(linearStep, 2),
+                EasingType.Cubic => Power.EaseOut(linearStep, 3),
+                EasingType.Quartic => Power.EaseOut(linearStep, 4),
+                EasingType.Quintic => Power.EaseOut(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
 
-		public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType) {
+        public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType) {
 			return linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
 		}
 
-		public static double EaseInOut(double linearStep, EasingType type) {
-			switch (type) {
-				case EasingType.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingType.Linear:
-					return linearStep;
-				case EasingType.Sine:
-					return Sine.EaseInOut(linearStep);
-				case EasingType.Quadratic:
-					return Power.EaseInOut(linearStep, 2);
-				case EasingType.Cubic:
-					return Power.EaseInOut(linearStep, 3);
-				case EasingType.Quartic:
-					return Power.EaseInOut(linearStep, 4);
-				case EasingType.Quintic:
-					return Power.EaseInOut(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
+		public static double EaseInOut(double linearStep, EasingType type) =>
+            type switch
+            {
+                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Linear => linearStep,
+                EasingType.Sine => Sine.EaseInOut(linearStep),
+                EasingType.Quadratic => Power.EaseInOut(linearStep, 2),
+                EasingType.Cubic => Power.EaseInOut(linearStep, 3),
+                EasingType.Quartic => Power.EaseInOut(linearStep, 4),
+                EasingType.Quintic => Power.EaseInOut(linearStep, 5),
+                _ => throw new NotImplementedException()
+            };
 
-		private static class Sine {
+        private static class Sine {
 			public static double EaseIn(double s) {
 				return Math.Sin(s * (Math.PI / 2) - (Math.PI / 2)) + 1;
 			}

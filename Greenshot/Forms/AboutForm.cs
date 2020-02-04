@@ -1,6 +1,6 @@
 /*
 * Greenshot - a free and open source screenshot tool
-* Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+* Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 *
 * For more information see: http://getgreenshot.org/
 * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -211,17 +211,16 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			LinkLabel linkLabel = sender as LinkLabel;
-			if (linkLabel != null) {
-				try {
-					linkLabel.LinkVisited = true;
-					Process.Start(linkLabel.Text);
-				} catch (Exception) {
-					MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
-				}
-			}
-		}
+		private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (!(sender is LinkLabel linkLabel)) return;
+            try {
+                linkLabel.LinkVisited = true;
+                Process.Start(linkLabel.Text);
+            } catch (Exception) {
+                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+            }
+        }
 
 		/// <summary>
 		/// Called from the AnimatingForm, for every frame
@@ -274,20 +273,19 @@ namespace Greenshot {
 				graphics.TranslateTransform(2, -2);
 				graphics.RotateTransform(20);
 
-				using (SolidBrush brush = new SolidBrush(_pixelColor)) {
-					int index = 0;
-					// We asume there is nothing to animate in the next Animate loop
-					_hasAnimationsLeft = false;
-					// Pixels of the G
-					foreach (RectangleAnimator pixel in _pixels) {
-						brush.Color = _pixelColors[index++];
-						graphics.FillEllipse(brush, pixel.Current);
-						// If a pixel still has frames left, the hasAnimationsLeft will be true
-						_hasAnimationsLeft = _hasAnimationsLeft | pixel.HasNext;
-						pixel.Next();
-					}
-				}
-			}
+                using SolidBrush brush = new SolidBrush(_pixelColor);
+                int index = 0;
+                // We asume there is nothing to animate in the next Animate loop
+                _hasAnimationsLeft = false;
+                // Pixels of the G
+                foreach (RectangleAnimator pixel in _pixels) {
+                    brush.Color = _pixelColors[index++];
+                    graphics.FillEllipse(brush, pixel.Current);
+                    // If a pixel still has frames left, the hasAnimationsLeft will be true
+                    _hasAnimationsLeft |= pixel.HasNext;
+                    pixel.Next();
+                }
+            }
 			pictureBox1.Invalidate();
 		}
 

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -42,9 +42,8 @@ namespace Greenshot.Helpers {
 		private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
 		private static readonly string PafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
 		private static readonly IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
-		private static readonly PluginHelper instance = new PluginHelper();
 
-		public static PluginHelper Instance => instance;
+        public static PluginHelper Instance { get; } = new PluginHelper();
 
 		private PluginHelper() {
 			PluginUtils.Host = this;
@@ -103,9 +102,7 @@ namespace Greenshot.Helpers {
 			plugin.Configure();
 		}
 
-		#region Implementation of IGreenshotPluginHost
-
-		/// <summary>
+        /// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>
@@ -173,10 +170,8 @@ namespace Greenshot.Helpers {
 			};
 			return capture;
 		}
-		#endregion
 
-		#region Plugin loading
-		public PluginAttribute FindPlugin(string name) {
+        public PluginAttribute FindPlugin(string name) {
 			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
 				if (name.Equals(pluginAttribute.Name)) {
 					return pluginAttribute;
@@ -185,7 +180,7 @@ namespace Greenshot.Helpers {
 			return null;
 		}
 		
-		private bool isNewer(string version1, string version2) {
+		private bool IsNewer(string version1, string version2) {
 			string [] version1Parts = version1.Split('.');
 			string [] version2Parts = version2.Split('.');
 			int parts = Math.Min(version1Parts.Length, version2Parts.Length);
@@ -207,10 +202,10 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="pluginFiles"></param>
 		/// <param name="path"></param>
-		private void findPluginsOnPath(List<string> pluginFiles, string path) {
+		private void FindPluginsOnPath(List<string> pluginFiles, string path) {
 			if (Directory.Exists(path)) {
 				try {
-					foreach (string pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories)) {
+					foreach (string pluginFile in Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories)) {
 						pluginFiles.Add(pluginFile);
 					}
 				} catch (UnauthorizedAccessException) {
@@ -227,10 +222,10 @@ namespace Greenshot.Helpers {
 			List<string> pluginFiles = new List<string>();
 
 			if (IniConfig.IsPortable) {
-				findPluginsOnPath(pluginFiles, PafPath);
+				FindPluginsOnPath(pluginFiles, PafPath);
 			} else {
-				findPluginsOnPath(pluginFiles, PluginPath);
-				findPluginsOnPath(pluginFiles, ApplicationPath);
+				FindPluginsOnPath(pluginFiles, PluginPath);
+				FindPluginsOnPath(pluginFiles, ApplicationPath);
 			}
 
 			Dictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
@@ -271,7 +266,7 @@ namespace Greenshot.Helpers {
 
 						if (checkPluginAttribute != null) {
 							Log.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
-							if (isNewer(pluginAttribute.Version, checkPluginAttribute.Version)) {
+							if (IsNewer(pluginAttribute.Version, checkPluginAttribute.Version)) {
 								// Found is newer
 								tmpAttributes[pluginAttribute.Name] = pluginAttribute;
 								tmpAssemblies[pluginAttribute.Name] = assembly;
@@ -330,6 +325,5 @@ namespace Greenshot.Helpers {
 				}
 			}
 		}
-		#endregion
-	}
+    }
 }

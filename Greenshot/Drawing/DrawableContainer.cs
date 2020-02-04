@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -408,13 +408,15 @@ namespace Greenshot.Drawing
 			return r.Contains(x, y);
 		}
 		
-		protected void DrawSelectionBorder(Graphics g, Rectangle rect) {
-			using (Pen pen = new Pen(Color.MediumSeaGreen)) {
-				pen.DashPattern = new float[]{1,2};
-				pen.Width = 1;
-				g.DrawRectangle(pen, rect);
-			}
-		}
+		protected void DrawSelectionBorder(Graphics g, Rectangle rect)
+        {
+			using Pen pen = new Pen(Color.MediumSeaGreen)
+			{
+				DashPattern = new float[] { 1, 2 },
+				Width = 1
+			};
+			g.DrawRectangle(pen, rect);
+        }
 		
 
 		public void ResizeTo(int width, int height, int anchorPosition) {

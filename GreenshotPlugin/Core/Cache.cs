@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -93,7 +93,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns></returns>
 		public TV this[TK key] {
 			get {
-				TV result = default(TV);
+				TV result = default;
 				lock (_lockObject) {
 					if (_internalCache.ContainsKey(key)) {
 						result = _internalCache[key];

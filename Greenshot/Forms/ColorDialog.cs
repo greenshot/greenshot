@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,7 +35,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class ColorDialog : BaseForm {
 		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-
+        private static ColorDialog _instance;
 		public ColorDialog() {
 			SuspendLayout();
 			InitializeComponent();
@@ -44,7 +44,10 @@ namespace Greenshot {
 			CreateLastUsedColorButtonRow(5, 190, 15, 15);
 			ResumeLayout();
 			UpdateRecentColorsButtonRow();
-		}
+            _instance = this;
+        }
+
+        public static ColorDialog GetInstance() => _instance;
 
 		private readonly List<Button> _colorButtons = new List<Button>();
 		private readonly List<Button> _recentColorButtons = new List<Button>();
@@ -56,8 +59,9 @@ namespace Greenshot {
 			set { PreviewColor(value, this); }
 		}
 
-		#region user interface generation
-		private void CreateColorPalette(int x, int y, int w, int h) {
+        public IList<Color> RecentColors => EditorConfig.RecentColors;
+
+        private void CreateColorPalette(int x, int y, int w, int h) {
 			CreateColorButtonColumn(255, 0, 0, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(255, 255 / 2, 0, x, y, w, h, 11);
@@ -123,10 +127,8 @@ namespace Greenshot {
 			}
 			Controls.AddRange(_recentColorButtons.ToArray());
 		}
-		#endregion
 
-		#region update user interface
-		private void UpdateRecentColorsButtonRow() {
+        private void UpdateRecentColorsButtonRow() {
 			for (int i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++) {
 				_recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
 				_recentColorButtons[i].Enabled = true;
@@ -156,19 +158,15 @@ namespace Greenshot {
 			}
 			UpdateRecentColorsButtonRow();
 		}
-		#endregion
 
-		#region textbox event handlers
-
-		private void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
+        private void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
 			TextBox textBox = (TextBox)sender;
 			string text = textBox.Text.Replace("#", "");
-			int i;
-			Color c;
-			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i)) {
+            Color c;
+			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i)) {
 				c = Color.FromArgb(i);
 			} else {
 				try
@@ -200,11 +198,8 @@ namespace Greenshot {
 				AddToRecentColors(colorPanel.BackColor);
 			}
 		}
-		#endregion
 
-		#region button event handlers
-
-		private void ColorButtonClick(object sender, EventArgs e) {
+        private void ColorButtonClick(object sender, EventArgs e) {
 			Button b = (Button)sender;
 			PreviewColor(b.BackColor, b);
 		}
@@ -218,12 +213,9 @@ namespace Greenshot {
 			Hide();
 			AddToRecentColors(colorPanel.BackColor);
 		}
-		#endregion
 
-		#region helper functions
-		private int GetColorPartIntFromString(string s) {
-			int ret;
-			int.TryParse(s, out ret);
+        private int GetColorPartIntFromString(string s) {
+            int.TryParse(s, out var ret);
 			if (ret < 0)
 			{
 				ret = 0;
@@ -235,9 +227,7 @@ namespace Greenshot {
 			return ret;
 		}
 
-		#endregion
-
-		private void PipetteUsed(object sender, PipetteUsedArgs e) {
+        private void PipetteUsed(object sender, PipetteUsedArgs e) {
 			Color = e.Color;
 		}
 	}

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -438,12 +438,9 @@ namespace Greenshot.Interop.Office {
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
 	public class OutlookUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookUtils));
-		private const uint KEEP_OPEN_READONLY = 0x00000001;
 		private const uint KEEP_OPEN_READWRITE = 0x00000002;
-		private const uint FORCE_SAVE = 0x00000004;
 
-		#region MAPI Interface ID'S
-		// The Interface ID's are used to retrieve the specific MAPI Interfaces from the IUnknown Object
+        // The Interface ID's are used to retrieve the specific MAPI Interfaces from the IUnknown Object
 		public const string IID_IMAPISession = "00020300-0000-0000-C000-000000000046";
 		public const string IID_IMAPIProp = "00020303-0000-0000-C000-000000000046";
 		public const string IID_IMAPITable = "00020301-0000-0000-C000-000000000046";
@@ -464,12 +461,11 @@ namespace Greenshot.Interop.Office {
 		public const string IID_IMAPIControl = "0002031B-0000-0000-C000-000000000046";
 		public const string IID_IMAPILogonRemote = "00020346-0000-0000-C000-000000000046";
 		public const string IID_IMAPIForm = "00020327-0000-0000-C000-000000000046";
-		#endregion
 
-		[ComVisible(false)]
+        [ComVisible(false)]
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
-		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+		[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 		private interface IMessage : IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
@@ -557,7 +553,7 @@ namespace Greenshot.Interop.Office {
 		[ComVisible(false)]
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
-		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+		[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 		private interface IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
@@ -676,15 +672,17 @@ namespace Greenshot.Interop.Office {
 				IUnknown = Marshal.GetIUnknownForObject(attachment.MAPIOBJECT);
 				IMAPIProp mapiProp = (IMAPIProp)Marshal.GetTypedObjectForIUnknown(IUnknown, typeof(IMAPIProp));
 
-				// Create structure
-				propValue = new SPropValue();
-				propValue.propTag = (uint)PropTags.PR_ATTACH_CONTENT_ID;
-				//propValue.propTag = 0x3712001E;
-				// Create Ansi string
-				propValue.Value = Marshal.StringToHGlobalUni(contentId);
+                // Create structure
+                propValue = new SPropValue
+                {
+                    propTag = (uint)PropTags.PR_ATTACH_CONTENT_ID,
+                    //propValue.propTag = 0x3712001E;
+                    // Create Ansi string
+                    Value = Marshal.StringToHGlobalUni(contentId)
+                };
 
-				// Create unmanaged memory for structure
-				ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
+                // Create unmanaged memory for structure
+                ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
 				// Copy structure to unmanged memory
 				Marshal.StructureToPtr(propValue, ptrPropValue, false);
 				mapiProp.SetProps(1, ptrPropValue, IntPtr.Zero);
@@ -752,14 +750,16 @@ namespace Greenshot.Interop.Office {
 					return false;
 				}
 
-				// Create structure
-				propValue = new SPropValue();
-				propValue.propTag = (uint)proptag;
-				// Create Ansi string
-				propValue.Value = Marshal.StringToHGlobalUni(propertyValue);
+                // Create structure
+                propValue = new SPropValue
+                {
+                    propTag = (uint)proptag,
+                    // Create Ansi string
+                    Value = Marshal.StringToHGlobalUni(propertyValue)
+                };
 
-				// Create unmanaged memory for structure
-				ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
+                // Create unmanaged memory for structure
+                ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
 				// Copy structure to unmanged memory
 				Marshal.StructureToPtr(propValue, ptrPropValue, false);
 
@@ -784,8 +784,7 @@ namespace Greenshot.Interop.Office {
 			}
 		}
 
-		#region MAPI DLL Imports
-		[DllImport("MAPI32.DLL", EntryPoint = "HrSetOneProp@8")]
+        [DllImport("MAPI32.DLL", EntryPoint = "HrSetOneProp@8")]
 		private static extern void HrSetOneProp(IntPtr pmp, IntPtr pprop);
 
 		[DllImport("MAPI32.DLL")]
@@ -793,6 +792,5 @@ namespace Greenshot.Interop.Office {
 
 		[DllImport("MAPI32.DLL")]
 		private static extern void MAPIUninitialize();
-		#endregion
-	}
+    }
 }

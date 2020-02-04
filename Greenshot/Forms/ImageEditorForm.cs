@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -162,7 +162,7 @@ namespace Greenshot {
 				_surface.MovingElementChanged += delegate {
 					RefreshEditorControls();
 				};
-				_surface.DrawingModeChanged += surface_DrawingModeChanged;
+				_surface.DrawingModeChanged += Surface_DrawingModeChanged;
 				_surface.SurfaceSizeChanged += SurfaceSizeChanged;
 				_surface.SurfaceMessage += SurfaceMessageReceived;
 				_surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
@@ -218,26 +218,26 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void PropertiesToolStrip_Paint(object sender, PaintEventArgs e) {
-			using (Pen cbBorderPen = new Pen(SystemColors.ActiveBorder)) {
-				// Loop over all items in the propertiesToolStrip
-				foreach (ToolStripItem item in propertiesToolStrip.Items) {
-					ToolStripComboBox cb = item as ToolStripComboBox;
-					// Only ToolStripComboBox that are visible
-					if (cb == null || !cb.Visible) {
-						continue;
-					}
-					// Calculate the rectangle
-					if (cb.ComboBox != null)
-					{
-						Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+		private void PropertiesToolStrip_Paint(object sender, PaintEventArgs e)
+        {
+            using Pen cbBorderPen = new Pen(SystemColors.ActiveBorder);
+            // Loop over all items in the propertiesToolStrip
+            foreach (ToolStripItem item in propertiesToolStrip.Items) {
+                ToolStripComboBox cb = item as ToolStripComboBox;
+                // Only ToolStripComboBox that are visible
+                if (cb == null || !cb.Visible) {
+                    continue;
+                }
+                // Calculate the rectangle
+                if (cb.ComboBox != null)
+                {
+                    Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
-						// Draw the rectangle
-						e.Graphics.DrawRectangle(cbBorderPen, r);
-					}
-				}
-			}
-		}
+                    // Draw the rectangle
+                    e.Graphics.DrawRectangle(cbBorderPen, r);
+                }
+            }
+        }
 
 		/// <summary>
 		/// Get all the destinations and display them in the file menu and the buttons
@@ -337,8 +337,7 @@ namespace Greenshot {
 		/// <param name="items"></param>
 		private void ClearItems(ToolStripItemCollection items) {
 			foreach(var item in items) {
-				ToolStripMenuItem menuItem = item as ToolStripMenuItem;
-				if (menuItem != null && menuItem.ShortcutKeys != Keys.None) {
+                if (item is ToolStripMenuItem menuItem && menuItem.ShortcutKeys != Keys.None) {
 					menuItem.ShortcutKeys = Keys.None;
 				}
 			}
@@ -440,7 +439,7 @@ namespace Greenshot {
 			Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
 		}
 
-		private void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs) {
+		private void Surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs) {
 			switch (eventArgs.DrawingMode) {
 				case DrawingModes.None:
 					SetButtonChecked(btnCursor);
@@ -481,9 +480,7 @@ namespace Greenshot {
 			}
 		}
 
-		#region plugin interfaces
-		
-		/**
+        /**
 		 * Interfaces for plugins, see GreenshotInterface for more details!
 		 */
 		
@@ -500,11 +497,8 @@ namespace Greenshot {
 		public ToolStripMenuItem GetFileMenuItem() {
 			return fileStripMenuItem;
 		}
-		#endregion
-		
-		#region filesystem options
 
-		private void BtnSaveClick(object sender, EventArgs e) {
+        private void BtnSaveClick(object sender, EventArgs e) {
 			string destinationDesignation = FileDestination.DESIGNATION;
 			if (_surface.LastSaveFullPath == null) {
 				destinationDesignation = FileWithDialogDestination.DESIGNATION;
@@ -526,11 +520,8 @@ namespace Greenshot {
 		private void CloseToolStripMenuItemClick(object sender, EventArgs e) {
 			Close();
 		}
-		#endregion
-		
-		#region drawing options
 
-		private void BtnEllipseClick(object sender, EventArgs e) {
+        private void BtnEllipseClick(object sender, EventArgs e) {
 			_surface.DrawingMode = DrawingModes.Ellipse;
 			RefreshFieldControls();
 		}
@@ -642,11 +633,8 @@ namespace Greenshot {
 		private void BtnDeleteClick(object sender, EventArgs e) {
 			RemoveObjectToolStripMenuItemClick(sender, e);
 		}
-		#endregion
-		
-		#region copy&paste options
 
-		private void CutToolStripMenuItemClick(object sender, EventArgs e) {
+        private void CutToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.CutSelectedElements();
 			UpdateClipboardSurfaceDependencies();
 		}
@@ -695,11 +683,8 @@ namespace Greenshot {
 			_surface.DuplicateSelectedElements();
 			UpdateClipboardSurfaceDependencies();
 		}
-		#endregion
-		
-		#region element properties
 
-		private void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e) {
+        private void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.PullElementsUp();
 		}
 
@@ -714,13 +699,9 @@ namespace Greenshot {
 		private void DownToBottomToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.PushElementsToBottom();
 		}
-		
-		
-		#endregion
-		
-		#region help
 
-		private void HelpToolStripMenuItem1Click(object sender, EventArgs e) {
+
+        private void HelpToolStripMenuItem1Click(object sender, EventArgs e) {
 			HelpFileLoader.LoadHelp();
 		}
 
@@ -739,11 +720,8 @@ namespace Greenshot {
 		private void BtnHelpClick(object sender, EventArgs e) {
 			HelpToolStripMenuItem1Click(sender, e);
 		}
-		#endregion
-		
-		#region image editor event handlers
 
-		private void ImageEditorFormActivated(object sender, EventArgs e) {
+        private void ImageEditorFormActivated(object sender, EventArgs e) {
 			UpdateClipboardSurfaceDependencies();
 			UpdateUndoRedoSurfaceDependencies();
 		}
@@ -882,10 +860,8 @@ namespace Greenshot {
 		private void PanelMouseWheel(object sender, MouseEventArgs e) {
 			panel1.Focus();
 		}
-		#endregion
-		
-		#region key handling
-		protected override bool ProcessKeyPreview(ref Message msg) {
+
+        protected override bool ProcessKeyPreview(ref Message msg) {
 			// disable default key handling if surface has requested a lock
 			if (!_surface.KeysLocked) {
 				return base.ProcessKeyPreview(ref msg);
@@ -919,11 +895,8 @@ namespace Greenshot {
 			}
 			return false;
 		}
-		#endregion
-		
-		#region helpers
-		
-		private void UpdateUndoRedoSurfaceDependencies() {
+
+        private void UpdateUndoRedoSurfaceDependencies() {
 			if (_surface == null) {
 				return;
 			}
@@ -980,19 +953,12 @@ namespace Greenshot {
 			pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
 		}
 
-		#endregion
-		
-		#region status label handling
-		private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null) {
+        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null) {
 			statusLabel.Text = text;
 			statusStrip1.ContextMenuStrip = contextMenu;
 		}
 
-		private void ClearStatusLabel() {
-			UpdateStatusLabel(null);
-		}
-
-		private void StatusLabelClicked(object sender, MouseEventArgs e) {
+        private void StatusLabelClicked(object sender, MouseEventArgs e) {
 			ToolStrip ss = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
 			ss.ContextMenuStrip?.Show(ss, e.X, e.Y);
 		}
@@ -1004,9 +970,8 @@ namespace Greenshot {
 		private void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
 			ExplorerHelper.OpenInExplorer(_surface.LastSaveFullPath);
 		}
-		#endregion
-		
-		private void BindFieldControls() {
+
+        private void BindFieldControls() {
 			// TODO: This is actually risky, if there are no references than the objects may be garbage collected
 			new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
@@ -1221,11 +1186,11 @@ namespace Greenshot {
 				FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
 			};
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
-			if(dialogResult.Equals(DialogResult.OK)) {
-				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName)) {
-					_surface.SaveElementsToStream(streamWrite);
-				}
-			}
+			if(dialogResult.Equals(DialogResult.OK))
+            {
+                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+                _surface.SaveElementsToStream(streamWrite);
+            }
 		}
 
 		private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e) {
@@ -1243,8 +1208,7 @@ namespace Greenshot {
 
 		private void DestinationToolStripMenuItemClick(object sender, EventArgs e) {
 			IDestination clickedDestination = null;
-			var control = sender as Control;
-			if (control != null) {
+            if (sender is Control control) {
 				Control clickedControl = control;
 				if (clickedControl.ContextMenuStrip != null) {
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
@@ -1254,8 +1218,7 @@ namespace Greenshot {
 			}
 			else
 			{
-				var item = sender as ToolStripMenuItem;
-				if (item != null) {
+                if (sender is ToolStripMenuItem item) {
 					ToolStripMenuItem clickedMenuItem = item;
 					clickedDestination = (IDestination)clickedMenuItem.Tag;
 				}

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -147,8 +147,7 @@ namespace Greenshot.IniFile {
 				try {
 					iniValue.SetValueFromProperties(properties);
 					if (iniValue.Attributes.Encrypted) {
-						string stringValue = iniValue.Value as string;
-						if (stringValue != null && stringValue.Length > 2) {
+                        if (iniValue.Value is string stringValue && stringValue.Length > 2) {
 							iniValue.Value = stringValue.Decrypt();
 						}
 					}
@@ -178,16 +177,14 @@ namespace Greenshot.IniFile {
 
 				foreach (IniValue value in Values.Values) {
 					if (value.Attributes.Encrypted) {
-						string stringValue = value.Value as string;
-						if (stringValue != null && stringValue.Length > 2) {
+                        if (value.Value is string stringValue && stringValue.Length > 2) {
 							value.Value = stringValue.Encrypt();
 						}
 					}
 					// Write the value
 					value.Write(writer, onlyProperties);
 					if (value.Attributes.Encrypted) {
-						string stringValue = value.Value as string;
-						if (stringValue != null && stringValue.Length > 2) {
+                        if (value.Value is string stringValue && stringValue.Length > 2) {
 							value.Value = stringValue.Decrypt();
 						}
 					}

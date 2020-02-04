@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -89,8 +89,7 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl;
-			bool uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out uploadUrl);
+            bool uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out var uploadUrl);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;

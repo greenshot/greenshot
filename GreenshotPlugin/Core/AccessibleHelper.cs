@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using Accessibility;
-using log4net;
 
 namespace GreenshotPlugin.Core {
 
@@ -33,10 +32,7 @@ namespace GreenshotPlugin.Core {
 	/// Maybe move the basic Accessible functions to WindowDetails!?
 	/// </summary>
 	public class Accessible {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Accessible));
-
-		#region Interop
-		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {
+        private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {
 			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
 			object obj = null;
 			int num = AccessibleObjectFromWindow(hWnd, (uint)idObject, ref guid, ref obj);
@@ -51,9 +47,8 @@ namespace GreenshotPlugin.Core {
 		[DllImport("oleacc.dll", PreserveSig=false)]
 		[return: MarshalAs(UnmanagedType.Interface)]
 		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
-		#endregion
 
-		private enum OBJID : uint {
+        private enum OBJID : uint {
 			OBJID_WINDOW = 0x00000000,
 		}
 
@@ -62,16 +57,14 @@ namespace GreenshotPlugin.Core {
 		private readonly IAccessible accessible;
 		private Accessible[] Children {
 			get {
-				int num;
-				object[] res = GetAccessibleChildren(accessible, out num);
+                object[] res = GetAccessibleChildren(accessible, out var num);
 				if (res == null) {
 					return new Accessible[0];
 				}
 
 				List<Accessible> list = new List<Accessible>(res.Length);
 				foreach (object obj in res) {
-					IAccessible acc = obj as IAccessible;
-					if (acc != null) {
+                    if (obj is IAccessible acc) {
 						list.Add(new Accessible(acc));
 					}
 				}
@@ -260,10 +253,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		private Accessible(IAccessible acc) {
-			if (acc == null) {
-				throw new Exception();
-			}
-			accessible = acc;
+            accessible = acc ?? throw new Exception();
 		}
 
 		private void Activate() {

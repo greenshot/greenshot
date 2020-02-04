@@ -5,8 +5,7 @@
 [CustomMessages]
 dotnetfx11_title=.NET Framework 1.1
 
-en.dotnetfx11_size=23.1 MB
-de.dotnetfx11_size=23,1 MB
+dotnetfx11_size=23.1 MB
 
 [Code]
 const

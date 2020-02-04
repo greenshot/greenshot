@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -155,47 +155,45 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-			using (IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap)) {
-				IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
-				sourceFastBitmap.Lock();
-				using (FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap) {
-					destinationFastBitmap.Lock();
-					for (int y = 0; y < sourceFastBitmap.Height; y++) {
-						for (int x = 0; x < sourceFastBitmap.Width; x++) {
-							Color color;
-							if (sourceFastBitmapWithBlend == null) {
-								color = sourceFastBitmap.GetColorAt(x, y);
-							} else {
-								color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
-							}
-							// To count the colors
-							int index = color.ToArgb() & 0x00ffffff;
-							// Check if we already have this color
-							if (!bitArray.Get(index)) {
-								// If not, add 1 to the single colors
-								colorCount++;
-								bitArray.Set(index, true);
-							}
+            using IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap);
+            IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
+            sourceFastBitmap.Lock();
+            using FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap;
+            destinationFastBitmap.Lock();
+            for (int y = 0; y < sourceFastBitmap.Height; y++) {
+                for (int x = 0; x < sourceFastBitmap.Width; x++) {
+                    Color color;
+                    if (sourceFastBitmapWithBlend == null) {
+                        color = sourceFastBitmap.GetColorAt(x, y);
+                    } else {
+                        color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
+                    }
+                    // To count the colors
+                    int index = color.ToArgb() & 0x00ffffff;
+                    // Check if we already have this color
+                    if (!bitArray.Get(index)) {
+                        // If not, add 1 to the single colors
+                        colorCount++;
+                        bitArray.Set(index, true);
+                    }
 
-							int indexRed = (color.R >> 3) + 1;
-							int indexGreen = (color.G >> 3) + 1;
-							int indexBlue = (color.B >> 3) + 1;
+                    int indexRed = (color.R >> 3) + 1;
+                    int indexGreen = (color.G >> 3) + 1;
+                    int indexBlue = (color.B >> 3) + 1;
 
-							weights[indexRed, indexGreen, indexBlue]++;
-							momentsRed[indexRed, indexGreen, indexBlue] += color.R;
-							momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
-							momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
-							moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
+                    weights[indexRed, indexGreen, indexBlue]++;
+                    momentsRed[indexRed, indexGreen, indexBlue] += color.R;
+                    momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
+                    momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
+                    moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
 
-							// Store the initial "match"
-							int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-							destinationFastBitmap.SetColorIndexAt(x, y, (byte)(paletteIndex & 0xff));
-						}
-					}
-					resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
-				}
-			}
-		}
+                    // Store the initial "match"
+                    int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
+                    destinationFastBitmap.SetColorIndexAt(x, y, (byte)(paletteIndex & 0xff));
+                }
+            }
+            resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
+        }
 
 		/// <summary>
 		/// See <see cref="IColorQuantizer.Prepare"/> for more details.
@@ -213,31 +211,30 @@ namespace GreenshotPlugin.Core {
 			Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
 			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
 				bbbDest.Lock();
-				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap)) {
-					IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
+                using IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap);
+                IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
 
-					bbbSrc.Lock();
-					byte index;
-					for (int y = 0; y < bbbSrc.Height; y++) {
-						for (int x = 0; x < bbbSrc.Width; x++) {
-							Color color;
-							if (bbbSrcBlend != null) {
-								color = bbbSrcBlend.GetBlendedColorAt(x, y);
-							} else {
-								color = bbbSrc.GetColorAt(x, y);
-							}
-							if (lookup.ContainsKey(color)) {
-								index = lookup[color];
-							} else {
-								colors.Add(color);
-								index = (byte)(colors.Count - 1);
-								lookup.Add(color, index);
-							}
-							bbbDest.SetColorIndexAt(x, y, index);
-						}
-					}
-				}
-			}
+                bbbSrc.Lock();
+                byte index;
+                for (int y = 0; y < bbbSrc.Height; y++) {
+                    for (int x = 0; x < bbbSrc.Width; x++) {
+                        Color color;
+                        if (bbbSrcBlend != null) {
+                            color = bbbSrcBlend.GetBlendedColorAt(x, y);
+                        } else {
+                            color = bbbSrc.GetColorAt(x, y);
+                        }
+                        if (lookup.ContainsKey(color)) {
+                            index = lookup[color];
+                        } else {
+                            colors.Add(color);
+                            index = (byte)(colors.Count - 1);
+                            lookup.Add(color, index);
+                        }
+                        bbbDest.SetColorIndexAt(x, y, index);
+                    }
+                }
+            }
 
 			// generates palette
 			ColorPalette imagePalette = resultBitmap.Palette;
@@ -333,61 +330,61 @@ namespace GreenshotPlugin.Core {
 
 			LOG.Info("Starting bitmap reconstruction...");
 
-			using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap) {
-				using (IFastBitmap src = FastBitmap.Create(sourceBitmap)) {
-					IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
-					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-					for (int y = 0; y < src.Height; y++) {
-						for (int x = 0; x < src.Width; x++) {
-							Color color;
-							if (srcBlend != null) {
-								// WithoutAlpha, this makes it possible to ignore the alpha
-								color = srcBlend.GetBlendedColorAt(x, y);
-							} else {
-								color = src.GetColorAt(x, y);
-							}
+			using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
+            {
+                using IFastBitmap src = FastBitmap.Create(sourceBitmap);
+                IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
+                Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
+                for (int y = 0; y < src.Height; y++) {
+                    for (int x = 0; x < src.Width; x++) {
+                        Color color;
+                        if (srcBlend != null) {
+                            // WithoutAlpha, this makes it possible to ignore the alpha
+                            color = srcBlend.GetBlendedColorAt(x, y);
+                        } else {
+                            color = src.GetColorAt(x, y);
+                        }
 
-							// Check if we already matched the color
-							byte bestMatch;
-							if (!lookup.ContainsKey(color)) {
-								// If not we need to find the best match
+                        // Check if we already matched the color
+                        byte bestMatch;
+                        if (!lookup.ContainsKey(color)) {
+                            // If not we need to find the best match
 
-								// First get initial match
-								bestMatch = dest.GetColorIndexAt(x, y);
-								bestMatch = tag[bestMatch];
+                            // First get initial match
+                            bestMatch = dest.GetColorIndexAt(x, y);
+                            bestMatch = tag[bestMatch];
 
-								int bestDistance = 100000000;
-								for (int lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++) {
-									int foundRed = lookupRed[lookupIndex];
-									int foundGreen = lookupGreen[lookupIndex];
-									int foundBlue = lookupBlue[lookupIndex];
-									int deltaRed = color.R - foundRed;
-									int deltaGreen = color.G - foundGreen;
-									int deltaBlue = color.B - foundBlue;
+                            int bestDistance = 100000000;
+                            for (int lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++) {
+                                int foundRed = lookupRed[lookupIndex];
+                                int foundGreen = lookupGreen[lookupIndex];
+                                int foundBlue = lookupBlue[lookupIndex];
+                                int deltaRed = color.R - foundRed;
+                                int deltaGreen = color.G - foundGreen;
+                                int deltaBlue = color.B - foundBlue;
 
-									int distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
+                                int distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
 
-									if (distance < bestDistance) {
-										bestDistance = distance;
-										bestMatch = (byte)lookupIndex;
-									}
-								}
-								lookup.Add(color, bestMatch);
-							} else {
-								// Already matched, so we just use the lookup
-								bestMatch = lookup[color];
-							}
+                                if (distance < bestDistance) {
+                                    bestDistance = distance;
+                                    bestMatch = (byte)lookupIndex;
+                                }
+                            }
+                            lookup.Add(color, bestMatch);
+                        } else {
+                            // Already matched, so we just use the lookup
+                            bestMatch = lookup[color];
+                        }
 
-							reds[bestMatch] += color.R;
-							greens[bestMatch] += color.G;
-							blues[bestMatch] += color.B;
-							sums[bestMatch]++;
+                        reds[bestMatch] += color.R;
+                        greens[bestMatch] += color.G;
+                        blues[bestMatch] += color.B;
+                        sums[bestMatch]++;
 
-							dest.SetColorIndexAt(x, y, bestMatch);
-						}
-					}
-				}
-			}
+                        dest.SetColorIndexAt(x, y, bestMatch);
+                    }
+                }
+            }
 
 
 			// generates palette
@@ -491,56 +488,46 @@ namespace GreenshotPlugin.Core {
 		/// Splits the cube in given position, and color direction.
 		/// </summary>
 		private static long Top(WuColorCube cube, int direction, int position, long[,,] moment) {
-			switch (direction) {
-				case RED:
-					return (moment[position, cube.GreenMaximum, cube.BlueMaximum] -
-							moment[position, cube.GreenMaximum, cube.BlueMinimum] -
-							moment[position, cube.GreenMinimum, cube.BlueMaximum] +
-							moment[position, cube.GreenMinimum, cube.BlueMinimum]);
-
-				case GREEN:
-					return (moment[cube.RedMaximum, position, cube.BlueMaximum] -
-							moment[cube.RedMaximum, position, cube.BlueMinimum] -
-							moment[cube.RedMinimum, position, cube.BlueMaximum] +
-							moment[cube.RedMinimum, position, cube.BlueMinimum]);
-
-				case BLUE:
-					return (moment[cube.RedMaximum, cube.GreenMaximum, position] -
-							moment[cube.RedMaximum, cube.GreenMinimum, position] -
-							moment[cube.RedMinimum, cube.GreenMaximum, position] +
-							moment[cube.RedMinimum, cube.GreenMinimum, position]);
-
-				default:
-					return 0;
-			}
+			return direction switch
+			{
+				RED => (moment[position, cube.GreenMaximum, cube.BlueMaximum] -
+                    moment[position, cube.GreenMaximum, cube.BlueMinimum] -
+                    moment[position, cube.GreenMinimum, cube.BlueMaximum] +
+                    moment[position, cube.GreenMinimum, cube.BlueMinimum]),
+				GREEN => (moment[cube.RedMaximum, position, cube.BlueMaximum] -
+                    moment[cube.RedMaximum, position, cube.BlueMinimum] -
+                    moment[cube.RedMinimum, position, cube.BlueMaximum] +
+                    moment[cube.RedMinimum, position, cube.BlueMinimum]),
+				BLUE => (moment[cube.RedMaximum, cube.GreenMaximum, position] -
+                    moment[cube.RedMaximum, cube.GreenMinimum, position] -
+                    moment[cube.RedMinimum, cube.GreenMaximum, position] +
+                    moment[cube.RedMinimum, cube.GreenMinimum, position]),
+				_ => 0,
+			};
 		}
 
 		/// <summary>
 		/// Splits the cube in a given color direction at its minimum.
 		/// </summary>
-		private static long Bottom(WuColorCube cube, int direction, long[,,] moment) {
-			switch (direction) {
-				case RED:
-					return (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
-							 moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
-							 moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-							 moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
-
-				case GREEN:
-					return (-moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
-							 moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-							 moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-							 moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
-
-				case BLUE:
-					return (-moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
-							 moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-							 moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
-							 moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
-				default:
-					return 0;
-			}
-		}
+		private static long Bottom(WuColorCube cube, int direction, long[,,] moment)
+        {
+            return direction switch
+            {
+                RED => (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
+                        moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
+                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
+                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
+                GREEN => (-moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
+                          moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
+                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
+                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
+                BLUE => (-moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
+                         moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
+                         moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
+                         moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
+                _ => 0
+            };
+        }
 
 		/// <summary>
 		/// Calculates statistical variance for a given cube.

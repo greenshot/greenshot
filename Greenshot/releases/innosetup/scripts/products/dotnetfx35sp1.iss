@@ -6,8 +6,7 @@
 [CustomMessages]
 dotnetfx35sp1_title=.NET Framework 3.5 Service Pack 1
 
-en.dotnetfx35sp1_size=3 MB - 232 MB
-de.dotnetfx35sp1_size=3 MB - 232 MB
+dotnetfx35sp1_size=3 MB - 232 MB
 
 [Code]
 const

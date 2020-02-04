@@ -54,9 +54,9 @@ var
   temp1, temp2: String;
 
 begin
-    temp1 := versionA;
-    temp2 := versionB;
-    Result := compareinnerversion(temp1, temp2);
+	temp1 := versionA;
+	temp2 := versionB;
+	Result := compareinnerversion(temp1, temp2);
 end;
 
 [Setup]

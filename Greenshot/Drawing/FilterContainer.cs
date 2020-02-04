@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -77,21 +77,21 @@ namespace Greenshot.Drawing {
 					int alpha = basealpha;
 					int steps = 5;
 					int currentStep = lineVisible ? 1 : 0;
-					while (currentStep <= steps) {
-						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
-							Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
-							graphics.DrawRectangle(shadowPen, shadowRect);
-							currentStep++;
-							alpha = alpha - basealpha / steps;
-						}
-					}
+					while (currentStep <= steps)
+                    {
+                        using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                        Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
+                        graphics.DrawRectangle(shadowPen, shadowRect);
+                        currentStep++;
+                        alpha -= basealpha / steps;
+                    }
 				}
 				Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-				if (lineThickness > 0) {
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						graphics.DrawRectangle(pen, rect);
-					}
-				}
+				if (lineThickness > 0)
+                {
+                    using Pen pen = new Pen(lineColor, lineThickness);
+                    graphics.DrawRectangle(pen, rect);
+                }
 			}
 		}
 	}

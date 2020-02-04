@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -63,8 +63,7 @@ namespace Greenshot.Plugin {
 		}
 		
 		public int CompareTo(object obj) {
-			PluginAttribute other = obj as PluginAttribute;
-			if (other != null) {
+            if (obj is PluginAttribute other) {
 				return Name.CompareTo(other.Name);
 			}
 			throw new ArgumentException("object is not a PluginAttribute");

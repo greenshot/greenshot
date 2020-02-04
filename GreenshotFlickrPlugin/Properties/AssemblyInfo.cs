@@ -26,22 +26,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Greenshot-Flickr-Plugin")]
 [assembly: AssemblyDescription("A plugin to upload images to Flickr")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Greenshot & F. Noel")]
-[assembly: AssemblyProduct("Flickr Plugin")]
-[assembly: AssemblyCopyright("Copyright (C) 2012")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: PluginAttribute("GreenshotFlickrPlugin.FlickrPlugin", true)]
+[assembly: Plugin("GreenshotFlickrPlugin.FlickrPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
-
-// The assembly version, replaced by build scripts
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyInformationalVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

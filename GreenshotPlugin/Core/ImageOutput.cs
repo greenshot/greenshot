@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -75,16 +75,15 @@ namespace GreenshotPlugin.Core {
 			}
 			return propertyItem;
 		}
-		#region save
-		/// <summary>
+
+        /// <summary>
 		/// Saves ISurface to stream with specified output settings
 		/// </summary>
 		/// <param name="surface">ISurface to save</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
 		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
-			Image imageToSave;
-			bool disposeImage = CreateImageFromSurface(surface, outputSettings, out imageToSave);
+            bool disposeImage = CreateImageFromSurface(surface, outputSettings, out var imageToSave);
 			SaveToStream(imageToSave, surface, stream, outputSettings);
 			// cleanup if needed
 			if (disposeImage) {
@@ -109,28 +108,16 @@ namespace GreenshotPlugin.Core {
 			}
 
 			try {
-				ImageFormat imageFormat;
-				switch (outputSettings.Format) {
-					case OutputFormat.bmp:
-						imageFormat = ImageFormat.Bmp;
-						break;
-					case OutputFormat.gif:
-						imageFormat = ImageFormat.Gif;
-						break;
-					case OutputFormat.jpg:
-						imageFormat = ImageFormat.Jpeg;
-						break;
-					case OutputFormat.tiff:
-						imageFormat = ImageFormat.Tiff;
-						break;
-					case OutputFormat.ico:
-						imageFormat = ImageFormat.Icon;
-						break;
-					default:
-						imageFormat = ImageFormat.Png;
-						break;
-				}
-				Log.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
+                var imageFormat = outputSettings.Format switch
+                {
+                    OutputFormat.bmp => ImageFormat.Bmp,
+                    OutputFormat.gif => ImageFormat.Gif,
+                    OutputFormat.jpg => ImageFormat.Jpeg,
+                    OutputFormat.tiff => ImageFormat.Tiff,
+                    OutputFormat.ico => ImageFormat.Icon,
+                    _ => ImageFormat.Png
+                };
+                Log.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
 				// Check if we want to use a memory stream, to prevent issues with non seakable streams
 				// The save is made to the targetStream, this is directed to either the MemoryStream or the original
@@ -177,8 +164,10 @@ namespace GreenshotPlugin.Core {
 					}
 				} else if (Equals(imageFormat, ImageFormat.Icon)) {
 					// FEATURE-916: Added Icon support
-					IList<Image> images = new List<Image>();
-					images.Add(imageToSave);
+					IList<Image> images = new List<Image>
+					{
+						imageToSave
+					};
 					WriteIcon(stream, images);
 				} else {
 					bool needsDispose = false;
@@ -211,17 +200,16 @@ namespace GreenshotPlugin.Core {
 			    {
 			        return;
 			    }
-			    using (MemoryStream tmpStream = new MemoryStream()) {
-			        long bytesWritten = surface.SaveElementsToStream(tmpStream);
-			        using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
-			            writer.Write(bytesWritten);
-			            Version v = Assembly.GetExecutingAssembly().GetName().Version;
-			            byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-			            writer.Write(marker);
-			            tmpStream.WriteTo(stream);
-			        }
-			    }
-			}
+
+                using MemoryStream tmpStream = new MemoryStream();
+                long bytesWritten = surface.SaveElementsToStream(tmpStream);
+                using BinaryWriter writer = new BinaryWriter(tmpStream);
+                writer.Write(bytesWritten);
+                Version v = Assembly.GetExecutingAssembly().GetName().Version;
+                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
+                writer.Write(marker);
+                tmpStream.WriteTo(stream);
+            }
 			finally
 			{
 				memoryStream?.Dispose();
@@ -263,24 +251,23 @@ namespace GreenshotPlugin.Core {
 					RedirectStandardError = true,
 					UseShellExecute = false
 				};
-				using (Process process = Process.Start(processStartInfo)) {
-					if (process != null) {
-						process.WaitForExit();
-						if (process.ExitCode == 0) {
-							if (Log.IsDebugEnabled) {
-								Log.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
-								Log.DebugFormat("Reading back tmp file: {0}", tmpFileName);
-							}
-							byte[] processedImage = File.ReadAllBytes(tmpFileName);
-							targetStream.Write(processedImage, 0, processedImage.Length);
-							return true;
-						}
-						Log.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
-						Log.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
-						Log.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
-					}
-				}
-			} catch (Exception e) {
+                using Process process = Process.Start(processStartInfo);
+                if (process != null) {
+                    process.WaitForExit();
+                    if (process.ExitCode == 0) {
+                        if (Log.IsDebugEnabled) {
+                            Log.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
+                            Log.DebugFormat("Reading back tmp file: {0}", tmpFileName);
+                        }
+                        byte[] processedImage = File.ReadAllBytes(tmpFileName);
+                        targetStream.Write(processedImage, 0, processedImage.Length);
+                        return true;
+                    }
+                    Log.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
+                    Log.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
+                    Log.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
+                }
+            } catch (Exception e) {
 				Log.Error("Error while processing PNG image: ", e);
 			} finally {
 				if (File.Exists(tmpFileName)) {
@@ -334,27 +321,27 @@ namespace GreenshotPlugin.Core {
 				return disposeImage;
 			}
 			bool isAlpha = Image.IsAlphaPixelFormat(imageToSave.PixelFormat);
-			if (outputSettings.ReduceColors || (!isAlpha && CoreConfig.OutputFileAutoReduceColors)) {
-				using (var quantizer = new WuQuantizer((Bitmap)imageToSave)) {
-					int colorCount = quantizer.GetColorCount();
-					Log.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-					if (!outputSettings.ReduceColors && colorCount >= 256) {
-						return disposeImage;
-					}
-					try {
-						Log.Info("Reducing colors on bitmap to 256.");
-						tmpImage = quantizer.GetQuantizedImage(CoreConfig.OutputFileReduceColorsTo);
-						if (disposeImage) {
-							imageToSave.Dispose();
-						}
-						imageToSave = tmpImage;
-						// Make sure the "new" image is disposed
-						disposeImage = true;
-					} catch (Exception e) {
-						Log.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
-					}
-				}
-			} else if (isAlpha && !outputSettings.ReduceColors) {
+			if (outputSettings.ReduceColors || (!isAlpha && CoreConfig.OutputFileAutoReduceColors))
+            {
+                using var quantizer = new WuQuantizer((Bitmap)imageToSave);
+                int colorCount = quantizer.GetColorCount();
+                Log.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+                if (!outputSettings.ReduceColors && colorCount >= 256) {
+                    return disposeImage;
+                }
+                try {
+                    Log.Info("Reducing colors on bitmap to 256.");
+                    tmpImage = quantizer.GetQuantizedImage(CoreConfig.OutputFileReduceColorsTo);
+                    if (disposeImage) {
+                        imageToSave.Dispose();
+                    }
+                    imageToSave = tmpImage;
+                    // Make sure the "new" image is disposed
+                    disposeImage = true;
+                } catch (Exception e) {
+                    Log.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+                }
+            } else if (isAlpha && !outputSettings.ReduceColors) {
 				Log.Info("Skipping 'optional' color reduction as the image has alpha");
 			}
 			return disposeImage;
@@ -444,11 +431,8 @@ namespace GreenshotPlugin.Core {
 			}
 			return format;
 		}
-		#endregion
 
-		#region save-as
-
-		/// <summary>
+        /// <summary>
 		/// Save with showing a dialog
 		/// </summary>
 		/// <param name="surface"></param>
@@ -477,9 +461,8 @@ namespace GreenshotPlugin.Core {
 			}
 			return returnValue;
 		}
-		#endregion
 
-		/// <summary>
+        /// <summary>
 		/// Create a tmpfile which has the name like in the configured pattern.
 		/// Used e.g. by the email export
 		/// </summary>
@@ -580,16 +563,13 @@ namespace GreenshotPlugin.Core {
 		/// <param name="filekey"></param>
 		/// <param name="filename"></param>
 		private static void RemoveExpiredTmpFile(string filekey, object filename) {
-			string path = filename as string;
-			if (path != null && File.Exists(path)) {
+            if (filename is string path && File.Exists(path)) {
 				Log.DebugFormat("Removing expired file {0}", path);
 				File.Delete(path);
 			}
 		}
 
-		#region Icon
-
-		/// <summary>
+        /// <summary>
 		/// Write the images to the stream as icon
 		/// Every image is resized to 256x256 (but the content maintains the aspect ratio)
 		/// </summary>
@@ -622,25 +602,19 @@ namespace GreenshotPlugin.Core {
 				}
 				var imageStream = new MemoryStream();
 				if (image.Width == size && image.Height == size)
-				{
-					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
-					{
-						clonedImage.Save(imageStream, ImageFormat.Png);
-						imageSizes.Add(new Size(size, size));
-					}
-				}
+                {
+                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
+                    clonedImage.Save(imageStream, ImageFormat.Png);
+                    imageSizes.Add(new Size(size, size));
+                }
 				else
-				{
-					// Resize to the specified size, first make sure the image is 32bpp
-					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
-					{
-						using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null))
-						{
-							resizedImage.Save(imageStream, ImageFormat.Png);
-							imageSizes.Add(resizedImage.Size);
-						}
-					}
-				}
+                {
+                    // Resize to the specified size, first make sure the image is 32bpp
+                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
+                    using var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null);
+                    resizedImage.Save(imageStream, ImageFormat.Png);
+                    imageSizes.Add(resizedImage.Size);
+                }
 
 				imageStream.Seek(0, SeekOrigin.Begin);
 				encodedImages.Add(imageStream);
@@ -678,7 +652,5 @@ namespace GreenshotPlugin.Core {
 				encodedImage.Dispose();
 			}
 		}
-		#endregion
-
-	}
+    }
 }

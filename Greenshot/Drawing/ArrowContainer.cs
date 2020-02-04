@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -68,27 +68,27 @@ namespace Greenshot.Drawing {
 						int alpha = basealpha;
 						int steps = 5;
 						int currentStep = 1;
-						while (currentStep <= steps) {
-							using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
-								SetArrowHeads(heads, shadowCapPen);
+						while (currentStep <= steps)
+                        {
+                            using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                            SetArrowHeads(heads, shadowCapPen);
 
-								graphics.DrawLine(shadowCapPen,
-									Left + currentStep,
-									Top + currentStep,
-									Left + currentStep + Width,
-									Top + currentStep + Height);
+                            graphics.DrawLine(shadowCapPen,
+                                Left + currentStep,
+                                Top + currentStep,
+                                Left + currentStep + Width,
+                                Top + currentStep + Height);
 
-								currentStep++;
-								alpha = alpha - basealpha / steps;
-							}
-						}
+                            currentStep++;
+                            alpha -= basealpha / steps;
+                        }
 
 					}
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						SetArrowHeads(heads, pen);
-						graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
-					}
-				}
+
+                    using Pen pen = new Pen(lineColor, lineThickness);
+                    SetArrowHeads(heads, pen);
+                    graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+                }
 			}
 		}
 		
@@ -104,36 +104,37 @@ namespace Greenshot.Drawing {
 		public override Rectangle DrawingBounds {
 			get {
 				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				if (lineThickness > 0) {
-					using (Pen pen = new Pen(Color.White)) {
-						pen.Width = lineThickness;
-						SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
-						using (GraphicsPath path = new GraphicsPath()) {
-							path.AddLine(Left, Top, Left + Width, Top + Height);
-							using (Matrix matrix = new Matrix()) {
-								Rectangle drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-								drawingBounds.Inflate(2, 2);
-								return drawingBounds;
-							}
-						}
-					}
-				}
+				if (lineThickness > 0)
+                {
+					using Pen pen = new Pen(Color.White)
+					{
+						Width = lineThickness
+					};
+					SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
+                    using GraphicsPath path = new GraphicsPath();
+                    path.AddLine(Left, Top, Left + Width, Top + Height);
+                    using Matrix matrix = new Matrix();
+                    Rectangle drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
+                    drawingBounds.Inflate(2, 2);
+                    return drawingBounds;
+                }
 				return Rectangle.Empty;
 			}
 		}
 		
 		public override bool ClickableAt(int x, int y) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness;
-					SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
-					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+			if (lineThickness > 0)
+            {
+				using Pen pen = new Pen(Color.White)
+				{
+					Width = lineThickness
+				};
+				SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
+                using GraphicsPath path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 	}

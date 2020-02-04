@@ -19,15 +19,11 @@
 //  You should have Config a copy of the GNU Lesser General Public License
 //  along with Dapplo.Addons. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
-#region using
-
 using log4net;
 using System;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
-
-#endregion
 
 namespace Greenshot.Helpers
 {
@@ -91,9 +87,8 @@ namespace Greenshot.Helpers
 				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
 				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
 
-				bool createdNew;
-				// 1) Create Mutex
-				_applicationMutex = new Mutex(true, _mutexId, out createdNew, mutexsecurity);
+                // 1) Create Mutex
+				_applicationMutex = new Mutex(true, _mutexId, out var createdNew, mutexsecurity);
 				// 2) if the mutex wasn't created new get the right to it, this returns false if it's already locked
 				if (!createdNew && !_applicationMutex.WaitOne(100, false))
 				{
@@ -130,9 +125,7 @@ namespace Greenshot.Helpers
 			return IsLocked;
 		}
 
-		#region IDisposable Support
-
-		//  To detect redundant Dispose calls
+        //  To detect redundant Dispose calls
 		private bool _disposedValue;
 
 		/// <summary>
@@ -179,7 +172,5 @@ namespace Greenshot.Helpers
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-
-		#endregion
-	}
+    }
 }

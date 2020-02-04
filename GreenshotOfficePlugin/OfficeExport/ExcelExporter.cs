@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,16 +39,16 @@ namespace Greenshot.Interop.Office {
 				if (excelApplication == null) {
 					return currentWorkbooks;
 				}
-				using (IWorkbooks workbooks = excelApplication.Workbooks) {
-					for (int i = 1; i <= workbooks.Count; i++) {
-						using (IWorkbook workbook = workbooks[i]) {
-							if (workbook != null) {
-								currentWorkbooks.Add(workbook.Name);
-							}
-						}
-					}
-				}
-			}
+
+                using IWorkbooks workbooks = excelApplication.Workbooks;
+                for (int i = 1; i <= workbooks.Count; i++)
+                {
+                    using IWorkbook workbook = workbooks[i];
+                    if (workbook != null) {
+                        currentWorkbooks.Add(workbook.Name);
+                    }
+                }
+            }
 			currentWorkbooks.Sort();
 			return currentWorkbooks;
 		}
@@ -59,27 +59,27 @@ namespace Greenshot.Interop.Office {
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
-		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = GetExcelApplication()) {
-				if (excelApplication == null) {
-					return;
-				}
-				using (IWorkbooks workbooks = excelApplication.Workbooks) {
-					for (int i = 1; i <= workbooks.Count; i++) {
-						using (IWorkbook workbook = workbooks[i]) {
-							if (workbook != null && workbook.Name.StartsWith(workbookName)) {
-								InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-							}
-						}
-					}
-				}
-				int hWnd = excelApplication.Hwnd;
-				if (hWnd > 0)
-				{
-					WindowDetails.ToForeground(new IntPtr(hWnd));
-				}
-			}
-		}
+		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+        {
+            using IExcelApplication excelApplication = GetExcelApplication();
+            if (excelApplication == null) {
+                return;
+            }
+            using (IWorkbooks workbooks = excelApplication.Workbooks) {
+                for (int i = 1; i <= workbooks.Count; i++)
+                {
+                    using IWorkbook workbook = workbooks[i];
+                    if (workbook != null && workbook.Name.StartsWith(workbookName)) {
+                        InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+                    }
+                }
+            }
+            int hWnd = excelApplication.Hwnd;
+            if (hWnd > 0)
+            {
+                WindowDetails.ToForeground(new IntPtr(hWnd));
+            }
+        }
 
 		/// <summary>
 		/// Insert a file into an already created workbook
@@ -92,38 +92,37 @@ namespace Greenshot.Interop.Office {
 			if (workSheet == null) {
 				return;
 			}
-			using (IShapes shapes = workSheet.Shapes) {
-				if (shapes != null) {
-					using (IShape shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height)) {
-						if (shape != null) {
-							shape.Top = 40;
-							shape.Left = 40;
-							shape.LockAspectRatio = MsoTriState.msoTrue;
-							shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-							shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-						}
-					}
-				}
-			}
-		}
+
+            using IShapes shapes = workSheet.Shapes;
+            if (shapes != null)
+            {
+                using IShape shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
+                if (shape != null) {
+                    shape.Top = 40;
+                    shape.Left = 40;
+                    shape.LockAspectRatio = MsoTriState.msoTrue;
+                    shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+                    shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+                }
+            }
+        }
 
 		/// <summary>
 		/// Add an image-file to a newly created workbook
 		/// </summary>
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
-		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = GetOrCreateExcelApplication()) {
-				if (excelApplication != null) {
-					excelApplication.Visible = true;
-					object template = Missing.Value;
-					using (IWorkbooks workbooks = excelApplication.Workbooks) {
-						IWorkbook workbook = workbooks.Add(template);
-						InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-					}
-				}
-			}
-		}
+		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+        {
+            using IExcelApplication excelApplication = GetOrCreateExcelApplication();
+            if (excelApplication != null) {
+                excelApplication.Visible = true;
+                object template = Missing.Value;
+                using IWorkbooks workbooks = excelApplication.Workbooks;
+                IWorkbook workbook = workbooks.Add(template);
+                InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+            }
+        }
 
 
 		/// <summary>

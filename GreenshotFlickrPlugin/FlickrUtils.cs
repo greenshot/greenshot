@@ -81,16 +81,20 @@ namespace GreenshotFlickrPlugin {
 				IniConfig.Save();
 			}
 			try {
-				IDictionary<string, object> signedParameters = new Dictionary<string, object>();
-				signedParameters.Add("content_type", "2");	// Screenshot
-				signedParameters.Add("tags", "Greenshot");
-				signedParameters.Add("is_public", config.IsPublic ? "1" : "0");
-				signedParameters.Add("is_friend", config.IsFriend ? "1" : "0");
-				signedParameters.Add("is_family", config.IsFamily ? "1" : "0");
-				signedParameters.Add("safety_level", $"{(int) config.SafetyLevel}");
-				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
-				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
-				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+				IDictionary<string, object> signedParameters = new Dictionary<string, object>
+				{
+					{ "content_type", "2" },    // Screenshot
+					{ "tags", "Greenshot" },
+					{ "is_public", config.IsPublic ? "1" : "0" },
+					{ "is_friend", config.IsFriend ? "1" : "0" },
+					{ "is_family", config.IsFamily ? "1" : "0" },
+					{ "safety_level", $"{(int)config.SafetyLevel}" },
+					{ "hidden", config.HiddenFromSearch ? "1" : "2" }
+				};
+				IDictionary<string, object> otherParameters = new Dictionary<string, object>
+				{
+					{ "photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename) }
+				};
 				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, FLICKR_UPLOAD_URL, signedParameters, otherParameters, null);
 				string photoId = GetPhotoId(response);
 

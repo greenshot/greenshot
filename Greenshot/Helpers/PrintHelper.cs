@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -143,11 +143,11 @@ namespace Greenshot.Helpers {
 		/// <returns>result of the print dialog, or null if the dialog has not been displayed by config</returns>
 		private DialogResult? ShowPrintOptionsDialog() {
 			DialogResult? ret = null;
-			if (CoreConfig.OutputPrintPromptOptions) {
-				using (PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog()) {
-					ret = printOptionsDialog.ShowDialog();
-				}
-			} 
+			if (CoreConfig.OutputPrintPromptOptions)
+            {
+                using PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog();
+                ret = printOptionsDialog.ShowDialog();
+            } 
 			return ret;
 		}
 
@@ -159,8 +159,7 @@ namespace Greenshot.Helpers {
 
 			ApplyEffects(printOutputSettings);
 
-			Image image;
-			bool disposeImage = ImageOutput.CreateImageFromSurface(_surface, printOutputSettings, out image);
+            bool disposeImage = ImageOutput.CreateImageFromSurface(_surface, printOutputSettings, out var image);
 			try {
 				ContentAlignment alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
@@ -170,11 +169,10 @@ namespace Greenshot.Helpers {
 				string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
 				if (CoreConfig.OutputPrintFooter) {
 					footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false);
-					using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
-						footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
-						footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
-					}
-				}
+                    using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
+                    footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
+                }
 
 				// Get a rectangle representing the printable Area
 				RectangleF pageRect = e.PageSettings.PrintableArea;
@@ -211,12 +209,12 @@ namespace Greenshot.Helpers {
 
 				// align the image
 				printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
-				if (CoreConfig.OutputPrintFooter) {
-					//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
-					using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
-						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
-					}
-				}
+				if (CoreConfig.OutputPrintFooter)
+                {
+                    //printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
+                    using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
+                }
 				e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
 
 			} finally {

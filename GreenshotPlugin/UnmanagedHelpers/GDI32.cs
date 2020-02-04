@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -401,7 +401,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		}
 	}
 
-	[StructLayoutAttribute(LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct BITMAPINFO {
 		/// <summary>
 		/// A BITMAPINFOHEADER structure that contains information about the dimensions of color format.
@@ -411,7 +411,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <summary>
 		/// An array of RGBQUAD. The elements of the array that make up the color table.
 		/// </summary>
-		[MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
 		public RGBQUAD[] bmiColors;
 	}
 

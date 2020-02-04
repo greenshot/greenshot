@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -135,8 +135,7 @@ namespace Greenshot.Drawing.Fields
 			return GetField(fieldType)?.Value;
 		}
 
-		#region convenience methods to save us some casts outside
-		public string GetFieldValueAsString(IFieldType fieldType)
+        public string GetFieldValueAsString(IFieldType fieldType)
 		{
 			return Convert.ToString(GetFieldValue(fieldType));
 		}
@@ -166,13 +165,12 @@ namespace Greenshot.Drawing.Fields
 			return Convert.ToBoolean(GetFieldValue(fieldType));
 		}
 
-		public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default(Color))
+		public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default)
 		{
 			return (Color)(GetFieldValue(fieldType) ?? defaultColor);
 		}
-		#endregion
 
-		public bool HasField(IFieldType fieldType)
+        public bool HasField(IFieldType fieldType)
 		{
 			return _fieldsByType.ContainsKey(fieldType);
 		}

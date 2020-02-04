@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -60,8 +60,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public const int MONITOR_DEFAULTTONEAREST = 2;
 		public const int CURSOR_SHOWING = 0x00000001;
 
-		#region DllImports
-		[DllImport("user32", SetLastError = true)]
+        [DllImport("user32", SetLastError = true)]
 		public static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -226,24 +225,21 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool CloseDesktop(IntPtr hDesktop);
 
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
 		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup
 		/// (i.e. negative coordinates arepossible in multiscreen setups)</returns>
 		public static Point GetCursorLocation() {
 			if (Environment.OSVersion.Version.Major >= 6 && _CanCallGetPhysicalCursorPos) {
-				POINT cursorLocation;
-				try {
-					if (GetPhysicalCursorPos(out cursorLocation)) {
+                try {
+					if (GetPhysicalCursorPos(out var cursorLocation)) {
 						return new Point(cursorLocation.X, cursorLocation.Y);
-					} else {
-						Win32Error error = Win32.GetLastErrorCode();
-						LOG.ErrorFormat("Error retrieving PhysicalCursorPos : {0}", Win32.GetMessage(error));
 					}
-				} catch (Exception ex) {
+
+                    Win32Error error = Win32.GetLastErrorCode();
+                    LOG.ErrorFormat("Error retrieving PhysicalCursorPos : {0}", Win32.GetMessage(error));
+                } catch (Exception ex) {
 					LOG.Error("Exception retrieving PhysicalCursorPos, no longer calling this. Cause :", ex);
 					_CanCallGetPhysicalCursorPos = false;
 				}
@@ -293,17 +289,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			}
 		}
 
-		public static uint GetGuiResourcesGDICount() {
-			using (Process currentProcess = Process.GetCurrentProcess()) {
-				return GetGuiResources(currentProcess.Handle, 0);
-			}
-		}
+		public static uint GetGuiResourcesGDICount()
+        {
+            using Process currentProcess = Process.GetCurrentProcess();
+            return GetGuiResources(currentProcess.Handle, 0);
+        }
 
-		public static uint GetGuiResourcesUserCount() {
-			using (Process currentProcess = Process.GetCurrentProcess()) {
-				return GetGuiResources(currentProcess.Handle, 1);
-			}
-		}
+		public static uint GetGuiResourcesUserCount()
+        {
+            using Process currentProcess = Process.GetCurrentProcess();
+            return GetGuiResources(currentProcess.Handle, 1);
+        }
 
 		/// <summary>
 		/// Helper method to create a Win32 exception with the windows message in it

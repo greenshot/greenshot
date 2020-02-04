@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -334,43 +334,41 @@ namespace Greenshot.Drawing
             FontStyle fontStyle = FontStyle.Regular;
 
             bool hasStyle = false;
-            using (var fontFamily = new FontFamily(fontFamilyName))
+            using var fontFamily = new FontFamily(fontFamilyName);
+            bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
+            if (fontBold && boldAvailable)
             {
-                bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
-                if (fontBold && boldAvailable)
-                {
-                    fontStyle |= FontStyle.Bold;
-                    hasStyle = true;
-                }
-
-                bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
-                if (fontItalic && italicAvailable)
-                {
-                    fontStyle |= FontStyle.Italic;
-                    hasStyle = true;
-                }
-
-                if (!hasStyle)
-                {
-                    bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
-                    if (regularAvailable)
-                    {
-                        fontStyle = FontStyle.Regular;
-                    }
-                    else
-                    {
-                        if (boldAvailable)
-                        {
-                            fontStyle = FontStyle.Bold;
-                        }
-                        else if (italicAvailable)
-                        {
-                            fontStyle = FontStyle.Italic;
-                        }
-                    }
-                }
-                return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
+                fontStyle |= FontStyle.Bold;
+                hasStyle = true;
             }
+
+            bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
+            if (fontItalic && italicAvailable)
+            {
+                fontStyle |= FontStyle.Italic;
+                hasStyle = true;
+            }
+
+            if (!hasStyle)
+            {
+                bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
+                if (regularAvailable)
+                {
+                    fontStyle = FontStyle.Regular;
+                }
+                else
+                {
+                    if (boldAvailable)
+                    {
+                        fontStyle = FontStyle.Bold;
+                    }
+                    else if (italicAvailable)
+                    {
+                        fontStyle = FontStyle.Italic;
+                    }
+                }
+            }
+            return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
         }
 
         /// <summary>
@@ -592,12 +590,11 @@ namespace Greenshot.Drawing
                     {
                         shadowRect.Inflate(-textOffset, -textOffset);
                     }
-                    using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100)))
-                    {
-                        graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
-                        currentStep++;
-                        alpha = alpha - basealpha / steps;
-                    }
+
+                    using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
+                    graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
+                    currentStep++;
+                    alpha -= basealpha / steps;
                 }
             }
 

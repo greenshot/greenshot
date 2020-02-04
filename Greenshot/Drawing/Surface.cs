@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -913,16 +913,14 @@ namespace Greenshot.Drawing
 				string possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http"))
-				{
-					using (Image image = NetworkHelper.DownloadImage(possibleUrl))
-					{
-						if (image != null)
-						{
-							AddImageContainer(image, mouse.X, mouse.Y);
-							return;
-						}
-					}
-				}
+                {
+                    using Image image = NetworkHelper.DownloadImage(possibleUrl);
+                    if (image != null)
+                    {
+                        AddImageContainer(image, mouse.X, mouse.Y);
+                        return;
+                    }
+                }
 			}
 
 			foreach (Image image in ClipboardHelper.GetImages(e.Data))
@@ -1537,10 +1535,9 @@ namespace Greenshot.Drawing
 		public void AddElement(IDrawableContainer element, bool makeUndoable = true, bool invalidate = true)
 		{
 			_elements.Add(element);
-			DrawableContainer container = element as DrawableContainer;
-			if (container != null)
+            if (element is DrawableContainer container)
 			{
-				container.FieldChanged += element_FieldChanged;
+				container.FieldChanged += Element_FieldChanged;
 			}
 			element.Parent = this;
 			if (element.Status == EditStatus.UNDRAWN)
@@ -1602,10 +1599,9 @@ namespace Greenshot.Drawing
 		{
 			DeselectElement(elementToRemove, generateEvents);
 			_elements.Remove(elementToRemove);
-			DrawableContainer element = elementToRemove as DrawableContainer;
-			if (element != null)
+            if (elementToRemove is DrawableContainer element)
 			{
-				element.FieldChanged -= element_FieldChanged;
+				element.FieldChanged -= Element_FieldChanged;
 			}
 			if (elementToRemove != null)
 			{
@@ -2099,7 +2095,7 @@ namespace Greenshot.Drawing
 			return _elements.CanPushDown(selectedElements);
 		}
 
-		public void element_FieldChanged(object sender, FieldChangedEventArgs e)
+		public void Element_FieldChanged(object sender, FieldChangedEventArgs e)
 		{
 			selectedElements.HandleFieldChangedEvent(sender, e);
 		}

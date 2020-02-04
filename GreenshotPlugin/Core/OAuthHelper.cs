@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -250,8 +250,7 @@ namespace GreenshotPlugin.Core {
 
 		// default _browser size
 
-		#region PublicProperties
-		public HTTPMethod RequestTokenMethod {
+        public HTTPMethod RequestTokenMethod {
 			get;
 			set;
 		}
@@ -311,10 +310,8 @@ namespace GreenshotPlugin.Core {
 			get;
 			set;
 		}
-		
-		#endregion
 
-		/// <summary>
+        /// <summary>
 		/// Create an OAuthSession with the consumerKey / consumerSecret
 		/// </summary>
 		/// <param name="consumerKey">"Public" key for the encoding. When using RSASHA1 this is the path to the private key file</param>
@@ -431,8 +428,7 @@ namespace GreenshotPlugin.Core {
 				response = NetworkHelper.UrlDecode(response);
 				Log.DebugFormat("Request token response: {0}", response);
 				_requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				string value;
-				if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value)) {
+                if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out var value)) {
 					Token = value;
 					TokenSecret = _requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
 				}
@@ -455,12 +451,11 @@ namespace GreenshotPlugin.Core {
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
-					string tokenValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue)) {
+                    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue)) {
 						Token = tokenValue;
 					}
-					string verifierValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out verifierValue)) {
+
+                    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out var verifierValue)) {
 						Verifier = verifierValue;
 					}
 				}
@@ -491,12 +486,11 @@ namespace GreenshotPlugin.Core {
 				response = NetworkHelper.UrlDecode(response);
 				Log.DebugFormat("Access token response: {0}", response);
 				AccessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				string tokenValue;
-				if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null) {
+                if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue) && tokenValue != null) {
 					Token = tokenValue;
 				}
-				string secretValue;
-				if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out secretValue) && secretValue != null) {
+
+                if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out var secretValue) && secretValue != null) {
 					TokenSecret = secretValue;
 				}
 			}
@@ -780,10 +774,9 @@ namespace GreenshotPlugin.Core {
 					}
 					webRequest.ContentType = "application/x-www-form-urlencoded";
 					byte[] data = Encoding.UTF8.GetBytes(form.ToString());
-					using (var requestStream = webRequest.GetRequestStream()) {
-						requestStream.Write(data, 0, data.Length);
-					}
-				}
+                    using var requestStream = webRequest.GetRequestStream();
+                    requestStream.Write(data, 0, data.Length);
+                }
 			} else if (postData != null) {
 				postData.Upload(webRequest);
 			} else {
@@ -921,10 +914,9 @@ Greenshot received information from CloudServiceName. You can close this browser
 					byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
 					response.ContentLength64 = buffer.Length;
-					using (var stream = response.OutputStream) {
-						stream.Write(buffer, 0, buffer.Length);
-					}
-				}
+                    using var stream = response.OutputStream;
+                    stream.Write(buffer, 0, buffer.Length);
+                }
 
 				// Create a new response URL with a dictionary that contains all the response query parameters.
 				foreach (var name in nameValueCollection.AllKeys) {
@@ -973,13 +965,15 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
 		public static void GenerateRefreshToken(OAuth2Settings settings) {
-			IDictionary<string, object> data = new Dictionary<string, object>();
-			// Use the returned code to get a refresh code
-			data.Add(Code, settings.Code);
-			data.Add(ClientId, settings.ClientId);
-			data.Add(RedirectUri, settings.RedirectUrl);
-			data.Add(ClientSecret, settings.ClientSecret);
-			data.Add(GrantType, AuthorizationCode);
+			IDictionary<string, object> data = new Dictionary<string, object>
+			{
+				// Use the returned code to get a refresh code
+				{ Code, settings.Code },
+				{ ClientId, settings.ClientId },
+				{ RedirectUri, settings.RedirectUrl },
+				{ ClientSecret, settings.ClientSecret },
+				{ GrantType, AuthorizationCode }
+			};
 			foreach (string key in settings.AdditionalAttributes.Keys) {
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
@@ -1044,8 +1038,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
 				if (expiresIn != null)
 				{
-					double seconds;
-					if (double.TryParse(expiresIn, out seconds))
+                    if (double.TryParse(expiresIn, out var seconds))
 					{
 						settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
 					}
@@ -1061,11 +1054,13 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// </summary>
 		/// <param name="settings"></param>
 		public static void GenerateAccessToken(OAuth2Settings settings) {
-			IDictionary<string, object> data = new Dictionary<string, object>();
-			data.Add(RefreshToken, settings.RefreshToken);
-			data.Add(ClientId, settings.ClientId);
-			data.Add(ClientSecret, settings.ClientSecret);
-			data.Add(GrantType, RefreshToken);
+			IDictionary<string, object> data = new Dictionary<string, object>
+			{
+				{ RefreshToken, settings.RefreshToken },
+				{ ClientId, settings.ClientId },
+				{ ClientSecret, settings.ClientSecret },
+				{ GrantType, RefreshToken }
+			};
 			foreach (string key in settings.AdditionalAttributes.Keys) {
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
@@ -1122,17 +1117,12 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>false if it was canceled, true if it worked, exception if not</returns>
 		public static bool Authenticate(OAuth2Settings settings) {
-			bool completed;
-			switch (settings.AuthorizeMode) {
-				case OAuth2AuthorizeMode.LocalServer:
-					completed = AuthenticateViaLocalServer(settings);
-					break;
-				case OAuth2AuthorizeMode.EmbeddedBrowser:
-					completed = AuthenticateViaEmbeddedBrowser(settings);
-					break;
-				default:
-					throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented.");
-			}
+			var completed = settings.AuthorizeMode switch
+			{
+				OAuth2AuthorizeMode.LocalServer => AuthenticateViaLocalServer(settings),
+				OAuth2AuthorizeMode.EmbeddedBrowser => AuthenticateViaEmbeddedBrowser(settings),
+				_ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
+			};
 			return completed;
 		}
 
@@ -1152,8 +1142,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 			OAuthLoginForm loginForm = new OAuthLoginForm($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
 			loginForm.ShowDialog();
 			if (loginForm.IsOk) {
-				string code;
-				if (loginForm.CallbackParameters.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code)) {
+                if (loginForm.CallbackParameters.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code)) {
 					settings.Code = code;
 					GenerateRefreshToken(settings);
 					return true;
@@ -1173,16 +1162,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 			var codeReceiver = new LocalServerCodeReceiver();
 			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
-			string code;
-			if (result.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code)) {
+            if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code)) {
 				settings.Code = code;
 				GenerateRefreshToken(settings);
 				return true;
 			}
-			string error;
-			if (result.TryGetValue("error", out error)) {
-				string errorDescription;
-				if (result.TryGetValue("error_description", out errorDescription)) {
+
+            if (result.TryGetValue("error", out var error)) {
+                if (result.TryGetValue("error_description", out var errorDescription)) {
 					throw new Exception(errorDescription);
 				}
 				if ("access_denied" == error) {

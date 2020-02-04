@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -65,10 +65,8 @@ namespace Greenshot.Forms {
 		}
 
 		private static bool Validate(object sender) {
-			TextBox textbox = sender as TextBox;
-			if (textbox != null) {
-				double numberEntered;
-				if (!double.TryParse(textbox.Text, out numberEntered)) {
+            if (sender is TextBox textbox) {
+                if (!double.TryParse(textbox.Text, out var numberEntered)) {
 					textbox.BackColor = Color.Red;
 					return false;
 				}

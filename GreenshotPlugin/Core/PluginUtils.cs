@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -59,21 +59,19 @@ namespace GreenshotPlugin.Core {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
-			if (e.PropertyName == "IconSize") {
-				List<Image> cachedImages = new List<Image>();
-				lock (ExeIconCache) {
-					foreach (string key in ExeIconCache.Keys) {
-						cachedImages.Add(ExeIconCache[key]);
-					}
-					ExeIconCache.Clear();
-				}
-				foreach (Image cachedImage in cachedImages)
-				{
-					cachedImage?.Dispose();
-				}
-
-			}
-		}
+            if (e.PropertyName != "IconSize") return;
+            List<Image> cachedImages = new List<Image>();
+            lock (ExeIconCache) {
+                foreach (string key in ExeIconCache.Keys) {
+                    cachedImages.Add(ExeIconCache[key]);
+                }
+                ExeIconCache.Clear();
+            }
+            foreach (Image cachedImage in cachedImages)
+            {
+                cachedImage?.Dispose();
+            }
+        }
 
 		/// <summary>
 		/// Get the path of an executable

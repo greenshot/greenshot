@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -160,11 +160,11 @@ namespace Greenshot.Helpers {
 			{
 				return;
 			}
-			try {
-				using (var key = Registry.LocalMachine.OpenSubKey(RunKey, true)) {
-					key?.DeleteValue(ApplicationName);
-				}
-			} catch (Exception e) {
+			try
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(RunKey, true);
+                key?.DeleteValue(ApplicationName);
+            } catch (Exception e) {
 				Log.Error("Error in deleteRunAll.", e);
 			}
 			try
@@ -174,10 +174,10 @@ namespace Greenshot.Helpers {
 				{
 					return;
 				}
-				using (var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false)) {
-					key?.DeleteValue(ApplicationName);
-				}
-			} catch (Exception e) {
+
+                using var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false);
+                key?.DeleteValue(ApplicationName);
+            } catch (Exception e) {
 				Log.Error("Error in deleteRunAll.", e);
 			}
 		}
@@ -190,11 +190,11 @@ namespace Greenshot.Helpers {
 			{
 				return;
 			}
-			try {
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true)) {
-					key?.DeleteValue(ApplicationName);
-				}
-			} catch (Exception e) {
+			try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
+                key?.DeleteValue(ApplicationName);
+            } catch (Exception e) {
 				Log.Error("Error in deleteRunUser.", e);
 			}
 			try
@@ -204,10 +204,10 @@ namespace Greenshot.Helpers {
 				{
 					return;
 				}
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false)) {
-					key?.DeleteValue(ApplicationName);
-				}
-			} catch (Exception e) {
+
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false);
+                key?.DeleteValue(ApplicationName);
+            } catch (Exception e) {
 				Log.Error("Error in deleteRunUser.", e);
 			}
 		}
@@ -216,12 +216,11 @@ namespace Greenshot.Helpers {
 		/// Set the RUN key for the current user
 		/// </summary>
 		public static void SetRunUser() {
-			try {
-				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true))
-				{
-					key?.SetValue(ApplicationName, GetExecutablePath());
-				}
-			} catch (Exception e) {
+			try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
+                key?.SetValue(ApplicationName, GetExecutablePath());
+            } catch (Exception e) {
 				Log.Error("Error in setRunUser.", e);
 			}
 		}

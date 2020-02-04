@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -138,11 +138,10 @@ namespace GreenshotConfluencePlugin {
 			}
 			string extension = "." + ConfluenceConfig.UploadFormat;
 			if (!filename.ToLower().EndsWith(extension)) {
-				filename = filename + extension;
+				filename += extension;
 			}
 			if (selectedPage != null) {
-				string errorMessage;
-				bool uploaded = Upload(surface, selectedPage, filename, out errorMessage);
+                bool uploaded = Upload(surface, selectedPage, filename, out var errorMessage);
 				if (uploaded) {
 					if (openPage) {
 						try

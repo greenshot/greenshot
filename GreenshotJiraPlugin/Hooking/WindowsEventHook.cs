@@ -55,8 +55,7 @@ namespace GreenshotJiraPlugin.Hooking
 			_gcHandle = GCHandle.Alloc(_winEventHandler);
 		}
 
-		#region native code
-		[DllImport("user32", SetLastError = true)]
+        [DllImport("user32", SetLastError = true)]
 		private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 		[DllImport("user32", SetLastError = true)]
 		private static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread, WinEventHookFlags dwFlags);
@@ -72,9 +71,8 @@ namespace GreenshotJiraPlugin.Hooking
 		/// <param name="dwEventThread"></param>
 		/// <param name="dwmsEventTime"></param>
 		private delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-		#endregion
 
-		private readonly IDictionary<IntPtr, WinEventHandler> _winEventHandlers = new Dictionary<IntPtr, WinEventHandler>();
+        private readonly IDictionary<IntPtr, WinEventHandler> _winEventHandlers = new Dictionary<IntPtr, WinEventHandler>();
 
 		/// <summary>
 		/// Are hooks active?
@@ -140,8 +138,7 @@ namespace GreenshotJiraPlugin.Hooking
 		/// <param name="dwmsEventTime"></param>
 		private void WinEventDelegateHandler(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
 		{
-			WinEventHandler handler;
-			if (_winEventHandlers.TryGetValue(hWinEventHook, out handler))
+            if (_winEventHandlers.TryGetValue(hWinEventHook, out var handler))
 			{
 				handler(eventType, hWnd, idObject, idChild, dwEventThread, dwmsEventTime);
 			}

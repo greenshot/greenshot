@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -650,8 +650,7 @@ namespace GreenshotPlugin.Core {
 		public abstract void GetColorAt(int x, int y, byte[] color);
 		public abstract void SetColorAt(int x, int y, byte[] color);
 
-		#region IFastBitmapWithClip
-		bool IFastBitmapWithClip.Contains(int x, int y) {
+        bool IFastBitmapWithClip.Contains(int x, int y) {
 			bool contains = Clip.Contains(x, y);
 			if (InvertClip) {
 				return !contains;
@@ -675,10 +674,8 @@ namespace GreenshotPlugin.Core {
 			}
 			SetColorAt(x, y, color);
 		}
-		#endregion
 
-		#region IFastBitmapWithOffset
-		/// <summary>
+        /// <summary>
 		/// returns true if x & y are inside the FastBitmap
 		/// </summary>
 		/// <param name="x"></param>
@@ -710,8 +707,7 @@ namespace GreenshotPlugin.Core {
 			y -= _top;
 			SetColorAt(x, y, color);
 		}
-		#endregion
-	}
+    }
 
 	/// <summary>
 	/// This is the implementation of the FastBitmat for the 8BPP pixelformat
@@ -788,8 +784,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="color">Color to set</param>
 		public override void SetColorAt(int x, int y, Color color) {
 			int offset = x + (y * Stride);
-			byte colorIndex;
-			if (!_colorCache.TryGetValue(color, out colorIndex)) {
+            if (!_colorCache.TryGetValue(color, out var colorIndex)) {
 				bool foundColor = false;
 				for (colorIndex = 0; colorIndex < _colorEntries.Length; colorIndex++) {
 					if (color == _colorEntries[colorIndex]) {

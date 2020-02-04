@@ -9,10 +9,6 @@ dotnetfx40client_title=.NET Framework 4.0 Client
 
 dotnetfx40client_size=3 MB - 197 MB
 
-;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
-en.dotnetfx40client_lcid=
-de.dotnetfx40client_lcid=/lcid 1031
-
 [Code]
 const
 	dotnetfx40client_url = 'http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/dotNetFx40_Client_setup.exe';
@@ -21,7 +17,7 @@ procedure dotnetfx40client();
 begin
 	if (not netfxinstalled(NetFx40Client, '')) then
 		AddProduct('dotNetFx40_Client_setup.exe',
-			CustomMessage('dotnetfx40client_lcid') + ' /passive /norestart',
+			'/lcid ' + CustomMessage('lcid') + ' /passive /norestart',
 			CustomMessage('dotnetfx40client_title'),
 			CustomMessage('dotnetfx40client_size'),
 			dotnetfx40client_url,

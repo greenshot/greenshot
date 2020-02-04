@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -182,31 +182,32 @@ namespace Greenshot.Drawing {
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			using (var pen = new Pen(lineColor)) {
-				pen.Width = lineThickness;
-			    if (!(pen.Width > 0))
-			    {
-			        return;
-			    }
-			    // Make sure the lines are nicely rounded
-			    pen.EndCap = LineCap.Round;
-			    pen.StartCap = LineCap.Round;
-			    pen.LineJoin = LineJoin.Round;
-			    // Move to where we need to draw
-			    graphics.TranslateTransform(Left, Top);
-			    lock (_freehandPathLock)
-			    {
-			        if (isRecalculated && Selected && renderMode == RenderMode.EDIT)
-			        {
-			            DrawSelectionBorder(graphics, pen, freehandPath);
-			        }
-			        graphics.DrawPath(pen, freehandPath);
-			    }
+            using var pen = new Pen(lineColor)
+            {
+                Width = lineThickness
+            };
+            if (!(pen.Width > 0))
+            {
+                return;
+            }
+            // Make sure the lines are nicely rounded
+            pen.EndCap = LineCap.Round;
+            pen.StartCap = LineCap.Round;
+            pen.LineJoin = LineJoin.Round;
+            // Move to where we need to draw
+            graphics.TranslateTransform(Left, Top);
+            lock (_freehandPathLock)
+            {
+                if (isRecalculated && Selected && renderMode == RenderMode.EDIT)
+                {
+                    DrawSelectionBorder(graphics, pen, freehandPath);
+                }
+                graphics.DrawPath(pen, freehandPath);
+            }
 
-                // Move back, otherwise everything is shifted
-                graphics.TranslateTransform(-Left,-Top);
-			}
-		}
+            // Move back, otherwise everything is shifted
+            graphics.TranslateTransform(-Left,-Top);
+        }
 
         /// <summary>
         /// Draw a selectionborder around the freehand path
@@ -214,20 +215,19 @@ namespace Greenshot.Drawing {
         /// <param name="graphics">Graphics</param>
         /// <param name="linePen">Pen</param>
         /// <param name="path">GraphicsPath</param>
-        protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path) {
-			using (var selectionPen = (Pen) linePen.Clone()) {
-				using (var selectionPath = (GraphicsPath)path.Clone()) {
-					selectionPen.Width += 5;
-					selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
-					graphics.DrawPath(selectionPen, selectionPath);
-					selectionPath.Widen(selectionPen);
-					selectionPen.DashPattern = new float[]{2,2};
-					selectionPen.Color = Color.LightSeaGreen;
-					selectionPen.Width = 1;
-					graphics.DrawPath(selectionPen, selectionPath);
-				}
-			}
-		}
+        protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path)
+        {
+            using var selectionPen = (Pen) linePen.Clone();
+            using var selectionPath = (GraphicsPath)path.Clone();
+            selectionPen.Width += 5;
+            selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
+            graphics.DrawPath(selectionPen, selectionPath);
+            selectionPath.Widen(selectionPen);
+            selectionPen.DashPattern = new float[]{2,2};
+            selectionPen.Color = Color.LightSeaGreen;
+            selectionPen.Width = 1;
+            graphics.DrawPath(selectionPen, selectionPath);
+        }
 		
 		/// <summary>
 		/// Get the bounds in which we have something drawn, plus safety margin, these are not the normal bounds...
@@ -254,8 +254,8 @@ namespace Greenshot.Drawing {
             {
                 return false;
             }
-            var other = obj as FreehandContainer;
-            if (other != null && Equals(freehandPath, other.freehandPath)) {
+
+            if (obj is FreehandContainer other && Equals(freehandPath, other.freehandPath)) {
                 ret = true;
             }
             return ret;
@@ -272,14 +272,15 @@ namespace Greenshot.Drawing {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
 				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				using (var pen = new Pen(Color.White)) {
-					pen.Width = lineThickness + 10;
-				    lock (_freehandPathLock)
-				    {
-				        returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
-                    }
+                using var pen = new Pen(Color.White)
+                {
+                    Width = lineThickness + 10
+                };
+                lock (_freehandPathLock)
+                {
+                    returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
                 }
-			}
+            }
 			return returnValue;
 		}
 	}

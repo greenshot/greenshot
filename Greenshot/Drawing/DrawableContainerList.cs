@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -483,10 +483,12 @@ namespace Greenshot.Drawing {
 			};
 			menu.Items.Add(item);
 
-			// Delete
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
-			item.Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
-			item.Click += delegate {
+            // Delete
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
+            {
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+            };
+            item.Click += delegate {
 				surface.RemoveElements(this);
 			};
 			menu.Items.Add(item);
@@ -556,8 +558,7 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		#region IDisposable Support
-		private bool _disposedValue; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -581,6 +582,5 @@ namespace Greenshot.Drawing {
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
-		#endregion
-	}
+    }
 }

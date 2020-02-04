@@ -1,8 +1,7 @@
 [CustomMessages]
 msi31_title=Windows Installer 3.1
 
-en.msi31_size=2.5 MB
-de.msi31_size=2,5 MB
+msi31_size=2.5 MB
 
 [Code]
 const

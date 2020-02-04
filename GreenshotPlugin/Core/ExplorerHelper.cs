@@ -33,14 +33,12 @@ namespace GreenshotPlugin.Core
 				}
 				// Check if path is a file
 				if (File.Exists(path))
-				{
-					// Start the explorer process and select the file
-					using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
-					{
-						explorer?.WaitForInputIdle(500);
-						return true;
-					}
-				}
+                {
+                    // Start the explorer process and select the file
+                    using var explorer = Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    explorer?.WaitForInputIdle(500);
+                    return true;
+                }
 			}
 			catch (Exception ex)
 			{

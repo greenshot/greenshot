@@ -54,8 +54,7 @@ namespace Greenshot.Drawing {
 			CreateDefaultAdorners();
 		}
 
-		#region Number serializing
-		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
+        // Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
 		// Used to store the counter start of the Surface, as the surface is NOT stored.
 		private int _counterStart = 1;
@@ -79,9 +78,8 @@ namespace Greenshot.Drawing {
 				_counterStart = ((Surface) Parent).CounterStart;
 			}
 		}
-		#endregion
 
-		/// <summary>
+        /// <summary>
 		/// Restore values that don't serialize
 		/// </summary>
 		/// <param name="context"></param>
@@ -211,12 +209,11 @@ namespace Greenshot.Drawing {
 			} else {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
-			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
-				}
-			}
-		}
+
+            using FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name);
+            using Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
+        }
 
 		public override bool ClickableAt(int x, int y) {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);

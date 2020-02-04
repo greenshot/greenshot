@@ -38,8 +38,7 @@ namespace Greenshot.Drawing
 
 		private Point _initialGripperPoint;
 
-		#region TargetGripper serializing code
-		// Only used for serializing the TargetGripper location
+        // Only used for serializing the TargetGripper location
 		private Point _storedTargetGripperLocation;
 
 		/// <summary>
@@ -62,9 +61,8 @@ namespace Greenshot.Drawing
 			base.OnDeserialized(streamingContext);
 			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
-		#endregion
 
-		public SpeechbubbleContainer(Surface parent)
+        public SpeechbubbleContainer(Surface parent)
 			: base(parent) {
 		}
 
@@ -132,13 +130,11 @@ namespace Greenshot.Drawing
 					int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 					Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 					bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
-						using (GraphicsPath tailPath = CreateTail()) {
-							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), inflateValue, inflateValue);
-						}
-					}
-				}
+                    using Pen pen = new Pen(lineColor, lineThickness);
+                    int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
+                    using GraphicsPath tailPath = CreateTail();
+                    return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)), inflateValue, inflateValue);
+                }
 				return Rectangle.Empty;
 			}
 		}
@@ -239,32 +235,30 @@ namespace Greenshot.Drawing
 				int alpha = basealpha;
 				const int steps = 5;
 				int currentStep = lineVisible ? 1 : 0;
-				using (Matrix shadowMatrix = new Matrix())
-				using (GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone())
-				using (GraphicsPath tailClone = (GraphicsPath)tail.Clone()) {
-					shadowMatrix.Translate(1, 1);
-					while (currentStep <= steps) {
-						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-							shadowPen.Width = lineVisible ? lineThickness : 1;
-							tailClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, tailClone);
-							bubbleClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, bubbleClone);
-						}
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
-				}
-			}
+                using Matrix shadowMatrix = new Matrix();
+                using GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone();
+                using GraphicsPath tailClone = (GraphicsPath)tail.Clone();
+                shadowMatrix.Translate(1, 1);
+                while (currentStep <= steps) {
+                    using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
+                        shadowPen.Width = lineVisible ? lineThickness : 1;
+                        tailClone.Transform(shadowMatrix);
+                        graphics.DrawPath(shadowPen, tailClone);
+                        bubbleClone.Transform(shadowMatrix);
+                        graphics.DrawPath(shadowPen, bubbleClone);
+                    }
+                    currentStep++;
+                    alpha -= basealpha / steps;
+                }
+            }
 
 			GraphicsState state = graphics.Save();
 			// draw the tail border where the bubble is not visible
 			using (Region clipRegion = new Region(bubble)) {
 				graphics.SetClip(clipRegion, CombineMode.Exclude);
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					graphics.DrawPath(pen, tail);
-				}
-			}
+                using Pen pen = new Pen(lineColor, lineThickness);
+                graphics.DrawPath(pen, tail);
+            }
 			graphics.Restore(state);
 
 			if (Colors.IsVisible(fillColor)) {
@@ -282,11 +276,10 @@ namespace Greenshot.Drawing
 				// Draw bubble where the Tail is not visible.
 				using (Region clipRegion = new Region(tail)) {
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
-					using (Pen pen = new Pen(lineColor, lineThickness)) {
-						//pen.EndCap = pen.StartCap = LineCap.Round;
-						graphics.DrawPath(pen, bubble);
-					}
-				}
+                    using Pen pen = new Pen(lineColor, lineThickness);
+                    //pen.EndCap = pen.StartCap = LineCap.Round;
+                    graphics.DrawPath(pen, bubble);
+                }
 				graphics.Restore(state);
 			}
 
@@ -315,21 +308,20 @@ namespace Greenshot.Drawing
 			if (Status != EditStatus.UNDRAWN) {
 				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 				Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					using (GraphicsPath bubblePath = CreateBubble(lineThickness)) {
-						bubblePath.Widen(pen);
-						if (bubblePath.IsVisible(clickedPoint)) {
-							return true;
-						}
-					}
-					using (GraphicsPath tailPath = CreateTail()) {
-						tailPath.Widen(pen);
-						if (tailPath.IsVisible(clickedPoint)) {
-							return true;
-						}
-					}
-				}
-			}
+                using Pen pen = new Pen(lineColor, lineThickness);
+                using (GraphicsPath bubblePath = CreateBubble(lineThickness)) {
+                    bubblePath.Widen(pen);
+                    if (bubblePath.IsVisible(clickedPoint)) {
+                        return true;
+                    }
+                }
+
+                using GraphicsPath tailPath = CreateTail();
+                tailPath.Widen(pen);
+                if (tailPath.IsVisible(clickedPoint)) {
+                    return true;
+                }
+            }
 
 			return false;
 		}

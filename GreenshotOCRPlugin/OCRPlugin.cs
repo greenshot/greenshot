@@ -183,16 +183,15 @@ namespace GreenshotOCR {
 					RedirectStandardOutput = true,
 					UseShellExecute = false
 				};
-				using (Process process = Process.Start(processStartInfo)) {
-					if (process != null)
-					{
-						process.WaitForExit(30 * 1000);
-						if (process.ExitCode == 0) {
-							text = process.StandardOutput.ReadToEnd();
-						}
-					}
-				}
-			} catch (Exception e) {
+                using Process process = Process.Start(processStartInfo);
+                if (process != null)
+                {
+                    process.WaitForExit(30 * 1000);
+                    if (process.ExitCode == 0) {
+                        text = process.StandardOutput.ReadToEnd();
+                    }
+                }
+            } catch (Exception e) {
 				Log.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
 			} finally {
 				if (File.Exists(filePath)) {
@@ -222,15 +221,15 @@ namespace GreenshotOCR {
 		}
 
 		private bool HasModi() {
-			try {
-				using (Process process = Process.Start(_ocrCommand, "-c")) {
-					if (process != null)
-					{
-						process.WaitForExit();
-						return process.ExitCode == 0;
-					}
-				}
-			} catch(Exception e) {
+			try
+            {
+                using Process process = Process.Start(_ocrCommand, "-c");
+                if (process != null)
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            } catch(Exception e) {
 				Log.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}
 			Log.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");

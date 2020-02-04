@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -56,17 +56,16 @@ namespace Greenshot.Controls {
 		/// <param name="hotspotX">Hotspot X coordinate</param>
 		/// <param name="hotspotY">Hotspot Y coordinate</param>
 		/// <returns>Cursor</returns>
-		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY) {
-			using (SafeIconHandle iconHandle = new SafeIconHandle( bitmap.GetHicon())) {
-				IconInfo iconInfo;
-				User32.GetIconInfo(iconHandle, out iconInfo);
-				iconInfo.xHotspot = hotspotX;
-				iconInfo.yHotspot = hotspotY;
-				iconInfo.fIcon = false;
-				var icon = User32.CreateIconIndirect(ref iconInfo);
-				return new Cursor(icon);
-			}
-		}
+		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
+        {
+            using SafeIconHandle iconHandle = new SafeIconHandle( bitmap.GetHicon());
+            User32.GetIconInfo(iconHandle, out var iconInfo);
+            iconInfo.xHotspot = hotspotX;
+            iconInfo.yHotspot = hotspotY;
+            iconInfo.fIcon = false;
+            var icon = User32.CreateIconIndirect(ref iconInfo);
+            return new Cursor(icon);
+        }
 
 		/// <summary>
 		/// The bulk of the clean-up code is implemented in Dispose(bool)
@@ -151,9 +150,7 @@ namespace Greenshot.Controls {
 			base.OnMouseCaptureChanged(e);
 		}
 
-		#region IMessageFilter Members
-
-		public bool PreFilterMessage(ref Message m) {
+        public bool PreFilterMessage(ref Message m) {
 			if (_dragging) {
 				if (m.Msg == (int)WindowsMessages.WM_CHAR) {
 					if ((int)m.WParam == VkEsc) {
@@ -163,9 +160,7 @@ namespace Greenshot.Controls {
 			}
 			return false;
 		}
-
-		#endregion
-	}
+    }
 
 	public class PipetteUsedArgs : EventArgs {
 		public Color Color;

@@ -42,8 +42,7 @@ namespace GreenshotPicasaPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl;
-			bool uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
+            bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;

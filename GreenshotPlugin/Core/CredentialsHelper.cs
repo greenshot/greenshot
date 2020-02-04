@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -397,30 +397,30 @@ namespace GreenshotPlugin.Core {
 			CredUi.CredFlags credFlags = CredUi.CredFlags.GENERIC_CREDENTIALS;
 
 			if (IncorrectPassword) {
-				credFlags = credFlags | CredUi.CredFlags.INCORRECT_PASSWORD;
+				credFlags |= CredUi.CredFlags.INCORRECT_PASSWORD;
 			}
 
 			if (AlwaysDisplay) {
-				credFlags = credFlags | CredUi.CredFlags.ALWAYS_SHOW_UI;
+				credFlags |= CredUi.CredFlags.ALWAYS_SHOW_UI;
 			}
 
 			if (ExcludeCertificates) {
-				credFlags = credFlags | CredUi.CredFlags.EXCLUDE_CERTIFICATES;
+				credFlags |= CredUi.CredFlags.EXCLUDE_CERTIFICATES;
 			}
 
 			if (Persist) {
-				credFlags = credFlags | CredUi.CredFlags.EXPECT_CONFIRMATION;
+				credFlags |= CredUi.CredFlags.EXPECT_CONFIRMATION;
 				if (SaveDisplayed) {
-					credFlags = credFlags | CredUi.CredFlags.SHOW_SAVE_CHECK_BOX;
+					credFlags |= CredUi.CredFlags.SHOW_SAVE_CHECK_BOX;
 				} else {
-					credFlags = credFlags | CredUi.CredFlags.PERSIST;
+					credFlags |= CredUi.CredFlags.PERSIST;
 				}
 			} else {
-				credFlags = credFlags | CredUi.CredFlags.DO_NOT_PERSIST;
+				credFlags |= CredUi.CredFlags.DO_NOT_PERSIST;
 			}
 
 			if (KeepName) {
-				credFlags = credFlags | CredUi.CredFlags.KEEP_USERNAME;
+				credFlags |= CredUi.CredFlags.KEEP_USERNAME;
 			}
 
 			return credFlags;
@@ -428,33 +428,22 @@ namespace GreenshotPlugin.Core {
 	   
 		/// <summary>Returns a DialogResult from the specified code.</summary>
 		/// <param name="code">The credential return code.</param>
-		private DialogResult GetDialogResult(CredUi.ReturnCodes code) {
-			DialogResult result;
-			switch (code) {
-				case CredUi.ReturnCodes.NO_ERROR:
-					result = DialogResult.OK;
-					break;
-				case CredUi.ReturnCodes.ERROR_CANCELLED:
-					result = DialogResult.Cancel;
-					break;
-				case CredUi.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
-					throw new ApplicationException("No such logon session.");
-				case CredUi.ReturnCodes.ERROR_NOT_FOUND:
-					throw new ApplicationException("Not found.");
-				case CredUi.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
-					throw new ApplicationException("Invalid account name.");
-				case CredUi.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
-					throw new ApplicationException("Insufficient buffer.");
-				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
-					throw new ApplicationException("Invalid parameter.");
-				case CredUi.ReturnCodes.ERROR_INVALID_FLAGS:
-					throw new ApplicationException("Invalid flags.");
-				default:
-					throw new ApplicationException("Unknown credential result encountered.");
-			}
-			return result;
-		}
-	}
+		private DialogResult GetDialogResult(CredUi.ReturnCodes code) =>
+            code switch
+            {
+                CredUi.ReturnCodes.NO_ERROR => DialogResult.OK,
+                CredUi.ReturnCodes.ERROR_CANCELLED => DialogResult.Cancel,
+                CredUi.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION => throw new ApplicationException(
+                    "No such logon session."),
+                CredUi.ReturnCodes.ERROR_NOT_FOUND => throw new ApplicationException("Not found."),
+                CredUi.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME =>
+                throw new ApplicationException("Invalid account name."),
+                CredUi.ReturnCodes.ERROR_INSUFFICIENT_BUFFER => throw new ApplicationException("Insufficient buffer."),
+                CredUi.ReturnCodes.ERROR_INVALID_PARAMETER => throw new ApplicationException("Invalid parameter."),
+                CredUi.ReturnCodes.ERROR_INVALID_FLAGS => throw new ApplicationException("Invalid flags."),
+                _ => throw new ApplicationException("Unknown credential result encountered.")
+            };
+    }
 
 	internal static class CredUi {
 		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>

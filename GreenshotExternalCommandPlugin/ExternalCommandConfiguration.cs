@@ -139,20 +139,15 @@ namespace ExternalCommand {
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
 		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch(property) {
-				case nameof(DeletedBuildInCommands):
-					return new List<string>();
-				case nameof(Commands):
-					return new List<string>();
-				case nameof(Commandline):
-					return new Dictionary<string, string>();
-				case nameof(Argument):
-					return new Dictionary<string, string>();
-				case nameof(RunInbackground):
-					return new Dictionary<string, bool>();
-			}
-			return null;
-		}
-	}
+		public override object GetDefault(string property) =>
+            property switch
+            {
+                nameof(DeletedBuildInCommands) => (object) new List<string>(),
+                nameof(Commands) => new List<string>(),
+                nameof(Commandline) => new Dictionary<string, string>(),
+                nameof(Argument) => new Dictionary<string, string>(),
+                nameof(RunInbackground) => new Dictionary<string, bool>(),
+                _ => null
+            };
+    }
 }

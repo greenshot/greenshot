@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -30,7 +30,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
+using System.Windows.Forms.Integration;
 using Greenshot.Configuration;
 using Greenshot.Experimental;
 using Greenshot.Forms;
@@ -219,27 +219,30 @@ namespace Greenshot {
 							}
 							greenshotProcess.Dispose();
 						}
-						if (!matchedThisProcess) {
-							using (Process currentProcess = Process.GetCurrentProcess()) {
-								instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
-							}
-						}
+						if (!matchedThisProcess)
+                        {
+                            using Process currentProcess = Process.GetCurrentProcess();
+                            instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
+                        }
 
-						// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-						using (Form dummyForm = new Form()) {
-							dummyForm.Icon = GreenshotResources.getGreenshotIcon();
-							dummyForm.ShowInTaskbar = true;
-							dummyForm.FormBorderStyle = FormBorderStyle.None;
-							dummyForm.Location = new Point(int.MinValue, int.MinValue);
-							dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
-							dummyForm.Show();
-							MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-						}
-					}
+                        // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
+                        using Form dummyForm = new Form
+                        {
+                            Icon = GreenshotResources.getGreenshotIcon(),
+                            ShowInTaskbar = true,
+                            FormBorderStyle = FormBorderStyle.None,
+                            Location = new Point(int.MinValue, int.MinValue)
+                        };
+                        dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
+                        dummyForm.Show();
+                        MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
 					FreeMutex();
 					Application.Exit();
 					return;
 				}
+                // Make sure we can use forms
+                WindowsFormsHost.EnableWindowsFormsInterop();
 
 				// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
 				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
@@ -489,9 +492,7 @@ namespace Greenshot {
 			base.WndProc(ref m);
 		}
 
-		#region hotkeys
-
-		/// <summary>
+        /// <summary>
 		/// Helper method to cleanly register a hotkey
 		/// </summary>
 		/// <param name="failedKeys"></param>
@@ -653,9 +654,8 @@ namespace Greenshot {
 			}
 			return success;
 		}
-		#endregion
-		
-		public void UpdateUi() {
+
+        public void UpdateUi() {
 			// As the form is never loaded, call ApplyLanguage ourselves
 			ApplyLanguage();
 
@@ -666,11 +666,9 @@ namespace Greenshot {
 			contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
 			contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.IEHotkey);
 		}
-		
-		
-		#region mainform events
 
-		private void MainFormFormClosing(object sender, FormClosingEventArgs e) {
+
+        private void MainFormFormClosing(object sender, FormClosingEventArgs e) {
 			LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
 			_instance = null;
 			Exit();
@@ -680,11 +678,8 @@ namespace Greenshot {
 			Hide();
 			ShowInTaskbar = false;
 		}
-		#endregion
 
-		#region key handlers
-
-		private void CaptureRegion() {
+        private void CaptureRegion() {
 			CaptureHelper.CaptureRegion(true);
 		}
 
@@ -721,12 +716,9 @@ namespace Greenshot {
 				CaptureHelper.CaptureWindow(true);
 			}
 		}
-		#endregion
 
 
-		#region contextmenu
-
-		private void ContextMenuOpening(object sender, CancelEventArgs e)	{
+        private void ContextMenuOpening(object sender, CancelEventArgs e)	{
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
 			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
@@ -880,15 +872,13 @@ namespace Greenshot {
 		}
 		
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
-			ToolStripMenuItem captureWindowItem = sender as ToolStripMenuItem;
-			if (captureWindowItem != null) {
-				WindowDetails window = captureWindowItem.Tag as WindowDetails;
-				if (_thumbnailForm == null) {
-					_thumbnailForm = new ThumbnailForm();
-				}
-				_thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
-			}
-		}
+            if (!(sender is ToolStripMenuItem captureWindowItem)) return;
+            WindowDetails window = captureWindowItem.Tag as WindowDetails;
+            if (_thumbnailForm == null) {
+                _thumbnailForm = new ThumbnailForm();
+            }
+            _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
+        }
 
 		private void HideThumbnailOnLeave(object sender, EventArgs e)
 		{
@@ -1083,8 +1073,7 @@ namespace Greenshot {
 		}
 
 		private void CheckStateChangedHandler(object sender, EventArgs e) {
-			ToolStripMenuSelectListItem captureMouseItem = sender as ToolStripMenuSelectListItem;
-			if (captureMouseItem != null) {
+            if (sender is ToolStripMenuSelectListItem captureMouseItem) {
 				_conf.CaptureMousepointer = captureMouseItem.Checked;
 			}
 		}
@@ -1191,8 +1180,7 @@ namespace Greenshot {
 
 		private void QuickSettingBoolItemChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
-			IniValue iniValue = item.Data as IniValue;
-			if (iniValue != null) {
+            if (item.Data is IniValue iniValue) {
 				iniValue.Value = item.Checked;
 				IniConfig.Save();
 			}
@@ -1228,9 +1216,8 @@ namespace Greenshot {
 			// Rebuild the quick settings menu with the new settings.
 			InitializeQuickSettingsMenu();
 		}
-		#endregion
-		
-		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
 			Exception exceptionToLog = e.ExceptionObject as Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
 			LOG.Error("Exception caught in the UnhandledException handler.");

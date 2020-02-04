@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -47,12 +47,12 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected int VRefresh {
 			get {
-				if (_vRefresh == 0) {
-					// get te hDC of the desktop to get the VREFRESH
-					using (SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop()) {
-						_vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
-					}
-				}
+				if (_vRefresh == 0)
+                {
+                    // get te hDC of the desktop to get the VREFRESH
+                    using SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop();
+                    _vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+                }
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.
 				if (_vRefresh <= 1) {

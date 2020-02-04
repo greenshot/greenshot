@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -74,8 +74,7 @@ namespace GreenshotPlugin.Controls {
 
 			DWM.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
 			if (_thumbnailHandle != IntPtr.Zero) {
-				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
+                DWM.DwmQueryThumbnailSourceSize(_thumbnailHandle, out var sourceSize);
 				int thumbnailHeight = 200;
 				int thumbnailWidth = (int)(thumbnailHeight * (sourceSize.Width / (float)sourceSize.Height));
 				if (parentControl != null && thumbnailWidth > parentControl.Width) {

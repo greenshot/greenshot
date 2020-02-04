@@ -52,8 +52,7 @@ namespace GreenshotWin10Plugin.Native
 
 			_windowHandle = handle;
 			var riid = new Guid(DataTransferManagerId);
-			DataTransferManager dataTransferManager;
-			var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out dataTransferManager);
+            var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out var dataTransferManager);
 			if (hresult != 0)
 			{
 				Log.WarnFormat("HResult for GetForWindow: {0}", hresult);

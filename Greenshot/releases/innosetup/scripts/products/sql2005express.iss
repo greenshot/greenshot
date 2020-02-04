@@ -6,11 +6,8 @@
 [CustomMessages]
 sql2005express_title=SQL Server 2005 Express SP3
 
-en.sql2005express_size=38.1 MB
-de.sql2005express_size=38,1 MB
-
-en.sql2005express_size_x64=58.1 MB
-de.sql2005express_size_x64=58,1 MB
+sql2005express_size=38.1 MB
+sql2005express_size_x64=58.1 MB
 
 [Code]
 const
@@ -21,12 +18,12 @@ procedure sql2005express();
 var
 	version: string;
 begin
-	//CHECK NOT FINISHED YET
-	//RTM: 9.00.1399.06
-	//Service Pack 1: 9.1.2047.00
-	//Service Pack 2: 9.2.3042.00
+	// CHECK NOT FINISHED YET
+	// RTM: 9.00.1399.06
+	// Service Pack 1: 9.1.2047.00
+	// Service Pack 2: 9.2.3042.00
 	// TODO: Newer detection method required for SP3 and x64
-	//Service Pack 3: 9.00.4035.00
+	// Service Pack 3: 9.00.4035.00
 	//RegQueryDWordValue(HKLM, 'Software\Microsoft\Microsoft SQL Server\90\DTS\Setup', 'Install', version);
 	RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Microsoft SQL Server\SQLEXPRESS\MSSQLServer\CurrentVersion', 'CurrentVersion', version);
 	if (version < '9.00.4035') then begin

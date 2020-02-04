@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -72,18 +72,16 @@ namespace GreenshotWin10Plugin
 				var text = Task.Run(async () =>
 				{
 					var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
-					using (var imageStream = new MemoryStream())
-					{
-						ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
-						imageStream.Position = 0;
+                    using var imageStream = new MemoryStream();
+                    ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+                    imageStream.Position = 0;
 
-						var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
-						var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+                    var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
+                    var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-						var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
-						return ocrResult.Text;
-					}
-				}).Result;
+                    var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+                    return ocrResult.Text;
+                }).Result;
 
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))

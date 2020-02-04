@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -89,11 +89,9 @@ namespace Greenshot.Helpers {
 		private const int WM_COPYDATA = 0x4A;
 		private const int WM_DESTROY = 0x2;
 
-		#region Member Variables
-		private CopyDataChannels _channels;
-		#endregion
+        private CopyDataChannels _channels;
 
-		/// <summary>
+        /// <summary>
 		/// Override for a form's Window Procedure to handle WM_COPYDATA
 		/// messages sent by other instances of this class.
 		/// </summary>
@@ -338,8 +336,7 @@ namespace Greenshot.Helpers {
 	/// A channel on which messages can be sent.
 	/// </summary>
 	public class CopyDataChannel : IDisposable {
-		#region Unmanaged Code
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		private static extern IntPtr GetProp(IntPtr hwnd, string lpString);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		private static extern bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);
@@ -357,15 +354,11 @@ namespace Greenshot.Helpers {
 		}
 		
 		private const int WM_COPYDATA = 0x4A;
-		#endregion
 
-		#region Member Variables
-
-		private readonly NativeWindow _owner;
+        private readonly NativeWindow _owner;
 		private bool _recreateChannel;
-		#endregion
 
-		/// <summary>
+        /// <summary>
 		/// Gets the name associated with this channel.
 		/// </summary>
 		public string ChannelName { get; private set; }

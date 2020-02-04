@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -36,9 +36,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
 
-		#region Structs
-
-		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
 		private struct SHFILEINFO {
 			public readonly IntPtr hIcon;
 			public readonly int iIcon;
@@ -49,49 +47,19 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			public readonly string szTypeName;
 		};
 
-		#endregion
-
-		#region Constants
-		// Browsing for directory.
-		private const uint BIF_RETURNONLYFSDIRS = 0x0001;
-		private const uint BIF_DONTGOBELOWDOMAIN = 0x0002;
-		private const uint BIF_STATUSTEXT = 0x0004;
-		private const uint BIF_RETURNFSANCESTORS = 0x0008;
-		private const uint BIF_EDITBOX = 0x0010;
-		private const uint BIF_VALIDATE = 0x0020;
-		private const uint BIF_NEWDIALOGSTYLE = 0x0040;
-		private const uint BIF_USENEWUI = (BIF_NEWDIALOGSTYLE | BIF_EDITBOX);
-		private const uint BIF_BROWSEINCLUDEURLS = 0x0080;
-		private const uint BIF_BROWSEFORCOMPUTER = 0x1000;
-		private const uint BIF_BROWSEFORPRINTER = 0x2000;
-		private const uint BIF_BROWSEINCLUDEFILES = 0x4000;
-		private const uint BIF_SHAREABLE = 0x8000;
+        // Browsing for directory.
 
 		private const uint SHGFI_ICON = 0x000000100;     // get icon
-		private const uint SHGFI_DISPLAYNAME = 0x000000200;     // get display name
-		private const uint SHGFI_TYPENAME = 0x000000400;     // get type name
-		private const uint SHGFI_ATTRIBUTES = 0x000000800;     // get attributes
-		private const uint SHGFI_ICONLOCATION = 0x000001000;     // get icon location
-		private const uint SHGFI_EXETYPE = 0x000002000;     // return exe type
-		private const uint SHGFI_SYSICONINDEX = 0x000004000;     // get system icon index
 		private const uint SHGFI_LINKOVERLAY = 0x000008000;     // put a link overlay on icon
-		private const uint SHGFI_SELECTED = 0x000010000;     // show icon in selected state
-		private const uint SHGFI_ATTR_SPECIFIED = 0x000020000;     // get only specified attributes
 		private const uint SHGFI_LARGEICON = 0x000000000;     // get large icon
 		private const uint SHGFI_SMALLICON = 0x000000001;     // get small icon
 		private const uint SHGFI_OPENICON = 0x000000002;     // get open icon
-		private const uint SHGFI_SHELLICONSIZE = 0x000000004;     // get shell size icon
-		private const uint SHGFI_PIDL = 0x000000008;     // pszPath is a pidl
 		private const uint SHGFI_USEFILEATTRIBUTES = 0x000000010;     // use passed dwFileAttribute
-		private const uint SHGFI_ADDOVERLAYS = 0x000000020;     // apply the appropriate overlays
-		private const uint SHGFI_OVERLAYINDEX = 0x000000040;     // Get the index of the overlay
 
 		private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
 		private const uint FILE_ATTRIBUTE_NORMAL = 0x00000080;
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Options to specify the size of icons to return.
 		/// </summary>
 		public enum IconSize {

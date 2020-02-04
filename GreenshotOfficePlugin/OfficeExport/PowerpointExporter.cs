@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -41,33 +41,32 @@ namespace Greenshot.Interop.Office {
 		/// <returns></returns>
 		public static List<string> GetPowerpointPresentations() {
 			List<string> foundPresentations = new List<string>();
-			try {
-				using (IPowerpointApplication powerpointApplication = GetPowerpointApplication()) {
-					if (powerpointApplication == null) {
-						return foundPresentations;
-					}
+			try
+            {
+                using IPowerpointApplication powerpointApplication = GetPowerpointApplication();
+                if (powerpointApplication == null) {
+                    return foundPresentations;
+                }
 
-					using (IPresentations presentations = powerpointApplication.Presentations) {
-						LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
-						for (int i = 1; i <= presentations.Count; i++) {
-							using (IPresentation presentation = presentations.item(i)) {
-								if (presentation == null) {
-									continue;
-								}
-								if (presentation.ReadOnly == MsoTriState.msoTrue) {
-									continue;
-								}
-								if (IsAfter2003()) {
-									if (presentation.Final) {
-										continue;
-									}
-								}
-								foundPresentations.Add(presentation.Name);
-							}
-						}
-					}
-				}
-			} catch (Exception ex) {
+                using IPresentations presentations = powerpointApplication.Presentations;
+                LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+                for (int i = 1; i <= presentations.Count; i++)
+                {
+                    using IPresentation presentation = presentations.item(i);
+                    if (presentation == null) {
+                        continue;
+                    }
+                    if (presentation.ReadOnly == MsoTriState.msoTrue) {
+                        continue;
+                    }
+                    if (IsAfter2003()) {
+                        if (presentation.Final) {
+                            continue;
+                        }
+                    }
+                    foundPresentations.Add(presentation.Name);
+                }
+            } catch (Exception ex) {
 				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 			foundPresentations.Sort();
@@ -87,26 +86,26 @@ namespace Greenshot.Interop.Office {
 				if (powerpointApplication == null) {
 					return false;
 				}
-				using (IPresentations presentations = powerpointApplication.Presentations) {
-					LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
-					for (int i = 1; i <= presentations.Count; i++) {
-						using (IPresentation presentation = presentations.item(i)) {
-							if (presentation == null) {
-								continue;
-							}
-							if (!presentation.Name.StartsWith(presentationName)) {
-								continue;
-							}
-							try {
-								AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-								return true;
-							} catch (Exception e) {
-								LOG.Error(e);
-							}
-						}
-					}
-				}
-			}
+
+                using IPresentations presentations = powerpointApplication.Presentations;
+                LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+                for (int i = 1; i <= presentations.Count; i++)
+                {
+                    using IPresentation presentation = presentations.item(i);
+                    if (presentation == null) {
+                        continue;
+                    }
+                    if (!presentation.Name.StartsWith(presentationName)) {
+                        continue;
+                    }
+                    try {
+                        AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                        return true;
+                    } catch (Exception e) {
+                        LOG.Error(e);
+                    }
+                }
+            }
 			return false;
 		}
 
@@ -198,17 +197,15 @@ namespace Greenshot.Interop.Office {
 			using (IPowerpointApplication powerpointApplication = GetOrCreatePowerpointApplication()) {
 				if (powerpointApplication != null) {
 					powerpointApplication.Visible = true;
-					using (IPresentations presentations = powerpointApplication.Presentations) {
-						using (IPresentation presentation = presentations.Add(MsoTriState.msoTrue)) {
-							try {
-								AddPictureToPresentation(presentation, tmpFile, imageSize, title);
-								isPictureAdded = true;
-							} catch (Exception e) {
-								LOG.Error(e);
-							}
-						}
-					}
-				}
+                    using IPresentations presentations = powerpointApplication.Presentations;
+                    using IPresentation presentation = presentations.Add(MsoTriState.msoTrue);
+                    try {
+                        AddPictureToPresentation(presentation, tmpFile, imageSize, title);
+                        isPictureAdded = true;
+                    } catch (Exception e) {
+                        LOG.Error(e);
+                    }
+                }
 			}
 			return isPictureAdded;
 		}

@@ -151,20 +151,16 @@ namespace GreenshotImgurPlugin {
 					using (var requestStream = webRequest.GetRequestStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
 					}
-		
-					using (WebResponse response = webRequest.GetResponse())
-					{
-						LogRateLimitInfo(response);
-						var responseStream = response.GetResponseStream();
-						if (responseStream != null)
-						{
-							using (StreamReader reader = new StreamReader(responseStream, true))
-							{
-								responseString = reader.ReadToEnd();
-							}
-						}
-					}
-				} catch (Exception ex) {
+
+                    using WebResponse response = webRequest.GetResponse();
+                    LogRateLimitInfo(response);
+                    var responseStream = response.GetResponseStream();
+                    if (responseStream != null)
+                    {
+                        using StreamReader reader = new StreamReader(responseStream, true);
+                        responseString = reader.ReadToEnd();
+                    }
+                } catch (Exception ex) {
 					Log.Error("Upload to imgur gave an exeption: ", ex);
 					throw;
 				}
@@ -227,15 +223,14 @@ namespace GreenshotImgurPlugin {
 			webRequest.ServicePoint.Expect100Continue = false;
 			// Not for getting the thumbnail, in anonymous modus
 			//SetClientId(webRequest);
-			using (WebResponse response = webRequest.GetResponse()) {
-				LogRateLimitInfo(response);
-				Stream responseStream = response.GetResponseStream();
-				if (responseStream != null)
-				{
-					imgurInfo.Image = ImageHelper.FromStream(responseStream);
-				}
-			}
-		}
+            using WebResponse response = webRequest.GetResponse();
+            LogRateLimitInfo(response);
+            Stream responseStream = response.GetResponseStream();
+            if (responseStream != null)
+            {
+                imgurInfo.Image = ImageHelper.FromStream(responseStream);
+            }
+        }
 
 		/// <summary>
 		/// Retrieve information on an imgur image
@@ -250,19 +245,17 @@ namespace GreenshotImgurPlugin {
 			webRequest.ServicePoint.Expect100Continue = false;
 			SetClientId(webRequest);
 			string responseString = null;
-			try {
-				using (WebResponse response = webRequest.GetResponse()) {
-					LogRateLimitInfo(response);
-					var responseStream = response.GetResponseStream();
-					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
-				}
-			} catch (WebException wE) {
+			try
+            {
+                using WebResponse response = webRequest.GetResponse();
+                LogRateLimitInfo(response);
+                var responseStream = response.GetResponseStream();
+                if (responseStream != null)
+                {
+                    using StreamReader reader = new StreamReader(responseStream, true);
+                    responseString = reader.ReadToEnd();
+                }
+            } catch (WebException wE) {
 				if (wE.Status == WebExceptionStatus.ProtocolError) {
 					if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound) {
 						return null;
@@ -297,12 +290,10 @@ namespace GreenshotImgurPlugin {
 					LogRateLimitInfo(response);
 					var responseStream = response.GetResponseStream();
 					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
+                    {
+                        using StreamReader reader = new StreamReader(responseStream, true);
+                        responseString = reader.ReadToEnd();
+                    }
 				}
 				Log.InfoFormat("Delete result: {0}", responseString);
 			} catch (WebException wE) {
@@ -350,8 +341,7 @@ namespace GreenshotImgurPlugin {
 			LogHeader(nameValues, "X-RateLimit-ClientRemaining");
 
 			// Update the credits in the config, this is shown in a form
-			int credits;
-			if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out credits)) {
+            if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out var credits)) {
 				Config.Credits = credits;
 			}
 		}

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -56,8 +56,7 @@ namespace Greenshot.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-			ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
-			if (other != null)
+            if (otherMemento is ChangeFieldHolderMemento other)
 			{
 				if (other._drawableContainer.Equals(_drawableContainer))
 				{

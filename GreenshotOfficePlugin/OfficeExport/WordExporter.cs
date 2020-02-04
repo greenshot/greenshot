@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -49,18 +49,17 @@ namespace Greenshot.Interop.Office {
 				if (wordApplication == null) {
 					return false;
 				}
-				using (IDocuments documents = wordApplication.Documents) {
-					for (int i = 1; i <= documents.Count; i++) {
-						using (IWordDocument wordDocument = documents.item(i)) {
-							using (IWordWindow activeWindow = wordDocument.ActiveWindow) {
-								if (activeWindow.Caption.StartsWith(wordCaption)) {
-									return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
-								}
-							}
-						}
-					}
-				}
-			}
+
+                using IDocuments documents = wordApplication.Documents;
+                for (int i = 1; i <= documents.Count; i++)
+                {
+                    using IWordDocument wordDocument = documents.item(i);
+                    using IWordWindow activeWindow = wordDocument.ActiveWindow;
+                    if (activeWindow.Caption.StartsWith(wordCaption)) {
+                        return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
+                    }
+                }
+            }
 			return false;
 		}
 
@@ -83,64 +82,61 @@ namespace Greenshot.Interop.Office {
 			{
 				// ignored
 			}
-			using (ISelection selection = wordApplication.Selection) {
-				if (selection == null) {
-					Log.InfoFormat("No selection to insert {0} into found.", tmpFile);
-					return false;
-				}
-				// Add Picture
-				using (IInlineShape shape = AddPictureToSelection(selection, tmpFile)) {
-					if (!string.IsNullOrEmpty(address)) {
-						object screentip = Type.Missing;
-						if (!string.IsNullOrEmpty(tooltip)) {
-							screentip = tooltip;
-						}
-						try {
-							using (IHyperlinks hyperlinks = wordDocument.Hyperlinks) {
-								hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
-							}
-						} catch (Exception e) {
-							Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
-						}
-					}
-				}
-				try {
-					using (IWordWindow activeWindow = wordDocument.ActiveWindow) {
-						activeWindow.Activate();
-						using (IPane activePane = activeWindow.ActivePane) {
-							using (IWordView view = activePane.View) {
-								view.Zoom.Percentage = 100;
-							}
-						}
-					}
-				} catch (Exception e) {
-					Log.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException?.Message ?? e.Message);
-				}
-				try {
-					wordApplication.Activate();
-				}
-				catch
-				{
-					// ignored
-				}
-				try {
-					using (var activeWindow = wordDocument.ActiveWindow)
-					{
-						activeWindow.Activate();
-						int hWnd = activeWindow.Hwnd;
-						if (hWnd > 0)
-						{
-							WindowDetails.ToForeground(new IntPtr(hWnd));
-						}
-					}
-				}
-				catch
-				{
-					// ignored
-				}
-				return true;
-			}
-		}
+
+            using ISelection selection = wordApplication.Selection;
+            if (selection == null) {
+                Log.InfoFormat("No selection to insert {0} into found.", tmpFile);
+                return false;
+            }
+            // Add Picture
+            using (IInlineShape shape = AddPictureToSelection(selection, tmpFile)) {
+                if (!string.IsNullOrEmpty(address)) {
+                    object screentip = Type.Missing;
+                    if (!string.IsNullOrEmpty(tooltip)) {
+                        screentip = tooltip;
+                    }
+                    try
+                    {
+                        using IHyperlinks hyperlinks = wordDocument.Hyperlinks;
+                        hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+                    } catch (Exception e) {
+                        Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+                    }
+                }
+            }
+            try
+            {
+                using IWordWindow activeWindow = wordDocument.ActiveWindow;
+                activeWindow.Activate();
+                using IPane activePane = activeWindow.ActivePane;
+                using IWordView view = activePane.View;
+                view.Zoom.Percentage = 100;
+            } catch (Exception e) {
+                Log.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException?.Message ?? e.Message);
+            }
+            try {
+                wordApplication.Activate();
+            }
+            catch
+            {
+                // ignored
+            }
+            try
+            {
+                using var activeWindow = wordDocument.ActiveWindow;
+                activeWindow.Activate();
+                int hWnd = activeWindow.Hwnd;
+                if (hWnd > 0)
+                {
+                    WindowDetails.ToForeground(new IntPtr(hWnd));
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+            return true;
+        }
 
 		/// <summary>
 		/// Helper method to add the file as image to the selection
@@ -148,77 +144,74 @@ namespace Greenshot.Interop.Office {
 		/// <param name="selection"></param>
 		/// <param name="tmpFile"></param>
 		/// <returns></returns>
-		private static IInlineShape AddPictureToSelection(ISelection selection, string tmpFile) {
-			using (IInlineShapes shapes = selection.InlineShapes) {
-				IInlineShape shape = shapes.AddPicture(tmpFile, false, true, Type.Missing);
-				// Lock aspect ratio
-				if (OfficeConfig.WordLockAspectRatio) {
-					shape.LockAspectRatio = MsoTriState.msoTrue;
-				}
-				selection.InsertAfter("\r\n");
-				selection.MoveDown(WdUnits.wdLine, 1, Type.Missing);
-				return shape;
-			}
-		}
+		private static IInlineShape AddPictureToSelection(ISelection selection, string tmpFile)
+        {
+            using IInlineShapes shapes = selection.InlineShapes;
+            IInlineShape shape = shapes.AddPicture(tmpFile, false, true, Type.Missing);
+            // Lock aspect ratio
+            if (OfficeConfig.WordLockAspectRatio) {
+                shape.LockAspectRatio = MsoTriState.msoTrue;
+            }
+            selection.InsertAfter("\r\n");
+            selection.MoveDown(WdUnits.wdLine, 1, Type.Missing);
+            return shape;
+        }
 
-		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip) {
-			using (IWordApplication wordApplication = GetOrCreateWordApplication()) {
-				if (wordApplication == null) {
-					return;
-				}
-				wordApplication.Visible = true;
-				wordApplication.Activate();
-				// Create new Document
-				object template = string.Empty;
-				object newTemplate = false;
-				object documentType = 0;
-				object documentVisible = true;
-				using (IDocuments documents = wordApplication.Documents) {
-					using (IWordDocument wordDocument = documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible)) {
-						using (ISelection selection = wordApplication.Selection) {
-							// Add Picture
-							using (IInlineShape shape = AddPictureToSelection(selection, tmpFile)) {
-								if (!string.IsNullOrEmpty(address)) {
-									object screentip = Type.Missing;
-									if (!string.IsNullOrEmpty(tooltip)) {
-										screentip = tooltip;
-									}
-									try {
-										using (IHyperlinks hyperlinks = wordDocument.Hyperlinks) {
-											hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
-										}
-									} catch (Exception e) {
-										Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
-									}
-								}
-							}
-						}
-						try {
-							wordDocument.Activate();
-						}
-						catch
-						{
-							// ignored
-						}
-						try {
-							using (var activeWindow = wordDocument.ActiveWindow)
-							{
-								activeWindow.Activate();
-								int hWnd = activeWindow.Hwnd;
-								if (hWnd > 0)
-								{
-									WindowDetails.ToForeground(new IntPtr(hWnd));
-								}
-							}
-						}
-						catch
-						{
-							// ignored
-						}
-					}
-				}
-			}
-		}
+		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
+        {
+            using IWordApplication wordApplication = GetOrCreateWordApplication();
+            if (wordApplication == null) {
+                return;
+            }
+            wordApplication.Visible = true;
+            wordApplication.Activate();
+            // Create new Document
+            object template = string.Empty;
+            object newTemplate = false;
+            object documentType = 0;
+            object documentVisible = true;
+            using IDocuments documents = wordApplication.Documents;
+            using IWordDocument wordDocument = documents.Add(ref template, ref newTemplate, ref documentType, ref documentVisible);
+            using (ISelection selection = wordApplication.Selection)
+            {
+                // Add Picture
+                using IInlineShape shape = AddPictureToSelection(selection, tmpFile);
+                if (!string.IsNullOrEmpty(address)) {
+                    object screentip = Type.Missing;
+                    if (!string.IsNullOrEmpty(tooltip)) {
+                        screentip = tooltip;
+                    }
+                    try
+                    {
+                        using IHyperlinks hyperlinks = wordDocument.Hyperlinks;
+                        hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
+                    } catch (Exception e) {
+                        Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+                    }
+                }
+            }
+            try {
+                wordDocument.Activate();
+            }
+            catch
+            {
+                // ignored
+            }
+            try
+            {
+                using var activeWindow = wordDocument.ActiveWindow;
+                activeWindow.Activate();
+                int hWnd = activeWindow.Hwnd;
+                if (hWnd > 0)
+                {
+                    WindowDetails.ToForeground(new IntPtr(hWnd));
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
 
 		/// <summary>
 		/// Get the captions of all the open word documents
@@ -226,30 +219,30 @@ namespace Greenshot.Interop.Office {
 		/// <returns></returns>
 		public static List<string> GetWordDocuments() {
 			List<string> openDocuments = new List<string>();
-			try {
-				using (IWordApplication wordApplication = GetWordApplication()) {
-					if (wordApplication == null) {
-						return openDocuments;
-					}
-					using (IDocuments documents = wordApplication.Documents) {
-						for (int i = 1; i <= documents.Count; i++) {
-							using (IWordDocument document = documents.item(i)) {
-								if (document.ReadOnly) {
-									continue;
-								}
-								if (IsAfter2003()) {
-									if (document.Final) {
-										continue;
-									}
-								}
-								using (IWordWindow activeWindow = document.ActiveWindow) {
-									openDocuments.Add(activeWindow.Caption);
-								}
-							}
-						}
-					}
-				}
-			} catch (Exception ex) {
+			try
+            {
+                using IWordApplication wordApplication = GetWordApplication();
+                if (wordApplication == null) {
+                    return openDocuments;
+                }
+
+                using IDocuments documents = wordApplication.Documents;
+                for (int i = 1; i <= documents.Count; i++)
+                {
+                    using IWordDocument document = documents.item(i);
+                    if (document.ReadOnly) {
+                        continue;
+                    }
+                    if (IsAfter2003()) {
+                        if (document.Final) {
+                            continue;
+                        }
+                    }
+
+                    using IWordWindow activeWindow = document.ActiveWindow;
+                    openDocuments.Add(activeWindow.Caption);
+                }
+            } catch (Exception ex) {
 				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 			openDocuments.Sort();

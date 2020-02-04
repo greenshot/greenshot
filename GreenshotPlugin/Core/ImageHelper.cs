@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -65,38 +65,34 @@ namespace GreenshotPlugin.Core {
 				return surface.GetImageForExport();
 			};
 
-			Func<Stream, string, Image> defaultConverter = (stream, s) =>
-			{
-				stream.Position = 0;
-				using (var tmpImage = Image.FromStream(stream, true, true))
-				{
-					Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-					return Clone(tmpImage, PixelFormat.Format32bppArgb);
-				}
-			};
+            static Image DefaultConverter(Stream stream, string s)
+            {
+                stream.Position = 0;
+                using var tmpImage = Image.FromStream(stream, true, true);
+                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+                return Clone(tmpImage, PixelFormat.Format32bppArgb);
+            }
 
-			// Fallback
-			StreamConverters[""] = defaultConverter;
-			StreamConverters["gif"] = defaultConverter;
-			StreamConverters["bmp"] = defaultConverter;
-			StreamConverters["jpg"] = defaultConverter;
-			StreamConverters["jpeg"] = defaultConverter;
-			StreamConverters["png"] = defaultConverter;
-			StreamConverters["wmf"] = defaultConverter;
+            // Fallback
+			StreamConverters[""] = DefaultConverter;
+			StreamConverters["gif"] = DefaultConverter;
+			StreamConverters["bmp"] = DefaultConverter;
+			StreamConverters["jpg"] = DefaultConverter;
+			StreamConverters["jpeg"] = DefaultConverter;
+			StreamConverters["png"] = DefaultConverter;
+			StreamConverters["wmf"] = DefaultConverter;
 
 			StreamConverters["ico"] = (stream, extension) =>
 			{
 				// Icon logic, try to get the Vista icon, else the biggest possible
 				try
-				{
-					using (Image tmpImage = ExtractVistaIcon(stream))
-					{
-						if (tmpImage != null)
-						{
-							return Clone(tmpImage, PixelFormat.Format32bppArgb);
-						}
-					}
-				}
+                {
+                    using Image tmpImage = ExtractVistaIcon(stream);
+                    if (tmpImage != null)
+                    {
+                        return Clone(tmpImage, PixelFormat.Format32bppArgb);
+                    }
+                }
 				catch (Exception vistaIconException)
 				{
 					Log.Warn("Can't read icon", vistaIconException);
@@ -106,21 +102,17 @@ namespace GreenshotPlugin.Core {
 					// No vista icon, try normal icon
 					stream.Position = 0;
 					// We create a copy of the bitmap, so everything else can be disposed
-					using (Icon tmpIcon = new Icon(stream, new Size(1024, 1024)))
-					{
-						using (Image tmpImage = tmpIcon.ToBitmap())
-						{
-							return Clone(tmpImage, PixelFormat.Format32bppArgb);
-						}
-					}
-				}
+                    using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
+                    using Image tmpImage = tmpIcon.ToBitmap();
+                    return Clone(tmpImage, PixelFormat.Format32bppArgb);
+                }
 				catch (Exception iconException)
 				{
 					Log.Warn("Can't read icon", iconException);
 				}
 
 				stream.Position = 0;
-				return defaultConverter(stream, extension);
+				return DefaultConverter(stream, extension);
 			};
 		}
 
@@ -405,13 +397,11 @@ namespace GreenshotPlugin.Core {
 					{
 						int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
 						int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-						using (MemoryStream destStream = new MemoryStream())
-						{
-							destStream.Write(srcBuf, iImageOffset, iImageSize);
-							destStream.Seek(0, SeekOrigin.Begin);
-							bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-						}
-						break;
+                        using MemoryStream destStream = new MemoryStream();
+                        destStream.Write(srcBuf, iImageOffset, iImageSize);
+                        destStream.Seek(0, SeekOrigin.Begin);
+                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+                        break;
 					}
 				}
 			}
@@ -431,9 +421,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Icon</returns>
 		public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
 		{
-			IntPtr large;
-			IntPtr small;
-			Shell32.ExtractIconEx(location, index, out large, out small, 1);
+            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
 			Icon returnIcon = null;
 			bool isLarge = false;
 			bool isSmall = false;
@@ -476,9 +464,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns></returns>
 		public static int CountAssociatedIcons(string location)
 		{
-			IntPtr large;
-			IntPtr small;
-			return Shell32.ExtractIconEx(location, -1, out large, out small, 0);
+            return Shell32.ExtractIconEx(location, -1, out _, out _, 0);
 		}
 
 		/// <summary>
@@ -640,19 +626,15 @@ namespace GreenshotPlugin.Core {
 				path.CloseFigure();
 
 				// Draw the created figure with the original image by using a TextureBrush so we have anti-aliasing
-				using (Graphics graphics = Graphics.FromImage(returnImage))
-				{
-					graphics.SmoothingMode = SmoothingMode.HighQuality;
-					graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-					graphics.CompositingQuality = CompositingQuality.HighQuality;
-					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					using (Brush brush = new TextureBrush(sourceImage))
-					{
-						// Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
-						graphics.FillPath(brush, path);
-					}
-				}
-			}
+                using Graphics graphics = Graphics.FromImage(returnImage);
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                using Brush brush = new TextureBrush(sourceImage);
+                // Important note: If the target wouldn't be at 0,0 we need to translate-transform!!
+                graphics.FillPath(brush, path);
+            }
 			return returnImage;
 		}
 
@@ -662,13 +644,11 @@ namespace GreenshotPlugin.Core {
 		/// <param name="destinationBitmap">Bitmap to blur</param>
 		/// <param name="range">Must be ODD!</param>
 		public static void ApplyBoxBlur(Bitmap destinationBitmap, int range)
-		{
-			// We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
-			using (IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap))
-			{
-				ApplyBoxBlur(fastBitmap, range);
-			}
-		}
+        {
+            // We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
+            using IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap);
+            ApplyBoxBlur(fastBitmap, range);
+        }
 
 		/// <summary>
 		/// Apply BoxBlur to the fastBitmap
@@ -1021,13 +1001,11 @@ namespace GreenshotPlugin.Core {
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				// draw original with a TextureBrush so we have nice antialiasing!
-				using (Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp))
-				{
-					// We need to do a translate-transform otherwise the image is wrapped
-					graphics.TranslateTransform(offset.X, offset.Y);
-					graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
-				}
-			}
+                using Brush textureBrush = new TextureBrush(sourceBitmap, WrapMode.Clamp);
+                // We need to do a translate-transform otherwise the image is wrapped
+                graphics.TranslateTransform(offset.X, offset.Y);
+                graphics.FillRectangle(textureBrush, 0, 0, sourceBitmap.Width, sourceBitmap.Height);
+            }
 			return returnImage;
 		}
 
@@ -1068,14 +1046,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="dest">Image to copy to</param>
 		/// <param name="colorMatrix">ColorMatrix to apply</param>
 		public static void ApplyColorMatrix(Bitmap source, Rectangle sourceRect, Bitmap dest, Rectangle destRect, ColorMatrix colorMatrix)
-		{
-			using (ImageAttributes imageAttributes = new ImageAttributes())
-			{
-				imageAttributes.ClearColorMatrix();
-				imageAttributes.SetColorMatrix(colorMatrix);
-				ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
-			}
-		}
+        {
+            using ImageAttributes imageAttributes = new ImageAttributes();
+            imageAttributes.ClearColorMatrix();
+            imageAttributes.SetColorMatrix(colorMatrix);
+            ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
+        }
 
 		/// <summary>
 		/// Apply image attributes to the image
@@ -1109,18 +1085,17 @@ namespace GreenshotPlugin.Core {
 			{
 				destRect = new Rectangle(0, 0, dest.Width, dest.Height);
 			}
-			using (Graphics graphics = Graphics.FromImage(dest))
-			{
-				// Make sure we draw with the best quality!
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.CompositingMode = CompositingMode.SourceCopy;
 
-				graphics.DrawImage(source, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
-			}
-		}
+            using Graphics graphics = Graphics.FromImage(dest);
+            // Make sure we draw with the best quality!
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+
+            graphics.DrawImage(source, destRect, sourceRect.X, sourceRect.Y, sourceRect.Width, sourceRect.Height, GraphicsUnit.Pixel, imageAttributes);
+        }
 
 		/// <summary>
 		/// Returns a b/w of Bitmap
@@ -1129,22 +1104,20 @@ namespace GreenshotPlugin.Core {
 		/// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
 		/// <returns>b/w bitmap</returns>
 		public static Bitmap CreateMonochrome(Image sourceImage, byte threshold)
-		{
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat))
-			{
-				for (int y = 0; y < fastBitmap.Height; y++)
-				{
-					for (int x = 0; x < fastBitmap.Width; x++)
-					{
-						Color color = fastBitmap.GetColorAt(x, y);
-						int colorBrightness = (color.R + color.G + color.B) / 3 > threshold ? 255 : 0;
-						Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
-						fastBitmap.SetColorAt(x, y, monoColor);
-					}
-				}
-				return fastBitmap.UnlockAndReturnBitmap();
-			}
-		}
+        {
+            using IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat);
+            for (int y = 0; y < fastBitmap.Height; y++)
+            {
+                for (int x = 0; x < fastBitmap.Width; x++)
+                {
+                    Color color = fastBitmap.GetColorAt(x, y);
+                    int colorBrightness = (color.R + color.G + color.B) / 3 > threshold ? 255 : 0;
+                    Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
+                    fastBitmap.SetColorAt(x, y, monoColor);
+                }
+            }
+            return fastBitmap.UnlockAndReturnBitmap();
+        }
 
 		/// <summary>
 		/// Create a new bitmap where the sourceBitmap has a Simple border around it
@@ -1173,22 +1146,20 @@ namespace GreenshotPlugin.Core {
 				using (GraphicsPath path = new GraphicsPath())
 				{
 					path.AddRectangle(new Rectangle(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
-					using (Pen pen = new Pen(borderColor, borderSize))
+					using Pen pen = new Pen(borderColor, borderSize)
 					{
-						pen.LineJoin = LineJoin.Round;
-						pen.StartCap = LineCap.Round;
-						pen.EndCap = LineCap.Round;
-						graphics.DrawPath(pen, path);
-					}
-				}
+						LineJoin = LineJoin.Round,
+						StartCap = LineCap.Round,
+						EndCap = LineCap.Round
+					};
+					graphics.DrawPath(pen, path);
+                }
 				// draw original with a TextureBrush so we have nice antialiasing!
-				using (Brush textureBrush = new TextureBrush(sourceImage, WrapMode.Clamp))
-				{
-					// We need to do a translate-tranform otherwise the image is wrapped
-					graphics.TranslateTransform(offset.X, offset.Y);
-					graphics.FillRectangle(textureBrush, 0, 0, sourceImage.Width, sourceImage.Height);
-				}
-			}
+                using Brush textureBrush = new TextureBrush(sourceImage, WrapMode.Clamp);
+                // We need to do a translate-tranform otherwise the image is wrapped
+                graphics.TranslateTransform(offset.X, offset.Y);
+                graphics.FillRectangle(textureBrush, 0, 0, sourceImage.Width, sourceImage.Height);
+            }
 			return newImage;
 		}
 
@@ -1370,24 +1341,22 @@ namespace GreenshotPlugin.Core {
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 
-				using (Graphics graphics = Graphics.FromImage(newImage))
-				{
-					if (fromTransparentToNon)
-					{
-						// Rule 2: Make sure the background color is white
-						graphics.Clear(Color.White);
-					}
-					// decide fastest copy method
-					if (isAreaEqual)
-					{
-						graphics.DrawImageUnscaled(sourceImage, 0, 0);
-					}
-					else
-					{
-						graphics.DrawImage(sourceImage, 0, 0, sourceRect, GraphicsUnit.Pixel);
-					}
-				}
-			}
+                using Graphics graphics = Graphics.FromImage(newImage);
+                if (fromTransparentToNon)
+                {
+                    // Rule 2: Make sure the background color is white
+                    graphics.Clear(Color.White);
+                }
+                // decide fastest copy method
+                if (isAreaEqual)
+                {
+                    graphics.DrawImageUnscaled(sourceImage, 0, 0);
+                }
+                else
+                {
+                    graphics.DrawImage(sourceImage, 0, 0, sourceRect, GraphicsUnit.Pixel);
+                }
+            }
 			else
 			{
 				// Let GDI+ decide how to convert, need to test what is quicker...
@@ -1455,24 +1424,22 @@ namespace GreenshotPlugin.Core {
 			Bitmap newImage = new Bitmap(width, height, format);
 			newImage.SetResolution(horizontalResolution, verticalResolution);
 			if (format != PixelFormat.Format8bppIndexed)
-			{
-				using (Graphics graphics = Graphics.FromImage(newImage))
-				{
-					// Make sure the background color is what we want (transparent or white, depending on the pixel format)
-					if (!Color.Empty.Equals(backgroundColor))
-					{
-						graphics.Clear(backgroundColor);
-					}
-					else if (Image.IsAlphaPixelFormat(format))
-					{
-						graphics.Clear(Color.Transparent);
-					}
-					else
-					{
-						graphics.Clear(Color.White);
-					}
-				}
-			}
+            {
+                using Graphics graphics = Graphics.FromImage(newImage);
+                // Make sure the background color is what we want (transparent or white, depending on the pixel format)
+                if (!Color.Empty.Equals(backgroundColor))
+                {
+                    graphics.Clear(backgroundColor);
+                }
+                else if (Image.IsAlphaPixelFormat(format))
+                {
+                    graphics.Clear(Color.Transparent);
+                }
+                else
+                {
+                    graphics.Clear(Color.White);
+                }
+            }
 			return newImage;
 		}
 
@@ -1549,28 +1516,27 @@ namespace GreenshotPlugin.Core {
 			int toCount = colorToCount.ToArgb();
 			if (!includeAlpha)
 			{
-				toCount = toCount & 0xffffff;
+				toCount &= 0xffffff;
 			}
-			using (IFastBitmap bb = FastBitmap.Create((Bitmap)sourceImage))
-			{
-				for (int y = 0; y < bb.Height; y++)
-				{
-					for (int x = 0; x < bb.Width; x++)
-					{
-						int bitmapcolor = bb.GetColorAt(x, y).ToArgb();
-						if (!includeAlpha)
-						{
-							bitmapcolor = bitmapcolor & 0xffffff;
-						}
-						if (bitmapcolor == toCount)
-						{
-							colors++;
-						}
-					}
-				}
-				return colors;
-			}
-		}
+
+            using IFastBitmap bb = FastBitmap.Create((Bitmap)sourceImage);
+            for (int y = 0; y < bb.Height; y++)
+            {
+                for (int x = 0; x < bb.Width; x++)
+                {
+                    int bitmapcolor = bb.GetColorAt(x, y).ToArgb();
+                    if (!includeAlpha)
+                    {
+                        bitmapcolor &= 0xffffff;
+                    }
+                    if (bitmapcolor == toCount)
+                    {
+                        colors++;
+                    }
+                }
+            }
+            return colors;
+        }
 
 		/// <summary>
 		/// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
@@ -1651,12 +1617,10 @@ namespace GreenshotPlugin.Core {
 			using (Graphics graphics = Graphics.FromImage(newImage))
 			{
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				using (ImageAttributes wrapMode = new ImageAttributes())
-				{
-					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-					graphics.DrawImage(sourceImage, new Rectangle(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
-				}
-			}
+                using ImageAttributes wrapMode = new ImageAttributes();
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                graphics.DrawImage(sourceImage, new Rectangle(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
+            }
 			return newImage;
 		}
 
@@ -1692,13 +1656,11 @@ namespace GreenshotPlugin.Core {
 				Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
 				const int filesizeLocation = 8 + markerSize;
 				surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-				using (BinaryReader reader = new BinaryReader(surfaceFileStream))
-				{
-					long bytesWritten = reader.ReadInt64();
-					surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-					returnSurface.LoadElementsFromStream(surfaceFileStream);
-				}
-			}
+                using BinaryReader reader = new BinaryReader(surfaceFileStream);
+                long bytesWritten = reader.ReadInt64();
+                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
+                returnSurface.LoadElementsFromStream(surfaceFileStream);
+            }
 			if (fileImage != null)
 			{
 				returnSurface.Image = fileImage;
@@ -1733,8 +1695,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			Image returnImage = null;
-			Func<Stream, string, Image> converter;
-			if (StreamConverters.TryGetValue(extension ?? "", out converter))
+            if (StreamConverters.TryGetValue(extension ?? "", out var converter))
 			{
 				returnImage =  converter(stream, extension);
 			}
@@ -1743,12 +1704,10 @@ namespace GreenshotPlugin.Core {
 			{
 				// We create a copy of the bitmap, so everything else can be disposed
 				stream.Position = 0;
-				using (var tmpImage = Image.FromStream(stream, true, true))
-				{
-					Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-					returnImage = Clone(tmpImage, PixelFormat.Format32bppArgb);
-				}
-			}
+                using var tmpImage = Image.FromStream(stream, true, true);
+                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+                returnImage = Clone(tmpImage, PixelFormat.Format32bppArgb);
+            }
 			return returnImage;
 		}
 	}

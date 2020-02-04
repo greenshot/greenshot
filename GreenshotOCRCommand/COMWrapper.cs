@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,9 +34,7 @@ namespace Greenshot.Interop {
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		private const int CO_E_CLASSSTRING = -2147221005;
 
-		#region Private Data
-
-		/// <summary>
+        /// <summary>
 		/// Holds reference to the actual COM object which is wrapped by this proxy
 		/// </summary>
 		private readonly object _comObject;
@@ -51,11 +49,7 @@ namespace Greenshot.Interop {
 		/// </summary>
 		private readonly Type _interceptType;
 
-		#endregion
-
-		#region Construction
-
-		/// <summary>
+        /// <summary>
 		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// </summary>
 		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
@@ -96,7 +90,7 @@ namespace Greenshot.Interop {
 				COMWrapper wrapper = new COMWrapper(comObject, type);
 				return (T)wrapper.GetTransparentProxy();
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>
@@ -160,7 +154,7 @@ namespace Greenshot.Interop {
 				COMWrapper wrapper = new COMWrapper(comObject, type);
 				return (T)wrapper.GetTransparentProxy();
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>
@@ -197,11 +191,7 @@ namespace Greenshot.Interop {
 			_interceptType = type;
 		}
 
-		#endregion
-
-		#region Clean up
-
-		/// <summary>
+        /// <summary>
 		/// If <see cref="Dispose"/> is not called, we need to make
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
@@ -239,11 +229,7 @@ namespace Greenshot.Interop {
 			}
 		}
 
-		#endregion
-
-		#region Object methods
-
-		/// <summary>
+        /// <summary>
 		/// Returns a string representing the wrapped object.
 		/// </summary>
 		/// <returns>
@@ -274,8 +260,7 @@ namespace Greenshot.Interop {
 		/// </returns>
 		public override bool Equals(object value) {
 			if (null != value && RemotingServices.IsTransparentProxy(value)) {
-				COMWrapper wrapper = RemotingServices.GetRealProxy(value) as COMWrapper;
-				if (null != wrapper) {
+                if (RemotingServices.GetRealProxy(value) is COMWrapper wrapper) {
 					return _comObject == wrapper._comObject;
 				}
 			}
@@ -309,9 +294,7 @@ namespace Greenshot.Interop {
 			return byRefType;
 		}
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Intercept method calls 
 		/// </summary>
 		/// <param name="myMessage">
@@ -356,8 +339,7 @@ namespace Greenshot.Interop {
 			} else if ("Equals" == methodName && 1 == argCount && typeof(bool) == returnType) {
 				returnValue = Equals(callMessage.Args[0]);
 			} else if (1 == argCount && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_"))) {
-				var handler = callMessage.InArgs[0] as Delegate;
-				if (null == handler) {
+                if (!(callMessage.InArgs[0] is Delegate handler)) {
 					return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
 				}
 			} else {

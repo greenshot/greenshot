@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -308,10 +308,9 @@ namespace Greenshot.Helpers.IEInterop {
 				IServiceProvider sp = (IServiceProvider)htmlWindow;
 
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
-				object brws;
-				Guid webBrowserApp = IID_IWebBrowserApp;
+                Guid webBrowserApp = IID_IWebBrowserApp;
 				Guid webBrowser2 = IID_IWebBrowser2;
-				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
+				sp.QueryService(ref webBrowserApp, ref webBrowser2, out var brws);
 				
 				// Get the document from IWebBrowser2.
 				IWebBrowser2 browser = (IWebBrowser2)brws;

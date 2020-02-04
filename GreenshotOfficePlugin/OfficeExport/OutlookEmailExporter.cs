@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -52,42 +52,40 @@ namespace Greenshot.Interop.Office {
 		/// <returns>List of strings with inspector captions (window title)</returns>
 		public static IDictionary<string, OlObjectClass> RetrievePossibleTargets() {
 			IDictionary<string, OlObjectClass> inspectorCaptions = new SortedDictionary<string, OlObjectClass>();
-			try {
-				using (IOutlookApplication outlookApplication = GetOutlookApplication()) {
-					if (outlookApplication == null) {
-						return null;
-					}
+			try
+            {
+                using IOutlookApplication outlookApplication = GetOutlookApplication();
+                if (outlookApplication == null) {
+                    return null;
+                }
 
-					if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
-						// Check inline "panel" for Outlook 2013
-						using (var activeExplorer = outlookApplication.ActiveExplorer()) {
-							if (activeExplorer != null) {
-								using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
-									if (CanExportToInspector(inlineResponse)) {
-										OlObjectClass currentItemClass = inlineResponse.Class;
-										inspectorCaptions.Add(activeExplorer.Caption, currentItemClass);
-									}
-								}
-							}
-						}
-					}
+                if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013)
+                {
+                    // Check inline "panel" for Outlook 2013
+                    using var activeExplorer = outlookApplication.ActiveExplorer();
+                    if (activeExplorer != null)
+                    {
+                        using var inlineResponse = activeExplorer.ActiveInlineResponse;
+                        if (CanExportToInspector(inlineResponse)) {
+                            OlObjectClass currentItemClass = inlineResponse.Class;
+                            inspectorCaptions.Add(activeExplorer.Caption, currentItemClass);
+                        }
+                    }
+                }
 
-					using (IInspectors inspectors = outlookApplication.Inspectors) {
-						if (inspectors != null && inspectors.Count > 0) {
-							for (int i = 1; i <= inspectors.Count; i++) {
-								using (IInspector inspector = outlookApplication.Inspectors[i]) {
-									using (IItem currentItem = inspector.CurrentItem) {
-										if (CanExportToInspector(currentItem)) {
-											OlObjectClass currentItemClass = currentItem.Class;
-											inspectorCaptions.Add(inspector.Caption, currentItemClass);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			} catch (Exception ex) {
+                using IInspectors inspectors = outlookApplication.Inspectors;
+                if (inspectors != null && inspectors.Count > 0) {
+                    for (int i = 1; i <= inspectors.Count; i++)
+                    {
+                        using IInspector inspector = outlookApplication.Inspectors[i];
+                        using IItem currentItem = inspector.CurrentItem;
+                        if (CanExportToInspector(currentItem)) {
+                            OlObjectClass currentItemClass = currentItem.Class;
+                            inspectorCaptions.Add(inspector.Caption, currentItemClass);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
 				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 			return inspectorCaptions;
@@ -137,52 +135,50 @@ namespace Greenshot.Interop.Office {
 				if (outlookApplication == null) {
 					return false;
 				}
-				if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
-					// Check inline "panel" for Outlook 2013
-					using (var activeExplorer = outlookApplication.ActiveExplorer()) {
-						if (activeExplorer == null) {
-							return false;
-						}
-						var currentCaption = activeExplorer.Caption;
-						if (currentCaption.StartsWith(inspectorCaption)) {
-							using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
-								using (IItem currentItem = activeExplorer.ActiveInlineResponse) {
-									if (CanExportToInspector(inlineResponse)) {
-										try {
-											return ExportToInspector(activeExplorer, currentItem, tmpFile, attachmentName);
-										} catch (Exception exExport) {
-											Log.Error("Export to " + currentCaption + " failed.", exExport);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013)
+                {
+                    // Check inline "panel" for Outlook 2013
+                    using var activeExplorer = outlookApplication.ActiveExplorer();
+                    if (activeExplorer == null) {
+                        return false;
+                    }
+                    var currentCaption = activeExplorer.Caption;
+                    if (currentCaption.StartsWith(inspectorCaption))
+                    {
+                        using var inlineResponse = activeExplorer.ActiveInlineResponse;
+                        using IItem currentItem = activeExplorer.ActiveInlineResponse;
+                        if (CanExportToInspector(inlineResponse)) {
+                            try {
+                                return ExportToInspector(activeExplorer, currentItem, tmpFile, attachmentName);
+                            } catch (Exception exExport) {
+                                Log.Error("Export to " + currentCaption + " failed.", exExport);
+                            }
+                        }
+                    }
+                }
 
-				using (IInspectors inspectors = outlookApplication.Inspectors) {
-					if (inspectors == null || inspectors.Count == 0) {
-						return false;
-					}
-					Log.DebugFormat("Got {0} inspectors to check", inspectors.Count);
-					for (int i = 1; i <= inspectors.Count; i++) {
-						using (IInspector inspector = outlookApplication.Inspectors[i]) {
-							string currentCaption = inspector.Caption;
-							if (currentCaption.StartsWith(inspectorCaption)) {
-								using (IItem currentItem = inspector.CurrentItem) {
-									if (CanExportToInspector(currentItem)) {
-										try {
-											return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
-										} catch (Exception exExport) {
-											Log.Error("Export to " + currentCaption + " failed.", exExport);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+                using IInspectors inspectors = outlookApplication.Inspectors;
+                if (inspectors == null || inspectors.Count == 0) {
+                    return false;
+                }
+                Log.DebugFormat("Got {0} inspectors to check", inspectors.Count);
+                for (int i = 1; i <= inspectors.Count; i++)
+                {
+                    using IInspector inspector = outlookApplication.Inspectors[i];
+                    string currentCaption = inspector.Caption;
+                    if (currentCaption.StartsWith(inspectorCaption))
+                    {
+                        using IItem currentItem = inspector.CurrentItem;
+                        if (CanExportToInspector(currentItem)) {
+                            try {
+                                return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
+                            } catch (Exception exExport) {
+                                Log.Error("Export to " + currentCaption + " failed.", exExport);
+                            }
+                        }
+                    }
+                }
+            }
 			return false;
 		}
 
@@ -229,14 +225,12 @@ namespace Greenshot.Interop.Office {
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
 					IWordDocument wordDocument = null;
-					var explorer = inspectorOrExplorer as IExplorer;
-					if (explorer != null) {
+                    if (inspectorOrExplorer is IExplorer explorer) {
 						wordDocument = explorer.ActiveInlineResponseWordEditor;
 					}
 					else
 					{
-						var inspector1 = inspectorOrExplorer as IInspector;
-						if (inspector1 != null) {
+                        if (inspectorOrExplorer is IInspector inspector1) {
 							var inspector = inspector1;
 							if (inspector.IsWordMail()) {
 								wordDocument = inspector.WordEditor;
@@ -282,8 +276,7 @@ namespace Greenshot.Interop.Office {
 					// if html we can try to inline it
 					// The following might cause a security popup... can't ignore it.
 					try {
-						IHTMLDocument2 document2 = (inspectorOrExplorer as IInspector).HTMLEditor as IHTMLDocument2;
-						if (document2 != null) {
+                        if ((inspectorOrExplorer as IInspector).HTMLEditor is IHTMLDocument2 document2) {
 							IHTMLSelectionObject selection = document2.selection;
 							if (selection != null) {
 								IHTMLTxtRange range = selection.createRange();
@@ -307,18 +300,17 @@ namespace Greenshot.Interop.Office {
 				}
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
-				using (IAttachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
-					if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
-						// Add the content id to the attachment, this only works for Outlook >= 2007
-						try {
-							IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
-						} catch {
-							// Ignore
-						}
-					}
-				}
-			} catch (Exception ex) {
+                using IAttachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName);
+                if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+                    // Add the content id to the attachment, this only works for Outlook >= 2007
+                    try {
+                        IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+                        propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
+                    } catch {
+                        // Ignore
+                    }
+                }
+            } catch (Exception ex) {
 				Log.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
 				return false;
 			}
@@ -344,98 +336,97 @@ namespace Greenshot.Interop.Office {
 		/// <param name="cc"></param>
 		/// <param name="bcc"></param>
 		/// <param name="url"></param>
-		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url) {
-			using (IItem newItem = outlookApplication.CreateItem(OlItemType.olMailItem)) {
-				if (newItem == null) {
-					return;
-				}
-				//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
-				MailItem newMail = (MailItem)newItem;
-				newMail.Subject = subject;
-				if (!string.IsNullOrEmpty(to)) {
-					newMail.To = to;
-				}
-				if (!string.IsNullOrEmpty(cc)) {
-					newMail.CC = cc;
-				}
-				if (!string.IsNullOrEmpty(bcc)) {
-					newMail.BCC = bcc;
-				}
-				newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-				string bodyString = null;
-				// Read the default signature, if nothing found use empty email
-				try {
-					bodyString = GetOutlookSignature(format);
-				} catch (Exception e) {
-					Log.Error("Problem reading signature!", e);
-				}
-				switch (format) {
-					case EmailFormat.Text:
-						// Create the attachment (and dispose the COM object after using)
-						using (newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName))
-						{
-							newMail.BodyFormat = OlBodyFormat.olFormatPlain;
-							if (bodyString == null) {
-								bodyString = "";
-							}
-							newMail.Body = bodyString;
-						}
-						break;
-					default:
-						string contentId = Path.GetFileName(tmpFile);
-						// Create the attachment (and dispose the COM object after using)
-						using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
-							// add content ID to the attachment
-							if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
-								try {
-									contentId = Guid.NewGuid().ToString();
-									IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-									propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
-								} catch {
-									Log.Info("Error working with the PropertyAccessor, using filename as contentid");
-									contentId = Path.GetFileName(tmpFile);
-								}
-							}
-						}
+		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
+        {
+            using IItem newItem = outlookApplication.CreateItem(OlItemType.olMailItem);
+            if (newItem == null) {
+                return;
+            }
+            //MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
+            MailItem newMail = (MailItem)newItem;
+            newMail.Subject = subject;
+            if (!string.IsNullOrEmpty(to)) {
+                newMail.To = to;
+            }
+            if (!string.IsNullOrEmpty(cc)) {
+                newMail.CC = cc;
+            }
+            if (!string.IsNullOrEmpty(bcc)) {
+                newMail.BCC = bcc;
+            }
+            newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+            string bodyString = null;
+            // Read the default signature, if nothing found use empty email
+            try {
+                bodyString = GetOutlookSignature(format);
+            } catch (Exception e) {
+                Log.Error("Problem reading signature!", e);
+            }
+            switch (format) {
+                case EmailFormat.Text:
+                    // Create the attachment (and dispose the COM object after using)
+                    using (newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName))
+                    {
+                        newMail.BodyFormat = OlBodyFormat.olFormatPlain;
+                        if (bodyString == null) {
+                            bodyString = "";
+                        }
+                        newMail.Body = bodyString;
+                    }
+                    break;
+                default:
+                    string contentId = Path.GetFileName(tmpFile);
+                    // Create the attachment (and dispose the COM object after using)
+                    using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
+                        // add content ID to the attachment
+                        if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+                            try {
+                                contentId = Guid.NewGuid().ToString();
+                                IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
+                                propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
+                            } catch {
+                                Log.Info("Error working with the PropertyAccessor, using filename as contentid");
+                                contentId = Path.GetFileName(tmpFile);
+                            }
+                        }
+                    }
 
-						newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-						string href = "";
-						string hrefEnd = "";
-						if (!string.IsNullOrEmpty(url)) {
-							href = $"<A HREF=\"{url}\">";
-							hrefEnd = "</A>";
-						}
-						string htmlImgEmbedded = $"<BR/>{href}<IMG border=0 hspace=0 alt=\"{attachmentName}\" align=baseline src=\"cid:{contentId}\">{hrefEnd}<BR/>";
-						string fallbackBody = $"<HTML><BODY>{htmlImgEmbedded}</BODY></HTML>";
-						if (bodyString == null) {
-							bodyString = fallbackBody;
-						} else {
-							int bodyIndex = bodyString.IndexOf("<body", StringComparison.CurrentCultureIgnoreCase);
-							if (bodyIndex >= 0)
-							{
-								bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
-								bodyString = bodyIndex >= 0 ? bodyString.Insert(bodyIndex, htmlImgEmbedded) : fallbackBody;
-							} else {
-								bodyString = fallbackBody;
-							}
-						}
-						newMail.HTMLBody = bodyString;
-						break;
-				}
-				// So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
-				newMail.Display(false);
+                    newMail.BodyFormat = OlBodyFormat.olFormatHTML;
+                    string href = "";
+                    string hrefEnd = "";
+                    if (!string.IsNullOrEmpty(url)) {
+                        href = $"<A HREF=\"{url}\">";
+                        hrefEnd = "</A>";
+                    }
+                    string htmlImgEmbedded = $"<BR/>{href}<IMG border=0 hspace=0 alt=\"{attachmentName}\" align=baseline src=\"cid:{contentId}\">{hrefEnd}<BR/>";
+                    string fallbackBody = $"<HTML><BODY>{htmlImgEmbedded}</BODY></HTML>";
+                    if (bodyString == null) {
+                        bodyString = fallbackBody;
+                    } else {
+                        int bodyIndex = bodyString.IndexOf("<body", StringComparison.CurrentCultureIgnoreCase);
+                        if (bodyIndex >= 0)
+                        {
+                            bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
+                            bodyString = bodyIndex >= 0 ? bodyString.Insert(bodyIndex, htmlImgEmbedded) : fallbackBody;
+                        } else {
+                            bodyString = fallbackBody;
+                        }
+                    }
+                    newMail.HTMLBody = bodyString;
+                    break;
+            }
+            // So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
+            newMail.Display(false);
 
-				using (IInspector inspector = newMail.GetInspector()) {
-					if (inspector != null) {
-						try {
-							inspector.Activate();
-						} catch {
-							// Ignore
-						}
-					}
-				}
-			}
-		}
+            using IInspector inspector = newMail.GetInspector();
+            if (inspector != null) {
+                try {
+                    inspector.Activate();
+                } catch {
+                    // Ignore
+                }
+            }
+        }
 
 		/// <summary>
 		/// Helper method to create an outlook mail item with attachment
@@ -476,46 +467,40 @@ namespace Greenshot.Interop.Office {
 				}
 				string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
 				Log.DebugFormat("defaultProfile={0}", defaultProfile);
-				using (RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false)) {
-					if (profileKey != null)
-					{
-						string[] numbers = profileKey.GetSubKeyNames();
-						foreach (string number in numbers) {
-							Log.DebugFormat("Found subkey {0}", number);
-							using (RegistryKey numberKey = profileKey.OpenSubKey(number, false)) {
-								if (numberKey != null)
-								{
-									byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
-									if (val == null) {
-										continue;
-									}
-									string signatureName = "";
-									foreach (byte b in val) {
-										if (b != 0) {
-											signatureName += (char)b;
-										}
-									}
-									Log.DebugFormat("Found email signature: {0}", signatureName);
-									string extension;
-									switch (format) {
-										case EmailFormat.Text:
-											extension = ".txt";
-											break;
-										default:
-											extension = ".htm";
-											break;
-									}
-									string signatureFile = Path.Combine(SignaturePath, signatureName + extension);
-									if (File.Exists(signatureFile)) {
-										Log.DebugFormat("Found email signature file: {0}", signatureFile);
-										return File.ReadAllText(signatureFile, Encoding.Default);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+                using RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false);
+                if (profileKey != null)
+                {
+                    string[] numbers = profileKey.GetSubKeyNames();
+                    foreach (string number in numbers) {
+                        Log.DebugFormat("Found subkey {0}", number);
+                        using RegistryKey numberKey = profileKey.OpenSubKey(number, false);
+                        if (numberKey != null)
+                        {
+                            byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
+                            if (val == null) {
+                                continue;
+                            }
+                            string signatureName = "";
+                            foreach (byte b in val) {
+                                if (b != 0) {
+                                    signatureName += (char)b;
+                                }
+                            }
+                            Log.DebugFormat("Found email signature: {0}", signatureName);
+                            var extension = format switch
+                            {
+                                EmailFormat.Text => ".txt",
+                                _ => ".htm"
+                            };
+                            string signatureFile = Path.Combine(SignaturePath, signatureName + extension);
+                            if (File.Exists(signatureFile)) {
+                                Log.DebugFormat("Found email signature file: {0}", signatureFile);
+                                return File.ReadAllText(signatureFile, Encoding.Default);
+                            }
+                        }
+                    }
+                }
+            }
 			return null;
 		}
 

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -736,7 +736,7 @@ namespace Greenshot {
 			this.radiobuttonInteractiveCapture.TabIndex = 6;
 			this.radiobuttonInteractiveCapture.TabStop = true;
 			this.radiobuttonInteractiveCapture.UseVisualStyleBackColor = true;
-			this.radiobuttonInteractiveCapture.CheckedChanged += new System.EventHandler(this.radiobutton_CheckedChanged);
+			this.radiobuttonInteractiveCapture.CheckedChanged += new System.EventHandler(this.Radiobutton_CheckedChanged);
 			// 
 			// combobox_window_capture_mode
 			// 
@@ -1244,7 +1244,7 @@ namespace Greenshot {
 			this.checkbox_enableexpert.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_enableexpert.TabIndex = 1;
 			this.checkbox_enableexpert.UseVisualStyleBackColor = true;
-			this.checkbox_enableexpert.CheckedChanged += new System.EventHandler(this.checkbox_enableexpert_CheckedChanged);
+			this.checkbox_enableexpert.CheckedChanged += new System.EventHandler(this.Checkbox_enableexpert_CheckedChanged);
 			// 
 			// listview_clipboardformats
 			// 

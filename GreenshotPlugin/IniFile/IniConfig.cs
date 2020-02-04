@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -264,8 +264,8 @@ namespace Greenshot.IniFile {
 			{
 				return;
 			}
-			IDictionary<string, string> fixedPropertiesForSection;
-			if (!_fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out fixedPropertiesForSection))
+
+            if (!_fixedProperties.TryGetValue(section.IniSectionAttribute.Name, out var fixedPropertiesForSection))
 			{
 				return;
 			}
@@ -326,8 +326,7 @@ namespace Greenshot.IniFile {
 		/// <param name="sectionName"></param>
 		/// <returns></returns>
 		public static IniSection GetIniSection(string sectionName) {
-			IniSection returnValue;
-			SectionMap.TryGetValue(sectionName, out returnValue);
+            SectionMap.TryGetValue(sectionName, out var returnValue);
 			return returnValue;
 		}
 
@@ -426,41 +425,39 @@ namespace Greenshot.IniFile {
 			{
 				Directory.CreateDirectory(iniPath);
 			}
-			using (var memoryStream = new MemoryStream()) {
-				using (TextWriter writer = new StreamWriter(memoryStream, Encoding.UTF8)) {
-					foreach (var section in SectionMap.Values) {
-						section.Write(writer, false);
-						// Add empty line after section
-						writer.WriteLine();
-						section.IsDirty = false;
-					}
-					writer.WriteLine();
-					// Write left over properties
-					foreach (string sectionName in _sections.Keys) {
-						// Check if the section is one that is "registered", if so skip it!
-						if (SectionMap.ContainsKey(sectionName))
-						{
-							continue;
-						}
-						writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefor it doesn't have additional information here!", sectionName);
-						writer.WriteLine("; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.", sectionName);
-						// Write section name
-						writer.WriteLine("[{0}]", sectionName);
-						var properties = _sections[sectionName];
-						// Loop and write properties
-						foreach (string propertyName in properties.Keys) {
-							writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);
-						}
-						writer.WriteLine();
-					}
-					// Don't forget to flush the buffer
-					writer.Flush();
-					// Now write the created .ini string to the real file
-					using (FileStream fileStream = new FileStream(iniLocation, FileMode.Create, FileAccess.Write)) {
-						memoryStream.WriteTo(fileStream);
-					}
-				}
-			}
-		}
+
+            using var memoryStream = new MemoryStream();
+            using TextWriter writer = new StreamWriter(memoryStream, Encoding.UTF8);
+            foreach (var section in SectionMap.Values) {
+                section.Write(writer, false);
+                // Add empty line after section
+                writer.WriteLine();
+                section.IsDirty = false;
+            }
+            writer.WriteLine();
+            // Write left over properties
+            foreach (string sectionName in _sections.Keys) {
+                // Check if the section is one that is "registered", if so skip it!
+                if (SectionMap.ContainsKey(sectionName))
+                {
+                    continue;
+                }
+                writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefor it doesn't have additional information here!", sectionName);
+                writer.WriteLine("; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.", sectionName);
+                // Write section name
+                writer.WriteLine("[{0}]", sectionName);
+                var properties = _sections[sectionName];
+                // Loop and write properties
+                foreach (string propertyName in properties.Keys) {
+                    writer.WriteLine("{0}={1}", propertyName, properties[propertyName]);
+                }
+                writer.WriteLine();
+            }
+            // Don't forget to flush the buffer
+            writer.Flush();
+            // Now write the created .ini string to the real file
+            using FileStream fileStream = new FileStream(iniLocation, FileMode.Create, FileAccess.Write);
+            memoryStream.WriteTo(fileStream);
+        }
 	}
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -37,12 +37,11 @@ namespace GreenshotPlugin.Core {
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public virtual int CompareTo(object obj) {
-			IDestination other = obj as IDestination;
-			if (other == null) {
+            if (!(obj is IDestination other)) {
 				return 1;
 			}
 			if (Priority == other.Priority) {
-				return String.Compare(Description, other.Description, StringComparison.Ordinal);
+				return string.Compare(Description, other.Description, StringComparison.Ordinal);
 			}
 			return Priority - other.Priority;
 		}

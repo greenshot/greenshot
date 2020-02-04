@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -138,8 +138,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				return true;
 			}
 			if (Environment.OSVersion.Version.Major >= 6) {
-				bool dwmEnabled;
-				DwmIsCompositionEnabled(out dwmEnabled);
+                DwmIsCompositionEnabled(out var dwmEnabled);
 				return dwmEnabled;
 			}
 			return false;

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,8 +35,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace GreenshotPlugin.Core {
-	#region EnumWindows
-	/// <summary>
+    /// <summary>
 	/// EnumWindows wrapper for .NET
 	/// </summary>
 	public class WindowsEnumerator {
@@ -94,8 +93,7 @@ namespace GreenshotPlugin.Core {
 			return this;
 		}
 
-		#region EnumWindows callback
-		/// <summary>
+        /// <summary>
 		/// The enum Windows callback.
 		/// </summary>
 		/// <param name="hWnd">Window Handle</param>
@@ -109,9 +107,7 @@ namespace GreenshotPlugin.Core {
 			return 0;
 		}
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Called whenever a new window is about to be added
 		/// by the Window enumeration called from GetWindows.
 		/// If overriding this function, return true to continue
@@ -128,10 +124,8 @@ namespace GreenshotPlugin.Core {
 			return true;
 		}
 	}
-	#endregion EnumWindows
 
-	#region WindowDetails
-	/// <summary>
+    /// <summary>
 	/// Code for handling with "windows"
 	/// Main code is taken from vbAccelerator, location:
 	/// http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows/Enumerating_Windows/article.asp
@@ -229,7 +223,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="other"></param>
 		/// <returns></returns>
 		public bool Equals(WindowDetails other) {
-			if (ReferenceEquals(other, null)) {
+			if (other is null) {
 				return false;
 			}
 			
@@ -272,8 +266,7 @@ namespace GreenshotPlugin.Core {
 					return string.Empty;
 				}
 				// Get the process id
-				int processid;
-				User32.GetWindowThreadProcessId(Handle, out processid);
+                User32.GetWindowThreadProcessId(Handle, out var processid);
 				return Kernel32.GetProcessPath(processid);
 			}
 		}
@@ -284,13 +277,13 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public Image DisplayIcon {
 			get {
-				try {
-					using (var appIcon = GetAppIcon(Handle)) {
-						if (appIcon != null) {
-							return appIcon.ToBitmap();
-						}
-					}
-				} catch (Exception ex) {
+				try
+                {
+                    using var appIcon = GetAppIcon(Handle);
+                    if (appIcon != null) {
+                        return appIcon.ToBitmap();
+                    }
+                } catch (Exception ex) {
 					Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
 					Log.Warn(ex);
 				}
@@ -714,8 +707,7 @@ namespace GreenshotPlugin.Core {
 
 		public int ProcessId {
 			get {
-				int processId;
-				User32.GetWindowThreadProcessId(Handle, out processId);
+                User32.GetWindowThreadProcessId(Handle, out var processId);
 				return processId;
 			}
 		}
@@ -723,8 +715,7 @@ namespace GreenshotPlugin.Core {
 		public Process Process {
 			get {
 				try {
-					int processId;
-					User32.GetWindowThreadProcessId(Handle, out processId);
+                    User32.GetWindowThreadProcessId(Handle, out var processId);
 					return Process.GetProcessById(processId);
 				} catch (Exception ex) {
 					Log.Warn(ex);
@@ -787,9 +778,8 @@ namespace GreenshotPlugin.Core {
 	
 						// Correction for maximized windows, only if it's not an app
 						if (!HasParent && !IsApp && Maximised) {
-							Size size;
-							// Only if the border size can be retrieved
-							if (GetBorderSize(out size))
+                            // Only if the border size can be retrieved
+							if (GetBorderSize(out var size))
 							{
 								windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
 							}
@@ -832,8 +822,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public Rectangle ClientRectangle {
 			get {
-				Rectangle clientRect;
-				if (!GetClientRect(out clientRect))
+                if (!GetClientRect(out var clientRect))
 				{
 					Win32Error error = Win32.GetLastErrorCode();
 					Log.WarnFormat("Couldn't retrieve the client rectangle for {0}, error: {1}", Text, Win32.GetMessage(error));
@@ -944,8 +933,7 @@ namespace GreenshotPlugin.Core {
 				DWM.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
 
 				// Get the original size
-				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+                DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out var sourceSize);
 
 				if (sourceSize.Width <= 0 || sourceSize.Height <= 0) {
 					return null;
@@ -959,30 +947,29 @@ namespace GreenshotPlugin.Core {
 				if (!Maximised) {
 					// Assume using it's own location
 					formLocation = windowRectangle.Location;
-					using (Region workingArea = new Region(Screen.PrimaryScreen.Bounds)) {
-						// Find the screen where the window is and check if it fits
-						foreach (Screen screen in Screen.AllScreens) {
-							if (!Equals(screen, Screen.PrimaryScreen)) {
-								workingArea.Union(screen.Bounds);
-							}
-						}
+                    using Region workingArea = new Region(Screen.PrimaryScreen.Bounds);
+                    // Find the screen where the window is and check if it fits
+                    foreach (Screen screen in Screen.AllScreens) {
+                        if (!Equals(screen, Screen.PrimaryScreen)) {
+                            workingArea.Union(screen.Bounds);
+                        }
+                    }
 
-						// If the formLocation is not inside the visible area
-						if (!workingArea.AreRectangleCornersVisisble(windowRectangle)) {
-							// If none found we find the biggest screen
-							foreach (Screen screen in Screen.AllScreens) {
-								Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
-								if (workingArea.AreRectangleCornersVisisble(newWindowRectangle)) {
-									formLocation = screen.Bounds.Location;
-									doesCaptureFit = true;
-									break;
-								}
-							}
-						} else {
-							doesCaptureFit = true;
-						}
-					}
-				} else if (!Environment.OSVersion.IsWindows8OrLater()) {
+                    // If the formLocation is not inside the visible area
+                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle)) {
+                        // If none found we find the biggest screen
+                        foreach (Screen screen in Screen.AllScreens) {
+                            Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
+                            if (workingArea.AreRectangleCornersVisisble(newWindowRectangle)) {
+                                formLocation = screen.Bounds.Location;
+                                doesCaptureFit = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        doesCaptureFit = true;
+                    }
+                } else if (!Environment.OSVersion.IsWindows8OrLater()) {
 					//GetClientRect(out windowRectangle);
 					GetBorderSize(out borderSize);
 					formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
@@ -1006,15 +993,15 @@ namespace GreenshotPlugin.Core {
 
 					if (autoMode) {
 						// check if the capture fits
-						if (!doesCaptureFit) {
-							// if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-							using (Process thisWindowProcess = Process) {
-								if (!IsMetroApp && WindowCapture.IsGdiAllowed(thisWindowProcess)) {
-									// we return null which causes the capturing code to try another method.
-									return null;
-								}
-							}
-						}
+						if (!doesCaptureFit)
+                        {
+                            // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
+                            using Process thisWindowProcess = Process;
+                            if (!IsMetroApp && WindowCapture.IsGdiAllowed(thisWindowProcess)) {
+                                // we return null which causes the capturing code to try another method.
+                                return null;
+                            }
+                        }
 					}
 				}
 				// Prepare the displaying of the Thumbnail
@@ -1044,23 +1031,22 @@ namespace GreenshotPlugin.Core {
 						tempForm.Refresh();
 						Application.DoEvents();
 
-						try {
-							using (Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-								// Apply a white color
-								tempForm.BackColor = Color.Black;
-								// Make sure everything is visible
-								tempForm.Refresh();
-								if (!IsMetroApp) {
-									// Make sure the application window is active, so the colors & buttons are right
-									ToForeground();
-								}
-								// Make sure all changes are processed and visible
-								Application.DoEvents();
-								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle)) {
-									capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
-								}
-							}
-						} catch (Exception e) {
+						try
+                        {
+                            using Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+                            // Apply a white color
+                            tempForm.BackColor = Color.Black;
+                            // Make sure everything is visible
+                            tempForm.Refresh();
+                            if (!IsMetroApp) {
+                                // Make sure the application window is active, so the colors & buttons are right
+                                ToForeground();
+                            }
+                            // Make sure all changes are processed and visible
+                            Application.DoEvents();
+                            using Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+                            capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
+                        } catch (Exception e) {
 							Log.Debug("Exception: ", e);
 							// Some problem occurred, cleanup and make a normal capture
 							if (capturedBitmap != null) {
@@ -1138,18 +1124,18 @@ namespace GreenshotPlugin.Core {
 		/// Helper method to remove the corners from a DMW capture
 		/// </summary>
 		/// <param name="image">The bitmap to remove the corners from.</param>
-		private void RemoveCorners(Bitmap image) {
-			using (IFastBitmap fastBitmap = FastBitmap.Create(image)) {
-				for (int y = 0; y < Conf.WindowCornerCutShape.Count; y++) {
-					for (int x = 0; x < Conf.WindowCornerCutShape[y]; x++) {
-						fastBitmap.SetColorAt(x, y, Color.Transparent);
-						fastBitmap.SetColorAt(image.Width-1-x, y, Color.Transparent);
-						fastBitmap.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);
-						fastBitmap.SetColorAt(x, image.Height-1-y, Color.Transparent);
-					}
-				}
-			}
-		}
+		private void RemoveCorners(Bitmap image)
+        {
+            using IFastBitmap fastBitmap = FastBitmap.Create(image);
+            for (int y = 0; y < Conf.WindowCornerCutShape.Count; y++) {
+                for (int x = 0; x < Conf.WindowCornerCutShape[y]; x++) {
+                    fastBitmap.SetColorAt(x, y, Color.Transparent);
+                    fastBitmap.SetColorAt(image.Width-1-x, y, Color.Transparent);
+                    fastBitmap.SetColorAt(image.Width-1-x, image.Height-1-y, Color.Transparent);
+                    fastBitmap.SetColorAt(x, image.Height-1-y, Color.Transparent);
+                }
+            }
+        }
 
 		/// <summary>
 		/// Apply transparency by comparing a transparent capture with a black and white background
@@ -1159,42 +1145,42 @@ namespace GreenshotPlugin.Core {
 		/// <param name="blackBitmap">Bitmap with the black image</param>
 		/// <param name="whiteBitmap">Bitmap with the black image</param>
 		/// <returns>Bitmap with transparency</returns>
-		private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap) {
-			using (IFastBitmap targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent)) {
-				targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-				using (IFastBitmap blackBuffer = FastBitmap.Create(blackBitmap)) {
-					using (IFastBitmap whiteBuffer = FastBitmap.Create(whiteBitmap)) {
-						for (int y = 0; y < blackBuffer.Height; y++) {
-							for (int x = 0; x < blackBuffer.Width; x++) {
-								Color c0 = blackBuffer.GetColorAt(x, y);
-								Color c1 = whiteBuffer.GetColorAt(x, y);
-								// Calculate alpha as double in range 0-1
-								int alpha = c0.R - c1.R + 255;
-								if (alpha == 255) {
-									// Alpha == 255 means no change!
-									targetBuffer.SetColorAt(x, y, c0);
-								} else if (alpha == 0) {
-									// Complete transparency, use transparent pixel
-									targetBuffer.SetColorAt(x, y, Color.Transparent);
-								} else {
-									// Calculate original color
-									byte originalAlpha = (byte)Math.Min(255, alpha);
-									var alphaFactor = alpha/255d;
-									//LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-									byte originalRed = (byte)Math.Min(255, c0.R / alphaFactor);
-									byte originalGreen = (byte)Math.Min(255, c0.G / alphaFactor);
-									byte originalBlue = (byte)Math.Min(255, c0.B / alphaFactor);
-									Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
-									//Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-									targetBuffer.SetColorAt(x, y, originalColor);
-								}
-							}
-						}
-					}
-				}
-				return targetBuffer.UnlockAndReturnBitmap();
-			}
-		}
+		private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
+        {
+            using IFastBitmap targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent);
+            targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
+            using (IFastBitmap blackBuffer = FastBitmap.Create(blackBitmap))
+            {
+                using IFastBitmap whiteBuffer = FastBitmap.Create(whiteBitmap);
+                for (int y = 0; y < blackBuffer.Height; y++) {
+                    for (int x = 0; x < blackBuffer.Width; x++) {
+                        Color c0 = blackBuffer.GetColorAt(x, y);
+                        Color c1 = whiteBuffer.GetColorAt(x, y);
+                        // Calculate alpha as double in range 0-1
+                        int alpha = c0.R - c1.R + 255;
+                        if (alpha == 255) {
+                            // Alpha == 255 means no change!
+                            targetBuffer.SetColorAt(x, y, c0);
+                        } else if (alpha == 0) {
+                            // Complete transparency, use transparent pixel
+                            targetBuffer.SetColorAt(x, y, Color.Transparent);
+                        } else {
+                            // Calculate original color
+                            byte originalAlpha = (byte)Math.Min(255, alpha);
+                            var alphaFactor = alpha/255d;
+                            //LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
+                            byte originalRed = (byte)Math.Min(255, c0.R / alphaFactor);
+                            byte originalGreen = (byte)Math.Min(255, c0.G / alphaFactor);
+                            byte originalBlue = (byte)Math.Min(255, c0.B / alphaFactor);
+                            Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
+                            //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
+                            targetBuffer.SetColorAt(x, y, originalColor);
+                        }
+                    }
+                }
+            }
+            return targetBuffer.UnlockAndReturnBitmap();
+        }
 		
 		/// <summary>
 		/// Helper method to get the window size for DWM Windows
@@ -1202,8 +1188,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="rectangle">out Rectangle</param>
 		/// <returns>bool true if it worked</returns>
 		private bool GetExtendedFrameBounds(out Rectangle rectangle) {
-			RECT rect;
-			int result = DWM.DwmGetWindowAttribute(Handle, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT)));
+            int result = DWM.DwmGetWindowAttribute(Handle, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out var rect, Marshal.SizeOf(typeof(RECT)));
 			if (result >= 0) {
 				rectangle = rect.ToRectangle();
 				return true;
@@ -1363,30 +1348,30 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Unfreeze the process belonging to the window
 		/// </summary>
-		public void UnfreezeWindow() {
-			using (Process proc = Process.GetProcessById(ProcessId)) {
-				string processName = proc.ProcessName;
-				if (!CanFreezeOrUnfreeze(processName)) {
-					Log.DebugFormat("Not unfreezing {0}", processName);
-					return;
-				}
-				if (!CanFreezeOrUnfreeze(Text)) {
-					Log.DebugFormat("Not unfreezing {0}", processName);
-					return;
-				}
-				Log.DebugFormat("Unfreezing process: {0}", processName);
+		public void UnfreezeWindow()
+        {
+            using Process proc = Process.GetProcessById(ProcessId);
+            string processName = proc.ProcessName;
+            if (!CanFreezeOrUnfreeze(processName)) {
+                Log.DebugFormat("Not unfreezing {0}", processName);
+                return;
+            }
+            if (!CanFreezeOrUnfreeze(Text)) {
+                Log.DebugFormat("Not unfreezing {0}", processName);
+                return;
+            }
+            Log.DebugFormat("Unfreezing process: {0}", processName);
 
-				foreach (ProcessThread pT in proc.Threads) {
-					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
+            foreach (ProcessThread pT in proc.Threads) {
+                IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
 
-					if (pOpenThread == IntPtr.Zero) {
-						break;
-					}
+                if (pOpenThread == IntPtr.Zero) {
+                    break;
+                }
 
-					Kernel32.ResumeThread(pOpenThread);
-				}
-			}
-		}
+                Kernel32.ResumeThread(pOpenThread);
+            }
+        }
 
 		/// <summary>
 		/// Return an Image representing the Window!
@@ -1404,24 +1389,23 @@ namespace GreenshotPlugin.Core {
 					pixelFormat = PixelFormat.Format32bppArgb;
 				}
 				returnImage = new Bitmap(windowRect.Width, windowRect.Height, pixelFormat);
-				using (Graphics graphics = Graphics.FromImage(returnImage)) {
-					using (SafeDeviceContextHandle graphicsDc = graphics.GetSafeDeviceContext()) {
-						bool printSucceeded = User32.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), 0x0);
-						if (!printSucceeded) {
-							// something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
-							exceptionOccured = User32.CreateWin32Exception("PrintWindow");
-						}
-					}
+                using Graphics graphics = Graphics.FromImage(returnImage);
+                using (SafeDeviceContextHandle graphicsDc = graphics.GetSafeDeviceContext()) {
+                    bool printSucceeded = User32.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), 0x0);
+                    if (!printSucceeded) {
+                        // something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
+                        exceptionOccured = User32.CreateWin32Exception("PrintWindow");
+                    }
+                }
 	
-					// Apply the region "transparency"
-					if (region != null && !region.IsEmpty(graphics)) {
-						graphics.ExcludeClip(region);
-						graphics.Clear(Color.Transparent);
-					}
+                // Apply the region "transparency"
+                if (region != null && !region.IsEmpty(graphics)) {
+                    graphics.ExcludeClip(region);
+                    graphics.Clear(Color.Transparent);
+                }
 	
-					graphics.Flush();
-				}
-			}
+                graphics.Flush();
+            }
 
 			// Return null if error
 			if (exceptionOccured != null) {
@@ -1431,8 +1415,7 @@ namespace GreenshotPlugin.Core {
 			}
 			if (!HasParent && Maximised) {
 				Log.Debug("Correcting for maximalization");
-				Size borderSize;
-				GetBorderSize(out borderSize);
+                GetBorderSize(out var borderSize);
 				Rectangle borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
 				ImageHelper.Crop(ref returnImage, ref borderRectangle);
 			}
@@ -1475,11 +1458,11 @@ namespace GreenshotPlugin.Core {
 		public bool IsGreenshot {
 			get {
 				try {
-					if (!IsMetroApp) {
-						using (Process thisWindowProcess = Process) {
-							return "Greenshot".Equals(thisWindowProcess.MainModule.FileVersionInfo.ProductName);
-						}
-					}
+					if (!IsMetroApp)
+                    {
+                        using Process thisWindowProcess = Process;
+                        return "Greenshot".Equals(thisWindowProcess.MainModule.FileVersionInfo.ProductName);
+                    }
 				} catch (Exception ex) {
 					Log.Warn(ex);
 				}
@@ -1791,5 +1774,4 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 	}
-	#endregion
 }

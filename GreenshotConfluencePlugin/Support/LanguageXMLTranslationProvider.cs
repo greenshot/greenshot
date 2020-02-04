@@ -5,17 +5,7 @@ namespace TranslationByMarkupExtension {
 	/// 
 	/// </summary>
 	public class LanguageXMLTranslationProvider : ITranslationProvider {
-		#region Private Members
-
-		#endregion
-
-		#region Construction
-
-		#endregion
-
-		#region ITranslationProvider Members
-
-		/// <summary>
+        /// <summary>
 		/// See <see cref="ITranslationProvider.Translate" />
 		/// </summary>
 		public object Translate(string key) {
@@ -24,7 +14,5 @@ namespace TranslationByMarkupExtension {
 			}
 			return key;
 		}
-
-		#endregion
-	}
+    }
 }

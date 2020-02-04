@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -48,37 +48,37 @@ namespace Greenshot.Drawing.Filters {
 			if (rect.Height < pixelSize) {
 				pixelSize = rect.Height;
 			}
-			using (IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect)) {
-				using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect)) {
-					List<Color> colors = new List<Color>();
-					int halbPixelSize = pixelSize / 2;
-					for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize) {
-						for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize) {
-							colors.Clear();
-							for (int yy = y; yy < y + pixelSize; yy++) {
-								if (yy >= src.Top && yy < src.Bottom) {
-									for (int xx = x; xx < x + pixelSize; xx++) {
-										if (xx >= src.Left && xx < src.Right) {
-											colors.Add(src.GetColorAt(xx, yy));
-										}
-									}
-								}
-							}
-							Color currentAvgColor = Colors.Mix(colors);
-							for (int yy = y; yy <= y + pixelSize; yy++) {
-								if (yy >= src.Top && yy < src.Bottom) {
-									for (int xx = x; xx <= x + pixelSize; xx++) {
-										if (xx >= src.Left && xx < src.Right) {
-											dest.SetColorAt(xx, yy, currentAvgColor);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				dest.DrawTo(graphics, rect.Location);
-			}
-		}
+
+            using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect);
+            using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect)) {
+                List<Color> colors = new List<Color>();
+                int halbPixelSize = pixelSize / 2;
+                for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y += pixelSize) {
+                    for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x += pixelSize) {
+                        colors.Clear();
+                        for (int yy = y; yy < y + pixelSize; yy++) {
+                            if (yy >= src.Top && yy < src.Bottom) {
+                                for (int xx = x; xx < x + pixelSize; xx++) {
+                                    if (xx >= src.Left && xx < src.Right) {
+                                        colors.Add(src.GetColorAt(xx, yy));
+                                    }
+                                }
+                            }
+                        }
+                        Color currentAvgColor = Colors.Mix(colors);
+                        for (int yy = y; yy <= y + pixelSize; yy++) {
+                            if (yy >= src.Top && yy < src.Bottom) {
+                                for (int xx = x; xx <= x + pixelSize; xx++) {
+                                    if (xx >= src.Left && xx < src.Right) {
+                                        dest.SetColorAt(xx, yy, currentAvgColor);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            dest.DrawTo(graphics, rect.Location);
+        }
 	}
 }

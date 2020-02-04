@@ -9,10 +9,6 @@ dotnetfx40full_title=.NET Framework 4.0 Full
 
 dotnetfx40full_size=3 MB - 197 MB
 
-;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
-en.dotnetfx40full_lcid=
-de.dotnetfx40full_lcid=/lcid 1031
-
 [Code]
 const
 	dotnetfx40full_url = 'http://download.microsoft.com/download/1/B/E/1BE39E79-7E39-46A3-96FF-047F95396215/dotNetFx40_Full_setup.exe';
@@ -21,7 +17,7 @@ procedure dotnetfx40full();
 begin
 	if (not netfxinstalled(NetFx40Full, '')) then
 		AddProduct('dotNetFx40_Full_setup.exe',
-			CustomMessage('dotnetfx40full_lcid') + ' /passive /norestart',
+			'/lcid ' + CustomMessage('lcid') + ' /passive /norestart',
 			CustomMessage('dotnetfx40full_title'),
 			CustomMessage('dotnetfx40full_size'),
 			dotnetfx40full_url,

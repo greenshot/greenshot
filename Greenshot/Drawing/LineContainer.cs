@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -73,37 +73,37 @@ namespace Greenshot.Drawing {
 					int alpha = basealpha;
 					int steps = 5;
 					int currentStep = 1;
-					while (currentStep <= steps) {
-						using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
-							graphics.DrawLine(shadowCapPen,
-								Left + currentStep,
-								Top + currentStep,
-								Left + currentStep + Width,
-								Top + currentStep + Height);
+					while (currentStep <= steps)
+                    {
+                        using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                        graphics.DrawLine(shadowCapPen,
+                            Left + currentStep,
+                            Top + currentStep,
+                            Left + currentStep + Width,
+                            Top + currentStep + Height);
 
-							currentStep++;
-							alpha = alpha - basealpha / steps;
-						}
-					}
+                        currentStep++;
+                        alpha -= basealpha / steps;
+                    }
 				}
 
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
-					graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
-				}
-			}
+                using Pen pen = new Pen(lineColor, lineThickness);
+                graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+            }
 		}
 		
 		public override bool ClickableAt(int x, int y) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) +5;
-			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
-					pen.Width = lineThickness;
-					using (GraphicsPath path = new GraphicsPath()) {
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
+			if (lineThickness > 0)
+            {
+                using Pen pen = new Pen(Color.White)
+                {
+                    Width = lineThickness
+                };
+                using GraphicsPath path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                return path.IsOutlineVisible(x, y, pen);
+            }
 			return false;
 		}
 		

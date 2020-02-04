@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,22 +27,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Greenshot-Photobucket-Plugin")]
 [assembly: AssemblyDescription("A plugin to upload images to Photobucket")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Greenshot")]
-[assembly: AssemblyProduct("Photobucket Plugin")]
-[assembly: AssemblyCopyright("Copyright (C) 2007-2016")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: PluginAttribute("GreenshotPhotobucketPlugin.PhotobucketPlugin", true)]
+[assembly: Plugin("GreenshotPhotobucketPlugin.PhotobucketPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// The assembly version, replaced by build scripts
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyInformationalVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

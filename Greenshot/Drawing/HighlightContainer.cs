@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -84,9 +84,11 @@ namespace Greenshot.Drawing {
 					Add(blurFilter);
 					break;
 				case PreparedFilter.GRAYSCALE:
-					AbstractFilter f = new GrayscaleFilter(this);
-					f.Invert = true;
-					Add(f);
+                    AbstractFilter f = new GrayscaleFilter(this)
+                    {
+                        Invert = true
+                    };
+                    Add(f);
 					break;
 				case PreparedFilter.MAGNIFICATION:
 					Add(new MagnifierFilter(this));

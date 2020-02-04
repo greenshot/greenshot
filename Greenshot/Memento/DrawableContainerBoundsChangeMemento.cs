@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -76,8 +76,7 @@ namespace Greenshot.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-			var other = otherMemento as DrawableContainerBoundsChangeMemento;
-			if (other != null)
+            if (otherMemento is DrawableContainerBoundsChangeMemento other)
 			{
 				if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
 				{

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -48,47 +48,47 @@ namespace GreenshotOCRCommand {
 				straightenImage = bool.Parse(args[3]);
 			}
 			try {
-				if (File.Exists(filename) || "-c".Equals(filename)) {
-					using (var document = COMWrapper.GetOrCreateInstance<IDocument>()) {
-						if (document == null) {
-							Console.WriteLine("MODI not installed");
-							return -2;
-						}
-						if ("-c".Equals(filename)) {
-							return 0;
-						}
-						document.Create(filename);
-						document.OCR(language, orientimage, straightenImage);
-						var modiImage = document.Images[0];
-						var layout = modiImage.Layout;
-						if (layout != null)
-						{
+				if (File.Exists(filename) || "-c".Equals(filename))
+                {
+                    using var document = COMWrapper.GetOrCreateInstance<IDocument>();
+                    if (document == null) {
+                        Console.WriteLine("MODI not installed");
+                        return -2;
+                    }
+                    if ("-c".Equals(filename)) {
+                        return 0;
+                    }
+                    document.Create(filename);
+                    document.OCR(language, orientimage, straightenImage);
+                    var modiImage = document.Images[0];
+                    var layout = modiImage.Layout;
+                    if (layout != null)
+                    {
 #if DEBUG
-							if (layout.Words != null)
-							{
-								foreach (var word in ToEnumerable(layout.Words))
-								{
-									if (word.Rects != null)
-									{
-										foreach (var rect in ToEnumerable(word.Rects))
-										{
-											Debug.WriteLine($"Rect {rect.Left},{rect.Top},{rect.Right},{rect.Bottom} - Word {word.Text} : Confidence: {word.RecognitionConfidence}");
-										}
-									}
-								}
-							}
+                        if (layout.Words != null)
+                        {
+                            foreach (var word in ToEnumerable(layout.Words))
+                            {
+                                if (word.Rects != null)
+                                {
+                                    foreach (var rect in ToEnumerable(word.Rects))
+                                    {
+                                        Debug.WriteLine($"Rect {rect.Left},{rect.Top},{rect.Right},{rect.Bottom} - Word {word.Text} : Confidence: {word.RecognitionConfidence}");
+                                    }
+                                }
+                            }
+                        }
 #endif
-							if (layout.Text != null)
-							{
-								// For for BUG-1884:
-								// Although trim is done in the OCR Plugin, it does make sense in the command too.
-								Console.WriteLine(layout.Text.Trim());
-							}
-						}
-						document.Close(false);
-						return 0;
-					}
-				}
+                        if (layout.Text != null)
+                        {
+                            // For for BUG-1884:
+                            // Although trim is done in the OCR Plugin, it does make sense in the command too.
+                            Console.WriteLine(layout.Text.Trim());
+                        }
+                    }
+                    document.Close(false);
+                    return 0;
+                }
 			} catch (Exception ex) {
 				Console.WriteLine(ex.Message);
 			}

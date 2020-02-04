@@ -94,9 +94,7 @@ namespace GreenshotJiraPlugin.Hooking
 			}
 		}
 
-		#region IDisposable Support
-
-		private bool _disposedValue; // To detect redundant calls
+        private bool _disposedValue; // To detect redundant calls
 
 		/// <summary>
 		/// Dispose the underlying hook
@@ -132,8 +130,6 @@ namespace GreenshotJiraPlugin.Hooking
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-
-		#endregion
-	}
+    }
 
 }

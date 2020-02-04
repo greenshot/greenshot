@@ -73,8 +73,7 @@ namespace Greenshot.Core
 		}
 
 		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-			var settings = value as string;
-			if (settings != null) {
+            if (value is string settings) {
 				if (settings.Contains("ToothHeight")) {
 					return ConvertTo(context, culture, settings, typeof(TornEdgeEffect));
 				}
@@ -89,29 +88,25 @@ namespace Greenshot.Core
 				string[] pair = nameValuePair.Split(':');
 				switch (pair[0]) {
 					case "Darkness" :
-						float darkness;
-						// Fix to prevent BUG-1753
-						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out darkness)) {
+                        // Fix to prevent BUG-1753
+						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness)) {
 							if (darkness <= 1.0) {
 								effect.Darkness = darkness;
 							}
 						}
 						break;
 					case "ShadowSize":
-						int shadowSize;
-						if (int.TryParse(pair[1], out shadowSize)) {
+                        if (int.TryParse(pair[1], out var shadowSize)) {
 							effect.ShadowSize = shadowSize;
 						}
 						break;
 					case "ShadowOffset":
 						Point shadowOffset = new Point();
-						int shadowOffsetX;
-						int shadowOffsetY;
-						string[] coordinates = pair[1].Split(',');
-						if (int.TryParse(coordinates[0], out shadowOffsetX)) {
+                        string[] coordinates = pair[1].Split(',');
+						if (int.TryParse(coordinates[0], out var shadowOffsetX)) {
 							shadowOffset.X = shadowOffsetX;
 						}
-						if (int.TryParse(coordinates[1], out shadowOffsetY)) {
+						if (int.TryParse(coordinates[1], out var shadowOffsetY)) {
 							shadowOffset.Y = shadowOffsetY;
 						}
 						effect.ShadowOffset = shadowOffset;
@@ -126,33 +121,28 @@ namespace Greenshot.Core
 				string[] pair = nameValuePair.Split(':');
 				switch (pair[0]) {
 					case "GenerateShadow":
-						bool generateShadow;
-						if (bool.TryParse(pair[1], out generateShadow)) {
+                        if (bool.TryParse(pair[1], out var generateShadow)) {
 							effect.GenerateShadow = generateShadow;
 						}
 						break;
 					case "ToothHeight":
-						int toothHeight;
-						if (int.TryParse(pair[1], out toothHeight)) {
+                        if (int.TryParse(pair[1], out var toothHeight)) {
 							effect.ToothHeight = toothHeight;
 						}
 						break;
 					case "HorizontalToothRange":
-						int horizontalToothRange;
-						if (int.TryParse(pair[1], out horizontalToothRange)) {
+                        if (int.TryParse(pair[1], out var horizontalToothRange)) {
 							effect.HorizontalToothRange = horizontalToothRange;
 						}
 						break;
 					case "VerticalToothRange":
-						int verticalToothRange;
-						if (int.TryParse(pair[1], out verticalToothRange)) {
+                        if (int.TryParse(pair[1], out var verticalToothRange)) {
 							effect.VerticalToothRange = verticalToothRange;
 						}
 						break;
 					case "Edges":
 						string[] edges = pair[1].Split(',');
-						bool edge;
-						if (bool.TryParse(edges[0], out edge)) {
+                        if (bool.TryParse(edges[0], out var edge)) {
 							effect.Edges[0] = edge;
 						}
 						if (bool.TryParse(edges[1], out edge)) {

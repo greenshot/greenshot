@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -118,20 +118,19 @@ namespace Greenshot.Destinations {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;
-			if (!string.IsNullOrEmpty(printerName)) {
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintTo(printerName);
-				}
-			} else if (!manuallyInitiated) {
+			if (!string.IsNullOrEmpty(printerName))
+            {
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                printerSettings = printHelper.PrintTo(printerName);
+            } else if (!manuallyInitiated) {
 				PrinterSettings settings = new PrinterSettings();
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintTo(settings.PrinterName);
-				}
-			} else {
-				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
-					printerSettings = printHelper.PrintWithDialog();
-				}
-			}
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                printerSettings = printHelper.PrintTo(settings.PrinterName);
+            } else
+            {
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                printerSettings = printHelper.PrintWithDialog();
+            }
 			if (printerSettings != null) {
 				exportInformation.ExportMade = true;
 			}

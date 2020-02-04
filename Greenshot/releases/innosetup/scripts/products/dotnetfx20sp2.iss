@@ -3,8 +3,7 @@
 [CustomMessages]
 dotnetfx20sp2_title=.NET Framework 2.0 Service Pack 2
 
-en.dotnetfx20sp2_size=24 MB - 52 MB
-de.dotnetfx20sp2_size=24 MB - 52 MB
+dotnetfx20sp2_size=24 MB - 52 MB
 
 [Code]
 const

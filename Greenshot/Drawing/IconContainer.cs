@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -79,12 +79,12 @@ namespace Greenshot.Drawing {
 		}
 
 		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				using (Icon fileIcon = new Icon(filename)) {
-					Icon = fileIcon;
-					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-				}
-			}
+			if (File.Exists(filename))
+            {
+                using Icon fileIcon = new Icon(filename);
+                Icon = fileIcon;
+                Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+            }
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {

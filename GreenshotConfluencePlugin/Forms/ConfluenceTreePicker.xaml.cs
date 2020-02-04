@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,6 +28,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 
 using Confluence;
+using Page = Confluence.Page;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -49,8 +50,7 @@ namespace GreenshotConfluencePlugin {
 		private void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs) {
 			Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
 			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-			Confluence.Page page = clickedItem?.Tag as Confluence.Page;
-			if (page == null) {
+            if (!(clickedItem?.Tag is Page page)) {
 				return;
 			}
 			if (clickedItem.HasItems)
@@ -80,8 +80,7 @@ namespace GreenshotConfluencePlugin {
 
 		private void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs) {
 			Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
-			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-			if (clickedItem ==null) {
+            if (!(eventArgs.Source is TreeViewItem clickedItem)) {
 				return;
 			}
 			Confluence.Page page = clickedItem.Tag as Confluence.Page;

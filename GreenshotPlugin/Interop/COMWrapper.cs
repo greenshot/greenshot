@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -40,9 +40,7 @@ namespace Greenshot.Interop {
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
 		public const int RPC_E_FAIL = unchecked((int)0x80004005);
 
-		#region Private Data
-
-		/// <summary>
+        /// <summary>
 		/// Holds reference to the actual COM object which is wrapped by this proxy
 		/// </summary>
 		private readonly object _comObject;
@@ -62,16 +60,13 @@ namespace Greenshot.Interop {
 		/// </summary>
 		private readonly string _targetName;
 
-		#endregion
-		[DllImport("ole32.dll")]
+        [DllImport("ole32.dll")]
 		private static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
 		// Converts failure HRESULTs to exceptions:
 		[DllImport("oleaut32", PreserveSig=false)]
 		private static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
 
-		#region Construction
-
-		/// <summary>
+        /// <summary>
 		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// </summary>
 		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
@@ -139,7 +134,7 @@ namespace Greenshot.Interop {
 					return (T)comObject;
 				}
 			}
-			return default(T);
+			return default;
 		}
 		
 		/// <summary>
@@ -190,7 +185,7 @@ namespace Greenshot.Interop {
 			if (comObject != null) {
 				return (T)comObject;
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>
@@ -248,7 +243,7 @@ namespace Greenshot.Interop {
 							Log.DebugFormat("No current instance of {0} object available.", progId);
 						} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
 							Log.WarnFormat("Unknown progId {0} (application not installed)", progId);
-							return default(T);
+							return default;
 						} else {
 							Log.Warn("Error getting active object for " + progId, comE);
 						}
@@ -289,7 +284,7 @@ namespace Greenshot.Interop {
 					return (T)comObject;
 				}
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>
@@ -347,11 +342,7 @@ namespace Greenshot.Interop {
 			_targetName = targetName;
 		}
 
-		#endregion
-
-		#region Clean up
-
-		/// <summary>
+        /// <summary>
 		/// If <see cref="Dispose"/> is not called, we need to make
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
@@ -395,11 +386,7 @@ namespace Greenshot.Interop {
 			}
 		}
 
-		#endregion
-
-		#region Object methods
-
-		/// <summary>
+        /// <summary>
 		/// Returns a string representing the wrapped object.
 		/// </summary>
 		/// <returns>
@@ -465,9 +452,7 @@ namespace Greenshot.Interop {
 			return byRefType;
 		}
 
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Intercept method calls 
 		/// </summary>
 		/// <param name="myMessage">
@@ -477,8 +462,7 @@ namespace Greenshot.Interop {
 		/// A <see cref="ReturnMessage"/>.
 		/// </returns>
 		public override IMessage Invoke(IMessage myMessage) {
-			IMethodCallMessage callMessage = myMessage as IMethodCallMessage;
-			if (null == callMessage) {
+            if (!(myMessage is IMethodCallMessage callMessage)) {
 				Log.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
 				return null;
 			}
@@ -515,8 +499,7 @@ namespace Greenshot.Interop {
 				bool removeHandler = methodName.StartsWith("remove_");
 				methodName = methodName.Substring(removeHandler ? 7 : 4);
 				// TODO: Something is missing here
-				Delegate handler = callMessage.InArgs[0] as Delegate;
-				if (null == handler) {
+                if (!(callMessage.InArgs[0] is Delegate handler)) {
 					return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
 				}
 			} else {
@@ -602,8 +585,7 @@ namespace Greenshot.Interop {
 						return new ReturnMessage(icoEx, callMessage);
 					} catch (Exception ex) {
 						// Test for rejected
-						COMException comEx = ex as COMException;
-						if (comEx == null) {
+                        if (!(ex is COMException comEx)) {
 							comEx = ex.InnerException as COMException;
 						}
 						if (comEx != null && (comEx.ErrorCode == RPC_E_CALL_REJECTED || comEx.ErrorCode == RPC_E_FAIL)) {

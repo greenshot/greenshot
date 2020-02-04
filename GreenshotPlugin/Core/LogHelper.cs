@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -64,12 +64,11 @@ namespace GreenshotPlugin.Core {
 			if (!_isLog4NetConfigured) {
 				try {
 					Assembly assembly = typeof(LogHelper).Assembly;
-					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
-						XmlConfigurator.Configure(stream);
-						_isLog4NetConfigured = true;
-						IniConfig.ForceIniInStartupPath();
-					}
-				} catch (Exception ex){
+                    using Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml");
+                    XmlConfigurator.Configure(stream);
+                    _isLog4NetConfigured = true;
+                    IniConfig.ForceIniInStartupPath();
+                } catch (Exception ex){
 					MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				}
 			}

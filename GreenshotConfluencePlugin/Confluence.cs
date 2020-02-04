@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,8 +27,7 @@ using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
 
 namespace Confluence {
-	#region transport classes
-	public class Page {
+    public class Page {
 		public Page(RemotePage page) {
 			Id = page.id;
 			Title = page.title;
@@ -85,9 +84,8 @@ namespace Confluence {
 			set;
 		}
 	}
-	#endregion
 
-	/// <summary>
+    /// <summary>
 	/// For details see the Confluence API site
 	/// See: http://confluence.atlassian.com/display/CONFDEV/Remote+API+Specification
 	/// </summary>

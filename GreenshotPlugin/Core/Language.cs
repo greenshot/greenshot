@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -87,20 +87,20 @@ namespace GreenshotPlugin.Core {
 				Log.Error(pathException);
 			}
 
-			try {
-				using (RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LanguageGroupsKey, false)) {
-					if (languageGroupsKey != null) {
-						string [] groups = languageGroupsKey.GetValueNames();
-						foreach(string group in groups) {
-							string groupValue = (string)languageGroupsKey.GetValue(group);
-							bool isGroupNotInstalled = "0".Equals(groupValue);
-							if (isGroupNotInstalled) {
-								UnsupportedLanguageGroups.Add(group.ToLower());
-							}
-						}
-					}
-				}
-			} catch(Exception e) {
+			try
+            {
+                using RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LanguageGroupsKey, false);
+                if (languageGroupsKey != null) {
+                    string [] groups = languageGroupsKey.GetValueNames();
+                    foreach(string group in groups) {
+                        string groupValue = (string)languageGroupsKey.GetValue(@group);
+                        bool isGroupNotInstalled = "0".Equals(groupValue);
+                        if (isGroupNotInstalled) {
+                            UnsupportedLanguageGroups.Add(@group.ToLower());
+                        }
+                    }
+                }
+            } catch(Exception e) {
 				Log.Warn("Couldn't read the installed language groups.", e);
 			}
 
@@ -611,8 +611,8 @@ namespace GreenshotPlugin.Core {
 			if (key == null) {
 				return null;
 			}
-			string returnValue;
-			if (!Resources.TryGetValue(key, out returnValue)) {
+
+            if (!Resources.TryGetValue(key, out var returnValue)) {
 				return "string ###" + key + "### not found";
 			}
 			return returnValue;
@@ -657,8 +657,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="param"></param>
 		/// <returns>formatted resource or a "string ###key### not found"</returns>
 		public static string GetFormattedString(string key, object param) {
-			string returnValue;
-			if (!Resources.TryGetValue(key, out returnValue)) {
+            if (!Resources.TryGetValue(key, out var returnValue)) {
 				return "string ###" + key + "### not found";
 			}
 			return string.Format(returnValue, param);

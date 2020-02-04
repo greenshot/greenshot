@@ -26,14 +26,6 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GreenshotJiraPlugin")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Greenshot")]
-[assembly: AssemblyProduct("Jira Plugin")]
-[assembly: AssemblyCopyright("Copyright (C) 2007-2016")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
 [assembly: Plugin("GreenshotJiraPlugin.JiraPlugin", true)]
 
@@ -41,7 +33,3 @@ using System.Runtime.InteropServices;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// The assembly version, replaced by build scripts
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyInformationalVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

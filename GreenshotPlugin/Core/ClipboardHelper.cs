@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -105,28 +105,25 @@ EndSelection:<<<<<<<4
 				if (hWnd != IntPtr.Zero) {
 					try
 					{
-						int pid;
-						User32.GetWindowThreadProcessId(hWnd, out pid);
-						using (Process me = Process.GetCurrentProcess())
-						using (Process ownerProcess = Process.GetProcessById(pid))
-						{
-							// Exclude myself
-							if (me.Id != ownerProcess.Id)
-							{
-								// Get Process Name
-								owner = ownerProcess.ProcessName;
-								// Try to get the starting Process Filename, this might fail.
-								try
-								{
-									owner = ownerProcess.Modules[0].FileName;
-								}
-								catch (Exception)
-								{
-									// Ignore
-								}
-							}
-						}
-					}
+                        User32.GetWindowThreadProcessId(hWnd, out var pid);
+                        using Process me = Process.GetCurrentProcess();
+                        using Process ownerProcess = Process.GetProcessById(pid);
+                        // Exclude myself
+                        if (me.Id != ownerProcess.Id)
+                        {
+                            // Get Process Name
+                            owner = ownerProcess.ProcessName;
+                            // Try to get the starting Process Filename, this might fail.
+                            try
+                            {
+                                owner = ownerProcess.Modules[0].FileName;
+                            }
+                            catch (Exception)
+                            {
+                                // Ignore
+                            }
+                        }
+                    }
 					catch(Exception e)
 					{
 						Log.Warn("Non critical error: Couldn't get clipboard process, trying to use the title.", e);
@@ -407,17 +404,16 @@ EndSelection:<<<<<<<4
 
 								byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
-								using (MemoryStream bitmapStream = new MemoryStream()) {
-									bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-									bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-									bitmapStream.Seek(0, SeekOrigin.Begin);
-									var image = ImageHelper.FromStream(bitmapStream);
-									if (image != null)
-									{
-										return image;
-									}
-								}
-							} else {
+                                using MemoryStream bitmapStream = new MemoryStream();
+                                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+                                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+                                bitmapStream.Seek(0, SeekOrigin.Begin);
+                                var image = ImageHelper.FromStream(bitmapStream);
+                                if (image != null)
+                                {
+                                    return image;
+                                }
+                            } else {
 								Log.Info("Using special DIBV5 / Format17 format reader");
 								// CF_DIBV5
 								IntPtr gcHandle = IntPtr.Zero;

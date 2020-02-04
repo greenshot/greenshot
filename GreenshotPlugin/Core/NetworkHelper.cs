@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -82,23 +82,17 @@ namespace GreenshotPlugin.Core {
 			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
 			try {
 				HttpWebRequest request = CreateWebRequest(url);
-				using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-				{
-					if (request.HaveResponse)
-					{
-						using (Stream responseStream = response.GetResponseStream())
-						{
-							if (responseStream != null)
-							{
-								using (Image image = ImageHelper.FromStream(responseStream))
-								{
-									return image.Height > 16 && image.Width > 16 ? new Bitmap(image, 16, 16) : new Bitmap(image);
-								}
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
+                using HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (request.HaveResponse)
+                {
+                    using Stream responseStream = response.GetResponseStream();
+                    if (responseStream != null)
+                    {
+                        using Image image = ImageHelper.FromStream(responseStream);
+                        return image.Height > 16 && image.Width > 16 ? new Bitmap(image, 16, 16) : new Bitmap(image);
+                    }
+                }
+            } catch (Exception e) {
 				Log.Error("Problem downloading the FavIcon from: " + baseUri, e);
 			}
 			return null;
@@ -111,16 +105,15 @@ namespace GreenshotPlugin.Core {
 		/// <returns>MemoryStream which is already seeked to 0</returns>
 		public static MemoryStream GetAsMemoryStream(string url) {
 			HttpWebRequest request = CreateWebRequest(url);
-			using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
-				MemoryStream memoryStream = new MemoryStream();
-				using (Stream responseStream = response.GetResponseStream()) {
-					responseStream?.CopyTo(memoryStream);
-					// Make sure it can be used directly
-					memoryStream.Seek(0, SeekOrigin.Begin);
-				}
-				return memoryStream;
-			}
-		}
+            using HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            MemoryStream memoryStream = new MemoryStream();
+            using (Stream responseStream = response.GetResponseStream()) {
+                responseStream?.CopyTo(memoryStream);
+                // Make sure it can be used directly
+                memoryStream.Seek(0, SeekOrigin.Begin);
+            }
+            return memoryStream;
+        }
 
 		/// <summary>
 		/// Download the uri to Bitmap
@@ -143,37 +136,34 @@ namespace GreenshotPlugin.Core {
 			var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
 			var match = imageUrlRegex.Match(url);
 			try
-			{
-				using (var memoryStream = GetAsMemoryStream(url))
-				{
-					try
-					{
-						return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
-					}
-					catch (Exception)
-					{
-						// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-						string content;
-						using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
-						{
-							content = streamReader.ReadLine();
-						}
-						if (string.IsNullOrEmpty(content))
-						{
-							throw;
-						}
-						match = imageUrlRegex.Match(content);
-						if (!match.Success)
-						{
-							throw;
-						}
-						using (var memoryStream2 = GetAsMemoryStream(match.Value))
-						{
-							return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
-						}
-					}
-				}
-			}
+            {
+                using var memoryStream = GetAsMemoryStream(url);
+                try
+                {
+                    return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+                }
+                catch (Exception)
+                {
+                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    string content;
+                    using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
+                    {
+                        content = streamReader.ReadLine();
+                    }
+                    if (string.IsNullOrEmpty(content))
+                    {
+                        throw;
+                    }
+                    match = imageUrlRegex.Match(content);
+                    if (!match.Success)
+                    {
+                        throw;
+                    }
+
+                    using var memoryStream2 = GetAsMemoryStream(match.Value);
+                    return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
+                }
+            }
 			catch (Exception e)
 			{
 				Log.Error("Problem downloading the image from: " + url, e);
@@ -291,7 +281,7 @@ namespace GreenshotPlugin.Core {
 				while (currentLocation < text.Length) {
 					string process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
 					result.Append(Uri.EscapeDataString(process));
-					currentLocation = currentLocation + 16384;
+					currentLocation += 16384;
 				}
 				return result.ToString();
 			}
@@ -363,10 +353,9 @@ namespace GreenshotPlugin.Core {
 		public static void WriteMultipartFormData(HttpWebRequest webRequest, IDictionary<string, object> postParameters) {
 			string boundary = $"----------{Guid.NewGuid():N}";
 			webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
-			using (Stream formDataStream = webRequest.GetRequestStream()) {
-				WriteMultipartFormData(formDataStream, boundary, postParameters);
-			}
-		}
+            using Stream formDataStream = webRequest.GetRequestStream();
+            WriteMultipartFormData(formDataStream, boundary, postParameters);
+        }
 
 		/// <summary>
 		/// Write Multipart Form Data to the HttpListenerResponse
@@ -396,8 +385,7 @@ namespace GreenshotPlugin.Core {
 
 				needsClrf = true;
 
-				var binaryContainer = param.Value as IBinaryContainer;
-				if (binaryContainer != null) {
+                if (param.Value is IBinaryContainer binaryContainer) {
 					binaryContainer.WriteFormDataToStream(boundary, param.Key, formDataStream);
 				} else {
 					string postData = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{param.Key}\"\r\n\r\n{param.Value}";
@@ -420,10 +408,9 @@ namespace GreenshotPlugin.Core {
 			string urlEncoded = GenerateQueryParameters(parameters);
 
 			byte[] data = Encoding.UTF8.GetBytes(urlEncoded);
-			using (var requestStream = webRequest.GetRequestStream()) {
-				requestStream.Write(data, 0, data.Length);
-			}
-		}
+            using var requestStream = webRequest.GetRequestStream();
+            requestStream.Write(data, 0, data.Length);
+        }
 
 		/// <summary>
 		/// Log the headers of the WebResponse, if IsDebugEnabled
@@ -465,12 +452,10 @@ namespace GreenshotPlugin.Core {
 			{
 				Stream responseStream = response.GetResponseStream();
 				if (responseStream != null)
-				{
-					using (StreamReader reader = new StreamReader(responseStream, true))
-					{
-						responseData = reader.ReadToEnd();
-					}
-				}
+                {
+                    using StreamReader reader = new StreamReader(responseStream, true);
+                    responseData = reader.ReadToEnd();
+                }
 			}
 			return responseData;
 		}
@@ -543,12 +528,10 @@ namespace GreenshotPlugin.Core {
 			try {
 				HttpWebRequest webRequest = CreateWebRequest(uri);
 				webRequest.Method = HTTPMethod.HEAD.ToString();
-				using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
-				{
-					Log.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
-					return webResponse.LastModified;
-				}
-			} catch (Exception wE) {
+                using HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                Log.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
+                return webResponse.LastModified;
+            } catch (Exception wE) {
 				Log.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
 				Log.Warn(wE.Message);
 				// Pretend it is old
@@ -639,10 +622,9 @@ namespace GreenshotPlugin.Core {
 		public void Upload(HttpWebRequest webRequest) {
 			webRequest.ContentType = _contentType;
 			webRequest.ContentLength = _fileSize;
-			using (var requestStream = webRequest.GetRequestStream()) {
-				WriteToStream(requestStream);
-			}
-		}
+            using var requestStream = webRequest.GetRequestStream();
+            WriteToStream(requestStream);
+        }
 
 		public string ContentType => _contentType;
 		public string Filename { get; set; }
@@ -666,24 +648,24 @@ namespace GreenshotPlugin.Core {
 		/// Should be avoided if possible, as this uses a lot of memory.
 		/// </summary>
 		/// <returns>string</returns>
-		public string ToBase64String(Base64FormattingOptions formattingOptions) {
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
-				return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
-			}
-		}
+		public string ToBase64String(Base64FormattingOptions formattingOptions)
+        {
+            using MemoryStream stream = new MemoryStream();
+            ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
+            return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
+        }
 
 		/// <summary>
 		/// Create a byte[] from the image by saving it to a memory stream.
 		/// Should be avoided if possible, as this uses a lot of memory.
 		/// </summary>
 		/// <returns>byte[]</returns>
-		public byte[] ToByteArray() {
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
-				return stream.ToArray();
-			}
-		}
+		public byte[] ToByteArray()
+        {
+            using MemoryStream stream = new MemoryStream();
+            ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
+            return stream.ToArray();
+        }
 
 		/// <summary>
 		/// Write Multipart Form Data directly to the HttpWebRequest response stream
@@ -714,10 +696,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest"></param>
 		public void Upload(HttpWebRequest webRequest) {
 			webRequest.ContentType = "image/" + _outputSettings.Format;
-			using (var requestStream = webRequest.GetRequestStream()) {
-				WriteToStream(requestStream);
-			}
-		}
+            using var requestStream = webRequest.GetRequestStream();
+            WriteToStream(requestStream);
+        }
 
 		public string ContentType => "image/" + _outputSettings.Format;
 
@@ -742,24 +723,24 @@ namespace GreenshotPlugin.Core {
 		/// Should be avoided if possible, as this uses a lot of memory.
 		/// </summary>
 		/// <returns>string</returns>
-		public string ToBase64String(Base64FormattingOptions formattingOptions) {
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(_surface, stream, _outputSettings);
-				return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
-			}
-		}
+		public string ToBase64String(Base64FormattingOptions formattingOptions)
+        {
+            using MemoryStream stream = new MemoryStream();
+            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
+        }
 
 		/// <summary>
 		/// Create a byte[] from the image by saving it to a memory stream.
 		/// Should be avoided if possible, as this uses a lot of memory.
 		/// </summary>
 		/// <returns>byte[]</returns>
-		public byte[] ToByteArray() {
-			using (MemoryStream stream = new MemoryStream()) {
-				ImageOutput.SaveToStream(_surface, stream, _outputSettings);
-				return stream.ToArray();
-			}
-		}
+		public byte[] ToByteArray()
+        {
+            using MemoryStream stream = new MemoryStream();
+            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            return stream.ToArray();
+        }
 
 		/// <summary>
 		/// Write Multipart Form Data directly to the HttpWebRequest response stream
@@ -790,10 +771,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest"></param>
 		public void Upload(HttpWebRequest webRequest) {
 			webRequest.ContentType = ContentType;
-			using (var requestStream = webRequest.GetRequestStream()) {
-				WriteToStream(requestStream);
-			}
-		}
+            using var requestStream = webRequest.GetRequestStream();
+            WriteToStream(requestStream);
+        }
 
 		public string ContentType => "image/" + _outputSettings.Format;
 		public string Filename { get; set; }

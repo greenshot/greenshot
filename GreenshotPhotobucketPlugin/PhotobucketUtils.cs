@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -66,9 +66,11 @@ namespace GreenshotPhotobucketPlugin {
 			if (filename != null) {
 				signedParameters.Add("filename", filename);
 			}
-			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
-			// Add image
-			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>
+			{
+				// Add image
+				{ "uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename) }
+			};
 			try {
 				string apiUrl = "http://api.photobucket.com/album/!/upload";
 				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", PhotobucketConfig.SubDomain), signedParameters, unsignedParameters, null);

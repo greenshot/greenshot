@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -209,8 +209,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class OsInfo
 	{
-		#region BITS
-		/// <summary>
+        /// <summary>
 		/// Determines if the current application is 32 or 64-bit.
 		/// </summary>
 		public static int Bits
@@ -220,10 +219,8 @@ namespace Greenshot.Helpers
 				return IntPtr.Size * 8;
 			}
 		}
-		#endregion BITS
 
-		#region EDITION
-		private static string _sEdition;
+        private static string _sEdition;
 		/// <summary>
 		/// Gets the edition of the operating system running on this computer.
 		/// </summary>
@@ -251,8 +248,7 @@ namespace Greenshot.Helpers
 					byte productType = osVersionInfo.wProductType;
 					short suiteMask = osVersionInfo.wSuiteMask;
 
-					#region VERSION 4
-					if (majorVersion == 4)
+                    if (majorVersion == 4)
 					{
 						if (productType == VER_NT_WORKSTATION)
 						{
@@ -264,10 +260,8 @@ namespace Greenshot.Helpers
 							edition = (suiteMask & VER_SUITE_ENTERPRISE) != 0 ? "Enterprise Server" : "Standard Server";
 						}
 					}
-					#endregion VERSION 4
 
-					#region VERSION 5
-					else if (majorVersion == 5)
+                    else if (majorVersion == 5)
 					{
 						if (productType == VER_NT_WORKSTATION)
 						{
@@ -327,13 +321,10 @@ namespace Greenshot.Helpers
 							}
 						}
 					}
-					#endregion VERSION 5
 
-					#region VERSION 6
-					else if (majorVersion == 6)
+                    else if (majorVersion == 6)
 					{
-						int ed;
-						if (GetProductInfo(majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out ed))
+                        if (GetProductInfo(majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out var ed))
 						{
 							switch (ed)
 							{
@@ -451,17 +442,14 @@ namespace Greenshot.Helpers
 							}
 						}
 					}
-					#endregion VERSION 6
-				}
+                }
 
 				_sEdition = edition;
 				return edition;
 			}
 		}
-		#endregion EDITION
 
-		#region NAME
-		private static string _name;
+        private static string _name;
 		/// <summary>
 		/// Gets the name of the operating system running on this computer.
 		/// </summary>
@@ -539,66 +527,42 @@ namespace Greenshot.Helpers
 											name = "Windows 2000";
 											break;
 										case 1:
-											switch (suiteMask)
-											{
-												case 0x0200:
-													name = "Windows XP Professional";
-													break;
-												default:
-													name = "Windows XP";
-													break;
-											}
-											break;
+                                            name = suiteMask switch
+                                            {
+                                                0x0200 => "Windows XP Professional",
+                                                _ => "Windows XP"
+                                            };
+                                            break;
 										case 2:
-											switch (suiteMask)
-											{
-												case 0x0200:
-													name = "Windows XP Professional x64";
-													break;
-												case 0x0002:
-													name = "Windows Server 2003 Enterprise";
-													break;
-												case 0x0080:
-													name = "Windows Server 2003 Data Center";
-													break;
-												case 0x0400:
-													name = "Windows Server 2003 Web Edition";
-													break;
-												case unchecked((short)0x8000):
-													name = "Windows Home Server";
-													break;
-												default:
-													name = "Windows Server 2003";
-													break;
-											}
-											break;
+                                            name = suiteMask switch
+                                            {
+                                                0x0200 => "Windows XP Professional x64",
+                                                0x0002 => "Windows Server 2003 Enterprise",
+                                                0x0080 => "Windows Server 2003 Data Center",
+                                                0x0400 => "Windows Server 2003 Web Edition",
+                                                unchecked((short) 0x8000) => "Windows Home Server",
+                                                _ => "Windows Server 2003"
+                                            };
+                                            break;
 									}
 									break;
 								case 6:
 									switch (minorVersion)
 									{
 										case 0:
-											switch (productType)
-											{
-												case 3:
-													name = "Windows Server 2008";
-													break;
-												default:
-													name = "Windows Vista";
-													break;
-											}
-											break;
+                                            name = productType switch
+                                            {
+                                                3 => "Windows Server 2008",
+                                                _ => "Windows Vista"
+                                            };
+                                            break;
 										case 1:
-											switch (productType)
-											{
-												case 3:
-													name = "Windows Server 2008 R2";
-													break;
-												default:
-													name = "Windows 7";
-													break;
-											}
-											break;
+                                            name = productType switch
+                                            {
+                                                3 => "Windows Server 2008 R2",
+                                                _ => "Windows 7"
+                                            };
+                                            break;
 										case 2:
 											name = "Windows 8";
 											break;
@@ -619,12 +583,8 @@ namespace Greenshot.Helpers
 				return name;
 			}
 		}
-		#endregion NAME
 
-		#region PINVOKE
-		#region GET
-		#region PRODUCT INFO
-		[DllImport("Kernel32.dll")]
+        [DllImport("Kernel32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool GetProductInfo(
 			int osMajorVersion,
@@ -632,17 +592,12 @@ namespace Greenshot.Helpers
 			int spMajorVersion,
 			int spMinorVersion,
 			out int edition);
-		#endregion PRODUCT INFO
 
-		#region VERSION
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
-		#endregion VERSION
-		#endregion GET
 
-		#region OSVERSIONINFOEX
-		[StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential)]
 		private struct OSVERSIONINFOEX
 		{
 			public int dwOSVersionInfoSize;
@@ -658,10 +613,8 @@ namespace Greenshot.Helpers
 			public readonly byte wProductType;
 			public readonly byte wReserved;
 		}
-		#endregion OSVERSIONINFOEX
 
-		#region PRODUCT
-		private const int PRODUCT_UNDEFINED = 0x00000000;
+        private const int PRODUCT_UNDEFINED = 0x00000000;
 		private const int PRODUCT_ULTIMATE = 0x00000001;
 		private const int PRODUCT_HOME_BASIC = 0x00000002;
 		private const int PRODUCT_HOME_PREMIUM = 0x00000003;
@@ -680,13 +633,11 @@ namespace Greenshot.Helpers
 		private const int PRODUCT_BUSINESS_N = 0x00000010;
 		private const int PRODUCT_WEB_SERVER = 0x00000011;
 		private const int PRODUCT_CLUSTER_SERVER = 0x00000012;
-		private const int PRODUCT_HOME_SERVER = 0x00000013;
 		private const int PRODUCT_STORAGE_EXPRESS_SERVER = 0x00000014;
 		private const int PRODUCT_STORAGE_STANDARD_SERVER = 0x00000015;
 		private const int PRODUCT_STORAGE_WORKGROUP_SERVER = 0x00000016;
 		private const int PRODUCT_STORAGE_ENTERPRISE_SERVER = 0x00000017;
 		private const int PRODUCT_SERVER_FOR_SMALLBUSINESS = 0x00000018;
-		private const int PRODUCT_SMALLBUSINESS_SERVER_PREMIUM = 0x00000019;
 		private const int PRODUCT_HOME_PREMIUM_N = 0x0000001A;
 		private const int PRODUCT_ENTERPRISE_N = 0x0000001B;
 		private const int PRODUCT_ULTIMATE_N = 0x0000001C;
@@ -700,20 +651,15 @@ namespace Greenshot.Helpers
 		private const int PRODUCT_STANDARD_SERVER_CORE_V = 0x00000028;
 		private const int PRODUCT_ENTERPRISE_SERVER_CORE_V = 0x00000029;
 		private const int PRODUCT_HYPERV = 0x0000002A;
-		#endregion PRODUCT
 
-		#region VERSIONS
-		private const int VER_NT_WORKSTATION = 1;
+        private const int VER_NT_WORKSTATION = 1;
 		private const int VER_NT_SERVER = 3;
 		private const int VER_SUITE_ENTERPRISE = 2;
 		private const int VER_SUITE_DATACENTER = 128;
 		private const int VER_SUITE_PERSONAL = 512;
 		private const int VER_SUITE_BLADE = 1024;
-		#endregion VERSIONS
-		#endregion PINVOKE
 
-		#region SERVICE PACK
-		/// <summary>
+        /// <summary>
 		/// Gets the service pack information of the operating system running on this computer.
 		/// </summary>
 		public static string ServicePack
@@ -735,20 +681,13 @@ namespace Greenshot.Helpers
 				return servicePack;
 			}
 		}
-		#endregion SERVICE PACK
 
-		#region VERSION
-		#region BUILD
-		/// <summary>
+        /// <summary>
 		/// Gets the build version number of the operating system running on this computer.
 		/// </summary>
 		public static int BuildVersion => Environment.OSVersion.Version.Build;
 
-		#endregion BUILD
-
-		#region FULL
-		#region STRING
-		/// <summary>
+        /// <summary>
 		/// Gets the full version string of the operating system running on this computer.
 		/// </summary>
 		public static string VersionString
@@ -758,10 +697,8 @@ namespace Greenshot.Helpers
 				return string.Format("{0}.{1} build {3} revision {2:X}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor, Environment.OSVersion.Version.Revision, Environment.OSVersion.Version.Build);
 			}
 		}
-		#endregion STRING
 
-		#region VERSION
-		/// <summary>
+        /// <summary>
 		/// Gets the full version of the operating system running on this computer.
 		/// </summary>
 		public static Version Version
@@ -771,11 +708,8 @@ namespace Greenshot.Helpers
 				return Environment.OSVersion.Version;
 			}
 		}
-		#endregion VERSION
-		#endregion FULL
 
-		#region MAJOR
-		/// <summary>
+        /// <summary>
 		/// Gets the major version number of the operating system running on this computer.
 		/// </summary>
 		public static int MajorVersion
@@ -785,10 +719,8 @@ namespace Greenshot.Helpers
 				return Environment.OSVersion.Version.Major;
 			}
 		}
-		#endregion MAJOR
 
-		#region MINOR
-		/// <summary>
+        /// <summary>
 		/// Gets the minor version number of the operating system running on this computer.
 		/// </summary>
 		public static int MinorVersion
@@ -798,10 +730,8 @@ namespace Greenshot.Helpers
 				return Environment.OSVersion.Version.Minor;
 			}
 		}
-		#endregion MINOR
 
-		#region REVISION
-		/// <summary>
+        /// <summary>
 		/// Gets the revision version number of the operating system running on this computer.
 		/// </summary>
 		public static int RevisionVersion
@@ -811,7 +741,5 @@ namespace Greenshot.Helpers
 				return Environment.OSVersion.Version.Revision;
 			}
 		}
-		#endregion REVISION
-		#endregion VERSION
-	}
+    }
 }

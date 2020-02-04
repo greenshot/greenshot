@@ -1,50 +1,73 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-namespace GreenShot
+namespace Greenshot
 {
 	public delegate void ColorPickerEventHandler(object o, ColorPickerEventArgs e);
 	
-	public class ColorPickerToolStripButton : System.Windows.Forms.ToolStripButton
+	public class ColorPickerToolStripButton : ToolStripButton
 	{
-		private Color color;
+		private Color _color;
 		public Point Offset = new Point(0,0);
 		public event ColorPickerEventHandler ColorPicked;
-		private ColorDialog cd;
+		private readonly Greenshot.ColorDialog _cd;
 		
 		
 		public ColorPickerToolStripButton()
 		{
-			cd = ColorDialog.GetInstance();
-			this.Click += new System.EventHandler(this.ToolStripButton1Click);
+			_cd = Greenshot.ColorDialog.GetInstance();
+			Click += ToolStripButton1Click;
 		}
 		
 		public Color Color {
-			set {color = value;this.Invalidate();}
-			get {return color;}
+			set {_color = value;Invalidate();}
+			get {return _color;}
 		}
 		
 		protected override void OnPaint (PaintEventArgs e) {
 			base.OnPaint(e);
-			if(color != null) {
+			if(_color != null) {
 				// replace transparent color with selected color
 				Graphics g = e.Graphics;
 				//Graphics g = Graphics.FromImage(Image);
 				ColorMap[] colorMap = new ColorMap[1];
-			    colorMap[0] = new ColorMap();
-			    colorMap[0].OldColor = Color.Magenta;//this.ImageTransparentColor;
-			    colorMap[0].NewColor = color;
-			    ImageAttributes attr = new ImageAttributes();
+				colorMap[0] = new ColorMap
+				{
+					OldColor = Color.Magenta,//this.ImageTransparentColor;
+					NewColor = _color
+				};
+				ImageAttributes attr = new ImageAttributes();
 			    attr.SetRemapTable(colorMap);
 			    Rectangle rect = new Rectangle(0, 0, Image.Width, Image.Height);
 			  	// todo find a way to retrieve transparency offset automatically
 			  	// for now, we use the public variable Offset to define this manually
 			  	rect.Offset(Offset.X,Offset.Y);
 			  	//Image.
-			  	Debug.WriteLine("paint!"+this.Text+": "+color);
+			  	Debug.WriteLine("paint!"+Text+": "+_color);
 			  	//ssif(color.Equals(Color.Transparent)) ((Bitmap)Image).MakeTransparent(Color.Magenta);
 			    g.DrawImage(Image, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
 			    //this.Image.In
@@ -52,22 +75,18 @@ namespace GreenShot
 			}
 		}
 		
-		void ToolStripButton1Click(object sender, System.EventArgs e)
+		void ToolStripButton1Click(object sender, EventArgs e)
 		{
-			cd.ShowDialog(this.Owner);
-			Color = cd.Color;
-			if(ColorPicked != null) {
-				ColorPicked(this, new ColorPickerEventArgs(Color, cd.RecentColors));
-			}
+			_cd.ShowDialog(Owner);
+			Color = _cd.Color;
+			ColorPicked?.Invoke(this, new ColorPickerEventArgs(Color));
 		}
 	}
 	
-	public class ColorPickerEventArgs : System.EventArgs {
+	public class ColorPickerEventArgs : EventArgs {
 		public Color Color;
-		public Color[] RecentColors;
-		public ColorPickerEventArgs(Color color, Color[] recentColors) {
+		public ColorPickerEventArgs(Color color) {
 			Color = color;
-			RecentColors = recentColors;
 		}
 		
 	}

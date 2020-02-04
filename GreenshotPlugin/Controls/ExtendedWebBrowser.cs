@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,19 +26,16 @@ namespace GreenshotPlugin.Controls {
 	public class ExtendedWebBrowser : WebBrowser {
 		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget {
 			private const int OLECMDID_SHOWSCRIPTERROR = 40;
-			private const int OLECMDID_SHOWMESSAGE = 41;
 
 			private static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
 			private const int S_OK = 0;
 			private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
-			private const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
 
 			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb) {
 			}
 
-			#region IOleCommandTarget Members
-			public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText) {
+            public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText) {
 				return OLECMDERR_E_NOTSUPPORTED;
 			}
 
@@ -52,9 +49,7 @@ namespace GreenshotPlugin.Controls {
 
 				return OLECMDERR_E_NOTSUPPORTED;
 			}
-
-			#endregion
-		}
+        }
 
 		protected override WebBrowserSiteBase CreateWebBrowserSiteBase() {
 			return new ExtendedWebBrowserSite(this);

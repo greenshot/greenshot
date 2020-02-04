@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -92,14 +92,14 @@ namespace Greenshot.Drawing {
 				CheckShadow(true);
 				Width = _shadowBitmap.Width;
 				Height = _shadowBitmap.Height;
-				Left = Left - _shadowOffset.X;
-				Top = Top - _shadowOffset.Y;
+				Left -= _shadowOffset.X;
+				Top -= _shadowOffset.Y;
 			} else {
 				Width = image.Width;
 				Height = image.Height;
 				if (_shadowBitmap != null) {
-					Left = Left + _shadowOffset.X;
-					Top = Top + _shadowOffset.Y;
+					Left += _shadowOffset.X;
+					Top += _shadowOffset.Y;
 				}
 			}
 		}
@@ -118,8 +118,8 @@ namespace Greenshot.Drawing {
 				} else {
 					Width = _shadowBitmap.Width;
 					Height = _shadowBitmap.Height;
-					Left = Left - _shadowOffset.X;
-					Top = Top - _shadowOffset.Y;
+					Left -= _shadowOffset.X;
+					Top -= _shadowOffset.Y;
 				}
 			}
 			get { return image; }
@@ -160,13 +160,12 @@ namespace Greenshot.Drawing {
 			if (rotateAngle != 0) {
 				Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
-				using (var tmpMatrix = new Matrix()) {
-					using (image)
-					{
-						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
-					}
-				}
-			}
+                using var tmpMatrix = new Matrix();
+                using (image)
+                {
+                    image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+                }
+            }
 			base.Transform(matrix);
 		}
 
@@ -192,11 +191,11 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="shadow"></param>
 		private void CheckShadow(bool shadow) {
-			if (shadow && _shadowBitmap == null) {
-				using (var matrix = new Matrix()) {
-					_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
-				}
-			}
+			if (shadow && _shadowBitmap == null)
+            {
+                using var matrix = new Matrix();
+                _shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
+            }
 		}
 
 		/// <summary>

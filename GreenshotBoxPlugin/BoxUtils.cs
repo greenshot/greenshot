@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -86,9 +86,11 @@ namespace GreenshotBoxPlugin {
 
 			try {
 				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
-				IDictionary<string, object> parameters = new Dictionary<string, object>();
-				parameters.Add("file", image);
-				parameters.Add("parent_id", Config.FolderId);
+				IDictionary<string, object> parameters = new Dictionary<string, object>
+				{
+					{ "file", image },
+					{ "parent_id", Config.FolderId }
+				};
 
 				NetworkHelper.WriteMultipartFormData(webRequest, parameters);
 
@@ -126,11 +128,10 @@ namespace GreenshotBoxPlugin {
 		/// <returns>string</returns>
 		public static string Serialize(object jsonObject) {
 			var serializer = new DataContractJsonSerializer(jsonObject.GetType());
-			using (MemoryStream stream = new MemoryStream()) {
-				serializer.WriteObject(stream, jsonObject);
-				return Encoding.UTF8.GetString(stream.ToArray());
-			}
-		}
+            using MemoryStream stream = new MemoryStream();
+            serializer.WriteObject(stream, jsonObject);
+            return Encoding.UTF8.GetString(stream.ToArray());
+        }
 
 		/// <summary>
 		/// Helper method to parse JSON to object
@@ -140,12 +141,11 @@ namespace GreenshotBoxPlugin {
 		/// <returns></returns>
 		public static T Deserialize<T>(string jsonString) {
 			var deserializer = new DataContractJsonSerializer(typeof(T));
-			using (MemoryStream stream = new MemoryStream()) {
-				byte[] content = Encoding.UTF8.GetBytes(jsonString);
-				stream.Write(content, 0, content.Length);
-				stream.Seek(0, SeekOrigin.Begin);
-				return (T)deserializer.ReadObject(stream);
-			}
-		}
+            using MemoryStream stream = new MemoryStream();
+            byte[] content = Encoding.UTF8.GetBytes(jsonString);
+            stream.Write(content, 0, content.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+            return (T)deserializer.ReadObject(stream);
+        }
 	}
 }

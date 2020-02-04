@@ -4,13 +4,9 @@ using System.Windows;
 
 namespace TranslationByMarkupExtension {
 	public class TranslationData : IWeakEventListener, INotifyPropertyChanged {
-		#region Private Members
+        private readonly string _key;
 
-		private readonly string _key;
-
-		#endregion
-
-		/// <summary>
+        /// <summary>
 		/// Initializes a new instance of the <see cref="TranslationData"/> class.
 		/// </summary>
 		/// <param name="key">The key.</param>
@@ -29,9 +25,7 @@ namespace TranslationByMarkupExtension {
 
 		public object Value => TranslationManager.Instance.Translate(_key);
 
-		#region IWeakEventListener Members
-
-		public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
 		{
 			if (managerType == typeof(LanguageChangedEventManager))
 			{
@@ -46,12 +40,6 @@ namespace TranslationByMarkupExtension {
 			PropertyChanged?.Invoke( this, new PropertyChangedEventArgs("Value"));
 		}
 
-		#endregion
-
-		#region INotifyPropertyChanged Members
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		#endregion
-	}
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
 }

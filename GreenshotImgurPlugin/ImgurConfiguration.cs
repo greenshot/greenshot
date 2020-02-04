@@ -82,14 +82,14 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>
 		/// <returns>object with the default value for the supplied property</returns>
-		public override object GetDefault(string property) {
-			switch(property) {
-				case "ImgurUploadHistory":
-					return new Dictionary<string, string>();
-			}
-			return null;
-		}
-			/// <summary>
+		public override object GetDefault(string property) =>
+            property switch
+            {
+                "ImgurUploadHistory" => new Dictionary<string, string>(),
+                _ => null
+            };
+
+        /// <summary>
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>

@@ -3,8 +3,7 @@
 [CustomMessages]
 wic_title=Windows Imaging Component
  
-en.wic_size=1.2 MB
-de.wic_size=1,2 MB
+wic_size=1.2 MB
 
 [Code]
 const
@@ -13,26 +12,25 @@ const
 
 function GetConvertedLanguageID(): string;
 begin
+	Result := 'enu';
 	case ActiveLanguage() of
-		'en': //English
-			Result := 'enu';
-		'zh': //Chinese
+		'zh': // Chinese
 			Result := 'chs';
-		'de': //German
+		'de': // German
 			Result := 'deu';
-		'es': //Spanish
+		'es': // Spanish
 			Result := 'esn';
-		'fr': //French
+		'fr': // French
 			Result := 'fra';
-		'it': //Italian
+		'it': // Italian
 			Result := 'ita';
-		'ja': //Japanese
+		'ja': // Japanese
 			Result := 'jpn';
-		'nl': //Dutch
+		'nl': // Dutch
 			Result := 'nld';
-		'pt': //Portuguese
+		'pt': // Portuguese
 			Result := 'ptb';
-		'ru': //Russian
+		'ru': // Russian
 			Result := 'rus';
 	end;
 end;
@@ -40,7 +38,7 @@ end;
 procedure wic();
 begin
 	if (not IsIA64()) then begin
-		//only needed on Windows XP SP2 or Windows Server 2003
+		// only needed on Windows XP SP2 or Windows Server 2003
 		if ((exactwinversion(5, 1) and exactwinspversion(5, 1, 2)) or (exactwinversion(5, 2))) then begin
 			if (not FileExists(GetEnv('windir') + '\system32\windowscodecs.dll')) then
 				AddProduct('wic' + GetArchitectureString() + '_' + GetConvertedLanguageID() + '.exe',
