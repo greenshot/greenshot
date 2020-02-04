@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,6 +27,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System.Text;
 
 namespace GreenshotWin10Plugin
 {
@@ -43,7 +44,7 @@ namespace GreenshotWin10Plugin
 		/// <summary>
 		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
 		/// </summary>
-		public override Image DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
 
 		/// <summary>
 		/// Constructor, this is only debug information
@@ -80,13 +81,18 @@ namespace GreenshotWin10Plugin
                     var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
                     var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
-                    return ocrResult.Text;
+					var result = new StringBuilder();
+					foreach(var line in ocrResult.Lines)
+					{
+						result.AppendLine(line.Text);
+					}
+                    return result.ToString();
                 }).Result;
 
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))
 				{
-					// Place the OCR text on the 
+					// Place the OCR text on the
 					ClipboardHelper.SetClipboardData(text);
 				}
 				exportInformation.ExportMade = true;
