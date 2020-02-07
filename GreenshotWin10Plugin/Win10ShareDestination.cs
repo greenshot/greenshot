@@ -36,6 +36,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Drawing;
 using GreenshotWin10Plugin.Native;
+using System.Windows.Media;
 
 namespace GreenshotWin10Plugin
 {
@@ -84,8 +85,12 @@ namespace GreenshotWin10Plugin
                 {
                     WindowState = WindowState.Normal,
                     WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    WindowStyle = WindowStyle.None,
+                    // TODO: Define right size
                     Width = 400,
-                    Height = 400
+                    Height = 400,
+                    AllowsTransparency = true,
+                    Background = new SolidColorBrush(Colors.Transparent)
                 };
 
                 triggerWindow.Show();

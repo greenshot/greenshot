@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -89,17 +89,18 @@ namespace GreenshotPlugin.Controls {
 		private readonly IList<int> _needNonShiftModifier = new List<int>();
 		private readonly IList<int> _needNonAltGrModifier = new List<int>();
 
-		private readonly ContextMenu _dummy = new ContextMenu();
+		private readonly ContextMenuStrip _dummy = new ContextMenuStrip();
 
 		/// <summary>
 		/// Used to make sure that there is no right-click menu available
 		/// </summary>
-		public override ContextMenu ContextMenu {
+		public override ContextMenuStrip ContextMenuStrip
+		{
 			get {
 				return _dummy;
 			}
 			set {
-				base.ContextMenu = _dummy;
+				base.ContextMenuStrip = _dummy;
 			}
 		}
 
@@ -120,7 +121,7 @@ namespace GreenshotPlugin.Controls {
 		/// Creates a new HotkeyControl
 		/// </summary>
 		public HotkeyControl() {
-			ContextMenu = _dummy; // Disable right-clicking
+			ContextMenuStrip = _dummy; // Disable right-clicking
 			Text = "None";
 
 			// Handle events that occurs when keys are pressed
@@ -341,7 +342,7 @@ namespace GreenshotPlugin.Controls {
 		public override string ToString() {
 			return HotkeyToString(HotkeyModifiers, Hotkey);
 		}
-		
+
 		public static string GetLocalizedHotkeyStringFromString(string hotkeyString) {
 			Keys virtualKeyCode = HotkeyFromString(hotkeyString);
 			Keys modifiers = HotkeyModifiersFromString(hotkeyString);
@@ -373,7 +374,7 @@ namespace GreenshotPlugin.Controls {
 		public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode) {
 			return HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
 		}
-		
+
 		public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode) {
 			StringBuilder hotkeyString = new StringBuilder();
 			if ((modifierKeyCode & Keys.Alt) > 0) {
@@ -468,7 +469,7 @@ namespace GreenshotPlugin.Controls {
 				return -1;
 			}
 		}
-		
+
 		public static void UnregisterHotkeys() {
 			foreach(int hotkey in KeyHandlers.Keys) {
 				UnregisterHotKey(_hotkeyHwnd, hotkey);
@@ -489,7 +490,7 @@ namespace GreenshotPlugin.Controls {
 				// Remove key handler
 				KeyHandlers.Remove(hotkey);
 			}
-		}		
+		}
 
 		/// <summary>
 		/// Handle WndProc messages for the hotkey
@@ -549,7 +550,7 @@ namespace GreenshotPlugin.Controls {
 					return keyString + " /";
 			}
 			uint scanCode = MapVirtualKey((uint)virtualKey, (uint)MapType.MAPVK_VK_TO_VSC);
-			
+
 			// because MapVirtualKey strips the extended bit for some keys
 			switch (virtualKey) {
 				case Keys.Left: case Keys.Up: case Keys.Right: case Keys.Down: // arrow keys

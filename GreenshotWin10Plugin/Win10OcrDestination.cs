@@ -59,6 +59,24 @@ namespace GreenshotWin10Plugin
 		}
 
 		/// <summary>
+		/// Scan the surface bitmap for text, and get the OcrResult
+		/// </summary>
+		/// <param name="surface">ISurface</param>
+		/// <returns>OcrResult</returns>
+		public async Task<OcrResult> DoOcrAsync(ISurface surface)
+		{
+			var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+			using var imageStream = new MemoryStream();
+			ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+			imageStream.Position = 0;
+
+			var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
+			var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+			return await ocrEngine.RecognizeAsync(softwareBitmap);
+		}
+
+		/// <summary>
 		/// Run the Windows 10 OCR engine to process the text on the captured image
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
@@ -70,24 +88,14 @@ namespace GreenshotWin10Plugin
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
-				var text = Task.Run(async () =>
+				var ocrResult = Task.Run(async () => await DoOcrAsync(surface)).Result;
+				// Build the text from the lines, otherwise it's just everything concated together
+				var result = new StringBuilder();
+				foreach(var line in ocrResult.Lines)
 				{
-					var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
-                    using var imageStream = new MemoryStream();
-                    ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
-                    imageStream.Position = 0;
-
-                    var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
-                    var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-
-                    var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
-					var result = new StringBuilder();
-					foreach(var line in ocrResult.Lines)
-					{
-						result.AppendLine(line.Text);
-					}
-                    return result.ToString();
-                }).Result;
+					result.AppendLine(line.Text);
+				}
+                var text = result.ToString();
 
 				// Check if we found text
 				if (!string.IsNullOrWhiteSpace(text))
