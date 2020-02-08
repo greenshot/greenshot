@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,6 +45,7 @@ using Greenshot.Destinations;
 using Greenshot.Drawing;
 using log4net;
 using Timer = System.Timers.Timer;
+using System.Threading.Tasks;
 
 namespace Greenshot {
 	/// <summary>
@@ -61,7 +62,7 @@ namespace Greenshot {
 
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = Application.ProductName;
-			
+
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4Net();
 			// Get logger
@@ -69,6 +70,8 @@ namespace Greenshot {
 
 			Application.ThreadException += Application_ThreadException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+			TaskScheduler.UnobservedTaskException += Task_UnhandledException;
 
 			// Initialize the IniConfig
 			IniConfig.Init();
@@ -140,7 +143,7 @@ namespace Greenshot {
 						FreeMutex();
 						return;
 					}
-					
+
 					if (argument.ToLower().Equals("/exit")) {
 						// unregister application on uninstall (allow uninstall)
 						try {
@@ -153,7 +156,7 @@ namespace Greenshot {
 						FreeMutex();
 						return;
 					}
-					
+
 					// Reload the configuration
 					if (argument.ToLower().Equals("/reload")) {
 						// Modify configuration
@@ -163,14 +166,14 @@ namespace Greenshot {
 						FreeMutex();
 						return;
 					}
-					
+
 					// Stop running
 					if (argument.ToLower().Equals("/norun")) {
 						// Make an exit possible
 						FreeMutex();
 						return;
 					}
-					
+
 					// Language
 					if (argument.ToLower().Equals("/language")) {
 						_conf.Language = arguments[++argumentNr];
@@ -302,7 +305,7 @@ namespace Greenshot {
 		public static MainForm Instance => _instance;
 
 		private readonly CopyData _copyData;
-		
+
 		// Thumbnail preview
 		private ThumbnailForm _thumbnailForm;
 		// Make sure we have only one settings form
@@ -338,16 +341,16 @@ namespace Greenshot {
 			// Make sure all hotkeys pass this window!
 			HotkeyControl.RegisterHotkeyHwnd(Handle);
 			RegisterHotkeys();
-			
+
 			new ToolTip();
-			
+
 			UpdateUi();
-			
+
 			// This forces the registration of all destinations inside Greenshot itself.
 			DestinationHelper.GetAllDestinations();
 			// This forces the registration of all processors inside Greenshot itself.
 			ProcessorHelper.GetAllProcessors();
-			
+
 			// Load all the plugins
 			PluginHelper.Instance.LoadPlugins();
 
@@ -386,7 +389,7 @@ namespace Greenshot {
 			// Assign the handle:
 			_copyData.AssignHandle(Handle);
 			// Create the channel to send on:
-			_copyData.Channels.Add("Greenshot");     
+			_copyData.Channels.Add("Greenshot");
 			// Hook up received event:
 			_copyData.CopyDataReceived += CopyDataDataReceived;
 
@@ -474,7 +477,7 @@ namespace Greenshot {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Main context menu
 		/// </summary>
@@ -631,7 +634,7 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// Displays a dialog for the user to choose how to handle hotkey registration failures: 
+		/// Displays a dialog for the user to choose how to handle hotkey registration failures:
 		/// retry (allowing to shut down the conflicting application before),
 		/// ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to register it again on next startup)
 		/// abort (do nothing about it)
@@ -759,7 +762,7 @@ namespace Greenshot {
 			contextmenu_capturewindowfromlist.DropDownItems.Clear();
 			CleanupThumbnail();
 		}
-		
+
 		/// <summary>
 		/// Build a selectable list of IE tabs when we enter the menu item
 		/// </summary>
@@ -774,7 +777,7 @@ namespace Greenshot {
 					contextmenu_captureie.Enabled = true;
 					contextmenu_captureiefromlist.Enabled = true;
 					Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
-					
+
 					foreach(KeyValuePair<WindowDetails, string> tabData in tabs) {
 						string title = tabData.Value;
 						if (title == null) {
@@ -805,7 +808,7 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// MultiScreenDropDownOpening is called when mouse hovers over the Capture-Screen context menu 
+		/// MultiScreenDropDownOpening is called when mouse hovers over the Capture-Screen context menu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -847,7 +850,7 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// MultiScreenDropDownOpening is called when mouse leaves the context menu 
+		/// MultiScreenDropDownOpening is called when mouse leaves the context menu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -855,7 +858,7 @@ namespace Greenshot {
 			ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
 			captureScreenMenuItem.DropDownItems.Clear();
 		}
-		
+
 		/// <summary>
 		/// Build a selectable list of windows when we enter the menu item
 		/// </summary>
@@ -866,11 +869,11 @@ namespace Greenshot {
 			ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem)sender;
 			AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_capturewindowfromlist_Click);
 		}
-		
+
 		private void CaptureWindowFromListMenuDropDownClosed(object sender, EventArgs e) {
 			CleanupThumbnail();
 		}
-		
+
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
             if (!(sender is ToolStripMenuItem captureWindowItem)) return;
             WindowDetails window = captureWindowItem.Tag as WindowDetails;
@@ -884,7 +887,7 @@ namespace Greenshot {
 		{
 			_thumbnailForm?.Hide();
 		}
-		
+
 		private void CleanupThumbnail() {
 			if (_thumbnailForm == null)
 			{
@@ -1002,7 +1005,7 @@ namespace Greenshot {
 				Process.Start("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version);
 			});
 		}
-		
+
 		/// <summary>
 		/// Context menu entry "Preferences"
 		/// </summary>
@@ -1011,7 +1014,7 @@ namespace Greenshot {
 		private void Contextmenu_settingsClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)ShowSetting);
 		}
-		
+
 		/// <summary>
 		/// This is called indirectly from the context menu "Preferences"
 		/// </summary>
@@ -1030,7 +1033,7 @@ namespace Greenshot {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// The "About Greenshot" entry is clicked
 		/// </summary>
@@ -1053,7 +1056,7 @@ namespace Greenshot {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// The "Help" entry is clicked
 		/// </summary>
@@ -1062,7 +1065,7 @@ namespace Greenshot {
 		private void Contextmenu_helpClick(object sender, EventArgs e) {
 			HelpFileLoader.LoadHelp();
 		}
-		
+
 		/// <summary>
 		/// The "Exit" entry is clicked
 		/// </summary>
@@ -1077,7 +1080,7 @@ namespace Greenshot {
 				_conf.CaptureMousepointer = captureMouseItem.Checked;
 			}
 		}
-		
+
 		/// <summary>
 		/// This needs to be called to initialize the quick settings menu entries
 		/// </summary>
@@ -1217,6 +1220,20 @@ namespace Greenshot {
 			InitializeQuickSettingsMenu();
 		}
 
+		private static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
+		{
+			try {
+					Exception exceptionToLog = args.Exception;
+					string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+					LOG.Error("Exception caught in the UnobservedTaskException handler.");
+					LOG.Error(exceptionText);
+					new BugReportForm(exceptionText).ShowDialog();
+			}
+			finally {
+				args.SetObserved();
+			}
+		}
+
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
 			Exception exceptionToLog = e.ExceptionObject as Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
@@ -1229,7 +1246,7 @@ namespace Greenshot {
 			}
 			new BugReportForm(exceptionText).ShowDialog();
 		}
-		
+
 		private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
 			Exception exceptionToLog = e.Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
@@ -1357,7 +1374,7 @@ namespace Greenshot {
 				MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
-		
+
 		/// <summary>
 		/// Shutdown / cleanup
 		/// </summary>
@@ -1380,21 +1397,21 @@ namespace Greenshot {
 					LOG.Error("Error closing form!", e);
 				}
 			}
-			
+
 			// Make sure hotkeys are disabled
 			try {
 				HotkeyControl.UnregisterHotkeys();
 			} catch (Exception e) {
 				LOG.Error("Error unregistering hotkeys!", e);
 			}
-	
+
 			// Now the sound isn't needed anymore
 			try {
 				SoundHelper.Deinitialize();
 			} catch (Exception e) {
 				LOG.Error("Error deinitializing sound!", e);
 			}
-	
+
 			// Inform all registed plugins
 			try {
 				PluginHelper.Instance.Shutdown();

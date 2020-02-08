@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -102,7 +102,7 @@ namespace Greenshot.Drawing
 			add { _propertyChanged += value; }
 			remove{ _propertyChanged -= value; }
 		}
-		
+
 		public IList<IFilter> Filters {
 			get {
 				List<IFilter> ret = new List<IFilter>();
@@ -114,7 +114,7 @@ namespace Greenshot.Drawing
 				return ret;
 			}
 		}
-			
+
 		[NonSerialized]
 		internal Surface _parent;
 		public ISurface Parent {
@@ -139,7 +139,7 @@ namespace Greenshot.Drawing
 				OnPropertyChanged("Selected");
 			}
 		}
-		
+
 		[NonSerialized]
 		private EditStatus _status = EditStatus.UNDRAWN;
 		public EditStatus Status {
@@ -151,7 +151,7 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		
+
 		private int left;
 		public int Left {
 			get { return left; }
@@ -162,7 +162,7 @@ namespace Greenshot.Drawing
 				left = value;
 			}
 		}
-		
+
 		private int top;
 		public int Top {
 			get { return top; }
@@ -173,7 +173,7 @@ namespace Greenshot.Drawing
 				top = value;
 			}
 		}
-		
+
 		private int width;
 		public int Width {
 			get { return width; }
@@ -184,7 +184,7 @@ namespace Greenshot.Drawing
 				width = value;
 			}
 		}
-		
+
 		private int height;
 		public int Height {
 			get { return height; }
@@ -195,7 +195,7 @@ namespace Greenshot.Drawing
 				height = value;
 			}
 		}
-		
+
 		public Point Location {
 			get {
 				return new Point(left, top);
@@ -232,11 +232,11 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		// will store current bounds of this DrawableContainer before starting a resize
 		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
-		
+
 		[NonSerialized]
 		// "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
 		protected RectangleF _boundsAfterResize = RectangleF.Empty;
-		
+
 		public Rectangle Bounds {
 			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
 			set {
@@ -246,14 +246,14 @@ namespace Greenshot.Drawing
 				Height = Round(value.Height);
 			}
 		}
-		
+
 		public virtual void ApplyBounds(RectangleF newBounds) {
 			Left = Round(newBounds.Left);
 			Top = Round(newBounds.Top);
 			Width = Round(newBounds.Width);
 			Height = Round(newBounds.Height);
 		}
-		
+
 		public DrawableContainer(Surface parent) {
 			InitializeFields();
 			_parent = parent;
@@ -262,17 +262,17 @@ namespace Greenshot.Drawing
 		public void Add(IFilter filter) {
 			AddChild(filter);
 		}
-		
+
 		public void Remove(IFilter filter) {
 			RemoveChild(filter);
 		}
-		
+
 		private static int Round(float f) {
 			if(float.IsPositiveInfinity(f) || f>int.MaxValue/2) return int.MaxValue/2;
 			if (float.IsNegativeInfinity(f) || f<int.MinValue/2) return int.MinValue/2;
 			return (int)Math.Round(f);
 		}
-		
+
 		private bool accountForShadowChange;
 		public virtual Rectangle DrawingBounds {
 			get {
@@ -302,7 +302,7 @@ namespace Greenshot.Drawing
 				_parent?.Invalidate(DrawingBounds);
 			}
 		}
-		
+
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
 			if (_parent == null)
 			{
@@ -329,9 +329,9 @@ namespace Greenshot.Drawing
 				Top = (_parent.Height / 2) - (Height / 2) - lineThickness/2;
 			}
 		}
-		
+
 		public virtual bool InitContent() { return true; }
-		
+
 		public virtual void OnDoubleClick() {}
 
 		/// <summary>
@@ -369,7 +369,7 @@ namespace Greenshot.Drawing
 		}
 
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
-		
+
 		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, Rectangle clipRectangle) {
 			if (Children.Count > 0) {
 				if (Status != EditStatus.IDLE) {
@@ -392,22 +392,22 @@ namespace Greenshot.Drawing
 							}
 						}
 					}
-	
+
 				}
 			}
 			Draw(graphics, renderMode);
 		}
-		
+
 		public virtual bool Contains(int x, int y) {
 			return Bounds.Contains(x , y);
 		}
-		
+
 		public virtual bool ClickableAt(int x, int y) {
 			Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			r.Inflate(5, 5);
 			return r.Contains(x, y);
 		}
-		
+
 		protected void DrawSelectionBorder(Graphics g, Rectangle rect)
         {
 			using Pen pen = new Pen(Color.MediumSeaGreen)
@@ -417,7 +417,7 @@ namespace Greenshot.Drawing
 			};
 			g.DrawRectangle(pen, rect);
         }
-		
+
 
 		public void ResizeTo(int width, int height, int anchorPosition) {
 			Width = width;
@@ -431,12 +431,12 @@ namespace Greenshot.Drawing
 		public void MakeBoundsChangeUndoable(bool allowMerge) {
 			_parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
 		}
-		
+
 		public void MoveBy(int dx, int dy) {
 			Left += dx;
 			Top += dy;
 		}
-		
+
 		/// <summary>
 		/// A handler for the MouseDown, used if you don't want the surface to handle this for you
 		/// </summary>
@@ -457,22 +457,22 @@ namespace Greenshot.Drawing
 		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
 		public virtual bool HandleMouseMove(int x, int y) {
 			Invalidate();
-			
+
 			// reset "workrbench" rectangle to current bounds
 			_boundsAfterResize.X = _boundsBeforeResize.Left;
 			_boundsAfterResize.Y = _boundsBeforeResize.Top;
 			_boundsAfterResize.Width = x - _boundsAfterResize.Left;
 			_boundsAfterResize.Height = y - _boundsAfterResize.Top;
-			
+
 			ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
-			
+
 			// apply scaled bounds to this DrawableContainer
 			ApplyBounds(_boundsAfterResize);
-			
+
 			Invalidate();
 			return true;
 		}
-		
+
 		/// <summary>
 		/// A handler for the MouseUp
 		/// </summary>
@@ -480,7 +480,7 @@ namespace Greenshot.Drawing
 		/// <param name="y">current mouse y</param>
 		public virtual void HandleMouseUp(int x, int y) {
 		}
-		
+
 		protected virtual void SwitchParent(Surface newParent) {
 			if (newParent == Parent)
 			{
@@ -493,14 +493,14 @@ namespace Greenshot.Drawing
 				filter.Parent = this;
 			}
 		}
-		
+
 		protected void OnPropertyChanged(string propertyName) {
 			if (_propertyChanged != null) {
 				_propertyChanged(this, new PropertyChangedEventArgs(propertyName));
 				Invalidate();
 			}
 		}
-		
+
 		/// <summary>
 		/// This method will be called before a field is changes.
 		/// Using this makes it possible to invalidate the object as is before changing.
@@ -511,7 +511,7 @@ namespace Greenshot.Drawing
 			_parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
 			Invalidate();
 		}
-		
+
 		/// <summary>
 		/// Handle the field changed event, this should invalidate the correct bounds (e.g. when shadow comes or goes more pixels!)
 		/// </summary>
@@ -581,7 +581,7 @@ namespace Greenshot.Drawing
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}
-		
+
 		public virtual bool HasContextMenu {
 			get {
 				return true;

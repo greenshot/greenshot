@@ -28,13 +28,14 @@ using Windows.Media.Ocr;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Text;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotWin10Plugin
 {
 	/// <summary>
 	/// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
 	/// </summary>
-	public class Win10OcrDestination : AbstractDestination
+	public class Win10OcrDestination : AbstractDestination, IOcrProvider
 	{
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
 
@@ -63,7 +64,7 @@ namespace GreenshotWin10Plugin
 		/// </summary>
 		/// <param name="surface">ISurface</param>
 		/// <returns>OcrResult</returns>
-		public async Task<OcrResult> DoOcrAsync(ISurface surface)
+		public async Task<OcrInformation> DoOcrAsync(ISurface surface)
 		{
 			var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
 			using var imageStream = new MemoryStream();
@@ -73,7 +74,27 @@ namespace GreenshotWin10Plugin
 			var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
 			var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-			return await ocrEngine.RecognizeAsync(softwareBitmap);
+			var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+
+			var result = new OcrInformation();
+			// Build the text from the lines, otherwise it's just everything concated together
+			var text = new StringBuilder();
+			foreach (var line in ocrResult.Lines)
+			{
+				text.AppendLine(line.Text);
+			}
+			result.Text = result.ToString();
+
+			foreach (var line in ocrResult.Lines)
+			{
+				foreach (var word in line.Words)
+				{
+					var rectangle = new Rectangle((int)word.BoundingRect.X, (int)word.BoundingRect.Y, (int)word.BoundingRect.Width, (int)word.BoundingRect.Height);
+
+					result.Words.Add((word.Text, rectangle));
+				}
+			}
+			return result;
 		}
 
 		/// <summary>
@@ -89,19 +110,12 @@ namespace GreenshotWin10Plugin
 			try
 			{
 				var ocrResult = Task.Run(async () => await DoOcrAsync(surface)).Result;
-				// Build the text from the lines, otherwise it's just everything concated together
-				var result = new StringBuilder();
-				foreach(var line in ocrResult.Lines)
-				{
-					result.AppendLine(line.Text);
-				}
-                var text = result.ToString();
 
 				// Check if we found text
-				if (!string.IsNullOrWhiteSpace(text))
+				if (!string.IsNullOrWhiteSpace(ocrResult.Text))
 				{
 					// Place the OCR text on the
-					ClipboardHelper.SetClipboardData(text);
+					ClipboardHelper.SetClipboardData(ocrResult.Text);
 				}
 				exportInformation.ExportMade = true;
 			}
