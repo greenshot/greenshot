@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="startup">Start {#ExeName} with Windows start</resource>
+		<resource name="startgreenshot">Start {#ExeName}</resource>
+		<resource name="jira">Jira plug-in</resource>
+		<resource name="confluence">Confluence plug-in</resource>
+		<resource name="externalcommand">Open with external command plug-in</resource>
+		<resource name="ocr">OCR plug-in (needs Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="imgur">Imgur plug-in (See: http://imgur.com)</resource>
+		<resource name="language">Additional languages</resource>
+		<resource name="optimize">Optimizing performance, this may take a while.</resource>
+	</resources>
+</language>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0" languagegroup="5">
+	<resources>
+		<resource name="home_downloads">Завантаження</resource>
+		<resource name="home_headline">Greenshot — безкоштовний інструмент для створення знімків екрану, оптимізований для покращення продуктивності</resource>
+		<resource name="home_opensource">Greenshot безкоштовний і з відкритим кодом</resource>
+		<resource name="home_opensource_donate">Якщо Вам здається, що Greenshot зберігає чимало Вашого часу та/або грошей, Ви можете &lt;a href="/support/"&gt;підтримати розробку&lt;/a&gt; цього програмного забезпечення для створення знімків екрану.</resource>
+		<resource name="home_opensource_gpl">Greenshot розповсюджується відповідно до &lt;a href="http://uk.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, тобто це програмне забезпечення можна вільно завантажувати та використовувати навіть з комерційною метою.</resource>
+		<resource name="home_seemore">Хочете побачити більше?</resource>
+		<resource name="home_seemore_screenshots">Звісно, Greenshot може зробити для Вас набагато більше. Подивіться кілька &lt;a title="Знімки Greenshot у дії" href="/screenshots/"&gt;знімків&lt;/a&gt; Greenshot у дії та спробуйте &lt;a title="Завантажити найновішу стабільну версію Greenshot" href="/downloads/"&gt;останній реліз&lt;/a&gt;.</resource>
+		<resource name="home_whatis">Що таке Greenshot???</resource>
+		<resource name="home_whatis_create">Швидке створення знімків вибраної області, вікна або всього екрану; Ви навіть можете захоплювати всю (з прокручуванням) Інтернет-сторінку в Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Легке коментування, підсвічування або виділення частин знімку.</resource>
+		<resource name="home_whatis_intro">Greenshot — це невеличка програма для створення знімків екрану для Windows з такими основними можливостями:</resource>
+		<resource name="home_whatis_more">...та чимало інших можливостей, що спрощують створення та обробку знімків.</resource>
+		<resource name="home_whatis_send">Кілька варіантів експорту знімків: збереження в файл, друк, копіювання в буфер обміну, долучення до електронного листа, надсилання до офісних програм або вивантаження на фото-хостинги на зразок Flickr, Picasa та інші.</resource>
+		<resource name="home_whatis_usage">Завдяки простоті налаштування та інтуїтивності, Greenshot є ефективним інструментом для керівників проектів, розробників програмного забезпечення, технічних авторів, тестерів та будь-кого іншого, кому потрібно створювати знімки.</resource>
+	</resources>
+</language>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Norwegian Nynorsk" ietf="nn-NO" version="1.0.2" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Nedlastingar</resource>
+		<resource name="home_headline">Greenshot - ein gratis skjermknipsar som effektiviserer kvardagen</resource>
+		<resource name="home_opensource">Greenshot er gratis og har open kjeldekode</resource>
+		<resource name="home_opensource_donate">Om du finn ut at Greenshot sparar deg for mykje tid og/eller pengar, er du velkomen til å &lt;a href="/support/"&gt;støtte utviklinga&lt;/a&gt; av programmet!</resource>
+		<resource name="home_opensource_gpl">Greenshot blir utgjeven under _GPL_, så programmet kan lastast ned og brukast utan kostnad, også i verksemder.</resource>
+		<resource name="home_seemore">Sjå meir?</resource>
+		<resource name="home_seemore_screenshots">Sjølvsagt kan Greenshot by på meir! Ta ein gløtt på _skjermbilde_ av programmet i bruk, eller prøv den _nyaste utgåva_.</resource>
+		<resource name="home_whatis">Kva er Greenshot?</resource>
+		<resource name="home_whatis_create">Tar med eit tastetrykk bilde av eit vindauge, område eller heile skjermen - du kan til og med knipse heile nettsider (med rulling) frå Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Enkel notering, markering og sensurering i knipsfiksaren.</resource>
+		<resource name="home_whatis_intro">Greenshot er eit lite og nett Windows-verktøy med dei fylgjande eigenskapane:</resource>
+		<resource name="home_whatis_more">...og endå meir som forenklar arbeidet med skjermbilde - kvar dag!</resource>
+		<resource name="home_whatis_send">Eksporter skjermbildet til fil, skrivar, utklyppstavle, e-post, Office-program eller skytenester som til dømes Flickr og Picasa.</resource>
+		<resource name="home_whatis_usage">Med det enkle, konfigurerbare grensesnittet er Greenshot eit effektivt verktøy for prosjektleiarar, programvareutviklararar, tekniske skribentar, testarar og alle andre som har nytte av å ta skjermbilde.</resource>
+	</resources>
+</language>

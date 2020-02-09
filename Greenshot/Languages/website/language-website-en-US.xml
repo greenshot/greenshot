@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Downloads</resource>
+		<resource name="home_headline">Greenshot - a free screenshot tool optimized for productivity</resource>
+		<resource name="home_opensource">Greenshot is free and open source</resource>
+		<resource name="home_opensource_donate">If you find that Greenshot saves you a lot of time and/or money, you are very welcome to &lt;a href="/support/"&gt;support the development&lt;/a&gt; of this screenshot software.</resource>
+		<resource name="home_opensource_gpl">Greenshot was published under &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, i.e. this software can be downloaded and used free of charge, even in a commercial environment.</resource>
+		<resource name="home_seemore">Want to see more?</resource>
+		<resource name="home_seemore_screenshots">Of course there is more that Greenshot can do for you. Have a look at some &lt;a title="Screenshots of Greenshot in action" href="/screenshots/"&gt;screenshots&lt;/a&gt; of Greenshot in action or try the &lt;a title="Download the latest stable version of Greenshot" href="/downloads/"&gt;latest release&lt;/a&gt;.</resource>
+		<resource name="home_whatis">What is Greenshot????</resource>
+		<resource name="home_whatis_create">Quickly create screenshots of a selected region, window or fullscreen; you can even capture complete (scrolling) web pages from Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Easily annotate, highlight or obfuscate parts of the screenshot.</resource>
+		<resource name="home_whatis_intro">Greenshot is a light-weight screenshot software tool for Windows with the following key features:</resource>
+		<resource name="home_whatis_more">...and a lot more options simplyfying creation of and work with screenshots every day.</resource>
+		<resource name="home_whatis_send">Export the screenshot in various ways: save to file, send to printer, copy to clipboard, attach to e-mail, send Office programs or upload to photo sites like Flickr or Picasa, and others.</resource>
+		<resource name="home_whatis_usage">Being easy to understand and configurable, Greenshot is an efficient tool for project managers, software developers, technical writers, testers and anyone else creating screenshots.</resource>
+	</resources>
+</language>

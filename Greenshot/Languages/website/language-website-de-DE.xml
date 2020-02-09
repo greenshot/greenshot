@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1" languagegroup="?">
+	<resources>
+		<resource name="home_downloads">Downloads</resource>
+		<resource name="home_headline">Greenshot - ein kostenloses Screenshot-Programm für maximale Produktivität</resource>
+		<resource name="home_opensource">Greenshot ist kostenlos und open-source</resource>
+		<resource name="home_opensource_donate">Falls Sie merken, dass Greenshot Ihnen viel Zeit und/oder Geld spart, würde sich das Entwickler-Team über Ihre &lt;a href="/support/"&gt;Unterstützung für die Weiterentwicklung&lt;/a&gt; dieser Screenshot-Software freuen.</resource>
+		<resource name="home_opensource_gpl">Greenshot wurde unter der &lt;a href="http://de.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt; veröffentlicht und kann kostenlos heruntergeladen und verwendet werden, auch zur kommerziellen Nutzung.</resource>
+		<resource name="home_seemore">Und weiter?</resource>
+		<resource name="home_seemore_screenshots">Natürlich kann Greenshot noch einiges mehr. Werfen Sie einen Blick auf einige &lt;a title="Screenshots von Greenshot in Aktion" href="/screenshots/"&gt;Screenshots&lt;/a&gt; von Greenshot in Aktion oder probieren Sie die &lt;a title="Download der aktuellen Version von Greenshot" href="/downloads/"&gt;aktuelle Version&lt;/a&gt; einfach aus.</resource>
+		<resource name="home_whatis">Was ist Greenshot?</resource>
+		<resource name="home_whatis_create">Schnelle Erstellung von kompletten oder teilweisen Screenshots.</resource>
+		<resource name="home_whatis_edit">Einfaches Hinzufügen von Kommentaren, Hervorhebungen oder Unkenntlichmachungen.</resource>
+		<resource name="home_whatis_intro">Greenshot ist ein kompaktes Screenshot-Programm für Windows mit den folgenden Hauptfunktionen:</resource>
+		<resource name="home_whatis_more">... und viele weitere Möglichkeiten, die die Erstellung von und die Arbeit mit Screenshots vereinfachen - Tag für Tag.</resource>
+		<resource name="home_whatis_send">Direkter Export des Screenshots in eine Datei, die Zwischenablage, 
+an einen Drucker, ein MS Office-Dokument oder als E-Mail-Anhang; Sie können es auch zu verschiedene Bild-Hosting-Services hochladen.</resource>
+		<resource name="home_whatis_usage">Da Greenshot leicht verständlich und konfigurierbar ist, ist es ein effizientes Programm für Projektmanager, Software-Entwickler, technische Redakteure, Dokumentations-Entwickler, Tester und andere Personen, die oft mit Screenshots arbeiten.</resource>
+	</resources>
+</language>

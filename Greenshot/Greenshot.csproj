@@ -72,4 +72,9 @@
     <SetEnvironmentVariableTask Name="AssemblyInformationalVersion" Value="$(AssemblyInformationalVersion)" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\greenshot\releases\innosetup\setup.iss" />
   </Target>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PreBuildEvent>
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net471\log4net.xml"
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>

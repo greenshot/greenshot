@@ -28,15 +28,13 @@ using System.Windows.Interop;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Greenshot.Addon.Win10.Native;
 using Color = Windows.UI.Color;
-using System.Reactive.Linq;
-using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Drawing;
 using GreenshotWin10Plugin.Native;
 using System.Windows.Media;
+using GreenshotPlugin.Hooking;
 
 namespace GreenshotWin10Plugin
 {
@@ -67,6 +65,8 @@ namespace GreenshotWin10Plugin
 
             public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 	        public bool IsDataRequested { get; set; }
+
+            public IntPtr SharingHwnd { get; set; }
 	    }
 
         /// <summary>
@@ -92,28 +92,42 @@ namespace GreenshotWin10Plugin
                     AllowsTransparency = true,
                     Background = new SolidColorBrush(Colors.Transparent)
                 };
+                var shareInfo = new ShareInfo();
 
                 triggerWindow.Show();
-                var shareInfo = new ShareInfo();
+
+                var focusMonitor = new WindowsOpenCloseMonitor();
+                var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
 
                 // This is a bad trick, but don't know how else to do it.
                 // Wait for the focus to return, and depending on the state close the window!
-                triggerWindow.WindowMessages()
-                    .Where(m => m.Message == WindowsMessages.WM_SETFOCUS).Delay(TimeSpan.FromSeconds(1))
-                    .Subscribe(info =>
-                    {
-                        if (shareInfo.ApplicationName != null)
-                        {
-                            return;
-                        }
+                focusMonitor.WindowOpenCloseChangeEvent += e => {
 
-                        shareInfo.ShareTask.TrySetResult(false);
-                    });
-                var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
+                    if (e.IsOpen)
+                    {
+                        if ("Windows Shell Experience Host" == e.Title)
+                        {
+                            shareInfo.SharingHwnd = e.HWnd;
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        if (e.HWnd == shareInfo.SharingHwnd)
+                        {
+                            if (shareInfo.ApplicationName != null)
+                            {
+                                return;
+                            }
+                            shareInfo.ShareTask.TrySetResult(false);
+                        }
+                    }
+                };
 
                 Share(shareInfo, windowHandle, surface, captureDetails).GetAwaiter().GetResult();
                 Log.Debug("Sharing finished, closing window.");
                 triggerWindow.Close();
+                focusMonitor.Dispose();
                 if (string.IsNullOrWhiteSpace(shareInfo.ApplicationName))
                 {
                     exportInformation.ExportMade = false;
@@ -144,123 +158,121 @@ namespace GreenshotWin10Plugin
         /// <returns>Task with string, which describes the application which was used to share with</returns>
         private async Task Share(ShareInfo shareInfo, IntPtr handle, ISurface surface, ICaptureDetails captureDetails)
         {
-            using (var imageStream = new MemoryRandomAccessStream())
-            using (var logoStream = new MemoryRandomAccessStream())
-            using (var thumbnailStream = new MemoryRandomAccessStream())
+            using var imageStream = new MemoryRandomAccessStream();
+            using var logoStream = new MemoryRandomAccessStream();
+            using var thumbnailStream = new MemoryRandomAccessStream();
+            var outputSettings = new SurfaceOutputSettings();
+            outputSettings.PreventGreenshotFormat();
+
+            // Create capture for export
+            ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+            imageStream.Position = 0;
+            Log.Debug("Created RandomAccessStreamReference for the image");
+            var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
+
+            // Create thumbnail
+            RandomAccessStreamReference thumbnailRandomAccessStreamReference;
+            using (var tmpImageForThumbnail = surface.GetImageForExport())
+            using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
             {
-                var outputSettings = new SurfaceOutputSettings();
-                outputSettings.PreventGreenshotFormat();
+                ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
+                thumbnailStream.Position = 0;
+                thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
+                Log.Debug("Created RandomAccessStreamReference for the thumbnail");
+            }
 
-                // Create capture for export
-                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
-                imageStream.Position = 0;
-                Log.Debug("Created RandomAccessStreamReference for the image");
-                var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
+            // Create logo
+            RandomAccessStreamReference logoRandomAccessStreamReference;
+            using (var logo = GreenshotResources.getGreenshotIcon().ToBitmap())
+            using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
+            {
+                ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
+                logoStream.Position = 0;
+                logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
+                Log.Info("Created RandomAccessStreamReference for the logo");
+            }
 
-                // Create thumbnail
-                RandomAccessStreamReference thumbnailRandomAccessStreamReference;
-                using (var tmpImageForThumbnail = surface.GetImageForExport())
-                using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
-                {
-                    ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
-                    thumbnailStream.Position = 0;
-                    thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
-                    Log.Debug("Created RandomAccessStreamReference for the thumbnail");
-                }
-
-                // Create logo
-                RandomAccessStreamReference logoRandomAccessStreamReference;
-                using (var logo = GreenshotResources.getGreenshotIcon().ToBitmap())
-                using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
-                {
-                    ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
-                    logoStream.Position = 0;
-                    logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
-                    Log.Info("Created RandomAccessStreamReference for the logo");
-                }
-
-                var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
-                dataTransferManagerHelper.DataTransferManager.ShareProvidersRequested += (sender, args) =>
-                {
-                    shareInfo.AreShareProvidersRequested = true;
-                    Log.DebugFormat("Share providers requested: {0}", string.Join(",", args.Providers.Select(p => p.Title)));
-                };
-                dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
-                {
-                    shareInfo.ApplicationName = args.ApplicationName;
-                    Log.DebugFormat("TargetApplicationChosen: {0}", args.ApplicationName);
-                };
-                var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
-                var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
-                {
-                    shareInfo.IsDeferredFileCreated = true;
+            var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
+            dataTransferManagerHelper.DataTransferManager.ShareProvidersRequested += (sender, args) =>
+            {
+                shareInfo.AreShareProvidersRequested = true;
+                Log.DebugFormat("Share providers requested: {0}", string.Join(",", args.Providers.Select(p => p.Title)));
+            };
+            dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
+            {
+                shareInfo.ApplicationName = args.ApplicationName;
+                Log.DebugFormat("TargetApplicationChosen: {0}", args.ApplicationName);
+            };
+            var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
+            var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
+            {
+                shareInfo.IsDeferredFileCreated = true;
                     // Information on the "how" was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
                     Log.DebugFormat("Creating deferred file {0}", filename);
-                    try
+                try
+                {
+                    using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
                     {
-                        using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
-                        {
-                            await imageStream.CopyToAsync(deferredStream).ConfigureAwait(false);
-                            await imageStream.FlushAsync().ConfigureAwait(false);
-                        }
+                        await imageStream.CopyToAsync(deferredStream).ConfigureAwait(false);
+                        await imageStream.FlushAsync().ConfigureAwait(false);
+                    }
                         // Signal that the stream is ready
                         streamedFileDataRequest.Dispose();
                         // Signal that the action is ready, bitmap was exported
                         shareInfo.ShareTask.TrySetResult(true);
-                    }
-                    catch (Exception)
-                    {
-                        streamedFileDataRequest.FailAndClose(StreamedFileFailureMode.Incomplete);
-                    }
-                }, imageRandomAccessStreamReference).AsTask().ConfigureAwait(false);
-
-                dataTransferManagerHelper.DataTransferManager.DataRequested += (dataTransferManager, dataRequestedEventArgs) =>
+                }
+                catch (Exception)
                 {
-                    var deferral = dataRequestedEventArgs.Request.GetDeferral();
-                    try
-                    {
-                        shareInfo.IsDataRequested = true;
-                        Log.DebugFormat("DataRequested with operation {0}", dataRequestedEventArgs.Request.Data.RequestedOperation);
-                        var dataPackage = dataRequestedEventArgs.Request.Data;
-                        dataPackage.OperationCompleted += (dp, eventArgs) =>
-                        {
-                            Log.DebugFormat("OperationCompleted: {0}, shared with", eventArgs.Operation);
-                            shareInfo.CompletedWithOperation = eventArgs.Operation;
-                            shareInfo.AcceptedFormat = eventArgs.AcceptedFormatId;
+                    streamedFileDataRequest.FailAndClose(StreamedFileFailureMode.Incomplete);
+                }
+            }, imageRandomAccessStreamReference).AsTask().ConfigureAwait(false);
 
-                            shareInfo.ShareTask.TrySetResult(true);
-                        };
-                        dataPackage.Destroyed += (dp, o) =>
-                        {
-                            shareInfo.IsDestroyed = true;
-                            Log.Debug("Destroyed");
-                            shareInfo.ShareTask.TrySetResult(true);
-                        };
-                        dataPackage.ShareCompleted += (dp, shareCompletedEventArgs) =>
-                        {
-                            shareInfo.IsShareCompleted = true;
-                            Log.Debug("ShareCompleted");
-                            shareInfo.ShareTask.TrySetResult(true);
-                        };
-                        dataPackage.Properties.Title = captureDetails.Title;
-                        dataPackage.Properties.ApplicationName = "Greenshot";
-                        dataPackage.Properties.Description = "Share a screenshot";
-                        dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
-                        dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
-                        dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
-                        dataPackage.SetStorageItems(new[] {storageFile});
-                        dataPackage.SetBitmap(imageRandomAccessStreamReference);
-                    }
-                    finally
+            dataTransferManagerHelper.DataTransferManager.DataRequested += (dataTransferManager, dataRequestedEventArgs) =>
+            {
+                var deferral = dataRequestedEventArgs.Request.GetDeferral();
+                try
+                {
+                    shareInfo.IsDataRequested = true;
+                    Log.DebugFormat("DataRequested with operation {0}", dataRequestedEventArgs.Request.Data.RequestedOperation);
+                    var dataPackage = dataRequestedEventArgs.Request.Data;
+                    dataPackage.OperationCompleted += (dp, eventArgs) =>
                     {
-                        deferral.Complete();
-                        Log.Debug("Called deferral.Complete()");
-                    }
-                };
-                dataTransferManagerHelper.ShowShareUi();
-                Log.Debug("ShowShareUi finished.");
-                await shareInfo.ShareTask.Task.ConfigureAwait(false);
-            }
+                        Log.DebugFormat("OperationCompleted: {0}, shared with", eventArgs.Operation);
+                        shareInfo.CompletedWithOperation = eventArgs.Operation;
+                        shareInfo.AcceptedFormat = eventArgs.AcceptedFormatId;
+
+                        shareInfo.ShareTask.TrySetResult(true);
+                    };
+                    dataPackage.Destroyed += (dp, o) =>
+                    {
+                        shareInfo.IsDestroyed = true;
+                        Log.Debug("Destroyed");
+                        shareInfo.ShareTask.TrySetResult(true);
+                    };
+                    dataPackage.ShareCompleted += (dp, shareCompletedEventArgs) =>
+                    {
+                        shareInfo.IsShareCompleted = true;
+                        Log.Debug("ShareCompleted");
+                        shareInfo.ShareTask.TrySetResult(true);
+                    };
+                    dataPackage.Properties.Title = captureDetails.Title;
+                    dataPackage.Properties.ApplicationName = "Greenshot";
+                    dataPackage.Properties.Description = "Share a screenshot";
+                    dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
+                    dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
+                    dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
+                    dataPackage.SetStorageItems(new[] { storageFile });
+                    dataPackage.SetBitmap(imageRandomAccessStreamReference);
+                }
+                finally
+                {
+                    deferral.Complete();
+                    Log.Debug("Called deferral.Complete()");
+                }
+            };
+            dataTransferManagerHelper.ShowShareUi();
+            Log.Debug("ShowShareUi finished.");
+            await shareInfo.ShareTask.Task.ConfigureAwait(false);
         }
     }
 }

@@ -72,6 +72,8 @@
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
         xcopy /q /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+        del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-installer*.xml&quot;;&#xD;&#xA;
+        del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-website*.xml&quot;;&#xD;&#xA;
 	)" />
   </Target>
 </Project>

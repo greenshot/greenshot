@@ -27,17 +27,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
-using GreenshotJiraPlugin.Hooking;
+using GreenshotPlugin.Hooking;
 
 namespace GreenshotJiraPlugin
 {
 
-	/// <summary>
-	/// This class will monitor all _jira activity by registering for title changes
-	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
-	/// Make sure this is instanciated on the UI thread!
-	/// </summary>
-	public class JiraMonitor : IDisposable
+    /// <summary>
+    /// This class will monitor all _jira activity by registering for title changes
+    /// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
+    /// Make sure this is instanciated on the UI thread!
+    /// </summary>
+    public class JiraMonitor : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
