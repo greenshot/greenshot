@@ -5,7 +5,7 @@
 		<resource name="about_donations">Если вам нравится Greenshot, вы можете поддержать нас:</resource>
 		<resource name="about_host">Greenshot размещается на GitHub</resource>
 		<resource name="about_icons">Набор иконок Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.Это бесплатная программа и вы можете распространять её на определённых условиях.
 Подробно о GNU General Public License:</resource>
 		<resource name="about_title">О программе Greenshot</resource>
@@ -246,7 +246,7 @@ ${domain} Домен Windows
 ${hostname} Имя ПК
 
 Вы также можете создавать динамичные каталоги Greenshot, используя символ обратную косую черту (\) для отдельных папок и названий файлов.
-Пример шаблона: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
+Пример шаблона: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 Будет создана папка на текущий день, в вашем хранилище по умолчанию, например 2008-06-29.Содержащее имя файла скриншота будет основываться на текущем
 времени, например 11_58_32 (плюс расширения, определённые в настройках)</resource>
 		<resource name="settings_network">Сеть и обновления</resource>

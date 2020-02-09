@@ -5,7 +5,7 @@
 		<resource name="about_donations">如果您喜欢这个软件，希望您可以捐助我们：</resource>
 		<resource name="about_host">Greenshot 托管在 GitHub</resource>
 		<resource name="about_icons">图标来源：Yusuke Kamiyamane的Fugue图标基于(Creative Commons Attribution 3.0 协议)</resource>
-		<resource name="about_license">版权所有 (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">版权所有 (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 作者不会对程序进行任何担保。
 此程序为自由软件，您可以在遵守 GNU 通用公共许可协议下任意传播本软件。
 关于 GNU 通用公共许可协议：</resource>
@@ -15,7 +15,7 @@
 		<resource name="bugreport_info">很抱歉，坏消息是程序出现了错误。
 		好消息是：您可以填写错误报告来帮助我们纠正错误。
 		请点击下面的链接，新建一个错误报告将文字区域的内容粘贴到描述栏中。
-		
+
 		并请填写一些你认为可能帮助描述错误产生时的情况的信息。
 		此外，我们强烈建议您在我们的网站检查一下是否已经有人报告过相同的错误（您可以搜索一下）。非常感谢 :)</resource>
 		<resource name="bugreport_title">错误</resource>

@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 GitHub 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Greenshot 프로그램 소개...</resource>
@@ -287,7 +287,7 @@ ${hostname} PC명
     <resource name="editor_dropshadow_offset">음영 오프셋</resource>
     <resource name="editor_dropshadow_settings">음영 설정</resource>
     <resource name="editor_dropshadow_thickness">음영 두께</resource>
-	
+
     <resource name="editor_tornedge_horizontaltoothrange">수평 범위</resource>
     <resource name="editor_tornedge_settings">경계 자르기 설정</resource>
     <resource name="editor_tornedge_toothsize">자르기 크기</resource>
@@ -298,16 +298,16 @@ ${hostname} PC명
     <resource name="editor_tornedge_top">상단</resource>
     <resource name="editor_tornedge_bottom">하단</resource>
     <resource name="editor_tornedge_shadow">음영 넣기</resource>
-	
+
     <resource name="editor_counter">카운터 더하기 (I)</resource>
     <resource name="editor_speechbubble">설명선 더하기(S)</resource>
-	
+
     <resource name="editor_resize">크기조정</resource>
     <resource name="editor_resize_settings">크기조정 설정</resource>
     <resource name="editor_resize_aspectratio">종횡비 유지</resource>
     <resource name="editor_resize_width">너비</resource>
     <resource name="editor_resize_height">높이</resource>
 	<resource name="settings_iconsize">아이콘 크기</resource>
-    
+
   </resources>
 </language>

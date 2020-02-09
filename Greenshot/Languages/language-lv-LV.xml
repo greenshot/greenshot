@@ -6,7 +6,7 @@
 		<resource name="about_donations">Ja Tev patīk „Greenshot”, Tu vari mūs atbalstīt:</resource>
 		<resource name="about_host">„Greenshot” atrodams GitHub adresē</resource>
 		<resource name="about_icons">Ikonas veidojis Yusuke Kamiyamane's Fugue (Radošās kopienas Atsaucoties 3.0 licence)</resource>
-		<resource name="about_license">Autortiesības (C): 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Autortiesības (C): 2007-20120 Thomas Braun, Jens Klingen, Robin Krom
 Ņemot vērā, ka „Greenshot” tiek licencēta bez maksas, šai programmai NAV NEKĀDU GARANTIJU. Tu vari to izplatīt un lietot ievērojot GNU Vispārīgo Publisko licenci:</resource>
 		<resource name="about_title">Par „Greenshot”</resource>
 		<resource name="application_title">„Greenshot” - mūsdienīga ekrānattēla ieguves programmatūra</resource>
@@ -300,7 +300,7 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_tornedge_top">Augšpuse</resource>
     <resource name="editor_tornedge_bottom">Apakšpuse</resource>
     <resource name="editor_tornedge_shadow">Veidot ēnu</resource>
-    
+
     <resource name="editor_counter">Pievienot skaitli (I)</resource>
     <resource name="editor_speechbubble">Pievienot teksta norādi (S)</resource>
 
@@ -310,6 +310,6 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_resize_width">Platums</resource>
     <resource name="editor_resize_height">Augstums</resource>
 	<resource name="settings_iconsize">Ikonas izmērs</resource>
-    
+
   </resources>
 </language>

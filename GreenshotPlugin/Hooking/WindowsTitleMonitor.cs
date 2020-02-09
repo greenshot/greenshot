@@ -1,9 +1,9 @@
 ﻿/*
- * dapplo - building blocks for desktop applications
- * Copyright (C) Dapplo 2015-2016
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://dapplo.net/
- * dapplo repositories are hosted on GitHub: https://github.com/dapplo
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;

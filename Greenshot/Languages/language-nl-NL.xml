@@ -5,7 +5,7 @@
 		<resource name="about_donations">Als Greenshot u bevalt, wilt u ons wellicht ondersteunen:</resource>
 		<resource name="about_host">Greenshot wordt uitgegeven door sourceforge.net op</resource>
 		<resource name="about_icons">Iconen afkomstig van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot komt zonder enige garantie! Dit is gratis software en het staat u vrij het onder bepaalde voorwaarden te verspreiden.
 Details over de GNU General Public License:</resource>
 		<resource name="about_title">Over Greenshot</resource>
@@ -301,7 +301,7 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_tornedge_top">Bovenkant</resource>
 		<resource name="editor_tornedge_bottom">Onderkant</resource>
 		<resource name="editor_tornedge_shadow">Schaduw</resource>
-		
+
 		<resource name="editor_counter">Teller toevoegen (I)</resource>
 		<resource name="editor_speechbubble">Tekstballon toevoegen (S)</resource>
 
@@ -311,6 +311,6 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_resize_width">Breedte</resource>
 		<resource name="editor_resize_height">Hoogte</resource>
 		<resource name="settings_iconsize">Pictogramgrootte</resource>
-		
+
 	</resources>
 </language>
