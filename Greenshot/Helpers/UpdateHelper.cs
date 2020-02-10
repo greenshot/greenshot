@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -78,8 +78,13 @@ namespace Greenshot.Experimental {
 				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 				// Test like this:
 				// currentVersion = new Version("0.8.1.1198");
-	
-				try {
+
+				// Make sure we update the LastUpdateCheck, in case an error occurs we should not retry every 5 minutes
+				// This actually prevents an update check, but rather one to less than many to many
+				CoreConfig.LastUpdateCheck = DateTime.Now;
+
+				try
+				{
 					_latestGreenshot = null;
 					ProcessRssInfo(currentVersion);
 					if (_latestGreenshot != null) {
@@ -87,7 +92,6 @@ namespace Greenshot.Experimental {
 						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
 						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
 					}
-					CoreConfig.LastUpdateCheck = DateTime.Now;
 				} catch (Exception e) {
 					Log.Error("An error occured while checking for updates, the error will be ignored: ", e);
 				}
@@ -98,7 +102,7 @@ namespace Greenshot.Experimental {
 			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
 			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
 		}
-		
+
 		private static void HandleBalloonTipClick(object sender, EventArgs e) {
 			try {
 				if (_latestGreenshot != null) {
