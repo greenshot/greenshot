@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -56,7 +56,7 @@ namespace GreenshotJiraPlugin {
 			{
 				if (args.PropertyName == nameof(CoreConfig.IconSize))
 				{
-					JiraPlugin.Instance.JiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
+					JiraPlugin.Instance.JiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.ScaledIconSize.Width, Height = CoreConfig.ScaledIconSize.Height });
 				}
 			};
 
@@ -99,7 +99,7 @@ namespace GreenshotJiraPlugin {
 				return false;
 			}
 			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
-			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
+			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.ScaledIconSize.Width, Height = CoreConfig.ScaledIconSize.Height });
             _jiraClient.SetBasicAuthentication(user, password);
 
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
@@ -127,7 +127,7 @@ namespace GreenshotJiraPlugin {
 			}
 			return true;
 		}
-		
+
 		/// <summary>
 		/// Use the credentials dialog, this will show if there are not correct credentials.
 		/// If there are credentials, call the real login.
@@ -189,7 +189,7 @@ namespace GreenshotJiraPlugin {
 		}
 
 		/// <summary>
-		/// Get the favorite filters 
+		/// Get the favorite filters
 		/// </summary>
 		/// <returns>List with filters</returns>
 		public async Task<IList<Filter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default)

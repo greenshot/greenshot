@@ -549,7 +549,7 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "IconSize") {
-				contextMenu.ImageScalingSize = coreConfiguration.IconSize;
+				contextMenu.ImageScalingSize = coreConfiguration.ScaledIconSize;
 				string ieExePath = PluginUtils.GetExePath("iexplore.exe");
 				if (!string.IsNullOrEmpty(ieExePath)) {
 					contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
@@ -614,7 +614,7 @@ namespace Greenshot {
 		/// <returns>true if onedrive has hotkeys turned on</returns>
 		private static bool IsOneDriveBlockingHotkey()
 		{
-			if (!Environment.OSVersion.IsWindows10())
+			if (!WindowsVersion.IsWindows10OrLater)
 			{
 				return false;
 			}

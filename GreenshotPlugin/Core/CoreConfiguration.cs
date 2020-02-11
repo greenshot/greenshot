@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,7 +45,7 @@ namespace GreenshotPlugin.Core {
 		RELEASE_CANDIDATE,
 		RELEASE
 	}
-	
+
 	public enum ClickActions {
 		DO_NOTHING,
 		OPEN_LAST_IN_EXPLORER,
@@ -104,7 +104,7 @@ namespace GreenshotPlugin.Core {
 		public bool PlayCameraSound { get; set; } = false;
 		[IniProperty("ShowTrayNotification", LanguageKey="settings_shownotify",Description="Show a notification from the systray when a capture is taken.", DefaultValue="true")]
 		public bool ShowTrayNotification { get; set; } = true;
-		
+
 		[IniProperty("OutputFilePath", Description="Output file path.")]
 		public string OutputFilePath { get; set; }
 		[IniProperty("OutputFileAllowOverwrite", Description = "If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.", DefaultValue = "true")]
@@ -267,7 +267,7 @@ namespace GreenshotPlugin.Core {
 		public Size Win10BorderCrop { get; set; }
 
 		private Size _iconSize;
-		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
+		[IniProperty("BaseIconSize", Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI", DefaultValue = "16,16")]
 		public Size IconSize {
 			get {
 				return _iconSize;
@@ -294,6 +294,8 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
+
+		public Size ScaledIconSize => DpiHelper.ScaleWithCurrentDpi(_iconSize);
 
 		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestTimeout { get; set; }
@@ -371,7 +373,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// This method will be called before converting the property, making to possible to correct a certain value
 		/// Can be used when migration is needed
@@ -494,7 +496,7 @@ namespace GreenshotPlugin.Core {
 					NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
 				}
 			}
-				
+
 			if (AutoCropDifference < 0) {
 				AutoCropDifference = 0;
 			}

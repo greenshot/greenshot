@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -145,7 +145,7 @@ namespace GreenshotPlugin.Core {
 		private static readonly IList<IntPtr> IgnoreHandles = new List<IntPtr>();
 		private static readonly IList<string> ExcludeProcessesFromFreeze = new List<string>();
 		private static readonly IAppVisibility AppVisibility;
-		
+
 		static WindowDetails() {
 			try
 			{
@@ -212,7 +212,7 @@ namespace GreenshotPlugin.Core {
 		public override int GetHashCode() {
 			return Handle.ToInt32();
 		}
-		
+
 		public override bool Equals(object right) {
 			return Equals(right as WindowDetails);
 		}
@@ -226,11 +226,11 @@ namespace GreenshotPlugin.Core {
 			if (other is null) {
 				return false;
 			}
-			
+
 			if (ReferenceEquals(this, other)) {
 				return true;
 			}
-			
+
 			if (GetType() != other.GetType()){
 				return false;
 			}
@@ -377,7 +377,7 @@ namespace GreenshotPlugin.Core {
 		private static IEnumerable<WindowDetails> FindWindow(IList<WindowDetails> windows, string titlePattern, string classnamePattern) {
 			Regex titleRegexp = null;
 			Regex classnameRegexp = null;
-			
+
 			if (titlePattern != null && titlePattern.Trim().Length > 0) {
 				titleRegexp = new Regex(titlePattern);
 			}
@@ -393,7 +393,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Retrieve the child with matching classname
 		/// </summary>
@@ -486,7 +486,7 @@ namespace GreenshotPlugin.Core {
 		public IEnumerable<WindowDetails> FindChildren(string titlePattern, string classnamePattern) {
 			return FindWindow(Children, titlePattern, classnamePattern);
 		}
-		
+
 		/// <summary>
 		/// Recursing helper method for the FindPath
 		/// </summary>
@@ -620,7 +620,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-			
+
 		/// <summary>
 		/// Gets/Sets whether the window is maximised or not.
 		/// </summary>
@@ -650,14 +650,14 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// This doesn't work as good as is should, but does move the App out of the way...
 		/// </summary>
 		public void HideApp() {
 			User32.ShowWindow(Handle, ShowWindowCommand.Hide);
 		}
-		
+
 		/// <summary>
 		/// Gets whether the window is visible.
 		/// </summary>
@@ -697,7 +697,7 @@ namespace GreenshotPlugin.Core {
 				return User32.IsWindowVisible(Handle);
 			}
 		}
-		
+
 		public bool HasParent {
 			get {
 				GetParent();
@@ -757,7 +757,7 @@ namespace GreenshotPlugin.Core {
 									_lastWindowRectangleRetrieveTime = now;
 								}
 							}
-							if (gotFrameBounds && Environment.OSVersion.IsWindows10() && !Maximised)
+							if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
 							{
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
 								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
@@ -775,7 +775,7 @@ namespace GreenshotPlugin.Core {
 								Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
 							}
 						}
-	
+
 						// Correction for maximized windows, only if it's not an app
 						if (!HasParent && !IsApp && Maximised) {
                             // Only if the border size can be retrieved
@@ -816,7 +816,7 @@ namespace GreenshotPlugin.Core {
 				return new Size(tmpRectangle.Right - tmpRectangle.Left, tmpRectangle.Bottom - tmpRectangle.Top);
 			}
 		}
-		
+
 		/// <summary>
 		/// Get the client rectangle, this is the part of the window inside the borders (drawable area)
 		/// </summary>
@@ -841,7 +841,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Restores and Brings the window to the front, 
+		/// Restores and Brings the window to the front,
 		/// assuming it is a visible application window.
 		/// </summary>
 		public void Restore() {
@@ -969,7 +969,7 @@ namespace GreenshotPlugin.Core {
                     } else {
                         doesCaptureFit = true;
                     }
-                } else if (!Environment.OSVersion.IsWindows8OrLater()) {
+                } else if (!WindowsVersion.IsWindows8OrLater) {
 					//GetClientRect(out windowRectangle);
 					GetBorderSize(out borderSize);
 					formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
@@ -986,7 +986,7 @@ namespace GreenshotPlugin.Core {
 					captureRectangle.Inflate(borderSize.Width, borderSize.Height);
 				} else {
 					// TODO: Also 8.x?
-					if (Environment.OSVersion.IsWindows10())
+					if (WindowsVersion.IsWindows10OrLater)
 					{
 						captureRectangle.Inflate(Conf.Win10BorderCrop);
 					}
@@ -1017,7 +1017,7 @@ namespace GreenshotPlugin.Core {
 
 				// Intersect with screen
 				captureRectangle.Intersect(capture.ScreenBounds);
-				
+
 				// Destination bitmap for the capture
 				Bitmap capturedBitmap = null;
 				bool frozen = false;
@@ -1064,7 +1064,7 @@ namespace GreenshotPlugin.Core {
 							Color colorizationColor = DWM.ColorizationColor;
 							// Modify by losing the transparency and increasing the intensity (as if the background color is white)
 							colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
-							tempForm.BackColor = colorizationColor; 
+							tempForm.BackColor = colorizationColor;
 						}
 						// Make sure everything is visible
 						tempForm.Refresh();
@@ -1079,7 +1079,7 @@ namespace GreenshotPlugin.Core {
 					}
 					if (capturedBitmap != null) {
 						// Not needed for Windows 8
-						if (!Environment.OSVersion.IsWindows8OrLater()) {
+						if (!WindowsVersion.IsWindows8OrLater) {
 							// Only if the Inivalue is set, not maximized and it's not a tool window.
 							if (Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0) {
 								// Remove corners
@@ -1099,7 +1099,7 @@ namespace GreenshotPlugin.Core {
 						UnfreezeWindow();
 					}
 				}
-				
+
 				capture.Image = capturedBitmap;
 				// Make sure the capture location is the location of the window, not the copy
 				capture.Location = Location;
@@ -1181,7 +1181,7 @@ namespace GreenshotPlugin.Core {
             }
             return targetBuffer.UnlockAndReturnBitmap();
         }
-		
+
 		/// <summary>
 		/// Helper method to get the window size for DWM Windows
 		/// </summary>
@@ -1201,7 +1201,7 @@ namespace GreenshotPlugin.Core {
 		/// Helper method to get the window size for GDI Windows
 		/// </summary>
 		/// <param name="rectangle">out Rectangle</param>
-		/// <returns>bool true if it worked</returns>		
+		/// <returns>bool true if it worked</returns>
 		private bool GetClientRect(out Rectangle rectangle) {
 			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
@@ -1209,12 +1209,12 @@ namespace GreenshotPlugin.Core {
 			rectangle = result ? windowInfo.rcClient.ToRectangle() : Rectangle.Empty;
 			return result;
 		}
-		
+
 		/// <summary>
 		/// Helper method to get the window size for GDI Windows
 		/// </summary>
 		/// <param name="rectangle">out Rectangle</param>
-		/// <returns>bool true if it worked</returns>		
+		/// <returns>bool true if it worked</returns>
 		private bool GetWindowRect(out Rectangle rectangle) {
 			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
@@ -1227,7 +1227,7 @@ namespace GreenshotPlugin.Core {
 		/// Helper method to get the Border size for GDI Windows
 		/// </summary>
 		/// <param name="size">out Size</param>
-		/// <returns>bool true if it worked</returns>	
+		/// <returns>bool true if it worked</returns>
 		private bool GetBorderSize(out Size size) {
 			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
@@ -1280,7 +1280,7 @@ namespace GreenshotPlugin.Core {
 		public void ToForeground(bool workaround = true) {
 			ToForeground(Handle, workaround);
 		}
-		
+
 		/// <summary>
 		/// Get the region for a window
 		/// </summary>
@@ -1295,7 +1295,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
-		
+
 		private bool CanFreezeOrUnfreeze(string titleOrProcessname) {
 			if (string.IsNullOrEmpty(titleOrProcessname)) {
 				return false;
@@ -1397,13 +1397,13 @@ namespace GreenshotPlugin.Core {
                         exceptionOccured = User32.CreateWin32Exception("PrintWindow");
                     }
                 }
-	
+
                 // Apply the region "transparency"
                 if (region != null && !region.IsEmpty(graphics)) {
                     graphics.ExcludeClip(region);
                     graphics.Clear(Color.Transparent);
                 }
-	
+
                 graphics.Flush();
             }
 
@@ -1421,7 +1421,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return returnImage;
 		}
-	
+
 		/// <summary>
 		///  Constructs a new instance of this class for
 		///  the specified Window Handle.
@@ -1430,7 +1430,7 @@ namespace GreenshotPlugin.Core {
 		public WindowDetails(IntPtr hWnd) {
 			Handle = hWnd;
 		}
-		
+
 		/// <summary>
 		/// Gets an instance of the current active foreground window
 		/// </summary>
@@ -1451,7 +1451,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Check if this window is Greenshot
 		/// </summary>
@@ -1469,7 +1469,7 @@ namespace GreenshotPlugin.Core {
 				return false;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the Desktop window
 		/// </summary>
@@ -1477,7 +1477,7 @@ namespace GreenshotPlugin.Core {
 		public static WindowDetails GetDesktopWindow() {
 			return new WindowDetails(User32.GetDesktopWindow());
 		}
-		
+
 		/// <summary>
 		/// Get all the top level windows
 		/// </summary>
@@ -1715,7 +1715,7 @@ namespace GreenshotPlugin.Core {
 				if (window.Iconic) {
 					continue;
 				}
-				
+
 				// Windows without size
 				Size windowSize = window.WindowRectangle.Size;
 				if (windowSize.Width == 0 ||  windowSize.Height == 0) {
@@ -1744,7 +1744,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Get the AppLauncher
 		/// </summary>
@@ -1760,7 +1760,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Return true if the metro-app-launcher is visible
 		/// </summary>

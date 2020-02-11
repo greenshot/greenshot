@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Core {
 	public abstract class AbstractDestination : IDestination {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AbstractDestination));
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		
+
 		public virtual int CompareTo(object obj) {
             if (!(obj is IDestination other)) {
 				return 1;
@@ -150,7 +150,7 @@ namespace GreenshotPlugin.Core {
 			ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
 			var menu = new ContextMenuStrip
 			{
-				ImageScalingSize = CoreConfig.IconSize,
+				ImageScalingSize = CoreConfig.ScaledIconSize,
 				Tag = null,
 				TopLevel = true
 			};
@@ -292,7 +292,7 @@ namespace GreenshotPlugin.Core {
 			};
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
-			basisMenuItem.Click += destinationClickHandler;		
+			basisMenuItem.Click += destinationClickHandler;
 
 			if (IsDynamic && addDynamics) {
 				basisMenuItem.DropDownOpening += delegate
@@ -330,6 +330,6 @@ namespace GreenshotPlugin.Core {
 
 			return basisMenuItem;
 		}
-		
+
 	}
 }

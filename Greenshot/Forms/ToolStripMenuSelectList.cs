@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,9 +50,9 @@ namespace Greenshot.Forms {
 			Identifier = identifier;
 			CheckOnClick = false;
 			_multiCheckAllowed = allowMultiCheck;
-			if (_defaultImage == null || _defaultImage.Size != CoreConfig.IconSize) {
+			if (_defaultImage == null || _defaultImage.Size != CoreConfig.ScaledIconSize) {
 				_defaultImage?.Dispose();
-				_defaultImage = ImageHelper.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				_defaultImage = ImageHelper.CreateEmpty(CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
 			Image = _defaultImage;
 		}
@@ -63,7 +63,7 @@ namespace Greenshot.Forms {
 		/// gets or sets the currently checked item
 		/// </summary>
 		public ToolStripMenuSelectListItem CheckedItem {
-			
+
 			get {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext()) {
@@ -86,7 +86,7 @@ namespace Greenshot.Forms {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// gets or sets the currently checked items
 		/// </summary>
@@ -126,7 +126,7 @@ namespace Greenshot.Forms {
 				}
 			}
 		}
-		
+
 		private void ItemCheckStateChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
@@ -140,7 +140,7 @@ namespace Greenshot.Forms {
 			_updateInProgress = false;
 			CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -171,7 +171,7 @@ namespace Greenshot.Forms {
 			}
 			DropDownItems.Add(toolStripMenuSelectListItem);
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -180,7 +180,7 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, Image image) {
 			AddItem(label, image, null, false);
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -189,7 +189,7 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, object data) {
 			AddItem(label, null, data, false);
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -197,8 +197,8 @@ namespace Greenshot.Forms {
 		public void AddItem(string label) {
 			AddItem(label, null, null, false);
 		}
-		
-			
+
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -208,7 +208,7 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, Image image, bool isChecked) {
 			AddItem(label, image, null, isChecked);
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -218,7 +218,7 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, object data, bool isChecked) {
 			AddItem(label, null, data, isChecked);
 		}
-		
+
 		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
@@ -227,7 +227,7 @@ namespace Greenshot.Forms {
 		public void AddItem(string label, bool isChecked) {
 			AddItem(label, null, null, isChecked);
 		}
-		
+
 		/// <summary>
 		/// unchecks all items of the list
 		/// </summary>
@@ -243,7 +243,7 @@ namespace Greenshot.Forms {
 			}
 		}
 	}
-	
+
 	/// <summary>
 	/// Event class for the CheckedChanged event in the ToolStripMenuSelectList
 	/// </summary>
@@ -256,7 +256,7 @@ namespace Greenshot.Forms {
 			Item = item;
 		}
 	}
-	
+
 	/// <summary>
 	/// Wrapper around the ToolStripMenuItem, which can contain an object
 	/// Also the Checked property hides the normal checked property so we can render our own check

@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,6 +30,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Security;
 using System.Security.Permissions;
 using log4net;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
@@ -53,7 +54,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		public const int PW_DEFAULT = 0x00;
 		public const int PW_CLIENTONLY = 0x01;
-		
+
 		// For MonitorFromWindow
 		public const int MONITOR_DEFAULTTONULL = 0;
 		public const int MONITOR_DEFAULTTOPRIMARY = 1;
@@ -62,6 +63,19 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
         [DllImport("user32", SetLastError = true)]
 		public static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+
+		/// <summary>
+		/// Determines whether the specified window handle identifies an existing window.
+		/// </summary>
+		/// <param name="hWnd">A handle to the window to be tested.</param>
+		/// <returns>
+		/// If the window handle identifies an existing window, the return value is true.
+		/// If the window handle does not identify an existing window, the return value is false.
+		/// </returns>
+		[DllImport("user32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool IsWindow(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool IsWindowVisible(IntPtr hWnd);
@@ -125,7 +139,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true, EntryPoint = "SetWindowLongPtr")]
 		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
 		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorFrom dwFlags);
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromRect([In] ref RECT lprc, uint dwFlags);
 		[DllImport("user32", SetLastError = true)]
@@ -224,8 +238,18 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool CloseDesktop(IntPtr hDesktop);
 
+		/// <summary>
+		/// The GetWindowDC function retrieves the device context (DC) for the entire window, including title bar, menus, and scroll bars. A window device context permits painting anywhere in a window, because the origin of the device context is the upper-left corner of the window instead of the client area.
+		/// GetWindowDC assigns default attributes to the window device context each time it retrieves the device context.Previous attributes are lost.
+		/// See <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowdc">GetWindowDC function</a>
+		/// </summary>
+		/// <param name="hWnd">A handle to the window whose DC is to be retrieved. If this value is NULL, GetWindowDC retrieves the DC for the entire screen.</param>
+		/// <returns>If the function succeeds, the return value is a handle to a device context for the specified window.</returns>
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr GetWindowDC(IntPtr hWnd);
 
-        /// <summary>
+
+		/// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
 		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup
@@ -405,6 +429,21 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		protected override bool ReleaseHandle() {
 			bool returnValue = ReleaseDC(_hWnd, handle);
 			return returnValue;
+		}
+
+		/// <summary>
+		/// Creates a DC as SafeWindowDcHandle for the whole of the specified hWnd
+		/// </summary>
+		/// <param name="hWnd">IntPtr</param>
+		/// <returns>SafeWindowDcHandle</returns>
+		public static SafeWindowDcHandle FromWindow(IntPtr hWnd)
+		{
+			if (hWnd == IntPtr.Zero)
+			{
+				return null;
+			}
+			var hDcDesktop = GetWindowDC(hWnd);
+			return new SafeWindowDcHandle(hWnd, hDcDesktop);
 		}
 
 		public static SafeWindowDcHandle FromDesktop() {

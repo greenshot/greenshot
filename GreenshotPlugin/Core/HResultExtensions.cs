@@ -17,10 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using GreenshotPlugin.Core.Enums;
 using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 
-namespace GreenshotWin10Plugin.Native
+namespace GreenshotPlugin.Core
 {
     /// <summary>
     ///     Extensions to handle the HResult
@@ -55,7 +56,7 @@ namespace GreenshotWin10Plugin.Native
         /// <param name="hResult">HResult</param>
         public static void ThrowOnFailure(this HResult hResult)
         {
-            if (Failed(hResult))
+            if (hResult.Failed())
             {
                 throw Marshal.GetExceptionForHR((int)hResult);
             }

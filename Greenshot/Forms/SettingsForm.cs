@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,7 +50,7 @@ namespace Greenshot {
 
 		public SettingsForm() {
 			InitializeComponent();
-			
+
 			// Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
 		}
@@ -154,8 +154,8 @@ namespace Greenshot {
 			}
 			comboBox.SelectedItem = Language.Translate(selectedValue);
 		}
-		
-		
+
+
 		/// <summary>
 		/// Get the selected enum value from the combobox, uses generics
 		/// </summary>
@@ -175,7 +175,7 @@ namespace Greenshot {
 			}
 			return returnValue;
 		}
-		
+
 		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
 			WindowCaptureMode[] availableModes;
 			if (!DWM.IsDwmEnabled()) {
@@ -189,7 +189,7 @@ namespace Greenshot {
 			}
 			PopulateComboBox(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
 		}
-		
+
 		private void DisplayPluginTab() {
 			if (!PluginHelper.Instance.HasPlugins()) {
 				tabcontrol.TabPages.Remove(tab_plugins);
@@ -199,9 +199,9 @@ namespace Greenshot {
 				listview_plugins.Items.Clear();
 				listview_plugins.Columns.Clear();
 				string[] columns = {
-					Language.GetString("settings_plugins_name"), 
-					Language.GetString("settings_plugins_version"), 
-					Language.GetString("settings_plugins_createdby"), 
+					Language.GetString("settings_plugins_name"),
+					Language.GetString("settings_plugins_version"),
+					Language.GetString("settings_plugins_createdby"),
 					Language.GetString("settings_plugins_dllpath")};
 				foreach (string column in columns) {
 					listview_plugins.Columns.Add(column);
@@ -218,7 +218,7 @@ namespace Greenshot {
 				}
 				listview_plugins.EndUpdate();
 				listview_plugins.Refresh();
-				
+
 				// Disable the configure button, it will be enabled when a plugin is selected AND isConfigurable
 				button_pluginconfigure.Enabled = false;
 			}
@@ -254,7 +254,7 @@ namespace Greenshot {
 			UpdateDestinationDescriptions();
 			UpdateClipboardFormatDescriptions();
 		}
-		
+
 		// Check the settings and somehow visibly mark when something is incorrect
 		private bool CheckSettings() {
 			return CheckFilenamePattern() && CheckStorageLocationPath();
@@ -273,21 +273,21 @@ namespace Greenshot {
 			}
 
 			DisplayTextBoxValidity(textbox_screenshotname, settingsOk);
-			
+
 			return settingsOk;
 		}
 
 		private bool CheckStorageLocationPath() {
-			bool settingsOk = Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)); 
+			bool settingsOk = Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false));
 			DisplayTextBoxValidity(textbox_storagelocation, settingsOk);
 			return settingsOk;
 		}
 
 		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid) {
-			if (valid) { 
+			if (valid) {
 				// "Added" feature #3547158
 				textbox.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
-			} else { 
+			} else {
 				textbox.BackColor = Color.Red;
 			}
 		}
@@ -334,6 +334,7 @@ namespace Greenshot {
 			listview_destinations.Items.Clear();
 			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
 			ImageList imageList = new ImageList();
+			imageList.ImageSize = coreConfiguration.ScaledIconSize;
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
 			foreach (IDestination currentDestination in DestinationHelper.GetAllDestinations()) {
@@ -376,7 +377,7 @@ namespace Greenshot {
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
 			}
-			
+
 			if (Language.CurrentLanguage != null) {
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
@@ -419,10 +420,10 @@ namespace Greenshot {
 					checkbox_autostartshortcut.Checked = StartupHelper.HasRunUser();
 				}
 			}
-			
+
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width /16 * 16;
+			numericUpdownIconSize.Value = coreConfiguration.ScaledIconSize.Width /16 * 16;
 			CheckDestinationSettings();
 		}
 
@@ -570,7 +571,7 @@ namespace Greenshot {
 			}
 			colorButton_window_background.Visible = false;
 		}
-		
+
 		/// <summary>
 		/// Check the destination settings
 		/// </summary>
@@ -582,7 +583,7 @@ namespace Greenshot {
 				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
 			}
 			listview_destinations.Enabled = destinationsEnabled;
-			
+
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
                 if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {

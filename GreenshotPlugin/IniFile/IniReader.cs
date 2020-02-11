@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,12 +25,12 @@ using System.Text;
 
 namespace Greenshot.IniFile {
 	/// <summary>
-	/// 
+	/// The IniReader does exactly what it says, it reads the .ini file
 	/// </summary>
 	public static class IniReader {
-		private const string SectionStart = "[";
-		private const string SectionEnd = "]";
-		private const string Comment = ";";
+		private const char SectionStartToken = '[';
+		private const char SectionEndToken = ']';
+		private const char CommentToken = ';';
 		private static readonly char[] Assignment = { '=' };
 
 		/// <summary>
@@ -52,11 +52,16 @@ namespace Greenshot.IniFile {
                         continue;
                     }
                     string cleanLine = line.Trim();
-                    if (cleanLine.Length == 0 || cleanLine.StartsWith(Comment)) {
+                    if (cleanLine.Length == 0 || cleanLine[0] == CommentToken) {
                         continue;
                     }
-                    if (cleanLine.StartsWith(SectionStart)) {
-                        string section = line.Replace(SectionStart, string.Empty).Replace(SectionEnd, string.Empty).Trim();
+                    if (cleanLine[0] == SectionStartToken) {
+                        var sectionEndIndex = line.IndexOf(SectionEndToken,1);
+                        if (sectionEndIndex <0)
+                        {
+                            continue;
+                        }
+                        string section = line.Substring(1,sectionEndIndex-1).Trim();
                         if (!ini.TryGetValue(section, out nameValues))
                         {
                             nameValues = new Dictionary<string, string>();

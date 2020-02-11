@@ -17,18 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using GreenshotPlugin.Core.Enums;
 using System;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace GreenshotWin10Plugin.Native
 {
-	/// <summary>
-	/// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.
-	/// This interface allows an app to tie the share context to a specific
-	/// window using a window handle. Useful for Win32 apps.
-	/// </summary>
-	[ComImport, Guid("3A3DCD6C-3EAB-43DC-BCDE-45671CE800C8")]
+    /// <summary>
+    /// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.
+    /// This interface allows an app to tie the share context to a specific
+    /// window using a window handle. Useful for Win32 apps.
+    /// </summary>
+    [ComImport, Guid("3A3DCD6C-3EAB-43DC-BCDE-45671CE800C8")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IDataTransferManagerInterOp
 	{

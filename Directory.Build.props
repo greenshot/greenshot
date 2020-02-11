@@ -16,7 +16,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-	<TargetFramework>net471</TargetFramework>
+    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
   
   <!-- ILLinker and single file settings -->
@@ -25,8 +25,8 @@
   </ItemGroup>
 
   <PropertyGroup Condition="$(MSBuildProjectName) == 'Greenshot'">
-	<IncludeSymbolsInSingleFile>false</IncludeSymbolsInSingleFile>
-	<ShowLinkerSizeComparison>true</ShowLinkerSizeComparison>
+    <IncludeSymbolsInSingleFile>false</IncludeSymbolsInSingleFile>
+    <ShowLinkerSizeComparison>true</ShowLinkerSizeComparison>
   </PropertyGroup>
 	  
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
