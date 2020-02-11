@@ -36,10 +36,7 @@ namespace Greenshot.Drawing {
 	public class FreehandContainer : DrawableContainer {
 		private static readonly float [] PointOffset = {0.5f, 0.25f, 0.75f};
 
-        [NonSerialized]
-        private readonly object _freehandPathLock = new object();
-
-        [NonSerialized]
+		[NonSerialized]
 		private GraphicsPath freehandPath = new GraphicsPath();
 		private Rectangle myBounds = Rectangle.Empty;
 		private Point lastMouse = Point.Empty;
@@ -113,14 +110,11 @@ namespace Greenshot.Drawing {
 		    }
 		    //path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
 		    lastMouse = new Point(mouseX, mouseY);
-		    lock (_freehandPathLock)
-		    {
-		        freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
-		        // Only re-calculate the bounds & redraw when we added something to the path
-		        myBounds = Rectangle.Round(freehandPath.GetBounds());
-		    }
+		    freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
+		    // Only re-calculate the bounds & redraw when we added something to the path
+		    myBounds = Rectangle.Round(freehandPath.GetBounds());
 
-		    Invalidate();
+            Invalidate();
 		    return true;
 		}
 
@@ -139,34 +133,35 @@ namespace Greenshot.Drawing {
 		/// Here we recalculate the freehand path by smoothing out the lines with Beziers.
 		/// </summary>
 		private void RecalculatePath() {
-		    lock (_freehandPathLock)
+		    // Store the previous path, to dispose it later when we are finished
+            var previousFreehandPath = freehandPath;
+		    var newFreehandPath = new GraphicsPath();
+
+		    // Here we can put some cleanup... like losing all the uninteresting  points.
+		    if (capturePoints.Count >= 3)
 		    {
-		        isRecalculated = true;
-		        // Dispose the previous path, if we have one
-		        freehandPath?.Dispose();
-		        freehandPath = new GraphicsPath();
-
-		        // Here we can put some cleanup... like losing all the uninteresting  points.
-		        if (capturePoints.Count >= 3)
+		        int index = 0;
+		        while ((capturePoints.Count - 1) % 3 != 0)
 		        {
-		            int index = 0;
-		            while ((capturePoints.Count - 1) % 3 != 0)
-		            {
-		                // duplicate points, first at 50% than 25% than 75%
-		                capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
-		            }
-		            freehandPath.AddBeziers(capturePoints.ToArray());
+		            // duplicate points, first at 50% than 25% than 75%
+		            capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
 		        }
-		        else if (capturePoints.Count == 2)
-		        {
-		            freehandPath.AddLine(capturePoints[0], capturePoints[1]);
-		        }
+                newFreehandPath.AddBeziers(capturePoints.ToArray());
+		    }
+		    else if (capturePoints.Count == 2)
+		    {
+                newFreehandPath.AddLine(capturePoints[0], capturePoints[1]);
+		    }
 
-		        // Recalculate the bounds
-		        myBounds = Rectangle.Round(freehandPath.GetBounds());
+		    // Recalculate the bounds
+		    myBounds = Rectangle.Round(newFreehandPath.GetBounds());
 
-            }
+			// assign
+            isRecalculated = true;
+            freehandPath = newFreehandPath;
 
+			// dispose previous
+			previousFreehandPath?.Dispose();
 		}
 
 		/// <summary>
@@ -196,14 +191,16 @@ namespace Greenshot.Drawing {
             pen.LineJoin = LineJoin.Round;
             // Move to where we need to draw
             graphics.TranslateTransform(Left, Top);
-            lock (_freehandPathLock)
+            var currentFreehandPath = freehandPath;
+            if (currentFreehandPath != null)
             {
                 if (isRecalculated && Selected && renderMode == RenderMode.EDIT)
                 {
-                    DrawSelectionBorder(graphics, pen, freehandPath);
+                    isRecalculated = false;
+                    DrawSelectionBorder(graphics, pen, currentFreehandPath);
                 }
-                graphics.DrawPath(pen, freehandPath);
-            }
+                graphics.DrawPath(pen, currentFreehandPath);
+			}
 
             // Move back, otherwise everything is shifted
             graphics.TranslateTransform(-Left,-Top);
@@ -262,10 +259,7 @@ namespace Greenshot.Drawing {
 		}
 
 		public override int GetHashCode() {
-		    lock (_freehandPathLock)
-		    {
-		        return freehandPath?.GetHashCode() ?? 0;
-		    }
+		    return freehandPath?.GetHashCode() ?? 0;
 		}
 
 		public override bool ClickableAt(int x, int y) {
@@ -276,10 +270,7 @@ namespace Greenshot.Drawing {
                 {
                     Width = lineThickness + 10
                 };
-                lock (_freehandPathLock)
-                {
-                    returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
-                }
+                returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
             }
 			return returnValue;
 		}
