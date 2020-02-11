@@ -40,10 +40,13 @@
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj" />
     <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
   </ItemGroup>
-  <UsingTask
-    TaskName="SetEnvironmentVariableTask"
-    TaskFactory="CodeTaskFactory"
-    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+
+  <ItemGroup>
+    <None Update="log4net.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <UsingTask TaskName="SetEnvironmentVariableTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
 
     <ParameterGroup>
       <Name ParameterType="System.String" Required="true" />
@@ -73,8 +76,8 @@
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\greenshot\releases\innosetup\setup.iss" />
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <PreBuildEvent>
+    <PostBuildEvent>
       copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net471\log4net.xml"
-    </PreBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
