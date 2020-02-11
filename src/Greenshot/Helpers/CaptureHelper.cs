@@ -351,6 +351,11 @@ namespace Greenshot.Helpers
 
                                 _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
                                 captureTaken = true;
+
+                                // As the screen shot might be on a different monitor we need to correct the mouse location
+                                var correctedCursorLocation = _capture.CursorLocation;
+                                correctedCursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                                _capture.CursorLocation = correctedCursorLocation;
                                 break;
                             }
                             break;
