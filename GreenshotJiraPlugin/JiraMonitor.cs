@@ -111,8 +111,8 @@ namespace GreenshotJiraPlugin
 		/// <summary>
 		/// Add an instance of a JIRA system
 		/// </summary>
-		/// <param name="jiraInstance"></param>
-		/// <param name="token"></param>
+		/// <param name="jiraInstance">IJiraClient</param>
+		/// <param name="token">CancellationToken</param>
 		public async Task AddJiraInstanceAsync(IJiraClient jiraInstance, CancellationToken token = default)
 		{
 			_jiraInstances.Add(jiraInstance);

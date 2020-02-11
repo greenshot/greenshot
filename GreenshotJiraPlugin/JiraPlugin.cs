@@ -142,11 +142,8 @@ namespace GreenshotJiraPlugin {
 
 		public void Shutdown() {
 			Log.Debug("Jira Plugin shutdown.");
-			if (JiraConnector != null)
-			{
-				Task.Run(async () => await JiraConnector.LogoutAsync());
-			}
-		}
+            JiraConnector?.Logout();
+        }
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
@@ -157,9 +154,9 @@ namespace GreenshotJiraPlugin {
 				// check for re-login
 				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
 					if (!url.Equals(_config.Url)) {
+                        JiraConnector.Logout();
 						Task.Run(async () =>
 						{
-							await JiraConnector.LogoutAsync();
 							await JiraConnector.LoginAsync();
 						});
 					}

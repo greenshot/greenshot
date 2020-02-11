@@ -1,4 +1,3 @@
-
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
@@ -45,9 +44,6 @@ namespace GreenshotJiraPlugin {
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		// Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
-		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
-		private bool _loggedIn;
-		private readonly int _timeout;
 		private IJiraClient _jiraClient;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
 
@@ -72,7 +68,7 @@ namespace GreenshotJiraPlugin {
 		public void Dispose() {
 			if (_jiraClient != null)
 			{
-				Task.Run(async () => await LogoutAsync()).Wait();
+                Logout();
 			}
 			FavIcon?.Dispose();
 		}
@@ -83,7 +79,6 @@ namespace GreenshotJiraPlugin {
 		public JiraConnector()
 		{
 			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, "");
-			_timeout = JiraConfig.Timeout;
 		}
 
 		/// <summary>
@@ -96,7 +91,7 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// Internal login which catches the exceptions
 		/// </summary>
-		/// <returns>true if login was done sucessfully</returns>
+		/// <returns>true if login was done successfully</returns>
 		private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken = default)
 		{
 			if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
@@ -105,11 +100,11 @@ namespace GreenshotJiraPlugin {
 			}
 			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
 			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
+            _jiraClient.SetBasicAuthentication(user, password);
 
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
 			try
 			{
-				await _jiraClient.Session.StartAsync(user, password, cancellationToken);
 				Monitor = new JiraMonitor();
 				await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
@@ -124,8 +119,10 @@ namespace GreenshotJiraPlugin {
 					Log.Warn("Exception details: ", ex);
 				}
 			}
-			catch (Exception)
+			catch (Exception ex2)
 			{
+                Log.WarnFormat("Couldn't connect to JIRA {0}", JiraConfig.Url);
+                Log.Warn("Exception details: ", ex2);
 				return false;
 			}
 			return true;
@@ -137,7 +134,7 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <returns>Task</returns>
 		public async Task LoginAsync(CancellationToken cancellationToken = default) {
-			await LogoutAsync(cancellationToken);
+			Logout();
 			try {
 				// Get the system name, so the user knows where to login to
 				var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
@@ -149,8 +146,7 @@ namespace GreenshotJiraPlugin {
 						if (credentialsDialog.SaveChecked) {
 							credentialsDialog.Confirm(true);
 						}
-						_loggedIn = true;
-						_loggedInTime = DateTime.Now;
+						IsLoggedIn = true;
 						return;
 					}
 					// Login failed, confirm this
@@ -175,14 +171,11 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// End the session, if there was one
 		/// </summary>
-		public async Task LogoutAsync(CancellationToken cancellationToken = default) {
-			if (_jiraClient != null && _loggedIn)
-			{
-				Monitor.Dispose();
-				await _jiraClient.Session.EndAsync(cancellationToken);
-				_loggedIn = false;
-			}
-		}
+		public void Logout() {
+            if (_jiraClient == null || !IsLoggedIn) return;
+            Monitor.Dispose();
+            IsLoggedIn = false;
+        }
 
 		/// <summary>
 		/// check the login credentials, to prevent timeouts of the session, or makes a login
@@ -190,18 +183,13 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <returns></returns>
 		private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default) {
-			if (_loggedIn) {
-				if (_loggedInTime.AddMinutes(_timeout-1).CompareTo(DateTime.Now) < 0) {
-					await LogoutAsync(cancellationToken);
-					await LoginAsync(cancellationToken);
-				}
-			} else {
+			if (!IsLoggedIn) {
 				await LoginAsync(cancellationToken);
 			}
 		}
 
 		/// <summary>
-		/// Get the favourite filters 
+		/// Get the favorite filters 
 		/// </summary>
 		/// <returns>List with filters</returns>
 		public async Task<IList<Filter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default)
@@ -287,9 +275,9 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		public Uri JiraBaseUri => _jiraClient.JiraBaseUri;
 
-		/// <summary>
-		/// Is the user "logged in?
-		/// </summary>
-		public bool IsLoggedIn => _loggedIn;
-	}
+        /// <summary>
+        /// Is the user "logged in?
+        /// </summary>
+        public bool IsLoggedIn { get; private set; }
+    }
 }

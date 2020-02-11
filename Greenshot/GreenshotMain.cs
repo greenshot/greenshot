@@ -20,6 +20,7 @@
  */
 using System;
 using System.Globalization;
+using System.Net;
 using System.Reflection;
 
 // Remove AppendPrivatePath warning:
@@ -47,7 +48,11 @@ namespace Greenshot {
 		}
 
 		[STAThread]
-		public static void Main(string[] args) {
+		public static void Main(string[] args)
+		{
+			// Enable TLS 1.2 support
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
 			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 			CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 			MainForm.Start(args);
