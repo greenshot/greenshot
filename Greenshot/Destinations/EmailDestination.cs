@@ -40,7 +40,7 @@ namespace Greenshot.Destinations {
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
 			if (EmailConfigHelper.HasMapi()) {
-				_isActiveFlag = true;
+				_isActiveFlag = false;
 				_mapiClient = EmailConfigHelper.GetMapiClient();
 				if (!string.IsNullOrEmpty(_mapiClient)) {
 					// Active as we have a mapi client, can be disabled later

@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyDescription("A plugin to export images to Office applications")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: Plugin("GreenshotOfficePlugin.OfficePlugin", true)]
+[assembly: Plugin("GreenshotOfficePlugin.OfficePlugin", false)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

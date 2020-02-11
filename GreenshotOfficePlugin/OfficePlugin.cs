@@ -107,7 +107,8 @@ namespace GreenshotOfficePlugin {
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
+            throw new NotImplementedException();
 		}
 	}
 }
