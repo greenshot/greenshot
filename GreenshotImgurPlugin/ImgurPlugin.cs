@@ -129,11 +129,17 @@ namespace GreenshotImgurPlugin {
 		    }
 			try
             {
-				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
-					if (_config.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0) {
-						_historyMenuItem.Enabled = true;
+				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate
+                {
+                    var historyMenuItem = _historyMenuItem;
+					if (historyMenuItem == null)
+                    {
+                        return;
+                    }
+					if (_config?.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0) {
+                        historyMenuItem.Enabled = true;
 					} else {
-						_historyMenuItem.Enabled = false;
+                        historyMenuItem.Enabled = false;
 					}
 				});
 			} catch (Exception ex) {
