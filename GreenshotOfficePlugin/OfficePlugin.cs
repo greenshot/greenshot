@@ -21,12 +21,15 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
 	/// This is the OfficePlugin base code
 	/// </summary>
-	public class OfficePlugin : IGreenshotPlugin {
+    [Plugin("Office", false)]
+    public class OfficePlugin : IGreenshotPlugin
+    {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
 
 		public void Dispose() {
@@ -38,7 +41,7 @@ namespace GreenshotOfficePlugin {
 			// Do nothing
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		private IEnumerable<IDestination> Destinations() {
 			IDestination destination;
 			try {
 				destination = new ExcelDestination();
@@ -86,21 +89,17 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize() {
+            SimpleServiceProvider.Current.AddService(Destinations());
 			return true;
 		}
 		
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Office Plugin shutdown.");
 		}
 

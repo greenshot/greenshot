@@ -597,7 +597,10 @@ namespace Greenshot.Interop {
 							if (destinationName == null) {
 								destinationName = _interceptType.FullName;
 							}
-							DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+
+                            var form = SimpleServiceProvider.Current.GetInstance<Form>();
+
+							DialogResult result = MessageBox.Show(form, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 							if (result == DialogResult.OK) {
 								continue;
 							}

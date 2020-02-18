@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -39,8 +38,6 @@ namespace GreenshotFlickrPlugin
 	public class FlickrPlugin : IGreenshotPlugin {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
 		private static FlickrConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -49,7 +46,7 @@ namespace GreenshotFlickrPlugin
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (!disposing) {
 				return;
 			}
@@ -60,25 +57,10 @@ namespace GreenshotFlickrPlugin
 			_itemPlugInConfig = null;
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			yield return new FlickrDestination(this);
-		}
-
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
-
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute) {
-			_host = pluginHost;
-			Attributes = pluginAttribute;
-
-
+		public bool Initialize() {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<FlickrConfiguration>();
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
@@ -86,12 +68,11 @@ namespace GreenshotFlickrPlugin
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Text = Language.GetString("flickr", LangKey.Configure),
-				Tag = _host,
 				Image = (Image) _resources.GetObject("flickr")
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
-
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+            SimpleServiceProvider.Current.AddService(new FlickrDestination(this));
+			PluginUtils.AddToContextMenu(_itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -102,14 +83,14 @@ namespace GreenshotFlickrPlugin
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			Log.Debug("Flickr Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			_config.ShowConfigDialog();
 		}
 
@@ -122,7 +103,7 @@ namespace GreenshotFlickrPlugin
 			uploadUrl = null;
 			try {
 				string flickrUrl = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait), 
+				new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait), 
 					delegate {
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 						flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);

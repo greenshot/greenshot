@@ -24,7 +24,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using TranslationByMarkupExtension;
 
@@ -42,11 +41,11 @@ namespace GreenshotConfluencePlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			//if (disposing) {}
 		}
 
-		private static void CreateConfluenceConntector() {
+		private static void CreateConfluenceConnector() {
 			if (_confluenceConnector == null) {
 				if (_config.Url.Contains("soap-axis")) {
 					_confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
@@ -65,7 +64,7 @@ namespace GreenshotConfluencePlugin {
 		public static ConfluenceConnector ConfluenceConnector {
 			get {
 				if (_confluenceConnector == null) {
-					CreateConfluenceConntector();
+					CreateConfluenceConnector();
 				}
 				try {
 					if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn) {
@@ -78,22 +77,10 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			if (ConfluenceDestination.IsInitialized) {
-				yield return new ConfluenceDestination();
-			}
-		}
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
-
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize() {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 			if(_config.IsDirty) {
@@ -106,10 +93,14 @@ namespace GreenshotConfluencePlugin {
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
+            if (ConfluenceDestination.IsInitialized)
+            {
+                SimpleServiceProvider.Current.AddService(new ConfluenceDestination());
+            }
 			return true;
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (_confluenceConnector != null) {
 				_confluenceConnector.Logout();
@@ -120,7 +111,7 @@ namespace GreenshotConfluencePlugin {
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			ConfluenceConfiguration clonedConfig = _config.Clone();
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
 			string url = _config.Url;

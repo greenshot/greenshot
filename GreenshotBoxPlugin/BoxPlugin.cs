@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -33,11 +32,10 @@ namespace GreenshotBoxPlugin {
 	/// <summary>
 	/// This is the Box base code
 	/// </summary>
+    [Plugin("Box", true)]
 	public class BoxPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
 		private static BoxConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -46,7 +44,7 @@ namespace GreenshotBoxPlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (disposing) {
 				if (_itemPlugInConfig != null) {
 					_itemPlugInConfig.Dispose();
@@ -55,35 +53,22 @@ namespace GreenshotBoxPlugin {
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			yield return new BoxDestination(this);
-		}
-
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
-
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute) {
-			_host = pluginHost;
-			Attributes = pluginAttribute;
+		public bool Initialize() {
 
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<BoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
-
+            SimpleServiceProvider.Current.AddService(new BoxDestination(this));
 			_itemPlugInConfig = new ToolStripMenuItem {
 				Image = (Image) _resources.GetObject("Box"),
 				Text = Language.GetString("box", LangKey.Configure)
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(_itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -94,14 +79,14 @@ namespace GreenshotBoxPlugin {
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			LOG.Debug("Box Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			_config.ShowConfigDialog();
 		}
 
@@ -119,7 +104,7 @@ namespace GreenshotBoxPlugin {
 				string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("box", LangKey.communication_wait), 
+				new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait), 
 					delegate {
 						url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename);
 					}

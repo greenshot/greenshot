@@ -37,7 +37,7 @@ namespace GreenshotPhotobucketPlugin  {
 		/// </summary>
 		/// <param name="plugin"></param>
 		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath) {
+		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath = null) {
 			_plugin = plugin;
 			_albumPath = albumPath;
 		}

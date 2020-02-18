@@ -52,16 +52,11 @@ namespace GreenshotPlugin.Core {
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int ExifOrientationId = 0x0112;
 
-		/// <summary>
-		/// This is a factory method to create a surface, set from the Greenshot main project
-		/// </summary>
-		public static Func<ISurface> SurfaceFactory { get; set; }
-
-		static ImageHelper()
+        static ImageHelper()
 		{
 			StreamConverters["greenshot"] = (stream, s) =>
 			{
-				var surface = SurfaceFactory();
+				var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
 				return surface.GetImageForExport();
 			};
 

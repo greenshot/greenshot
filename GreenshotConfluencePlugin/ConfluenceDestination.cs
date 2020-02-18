@@ -42,10 +42,6 @@ namespace GreenshotConfluencePlugin {
 		private static readonly Image ConfluenceIcon;
 		private readonly Page _page;
 
-		public static bool IsInitialized {
-			get;
-			private set;
-		}
 		static ConfluenceDestination() {
 			IsInitialized = false;
 			try {
@@ -60,7 +56,13 @@ namespace GreenshotConfluencePlugin {
 				Log.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
 			}
 		}
-		
+
+        public static bool IsInitialized
+        {
+            get;
+            private set;
+        }
+
 		public ConfluenceDestination() {
 		}
 

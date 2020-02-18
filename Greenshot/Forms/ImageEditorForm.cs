@@ -223,19 +223,18 @@ namespace Greenshot {
             using Pen cbBorderPen = new Pen(SystemColors.ActiveBorder);
             // Loop over all items in the propertiesToolStrip
             foreach (ToolStripItem item in propertiesToolStrip.Items) {
-                ToolStripComboBox cb = item as ToolStripComboBox;
+                var cb = item as ToolStripComboBox;
                 // Only ToolStripComboBox that are visible
                 if (cb == null || !cb.Visible) {
                     continue;
                 }
-                // Calculate the rectangle
-                if (cb.ComboBox != null)
-                {
-                    Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+                if (cb.ComboBox == null) continue;
 
-                    // Draw the rectangle
-                    e.Graphics.DrawRectangle(cbBorderPen, r);
-                }
+				// Calculate the rectangle
+                Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+
+                // Draw the rectangle
+                e.Graphics.DrawRectangle(cbBorderPen, r);
             }
         }
 
@@ -705,12 +704,15 @@ namespace Greenshot {
 			HelpFileLoader.LoadHelp();
 		}
 
-		private void AboutToolStripMenuItemClick(object sender, EventArgs e) {
-			MainForm.Instance.ShowAbout();
+		private void AboutToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+            mainForm.ShowAbout();
 		}
 
 		private void PreferencesToolStripMenuItemClick(object sender, EventArgs e) {
-			MainForm.Instance.ShowSetting();
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+            mainForm.ShowSetting();
 		}
 
 		private void BtnSettingsClick(object sender, EventArgs e) {
@@ -1251,7 +1253,8 @@ namespace Greenshot {
 
 		private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
-			MainForm.Instance.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+            mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
 		}
 
 		private void Contextmenu_window_Click(object sender, EventArgs e) {

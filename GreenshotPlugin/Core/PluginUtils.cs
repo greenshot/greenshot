@@ -46,14 +46,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Simple global property to get the Greenshot host
-		/// </summary>
-		public static IGreenshotHost Host {
-			get;
-			set;
-		}
-
-		/// <summary>
 		/// Clear icon cache
 		/// </summary>
 		/// <param name="sender"></param>
@@ -220,11 +212,10 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
-		/// <param name="host">IGreenshotHost</param>
 		/// <param name="item">ToolStripMenuItem</param>
-		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item) {
-			// Here we can hang ourselves to the main context menu!
-			ContextMenuStrip contextMenu = host.MainMenu;
+		public static void AddToContextMenu(ToolStripMenuItem item) {
+            // Here we can hang ourselves to the main context menu!
+            var contextMenu = SimpleServiceProvider.Current.GetInstance<ContextMenuStrip>();
 			bool addedItem = false;
 
 			// Try to find a separator, so we insert ourselves after it 

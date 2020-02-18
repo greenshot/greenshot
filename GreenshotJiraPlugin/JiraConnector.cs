@@ -55,8 +55,9 @@ namespace GreenshotJiraPlugin {
 			CoreConfig.PropertyChanged += (sender, args) =>
 			{
 				if (args.PropertyName == nameof(CoreConfig.IconSize))
-				{
-					JiraPlugin.Instance.JiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.ScaledIconSize.Width, Height = CoreConfig.ScaledIconSize.Height });
+                {
+                    var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+                    jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.ScaledIconSize.Width, Height = CoreConfig.ScaledIconSize.Height });
 				}
 			};
 

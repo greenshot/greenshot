@@ -34,7 +34,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class ResourceMutex : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ResourceMutex));
 		private readonly string _mutexId;
 		private readonly string _resourceName;
 		private Mutex _applicationMutex;
@@ -82,13 +82,13 @@ namespace Greenshot.Helpers
 			{
 				// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
 				var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-				var mutexsecurity = new MutexSecurity();
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+				var mutexSecurity = new MutexSecurity();
+				mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+				mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+				mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
 
                 // 1) Create Mutex
-				_applicationMutex = new Mutex(true, _mutexId, out var createdNew, mutexsecurity);
+				_applicationMutex = new Mutex(true, _mutexId, out var createdNew, mutexSecurity);
 				// 2) if the mutex wasn't created new get the right to it, this returns false if it's already locked
 				if (!createdNew && !_applicationMutex.WaitOne(100, false))
 				{

@@ -18,9 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
@@ -32,79 +33,47 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class DestinationHelper {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
-		private static readonly Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
-		/// Initialize the destinations		
-		static DestinationHelper() {
+		/// <summary>
+		/// Initialize the internal destinations
+		/// </summary>
+		public static void RegisterInternalDestinations() {
 			foreach(Type destinationType in InterfaceUtils.GetSubclassesOf(typeof(IDestination),true)) {
 				// Only take our own
 				if (!"Greenshot.Destinations".Equals(destinationType.Namespace)) {
 					continue;
 				}
-				if (!destinationType.IsAbstract) {
-					IDestination destination;
-					try {
-						destination = (IDestination)Activator.CreateInstance(destinationType);
-					} catch (Exception e) {
-						Log.ErrorFormat("Can't create instance of {0}", destinationType);
-						Log.Error(e);
-						continue;
-					}
-					if (destination.IsActive) {
-						Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
-						RegisterDestination(destination);
-					} else {
-						Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
-					}
-				}
-			}
-		}
 
-		/// <summary>
-		/// Register your destination here, if it doesn't come from a plugin and needs to be available
-		/// </summary>
-		/// <param name="destination"></param>
-		public static void RegisterDestination(IDestination destination) {
-			if (CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation)) {
-				// don't test the key, an exception should happen wenn it's not unique
-				RegisteredDestinations.Add(destination.Designation, destination);
-			}
+                if (destinationType.IsAbstract) continue;
+
+                IDestination destination;
+                try {
+                    destination = (IDestination)Activator.CreateInstance(destinationType);
+                } catch (Exception e) {
+                    Log.ErrorFormat("Can't create instance of {0}", destinationType);
+                    Log.Error(e);
+                    continue;
+                }
+                if (destination.IsActive) {
+                    Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+                    SimpleServiceProvider.Current.AddService(destination);
+                } else {
+                    Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
+                }
+            }
 		}
 
 		/// <summary>
 		/// Method to get all the destinations from the plugins
 		/// </summary>
 		/// <returns>List of IDestination</returns>
-		private static List<IDestination> GetPluginDestinations() {
-			List<IDestination> destinations = new List<IDestination>();
-			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys) {
-				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
-				try {
-					foreach (IDestination destination in plugin.Destinations()) {
-						if (CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation)) {
-							destinations.Add(destination);
-						}
-					}
-				} catch (Exception ex) {
-					Log.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
-					Log.Error(ex);
-				}
-			}
-			destinations.Sort();
-			return destinations;
-		}
-
-		/// <summary>
-		/// Get a list of all destinations, registered or supplied by a plugin
-		/// </summary>
-		/// <returns></returns>
-		public static List<IDestination> GetAllDestinations() {
-			List<IDestination> destinations = new List<IDestination>();
-			destinations.AddRange(RegisteredDestinations.Values);
-			destinations.AddRange(GetPluginDestinations());
-			destinations.Sort();
-			return destinations;
+		public static IEnumerable<IDestination> GetAllDestinations()
+        {
+            return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                .Where(destination => destination.IsActive)
+                .Where(destination => CoreConfig.ExcludeDestinations == null ||
+                                      !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
 		}
 
 		/// <summary>
@@ -116,10 +85,7 @@ namespace Greenshot.Helpers {
 			if (designation == null) {
 				return null;
 			}
-			if (RegisteredDestinations.ContainsKey(designation)) {
-				return RegisteredDestinations[designation];
-			}
-			foreach (IDestination destination in GetPluginDestinations()) {
+			foreach (IDestination destination in GetAllDestinations()) {
 				if (designation.Equals(destination.Designation)) {
 					return destination;
 				}

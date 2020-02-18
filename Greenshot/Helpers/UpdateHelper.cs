@@ -88,9 +88,11 @@ namespace Greenshot.Experimental {
 					_latestGreenshot = null;
 					ProcessRssInfo(currentVersion);
 					if (_latestGreenshot != null) {
-						MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-						MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-						MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
+                        var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+
+                        notifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+                        notifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+                        notifyIcon.ShowBalloonTip(10000, "Greenshot", Language.GetFormattedString(LangKey.update_found, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
 					}
 				} catch (Exception e) {
 					Log.Error("An error occured while checking for updates, the error will be ignored: ", e);
@@ -99,8 +101,9 @@ namespace Greenshot.Experimental {
 		}
 
 		private static void CleanupBalloonTipClick(object sender, EventArgs e) {
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+            notifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+            notifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
 		}
 
 		private static void HandleBalloonTipClick(object sender, EventArgs e) {

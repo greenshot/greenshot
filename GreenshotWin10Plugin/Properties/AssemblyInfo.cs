@@ -7,9 +7,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyDescription("A plug-in for Windows 10 only functionality")]
 
-// The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: Plugin("GreenshotWin10Plugin.Win10Plugin", false)]
-
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.

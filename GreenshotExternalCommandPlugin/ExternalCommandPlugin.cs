@@ -32,12 +32,11 @@ namespace ExternalCommand {
 	/// <summary>
 	/// An Plugin to run commands after an image was written
 	/// </summary>
+    [Plugin("ExternalCommand", true)]
 	public class ExternalCommandPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private IGreenshotHost _host;
-		private PluginAttribute _myAttributes;
 		private ToolStripMenuItem _itemPlugInRoot;
 
 		public void Dispose() {
@@ -45,24 +44,19 @@ namespace ExternalCommand {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInRoot != null) {
-					_itemPlugInRoot.Dispose();
-					_itemPlugInRoot = null;
-				}
-			}
-		}
-
-		public IEnumerable<IDestination> Destinations() {
+		protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            if (_itemPlugInRoot == null) return;
+            _itemPlugInRoot.Dispose();
+            _itemPlugInRoot = null;
+        }
+		private IEnumerable<IDestination> Destinations() {
 			foreach(string command in ExternalCommandConfig.Commands) {
 				yield return new ExternalCommandDestination(command);
 			}
 		}
 
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
 
 		/// <summary>
 		/// Check and eventually fix the command settings
@@ -91,15 +85,14 @@ namespace ExternalCommand {
 				Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
 				return false;
 			}
+            SimpleServiceProvider.Current.AddService(Destinations());
 			return true;
 		}
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			Log.DebugFormat("Initialize called of {0}", myAttributes.Name);
+		public virtual bool Initialize() {
+			Log.DebugFormat("Initialize called");
 
 			List<string> commandsToDelete = new List<string>();
 			// Check configuration
@@ -114,16 +107,12 @@ namespace ExternalCommand {
 				ExternalCommandConfig.Delete(command);
 			}
 
-			_host = pluginHost;
-			_myAttributes = myAttributes;
-
-
-			_itemPlugInRoot = new ToolStripMenuItem {Tag = _host};
+			_itemPlugInRoot = new ToolStripMenuItem();
+            _itemPlugInRoot.Click += ConfigMenuClick;
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
-			_itemPlugInRoot.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
+			PluginUtils.AddToContextMenu(_itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 			CoreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
@@ -154,7 +143,7 @@ namespace ExternalCommand {
 		}
 
 		public virtual void Shutdown() {
-			Log.Debug("Shutdown of " + _myAttributes.Name);
+			Log.Debug("Shutdown");
 		}
 
 		private void ConfigMenuClick(object sender, EventArgs eventArgs) {

@@ -33,11 +33,10 @@ namespace GreenshotImgurPlugin {
 	/// <summary>
 	/// This is the ImgurPlugin code
 	/// </summary>
+    [Plugin("Imgur", true)]
 	public class ImgurPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
 		private static ImgurConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
@@ -60,24 +59,15 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		private IEnumerable<IDestination> Destinations() {
 			yield return new ImgurDestination(this);
-		}
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
 		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			_host = pluginHost;
-			Attributes = myAttributes;
-
+		public bool Initialize() {
 			// Get configuration
 			_config = IniConfig.GetIniSection<ImgurConfiguration>();
 			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
@@ -87,25 +77,21 @@ namespace GreenshotImgurPlugin {
 				Image = (Image) _resources.GetObject("Imgur")
 			};
 
-			_historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history))
-			{
-				Tag = _host
-			};
+            // Provide the IDestination
+            SimpleServiceProvider.Current.AddService(Destinations());
+            _historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
 			_historyMenuItem.Click += delegate {
 				ImgurHistory.ShowHistory();
 			};
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
-			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure))
-			{
-				Tag = _host
-			};
+            _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
 			_itemPlugInConfig.Click += delegate {
 				_config.ShowConfigDialog();
 			};
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
-			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 
 			// Enable history if there are items available
@@ -129,7 +115,8 @@ namespace GreenshotImgurPlugin {
 		    }
 			try
             {
-				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate
+                var form = SimpleServiceProvider.Current.GetInstance<Form>();
+				form.BeginInvoke((MethodInvoker)delegate
                 {
                     var historyMenuItem = _historyMenuItem;
 					if (historyMenuItem == null)

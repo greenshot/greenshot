@@ -29,6 +29,7 @@ namespace GreenshotWin10Plugin
 	/// <summary>
 	/// This is the Win10Plugin
 	/// </summary>
+	[Plugin("Win10", false)]
 	public class Win10Plugin : IGreenshotPlugin
 	{
 		public void Dispose()
@@ -52,7 +53,7 @@ namespace GreenshotWin10Plugin
 		/// yields the windows 10 destinations if Windows 10 is detected
 		/// </summary>
 		/// <returns>IEnumerable with the destinations</returns>
-		public IEnumerable<IDestination> Destinations()
+		private IEnumerable<IDestination> Destinations()
 		{
 			if (!WindowsVersion.IsWindows10OrLater)
 			{
@@ -62,19 +63,13 @@ namespace GreenshotWin10Plugin
 			yield return new Win10ShareDestination();
 		}
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
+            SimpleServiceProvider.Current.AddService(Destinations());
 			return true;
 		}
 

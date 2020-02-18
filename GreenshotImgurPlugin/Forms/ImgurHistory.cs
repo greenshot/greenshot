@@ -146,7 +146,7 @@ namespace GreenshotImgurPlugin {
 					// Should fix Bug #3378699 
 					pictureBox1.Image = pictureBox1.ErrorImage;
 					try {
-						new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
+						new PleaseWaitForm().ShowAndWait("Imgur", Language.GetString("imgur", LangKey.communication_wait), 
 							delegate {
 								ImgurUtils.DeleteImgurImage(imgurInfo);
 							}

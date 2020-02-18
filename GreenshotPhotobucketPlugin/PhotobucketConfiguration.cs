@@ -58,7 +58,7 @@ namespace GreenshotPhotobucketPlugin {
 		public bool ShowConfigDialog() {
 			SettingsForm settingsForm = null;
 
-			new PleaseWaitForm().ShowAndWait(PhotobucketPlugin.Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
+			new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait), 
 				delegate {
 					settingsForm = new SettingsForm();
 				}

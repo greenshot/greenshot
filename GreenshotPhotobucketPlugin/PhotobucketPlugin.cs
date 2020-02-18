@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -33,11 +32,10 @@ namespace GreenshotPhotobucketPlugin {
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
+	[Plugin("Photobucket", true)]
 	public class PhotobucketPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
 		private static PhotobucketConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -46,32 +44,20 @@ namespace GreenshotPhotobucketPlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInConfig != null) {
-					_itemPlugInConfig.Dispose();
-					_itemPlugInConfig = null;
-				}
-			}
-		}
-
-		public IEnumerable<IDestination> Destinations() {
-			yield return new PhotobucketDestination(this, null);
-		}
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
+		protected void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            if (_itemPlugInConfig == null) return;
+            _itemPlugInConfig.Dispose();
+            _itemPlugInConfig = null;
+        }
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			_host = pluginHost;
-			Attributes = myAttributes;
+		public bool Initialize() {
+            SimpleServiceProvider.Current.AddService<IDestination>(new PhotobucketDestination(this));
 
 			// Get configuration
 			_config = IniConfig.GetIniSection<PhotobucketConfiguration>();
@@ -79,14 +65,13 @@ namespace GreenshotPhotobucketPlugin {
 
 			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure))
 			{
-				Tag = _host,
 				Image = (Image)_resources.GetObject("Photobucket")
 			};
 			_itemPlugInConfig.Click += delegate {
 				_config.ShowConfigDialog();
 			};
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(_itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -97,7 +82,7 @@ namespace GreenshotPhotobucketPlugin {
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			Log.Debug("Photobucket Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 		}
@@ -105,7 +90,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			_config.ShowConfigDialog();
 		}
 
@@ -124,7 +109,7 @@ namespace GreenshotPhotobucketPlugin {
 				PhotobucketInfo photobucketInfo = null;
 			
 				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
+				new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait), 
 					delegate {
 						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename);
 					}

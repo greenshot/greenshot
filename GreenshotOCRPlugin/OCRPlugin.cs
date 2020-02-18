@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -31,39 +30,14 @@ using GreenshotPlugin.Effects;
 //using Microsoft.Win32;
 
 namespace GreenshotOCR {
-	// Needed for the drop down, available languages for OCR
-	public enum ModiLanguage {
-		CHINESE_SIMPLIFIED = 2052,
-		CHINESE_TRADITIONAL = 1028,
-		CZECH = 5,
-		DANISH = 6,
-		DUTCH = 19,
-		ENGLISH = 9,
-		FINNISH = 11,
-		FRENCH = 12,
-		GERMAN = 7,
-		GREEK = 8,
-		HUNGARIAN = 14,
-		ITALIAN = 16,
-		JAPANESE = 17,
-		KOREAN = 18,
-		NORWEGIAN = 20,
-		POLISH = 21,
-		PORTUGUESE = 22,
-		RUSSIAN = 25,
-		SPANISH = 10,
-		SWEDISH = 29,
-		TURKISH = 31,
-		SYSDEFAULT = 2048
-	}
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
+    [Plugin("Ocr", true)]
 	public class OcrPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private string _ocrCommand;
-		private static OCRConfiguration config;
-		private PluginAttribute _myAttributes;
+		private static OCRConfiguration _config;
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		public void Dispose() {
@@ -80,24 +54,14 @@ namespace GreenshotOCR {
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			yield return new OCRDestination(this);
-		}
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
-
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes) {
-			Log.Debug("Initialize called of " + myAttributes.Name);
-			_myAttributes = myAttributes;
+		public bool Initialize() {
+			Log.Debug("Initialize called");
 
-			var ocrDirectory = Path.GetDirectoryName(myAttributes.DllFile);
+			var ocrDirectory = Path.GetDirectoryName(GetType().Assembly.Location);
 			if (ocrDirectory == null)
 			{
 				return false;
@@ -108,11 +72,13 @@ namespace GreenshotOCR {
 				Log.Warn("No MODI found!");
 				return false;
 			}
+			// Provide the IDestination
+            SimpleServiceProvider.Current.AddService(new OCRDestination(this));
 			// Load configuration
-			config = IniConfig.GetIniSection<OCRConfiguration>();
+			_config = IniConfig.GetIniSection<OCRConfiguration>();
 			
-			if (config.Language != null) {
-				config.Language = config.Language.Replace("miLANG_","").Replace("_"," ");
+			if (_config.Language != null) {
+				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");
 			}
 			return true;
 		}
@@ -121,18 +87,18 @@ namespace GreenshotOCR {
 		/// Implementation of the IGreenshotPlugin.Shutdown
 		/// </summary>
 		public void Shutdown() {
-			Log.Debug("Shutdown of " + _myAttributes.Name);
+			Log.Debug("Shutdown");
 		}
 		
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
+		public void Configure() {
 			if (!HasModi()) {
 				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
 				return;
 			}
-			SettingsForm settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), config);
+			SettingsForm settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), _config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK) {
 				// "Re"set hotkeys
@@ -177,7 +143,7 @@ namespace GreenshotOCR {
 
 			string text = "";
 			try {
-				ProcessStartInfo processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage)
+				ProcessStartInfo processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + _config.Language + " " + _config.Orientimage + " " + _config.StraightenImage)
 				{
 					CreateNoWindow = true,
 					RedirectStandardOutput = true,

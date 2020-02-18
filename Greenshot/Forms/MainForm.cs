@@ -302,7 +302,6 @@ namespace Greenshot {
 		}
 
 		private static MainForm _instance;
-		public static MainForm Instance => _instance;
 
 		private readonly CopyData _copyData;
 
@@ -315,13 +314,18 @@ namespace Greenshot {
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
 
-		public NotifyIcon NotifyIcon => notifyIcon;
+        public MainForm(CopyDataTransport dataTransport) {
+			// The most important form is this
+			SimpleServiceProvider.Current.AddService<Form>(this);
+			// Also as itself
+            SimpleServiceProvider.Current.AddService(this);
 
-		public MainForm(CopyDataTransport dataTransport) {
 			_instance = this;
 
 			// Factory for surface objects
-			ImageHelper.SurfaceFactory = () => new Surface();
+            ISurface SurfaceFactory() => new Surface();
+
+            SimpleServiceProvider.Current.AddService((Func<ISurface>) SurfaceFactory);
 
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -333,7 +337,12 @@ namespace Greenshot {
 				ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
 				throw;
 			}
+			// Make the main menu available
+            SimpleServiceProvider.Current.AddService(contextMenu);
+
 			notifyIcon.Icon = GreenshotResources.getGreenshotIcon();
+			// Make the notify icon available
+            SimpleServiceProvider.Current.AddService(notifyIcon);
 
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;
@@ -347,9 +356,9 @@ namespace Greenshot {
 			UpdateUi();
 
 			// This forces the registration of all destinations inside Greenshot itself.
-			DestinationHelper.GetAllDestinations();
+			DestinationHelper.RegisterInternalDestinations();
 			// This forces the registration of all processors inside Greenshot itself.
-			ProcessorHelper.GetAllProcessors();
+			ProcessorHelper.RegisterInternalProcessors();
 
 			// Load all the plugins
 			PluginHelper.Instance.LoadPlugins();
@@ -645,7 +654,8 @@ namespace Greenshot {
 			bool success = false;
 			var warningTitle = Language.GetString(LangKey.warning);
 			var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)": "");
-			DialogResult dr = MessageBox.Show(Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+			DialogResult dr = MessageBox.Show(mainForm, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
 			if (dr == DialogResult.Retry) {
 				LOG.DebugFormat("Re-trying to register hotkeys");
 				HotkeyControl.UnregisterHotkeys();

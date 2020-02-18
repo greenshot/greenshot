@@ -19,11 +19,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Core
-{
-	public delegate TResult Func<out TResult>();
-	public delegate TResult Func<in T, out TResult>(T arg);
-	public delegate TResult Func<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
-	public delegate TResult Func<in T1, in T2, in T3, out TResult>(T1 arg1, T2 arg2, T3 arg3);
-	public delegate TResult Func<in T1, in T2, in T3, in T4, out TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+using System;
+
+namespace Greenshot.Plugin {
+	[Serializable]
+	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+	public sealed class PluginAttribute : Attribute, IComparable {
+		public string Name {
+			get;
+			set;
+		}
+
+        public bool Configurable {
+			get;
+			private set;
+		}
+
+		public PluginAttribute(string name, bool configurable)
+        {
+            Name = name;
+			Configurable = configurable;
+		}
+		
+		public int CompareTo(object obj) {
+            if (obj is PluginAttribute other) {
+				return string.Compare(Name, other.Name, StringComparison.Ordinal);
+			}
+			throw new ArgumentException("object is not a PluginAttribute");
+		}
+	}
 }

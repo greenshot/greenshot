@@ -232,9 +232,11 @@ namespace Greenshot.Helpers {
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
-			if (!CoreConfig.HideTrayicon) {
-				MainForm.Instance.NotifyIcon.Visible = false;
-				MainForm.Instance.NotifyIcon.Visible = true;
+			if (!CoreConfig.HideTrayicon)
+            {
+                var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+                notifyIcon.Visible = false;
+                notifyIcon.Visible = true;
 			}
 			Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
 			_capture.CaptureDetails.CaptureMode = _captureMode;
@@ -512,7 +514,8 @@ namespace Greenshot.Helpers {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void OpenCaptureOnClick(object sender, EventArgs e) {
-            if (!(MainForm.Instance.NotifyIcon.Tag is SurfaceMessageEventArgs eventArgs)) {
+            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+			if (!(notifyIcon.Tag is SurfaceMessageEventArgs eventArgs)) {
 				Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
 				RemoveEventHandler(sender, e);
 				return;
@@ -535,9 +538,10 @@ namespace Greenshot.Helpers {
 		}
 
 		private void RemoveEventHandler(object sender, EventArgs e) {
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= RemoveEventHandler;
-			MainForm.Instance.NotifyIcon.Tag = null;
+            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+            notifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
+            notifyIcon.BalloonTipClosed -= RemoveEventHandler;
+            notifyIcon.Tag = null;
 		}
 
 		/// <summary>
@@ -549,25 +553,22 @@ namespace Greenshot.Helpers {
 			if (string.IsNullOrEmpty(eventArgs?.Message)) {
 				return;
 			}
-			if (MainForm.Instance == null)
-			{
-				return;
-			}
+            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
 			switch (eventArgs.MessageType) {
 				case SurfaceMessageTyp.Error:
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
+                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
 					break;
 				case SurfaceMessageTyp.Info:
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 					break;
 				case SurfaceMessageTyp.FileSaved:
 				case SurfaceMessageTyp.UploadedUri:
 					// Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
-					MainForm.Instance.NotifyIcon.BalloonTipClicked += OpenCaptureOnClick;
-					MainForm.Instance.NotifyIcon.BalloonTipClosed += RemoveEventHandler;
+                    notifyIcon.BalloonTipClicked += OpenCaptureOnClick;
+                    notifyIcon.BalloonTipClosed += RemoveEventHandler;
 					// Store for later usage
-					MainForm.Instance.NotifyIcon.Tag = eventArgs;
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+                    notifyIcon.Tag = eventArgs;
+                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
 					break;
 			}
 		}
@@ -609,12 +610,11 @@ namespace Greenshot.Helpers {
 				
 			}
 			// Let the processors do their job
-			foreach(IProcessor processor in ProcessorHelper.GetAllProcessors()) {
-				if (processor.isActive) {
-					Log.InfoFormat("Calling processor {0}", processor.Description);
-					processor.ProcessCapture(surface, _capture.CaptureDetails);
-				}
-			}
+			foreach(var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>()) {
+                if (!processor.isActive) continue;
+                Log.InfoFormat("Calling processor {0}", processor.Description);
+                processor.ProcessCapture(surface, _capture.CaptureDetails);
+            }
 			
 			// As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
 			_capture.Image = null;
@@ -915,7 +915,8 @@ namespace Greenshot.Helpers {
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
 			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
-			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+			using (Graphics graphics = Graphics.FromHwnd(mainForm.Handle)) {
 				_capture.CaptureDetails.DpiX = graphics.DpiX;
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
@@ -942,7 +943,8 @@ namespace Greenshot.Helpers {
             // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
             DialogResult result;
             try {
-                result = captureForm.ShowDialog(MainForm.Instance);
+                var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+				result = captureForm.ShowDialog(mainForm);
             } finally {
                 captureForm.Hide();
             }

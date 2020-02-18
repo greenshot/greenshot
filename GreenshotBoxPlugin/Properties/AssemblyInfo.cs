@@ -27,8 +27,6 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyDescription("A plugin to upload images to Box")]
-// The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: Plugin("GreenshotBoxPlugin.BoxPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

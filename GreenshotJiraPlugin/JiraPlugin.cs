@@ -33,11 +33,10 @@ namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
+    [Plugin("Jira", true)]
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
 		private JiraConfiguration _config;
-		private static JiraPlugin _instance;
-		private JiraConnector _jiraConnector;
 
 		public void Dispose() {
 			Dispose(true);
@@ -45,58 +44,27 @@ namespace GreenshotJiraPlugin {
 		}
 
 		protected void Dispose(bool disposing) {
-			if (disposing) {
-				if (JiraConnector != null) {
-					JiraConnector.Dispose();
-					JiraConnector = null;
-				}
+			if (disposing)
+            {
+                var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+                jiraConnector?.Dispose();
 			}
-		}
-
-		public static JiraPlugin Instance => _instance;
-
-		public JiraPlugin() {
-			_instance = this;
-		}
-
-		public IEnumerable<IDestination> Destinations() {
-			yield return new JiraDestination(this);
-		}
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
-
-		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector => JiraConnector;
-
-		public JiraConnector JiraConnector
-		{
-			get
-			{
-				lock (_instance)
-				{
-					if (_jiraConnector == null)
-					{
-						JiraConnector = new JiraConnector();
-					}
-				}
-				return _jiraConnector;
-			}
-			private set { _jiraConnector = value; }
 		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize() {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
 
-			// Make sure the loggin is enable for the corect level.
+			// Provide the JiraConnector
+			SimpleServiceProvider.Current.AddService(new JiraConnector());
+			// Provide the IDestination
+			SimpleServiceProvider.Current.AddService(new JiraDestination());
+
+			// Make sure the log is enabled for the correct level.
 			if (Log.IsDebugEnabled)
 			{
 				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Verbose);
@@ -142,7 +110,8 @@ namespace GreenshotJiraPlugin {
 
 		public void Shutdown() {
 			Log.Debug("Jira Plugin shutdown.");
-            JiraConnector?.Logout();
+            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+            jiraConnector?.Logout();
         }
 
 		/// <summary>
@@ -152,12 +121,13 @@ namespace GreenshotJiraPlugin {
 			string url = _config.Url;
 			if (ShowConfigDialog()) {
 				// check for re-login
-				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
+                var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+				if (jiraConnector != null && jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
 					if (!url.Equals(_config.Url)) {
-                        JiraConnector.Logout();
+                        jiraConnector.Logout();
 						Task.Run(async () =>
 						{
-							await JiraConnector.LoginAsync();
+							await jiraConnector.LoginAsync();
 						});
 					}
 				}

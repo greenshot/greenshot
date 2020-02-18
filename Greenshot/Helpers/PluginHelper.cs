@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Plugin;
@@ -41,65 +42,61 @@ namespace Greenshot.Helpers {
 		private static readonly string PluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
 		private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
 		private static readonly string PafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
-		private static readonly IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
 
         public static PluginHelper Instance { get; } = new PluginHelper();
 
-		private PluginHelper() {
-			PluginUtils.Host = this;
-		}
-		
-		public Form GreenshotForm => MainForm.Instance;
-
-		public NotifyIcon NotifyIcon => MainForm.Instance.NotifyIcon;
-
-		public bool HasPlugins() {
-			return plugins != null && plugins.Count > 0;
-		}
-
-		public void Shutdown() {
-			foreach(var plugin in plugins.Values) {
+        public void Shutdown() {
+            foreach(var plugin in SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>()) {
 				plugin.Shutdown();
 				plugin.Dispose();
 			}
-			plugins.Clear();
 		}
 
-		// Add plugins to the Listview
-		public void FillListview(ListView listview) {
-			foreach(var pluginAttribute in plugins.Keys) {
+		/// <summary>
+		/// Add plugins to the ListView
+		/// </summary>
+		/// <param name="listView"></param>
+		public void FillListView(ListView listView) {
+            foreach (var plugin in SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>())
+            {
+                var pluginAttribute = plugin.GetType().GetCustomAttribute<PluginAttribute>();
 				var item = new ListViewItem(pluginAttribute.Name)
 				{
 					Tag = pluginAttribute
 				};
-				item.SubItems.Add(pluginAttribute.Version);
-				item.SubItems.Add(pluginAttribute.CreatedBy);
-				item.SubItems.Add(pluginAttribute.DllFile);
-				listview.Items.Add(item);
+                var assembly = plugin.GetType().Assembly;
+
+                var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>();
+				item.SubItems.Add(assembly.GetName().Version.ToString());
+				item.SubItems.Add(company.Company);
+				item.SubItems.Add(assembly.Location);
+				listView.Items.Add(item);
 			}
 		}
 		
-		public bool IsSelectedItemConfigurable(ListView listview) {
-			if (listview.SelectedItems.Count <= 0)
+		public bool IsSelectedItemConfigurable(ListView listView) {
+			if (listView.SelectedItems.Count <= 0)
 			{
 				return false;
 			}
-			var pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
+			var pluginAttribute = (PluginAttribute)listView.SelectedItems[0].Tag;
 			return pluginAttribute != null && pluginAttribute.Configurable;
 		}
 		
-		public void ConfigureSelectedItem(ListView listview) {
-			if (listview.SelectedItems.Count <= 0)
+		public void ConfigureSelectedItem(ListView listView) {
+			if (listView.SelectedItems.Count <= 0)
 			{
 				return;
 			}
-			var pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
+			var pluginAttribute = (PluginAttribute)listView.SelectedItems[0].Tag;
 			if (pluginAttribute == null)
 			{
 				return;
 			}
-			var plugin = plugins[pluginAttribute];
-			plugin.Configure();
+
+            var plugin = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().FirstOrDefault(p =>
+                p.GetType().GetCustomAttribute<PluginAttribute>().Name == pluginAttribute.Name);
+			plugin?.Configure();
 		}
 
         /// <summary>
@@ -121,17 +118,6 @@ namespace Greenshot.Helpers {
 			return true;
 		}
 
-		public ContextMenuStrip MainMenu => MainForm.Instance.MainMenu;
-
-		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins => plugins;
-
-		public IDestination GetDestination(string designation) {
-			return DestinationHelper.GetDestination(designation);
-		}
-		public List<IDestination> GetAllDestinations() {
-			return DestinationHelper.GetAllDestinations();
-		}
-
 		public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
 			return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
 		}
@@ -149,8 +135,10 @@ namespace Greenshot.Helpers {
 		/// Use the supplied image, and handle it as if it's captured.
 		/// </summary>
 		/// <param name="captureToImport">Image to handle</param>
-		public void ImportCapture(ICapture captureToImport) {
-			MainForm.Instance.BeginInvoke((MethodInvoker)delegate {
+		public void ImportCapture(ICapture captureToImport)
+        {
+            var mainForm = SimpleServiceProvider.Current.GetInstance<Form>();
+            mainForm.BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.ImportCapture(captureToImport);
 			});
 		}
@@ -171,49 +159,27 @@ namespace Greenshot.Helpers {
 			return capture;
 		}
 
-        public PluginAttribute FindPlugin(string name) {
-			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
-				if (name.Equals(pluginAttribute.Name)) {
-					return pluginAttribute;
-				}
-			}
-			return null;
-		}
-		
-		private bool IsNewer(string version1, string version2) {
-			string [] version1Parts = version1.Split('.');
-			string [] version2Parts = version2.Split('.');
-			int parts = Math.Min(version1Parts.Length, version2Parts.Length);
-			for(int i=0; i < parts; i++) {
-				int v1 = Convert.ToInt32(version1Parts[i]);
-				int v2 = Convert.ToInt32(version2Parts[i]);
-				if (v1 > v2) {
-					return true;
-				}
-				if (v1 < v2) {
-					return false;
-				}
-			}
-			return false;
-		}
 
-		/// <summary>
+        /// <summary>
 		/// Private helper to find the plugins in the path
 		/// </summary>
-		/// <param name="pluginFiles"></param>
-		/// <param name="path"></param>
-		private void FindPluginsOnPath(List<string> pluginFiles, string path) {
-			if (Directory.Exists(path)) {
-				try {
-					foreach (string pluginFile in Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories)) {
-						pluginFiles.Add(pluginFile);
-					}
-				} catch (UnauthorizedAccessException) {
-				} catch (Exception ex) {
-					Log.Error("Error loading plugin: ", ex);
-				}
-			}
-		}
+		/// <param name="path">string</param>
+		/// <returns>IEnumerable with plugin files</returns>
+		private IEnumerable<string> FindPluginsOnPath(string path)
+        {
+            var pluginFiles = Enumerable.Empty<string>();
+            if (!Directory.Exists(path)) return pluginFiles;
+            try
+			{
+                pluginFiles = Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories);
+
+            } catch (Exception ex) {
+                Log.Error("Error loading plugin: ", ex);
+            }
+
+            return pluginFiles;
+
+        }
 
 		/// <summary>
 		/// Load the plugins
@@ -222,107 +188,54 @@ namespace Greenshot.Helpers {
 			List<string> pluginFiles = new List<string>();
 
 			if (IniConfig.IsPortable) {
-				FindPluginsOnPath(pluginFiles, PafPath);
+                pluginFiles.AddRange(FindPluginsOnPath(PafPath));
 			} else {
-				FindPluginsOnPath(pluginFiles, PluginPath);
-				FindPluginsOnPath(pluginFiles, ApplicationPath);
+                pluginFiles.AddRange(FindPluginsOnPath(PluginPath));
+                pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
 			}
 
-			Dictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
-			Dictionary<string, Assembly> tmpAssemblies = new Dictionary<string, Assembly>();
 			// Loop over the list of available files and get the Plugin Attributes
 			foreach (string pluginFile in pluginFiles) {
-				//LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
+
 				try {
 					Assembly assembly = Assembly.LoadFrom(pluginFile);
-					PluginAttribute[] pluginAttributes = assembly.GetCustomAttributes(typeof(PluginAttribute), false) as PluginAttribute[];
-					if (pluginAttributes.Length > 0) {
-						PluginAttribute pluginAttribute = pluginAttributes[0];
 
-						if (string.IsNullOrEmpty(pluginAttribute.Name)) {
-							AssemblyProductAttribute[] assemblyProductAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
-							if (assemblyProductAttributes.Length > 0) {
-								pluginAttribute.Name = assemblyProductAttributes[0].Product;
-							} else {
-								continue;
-							}
-						}
-						if (string.IsNullOrEmpty(pluginAttribute.CreatedBy)) {
-							AssemblyCompanyAttribute[] assemblyCompanyAttributes = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false) as AssemblyCompanyAttribute[];
-							if (assemblyCompanyAttributes.Length > 0) {
-								pluginAttribute.CreatedBy = assemblyCompanyAttributes[0].Company;
-							} else {
-								continue;
-							}
-						}
-						pluginAttribute.Version = assembly.GetName().Version.ToString();
-						pluginAttribute.DllFile = pluginFile;
-						
-						// check if this plugin is already available
-						PluginAttribute checkPluginAttribute = null;
-						if (tmpAttributes.ContainsKey(pluginAttribute.Name)) {
-							checkPluginAttribute = tmpAttributes[pluginAttribute.Name];
-						}
+                    var assemblyName = assembly.GetName().Name;
 
-						if (checkPluginAttribute != null) {
-							Log.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
-							if (IsNewer(pluginAttribute.Version, checkPluginAttribute.Version)) {
-								// Found is newer
-								tmpAttributes[pluginAttribute.Name] = pluginAttribute;
-								tmpAssemblies[pluginAttribute.Name] = assembly;
-								Log.InfoFormat("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							} else {
-								Log.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							}
-							continue;
-						}
-						if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginAttribute.Name)) {
-							Log.WarnFormat("Exclude list: {0}", CoreConfig.ExcludePlugins.ToArray());
-							Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							continue;
-						}
-						if (CoreConfig.IncludePlugins != null && CoreConfig.IncludePlugins.Count > 0 && !CoreConfig.IncludePlugins.Contains(pluginAttribute.Name)) {
-							// Whitelist is set
-							Log.WarnFormat("Include list: {0}", CoreConfig.IncludePlugins.ToArray());
-							Log.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							continue;
-						}
-						Log.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-						tmpAttributes[pluginAttribute.Name] = pluginAttribute;
-						tmpAssemblies[pluginAttribute.Name] = assembly;
-					} else {
-						Log.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
-					}
-				} catch (Exception e) {
-					Log.Warn("Can't load file: " + pluginFile, e);
-				}
-			}
-			foreach(string pluginName in tmpAttributes.Keys) {
-				try {
-					PluginAttribute pluginAttribute = tmpAttributes[pluginName];
-					Assembly assembly = tmpAssemblies[pluginName];
-					Type entryType = assembly.GetType(pluginAttribute.EntryType);
-					if (entryType == null) {
-						Log.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
-						continue;
-					}
-					try {
-						IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(entryType);
-						if (plugin != null) {
-							if (plugin.Initialize(this, pluginAttribute)) {
-								plugins.Add(pluginAttribute, plugin);
-							} else {
-								Log.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
-							}
-						} else {
-							Log.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
-						}
-					} catch(Exception e) {
-						Log.Error("Can't load Plugin: " + pluginAttribute.Name, e);
-					}
-				} catch(Exception e) {
-					Log.Error("Can't load Plugin: " + pluginName, e);
-				}
+					var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot", string.Empty)}";
+					var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
+                    var pluginAttribute = pluginEntryType.GetCustomAttribute<PluginAttribute>();
+
+                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginAttribute.Name))
+                    {
+                        Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
+                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, assembly.GetName().Version, pluginFile);
+                        continue;
+                    }
+
+                    IGreenshotPlugin plugin = (IGreenshotPlugin)Activator.CreateInstance(pluginEntryType);
+                    if (plugin != null)
+                    {
+                        if (plugin.Initialize())
+                        {
+							SimpleServiceProvider.Current.AddService(plugin);
+                        }
+                        else
+                        {
+
+                            Log.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+                        }
+                    }
+                    else
+                    {
+                        Log.ErrorFormat("Can't create an instance of {0} from \"{1}\"", assembly.GetName().Name + ".GreenshotPlugin", pluginFile);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.ErrorFormat("Can't load Plugin: {0}", pluginFile);
+					Log.Error(e);
+                }
 			}
 		}
     }
