@@ -2,13 +2,9 @@
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core
 {
@@ -28,7 +24,7 @@ namespace GreenshotPlugin.Core
         /// <summary>
         ///     Retrieve the current DPI for the UI element which is related to this DpiHandler
         /// </summary>
-        public static uint Dpi { get; private set; } = GetDpiForSystem();
+        public static uint Dpi { get; private set; } = WindowsVersion.IsWindows10OrLater ? GetDpiForSystem() : DefaultScreenDpi;
 
         /// <summary>
         /// Calculate a DPI scale factor

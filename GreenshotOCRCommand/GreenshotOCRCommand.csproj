@@ -8,4 +8,7 @@
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
   </ItemGroup>
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <Exec Command="xcopy /q /y /d &quot;$(TargetDir)*.exe&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;" />
+  </Target>
 </Project>
