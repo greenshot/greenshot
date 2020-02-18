@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace GreenshotPlugin.Hooking

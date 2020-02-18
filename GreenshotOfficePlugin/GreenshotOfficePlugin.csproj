@@ -46,4 +46,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="CustomMarshalers" />
+  </ItemGroup>
+
 </Project>

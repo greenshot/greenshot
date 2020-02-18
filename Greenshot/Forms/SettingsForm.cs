@@ -33,7 +33,6 @@ using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using System.Text.RegularExpressions;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;

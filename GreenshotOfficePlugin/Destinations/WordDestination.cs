@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
@@ -39,7 +40,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		private const int IconDocument = 1;
 		private static readonly string ExePath;
 		private readonly string _documentCaption;
-
+        private readonly WordExporter _wordExporter = new WordExporter();
 		static WordDestination() {
 			ExePath = PluginUtils.GetExePath("WINWORD.EXE");
 			if (ExePath != null && !File.Exists(ExePath)) {
@@ -68,7 +69,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string wordCaption in WordExporter.GetWordDocuments()) {
+			foreach (string wordCaption in _wordExporter.GetWordDocuments()) {
 				yield return new WordDestination(wordCaption);
 			}
 		}
@@ -81,11 +82,11 @@ namespace GreenshotOfficePlugin.Destinations {
 			}
 			if (_documentCaption != null) {
 				try {
-					WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+                    _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 					exportInformation.ExportMade = true;
 				} catch (Exception) {
 					try {
-						WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+                        _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						Log.Error(ex);
@@ -95,7 +96,7 @@ namespace GreenshotOfficePlugin.Destinations {
 				}
 			} else {
 				if (!manuallyInitiated) {
-					var documents = WordExporter.GetWordDocuments();
+					var documents = _wordExporter.GetWordDocuments().ToList();
 					if (documents != null && documents.Count > 0) {
 						var destinations = new List<IDestination>
 						{
@@ -109,12 +110,12 @@ namespace GreenshotOfficePlugin.Destinations {
 					}
 				}
 				try {
-					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+                    _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
 					exportInformation.ExportMade = true;
 				} catch(Exception) {
 					// Retry once, just in case
 					try {
-						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+                        _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
 						Log.Error(ex);

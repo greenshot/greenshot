@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
@@ -38,6 +39,7 @@ namespace GreenshotOfficePlugin.Destinations {
 
 		private static readonly string ExePath;
 		private readonly string _presentationName;
+		private readonly PowerpointExporter _powerpointExporter = new PowerpointExporter();
 		
 		static PowerpointDestination() {
 			ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
@@ -84,7 +86,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations()) {
+			foreach (string presentationName in _powerpointExporter.GetPowerpointPresentations()) {
 				yield return new PowerpointDestination(presentationName);
 			}
 		}
@@ -98,10 +100,10 @@ namespace GreenshotOfficePlugin.Destinations {
 				imageSize = surface.Image.Size;
 			}
 			if (_presentationName != null) {
-				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, captureDetails.Title);
+				exportInformation.ExportMade = _powerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
 				if (!manuallyInitiated) {
-					var presentations = PowerpointExporter.GetPowerpointPresentations();
+					var presentations = _powerpointExporter.GetPowerpointPresentations().ToList();
 					if (presentations != null && presentations.Count > 0) {
 						var destinations = new List<IDestination> {new PowerpointDestination()};
 						foreach (string presentation in presentations) {
@@ -111,7 +113,7 @@ namespace GreenshotOfficePlugin.Destinations {
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				} else if (!exportInformation.ExportMade) {
-					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+					exportInformation.ExportMade = _powerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 				}
 			}
 			ProcessExport(exportInformation, surface);

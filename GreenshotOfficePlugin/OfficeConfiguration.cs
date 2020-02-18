@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotOfficePlugin.OfficeInterop.Outlook;
-using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
+using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.IniFile;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace GreenshotOfficePlugin {
 
@@ -48,7 +48,7 @@ namespace GreenshotOfficePlugin {
 		[IniProperty("PowerpointLockAspectRatio", Description = "For Powerpoint: Lock the aspect ratio of the image", DefaultValue = "True")]
 		public bool PowerpointLockAspectRatio { get; set; }
 		[IniProperty("PowerpointSlideLayout", Description = "For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!", DefaultValue = "ppLayoutPictureWithCaption")]
-		public PPSlideLayout PowerpointSlideLayout { get; set; }
+		public PpSlideLayout PowerpointSlideLayout { get; set; }
 
 	}
 }

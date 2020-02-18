@@ -25,11 +25,11 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GreenshotOfficePlugin.OfficeExport;
-using GreenshotOfficePlugin.OfficeInterop.Outlook;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Microsoft.Office.Interop.Outlook;
 
 namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>
@@ -47,6 +47,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		private const string MapiClient = "Microsoft Outlook";
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
+		private readonly OutlookEmailExporter _outlookEmailExporter = new OutlookEmailExporter();
 
 		static OutlookDestination() {
 			if (EmailConfigHelper.HasOutlook()) {
@@ -99,7 +100,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			IDictionary<string, OlObjectClass> inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+			IDictionary<string, OlObjectClass> inspectorCaptions = _outlookEmailExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null) {
 				foreach (string inspectorCaption in inspectorCaptions.Keys) {
 					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
@@ -137,11 +138,11 @@ namespace GreenshotOfficePlugin.Destinations {
 			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", string.Empty);
 
 			if (_outlookInspectorCaption != null) {
-				OutlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
+                _outlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
 				exportInformation.ExportMade = true;
 			} else {
 				if (!manuallyInitiated) {
-					var inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
+					var inspectorCaptions = _outlookEmailExporter.RetrievePossibleTargets();
 					if (inspectorCaptions != null && inspectorCaptions.Count > 0) {
 						var destinations = new List<IDestination>
 						{
@@ -154,7 +155,7 @@ namespace GreenshotOfficePlugin.Destinations {
 						return ShowPickerMenu(false, surface, captureDetails, destinations);
 					}
 				} else {
-					exportInformation.ExportMade = OutlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC, null);
+					exportInformation.ExportMade = _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC, null);
 				}
 			}
 			ProcessExport(exportInformation, surface);

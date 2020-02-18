@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Drawing;

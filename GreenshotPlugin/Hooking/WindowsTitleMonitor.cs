@@ -21,7 +21,6 @@
 
 using System;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace GreenshotPlugin.Hooking

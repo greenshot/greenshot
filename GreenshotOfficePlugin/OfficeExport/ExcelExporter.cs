@@ -1,167 +1,199 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
+using GreenshotOfficePlugin.Com;
 using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotOfficePlugin.OfficeInterop.Excel;
-using GreenshotOfficePlugin.OfficeInterop.Outlook;
-using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interop;
+using GreenshotPlugin.UnmanagedHelpers;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using Version = System.Version;
 
-namespace GreenshotOfficePlugin.OfficeExport {
-	public class ExcelExporter {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-		private static Version _excelVersion;
+namespace GreenshotOfficePlugin.OfficeExport
+{
+    /// <summary>
+    ///     Excel exporter
+    /// </summary>
+    public static class ExcelExporter
+    {
+        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
+        private static Version _excelVersion;
 
-		/// <summary>
-		/// Get all currently opened workbooks
-		/// </summary>
-		/// <returns>List of string with names of the workbooks</returns>
-		public static List<string> GetWorkbooks() {
-			List<string> currentWorkbooks = new List<string>();
-			using (IExcelApplication excelApplication = GetExcelApplication()) {
-				if (excelApplication == null) {
-					return currentWorkbooks;
-				}
+        /// <summary>
+        ///     Call this to get the running Excel application, returns null if there isn't any.
+        /// </summary>
+        /// <returns>ComDisposable for Excel.Application or null</returns>
+        private static IDisposableCom<Application> GetExcelApplication()
+        {
+            IDisposableCom<Application> excelApplication;
+            try
+            {
+                excelApplication = OleAut32Api.GetActiveObject<Application>("Excel.Application");
+            }
+            catch
+            {
+                // Ignore, probably no excel running
+                return null;
+            }
+            if (excelApplication?.ComObject != null)
+            {
+                InitializeVariables(excelApplication);
+            }
+            return excelApplication;
+        }
 
-                using IWorkbooks workbooks = excelApplication.Workbooks;
-                for (int i = 1; i <= workbooks.Count; i++)
+        /// <summary>
+        ///     Call this to get the running Excel application, or create a new instance
+        /// </summary>
+        /// <returns>ComDisposable for Excel.Application</returns>
+        private static IDisposableCom<Application> GetOrCreateExcelApplication()
+        {
+            var excelApplication = GetExcelApplication();
+            if (excelApplication == null)
+            {
+                excelApplication = DisposableCom.Create(new Application());
+            }
+            InitializeVariables(excelApplication);
+            return excelApplication;
+        }
+
+        /// <summary>
+        ///     Get all currently opened workbooks
+        /// </summary>
+        /// <returns>IEnumerable with names of the workbooks</returns>
+        public static IEnumerable<string> GetWorkbooks()
+        {
+            using var excelApplication = GetExcelApplication();
+            if ((excelApplication == null) || (excelApplication.ComObject == null))
+            {
+                yield break;
+            }
+
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            for (int i = 1; i <= workbooks.ComObject.Count; i++)
+            {
+                using var workbook = DisposableCom.Create(workbooks.ComObject[i]);
+                if (workbook != null)
                 {
-                    using IWorkbook workbook = workbooks[i];
-                    if (workbook != null) {
-                        currentWorkbooks.Add(workbook.Name);
-                    }
+                    yield return workbook.ComObject.Name;
                 }
             }
-			currentWorkbooks.Sort();
-			return currentWorkbooks;
-		}
+        }
 
-		/// <summary>
-		/// Insert image from supplied tmp file into the give excel workbook
-		/// </summary>
-		/// <param name="workbookName"></param>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+        /// <summary>
+        ///     Initialize static excel variables like version and currentuser
+        /// </summary>
+        /// <param name="excelApplication"></param>
+        private static void InitializeVariables(IDisposableCom<Application> excelApplication)
         {
-            using IExcelApplication excelApplication = GetExcelApplication();
-            if (excelApplication == null) {
+            if ((excelApplication == null) || (excelApplication.ComObject == null) || (_excelVersion != null))
+            {
                 return;
             }
-            using (IWorkbooks workbooks = excelApplication.Workbooks) {
-                for (int i = 1; i <= workbooks.Count; i++)
+            if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+            {
+                LOG.Warn("Assuming Excel version 1997.");
+                _excelVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        ///     Insert image from supplied tmp file into the give excel workbook
+        /// </summary>
+        /// <param name="workbookName"></param>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+        {
+            using var excelApplication = GetExcelApplication();
+            if ((excelApplication == null) || (excelApplication.ComObject == null))
+            {
+                return;
+            }
+
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            for (int i = 1; i <= workbooks.ComObject.Count; i++)
+            {
+                using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]);
+                if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
                 {
-                    using IWorkbook workbook = workbooks[i];
-                    if (workbook != null && workbook.Name.StartsWith(workbookName)) {
-                        InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
-                    }
+                    InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
                 }
             }
-            int hWnd = excelApplication.Hwnd;
-            if (hWnd > 0)
-            {
-                WindowDetails.ToForeground(new IntPtr(hWnd));
-            }
         }
 
-		/// <summary>
-		/// Insert a file into an already created workbook
-		/// </summary>
-		/// <param name="workbook"></param>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize) {
-			IWorksheet workSheet = workbook.ActiveSheet;
-
-            using IShapes shapes = workSheet?.Shapes;
-
-            using IShape shape = shapes?.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
-            if (shape == null) return;
-
-            shape.Top = 40;
-            shape.Left = 40;
-            shape.LockAspectRatio = MsoTriState.msoTrue;
-            shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-            shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-        }
-
-		/// <summary>
-		/// Add an image-file to a newly created workbook
-		/// </summary>
-		/// <param name="tmpFile"></param>
-		/// <param name="imageSize"></param>
-		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+        /// <summary>
+        ///     Insert a file into an already created workbook
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        private static void InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
         {
-            using IExcelApplication excelApplication = GetOrCreateExcelApplication();
-            if (excelApplication != null) {
-                excelApplication.Visible = true;
-                object template = Missing.Value;
-                using IWorkbooks workbooks = excelApplication.Workbooks;
-                IWorkbook workbook = workbooks.Add(template);
-                InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+            using var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet);
+            if (workSheet == null)
+            {
+                return;
             }
+
+            using var shapes = DisposableCom.Create(workSheet.ComObject.Shapes);
+            if (shapes == null)
+            {
+                return;
+            }
+
+            using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height));
+            if (shape == null)
+            {
+                return;
+            }
+
+            shape.ComObject.Top = 40;
+            shape.ComObject.Left = 40;
+            shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
+            shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+            shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+            workbook.ComObject.Activate();
+            using var application = DisposableCom.Create(workbook.ComObject.Application);
+            User32.SetForegroundWindow((IntPtr) application.ComObject.Hwnd);
         }
 
+        /// <summary>
+        ///     Add an image-file to a newly created workbook
+        /// </summary>
+        /// <param name="tmpFile"></param>
+        /// <param name="imageSize"></param>
+        public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+        {
+            using var excelApplication = GetOrCreateExcelApplication();
+            if (excelApplication == null)
+            {
+                return;
+            }
 
-		/// <summary>
-		/// Call this to get the running Excel application, returns null if there isn't any.
-		/// </summary>
-		/// <returns>IExcelApplication or null</returns>
-		private static IExcelApplication GetExcelApplication() {
-			IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>();
-			InitializeVariables(excelApplication);
-			return excelApplication;
-		}
+            excelApplication.ComObject.Visible = true;
+            using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
+            using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add());
+            InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+        }
+    }
 
-		/// <summary>
-		/// Call this to get the running Excel application, or create a new instance
-		/// </summary>
-		/// <returns>IExcelApplication</returns>
-		private static IExcelApplication GetOrCreateExcelApplication() {
-			IExcelApplication excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>();
-			InitializeVariables(excelApplication);
-			return excelApplication;
-		}
-
-		/// <summary>
-		/// Initialize static outlook variables like version and currentuser
-		/// </summary>
-		/// <param name="excelApplication"></param>
-		private static void InitializeVariables(IExcelApplication excelApplication) {
-			if (excelApplication == null || _excelVersion != null) {
-				return;
-			}
-			try {
-				_excelVersion = new Version(excelApplication.Version);
-				Log.InfoFormat("Using Excel {0}", _excelVersion);
-			} catch (Exception exVersion) {
-				Log.Error(exVersion);
-				Log.Warn("Assuming Excel version 1997.");
-				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
-			}
-		}
-	}
 }

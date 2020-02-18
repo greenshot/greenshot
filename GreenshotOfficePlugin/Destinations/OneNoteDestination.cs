@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using GreenshotOfficePlugin.OfficeExport;
-using GreenshotOfficePlugin.OfficeInterop.OneNote;
+using GreenshotOfficePlugin.OfficeExport.Entities;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
@@ -35,6 +35,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		public const string DESIGNATION = "OneNote";
 		private static readonly string exePath;
 		private readonly OneNotePage page;
+		private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
 
 		static OneNoteDestination() {
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
@@ -94,7 +95,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (OneNotePage page in OneNoteExporter.GetPages()) {
+			foreach (OneNotePage page in _oneNoteExporter.GetPages()) {
 				yield return new OneNoteDestination(page);
 			}
 		}
@@ -104,14 +105,14 @@ namespace GreenshotOfficePlugin.Destinations {
 
 			if (page == null) {
 				try {
-					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(surface);
+					exportInformation.ExportMade = _oneNoteExporter.ExportToNewPage(surface);
 				} catch(Exception ex) {
 					exportInformation.ErrorMessage = ex.Message;
 					LOG.Error(ex);
 				}
 			} else {
 				try {
-					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, page);
+					exportInformation.ExportMade = _oneNoteExporter.ExportToPage(surface, page);
 				} catch(Exception ex) {
 					exportInformation.ErrorMessage = ex.Message;
 					LOG.Error(ex);

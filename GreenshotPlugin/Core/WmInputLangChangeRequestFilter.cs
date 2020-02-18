@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.UnmanagedHelpers;
 using System.Windows.Forms;
 using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
