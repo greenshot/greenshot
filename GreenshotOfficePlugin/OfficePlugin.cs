@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Plugin;
+using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Core;
 
 namespace GreenshotOfficePlugin {

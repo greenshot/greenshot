@@ -19,15 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Interop.Office;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotOfficePlugin.OfficeInterop.OneNote;
+using GreenshotPlugin.Core;
 
-namespace GreenshotOfficePlugin {
+namespace GreenshotOfficePlugin.Destinations {
 	public class OneNoteDestination : AbstractDestination {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;

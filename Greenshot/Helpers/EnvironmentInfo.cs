@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.Append(string.Format("OS: {0} {1} {2} (x{3})  {4}", OsInfo.Name, OsInfo.Edition, OsInfo.ServicePack, OsInfo.Bits, OsInfo.VersionString));
+				environment.Append($"OS: {OsInfo.Name} {OsInfo.Edition} {OsInfo.ServicePack} (x{OsInfo.Bits})  {OsInfo.VersionString}");
 				if (newline)
 				{
 					environment.AppendLine();

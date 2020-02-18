@@ -18,13 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Drawing;
+using System.Reflection;
+using Greenshot.Interop;
+using GreenshotOfficePlugin.OfficeInterop;
+using GreenshotOfficePlugin.OfficeInterop.Excel;
+using GreenshotOfficePlugin.OfficeInterop.Outlook;
+using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
 using GreenshotPlugin.Core;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 	public class ExcelExporter {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
 		private static Version _excelVersion;
@@ -89,22 +95,17 @@ namespace Greenshot.Interop.Office {
 		/// <param name="imageSize"></param>
 		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize) {
 			IWorksheet workSheet = workbook.ActiveSheet;
-			if (workSheet == null) {
-				return;
-			}
 
-            using IShapes shapes = workSheet.Shapes;
-            if (shapes != null)
-            {
-                using IShape shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
-                if (shape != null) {
-                    shape.Top = 40;
-                    shape.Left = 40;
-                    shape.LockAspectRatio = MsoTriState.msoTrue;
-                    shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-                    shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
-                }
-            }
+            using IShapes shapes = workSheet?.Shapes;
+
+            using IShape shape = shapes?.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height);
+            if (shape == null) return;
+
+            shape.Top = 40;
+            shape.Left = 40;
+            shape.LockAspectRatio = MsoTriState.msoTrue;
+            shape.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
+            shape.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
         }
 
 		/// <summary>

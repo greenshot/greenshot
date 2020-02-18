@@ -18,17 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-
-using Microsoft.Win32;
-using Greenshot.Interop.IE;
-using GreenshotOfficePlugin;
+using System.Text;
 using Greenshot.IniFile;
+using Greenshot.Interop;
+using Greenshot.Interop.IE;
+using GreenshotOfficePlugin.OfficeInterop;
+using GreenshotOfficePlugin.OfficeInterop.Outlook;
+using GreenshotOfficePlugin.OfficeInterop.Word;
+using Microsoft.Win32;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 	/// <summary>
 	/// Outlook exporter has all the functionality to export to outlook
 	/// </summary>

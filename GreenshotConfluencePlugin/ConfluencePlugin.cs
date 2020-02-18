@@ -31,6 +31,7 @@ namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
+	[Plugin("Confluence", true)]
 	public class ConfluencePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
 		private static ConfluenceConnector _confluenceConnector;

@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotOCR {
+namespace GreenshotOCRPlugin {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>

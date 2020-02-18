@@ -35,6 +35,7 @@ namespace GreenshotFlickrPlugin
 	/// <summary>
 	/// This is the Flickr base code
 	/// </summary>
+    [Plugin("Flickr", true)]
 	public class FlickrPlugin : IGreenshotPlugin {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
 		private static FlickrConfiguration _config;

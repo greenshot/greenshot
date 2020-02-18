@@ -19,14 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	/// <summary>
 	/// Description of SettingsFormDetail.
 	/// </summary>

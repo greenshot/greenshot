@@ -18,18 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
 
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>
@@ -63,12 +64,9 @@ namespace ExternalCommand {
 					config.RunInbackground.Add(_presetCommand, true);
 				}
 				bool runInBackground = config.RunInbackground[_presetCommand];
-				string fullPath = captureDetails.Filename;
-				if (fullPath == null) {
-					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
-				}
+				string fullPath = captureDetails.Filename ?? ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 
-				string output;
+                string output;
 				string error;
 				if (runInBackground) {
 					Thread commandThread = new Thread(delegate()

@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	/// <summary>
 	/// Description of FlickrConfiguration.
 	/// </summary>

@@ -22,12 +22,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.Interop.Office;
 using System.Text.RegularExpressions;
+using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
 
-namespace GreenshotOfficePlugin {
+namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>
 	/// Description of PowerpointDestination.
 	/// </summary>

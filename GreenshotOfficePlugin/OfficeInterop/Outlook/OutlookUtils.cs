@@ -18,10 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeInterop.Outlook {
 	internal enum PT : uint {
 		PT_UNSPECIFIED = 0,	/* (Reserved for interface use) type doesn't matter to caller */
 		PT_NULL = 1,	/* NULL property value */

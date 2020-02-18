@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -171,8 +172,9 @@ namespace Greenshot.Helpers {
             if (!Directory.Exists(path)) return pluginFiles;
             try
 			{
-                pluginFiles = Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories);
-
+                pluginFiles = Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories)
+					// Skip the GreenshotPlugin.dll itself
+                    .Where(p => CultureInfo.CurrentCulture.CompareInfo.IndexOf(p, "GreenshotPlugin.dll", CompareOptions.IgnoreCase) < 0);
             } catch (Exception ex) {
                 Log.Error("Error loading plugin: ", ex);
             }

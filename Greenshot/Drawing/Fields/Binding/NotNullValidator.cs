@@ -24,7 +24,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// Validates a value not to be null.
 	/// </summary>
 	public class NotNullValidator : IBindingValidator {
-		private static NotNullValidator uniqueInstance;
+		private static NotNullValidator _uniqueInstance;
 		
 		private NotNullValidator() {
 		}
@@ -33,9 +33,9 @@ namespace Greenshot.Drawing.Fields.Binding {
 			return o != null;
 		}
 		
-		public static NotNullValidator GetInstance() {
-			if(uniqueInstance == null) uniqueInstance = new NotNullValidator();
-			return uniqueInstance;
-		}
+		public static NotNullValidator GetInstance()
+        {
+            return _uniqueInstance ??= new NotNullValidator();
+        }
 	}
 }

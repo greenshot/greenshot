@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -29,7 +30,7 @@ using GreenshotPlugin.Effects;
 
 //using Microsoft.Win32;
 
-namespace GreenshotOCR {
+namespace GreenshotOCRPlugin {
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
@@ -45,14 +46,13 @@ namespace GreenshotOCR {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_ocrMenuItem != null) {
-					_ocrMenuItem.Dispose();
-					_ocrMenuItem = null;
-				}
-			}
-		}
+		protected void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            if (_ocrMenuItem == null) return;
+            _ocrMenuItem.Dispose();
+            _ocrMenuItem = null;
+        }
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize

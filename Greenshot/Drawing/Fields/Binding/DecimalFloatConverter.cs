@@ -26,7 +26,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// </summary>
 	public class DecimalFloatConverter : AbstractBindingConverter<float, decimal>
 	{
-		private static DecimalFloatConverter uniqueInstance;
+		private static DecimalFloatConverter _uniqueInstance;
 		
 		private DecimalFloatConverter() {}
 		
@@ -38,10 +38,10 @@ namespace Greenshot.Drawing.Fields.Binding {
 			return Convert.ToInt16(o);
 		}
 		
-		public static DecimalFloatConverter GetInstance() {
-			if(uniqueInstance == null) uniqueInstance = new DecimalFloatConverter();
-			return uniqueInstance;
-		}
+		public static DecimalFloatConverter GetInstance()
+        {
+            return _uniqueInstance ??= new DecimalFloatConverter();
+        }
 		
 	}
 }

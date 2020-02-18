@@ -26,7 +26,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// </summary>
 	public class DecimalDoublePercentageConverter : AbstractBindingConverter<double, decimal>
 	{
-		private static DecimalDoublePercentageConverter uniqueInstance;
+		private static DecimalDoublePercentageConverter _uniqueInstance;
 		
 		private DecimalDoublePercentageConverter() {}
 		
@@ -38,10 +38,10 @@ namespace Greenshot.Drawing.Fields.Binding {
 			return Convert.ToDouble(o)/100;
 		}
 		
-		public static DecimalDoublePercentageConverter GetInstance() {
-			if(uniqueInstance == null) uniqueInstance = new DecimalDoublePercentageConverter();
-			return uniqueInstance;
-		}
+		public static DecimalDoublePercentageConverter GetInstance()
+        {
+            return _uniqueInstance ??= new DecimalDoublePercentageConverter();
+        }
 		
 	}
 }

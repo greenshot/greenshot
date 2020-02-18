@@ -330,7 +330,7 @@ namespace Greenshot {
 						return base.ProcessCmdKey(ref msg, keyData);
 				}
 			} catch (Exception ex) {
-				LOG.Error(string.Format("Error handling key '{0}'", keyData), ex);
+				LOG.Error($"Error handling key '{keyData}'", ex);
 			}
 			return true;
 		}

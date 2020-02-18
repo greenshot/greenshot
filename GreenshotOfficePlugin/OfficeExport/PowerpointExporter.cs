@@ -19,13 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using GreenshotOfficePlugin;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.IniFile;
+using Greenshot.Interop;
+using GreenshotOfficePlugin.OfficeInterop;
+using GreenshotOfficePlugin.OfficeInterop.Outlook;
+using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 	public class PowerpointExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
 		private static Version _powerpointVersion;

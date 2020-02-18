@@ -30,8 +30,8 @@ namespace Greenshot.Forms {
 	/// </summary>
 	public partial class LanguageDialog : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageDialog));
-		private static LanguageDialog uniqueInstance;
-		private bool properOkPressed;
+		private static LanguageDialog _uniqueInstance;
+		private bool _properOkPressed;
 
 		private LanguageDialog() {
 			//
@@ -44,16 +44,14 @@ namespace Greenshot.Forms {
 		}
 		
 		private void PreventFormClose(object sender, FormClosingEventArgs e) {
-			if(!properOkPressed) {
+			if(!_properOkPressed) {
 				e.Cancel = true;
 			}
 		}
 
-		public string SelectedLanguage {
-			get { return comboBoxLanguage.SelectedValue.ToString(); }
-		}
-		
-		protected void FormLoad(object sender, EventArgs e) {
+		public string SelectedLanguage => comboBoxLanguage.SelectedValue.ToString();
+
+        protected void FormLoad(object sender, EventArgs e) {
 			// Initialize the Language ComboBox
 			comboBoxLanguage.DisplayMember = "Description";
 			comboBoxLanguage.ValueMember = "Ietf";
@@ -74,23 +72,21 @@ namespace Greenshot.Forms {
 			if (Language.SupportedLanguages.Count == 1) {
 				comboBoxLanguage.SelectedValue = Language.SupportedLanguages[0].Ietf;
 				Language.CurrentLanguage = SelectedLanguage;
-				properOkPressed = true;
+				_properOkPressed = true;
 				Close();
 			}
 		}
 
 		private void BtnOKClick(object sender, EventArgs e) {
-			properOkPressed = true;
+			_properOkPressed = true;
 			// Fix for Bug #3431100 
 			Language.CurrentLanguage = SelectedLanguage;
 			Close();
 		}
 		
-		public static LanguageDialog GetInstance() {
-			if(uniqueInstance == null) {
-				uniqueInstance = new LanguageDialog();
-			}
-			return uniqueInstance;
-		}
+		public static LanguageDialog GetInstance()
+        {
+            return _uniqueInstance ??= new LanguageDialog();
+        }
 	}
 }

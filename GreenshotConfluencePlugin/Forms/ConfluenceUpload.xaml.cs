@@ -45,22 +45,12 @@ namespace GreenshotConfluencePlugin {
 
 		private Page _searchPage;
 		public Page SearchPage {
-			get {
-				if (_searchPage == null) {
-					_searchPage = new ConfluenceSearch(this);
-				}
-				return _searchPage;
-			}
+			get { return _searchPage ??= new ConfluenceSearch(this); }
 		}
 
 		private Page _browsePage;
 		public Page BrowsePage {
-			get {
-				if (_browsePage == null) {
-					_browsePage = new ConfluenceTreePicker(this);
-				}
-				return _browsePage;
-			}
+			get { return _browsePage ??= new ConfluenceTreePicker(this); }
 		}
 
 		private Confluence.Page _selectedPage;
@@ -70,11 +60,7 @@ namespace GreenshotConfluencePlugin {
 			}
 			set {
 				_selectedPage = value;
-				if (_selectedPage != null) {
-					Upload.IsEnabled = true;
-				} else {
-					Upload.IsEnabled = false;
-				}
+				Upload.IsEnabled = _selectedPage != null;
 				IsOpenPageSelected = false;
 			}
 		}

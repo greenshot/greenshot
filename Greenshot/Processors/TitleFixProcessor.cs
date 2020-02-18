@@ -38,53 +38,43 @@ namespace Greenshot.Processors  {
 		public TitleFixProcessor() {
 			List<string> corruptKeys = new List<string>();
 			foreach(string key in config.ActiveTitleFixes) {
-				if (!config.TitleFixMatcher.ContainsKey(key)) {
-					LOG.WarnFormat("Key {0} not found, configuration is broken! Disabling this key!");
-					corruptKeys.Add(key);
-				}
-			}
+                if (config.TitleFixMatcher.ContainsKey(key)) continue;
+
+                LOG.WarnFormat("Key {0} not found, configuration is broken! Disabling this key!", key);
+                corruptKeys.Add(key);
+            }
 			
 			// Fix configuration if needed
-			if(corruptKeys.Count > 0) {
-				foreach(string corruptKey in corruptKeys) {
-					// Removing any reference to the key
-					config.ActiveTitleFixes.Remove(corruptKey);
-					config.TitleFixMatcher.Remove(corruptKey);
-					config.TitleFixReplacer.Remove(corruptKey);
-				}
-				config.IsDirty = true;
-			}
-		}
+            if (corruptKeys.Count <= 0) return;
+
+            foreach(string corruptKey in corruptKeys) {
+                // Removing any reference to the key
+                config.ActiveTitleFixes.Remove(corruptKey);
+                config.TitleFixMatcher.Remove(corruptKey);
+                config.TitleFixReplacer.Remove(corruptKey);
+            }
+            config.IsDirty = true;
+        }
 		
-		public override string Designation {
-			get {
-				return "TitleFix";
-			}
-		}
+		public override string Designation => "TitleFix";
 
-		public override string Description {
-			get {
-				return Designation;
-			}
-		}
+        public override string Description => Designation;
 
-		public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails) {
+        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails) {
 			bool changed = false;
 			string title = captureDetails.Title;
 			if (!string.IsNullOrEmpty(title)) {
 				title = title.Trim();
 				foreach(string titleIdentifier in config.ActiveTitleFixes) {
 					string regexpString = config.TitleFixMatcher[titleIdentifier];
-					string replaceString = config.TitleFixReplacer[titleIdentifier];
-					if (replaceString == null) {
-						replaceString = "";
-					}
-					if (!string.IsNullOrEmpty(regexpString)) {
-						Regex regex = new Regex(regexpString);
-						title = regex.Replace(title, replaceString);
-						changed = true;
-					}
-				}
+					string replaceString = config.TitleFixReplacer[titleIdentifier] ?? "";
+                    
+                    if (string.IsNullOrEmpty(regexpString)) continue;
+
+                    var regex = new Regex(regexpString);
+                    title = regex.Replace(title, replaceString);
+                    changed = true;
+                }
 			}
 			captureDetails.Title = title;
 			return changed;

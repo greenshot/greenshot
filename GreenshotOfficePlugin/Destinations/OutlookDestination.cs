@@ -19,17 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Interop.Office;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotOfficePlugin.OfficeInterop.Outlook;
+using GreenshotPlugin.Core;
 
-namespace GreenshotOfficePlugin {
+namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>
 	/// Description of OutlookDestination.
 	/// </summary>

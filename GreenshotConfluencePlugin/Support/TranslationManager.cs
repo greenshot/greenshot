@@ -25,7 +25,7 @@ namespace TranslationByMarkupExtension {
 			}
 		}*/
 
-		public static TranslationManager Instance => _translationManager ?? (_translationManager = new TranslationManager());
+		public static TranslationManager Instance => _translationManager ??= new TranslationManager();
 
 		public ITranslationProvider TranslationProvider { get; set; }
 

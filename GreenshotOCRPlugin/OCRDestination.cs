@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Drawing;
 using System.IO;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
-namespace GreenshotOCR {
+namespace GreenshotOCRPlugin {
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>

@@ -45,13 +45,9 @@ namespace Greenshot.Destinations {
 			this.editor = editor;
 		}
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description {
+        public override string Description {
 			get {
 				if (editor == null) {
 					return Language.GetString(LangKey.settings_destination_editor);
@@ -60,25 +56,13 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override int Priority {
-			get {
-				return 1;
-			}
-		}
+		public override int Priority => 1;
 
-		public override bool IsDynamic {
-			get {
-				return true;
-			}
-		}
+        public override bool IsDynamic => true;
 
-		public override Image DisplayIcon {
-			get {
-				return greenshotIcon;
-			}
-		}
+        public override Image DisplayIcon => greenshotIcon;
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
+        public override IEnumerable<IDestination> DynamicDestinations() {
 			foreach (IImageEditor someEditor in ImageEditorForm.Editors) {
 				yield return new EditorDestination(someEditor);
 			}
@@ -94,12 +78,12 @@ namespace Greenshot.Destinations {
 			if (editor == null) {
 				if (editorConfiguration.ReuseEditor) {
 					foreach(IImageEditor openedEditor in ImageEditorForm.Editors) {
-						if (!openedEditor.Surface.Modified) {
-							openedEditor.Surface = surface;
-							exportInformation.ExportMade = true;
-							break;
-						}
-					}
+                        if (openedEditor.Surface.Modified) continue;
+                        
+                        openedEditor.Surface = surface;
+                        exportInformation.ExportMade = true;
+                        break;
+                    }
 				}
 				if (!exportInformation.ExportMade) {
 					try {

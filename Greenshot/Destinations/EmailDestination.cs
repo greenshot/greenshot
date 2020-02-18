@@ -39,26 +39,24 @@ namespace Greenshot.Destinations {
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
-			if (EmailConfigHelper.HasMapi()) {
-				_isActiveFlag = false;
-				_mapiClient = EmailConfigHelper.GetMapiClient();
-				if (!string.IsNullOrEmpty(_mapiClient)) {
-					// Active as we have a mapi client, can be disabled later
-					_isActiveFlag = true;
-				}
-			}
-		}
+            if (!EmailConfigHelper.HasMapi()) return;
+
+            _isActiveFlag = false;
+            _mapiClient = EmailConfigHelper.GetMapiClient();
+            if (!string.IsNullOrEmpty(_mapiClient)) {
+                // Active as we have a mapi client, can be disabled later
+                _isActiveFlag = true;
+            }
+        }
 
 		public override string Designation => DESIGNATION;
 
 		public override string Description {
-			get {
-				// Make sure there is some kind of "mail" name
-				if (_mapiClient == null) {
-					_mapiClient = Language.GetString(LangKey.editor_email);
-				}
-				return _mapiClient;
-			}
+			get
+            {
+                // Make sure there is some kind of "mail" name
+                return _mapiClient ??= Language.GetString(LangKey.editor_email);
+            }
 		}
 
 		public override int Priority => 3;

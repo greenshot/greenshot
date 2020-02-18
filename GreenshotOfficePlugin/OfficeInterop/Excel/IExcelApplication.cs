@@ -19,21 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Interop.Office {
-	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
+using Greenshot.Interop;
+
+namespace GreenshotOfficePlugin.OfficeInterop.Excel {
+	/// <summary>
+	/// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
+	/// </summary>
 	[ComProgId("Excel.Application")]
 	public interface IExcelApplication : ICommon {
 		IWorkbook ActiveWorkbook {
 			get;
 		}
+
 		//ISelection Selection {get;}
 		IWorkbooks Workbooks {
 			get;
 		}
+
 		bool Visible {
 			get;
 			set;
 		}
+
 		string Version {
 			get;
 		}
@@ -45,55 +52,5 @@ namespace Greenshot.Interop.Office {
 		{
 			get;
 		}
-	}
-
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
-	public interface IWorkbooks : ICommon, ICollection {
-		IWorkbook Add(object template);
-		// Use index + 1!!
-		IWorkbook this[object index] {
-			get;
-		}
-	}
-
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbook.aspx
-	public interface IWorkbook : ICommon {
-		IWorksheet ActiveSheet {
-			get;
-		}
-		string Name {
-			get;
-		}
-		void Activate();
-		IWorksheets Worksheets {
-			get;
-		}
-	}
-
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel._worksheet_members.aspx
-	public interface IWorksheet : ICommon {
-		IPictures Pictures {
-			get;
-		}
-		IShapes Shapes {
-			get;
-		}
-		string Name {
-			get;
-		}
-	}
-
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
-	public interface IWorksheets : ICollection {
-		// Use index + 1!!
-		IWorksheet this[object index] {
-			get;
-		}
-	}
-
-	public interface IPictures : ICollection {
-		// Use index + 1!!
-		//IPicture this[object Index] { get; }
-		void Insert(string file);
 	}
 }

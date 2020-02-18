@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -35,54 +36,34 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
 		public const string DESIGNATION = "Printer";
-		public readonly string printerName;
+        private readonly string _printerName;
 
 		public PrinterDestination() {
 		}
 
 		public PrinterDestination(string printerName) {
-			this.printerName = printerName;
+			_printerName = printerName;
 		}
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description {
+        public override string Description {
 			get {
-				if (printerName != null) {
-					return Language.GetString(LangKey.settings_destination_printer) + " - " + printerName;
+				if (_printerName != null) {
+					return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
 				}
 				return Language.GetString(LangKey.settings_destination_printer);
 			}
 		}
 
-		public override int Priority {
-			get {
-				return 2;
-			}
-		}
+		public override int Priority => 2;
 
-		public override Keys EditorShortcutKeys {
-			get {
-				return Keys.Control | Keys.P;
-			}
-		}
+        public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 
-		public override Image DisplayIcon {
-			get {
-				return GreenshotResources.getImage("Printer.Image");
-			}
-		}
+        public override Image DisplayIcon => GreenshotResources.getImage("Printer.Image");
 
-		public override bool IsDynamic {
-			get {
-				return true;
-			}
-		}
+        public override bool IsDynamic => true;
 
-		/// <summary>
+        /// <summary>
 		/// Create destinations for all the installed printers
 		/// </summary>
 		/// <returns>IEnumerable of IDestination</returns>
@@ -101,7 +82,7 @@ namespace Greenshot.Destinations {
 				if(defaultPrinter.Equals(p2)) {
 					return 1;
 				}
-				return p1.CompareTo(p2);
+				return string.Compare(p1, p2, StringComparison.Ordinal);
 			});
 			foreach(string printer in printers) {
 				yield return new PrinterDestination(printer);
@@ -118,10 +99,10 @@ namespace Greenshot.Destinations {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;
-			if (!string.IsNullOrEmpty(printerName))
+			if (!string.IsNullOrEmpty(_printerName))
             {
                 using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
-                printerSettings = printHelper.PrintTo(printerName);
+                printerSettings = printHelper.PrintTo(_printerName);
             } else if (!manuallyInitiated) {
 				PrinterSettings settings = new PrinterSettings();
                 using PrintHelper printHelper = new PrintHelper(surface, captureDetails);

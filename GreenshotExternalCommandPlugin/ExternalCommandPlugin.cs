@@ -19,16 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	/// <summary>
 	/// An Plugin to run commands after an image was written
 	/// </summary>

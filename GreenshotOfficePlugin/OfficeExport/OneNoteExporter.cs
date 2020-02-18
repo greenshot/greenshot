@@ -19,15 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Runtime.InteropServices;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Xml;
+using Greenshot.Interop;
+using Greenshot.Plugin;
+using GreenshotOfficePlugin.OfficeInterop.OneNote;
+using GreenshotPlugin.Core;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 
 	public class OneNoteExporter {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
