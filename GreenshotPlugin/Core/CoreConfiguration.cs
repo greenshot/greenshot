@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,6 +26,8 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core {
 	public enum ClipboardFormat {
@@ -369,7 +369,7 @@ namespace GreenshotPlugin.Core {
 				case "TitleFixMatcher":
 					return new Dictionary<string, string> {{"Firefox", " - Mozilla Firefox.*"}, {"IE", " - (Microsoft|Windows) Internet Explorer.*"}, {"Chrome", " - Google Chrome.*"}};
 				case "TitleFixReplacer":
-					return new Dictionary<string, string> {{"Firefox", ""}, {"IE", ""}, {"Chrome", ""}};
+					return new Dictionary<string, string> {{"Firefox", string.Empty }, {"IE", string.Empty }, {"Chrome", string.Empty } };
 			}
 			return null;
 		}

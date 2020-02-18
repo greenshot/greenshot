@@ -21,7 +21,7 @@
 
 using System;
 
-namespace Greenshot.Plugin {
+namespace GreenshotPlugin.Interfaces.Plugin {
 	[Serializable]
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class PluginAttribute : Attribute, IComparable {

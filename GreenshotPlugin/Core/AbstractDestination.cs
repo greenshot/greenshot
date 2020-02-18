@@ -23,8 +23,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 

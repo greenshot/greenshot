@@ -29,10 +29,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace GreenshotPlugin.Core {

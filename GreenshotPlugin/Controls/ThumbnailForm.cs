@@ -21,9 +21,11 @@
 using System;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.Drawing;
+using GreenshotPlugin.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>

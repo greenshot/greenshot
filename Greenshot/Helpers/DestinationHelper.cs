@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers {

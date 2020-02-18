@@ -24,11 +24,7 @@ using Greenshot.Drawing.Adorners;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Memento;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
 using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
@@ -38,6 +34,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing
 {

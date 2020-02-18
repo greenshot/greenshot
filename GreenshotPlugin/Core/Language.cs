@@ -24,21 +24,20 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 using log4net;
 using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
-	public delegate void LanguageChangedHandler(object sender, EventArgs e);
-	/// <summary>
+    /// <summary>
 	/// This class supplies the GUI with translations, based upon keys.
 	/// The language resources are loaded from the language files found on fixed or supplied paths
 	/// </summary>
 	public class Language {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Language));
-		private static readonly IList<string> LanguagePaths = new List<string>();
-		private static readonly IDictionary<string, List<LanguageFile>> LanguageFiles = new Dictionary<string, List<LanguageFile>>();
-		private static readonly IDictionary<string, string> HelpFiles = new Dictionary<string, string>();
+		private static readonly List<string> LanguagePaths = new List<string>();
+		private static readonly Dictionary<string, List<LanguageFile>> LanguageFiles = new Dictionary<string, List<LanguageFile>>();
+		private static readonly Dictionary<string, string> HelpFiles = new Dictionary<string, string>();
 		private const string DefaultLanguage = "en-US";
 		private const string HelpFilenamePattern = @"help-*.html";
 		private const string LanguageFilenamePattern = @"language*.xml";
@@ -46,8 +45,8 @@ namespace GreenshotPlugin.Core {
 		private static readonly Regex IetfCleanRegexp = new Regex(@"[^a-zA-Z]+");
 		private static readonly Regex IetfRegexp = new Regex(@"^.*([a-zA-Z]{2,3}-[a-zA-Z]{1,2})\.xml$");
 		private const string LanguageGroupsKey = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
-		private static readonly IList<string> UnsupportedLanguageGroups = new List<string>();
-		private static readonly IDictionary<string, string> Resources = new Dictionary<string, string>();
+		private static readonly List<string> UnsupportedLanguageGroups = new List<string>();
+		private static readonly Dictionary<string, string> Resources = new Dictionary<string, string>();
 		private static string _currentLanguage;
 
 		public static event LanguageChangedHandler LanguageChanged;
@@ -88,19 +87,19 @@ namespace GreenshotPlugin.Core {
 			}
 
 			try
-            {
-                using RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LanguageGroupsKey, false);
-                if (languageGroupsKey != null) {
-                    string [] groups = languageGroupsKey.GetValueNames();
-                    foreach(string group in groups) {
-                        string groupValue = (string)languageGroupsKey.GetValue(@group);
-                        bool isGroupNotInstalled = "0".Equals(groupValue);
-                        if (isGroupNotInstalled) {
-                            UnsupportedLanguageGroups.Add(@group.ToLower());
-                        }
-                    }
-                }
-            } catch(Exception e) {
+			{
+				using RegistryKey languageGroupsKey = Registry.LocalMachine.OpenSubKey(LanguageGroupsKey, false);
+				if (languageGroupsKey != null) {
+					string [] groups = languageGroupsKey.GetValueNames();
+					foreach(string group in groups) {
+						string groupValue = (string)languageGroupsKey.GetValue(group);
+						bool isGroupNotInstalled = "0".Equals(groupValue);
+						if (isGroupNotInstalled) {
+							UnsupportedLanguageGroups.Add(group.ToLower());
+						}
+					}
+				}
+			} catch(Exception e) {
 				Log.Warn("Couldn't read the installed language groups.", e);
 			}
 
@@ -132,14 +131,15 @@ namespace GreenshotPlugin.Core {
 		/// <param name="path"></param>
 		/// <returns>true if the path exists and is added</returns>
 		private static bool AddPath(string path) {
-			if (!LanguagePaths.Contains(path)) {
+			if (!LanguagePaths.Contains(path))
+			{
 				if (Directory.Exists(path)) {
 					Log.DebugFormat("Adding language path {0}", path);
 					LanguagePaths.Add(path);
 					return true;
-				} else {
-					Log.InfoFormat("Not adding non existing language path {0}", path);
 				}
+
+				Log.InfoFormat("Not adding non existing language path {0}", path);
 			}
 			return false;
 		}
@@ -167,7 +167,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="ietf"></param>
 		private static void LoadFiles(string ietf) {
-			ietf = ReformatIETF(ietf);
+			ietf = ReformatIetf(ietf);
 			if (!LanguageFiles.ContainsKey(ietf)) {
 				Log.ErrorFormat("No language {0} available.", ietf);
 				return;
@@ -193,11 +193,9 @@ namespace GreenshotPlugin.Core {
 		/// Get or set the current language
 		/// </summary>
 		public static string CurrentLanguage {
-			get {
-				return _currentLanguage;
-			}
+			get => _currentLanguage;
 			set {
-				string ietf = FindBestIETFMatch(value);
+				string ietf = FindBestIetfMatch(value);
 				if (!LanguageFiles.ContainsKey(ietf)) {
 					Log.WarnFormat("No match for language {0} found!", ietf);
 				} else {
@@ -225,46 +223,46 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Try to find the best match for the supplied IETF
 		/// </summary>
-		/// <param name="inputIETF"></param>
+		/// <param name="inputIetf"></param>
 		/// <returns>IETF</returns>
-		private static string FindBestIETFMatch(string inputIETF) {
-			string returnIETF = inputIETF;
-			if (string.IsNullOrEmpty(returnIETF)) {
-				returnIETF = DefaultLanguage;
+		private static string FindBestIetfMatch(string inputIetf) {
+			string returnIetf = inputIetf;
+			if (string.IsNullOrEmpty(returnIetf)) {
+				returnIetf = DefaultLanguage;
 			}
-			returnIETF = ReformatIETF(returnIETF);
-			if (!LanguageFiles.ContainsKey(returnIETF)) {
-				Log.WarnFormat("Unknown language {0}, trying best match!", returnIETF);
-				if (returnIETF.Length == 5) {
-					returnIETF = returnIETF.Substring(0, 2);
+			returnIetf = ReformatIetf(returnIetf);
+			if (!LanguageFiles.ContainsKey(returnIetf)) {
+				Log.WarnFormat("Unknown language {0}, trying best match!", returnIetf);
+				if (returnIetf.Length == 5) {
+					returnIetf = returnIetf.Substring(0, 2);
 				}
-				foreach (string availableIETF in LanguageFiles.Keys) {
-					if (availableIETF.StartsWith(returnIETF)) {
-						Log.InfoFormat("Found language {0}, best match for {1}!", availableIETF, returnIETF);
-						returnIETF = availableIETF;
+				foreach (string availableIetf in LanguageFiles.Keys) {
+					if (availableIetf.StartsWith(returnIetf)) {
+						Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
+						returnIetf = availableIetf;
 						break;
 					}
 				}
 			}
-			return returnIETF;
+			return returnIetf;
 		}
 
 		/// <summary>
 		/// This helper method clears all non alpha characters from the IETF, and does a reformatting.
 		/// This prevents problems with multiple formats or typos.
 		/// </summary>
-		/// <param name="inputIETF"></param>
+		/// <param name="inputIetf"></param>
 		/// <returns></returns>
-		private static string ReformatIETF(string inputIETF) {
-			string returnIETF = null;
-			if (!string.IsNullOrEmpty(inputIETF)) {
-				returnIETF = inputIETF.ToLower();
-				returnIETF = IetfCleanRegexp.Replace(returnIETF, "");
-				if (returnIETF.Length == 4) {
-					returnIETF = returnIETF.Substring(0, 2) + "-" + returnIETF.Substring(2, 2).ToUpper();
+		private static string ReformatIetf(string inputIetf) {
+			string returnIetf = null;
+			if (!string.IsNullOrEmpty(inputIetf)) {
+				returnIetf = inputIetf.ToLower();
+				returnIetf = IetfCleanRegexp.Replace(returnIetf, string.Empty);
+				if (returnIetf.Length == 4) {
+					returnIetf = returnIetf.Substring(0, 2) + "-" + returnIetf.Substring(2, 2).ToUpper();
 				}
 			}
-			return returnIETF;
+			return returnIetf;
 		}
 
 		/// <summary>
@@ -278,11 +276,9 @@ namespace GreenshotPlugin.Core {
 					// Loop over all the files for a language
 					foreach (LanguageFile langFile in langs) {
 						// Only take the ones without prefix, these are the "base" language files
-						if (langFile.Prefix == null) {
-							languages.Add(langFile);
-							break;
-						}
-					}
+						if (langFile.Prefix != null) continue;
+						languages.Add(langFile);
+				}
 				}
 				return languages;
 			}
@@ -350,7 +346,7 @@ namespace GreenshotPlugin.Core {
 					{
 						languageFile.Description = node.Attributes["description"].Value;
 						if (node.Attributes["ietf"] != null) {
-							languageFile.Ietf = ReformatIETF(node.Attributes["ietf"].Value);
+							languageFile.Ietf = ReformatIetf(node.Attributes["ietf"].Value);
 						}
 						if (node.Attributes["version"] != null) {
 							languageFile.Version = new Version(node.Attributes["version"].Value);
@@ -395,8 +391,8 @@ namespace GreenshotPlugin.Core {
 							Log.WarnFormat("Fixing missing ietf in language-file {0}", languageFilepath);
 							string languageFilename = Path.GetFileName(languageFilepath);
 							if (IetfRegexp.IsMatch(languageFilename)) {
-								string replacementIETF = IetfRegexp.Replace(languageFilename, "$1");
-								languageFile.Ietf = ReformatIETF(replacementIETF);
+								string replacementIetf = IetfRegexp.Replace(languageFilename, "$1");
+								languageFile.Ietf = ReformatIetf(replacementIetf);
 								Log.InfoFormat("Fixed IETF to {0}", languageFile.Ietf);
 							} else {
 								Log.ErrorFormat("Missing ietf , no recover possible... skipping language-file {0}!", languageFilepath);
@@ -416,11 +412,11 @@ namespace GreenshotPlugin.Core {
 							if (PrefixRegexp.IsMatch(languageFilename)) {
 								languageFile.Prefix = PrefixRegexp.Replace(languageFilename, "$1");
 								if (!string.IsNullOrEmpty(languageFile.Prefix)) {
-									languageFile.Prefix = languageFile.Prefix.Replace("plugin", "").ToLower();
+									languageFile.Prefix = languageFile.Prefix.Replace("plugin", string.Empty).ToLower();
 								}
 							}
 						}
-						List<LanguageFile> currentFiles = null;
+						List<LanguageFile> currentFiles;
 						if (LanguageFiles.ContainsKey(languageFile.Ietf)) {
 							currentFiles = LanguageFiles[languageFile.Ietf];
 							bool needToAdd = true;
@@ -431,10 +427,10 @@ namespace GreenshotPlugin.Core {
 										Log.WarnFormat("Skipping {0}:{1}:{2} as {3}:{4}:{5} is newer", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
 										needToAdd = false;
 										break;
-									} else {
-										Log.WarnFormat("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
-										deleteList.Add(compareWithLangfile);
 									}
+
+									Log.WarnFormat("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
+									deleteList.Add(compareWithLangfile);
 								}
 							}
 							if (needToAdd) {
@@ -462,7 +458,7 @@ namespace GreenshotPlugin.Core {
 					foreach (string helpFilepath in Directory.GetFiles(languagePath, HelpFilenamePattern, SearchOption.AllDirectories)) {
 						Log.DebugFormat("Found help file: {0}", helpFilepath);
 						string helpFilename = Path.GetFileName(helpFilepath);
-						string ietf = ReformatIETF(helpFilename.Replace(".html", "").Replace("help-", ""));
+						string ietf = ReformatIetf(helpFilename.Replace(".html", string.Empty).Replace("help-", ""));
 						if (!HelpFiles.ContainsKey(ietf)) {
 							HelpFiles.Add(ietf, helpFilepath);
 						} else {
@@ -557,7 +553,11 @@ namespace GreenshotPlugin.Core {
 			return Resources.TryGetValue(prefix + "." + key, out languageString);
 		}
 
-
+		/// <summary>
+		/// Translate
+		/// </summary>
+		/// <param name="key">object</param>
+		/// <returns>string</returns>
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
 			string enumKey = typename + "." + key;
@@ -570,7 +570,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for key
 		/// </summary>
-		/// <param name="key"></param>
+		/// <param name="key">Enum</param>
 		/// <returns>resource or a "string ###key### not found"</returns>
 		public static string GetString(Enum key) {
 			if (key == null) {
@@ -582,8 +582,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key
 		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="key"></param>
+		/// <param name="prefix">string</param>
+		/// <param name="key">Enum</param>
 		/// <returns>resource or a "string ###prefix.key### not found"</returns>
 		public static string GetString(string prefix, Enum key) {
 			if (key == null) {
@@ -595,8 +595,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key
 		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="key"></param>
+		/// <param name="prefix">string</param>
+		/// <param name="key">string</param>
 		/// <returns>resource or a "string ###prefix.key### not found"</returns>
 		public static string GetString(string prefix, string key) {
 			return GetString(prefix + "." + key);
@@ -605,14 +605,14 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for key
 		/// </summary>
-		/// <param name="key"></param>
+		/// <param name="key">string</param>
 		/// <returns>resource or a "string ###key### not found"</returns>
 		public static string GetString(string key) {
 			if (key == null) {
 				return null;
 			}
 
-            if (!Resources.TryGetValue(key, out var returnValue)) {
+			if (!Resources.TryGetValue(key, out var returnValue)) {
 				return "string ###" + key + "### not found";
 			}
 			return returnValue;
@@ -621,8 +621,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for key, format with with string.format an supply the parameters
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="param"></param>
+		/// <param name="key">Enum</param>
+		/// <param name="param">object</param>
 		/// <returns>formatted resource or a "string ###key### not found"</returns>
 		public static string GetFormattedString(Enum key, object param) {
 			return GetFormattedString(key.ToString(), param);
@@ -631,9 +631,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key, format with with string.format an supply the parameters
 		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="key"></param>
-		/// <param name="param"></param>
+		/// <param name="prefix">string</param>
+		/// <param name="key">Enum</param>
+		/// <param name="param">object</param>
 		/// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
 		public static string GetFormattedString(string prefix, Enum key, object param) {
 			return GetFormattedString(prefix, key.ToString(), param);
@@ -642,9 +642,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key, format with with string.format an supply the parameters
 		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="key"></param>
-		/// <param name="param"></param>
+		/// <param name="prefix">string</param>
+		/// <param name="key">string</param>
+		/// <param name="param">object</param>
 		/// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
 		public static string GetFormattedString(string prefix, string key, object param) {
 			return GetFormattedString(prefix + "." + key, param);
@@ -653,87 +653,14 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for key, format with with string.format an supply the parameters
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="param"></param>
+		/// <param name="key">string</param>
+		/// <param name="param">object</param>
 		/// <returns>formatted resource or a "string ###key### not found"</returns>
 		public static string GetFormattedString(string key, object param) {
-            if (!Resources.TryGetValue(key, out var returnValue)) {
+			if (!Resources.TryGetValue(key, out var returnValue)) {
 				return "string ###" + key + "### not found";
 			}
 			return string.Format(returnValue, param);
 		}
 	}
-
-	/// <summary>
-	/// This class contains the information about a language file
-	/// </summary>
-	public class LanguageFile : IEquatable<LanguageFile> {
-		public string Description {
-			get;
-			set;
-		}
-
-		public string Ietf {
-			get;
-			set;
-		}
-
-		public Version Version {
-			get;
-			set;
-		}
-
-		public string LanguageGroup {
-			get;
-			set;
-		}
-
-		public string Filepath {
-			get;
-			set;
-		}
-
-		public string Prefix {
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Overload equals so we can delete a entry from a collection
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		public bool Equals(LanguageFile other) {
-			if (Prefix != null) {
-				if (other != null && !Prefix.Equals(other.Prefix)) {
-					return false;
-				}
-			} else if (other?.Prefix != null) {
-				return false;
-			}
-			if (Ietf != null) {
-				if (other != null && !Ietf.Equals(other.Ietf)) {
-					return false;
-				}
-			} else if (other?.Ietf != null) {
-				return false;
-			}
-			if (Version != null) {
-				if (other != null && !Version.Equals(other.Version)) {
-					return false;
-				}
-			} else if (other != null && other.Version != null) {
-				return false;
-			}
-			if (Filepath != null) {
-				if (other != null && !Filepath.Equals(other.Filepath)) {
-					return false;
-				}
-			} else if (other?.Filepath != null) {
-				return false;
-			}
-			return true;
-		}
-	}
-
 }

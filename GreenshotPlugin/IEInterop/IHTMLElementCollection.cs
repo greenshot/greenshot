@@ -22,7 +22,7 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop.IE {
+namespace GreenshotPlugin.IEInterop {
 	[ComImport(), ComVisible(true),
 	 Guid("3050F21F-98B5-11CF-BB82-00AA00BDCE0B"),
 	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch),

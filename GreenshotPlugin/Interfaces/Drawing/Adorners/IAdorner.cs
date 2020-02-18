@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin.Drawing.Adorners
+namespace GreenshotPlugin.Interfaces.Drawing.Adorners
 {
 	public interface IAdorner
 	{

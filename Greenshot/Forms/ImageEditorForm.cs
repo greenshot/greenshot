@@ -34,14 +34,15 @@ using Greenshot.Drawing.Fields.Binding;
 using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
+using GreenshotPlugin.Interfaces.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 using log4net;
 
 namespace Greenshot {
@@ -905,7 +906,7 @@ namespace Greenshot {
 			bool canUndo = _surface.CanUndo;
 			btnUndo.Enabled = canUndo;
 			undoToolStripMenuItem.Enabled = canUndo;
-			string undoAction = "";
+			string undoAction = string.Empty;
 			if (canUndo) {
 				if (_surface.UndoActionLanguageKey != LangKey.none) {
 					undoAction = Language.GetString(_surface.UndoActionLanguageKey);
@@ -918,7 +919,7 @@ namespace Greenshot {
 			bool canRedo = _surface.CanRedo;
 			btnRedo.Enabled = canRedo;
 			redoToolStripMenuItem.Enabled = canRedo;
-			string redoAction = "";
+			string redoAction = string.Empty;
 			if (canRedo) {
 				if (_surface.RedoActionLanguageKey != LangKey.none) {
 					redoAction = Language.GetString(_surface.RedoActionLanguageKey);

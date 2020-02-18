@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
+namespace GreenshotPlugin.Interfaces {
 	public class ExportInformation {
 		public ExportInformation(string destinationDesignation, string destinationDescription) {
 			DestinationDesignation = destinationDesignation;

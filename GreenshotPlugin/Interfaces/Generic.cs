@@ -19,15 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Memento;
-using Greenshot.Plugin.Drawing;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces
 {
 	/// <summary>
 	/// Alignment Enums for possitioning

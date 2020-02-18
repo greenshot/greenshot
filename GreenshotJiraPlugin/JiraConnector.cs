@@ -31,8 +31,8 @@ using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
 using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -79,7 +79,7 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		public JiraConnector()
 		{
-			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, "");
+			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
 		}
 
 		/// <summary>

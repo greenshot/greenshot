@@ -22,7 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using Greenshot.Plugin;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace GreenshotPlugin.Core {

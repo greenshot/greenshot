@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
@@ -511,7 +510,7 @@ namespace Greenshot.Drawing
                     prevSpacePos = _textBox.Text.LastIndexOf(' ', selStart - 1);
                 }
                 _textBox.Select(prevSpacePos + 1, _textBox.SelectionStart - prevSpacePos - 1);
-                _textBox.SelectedText = "";
+                _textBox.SelectedText = string.Empty;
             }
         }
 

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Interop;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeInterop.Word {
 	// See http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx

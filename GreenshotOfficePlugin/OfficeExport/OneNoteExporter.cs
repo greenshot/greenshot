@@ -24,10 +24,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
-using Greenshot.Interop;
-using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeInterop.OneNote;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 
@@ -48,7 +49,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
 				if(unfiledNotesSectionId != null) {
 					// ReSharper disable once RedundantAssignment
-					string pageId = "";
+					string pageId = string.Empty;
 					oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
 					newPage.ID = pageId;
 					// Set the new name, this is automatically done in the export to page
@@ -110,12 +111,12 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				return null;
 			}
 			// ReSharper disable once RedundantAssignment
-			string unfiledNotesPath = "";
+			string unfiledNotesPath = string.Empty;
 			oneNoteApplication.GetSpecialLocation(specialLocation, out unfiledNotesPath);
 
 			// ReSharper disable once RedundantAssignment
-			string notebookXml = "";
-			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+			string notebookXml = string.Empty;
+			oneNoteApplication.GetHierarchy(string.Empty, HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
 			if(!string.IsNullOrEmpty(notebookXml)) {
 				Log.Debug(notebookXml);
 				StringReader reader = null;
@@ -150,8 +151,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
                 using IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>();
                 if (oneNoteApplication != null) {
                     // ReSharper disable once RedundantAssignment
-                    string notebookXml = "";
-                    oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+                    string notebookXml = string.Empty;
+                    oneNoteApplication.GetHierarchy(string.Empty, HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
                     if (!string.IsNullOrEmpty(notebookXml)) {
                         Log.Debug(notebookXml);
                         StringReader reader = null;

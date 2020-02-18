@@ -25,9 +25,9 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
-using Greenshot.Interop.IE;
+using GreenshotPlugin.IEInterop;
 using log4net;
-using IServiceProvider = Greenshot.Interop.IServiceProvider;
+using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {

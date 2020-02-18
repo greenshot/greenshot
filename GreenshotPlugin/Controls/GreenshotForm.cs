@@ -23,10 +23,10 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Reflection;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
+using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace GreenshotPlugin.Controls {

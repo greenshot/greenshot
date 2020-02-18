@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 using Microsoft.Win32.SafeHandles;
 
 namespace GreenshotPlugin.UnmanagedHelpers {

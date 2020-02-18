@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Interop;
-using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -33,6 +30,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interop;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin.Core {
     /// <summary>

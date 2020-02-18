@@ -23,12 +23,12 @@ using System;
 using System.Globalization;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
-using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotJiraPlugin.Forms {
 	public partial class JiraForm : Form {
@@ -148,7 +148,7 @@ namespace GreenshotJiraPlugin.Forms {
 					{
                         if (!Language.TryGetString("jira", column, out var translation))
 						{
-							translation = "";
+							translation = string.Empty;
 						}
 						jiraListView.Columns.Add(translation);
 					}

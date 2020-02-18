@@ -29,7 +29,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using log4net;
 
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	/// <summary>
 	/// Wraps a late-bound COM server.
 	/// </summary>

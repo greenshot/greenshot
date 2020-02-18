@@ -23,12 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
-using Greenshot.Interop;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotOfficePlugin.OfficeInterop.Excel;
 using GreenshotOfficePlugin.OfficeInterop.Outlook;
 using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class ExcelExporter {

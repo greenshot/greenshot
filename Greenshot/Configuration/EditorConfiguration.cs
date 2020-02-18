@@ -24,9 +24,11 @@ using System.Drawing;
 
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Drawing;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace Greenshot.Configuration {
 	/// <summary>

@@ -24,11 +24,12 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotOfficePlugin.OfficeInterop.Outlook;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>
@@ -133,7 +134,7 @@ namespace GreenshotOfficePlugin.Destinations {
 				attachmentName = "Greenshot Capture";
 			}
 			// Make sure it's "clean" so it doesn't corrupt the header
-			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
+			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", string.Empty);
 
 			if (_outlookInspectorCaption != null) {
 				OutlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);

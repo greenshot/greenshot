@@ -20,7 +20,7 @@
  */
 using System;
 using System.Windows.Forms;
-using GreenshotInterop.Interop;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotPlugin.Controls {
 	public class ExtendedWebBrowser : WebBrowser {

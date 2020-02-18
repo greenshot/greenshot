@@ -32,8 +32,8 @@ using System.Drawing.Drawing2D;
 using Greenshot.Helpers;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.Security.Permissions;
+using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace Greenshot {

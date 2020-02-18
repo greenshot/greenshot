@@ -20,9 +20,8 @@
  */
 using System;
 using System.Collections.Generic;
-
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers {

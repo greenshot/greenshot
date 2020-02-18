@@ -18,14 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 using GreenshotPlugin.Core;
 using log4net;
 
-namespace Greenshot.IniFile {
+namespace GreenshotPlugin.IniFile {
 	/// <summary>
 	/// Base class for all IniSections
 	/// </summary>

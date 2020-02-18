@@ -18,9 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	/// <summary>
 	/// An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)
 	/// </summary>

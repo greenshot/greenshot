@@ -23,10 +23,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 //using Microsoft.Win32;
 
@@ -78,7 +79,7 @@ namespace GreenshotOCRPlugin {
 			_config = IniConfig.GetIniSection<OCRConfiguration>();
 			
 			if (_config.Language != null) {
-				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");
+				_config.Language = _config.Language.Replace("miLANG_", string.Empty).Replace("_"," ");
 			}
 			return true;
 		}

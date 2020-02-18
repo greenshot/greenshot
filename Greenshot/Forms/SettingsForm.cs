@@ -34,9 +34,11 @@ using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Plugin;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot {

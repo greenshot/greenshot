@@ -21,10 +21,9 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace GreenshotPlugin.Controls {
@@ -89,7 +88,7 @@ namespace GreenshotPlugin.Controls {
 
 		private void ApplyFilterOptions() {
 			PrepareFilterOptions();
-			string fdf = "";
+			string fdf = string.Empty;
 			int preselect = 0;
 			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
 			for(int i=0; i<_filterOptions.Length; i++){

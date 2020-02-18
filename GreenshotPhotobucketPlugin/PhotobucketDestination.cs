@@ -21,8 +21,8 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPhotobucketPlugin  {
 	/// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces.Plugin
 {
     /// <summary>
     /// This defines the plugin

@@ -47,10 +47,10 @@ namespace Greenshot.Forms {
 			Color c = GetPixelColor(screenCoordinates);
 			preview.BackColor = c;
 			html.Text = "#" + c.Name.Substring(2).ToUpper();
-			red.Text = "" + c.R;
-			blue.Text = "" + c.B;
-			green.Text = "" + c.G;
-			alpha.Text = "" + c.A;
+			red.Text = string.Empty + c.R;
+			blue.Text = string.Empty + c.B;
+			green.Text = string.Empty + c.G;
+			alpha.Text = string.Empty + c.A;
 
 			Size cursorSize = Cursor.Current.Size;
 			Point hotspot = Cursor.Current.HotSpot;

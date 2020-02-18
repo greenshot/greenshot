@@ -20,13 +20,13 @@
  */
 
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
 using Dapplo.Log;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace GreenshotJiraPlugin {

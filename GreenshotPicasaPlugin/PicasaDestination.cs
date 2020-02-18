@@ -19,8 +19,8 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {

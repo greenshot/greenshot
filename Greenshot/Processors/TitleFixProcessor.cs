@@ -21,10 +21,9 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Processors  {
@@ -67,7 +66,7 @@ namespace Greenshot.Processors  {
 				title = title.Trim();
 				foreach(string titleIdentifier in config.ActiveTitleFixes) {
 					string regexpString = config.TitleFixMatcher[titleIdentifier];
-					string replaceString = config.TitleFixReplacer[titleIdentifier] ?? "";
+					string replaceString = config.TitleFixReplacer[titleIdentifier] ?? string.Empty;
                     
                     if (string.IsNullOrEmpty(regexpString)) continue;
 

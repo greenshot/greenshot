@@ -25,10 +25,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-
-using Greenshot.Plugin;
 using log4net;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -292,13 +291,13 @@ namespace GreenshotPlugin.Controls {
 		private void Redraw(bool bCalledProgramatically = false) {
 			// No hotkey set
 			if (_hotkey == Keys.None) {
-				Text = "";
+				Text = string.Empty;
 				return;
 			}
 
 			// LWin/RWin doesn't work as hotkeys (neither do they work as modifier keys in .NET 2.0)
 			if (_hotkey == Keys.LWin || _hotkey == Keys.RWin) {
-				Text = "";
+				Text = string.Empty;
 				return;
 			}
 
@@ -318,7 +317,7 @@ namespace GreenshotPlugin.Controls {
 						// User pressed Shift and an invalid key (e.g. a letter or a number),
 						// that needs another set of modifier keys
 						_hotkey = Keys.None;
-						Text = "";
+						Text = string.Empty;
 						return;
 					}
 				}
@@ -326,7 +325,7 @@ namespace GreenshotPlugin.Controls {
 				if ((_modifiers == (Keys.Alt | Keys.Control)) && _needNonAltGrModifier.Contains((int)_hotkey)) {
 					// Ctrl+Alt+4 etc won't work; reset hotkey and tell the user
 					_hotkey = Keys.None;
-					Text = "";
+					Text = string.Empty;
 					return;
 				}
 			}
@@ -534,7 +533,7 @@ namespace GreenshotPlugin.Controls {
 					break;
 				case Keys.Multiply:
 					GetKeyNameText(numpad << 16, keyName, 100);
-					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
+					keyString = keyName.ToString().Replace("*", string.Empty).Trim().ToLower();
 					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "* " + keyString;
 					}
@@ -542,7 +541,7 @@ namespace GreenshotPlugin.Controls {
 					return keyString + " *";
 				case Keys.Divide:
 					GetKeyNameText(numpad << 16, keyName, 100);
-					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
+					keyString = keyName.ToString().Replace("*", string.Empty).Trim().ToLower();
 					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "/ " + keyString;
 					}

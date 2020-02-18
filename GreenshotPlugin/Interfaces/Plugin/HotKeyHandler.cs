@@ -1,4 +1,4 @@
-﻿namespace Greenshot.Plugin
+﻿namespace GreenshotPlugin.Interfaces.Plugin
 {
     public delegate void HotKeyHandler();
 }

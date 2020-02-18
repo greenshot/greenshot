@@ -34,12 +34,12 @@ namespace GreenshotPlugin.Core {
 		public static string GetMapiClient() {
 			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(MapiClientKey, false)) {
 				if (key != null) {
-					return (string)key.GetValue("");
+					return (string)key.GetValue(string.Empty);
 				} 
 			}
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MapiClientKey, false))
 			{
-				return (string) key?.GetValue("");
+				return (string) key?.GetValue(string.Empty);
 			}
 		}
 
@@ -53,7 +53,7 @@ namespace GreenshotPlugin.Core {
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OutlookPathKey, false)) {
 				if (key != null) {
 					// "" is the default key, which should point to the outlook location
-					return (string)key.GetValue("");
+					return (string)key.GetValue(string.Empty);
 				}
 			}
 			return null;

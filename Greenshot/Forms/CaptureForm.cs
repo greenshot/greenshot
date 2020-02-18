@@ -21,8 +21,6 @@
 
 using Greenshot.Drawing;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -35,6 +33,8 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Forms {
 	/// <summary>

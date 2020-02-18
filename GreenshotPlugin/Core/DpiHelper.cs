@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin.Core
 {

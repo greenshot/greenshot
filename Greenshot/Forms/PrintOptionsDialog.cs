@@ -20,7 +20,7 @@
  */
 using System;
 using System.Windows.Forms;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Forms {
 	/// <summary>

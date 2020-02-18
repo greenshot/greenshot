@@ -217,7 +217,7 @@ namespace GreenshotPlugin.Core {
 						if (remainingLength >= 4) {
 							// parse the 32 bit hex into an integer codepoint
                             if (!(success = uint.TryParse(new string(json, index, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var codePoint))) {
-								return "";
+								return string.Empty;
 							}
 							// convert the integer codepoint to a unicode char and add to string
 							s.Append(char.ConvertFromUtf32((int)codePoint));

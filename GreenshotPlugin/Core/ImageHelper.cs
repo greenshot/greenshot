@@ -25,10 +25,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Plugin;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace GreenshotPlugin.Core {
@@ -69,7 +69,7 @@ namespace GreenshotPlugin.Core {
             }
 
             // Fallback
-			StreamConverters[""] = DefaultConverter;
+			StreamConverters[string.Empty] = DefaultConverter;
 			StreamConverters["gif"] = DefaultConverter;
 			StreamConverters["bmp"] = DefaultConverter;
 			StreamConverters["jpg"] = DefaultConverter;
@@ -1678,7 +1678,7 @@ namespace GreenshotPlugin.Core {
 			}
 			if (!string.IsNullOrEmpty(extension))
 			{
-				extension = extension.Replace(".", "");
+				extension = extension.Replace(".", string.Empty);
 			}
 
 			// Make sure we can try multiple times
@@ -1690,7 +1690,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			Image returnImage = null;
-            if (StreamConverters.TryGetValue(extension ?? "", out var converter))
+            if (StreamConverters.TryGetValue(extension ?? string.Empty, out var converter))
 			{
 				returnImage =  converter(stream, extension);
 			}

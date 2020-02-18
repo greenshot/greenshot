@@ -1,4 +1,4 @@
-﻿using Greenshot.Interop;
+﻿using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeInterop.Powerpoint
 {

@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento {
 	/// <summary>

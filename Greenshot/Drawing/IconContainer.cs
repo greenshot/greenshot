@@ -21,10 +21,10 @@
 using System;
 using System.Drawing;
 using System.IO;
-using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
 using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

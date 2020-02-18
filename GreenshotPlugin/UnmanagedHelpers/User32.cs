@@ -26,22 +26,13 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.Win32.SafeHandles;
-using System.Security;
-using System.Security.Permissions;
 using log4net;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
-	/// <summary>
-	/// Used with EnumWindows or EnumChildWindows
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="lParam"></param>
-	/// <returns></returns>
-	public delegate int EnumWindowsProc(IntPtr hwnd, int lParam);
-
-	/// <summary>
+    /// <summary>
 	/// User32 Wrappers
 	/// </summary>
 	public static class User32 {
@@ -334,122 +325,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			Win32Exception exceptionToThrow = new Win32Exception();
 			exceptionToThrow.Data.Add("Method", method);
 			return exceptionToThrow;
-		}
-	}
-
-	/// <summary>
-	/// Used with SetWinEventHook
-	/// </summary>
-	/// <param name="hWinEventHook"></param>
-	/// <param name="eventType"></param>
-	/// <param name="hwnd"></param>
-	/// <param name="idObject"></param>
-	/// <param name="idChild"></param>
-	/// <param name="dwEventThread"></param>
-	/// <param name="dwmsEventTime"></param>
-	public delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-
-	/// <summary>
-	/// A SafeHandle class implementation for the current input desktop
-	/// </summary>
-	public class SafeCurrentInputDesktopHandle : SafeHandleZeroOrMinusOneIsInvalid {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SafeCurrentInputDesktopHandle));
-
-		public SafeCurrentInputDesktopHandle() : base(true) {
-			IntPtr hDesktop = User32.OpenInputDesktop(0, true, DesktopAccessRight.GENERIC_ALL);
-			if (hDesktop != IntPtr.Zero) {
-				SetHandle(hDesktop);
-				if (User32.SetThreadDesktop(hDesktop)) {
-					LOG.DebugFormat("Switched to desktop {0}", hDesktop);
-				} else {
-					LOG.WarnFormat("Couldn't switch to desktop {0}", hDesktop);
-					LOG.Error(User32.CreateWin32Exception("SetThreadDesktop"));
-				}
-			} else {
-				LOG.Warn("Couldn't get current desktop.");
-				LOG.Error(User32.CreateWin32Exception("OpenInputDesktop"));
-			}
-		}
-
-		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-		protected override bool ReleaseHandle() {
-			return User32.CloseDesktop(handle);
-		}
-	}
-
-	/// <summary>
-	/// A SafeHandle class implementation for the hIcon
-	/// </summary>
-	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
-
-		/// <summary>
-		/// Needed for marshalling return values
-		/// </summary>
-		[SecurityCritical]
-		public SafeIconHandle() : base(true)
-		{
-		}
-
-
-		public SafeIconHandle(IntPtr hIcon) : base(true) {
-			SetHandle(hIcon);
-		}
-
-		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-		protected override bool ReleaseHandle() {
-			return User32.DestroyIcon(handle);
-		}
-	}
-
-	/// <summary>
-	/// A WindowDC SafeHandle implementation
-	/// </summary>
-	public class SafeWindowDcHandle : SafeHandleZeroOrMinusOneIsInvalid {
-		[DllImport("user32", SetLastError = true)]
-		private static extern IntPtr GetWindowDC(IntPtr hWnd);
-		[DllImport("user32", SetLastError = true)]
-		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-		private readonly IntPtr _hWnd;
-
-		/// <summary>
-		/// Needed for marshalling return values
-		/// </summary>
-		public SafeWindowDcHandle() : base(true)
-		{
-		}
-
-		[SecurityCritical]
-		public SafeWindowDcHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
-			_hWnd = hWnd;
-			SetHandle(preexistingHandle);
-		}
-
-		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode=true)]
-		protected override bool ReleaseHandle() {
-			bool returnValue = ReleaseDC(_hWnd, handle);
-			return returnValue;
-		}
-
-		/// <summary>
-		/// Creates a DC as SafeWindowDcHandle for the whole of the specified hWnd
-		/// </summary>
-		/// <param name="hWnd">IntPtr</param>
-		/// <returns>SafeWindowDcHandle</returns>
-		public static SafeWindowDcHandle FromWindow(IntPtr hWnd)
-		{
-			if (hWnd == IntPtr.Zero)
-			{
-				return null;
-			}
-			var hDcDesktop = GetWindowDC(hWnd);
-			return new SafeWindowDcHandle(hWnd, hDcDesktop);
-		}
-
-		public static SafeWindowDcHandle FromDesktop() {
-			IntPtr hWndDesktop = User32.GetDesktopWindow();
-			IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
-			return new SafeWindowDcHandle(hWndDesktop, hDCDesktop);
 		}
 	}
 }

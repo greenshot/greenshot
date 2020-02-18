@@ -24,9 +24,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
-using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>

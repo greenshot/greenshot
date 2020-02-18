@@ -23,8 +23,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.CustomMarshalers;
 
-
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
 	public interface IDispatch : IUnknown {
 		[PreserveSig]

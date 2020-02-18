@@ -21,13 +21,13 @@
 
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using Greenshot.IniFile;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
 
 namespace Greenshot {
 	/// <summary>
@@ -164,7 +164,7 @@ namespace Greenshot {
 				return;
 			}
 			TextBox textBox = (TextBox)sender;
-			string text = textBox.Text.Replace("#", "");
+			string text = textBox.Text.Replace("#", string.Empty);
             Color c;
 			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i)) {
 				c = Color.FromArgb(i);

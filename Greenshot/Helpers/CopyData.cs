@@ -465,7 +465,7 @@ namespace Greenshot.Helpers {
 				if (ChannelName.Length > 0) {
 					RemoveChannel();
 				}
-				ChannelName = "";
+				ChannelName = string.Empty;
 			}
 		}
 

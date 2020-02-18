@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch

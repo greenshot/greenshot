@@ -20,8 +20,8 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotBoxPlugin {
 	public class BoxDestination : AbstractDestination {

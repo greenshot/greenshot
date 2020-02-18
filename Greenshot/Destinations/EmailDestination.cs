@@ -24,8 +24,8 @@ using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations {
 	/// <summary>

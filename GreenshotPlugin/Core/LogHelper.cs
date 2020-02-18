@@ -22,13 +22,12 @@
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-
-using Greenshot.IniFile;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
 using System;
+using GreenshotPlugin.IniFile;
 using log4net.Util;
 
 namespace GreenshotPlugin.Core {

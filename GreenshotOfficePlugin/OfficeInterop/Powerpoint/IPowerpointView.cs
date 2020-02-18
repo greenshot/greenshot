@@ -1,5 +1,5 @@
-﻿using Greenshot.Interop;
-using GreenshotOfficePlugin.OfficeInterop.Word;
+﻿using GreenshotOfficePlugin.OfficeInterop.Word;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeInterop.Powerpoint
 {

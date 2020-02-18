@@ -173,16 +173,16 @@ namespace GreenshotPlugin.Core {
 
 					RssFile rssFile = new RssFile(file, pubdate, link);
 					if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
-						string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
+						string version = Regex.Replace(file, @".*[a-zA-Z_]\-", string.Empty);
 						version = version.Replace(@"\-[a-zA-Z]+.*","");
-						version = Regex.Replace(version, @"\.exe$", "");
-						version = Regex.Replace(version, @"\.zip$", "");
-						version = Regex.Replace(version, @"RC[0-9]+", "");
+						version = Regex.Replace(version, @"\.exe$", string.Empty);
+						version = Regex.Replace(version, @"\.zip$", string.Empty);
+						version = Regex.Replace(version, @"RC[0-9]+", string.Empty);
 						if (version.Trim().Length > 0) {
 							version = version.Replace('-','.');
 							version = version.Replace(',','.');
-							version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
-							version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
+							version = Regex.Replace(version, @"^[a-zA-Z_]*\.", string.Empty);
+							version = Regex.Replace(version, @"\.[a-zA-Z_]*$", string.Empty);
 
 							try {
 								rssFile.Version = new Version(version);

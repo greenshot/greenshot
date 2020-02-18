@@ -18,17 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System.ComponentModel;
-using System.Collections.Generic;
-using GreenshotPlugin.Interfaces.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
+using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
-namespace Greenshot.Plugin.Drawing
+namespace GreenshotPlugin.Interfaces.Drawing
 {
 	public enum RenderMode { EDIT, EXPORT };
 	public enum EditStatus { UNDRAWN, DRAWING, MOVING, RESIZING, IDLE };

@@ -18,12 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Runtime.InteropServices;
-using Microsoft.Win32;
-using System.Drawing;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
+using Microsoft.Win32;
+
+namespace GreenshotPlugin.UnmanagedHelpers.Enums {
 
 	// See: http://msdn.microsoft.com/en-us/library/aa969502(v=vs.85).aspx
 	[StructLayout(LayoutKind.Sequential)]

@@ -1,5 +1,5 @@
-﻿using Greenshot.Interop;
-using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
+﻿using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeInterop.Excel
 {

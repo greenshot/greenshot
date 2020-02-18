@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	/// <summary>
 	/// Common properties that has appreared in almost all objects
 	/// </summary>

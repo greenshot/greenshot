@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces.Plugin
 {
     public class SurfaceOutputSettings {
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();

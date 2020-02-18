@@ -18,9 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using Greenshot.IniFile;
+
 using GreenshotOfficePlugin.OfficeInterop.Outlook;
 using GreenshotOfficePlugin.OfficeInterop.Powerpoint;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotOfficePlugin {
 

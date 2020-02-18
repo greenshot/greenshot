@@ -23,12 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Greenshot.IniFile;
-using Greenshot.Interop;
-using Greenshot.Interop.IE;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotOfficePlugin.OfficeInterop.Outlook;
 using GreenshotOfficePlugin.OfficeInterop.Word;
+using GreenshotPlugin.IEInterop;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interop;
 using Microsoft.Win32;
 
 namespace GreenshotOfficePlugin.OfficeExport {
@@ -372,7 +372,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
                     {
                         newMail.BodyFormat = OlBodyFormat.olFormatPlain;
                         if (bodyString == null) {
-                            bodyString = "";
+                            bodyString = string.Empty;
                         }
                         newMail.Body = bodyString;
                     }
@@ -395,8 +395,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
                     }
 
                     newMail.BodyFormat = OlBodyFormat.olFormatHTML;
-                    string href = "";
-                    string hrefEnd = "";
+                    string href = string.Empty;
+                    string hrefEnd = string.Empty;
                     if (!string.IsNullOrEmpty(url)) {
                         href = $"<A HREF=\"{url}\">";
                         hrefEnd = "</A>";
@@ -483,7 +483,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
                             if (val == null) {
                                 continue;
                             }
-                            string signatureName = "";
+                            string signatureName = string.Empty;
                             foreach (byte b in val) {
                                 if (b != 0) {
                                     signatureName += (char)b;

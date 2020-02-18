@@ -21,10 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using GreenshotConfluencePlugin;
 using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace Confluence {
     public class Page {
@@ -250,7 +250,7 @@ namespace Confluence {
 
 		public Page GetPage(long pageId) {
 			RemotePage page = null;
-			string cacheKey = "" + pageId;
+			string cacheKey = pageId.ToString();
 			
 			if (_pageCache.Contains(cacheKey)) {
 				page = _pageCache[cacheKey];

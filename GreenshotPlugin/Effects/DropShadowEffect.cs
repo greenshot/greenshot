@@ -23,7 +23,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using Greenshot.Core;
 using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects {

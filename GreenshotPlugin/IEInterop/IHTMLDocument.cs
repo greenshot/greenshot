@@ -21,7 +21,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop.IE {
+namespace GreenshotPlugin.IEInterop {
 	/// <summary><para><c>IHTMLDocument</c> interface.</para></summary>
 	[Guid("626FC520-A41E-11CF-A731-00A0C9082637")]
 	[ComImport]

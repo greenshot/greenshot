@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

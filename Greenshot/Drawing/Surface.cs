@@ -22,11 +22,7 @@
 using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Memento;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -41,6 +37,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing
 {

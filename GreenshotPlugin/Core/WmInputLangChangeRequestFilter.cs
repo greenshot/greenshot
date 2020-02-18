@@ -21,6 +21,7 @@
 
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Windows.Forms;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace GreenshotPlugin.Core

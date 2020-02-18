@@ -29,12 +29,13 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Color = Windows.UI.Color;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Drawing;
 using GreenshotWin10Plugin.Native;
 using System.Windows.Media;
 using GreenshotPlugin.Hooking;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
 {

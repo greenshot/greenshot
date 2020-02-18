@@ -23,10 +23,10 @@ using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using log4net;
 using System.Collections.Generic;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
@@ -157,7 +157,7 @@ namespace GreenshotPlugin.Core {
 			char padChar = ' ';
 			string dateFormat = "yyyy-MM-dd HH-mm-ss";
 			IDictionary<string, string> replacements = new Dictionary<string, string>();
-			string replaceValue = "";
+			string replaceValue = string.Empty;
 			string variable = match.Groups["variable"].Value;
 			string parameters = match.Groups["parameters"].Value;
 

@@ -24,9 +24,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>

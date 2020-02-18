@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace Greenshot.Controls {
 	/// <summary>

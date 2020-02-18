@@ -18,15 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using log4net;
 
-namespace Greenshot.IniFile {
+namespace GreenshotPlugin.IniFile {
 	/// <summary>
 	/// A container to be able to pass the value from a IniSection around.
 	/// </summary>
@@ -356,10 +357,10 @@ namespace Greenshot.IniFile {
 			// The following makes the enum string values a bit less restrictive
 			if (valueType.IsEnum)
 			{
-				string searchingEnumString = valueString.Replace("_", "").ToLowerInvariant();
+				string searchingEnumString = valueString.Replace("_", string.Empty).ToLowerInvariant();
 				foreach (var possibleValue in Enum.GetValues(valueType))
 				{
-					var possibleString = possibleValue.ToString().Replace("_", "").ToLowerInvariant();
+					var possibleString = possibleValue.ToString().Replace("_", string.Empty).ToLowerInvariant();
 					if (possibleString.Equals(searchingEnumString))
 					{
 						return possibleValue;
@@ -424,7 +425,7 @@ namespace Greenshot.IniFile {
 		private static string ConvertValueToString(Type valueType, object valueObject, string separator) {
 			if (valueObject == null) {
 				// If there is nothing, deliver nothing!
-				return "";
+				return string.Empty;
 			}
 
 			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {

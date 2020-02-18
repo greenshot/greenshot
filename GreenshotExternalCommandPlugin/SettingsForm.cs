@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotExternalCommandPlugin {
 	/// <summary>

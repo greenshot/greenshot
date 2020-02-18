@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using Greenshot.Interop;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeInterop.Outlook
 {

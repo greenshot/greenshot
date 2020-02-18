@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces.Drawing;
+using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing.Adorners
 {

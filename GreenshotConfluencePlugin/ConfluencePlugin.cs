@@ -20,11 +20,11 @@
  */
 
 using Confluence;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Windows;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces.Plugin;
 using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin {

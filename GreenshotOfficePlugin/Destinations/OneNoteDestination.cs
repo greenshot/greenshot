@@ -23,10 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using Greenshot.Plugin;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotOfficePlugin.OfficeInterop.OneNote;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotOfficePlugin.Destinations {
 	public class OneNoteDestination : AbstractDestination {

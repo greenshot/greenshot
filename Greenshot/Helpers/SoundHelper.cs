@@ -25,9 +25,9 @@ using System.Runtime.InteropServices;
 
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.IO;
-
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot.Helpers {

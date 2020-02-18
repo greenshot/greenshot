@@ -21,8 +21,8 @@
 
 using System.Drawing;
 using System.IO;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotOCRPlugin {
 	/// <summary>

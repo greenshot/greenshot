@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Runtime.Serialization;
 
 using Greenshot.Configuration;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 using log4net;
 using GreenshotPlugin.Interfaces.Drawing;
 

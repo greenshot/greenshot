@@ -23,9 +23,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>

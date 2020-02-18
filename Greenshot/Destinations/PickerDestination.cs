@@ -22,8 +22,8 @@
 using System.Collections.Generic;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
 using Greenshot.Helpers;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations {
 	/// <summary>

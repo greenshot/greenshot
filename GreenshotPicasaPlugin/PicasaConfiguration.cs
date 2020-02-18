@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>

@@ -23,8 +23,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotExternalCommandPlugin {
 	/// <summary>

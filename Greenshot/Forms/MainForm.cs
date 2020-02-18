@@ -36,16 +36,18 @@ using Greenshot.Experimental;
 using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using log4net;
 using Timer = System.Timers.Timer;
 using System.Threading.Tasks;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace Greenshot {
 	/// <summary>
@@ -837,7 +839,7 @@ namespace Greenshot {
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 				foreach (Screen screen in Screen.AllScreens) {
 					Screen screenToCapture = screen;
-					string deviceAlignment = "";
+					string deviceAlignment = string.Empty;
 					if(screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom) {
 						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
 					} else if(screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom) {

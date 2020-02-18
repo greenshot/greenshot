@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Greenshot.IniFile {
+namespace GreenshotPlugin.IniFile {
 	/// <summary>
 	/// The IniReader does exactly what it says, it reads the .ini file
 	/// </summary>

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using GreenshotPlugin.Effects;
 
-namespace Greenshot.Core
+namespace GreenshotPlugin.Core
 {
 	public class EffectConverter : TypeConverter {
 		// Fix to prevent BUG-1753

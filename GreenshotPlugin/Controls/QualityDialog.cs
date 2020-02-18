@@ -20,8 +20,8 @@
  */
 using System;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>

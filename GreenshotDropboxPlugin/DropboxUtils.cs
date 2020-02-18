@@ -21,9 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>

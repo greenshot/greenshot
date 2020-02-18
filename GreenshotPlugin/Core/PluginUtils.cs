@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
@@ -30,6 +28,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces.Forms;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -74,10 +74,10 @@ namespace GreenshotPlugin.Core {
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false)) {
 				if (key != null) {
 					// "" is the default key, which should point to the requested location
-					return (string)key.GetValue("");
+					return (string)key.GetValue(string.Empty);
 				}
 			}
-			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';')) {
+			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty).Split(';')) {
 				try {
 					string path = pathEntry.Trim();
 					if (!string.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {

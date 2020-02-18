@@ -22,8 +22,8 @@
 using System;
 using System.Drawing;
 using System.IO;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotExternalCommandPlugin {
 	public static class IconCache {

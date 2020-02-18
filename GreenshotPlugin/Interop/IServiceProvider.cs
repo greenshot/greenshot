@@ -18,10 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop {
+namespace GreenshotPlugin.Interop {
 	// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!
 	[ComImport(), ComVisible(true), Guid("6D5140C1-7436-11CE-8034-00AA006009FA"),
 	InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

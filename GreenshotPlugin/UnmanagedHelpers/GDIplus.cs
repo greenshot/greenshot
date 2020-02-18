@@ -25,6 +25,7 @@ using log4net;
 using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
