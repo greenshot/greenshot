@@ -223,7 +223,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Try to find the best match for the supplied IETF
 		/// </summary>
-		/// <param name="inputIetf"></param>
+		/// <param name="inputIetf">string</param>
 		/// <returns>IETF</returns>
 		private static string FindBestIetfMatch(string inputIetf) {
 			string returnIetf = inputIetf;
@@ -237,11 +237,11 @@ namespace GreenshotPlugin.Core {
 					returnIetf = returnIetf.Substring(0, 2);
 				}
 				foreach (string availableIetf in LanguageFiles.Keys) {
-					if (availableIetf.StartsWith(returnIetf)) {
-						Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
-						returnIetf = availableIetf;
-						break;
-					}
+					if (!availableIetf.StartsWith(returnIetf)) continue;
+
+					Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
+					returnIetf = availableIetf;
+					break;
 				}
 			}
 			return returnIetf;
@@ -278,7 +278,8 @@ namespace GreenshotPlugin.Core {
 						// Only take the ones without prefix, these are the "base" language files
 						if (langFile.Prefix != null) continue;
 						languages.Add(langFile);
-				}
+						break;
+					}
 				}
 				return languages;
 			}
@@ -422,16 +423,18 @@ namespace GreenshotPlugin.Core {
 							bool needToAdd = true;
 							List<LanguageFile> deleteList = new List<LanguageFile>();
 							foreach (LanguageFile compareWithLangfile in currentFiles) {
-								if ((languageFile.Prefix == null && compareWithLangfile.Prefix == null) || (languageFile.Prefix != null && languageFile.Prefix.Equals(compareWithLangfile.Prefix))) {
-									if (compareWithLangfile.Version > languageFile.Version) {
-										Log.WarnFormat("Skipping {0}:{1}:{2} as {3}:{4}:{5} is newer", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
-										needToAdd = false;
-										break;
-									}
+								if ((languageFile.Prefix != null || compareWithLangfile.Prefix != null) &&
+									(languageFile.Prefix == null ||
+									 !languageFile.Prefix.Equals(compareWithLangfile.Prefix))) continue;
 
-									Log.WarnFormat("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
-									deleteList.Add(compareWithLangfile);
+								if (compareWithLangfile.Version > languageFile.Version) {
+									Log.WarnFormat("Skipping {0}:{1}:{2} as {3}:{4}:{5} is newer", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
+									needToAdd = false;
+									break;
 								}
+
+								Log.WarnFormat("Found {0}:{1}:{2} and deleting {3}:{4}:{5}", languageFile.Filepath, languageFile.Prefix, languageFile.Version, compareWithLangfile.Filepath, compareWithLangfile.Prefix, compareWithLangfile.Version);
+								deleteList.Add(compareWithLangfile);
 							}
 							if (needToAdd) {
 								foreach (LanguageFile deleteFile in deleteList) {
