@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -71,7 +71,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">An Uri to specify the download location</param>
 		/// <returns>string with the file content</returns>
 		public static string GetAsString(Uri uri) {
-			return GetResponseAsString(CreateWebRequest(uri));				
+			return GetResponseAsString(CreateWebRequest(uri));
 		}
 
 		/// <summary>
@@ -133,8 +133,8 @@ namespace GreenshotPlugin.Core {
 				extensions.AppendFormat(@"\.{0}|", extension);
 			}
 			extensions.Length--;
-			
-			var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+
+            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
 			var match = imageUrlRegex.Match(url);
 			try
             {
@@ -190,7 +190,7 @@ namespace GreenshotPlugin.Core {
 		public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method) {
 			return CreateWebRequest(new Uri(uri), method);
 		}
-		
+
 		/// <summary>
 		/// Helper method to create a web request with a lot of default settings
 		/// </summary>
@@ -254,7 +254,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return proxyToUse;
 		}
-		
+
 		/// <summary>
 		/// UrlEncodes a string without the requirement for System.Web
 		/// </summary>
@@ -324,7 +324,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return parameters;
 		}
-		
+
 		/// <summary>
 		/// Generate the query paramters
 		/// </summary>
@@ -462,7 +462,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="webRequest"></param>
 		/// <param name="alsoReturnContentOnError"></param>
@@ -615,7 +615,7 @@ namespace GreenshotPlugin.Core {
 			// Write the file data directly to the Stream, rather than serializing it to a string.
 			dataStream.Write(_file, 0, _fileSize);
 		}
-		
+
 		/// <summary>
 		/// Upload the file to the webrequest
 		/// </summary>
@@ -754,7 +754,7 @@ namespace GreenshotPlugin.Core {
 			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-			ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);			
+			ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);
 		}
 
 		/// <summary>
@@ -765,7 +765,7 @@ namespace GreenshotPlugin.Core {
 			// Write the file data directly to the Stream, rather than serializing it to a string.
 			ImageOutput.SaveToStream(_surface, dataStream, _outputSettings);
 		}
-		
+
 		/// <summary>
 		/// Upload the Surface as image to the webrequest
 		/// </summary>

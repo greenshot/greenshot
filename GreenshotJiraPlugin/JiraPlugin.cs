@@ -90,22 +90,7 @@ namespace GreenshotJiraPlugin {
 				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
 			}
 
-			// Add a SVG converter, although it doesn't fit to the Jira plugin there is currently no other way
-			ImageHelper.StreamConverters["svg"] = (stream, s) =>
-			{
-				stream.Position = 0;
-				try
-				{
-					return SvgImage.FromStream(stream).Image;
-				}
-				catch (Exception ex)
-				{
-					Log.Error("Can't load SVG", ex);
-				}
-				return null;
-			};
-
-			return true;
+            return true;
 		}
 
 		public void Shutdown() {

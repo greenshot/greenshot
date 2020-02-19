@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="log4net" version="2.0.8" />
+    <PackageReference Include="Svg" Version="3.0.102" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

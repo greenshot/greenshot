@@ -19,7 +19,7 @@ Source: {#ReleaseDir}\Greenshot.exe; DestDir: {app}; Components: greenshot; Flag
 Source: {#ReleaseDir}\GreenshotPlugin.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
+Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
@@ -240,7 +240,7 @@ es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
-es.win10=Extensión para Windows 10 
+es.win10=Extensión para Windows 10
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
@@ -266,7 +266,7 @@ fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
-fr.win10=Greffon Windows 10 
+fr.win10=Greffon Windows 10
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
@@ -295,7 +295,7 @@ nl.startup={#ExeName} automatisch starten met Windows
 nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
-nn.default=Default installation 
+nn.default=Default installation
 nn.office=Microsoft Office Tillegg
 nn.externalcommand=Tillegg for å opne med ekstern kommando
 nn.imgur=Imgur-tillegg (sjå http://imgur.com)
@@ -362,19 +362,19 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
-Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
-Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
-Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning 
-;Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer() 
+Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning
+;Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer()
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\caCA"; Description: "Català"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -427,7 +427,7 @@ begin
 	else
 		Result := ExpandConstant('{pf}')
 end;
-	
+
 
 function FullInstall(Param : String) : String;
 begin
@@ -458,7 +458,7 @@ begin
 	sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
 	sUnInstallString := '';
 	index := 0;
-	
+
 	// Retrieve uninstall string from HKLM32 or HKCU32
 	if RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
 	begin
@@ -473,7 +473,7 @@ begin
 		asUninstallStrings[index] := sUnInstallString;
 		index := index +1;
 	end;
-	
+
 	// Only for Windows with 64 bit support: Retrieve uninstall string from HKLM64 or HKCU64
 	if IsWin64 then
 	begin
@@ -544,7 +544,7 @@ begin
 	foundStart := false;
 	for i:= 0 to ParamCount() do begin
 		currentParameter := ParamStr(i);
-		
+
 		// check if norun is supplied
 		if Lowercase(currentParameter) = '/norun' then begin
 			foundNoRun := true;
@@ -595,19 +595,6 @@ begin
 	Result := netfxspversion(NetFx4x, '') >= 71;
 end;
 
-function getNGENPath(argument: String) : String;
-var
-	installPath: string;
-begin
-	if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'InstallPath', installPath) then begin
-		if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client', 'InstallPath', installPath) then begin
-			// 3.5 doesn't have NGEN and is using the .net 2.0 installation
-			installPath := ExpandConstant('{dotnet20}');
-		end;
-	end;
-	Result := installPath;
-end;
-
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
@@ -617,7 +604,7 @@ begin
 		// Enhance installer, if needed, otherwise .NET installations won't work
 		msi20('2.0');
 		msi31('3.0');
-		
+
 		//install .net 4.7.1
 		dotnetfx47(71);
 	end;
@@ -640,14 +627,8 @@ begin
 end;
 
 [Run]
-Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
-Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
 Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
 Name: {app}; Type: dirifempty;
-
-[UninstallRun]
-Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"""; StatusMsg: "Cleanup"; Flags: runhidden
-Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\GreenshotPlugin.dll"""; StatusMsg: "Cleanup"; Flags: runhidden

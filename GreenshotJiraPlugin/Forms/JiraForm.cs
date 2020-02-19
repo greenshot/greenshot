@@ -20,12 +20,12 @@
  */
 
 using System;
-using System.Globalization;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using GreenshotPlugin.IniFile;
@@ -176,8 +176,10 @@ namespace GreenshotJiraPlugin.Forms {
 						}
 
 						item.SubItems.Add(issue.Key);
-						item.SubItems.Add(issue.Fields.Created.ToString("d", DateTimeFormatInfo.InvariantInfo));
-						item.SubItems.Add(issue.Fields.Assignee?.DisplayName);
+                        item.SubItems.Add(issue.Fields.Created.HasValue
+                            ? issue.Fields.Created.Value.ToString("d", DateTimeFormatInfo.InvariantInfo)
+                            : string.Empty);
+                        item.SubItems.Add(issue.Fields.Assignee?.DisplayName);
 						item.SubItems.Add(issue.Fields.Reporter?.DisplayName);
 						item.SubItems.Add(issue.Fields.Summary);
 						jiraListView.Items.Add(item);
