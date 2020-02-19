@@ -155,6 +155,12 @@ namespace GreenshotPlugin.Core {
 				TopLevel = true
 			};
 
+			menu.Opened += (sender, args) =>
+			{
+				var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, DpiHelper.GetDpi(menu.Handle));
+				menu.ImageScalingSize = scaledIconSize;
+			};
+
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
 				Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
 				switch (eventArgs.CloseReason) {

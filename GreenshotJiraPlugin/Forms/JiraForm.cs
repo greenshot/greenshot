@@ -146,14 +146,15 @@ namespace GreenshotJiraPlugin.Forms {
 					LangKey[] columns = { LangKey.column_issueType, LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
 					foreach (LangKey column in columns)
 					{
-                        if (!Language.TryGetString("jira", column, out var translation))
+						if (!Language.TryGetString("jira", column, out var translation))
 						{
 							translation = string.Empty;
 						}
 						jiraListView.Columns.Add(translation);
 					}
+					var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, DpiHelper.GetDpi(Handle));
 					var imageList = new ImageList {
-						ImageSize = CoreConfig.ScaledIconSize
+						ImageSize = scaledIconSize
 					};
 					jiraListView.SmallImageList = imageList;
 					jiraListView.LargeImageList = imageList;

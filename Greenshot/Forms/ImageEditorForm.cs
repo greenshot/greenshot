@@ -82,7 +82,26 @@ namespace Greenshot {
 			}
 		}
 
-		public ImageEditorForm(ISurface iSurface, bool outputMade) {
+		/// <summary>
+		/// Adjust the icons etc to the supplied DPI settings
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
+		private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
+		{
+			var dpi = DpiHelper.GetDpi(Handle);
+			var newSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, dpi);
+			toolsToolStrip.ImageScalingSize = newSize;
+			menuStrip1.ImageScalingSize = newSize;
+			destinationsToolStrip.ImageScalingSize = newSize;
+			propertiesToolStrip.ImageScalingSize = newSize;
+			propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
+		}
+
+		public ImageEditorForm(ISurface iSurface, bool outputMade)
+		{
+			// Make sure we change the icon size depending on the scaling
+			DpiChanged += AdjustToDpi;
 			EditorList.Add(this);
 
 			//
@@ -90,20 +109,21 @@ namespace Greenshot {
 			//
 			ManualLanguageApply = true;
 			InitializeComponent();
-
 			Load += delegate {
 				var thread = new Thread(AddDestinations)
 				{
 					Name = "add destinations"
 				};
 				thread.Start();
+
+				 AdjustToDpi(null, null);
 			};
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			// But only if this still exists, else it will be reset (BUG-1812)
 			WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
-			Rectangle screenbounds = WindowCapture.GetScreenBounds();
-			if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
+			Rectangle screenBounds = WindowCapture.GetScreenBounds();
+			if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
 			{
 				EditorConfiguration.ResetEditorPlacement();
 			}
@@ -115,7 +135,7 @@ namespace Greenshot {
 
 			// init surface
 			Surface = iSurface;
-			// Intial "saved" flag for asking if the image needs to be save
+			// Initial "saved" flag for asking if the image needs to be save
 			_surface.Modified = !outputMade;
 
 			UpdateUi();

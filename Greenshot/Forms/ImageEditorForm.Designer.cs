@@ -36,6 +36,7 @@ namespace Greenshot {
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing) {
+				DpiChanged -= AdjustToDpi;
 				if (components != null) {
 					components.Dispose();
 				}

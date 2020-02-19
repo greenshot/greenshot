@@ -52,9 +52,21 @@ namespace Greenshot {
 
 		public SettingsForm() {
 			InitializeComponent();
+			// Make sure we change the icon size depending on the scaling
+			DpiChanged += AdjustToDpi;
 
 			// Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
+		}
+
+		/// <summary>
+		/// Adjust the icons etc to the supplied DPI settings
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
+		private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
+		{
+			DisplaySettings();
 		}
 
 		protected override void OnLoad(EventArgs e) {
@@ -335,9 +347,10 @@ namespace Greenshot {
 			checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
+			var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
 			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
-            ImageList imageList = new ImageList {ImageSize = coreConfiguration.ScaledIconSize};
-            listview_destinations.SmallImageList = imageList;
+			ImageList imageList = new ImageList {ImageSize = scaledIconSize};
+			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
 			foreach (IDestination currentDestination in DestinationHelper.GetAllDestinations()) {
 				Image destinationImage = currentDestination.DisplayIcon;
@@ -425,7 +438,8 @@ namespace Greenshot {
 
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			numericUpdownIconSize.Value = coreConfiguration.ScaledIconSize.Width /16 * 16;
+			var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
+			numericUpdownIconSize.Value = scaledIconSize.Width / 16 * 16;
 			CheckDestinationSettings();
 		}
 
@@ -505,7 +519,7 @@ namespace Greenshot {
 
 				// Make sure the current language & settings are reflected in the Main-context menu
 				var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-                mainForm?.UpdateUi();
+				mainForm?.UpdateUi();
 				DialogResult = DialogResult.OK;
 			} else {
 				tabcontrol.SelectTab(tab_output);
@@ -589,7 +603,7 @@ namespace Greenshot {
 
 			foreach(int index in listview_destinations.CheckedIndices) {
 				ListViewItem item = listview_destinations.Items[index];
-                if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {
+				if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION)) {
 					clipboardDestinationChecked = true;
 					break;
 				}
@@ -670,7 +684,7 @@ namespace Greenshot {
 
 			IDestination firstDestination = l1.Tag as IDestination;
 
-            if (!(l2.Tag is IDestination secondDestination)) {
+			if (!(l2.Tag is IDestination secondDestination)) {
 				return 1;
 			}
 			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {

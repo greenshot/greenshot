@@ -20,6 +20,7 @@
  */
 using System;
 using System.Windows.Forms;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace Greenshot.Controls {
 	/// <summary>
@@ -53,8 +54,10 @@ namespace Greenshot.Controls {
 
 		protected override void WndProc(ref Message m) {
 			base.WndProc(ref m);
-			if (_clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
-				m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
+            var windowsMessage = (WindowsMessages) m.Msg;
+            if (_clickThrough && windowsMessage == WindowsMessages.WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT)
+            {
+                m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
 			}
 		}
 	}

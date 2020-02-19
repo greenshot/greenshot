@@ -316,18 +316,20 @@ namespace Greenshot {
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
 
-        public MainForm(CopyDataTransport dataTransport) {
+		public MainForm(CopyDataTransport dataTransport) {
+			DpiChanged += (e,o) => ApplyDpiScaling();
+
 			// The most important form is this
 			SimpleServiceProvider.Current.AddService<Form>(this);
 			// Also as itself
-            SimpleServiceProvider.Current.AddService(this);
+			SimpleServiceProvider.Current.AddService(this);
 
 			_instance = this;
 
 			// Factory for surface objects
-            ISurface SurfaceFactory() => new Surface();
+			ISurface SurfaceFactory() => new Surface();
 
-            SimpleServiceProvider.Current.AddService((Func<ISurface>) SurfaceFactory);
+			SimpleServiceProvider.Current.AddService((Func<ISurface>) SurfaceFactory);
 
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -559,13 +561,23 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
-			if (e.PropertyName == "IconSize") {
-				contextMenu.ImageScalingSize = coreConfiguration.ScaledIconSize;
+			if (e.PropertyName == "IconSize")
+			{
+				ApplyDpiScaling();
 				string ieExePath = PluginUtils.GetExePath("iexplore.exe");
 				if (!string.IsNullOrEmpty(ieExePath)) {
 					contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Modify the DPI settings depending in the current value
+		/// </summary>
+		private void ApplyDpiScaling()
+		{
+			var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
+			contextMenu.ImageScalingSize = scaledIconSize;
 		}
 
 		/// <summary>
