@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -82,7 +82,7 @@ namespace GreenshotPlugin.Core {
 
 		public void ClearDestinations() {
 			CaptureDestinations.Clear();
-		}		
+		}
 
 		public void RemoveDestination(IDestination destination) {
 			if (CaptureDestinations.Contains(destination)) {
@@ -109,7 +109,7 @@ namespace GreenshotPlugin.Core {
 			DateTime = DateTime.Now;
 		}
 	}
-	
+
 	/// <summary>
 	/// This class is used to pass an instance of the "Capture" around
 	/// Having the Bitmap, eventually the Windows Title and cursor all together.
@@ -158,8 +158,8 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
-		public void NullImage() {
+
+        public void NullImage() {
 			_image = null;
 		}
 
@@ -174,6 +174,11 @@ namespace GreenshotPlugin.Core {
 				_cursor = (Icon)value.Clone();
 			}
 		}
+
+		/// <summary>
+		/// The information which OCR brings
+		/// </summary>
+		public OcrInformation OcrInformation { get; set; }
 
 		/// <summary>
 		/// Set if the cursor is visible
@@ -197,8 +202,8 @@ namespace GreenshotPlugin.Core {
 			get {return _location;}
 			set {_location = value;}
 		}
-		
-		private CaptureDetails _captureDetails;
+
+        private CaptureDetails _captureDetails;
 		/// <summary>
 		/// Get/set the CaptureDetails
 		/// </summary>
@@ -206,8 +211,8 @@ namespace GreenshotPlugin.Core {
 			get {return _captureDetails;}
 			set {_captureDetails = (CaptureDetails)value;}
 		}
-		
-		/// <summary>
+
+        /// <summary>
 		/// Default Constructor
 		/// </summary>
 		public Capture() {
@@ -270,8 +275,8 @@ namespace GreenshotPlugin.Core {
 			// Move all the elements
 			// TODO: Enable when the elements are usable again.
 			// MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
-				
-			// Remove invisible elements
+
+            // Remove invisible elements
 			var newElements = new List<ICaptureElement>();
 			foreach(var captureElement in _elements) {
 				if (captureElement.Bounds.IntersectsWith(cropRectangle)) {
@@ -282,8 +287,8 @@ namespace GreenshotPlugin.Core {
 
 			return true;
 		}
-		
-		/// <summary>
+
+        /// <summary>
 		/// Apply a translate to the mouse location.
 		/// e.g. needed for crop
 		/// </summary>
@@ -312,8 +317,8 @@ namespace GreenshotPlugin.Core {
 		//        MoveElements(childElement.Children, x, y);
 		//    }
 		//}
-		
-		///// <summary>
+
+        ///// <summary>
 		///// Add a new element to the capture
 		///// </summary>
 		///// <param name="element">CaptureElement</param>
@@ -328,8 +333,8 @@ namespace GreenshotPlugin.Core {
 		//        elements.Add(element);
 		//    }
 		//}
-		
-		///// <summary>
+
+        ///// <summary>
 		///// Returns a list of rectangles which represent object that are on the capture
 		///// </summary>
 		//public List<ICaptureElement> Elements {
@@ -340,10 +345,10 @@ namespace GreenshotPlugin.Core {
 		//        elements = value;
 		//    }
 		//}
-		
-	}
-	
-	/// <summary>
+
+    }
+
+    /// <summary>
 	/// A class representing an element in the capture
 	/// </summary>
 	public class CaptureElement : ICaptureElement {
@@ -378,7 +383,7 @@ namespace GreenshotPlugin.Core {
 
             return obj is CaptureElement other && Bounds.Equals(other.Bounds);
 		}
-		
+
 		public override int GetHashCode() {
 			// TODO: Fix this, this is not right...
 			return Bounds.GetHashCode();
@@ -387,7 +392,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// The Window Capture code
 	/// </summary>
-	public class WindowCapture {
+	public static class WindowCapture {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCapture));
 		private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -400,10 +405,7 @@ namespace GreenshotPlugin.Core {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool DeleteObject(IntPtr hObject);
 
-		private WindowCapture() {
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Get the bounds of all screens combined.
 		/// </summary>
 		/// <returns>A Rectangle of the bounds of the entire display area.</returns>
@@ -419,7 +421,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return new Rectangle(left, top, (right + Math.Abs(left)), (bottom + Math.Abs(top)));
 		}
-		
+
 		/// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
 		/// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
@@ -430,7 +432,7 @@ namespace GreenshotPlugin.Core {
 		public static Point GetCursorLocationRelativeToScreenBounds() {
 			return GetLocationRelativeToScreenBounds(User32.GetCursorLocation());
 		}
-		
+
 		/// <summary>
 		/// Converts locationRelativeToScreenOrigin to be relative to top left corner of all screen bounds, which might
 		/// be different in multiscreen setups. This implementation
@@ -467,11 +469,11 @@ namespace GreenshotPlugin.Core {
                         var y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
                         // Set the location
                         capture.CursorLocation = new Point(x, y);
-	
+
                         using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle())) {
                             capture.Cursor = icon;
                         }
-	
+
                         if (iconInfo.hbmMask != IntPtr.Zero) {
                             DeleteObject(iconInfo.hbmMask);
                         }
@@ -494,7 +496,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return CaptureRectangle(capture, capture.ScreenBounds);
 		}
-		
+
 		/// <summary>
 		/// Helper method to create an exception that might explain what is wrong while capturing
 		/// </summary>

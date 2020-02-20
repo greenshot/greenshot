@@ -317,6 +317,9 @@ namespace Greenshot {
 		private readonly Timer _doubleClickTimer = new Timer();
 
 		public MainForm(CopyDataTransport dataTransport) {
+
+            var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
+			SimpleServiceProvider.Current.AddService(uiContext);
 			DpiChanged += (e,o) => ApplyDpiScaling();
 
 			// The most important form is this

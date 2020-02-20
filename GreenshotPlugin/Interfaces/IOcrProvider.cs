@@ -25,15 +25,103 @@ using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Interfaces
 {
+    /// <summary>
+    /// This interface describes something that can do OCR of a bitmap
+    /// </summary>
     public interface IOcrProvider
     {
+        /// <summary>
+        /// Start the actual OCR
+        /// </summary>
+        /// <param name="image">Image</param>
+        /// <returns>OcrInformation</returns>
+        Task<OcrInformation> DoOcrAsync(Image image);
+
+            /// <summary>
+        /// Start the actual OCR
+        /// </summary>
+        /// <param name="surface">ISurface</param>
+        /// <returns>OcrInformation</returns>
         Task<OcrInformation> DoOcrAsync(ISurface surface);
     }
 
+    /// <summary>
+    /// Contains the information about a word
+    /// </summary>
+    public class Word
+    {
+        /// <summary>
+        /// The actual text for the word
+        /// </summary>
+        public string Text { get; set; }
+
+        /// <summary>
+        /// The location of the word
+        /// </summary>
+        public Rectangle Location { get; set; }
+    }
+
+    /// <summary>
+    /// Describes a line of words
+    /// </summary>
+    public class Line
+    {
+        private Rectangle? _calculatedBounds;
+
+        /// <summary>
+        /// Constructor will preallocate the number of words
+        /// </summary>
+        /// <param name="wordCount">int</param>
+        public Line(int wordCount)
+        {
+            Words = new Word[wordCount];
+            for (int i = 0; i < wordCount; i++)
+            {
+                Words[i] = new Word();
+            }
+        }
+
+        /// <summary>
+        /// An array with words
+        /// </summary>
+        public Word[] Words { get; }
+
+        /// <summary>
+        /// Calculate the bounds of the words
+        /// </summary>
+        /// <returns>Rectangle</returns>
+        private Rectangle CalculateBounds()
+        {
+            if (Words.Length == 0)
+            {
+                return Rectangle.Empty;
+            }
+
+            var result = Words[0].Location;
+            for (var index = 0; index < Words.Length; index++)
+            {
+                result = Rectangle.Union(result, Words[index].Location);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Return the calculated bounds for the whole line
+        /// </summary>
+        public Rectangle CalculatedBounds
+        {
+            get { return _calculatedBounds ??= CalculateBounds(); }
+        }
+    }
+
+    /// <summary>
+    /// Contains all the information on the OCR result
+    /// </summary>
     public class OcrInformation
     {
         public string Text { get; set; }
 
-        public IList<(string word, Rectangle location)> Words { get; } = new List<(string, Rectangle)>();
+        public IList<Line> Lines { get; } = new List<Line>();
     }
 }

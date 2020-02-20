@@ -27,6 +27,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using GreenshotPlugin.Core;
 using System.Text;
+using Windows.Storage.Streams;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -52,6 +53,8 @@ namespace GreenshotWin10Plugin
 		/// </summary>
 		public Win10OcrDestination()
 		{
+			// Set this as IOcrProvider
+			SimpleServiceProvider.Current.AddService<IOcrProvider>(this);
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{
@@ -59,25 +62,58 @@ namespace GreenshotWin10Plugin
 			}
 		}
 
+        /// <summary>
+        /// Scan the surface bitmap for text, and get the OcrResult
+        /// </summary>
+        /// <param name="surface">ISurface</param>
+        /// <returns>OcrResult sync</returns>
+        public Task<OcrInformation> DoOcrAsync(ISurface surface)
+        {
+            using var imageStream = new MemoryStream();
+            ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+            imageStream.Position = 0;
+            var randomAccessStream = imageStream.AsRandomAccessStream();
+            return DoOcrAsync(randomAccessStream);
+        }
+
+		/// <summary>
+		/// Scan the Image for text, and get the OcrResult
+		/// </summary>
+		/// <param name="image">Image</param>
+		/// <returns>OcrResult sync</returns>
+		public async Task<OcrInformation> DoOcrAsync(Image image)
+        {
+            OcrInformation result;
+            using (var imageStream = new MemoryStream())
+            {
+                ImageOutput.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
+                imageStream.Position = 0;
+                var randomAccessStream = imageStream.AsRandomAccessStream();
+
+                result = await DoOcrAsync(randomAccessStream);
+			}
+			return result;
+        }
+
 		/// <summary>
 		/// Scan the surface bitmap for text, and get the OcrResult
 		/// </summary>
-		/// <param name="surface">ISurface</param>
-		/// <returns>OcrResult</returns>
-		public async Task<OcrInformation> DoOcrAsync(ISurface surface)
-		{
-			var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
-			using var imageStream = new MemoryStream();
-			ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
-			imageStream.Position = 0;
-
-			var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());
+		/// <param name="randomAccessStream">IRandomAccessStream</param>
+		/// <returns>OcrResult sync</returns>
+		public async Task<OcrInformation> DoOcrAsync(IRandomAccessStream randomAccessStream)
+        {
+            var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            if (ocrEngine is null)
+            {
+                return null;
+            }
+            var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
 			var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
 			var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
 			var result = new OcrInformation();
-			// Build the text from the lines, otherwise it's just everything concated together
+			// Build the text from the lines, otherwise it's just everything concatenated together
 			var text = new StringBuilder();
 			foreach (var line in ocrResult.Lines)
 			{
@@ -85,16 +121,23 @@ namespace GreenshotWin10Plugin
 			}
 			result.Text = text.ToString();
 
-			foreach (var line in ocrResult.Lines)
+			foreach (var ocrLine in ocrResult.Lines)
 			{
-				foreach (var word in line.Words)
-				{
-					var rectangle = new Rectangle((int)word.BoundingRect.X, (int)word.BoundingRect.Y, (int)word.BoundingRect.Width, (int)word.BoundingRect.Height);
+				var line = new Line(ocrLine.Words.Count);
+				result.Lines.Add(line);
 
-					result.Words.Add((word.Text, rectangle));
-				}
-			}
-			return result;
+                for (var index = 0; index < ocrLine.Words.Count; index++)
+                {
+                    var ocrWord = ocrLine.Words[index];
+                    var location = new Rectangle((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
+                        (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
+
+					var word = line.Words[index];
+					word.Text = ocrWord.Text;
+                    word.Location = location;
+                }
+            }
+            return result;
 		}
 
 		/// <summary>
