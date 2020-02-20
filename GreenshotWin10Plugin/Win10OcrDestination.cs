@@ -83,7 +83,7 @@ namespace GreenshotWin10Plugin
 			{
 				text.AppendLine(line.Text);
 			}
-			result.Text = result.ToString();
+			result.Text = text.ToString();
 
 			foreach (var line in ocrResult.Lines)
 			{
