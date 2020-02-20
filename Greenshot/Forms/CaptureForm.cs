@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Security.Permissions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
@@ -153,7 +156,7 @@ namespace Greenshot.Forms {
 			// set cursor location
 			_cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 
-			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
+			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor
 			if (_captureMode == CaptureMode.Window) {
 				_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
@@ -164,12 +167,12 @@ namespace Greenshot.Forms {
 			SuspendLayout();
 			Bounds = capture.ScreenBounds;
 			ResumeLayout();
-			
+
 			// Fix missing focus
 			ToFront = true;
 			TopMost = true;
 		}
-		
+
 		/// <summary>
 		/// Create an animation for the zoomer, depending on if it's active or not.
 		/// </summary>
@@ -302,6 +305,22 @@ namespace Greenshot.Forms {
 					ToFront = !ToFront;
 					TopMost = !TopMost;
 					break;
+				case Keys.O:
+                    if (_capture.OcrInformation is null)
+                    {
+                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                        if (ocrProvider is object)
+                        {
+							var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
+
+							Task.Factory.StartNew(async () =>
+                            {
+                                _capture.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
+								Invalidate();
+                            }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+                        }
+                    }
+                    break;
 			}
 		}
 
@@ -345,7 +364,7 @@ namespace Greenshot.Forms {
 			}
 
 		}
-		
+
 		/// <summary>
 		/// The mouse up handler of the capture form
 		/// </summary>
@@ -356,7 +375,7 @@ namespace Greenshot.Forms {
 				HandleMouseUp();
 			}
 		}
-		
+
 		/// <summary>
 		/// This method is used to "fix" the mouse coordinates when keeping shift/ctrl pressed
 		/// </summary>
@@ -426,7 +445,7 @@ namespace Greenshot.Forms {
 			if (_captureMode == CaptureMode.Region && _mouseDown) {
 				_captureRect = GuiRectangle.GetGuiRectangle(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y);
 			}
-			
+
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
 			_selectedCaptureWindow = null;
@@ -469,7 +488,7 @@ namespace Greenshot.Forms {
 				y2 += 2;
 
 				// Here we correct for text-size
-				
+
 				// Calculate the size
 				int textForWidth = Math.Max(Math.Abs(_mX - _cursorPos.X), Math.Abs(_mX - lastPos.X));
 				int textForHeight = Math.Max(Math.Abs(_mY - _cursorPos.Y), Math.Abs(_mY - lastPos.Y));
@@ -584,7 +603,7 @@ namespace Greenshot.Forms {
 					destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
 				} else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tl))) {
 					destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
-				} 
+				}
 				if (destinationLocation == Point.Empty && !allowZoomOverCaptureRect) {
 					VerifyZoomAnimation(pos, true);
 				} else {
@@ -621,7 +640,7 @@ namespace Greenshot.Forms {
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighSpeed;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-			
+
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.AddEllipse(destinationRectangle);
 				graphics.SetClip(path);
@@ -698,6 +717,20 @@ namespace Greenshot.Forms {
 			Rectangle clipRectangle = e.ClipRectangle;
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
 			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
+
+            var ocrInfo = _capture.OcrInformation;
+            if (ocrInfo != null)
+            {
+                using var pen = new Pen(Color.Red);
+                foreach (var line in ocrInfo.Lines)
+                {
+                    var lineBounds = line.CalculatedBounds;
+                    if (!lineBounds.IsEmpty)
+                    {
+                        graphics.DrawRectangle(pen, line.CalculatedBounds);
+                    }
+				}
+            }
 			// Only draw Cursor if it's (partly) visible
 			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
 				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
@@ -715,10 +748,10 @@ namespace Greenshot.Forms {
 				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
 				//}
 				graphics.DrawRectangle(OverlayPen, fixedRect);
-				
+
 				// rulers
 				const int dist = 8;
-				
+
 				string captureWidth;
 				string captureHeight;
 				// The following fixes the very old incorrect size information bug
@@ -736,12 +769,12 @@ namespace Greenshot.Forms {
 					int vSpace = measureHeight.Height + 3;
 					Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
 					Pen rulerPen = new Pen(Color.SeaGreen);
-					
+
 					// horizontal ruler
 					if (fixedRect.Width > hSpace + 3)
                     {
                         using GraphicsPath p = RoundedRectangle.Create2(
-                            fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3, 
+                            fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3,
                             fixedRect.Y - dist - 7,
                             measureWidth.Width - 3,
                             measureWidth.Height,
@@ -754,12 +787,12 @@ namespace Greenshot.Forms {
                         graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist - 3, fixedRect.X, fixedRect.Y - dist + 3);
                         graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width, fixedRect.Y - dist - 3, fixedRect.X + fixedRect.Width, fixedRect.Y - dist + 3);
                     }
-					
+
 					// vertical ruler
 					if (fixedRect.Height > vSpace + 3)
                     {
                         using GraphicsPath p = RoundedRectangle.Create2(
-                            fixedRect.X - measureHeight.Width + 1, 
+                            fixedRect.X - measureHeight.Width + 1,
                             fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2) + 2,
                             measureHeight.Width - 3,
                             measureHeight.Height - 1,
@@ -772,11 +805,11 @@ namespace Greenshot.Forms {
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
                     }
-					
+
 					rulerPen.Dispose();
 					bgBrush.Dispose();
 				}
-				
+
 				// Display size of selected rectangle
 				// Prepare the font and text.
                 using Font sizeFont = new Font( FontFamily.GenericSansSerif, 12 );
@@ -795,7 +828,7 @@ namespace Greenshot.Forms {
                 float wRatio = _captureRect.Width / (extent.Width * 2);
                 float ratio = hRatio < wRatio ? hRatio : wRatio;
                 float newSize = sizeFont.Size * ratio;
-					
+
                 if ( newSize >= 4 ) {
                     // Only show if 4pt or larger.
                     if (newSize > 20) {
@@ -841,9 +874,9 @@ namespace Greenshot.Forms {
 			if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window)) {
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
-				
+
 				Rectangle sourceRectangle = new Rectangle(_cursorPos.X - zoomSourceWidth / 2, _cursorPos.Y - zoomSourceHeight / 2, zoomSourceWidth, zoomSourceHeight);
-				
+
 				Rectangle destinationRectangle = _zoomAnimator.Current;
 				destinationRectangle.Offset(_cursorPos);
 				DrawZoom(graphics, sourceRectangle, destinationRectangle);
