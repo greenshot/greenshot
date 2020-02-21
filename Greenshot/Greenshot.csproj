@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Tools.InnoSetup" version="6.0.3" GeneratePathProperty="true" />
+    <PackageReference Include="ZXing.Net" Version="0.16.5" />
   </ItemGroup>
 
   <ItemGroup>

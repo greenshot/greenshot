@@ -31,6 +31,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Linq;
 using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using ZXing;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -321,10 +323,52 @@ namespace Greenshot.Forms {
                         }
                     }
                     break;
+				case Keys.Q:
+                    // create a barcode reader instance
+                    IBarcodeReader reader = new BarcodeReader();
+                    // detect and decode the barcode inside the bitmap
+                    var result = reader.Decode((Bitmap)_capture.Image);
+                    // do something with the result
+                    if (result != null)
+                    {
+						Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
+                        using var graphics = Graphics.FromImage(_capture.Image);
+                        var boundingBox = BoundingBox(result.ResultPoints.Select(p => new Point((int) p.X, (int) p.Y)));
+
+                        using var pen = new Pen(Color.BlueViolet, 10);
+     					using var solidBrush = new SolidBrush(Color.Green);
+
+                        using var solidWhiteBrush = new SolidBrush(Color.White);
+						using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
+						graphics.FillRectangle(solidWhiteBrush, boundingBox);
+                        graphics.DrawRectangle(pen, boundingBox);
+						graphics.DrawString(result.Text, font, solidBrush, boundingBox);
+
+                    }
+
+					break;
 			}
 		}
 
-        /// <summary>
+		/// <summary>
+		/// Find the list's bounding box.
+		/// </summary>
+		/// <param name="points">IEnumerable of Point</param>
+		/// <returns>Rectangle</returns>
+		private Rectangle BoundingBox(IEnumerable<Point> points)
+        {
+            var x_query = from Point p in points select p.X;
+            int xmin = x_query.Min();
+            int xmax = x_query.Max();
+
+            var y_query = from Point p in points select p.Y;
+            int ymin = y_query.Min();
+            int ymax = y_query.Max();
+
+            return new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
+        }
+
+		/// <summary>
 		/// The mousedown handler of the capture form
 		/// </summary>
 		/// <param name="sender"></param>
