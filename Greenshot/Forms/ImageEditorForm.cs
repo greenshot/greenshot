@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,12 +57,12 @@ namespace Greenshot {
 
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
-		
+
 		private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
 		private bool _originalBoldCheckState;
 		private bool _originalItalicCheckState;
-		
+
 		// whether part of the editor controls are disabled depending on selected item(s)
 		private bool _controlsDisabledDueToConfirmable;
 
@@ -216,7 +216,7 @@ namespace Greenshot {
 			panel1.Height = 10;
 
 			fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
-			
+
 			obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 
@@ -224,7 +224,7 @@ namespace Greenshot {
 			//toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
 			pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-			
+
 			// Workaround: for the MouseWheel event which doesn't get to the panel
 			MouseWheel += PanelMouseWheel;
 
@@ -264,7 +264,7 @@ namespace Greenshot {
 		/// </summary>
 		private void AddDestinations() {
 			Invoke((MethodInvoker)delegate {
-				// Create export buttons 
+				// Create export buttons
 				foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
 					if (destination.Priority <= 2) {
 						continue;
@@ -304,12 +304,12 @@ namespace Greenshot {
 				defaultItem.Click += delegate {
 					toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 				};
-				
+
 				// The ButtonClick, this is for the icon, gets the current default item
 				destinationButton.ButtonClick += delegate {
 					toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 				};
-				
+
 				// Generate the entries for the drop down
 				destinationButton.DropDownOpening += delegate
 				{
@@ -336,7 +336,7 @@ namespace Greenshot {
 				};
 
 				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
-				
+
 			} else {
 				ToolStripButton destinationButton = new ToolStripButton();
 				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
@@ -349,7 +349,7 @@ namespace Greenshot {
 				};
 			}
 		}
-		
+
 		/// <summary>
 		/// According to some information I found, the clear doesn't work correctly when the shortcutkeys are set?
 		/// This helper method takes care of this.
@@ -375,7 +375,7 @@ namespace Greenshot {
 				if (!destination.IsActive) {
 					continue;
 				}
-				
+
 				ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick);
 				if (item != null) {
 					item.ShortcutKeys = destination.EditorShortcutKeys;
@@ -503,11 +503,11 @@ namespace Greenshot {
         /**
 		 * Interfaces for plugins, see GreenshotInterface for more details!
 		 */
-		
+
 		public Image GetImageForExport() {
 			return _surface.GetImageForExport();
 		}
-		
+
 		public ICaptureDetails CaptureDetails => _surface.CaptureDetails;
 
 		public ToolStripMenuItem GetPluginMenuItem() {
@@ -605,7 +605,7 @@ namespace Greenshot {
 			UncheckAllToolButtons();
 			btn.Checked = true;
 		}
-		
+
 		private void UncheckAllToolButtons() {
 			if (_toolbarButtons != null) {
 				foreach (GreenshotToolStripButton butt in _toolbarButtons) {
@@ -776,7 +776,7 @@ namespace Greenshot {
 			// persist our geometry string.
 			EditorConfiguration.SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
 			IniConfig.Save();
-			
+
 			// remove from the editor list
 			EditorList.Remove(this);
 
@@ -958,7 +958,7 @@ namespace Greenshot {
 			// check dependencies for the Surface
 			bool hasItems = _surface.HasSelectedElements;
 			bool actionAllowedForSelection = hasItems && !_controlsDisabledDueToConfirmable;
-			
+
 			// buttons
 			btnCut.Enabled = actionAllowedForSelection;
 			btnCopy.Enabled = actionAllowedForSelection;
@@ -1051,13 +1051,13 @@ namespace Greenshot {
 			}
 			propertiesToolStrip.ResumeLayout();
 		}
-		
+
 		private void HideToolstripItems() {
 			foreach(ToolStripItem toolStripItem in propertiesToolStrip.Items) {
 				toolStripItem.Visible = false;
 			}
 		}
-		
+
 		/// <summary>
 		/// refreshes all editor controls depending on selected elements and their fields
 		/// </summary>
@@ -1095,11 +1095,11 @@ namespace Greenshot {
 				ToolStripItemEndisabler.Enable(toolsToolStrip);
 				_controlsDisabledDueToConfirmable = false;
 			}
-			
+
 			// en/disable controls depending on whether an element is selected at all
 			UpdateClipboardSurfaceDependencies();
 			UpdateUndoRedoSurfaceDependencies();
-			
+
 			// en/disablearrage controls depending on hierarchy of selected elements
 			bool actionAllowedForSelection = _surface.HasSelectedElements && !_controlsDisabledDueToConfirmable;
 			bool push = actionAllowedForSelection && _surface.CanPushSelectionDown();
@@ -1111,7 +1111,7 @@ namespace Greenshot {
 				downToBottomToolStripMenuItem.Enabled = push;
 				downOneLevelToolStripMenuItem.Enabled = push;
 			}
-			
+
 			// finally show/hide field controls depending on the fields of selected elements
 			RefreshFieldControls();
 		}
@@ -1136,9 +1136,9 @@ namespace Greenshot {
 			{
 				fontItalicButton.Checked = _originalItalicCheckState;
 			}
-			
+
 			var fontFamily = fontFamilyComboBox.FontFamily;
-		   
+
 			bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
 			if (fontBoldButton != null)
 			{
@@ -1251,7 +1251,7 @@ namespace Greenshot {
 				_surface.Modified = false;
 			}
 		}
-		
+
 		protected void FilterPresetDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
 			RefreshFieldControls();
 			Invalidate(true);
@@ -1275,7 +1275,7 @@ namespace Greenshot {
 		private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
             var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-            mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
+            mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
 		}
 
 		private void Contextmenu_window_Click(object sender, EventArgs e) {
@@ -1366,7 +1366,7 @@ namespace Greenshot {
 				default:
 					return;
 			}
-		
+
 			if (apply)
 			{
 				_surface.ApplyBitmapEffect(dropShadowEffect);

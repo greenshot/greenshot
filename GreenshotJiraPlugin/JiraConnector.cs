@@ -38,7 +38,7 @@ namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
 	/// </summary>
-	public class JiraConnector : IDisposable {
+	public sealed class JiraConnector : IDisposable {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
@@ -256,7 +256,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default)
 		{
 			await CheckCredentialsAsync(cancellationToken);
-			var searchResult = await _jiraClient.Issue.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
+			var searchResult = await _jiraClient.Issue.SearchAsync(filter.Jql, null, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, null, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 
