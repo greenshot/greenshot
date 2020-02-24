@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>GreenshotOfficePlugin</RootNamespace>
     <AssemblyName>GreenshotOfficePlugin</AssemblyName>
-    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

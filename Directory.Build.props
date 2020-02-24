@@ -16,7 +16,8 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   
   <!-- ILLinker and single file settings -->
@@ -64,14 +65,14 @@
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
-    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;
+    xcopy /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
+    xcopy /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
+    xcopy /y /d &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;
     IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
         IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /q /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+        xcopy /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-installer*.xml&quot;;&#xD;&#xA;
         del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-website*.xml&quot;;&#xD;&#xA;
 	)" />

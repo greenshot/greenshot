@@ -73,9 +73,9 @@ namespace GreenshotWin10Plugin
         /// <summary>
         /// Share the screenshot with a windows app
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
+        /// <param name="manuallyInitiated">bool</param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
         /// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {

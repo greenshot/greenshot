@@ -73,7 +73,7 @@ namespace GreenshotFlickrPlugin
 				Image = (Image) _resources.GetObject("flickr")
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
-            SimpleServiceProvider.Current.AddService(new FlickrDestination(this));
+            SimpleServiceProvider.Current.AddService<IDestination>(new FlickrDestination(this));
 			PluginUtils.AddToContextMenu(_itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;

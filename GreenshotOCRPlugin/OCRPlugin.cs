@@ -74,7 +74,7 @@ namespace GreenshotOCRPlugin {
 				return false;
 			}
 			// Provide the IDestination
-            SimpleServiceProvider.Current.AddService(new OCRDestination(this));
+            SimpleServiceProvider.Current.AddService<IDestination>(new OCRDestination(this));
 			// Load configuration
 			_config = IniConfig.GetIniSection<OCRConfiguration>();
 			

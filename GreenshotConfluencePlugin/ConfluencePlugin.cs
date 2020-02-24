@@ -24,6 +24,7 @@ using GreenshotPlugin.Core;
 using System;
 using System.Windows;
 using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using TranslationByMarkupExtension;
 
@@ -96,7 +97,7 @@ namespace GreenshotConfluencePlugin {
 			}
             if (ConfluenceDestination.IsInitialized)
             {
-                SimpleServiceProvider.Current.AddService(new ConfluenceDestination());
+                SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
             }
 			return true;
 		}

@@ -26,6 +26,7 @@ using Dapplo.Log;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
@@ -62,7 +63,7 @@ namespace GreenshotJiraPlugin {
 			// Provide the JiraConnector
 			SimpleServiceProvider.Current.AddService(new JiraConnector());
 			// Provide the IDestination
-			SimpleServiceProvider.Current.AddService(new JiraDestination());
+			SimpleServiceProvider.Current.AddService<IDestination>(new JiraDestination());
 
 			// Make sure the log is enabled for the correct level.
 			if (Log.IsDebugEnabled)

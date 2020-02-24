@@ -4,7 +4,6 @@
     <RootNamespace>GreenshotPlugin</RootNamespace>
     <AssemblyName>GreenshotPlugin</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

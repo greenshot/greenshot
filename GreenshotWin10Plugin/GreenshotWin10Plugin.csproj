@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>GreenshotWin10Plugin</RootNamespace>
     <AssemblyName>GreenshotWin10Plugin</AssemblyName>
-    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>GreenshotConfluencePlugin</RootNamespace>
     <AssemblyName>GreenshotConfluencePlugin</AssemblyName>
-    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

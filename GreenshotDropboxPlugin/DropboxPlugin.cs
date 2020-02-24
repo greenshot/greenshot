@@ -62,7 +62,7 @@ namespace GreenshotDropboxPlugin {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 			_resources = new ComponentResourceManager(typeof(DropboxPlugin));
-            SimpleServiceProvider.Current.AddService(new DropboxDestination(this));
+            SimpleServiceProvider.Current.AddService<IDestination>(new DropboxDestination(this));
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Text = Language.GetString("dropbox", LangKey.Configure),

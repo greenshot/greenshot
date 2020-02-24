@@ -62,7 +62,7 @@ namespace GreenshotBoxPlugin {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<BoxConfiguration>();
 			_resources = new ComponentResourceManager(typeof(BoxPlugin));
-            SimpleServiceProvider.Current.AddService(new BoxDestination(this));
+            SimpleServiceProvider.Current.AddService<IDestination>(new BoxDestination(this));
 			_itemPlugInConfig = new ToolStripMenuItem {
 				Image = (Image) _resources.GetObject("Box"),
 				Text = Language.GetString("box", LangKey.Configure)
