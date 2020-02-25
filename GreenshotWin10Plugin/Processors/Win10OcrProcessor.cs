@@ -19,33 +19,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
+using System.Threading.Tasks;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Ocr;
 using log4net;
-using ZXing;
 
-namespace Greenshot.Processors  {
+namespace GreenshotWin10Plugin.Processors  {
 	/// <summary>
-	/// This processor processes a capture to see if there is a QR ode on it
+	/// This processor processes a capture to see if there is text on it
 	/// </summary>
-	public class ZXingQrProcessor : AbstractProcessor {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ZXingQrProcessor));
-
-        public override string Designation => "ZXingQrProcessor";
+	public class Win10OcrProcessor : AbstractProcessor {
+        public override string Designation => "Windows10OcrProcessor";
 
         public override string Description => Designation;
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails) {
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
-            // detect and decode the barcode inside the bitmap
-            var result = reader.Decode((Bitmap)surface.Image);
-            // do something with the result
-            if (result == null) return false;
-            
-            LOG.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
-            captureDetails.QrResult = result;
+        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        {
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
+
+            if (!ocrResult.HasContent) return false;
+
+            captureDetails.OcrInformation = ocrResult;
             return true;
         }
 	}

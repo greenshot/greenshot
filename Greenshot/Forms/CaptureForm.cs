@@ -36,11 +36,9 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
-using ZXing;
 
 namespace Greenshot.Forms {
 	/// <summary>

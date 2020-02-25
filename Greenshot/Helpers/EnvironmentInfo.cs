@@ -98,7 +98,20 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.Append($"OS: {OsInfo.Name} {OsInfo.Edition} {OsInfo.ServicePack} (x{OsInfo.Bits})  {OsInfo.VersionString}");
+
+                environment.Append($"OS: {OsInfo.Name}");
+                if (!string.IsNullOrEmpty(OsInfo.Edition))
+                {
+                    environment.Append($" {OsInfo.Edition}");
+
+				}
+                if (!string.IsNullOrEmpty(OsInfo.ServicePack))
+                {
+                    environment.Append($" {OsInfo.ServicePack}");
+
+                }
+                environment.Append($" x{OsInfo.Bits}");
+                environment.Append($" {OsInfo.VersionString}");
 				if (newline)
 				{
 					environment.AppendLine();
@@ -236,17 +249,14 @@ namespace Greenshot.Helpers
 				string edition = string.Empty;
 
 				OperatingSystem osVersion = Environment.OSVersion;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX))
-				};
+				OSVERSIONINFOEX osVersionInfo = OSVERSIONINFOEX.Create();
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
-					byte productType = osVersionInfo.wProductType;
-					short suiteMask = osVersionInfo.wSuiteMask;
+					byte productType = osVersionInfo.ProductType;
+					ushort suiteMask = osVersionInfo.SuiteMask;
 
                     if (majorVersion == 4)
 					{
@@ -324,7 +334,7 @@ namespace Greenshot.Helpers
 
                     else if (majorVersion == 6)
 					{
-                        if (GetProductInfo(majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out var ed))
+                        if (GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var ed))
 						{
 							switch (ed)
 							{
@@ -465,23 +475,19 @@ namespace Greenshot.Helpers
 				string name = "unknown";
 
 				OperatingSystem osVersion = Environment.OSVersion;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
-				};
-
+                OSVERSIONINFOEX osVersionInfo = OSVERSIONINFOEX.Create();
 				if (GetVersionEx(ref osVersionInfo))
 				{
 					int majorVersion = osVersion.Version.Major;
 					int minorVersion = osVersion.Version.Minor;
-					byte productType = osVersionInfo.wProductType;
-					short suiteMask = osVersionInfo.wSuiteMask;
+					byte productType = osVersionInfo.ProductType;
+					ushort suiteMask = osVersionInfo.SuiteMask;
 					switch (osVersion.Platform)
 					{
 						case PlatformID.Win32Windows:
 							if (majorVersion == 4)
 							{
-								string csdVersion = osVersionInfo.szCSDVersion;
+								string csdVersion = osVersionInfo.ServicePackVersion;
 								switch (minorVersion)
 								{
 									case 0:
@@ -540,7 +546,7 @@ namespace Greenshot.Helpers
                                                 0x0002 => "Windows Server 2003 Enterprise",
                                                 0x0080 => "Windows Server 2003 Data Center",
                                                 0x0400 => "Windows Server 2003 Web Edition",
-                                                unchecked((short) 0x8000) => "Windows Home Server",
+                                                0x8000 => "Windows Home Server",
                                                 _ => "Windows Server 2003"
                                             };
                                             break;
@@ -597,22 +603,97 @@ namespace Greenshot.Helpers
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
 
-        [StructLayout(LayoutKind.Sequential)]
-		private struct OSVERSIONINFOEX
-		{
-			public int dwOSVersionInfoSize;
-			public readonly int dwMajorVersion;
-			public readonly int dwMinorVersion;
-			public readonly int dwBuildNumber;
-			public readonly int dwPlatformId;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public readonly string szCSDVersion;
-			public readonly short wServicePackMajor;
-			public readonly short wServicePackMinor;
-			public readonly short wSuiteMask;
-			public readonly byte wProductType;
-			public readonly byte wReserved;
-		}
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private unsafe struct OSVERSIONINFOEX
+        {
+            /// <summary>
+            ///     The size of this data structure, in bytes. Set this member to sizeof(OSVERSIONINFOEX).
+            /// </summary>
+            private int _dwOSVersionInfoSize;
+
+            private readonly int _dwMajorVersion;
+            private readonly int _dwMinorVersion;
+            private readonly int _dwBuildNumber;
+            private readonly int _dwPlatformId;
+            private fixed char _szCSDVersion[128];
+            private readonly short _wServicePackMajor;
+            private readonly short _wServicePackMinor;
+            private readonly ushort _wSuiteMask;
+            private readonly byte _wProductType;
+            private readonly byte _wReserved;
+
+            /// <summary>
+            ///     The major version number of the operating system.
+            /// </summary>
+            public int MajorVersion => _dwMajorVersion;
+
+            /// <summary>
+            ///     The minor version number of the operating system.
+            /// </summary>
+            public int MinorVersion => _dwMinorVersion;
+
+            /// <summary>
+            ///     The build number of the operating system.
+            /// </summary>
+            public int BuildNumber => _dwBuildNumber;
+
+            /// <summary>
+            ///     The operating system platform. This member can be VER_PLATFORM_WIN32_NT (2).
+            /// </summary>
+            public int PlatformId => _dwPlatformId;
+
+            /// <summary>
+            ///     A null-terminated string, such as "Service Pack 3", that indicates the latest Service Pack installed on the system.
+            ///     If no Service Pack has been installed, the string is empty.
+            /// </summary>
+            public string ServicePackVersion
+            {
+                get
+                {
+                    fixed (char* servicePackVersion = _szCSDVersion)
+                    {
+                        return new string(servicePackVersion);
+                    }
+
+                }
+            }
+
+            /// <summary>
+            ///     The major version number of the latest Service Pack installed on the system. For example, for Service Pack 3, the
+            ///     major version number is 3.
+            ///     If no Service Pack has been installed, the value is zero.
+            /// </summary>
+            public short ServicePackMajor => _wServicePackMajor;
+
+            /// <summary>
+            ///     The minor version number of the latest Service Pack installed on the system. For example, for Service Pack 3, the
+            ///     minor version number is 0.
+            /// </summary>
+            public short ServicePackMinor => _wServicePackMinor;
+
+            /// <summary>
+            ///     A bit mask that identifies the product suites available on the system. This member can be a combination of the
+            ///     following values.
+            /// </summary>
+            public ushort SuiteMask => _wSuiteMask;
+
+            /// <summary>
+            ///     Any additional information about the system.
+            /// </summary>
+            public byte ProductType => _wProductType;
+
+			/// <summary>
+			/// Factory for an empty OsVersionInfoEx
+			/// </summary>
+			/// <returns>OSVERSIONINFOEX</returns>
+			public static OSVERSIONINFOEX Create()
+            {
+                return new OSVERSIONINFOEX
+				{
+                    _dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+                };
+            }
+        }
 
         private const int PRODUCT_UNDEFINED = 0x00000000;
 		private const int PRODUCT_ULTIMATE = 0x00000001;
@@ -667,15 +748,11 @@ namespace Greenshot.Helpers
 			get
 			{
 				string servicePack = string.Empty;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
-				};
-
+                OSVERSIONINFOEX osVersionInfo = OSVERSIONINFOEX.Create();
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
-					servicePack = osVersionInfo.szCSDVersion;
+					servicePack = osVersionInfo.ServicePackVersion;
 				}
 
 				return servicePack;
@@ -694,7 +771,11 @@ namespace Greenshot.Helpers
 		{
 			get
 			{
-				return string.Format("{0}.{1} build {3} revision {2:X}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor, Environment.OSVersion.Version.Revision, Environment.OSVersion.Version.Build);
+                if (Environment.OSVersion.Version.Revision != 0)
+                {
+                    return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build} revision {Environment.OSVersion.Version.Revision:X}";
+				}
+                return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build}";
 			}
 		}
 

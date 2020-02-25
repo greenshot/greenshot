@@ -20,24 +20,24 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Color = Windows.UI.Color;
 using GreenshotPlugin.Core;
-using System.Drawing;
-using GreenshotWin10Plugin.Native;
-using System.Windows.Media;
 using GreenshotPlugin.Hooking;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotWin10Plugin.Internal;
+using GreenshotWin10Plugin.Native;
+using Color = Windows.UI.Color;
 
-namespace GreenshotWin10Plugin
+namespace GreenshotWin10Plugin.Destinations
 {
     /// <summary>
     /// This uses the Share from Windows 10 to make the capture available to apps.
@@ -46,7 +46,7 @@ namespace GreenshotWin10Plugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10ShareDestination));
 
-        public override string Designation { get; } = "WIN10Share";
+        public override string Designation { get; } = "Windows10Share";
         public override string Description { get; } = "Windows 10 share";
 
         /// <summary>

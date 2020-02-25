@@ -149,10 +149,30 @@ namespace Greenshot {
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
 			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
-			Version v = Assembly.GetExecutingAssembly().GetName().Version;
+			var executingAssembly = Assembly.GetExecutingAssembly();
+
+			// Use assembly version
+            string greenshotVersion = executingAssembly.GetName().Version.ToString();
+
+			// Use AssemblyFileVersion if available
+            var v = executingAssembly.GetName().Version;
+            var assemblyFileVersion = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+            if (!string.IsNullOrEmpty(assemblyFileVersion?.Version))
+            {
+                greenshotVersion = assemblyFileVersion.Version;
+            }
+
+			// Use AssemblyInformationalVersion if available
+			var assemblyInformationalVersion = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (!string.IsNullOrEmpty(assemblyInformationalVersion?.InformationalVersion))
+            {
+				greenshotVersion = assemblyInformationalVersion.InformationalVersion;
+			}
+
+            greenshotVersion = greenshotVersion.Replace("+", " - ");
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
+			lblTitle.Text = "Greenshot " + greenshotVersion + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
 
 			//Random rand = new Random();
 

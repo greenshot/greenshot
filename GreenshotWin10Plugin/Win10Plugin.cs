@@ -23,7 +23,10 @@ using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Ocr;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotWin10Plugin.Destinations;
+using GreenshotWin10Plugin.Processors;
 
 namespace GreenshotWin10Plugin
 {
@@ -50,27 +53,24 @@ namespace GreenshotWin10Plugin
 			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// yields the windows 10 destinations if Windows 10 is detected
-		/// </summary>
-		/// <returns>IEnumerable with the destinations</returns>
-		private IEnumerable<IDestination> Destinations()
-		{
-			if (!WindowsVersion.IsWindows10OrLater)
-			{
-				yield break;
-			}
-			yield return new Win10OcrDestination();
-			yield return new Win10ShareDestination();
-		}
-
         /// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public bool Initialize()
 		{
-            SimpleServiceProvider.Current.AddService(Destinations());
+            if (!WindowsVersion.IsWindows10OrLater)
+            {
+                return false;
+            }
+            // Set this as IOcrProvider
+            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+            // Add the processor
+            SimpleServiceProvider.Current.AddService<IProcessor>(new Win10OcrProcessor());
+
+            // Add the destinations
+			SimpleServiceProvider.Current.AddService<IDestination>(new Win10OcrDestination());
+            SimpleServiceProvider.Current.AddService<IDestination>(new Win10ShareDestination());
 			return true;
 		}
 

@@ -177,9 +177,11 @@ namespace GreenshotPlugin.Core
             // MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 
             // Offset the OCR information
+            // TODO: Remove invisible lines/words?
             CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 
             // Offset the Qr information
+            // TODO: Remove invisible QR codes?
             var oldQrResult = CaptureDetails.QrResult;
             if (oldQrResult != null)
             {

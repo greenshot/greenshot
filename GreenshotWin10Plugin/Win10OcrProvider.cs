@@ -25,8 +25,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
-using GreenshotPlugin.Core;
 using Windows.Storage.Streams;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -36,25 +36,15 @@ namespace GreenshotWin10Plugin
 	/// <summary>
 	/// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
 	/// </summary>
-	public class Win10OcrDestination : AbstractDestination, IOcrProvider
+	public class Win10OcrProvider : IOcrProvider
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
-
-		public override string Designation { get; } = "WIN10OCR";
-		public override string Description { get; } = "Windows 10 OCR";
-
-		/// <summary>
-		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
-		/// </summary>
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProvider));
 
 		/// <summary>
 		/// Constructor, this is only debug information
 		/// </summary>
-		public Win10OcrDestination()
+		public Win10OcrProvider()
 		{
-			// Set this as IOcrProvider
-			SimpleServiceProvider.Current.AddService<IOcrProvider>(this);
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{
@@ -147,38 +137,5 @@ namespace GreenshotWin10Plugin
 
             return result;
         }
-
-		/// <summary>
-		/// Run the Windows 10 OCR engine to process the text on the captured image
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-		{
-			var exportInformation = new ExportInformation(Designation, Description);
-			try
-			{
-				var ocrResult = Task.Run(async () => await DoOcrAsync(surface)).Result;
-
-				// Check if we found text
-				if (!string.IsNullOrWhiteSpace(ocrResult.Text))
-				{
-					// Place the OCR text on the
-					ClipboardHelper.SetClipboardData(ocrResult.Text);
-				}
-				exportInformation.ExportMade = true;
-			}
-			catch (Exception ex)
-			{
-				exportInformation.ExportMade = false;
-				exportInformation.ErrorMessage = ex.Message;
-			}
-
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-
-		}
-	}
+    }
 }

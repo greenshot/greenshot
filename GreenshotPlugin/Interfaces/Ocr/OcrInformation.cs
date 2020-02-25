@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GreenshotPlugin.Interfaces.Ocr
@@ -8,6 +9,11 @@ namespace GreenshotPlugin.Interfaces.Ocr
     /// </summary>
     public class OcrInformation
     {
+        /// <summary>
+        /// Check if there is any content
+        /// </summary>
+        public bool HasContent => Lines.Any();
+        
         /// <summary>
         /// The complete text
         /// </summary>
