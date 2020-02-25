@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 using log4net;
@@ -178,9 +179,17 @@ namespace GreenshotPlugin.Core
             // Offset the OCR information
             CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 
-            var offsetted
-            CaptureDetails.QrResult.ResultPoints[0];
-            var resultPoint = new ResultPoint();
+            // Offset the Qr information
+            var oldQrResult = CaptureDetails.QrResult;
+            if (oldQrResult != null)
+            {
+                CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+                var offsetPoints = CaptureDetails.QrResult.ResultPoints
+                    .Select(p => new ResultPoint(p.X - cropRectangle.Location.X, p.Y - cropRectangle.Location.Y)).ToArray();
+
+                var newQqResult = new Result(oldQrResult.Text, oldQrResult.RawBytes, offsetPoints, oldQrResult.BarcodeFormat);
+                CaptureDetails.QrResult = newQqResult;
+            }
 
             // Remove invisible elements
             var visibleElements = new List<ICaptureElement>();
