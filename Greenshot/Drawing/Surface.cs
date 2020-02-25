@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -65,15 +65,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public Guid ID
 		{
-			get
-			{
-				return _uniqueId;
-			}
-			set
-			{
-				_uniqueId = value;
-			}
-		}
+			get => _uniqueId;
+            set => _uniqueId = value;
+        }
 
 		/// <summary>
 		/// Event handlers (do not serialize!)
@@ -82,69 +76,39 @@ namespace Greenshot.Drawing
 		private PropertyChangedEventHandler _propertyChanged;
 		public event PropertyChangedEventHandler PropertyChanged
 		{
-			add
-			{
-				_propertyChanged += value;
-			}
-			remove
-			{
-				_propertyChanged -= value;
-			}
-		}
+			add => _propertyChanged += value;
+            remove => _propertyChanged -= value;
+        }
 
 		[NonSerialized]
 		private SurfaceElementEventHandler _movingElementChanged;
 		public event SurfaceElementEventHandler MovingElementChanged
-		{
-			add
-			{
-				_movingElementChanged += value;
-			}
-			remove
-			{
-				_movingElementChanged -= value;
-			}
-		}
+        {
+            add => _movingElementChanged += value;
+            remove => _movingElementChanged -= value;
+        }
 
-		[NonSerialized]
+        [NonSerialized]
 		private SurfaceDrawingModeEventHandler _drawingModeChanged;
 		public event SurfaceDrawingModeEventHandler DrawingModeChanged
 		{
-			add
-			{
-				_drawingModeChanged += value;
-			}
-			remove
-			{
-				_drawingModeChanged -= value;
-			}
-		}
+			add => _drawingModeChanged += value;
+            remove => _drawingModeChanged -= value;
+        }
 		[NonSerialized]
 		private SurfaceSizeChangeEventHandler _surfaceSizeChanged;
 		public event SurfaceSizeChangeEventHandler SurfaceSizeChanged
 		{
-			add
-			{
-				_surfaceSizeChanged += value;
-			}
-			remove
-			{
-				_surfaceSizeChanged -= value;
-			}
-		}
+			add => _surfaceSizeChanged += value;
+            remove => _surfaceSizeChanged -= value;
+        }
 		[NonSerialized]
 		private SurfaceMessageEventHandler _surfaceMessage;
 		public event SurfaceMessageEventHandler SurfaceMessage
 		{
-			add
-			{
-				_surfaceMessage += value;
-			}
-			remove
-			{
-				_surfaceMessage -= value;
-			}
-		}
+			add => _surfaceMessage += value;
+            remove => _surfaceMessage -= value;
+        }
 
 		/// <summary>
 		/// inUndoRedo makes sure we don't undo/redo while in a undo/redo action
@@ -153,7 +117,7 @@ namespace Greenshot.Drawing
 		private bool _inUndoRedo;
 
 		/// <summary>
-		/// Make only one surfacemove cycle undoable, see SurfaceMouseMove
+		/// Make only one surface move cycle undoable, see SurfaceMouseMove
 		/// </summary>
 		[NonSerialized]
 		private bool _isSurfaceMoveMadeUndoable;
@@ -179,7 +143,7 @@ namespace Greenshot.Drawing
 		private DrawingModes _drawingMode = DrawingModes.None;
 
 		/// <summary>
-		/// the keyslocked flag helps with focus issues
+		/// the keys-locked flag helps with focus issues
 		/// </summary>
 		[NonSerialized]
 		private bool _keysLocked;
@@ -265,8 +229,8 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public int CounterStart
 		{
-			get { return _counterStart; }
-			set
+			get => _counterStart;
+            set
 			{
 				if (_counterStart == value)
 				{
@@ -330,11 +294,8 @@ namespace Greenshot.Drawing
 		private Image _image;
 		public Image Image
 		{
-			get
-			{
-				return _image;
-			}
-			set
+			get => _image;
+            set
 			{
 				_image = value;
 				Size = _image.Size;
@@ -347,15 +308,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public FieldAggregator FieldAggregator
 		{
-			get
-			{
-				return _fieldAggregator;
-			}
-			set
-			{
-				_fieldAggregator = value;
-			}
-		}
+			get => _fieldAggregator;
+            set => _fieldAggregator = value;
+        }
 
 		/// <summary>
 		/// The cursor container has it's own accessor so we can find and remove this (when needed)
@@ -381,53 +336,35 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public Brush TransparencyBackgroundBrush
 		{
-			get
-			{
-				return _transparencyBackgroundBrush;
-			}
-			set
-			{
-				_transparencyBackgroundBrush = value;
-			}
-		}
+			get => _transparencyBackgroundBrush;
+            set => _transparencyBackgroundBrush = value;
+        }
 
 		/// <summary>
 		/// Are the keys on this surface locked?
 		/// </summary>
 		public bool KeysLocked
 		{
-			get
-			{
-				return _keysLocked;
-			}
-			set
-			{
-				_keysLocked = value;
-			}
-		}
+			get => _keysLocked;
+            set => _keysLocked = value;
+        }
 
 		/// <summary>
 		/// Is this surface modified? This is only true if the surface has not been exported.
 		/// </summary>
 		public bool Modified
 		{
-			get
-			{
-				return _modified;
-			}
-			set
-			{
-				_modified = value;
-			}
-		}
+			get => _modified;
+            set => _modified = value;
+        }
 
 		/// <summary>
 		/// The DrawingMode property specifies the mode for drawing, more or less the element type.
 		/// </summary>
 		public DrawingModes DrawingMode
 		{
-			get { return _drawingMode; }
-			set
+			get => _drawingMode;
+            set
 			{
 				_drawingMode = value;
 				if (_drawingModeChanged != null)
@@ -448,15 +385,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public string LastSaveFullPath
 		{
-			get
-			{
-				return _lastSaveFullPath;
-			}
-			set
-			{
-				_lastSaveFullPath = value;
-			}
-		}
+			get => _lastSaveFullPath;
+            set => _lastSaveFullPath = value;
+        }
 
 		/// <summary>
 		/// Property for accessing the URL to which the surface was recently uploaded
@@ -1518,7 +1449,7 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
-		/// Draw a checkboard when capturing with transparency 
+		/// Draw a checkboard when capturing with transparency
 		/// </summary>
 		/// <param name="e">PaintEventArgs</param>
 		protected override void OnPaintBackground(PaintEventArgs e)

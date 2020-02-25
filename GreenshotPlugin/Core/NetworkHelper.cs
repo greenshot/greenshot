@@ -100,10 +100,10 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Download the uri into a memorystream, without catching exceptions
+		/// Download the uri into a memory stream, without catching exceptions
 		/// </summary>
 		/// <param name="url">Of an image</param>
-		/// <returns>MemoryStream which is already seeked to 0</returns>
+		/// <returns>MemoryStream which is already seek-ed to 0</returns>
 		public static MemoryStream GetAsMemoryStream(string url) {
 			HttpWebRequest request = CreateWebRequest(url);
             using HttpWebResponse response = (HttpWebResponse)request.GetResponse();

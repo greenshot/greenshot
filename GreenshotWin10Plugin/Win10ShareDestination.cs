@@ -25,7 +25,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Color = Windows.UI.Color;
@@ -36,6 +35,7 @@ using System.Windows.Media;
 using GreenshotPlugin.Hooking;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotWin10Plugin.Internal;
 
 namespace GreenshotWin10Plugin
 {
@@ -53,22 +53,6 @@ namespace GreenshotWin10Plugin
         /// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml
         /// </summary>
         public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
-
-        private class ShareInfo
-	    {
-            public string ApplicationName { get; set; }
-            public bool AreShareProvidersRequested { get; set; }
-	        public bool IsDeferredFileCreated { get; set; }
-	        public DataPackageOperation CompletedWithOperation { get; set; }
-	        public string AcceptedFormat { get; set; }
-	        public bool IsDestroyed { get; set; }
-	        public bool IsShareCompleted { get; set; }
-
-            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-	        public bool IsDataRequested { get; set; }
-
-            public IntPtr SharingHwnd { get; set; }
-	    }
 
         /// <summary>
         /// Share the screenshot with a windows app
@@ -102,7 +86,8 @@ namespace GreenshotWin10Plugin
 
                 // This is a bad trick, but don't know how else to do it.
                 // Wait for the focus to return, and depending on the state close the window!
-                focusMonitor.WindowOpenCloseChangeEvent += e => {
+                focusMonitor.WindowOpenCloseChangeEvent += e =>
+                {
 
                     if (e.IsOpen)
                     {
@@ -112,16 +97,14 @@ namespace GreenshotWin10Plugin
                         }
                         return;
                     }
-                    else
+
+                    if (e.HWnd == shareInfo.SharingHwnd)
                     {
-                        if (e.HWnd == shareInfo.SharingHwnd)
+                        if (shareInfo.ApplicationName != null)
                         {
-                            if (shareInfo.ApplicationName != null)
-                            {
-                                return;
-                            }
-                            shareInfo.ShareTask.TrySetResult(false);
+                            return;
                         }
+                        shareInfo.ShareTask.TrySetResult(false);
                     }
                 };
 
@@ -217,10 +200,10 @@ namespace GreenshotWin10Plugin
                         await imageStream.CopyToAsync(deferredStream).ConfigureAwait(false);
                         await imageStream.FlushAsync().ConfigureAwait(false);
                     }
-                        // Signal that the stream is ready
-                        streamedFileDataRequest.Dispose();
-                        // Signal that the action is ready, bitmap was exported
-                        shareInfo.ShareTask.TrySetResult(true);
+                    // Signal that the stream is ready
+                    streamedFileDataRequest.Dispose();
+                    // Signal that the action is ready, bitmap was exported
+                    shareInfo.ShareTask.TrySetResult(true);
                 }
                 catch (Exception)
                 {

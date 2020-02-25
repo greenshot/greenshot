@@ -39,6 +39,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Ocr;
 using ZXing;
 
 namespace Greenshot.Forms {
@@ -308,7 +309,7 @@ namespace Greenshot.Forms {
 					TopMost = !TopMost;
 					break;
 				case Keys.O:
-                    if (_capture.OcrInformation is null)
+                    if (_capture.CaptureDetails.OcrInformation is null)
                     {
                         var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                         if (ocrProvider is object)
@@ -317,36 +318,12 @@ namespace Greenshot.Forms {
 
 							Task.Factory.StartNew(async () =>
                             {
-                                _capture.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
+                                _capture.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
 								Invalidate();
                             }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
                         }
                     }
                     break;
-				case Keys.Q:
-                    // create a barcode reader instance
-                    IBarcodeReader reader = new BarcodeReader();
-                    // detect and decode the barcode inside the bitmap
-                    var result = reader.Decode((Bitmap)_capture.Image);
-                    // do something with the result
-                    if (result != null)
-                    {
-						Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
-                        using var graphics = Graphics.FromImage(_capture.Image);
-                        var boundingBox = BoundingBox(result.ResultPoints.Select(p => new Point((int) p.X, (int) p.Y)));
-
-                        using var pen = new Pen(Color.BlueViolet, 10);
-     					using var solidBrush = new SolidBrush(Color.Green);
-
-                        using var solidWhiteBrush = new SolidBrush(Color.White);
-						using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
-						graphics.FillRectangle(solidWhiteBrush, boundingBox);
-                        graphics.DrawRectangle(pen, boundingBox);
-						graphics.DrawString(result.Text, font, solidBrush, boundingBox);
-
-                    }
-
-					break;
 			}
 		}
 
@@ -762,7 +739,7 @@ namespace Greenshot.Forms {
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
 			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 
-            var ocrInfo = _capture.OcrInformation;
+            var ocrInfo = _capture.CaptureDetails.OcrInformation;
             if (ocrInfo != null)
             {
                 using var pen = new Pen(Color.Red);
@@ -775,6 +752,25 @@ namespace Greenshot.Forms {
                     }
 				}
             }
+
+            if (_capture.CaptureDetails.QrResult != null)
+            {
+                var result = _capture.CaptureDetails.QrResult;
+
+				Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
+                var boundingBox = BoundingBox(result.ResultPoints.Select(p => new Point((int)p.X, (int)p.Y)));
+
+                using var pen = new Pen(Color.BlueViolet, 10);
+                using var solidBrush = new SolidBrush(Color.Green);
+
+                using var solidWhiteBrush = new SolidBrush(Color.White);
+                using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
+                graphics.FillRectangle(solidWhiteBrush, boundingBox);
+                graphics.DrawRectangle(pen, boundingBox);
+                graphics.DrawString(result.Text, font, solidBrush, boundingBox);
+
+            }
+
 			// Only draw Cursor if it's (partly) visible
 			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
 				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);

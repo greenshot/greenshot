@@ -26,9 +26,9 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using GreenshotPlugin.Core;
-using System.Text;
 using Windows.Storage.Streams;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Ocr;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
@@ -112,33 +112,41 @@ namespace GreenshotWin10Plugin
 
 			var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
-			var result = new OcrInformation();
-			// Build the text from the lines, otherwise it's just everything concatenated together
-			var text = new StringBuilder();
-			foreach (var line in ocrResult.Lines)
-			{
-				text.AppendLine(line.Text);
-			}
-			result.Text = text.ToString();
+            return CreateOcrInformation(ocrResult);
+		}
 
-			foreach (var ocrLine in ocrResult.Lines)
-			{
-				var line = new Line(ocrLine.Words.Count);
-				result.Lines.Add(line);
+        /// <summary>
+        /// Create the OcrInformation
+        /// </summary>
+        /// <param name="ocrResult">OcrResult</param>
+        /// <returns>OcrInformation</returns>
+        private OcrInformation CreateOcrInformation(OcrResult ocrResult)
+        {
+            var result = new OcrInformation();
+
+            foreach (var ocrLine in ocrResult.Lines)
+            {
+                var line = new Line(ocrLine.Words.Count)
+                {
+                    Text = ocrLine.Text
+                };
+
+                result.Lines.Add(line);
 
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var location = new Rectangle((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
-                        (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
+                    var location = new Rectangle((int)ocrWord.BoundingRect.X, (int)ocrWord.BoundingRect.Y,
+                        (int)ocrWord.BoundingRect.Width, (int)ocrWord.BoundingRect.Height);
 
-					var word = line.Words[index];
-					word.Text = ocrWord.Text;
-                    word.Location = location;
+                    var word = line.Words[index];
+                    word.Text = ocrWord.Text;
+                    word.Bounds = location;
                 }
             }
+
             return result;
-		}
+        }
 
 		/// <summary>
 		/// Run the Windows 10 OCR engine to process the text on the captured image
