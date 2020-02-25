@@ -78,7 +78,7 @@
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net471\log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net472\log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

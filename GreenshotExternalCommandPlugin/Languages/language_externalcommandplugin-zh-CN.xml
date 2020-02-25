@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="" version="1.0.0" languagegroup="">
+<language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="">
 	<resources>
 		<resource name="contextmenu_configure">配置外部命令</resource>
 		<resource name="label_argument">参数</resource>

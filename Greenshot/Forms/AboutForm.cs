@@ -21,7 +21,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
@@ -149,32 +148,8 @@ namespace Greenshot {
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
 			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
-			var executingAssembly = Assembly.GetExecutingAssembly();
 
-			// Use assembly version
-            string greenshotVersion = executingAssembly.GetName().Version.ToString();
-
-			// Use AssemblyFileVersion if available
-            var v = executingAssembly.GetName().Version;
-            var assemblyFileVersion = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-            if (!string.IsNullOrEmpty(assemblyFileVersion?.Version))
-            {
-                greenshotVersion = assemblyFileVersion.Version;
-            }
-
-			// Use AssemblyInformationalVersion if available
-			var assemblyInformationalVersion = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            if (!string.IsNullOrEmpty(assemblyInformationalVersion?.InformationalVersion))
-            {
-				greenshotVersion = assemblyInformationalVersion.InformationalVersion;
-			}
-
-            greenshotVersion = greenshotVersion.Replace("+", " - ");
-
-			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + greenshotVersion + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
-
-			//Random rand = new Random();
+            lblTitle.Text = "Greenshot " + EnvironmentInfo.GreenshotVersion + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
 
 			// Number of frames the pixel animation takes
 			int frames = FramesForMillis(2000);
@@ -190,7 +165,7 @@ namespace Greenshot {
 				// Create the animation, first we do nothing (on the final destination)
 				RectangleAnimator pixelAnimation;
 
-				// Make the pixel grom from the middle, if this offset isn't used it looks like it's shifted
+				// Make the pixel grow from the middle, if this offset isn't used it looks like it's shifted
 				int offset = (w - 2) / 2;
 
 				// If the optimize for Terminal Server is set we make the animation without much ado
@@ -295,7 +270,7 @@ namespace Greenshot {
 
                 using SolidBrush brush = new SolidBrush(_pixelColor);
                 int index = 0;
-                // We asume there is nothing to animate in the next Animate loop
+                // We assume there is nothing to animate in the next Animate loop
                 _hasAnimationsLeft = false;
                 // Pixels of the G
                 foreach (RectangleAnimator pixel in _pixels) {

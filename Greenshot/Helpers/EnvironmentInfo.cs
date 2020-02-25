@@ -23,9 +23,10 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
+using Microsoft.Win32;
 
 namespace Greenshot.Helpers
 {
@@ -55,10 +56,38 @@ namespace Greenshot.Helpers
 			return Type.GetType("System.Reflection.ReflectionContext", false) != null;
 		}
 
+        public static string GreenshotVersion
+        {
+            get
+            {
+                var executingAssembly = Assembly.GetExecutingAssembly();
+
+                // Use assembly version
+                string greenshotVersion = executingAssembly.GetName().Version.ToString();
+
+                // Use AssemblyFileVersion if available
+                var v = executingAssembly.GetName().Version;
+                var assemblyFileVersion = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+                if (!string.IsNullOrEmpty(assemblyFileVersion?.Version))
+                {
+                    greenshotVersion = assemblyFileVersion.Version;
+                }
+
+                // Use AssemblyInformationalVersion if available
+                var assemblyInformationalVersion = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                if (!string.IsNullOrEmpty(assemblyInformationalVersion?.InformationalVersion))
+                {
+                    greenshotVersion = assemblyInformationalVersion.InformationalVersion;
+                }
+
+                return greenshotVersion.Replace("+", " - ");
+			}
+		}
+
 		public static string EnvironmentToString(bool newline)
 		{
 			StringBuilder environment = new StringBuilder();
-			environment.Append("Software version: " + Application.ProductVersion);
+			environment.Append("Software version: " + GreenshotVersion);
 			if (IniConfig.IsPortable) {
 					environment.Append(" Portable");
 			}
@@ -225,16 +254,11 @@ namespace Greenshot.Helpers
         /// <summary>
 		/// Determines if the current application is 32 or 64-bit.
 		/// </summary>
-		public static int Bits
-		{
-			get
-			{
-				return IntPtr.Size * 8;
-			}
-		}
+		public static int Bits => IntPtr.Size * 8;
 
         private static string _sEdition;
-		/// <summary>
+
+        /// <summary>
 		/// Gets the edition of the operating system running on this computer.
 		/// </summary>
 		public static string Edition
@@ -578,7 +602,8 @@ namespace Greenshot.Helpers
 									}
 									break;
 								case 10:
-									name = "Windows 10";
+                                    string releaseId = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "").ToString();
+									name = $"Windows 10 {releaseId}";
 									break;
 							}
 							break;
@@ -771,6 +796,10 @@ namespace Greenshot.Helpers
 		{
 			get
 			{
+                if (WindowsVersion.IsWindows10OrLater)
+                {
+					return $"build {Environment.OSVersion.Version.Build}";
+				}
                 if (Environment.OSVersion.Version.Revision != 0)
                 {
                     return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build} revision {Environment.OSVersion.Version.Revision:X}";
