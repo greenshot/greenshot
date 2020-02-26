@@ -39,6 +39,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
+using ZXing;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -109,6 +110,11 @@ namespace Greenshot.Forms {
 
 		private void ClosedHandler(object sender, EventArgs e) {
 			_currentForm = null;
+			// Change the final mode
+            if (_captureMode == CaptureMode.Text)
+            {
+                _capture.CaptureDetails.CaptureMode = CaptureMode.Text;
+			}
 			Log.Debug("Remove CaptureForm from currentForm");
 		}
 
@@ -222,7 +228,7 @@ namespace Greenshot.Forms {
 					Cursor.Position = new Point(Cursor.Position.X + step, Cursor.Position.Y);
 					break;
 				case Keys.ShiftKey:
-					// Fixmode
+					// Fix mode
 					if (_fixMode == FixMode.None) {
 						_fixMode = FixMode.Initiated;
 					}
@@ -278,6 +284,11 @@ namespace Greenshot.Forms {
 							_captureRect = Rectangle.Empty;
 							Invalidate();
 							break;
+						case CaptureMode.Text:
+							// Set the region capture mode
+							_captureMode = CaptureMode.Region;
+							Invalidate();
+							break;
 						case CaptureMode.Window:
 							// Set the region capture mode
 							_captureMode = CaptureMode.Region;
@@ -306,42 +317,49 @@ namespace Greenshot.Forms {
 					ToFront = !ToFront;
 					TopMost = !TopMost;
 					break;
-				case Keys.O:
-                    if (_capture.CaptureDetails.OcrInformation is null)
-                    {
-                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                        if (ocrProvider is object)
-                        {
+				case Keys.T:
+                    _captureMode = CaptureMode.Text;
+					if (_capture.CaptureDetails.OcrInformation is null)
+					{
+						var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+						if (ocrProvider is object)
+						{
 							var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
 
 							Task.Factory.StartNew(async () =>
-                            {
-                                _capture.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
+							{
+								_capture.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
 								Invalidate();
-                            }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+							}, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+						}
+					}
+                    else
+                    {
+                        Invalidate();
+					}
+					break;
+                case Keys.Q:
+                    if (_capture.CaptureDetails.QrResult is null)
+                    {
+                        // create a barcode reader instance
+                        IBarcodeReader reader = new BarcodeReader();
+                        // detect and decode the barcode inside the bitmap
+                        var result = reader.Decode((Bitmap)_capture.Image);
+                        // do something with the result
+                        if (result != null)
+                        {
+                            Log.InfoFormat("Found QR of type {0} with text {1}", result.BarcodeFormat, result.Text);
+                            _capture.CaptureDetails.QrResult = result;
                         }
+                    }
+                    else
+                    {
+                        Invalidate();
                     }
                     break;
 			}
 		}
 
-		/// <summary>
-		/// Find the list's bounding box.
-		/// </summary>
-		/// <param name="points">IEnumerable of Point</param>
-		/// <returns>Rectangle</returns>
-		private Rectangle BoundingBox(IEnumerable<Point> points)
-        {
-            var x_query = from Point p in points select p.X;
-            int xmin = x_query.Min();
-            int xmax = x_query.Max();
-
-            var y_query = from Point p in points select p.Y;
-            int ymin = y_query.Min();
-            int ymax = y_query.Max();
-
-            return new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
-        }
 
 		/// <summary>
 		/// The mousedown handler of the capture form
@@ -372,17 +390,58 @@ namespace Greenshot.Forms {
 				DialogResult = DialogResult.OK;
 			} else if (_captureRect.Height > 0 && _captureRect.Width > 0) {
 				// correct the GUI width to real width if Region mode
-				if (_captureMode == CaptureMode.Region) {
+				if (_captureMode == CaptureMode.Region || _captureMode == CaptureMode.Text) {
 					_captureRect.Width += 1;
 					_captureRect.Height += 1;
 				}
 				// Go and process the capture
 				DialogResult = DialogResult.OK;
+            } else if (_captureMode == CaptureMode.Text && IsWordUnderCursor(_mouseMovePos))
+            {
+                // Handle a click on a single word
+                _captureRect = new Rectangle(_mouseMovePos, new Size(1, 1));
+                // Go and process the capture
+                DialogResult = DialogResult.OK;
+            } else if (_capture.CaptureDetails.QrResult != null && _capture.CaptureDetails.QrResult.BoundingQrBox().Contains(_mouseMovePos))
+            {
+				// Handle a click on a QR code
+				_captureRect = new Rectangle(_mouseMovePos, Size.Empty);
+                // Go and process the capture
+                DialogResult = DialogResult.OK;
 			} else {
 				Invalidate();
 			}
 
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cursorLocation"></param>
+		/// <returns></returns>
+        private bool IsWordUnderCursor(Point cursorLocation)
+        {
+            if (_captureMode != CaptureMode.Text || _capture.CaptureDetails.OcrInformation == null) return false;
+
+            var ocrInfo = _capture.CaptureDetails.OcrInformation;
+
+			foreach (var line in ocrInfo.Lines)
+            {
+                var lineBounds = line.CalculatedBounds;
+                if (lineBounds.IsEmpty) continue;
+                // Highlight the text which is selected
+                if (!lineBounds.Contains(cursorLocation)) continue;
+                foreach (var word in line.Words)
+                {
+                    if (word.Bounds.Contains(cursorLocation))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
 
 		/// <summary>
 		/// The mouse up handler of the capture form
@@ -419,12 +478,12 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// The mouse move handler of the capture form
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+		/// <param name="sender">object</param>
+		/// <param name="e">MouseEventArgs</param>
 		private void OnMouseMove(object sender, MouseEventArgs e) {
 			// Make sure the mouse coordinates are fixed, when pressing shift
-			_mouseMovePos = FixMouseCoordinates(User32.GetCursorLocation());
-			_mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(_mouseMovePos);
+			var mouseMovePos = FixMouseCoordinates(User32.GetCursorLocation());
+			_mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
 		}
 
 		/// <summary>
@@ -461,7 +520,7 @@ namespace Greenshot.Forms {
 				verticalMove = true;
 			}
 
-			if (_captureMode == CaptureMode.Region && _mouseDown) {
+			if ((_captureMode == CaptureMode.Region || _captureMode == CaptureMode.Text) && _mouseDown) {
 				_captureRect = GuiRectangle.GetGuiRectangle(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y);
 			}
 
@@ -580,6 +639,62 @@ namespace Greenshot.Forms {
 				invalidateRectangle.Offset(_cursorPos);
 				Invalidate(invalidateRectangle);
 			}
+
+			// OCR
+            if (_captureMode == CaptureMode.Text && _capture.CaptureDetails.OcrInformation != null)
+            {
+                var ocrInfo = _capture.CaptureDetails.OcrInformation;
+
+                invalidateRectangle = Rectangle.Empty;
+				foreach (var line in ocrInfo.Lines)
+                {
+                    var lineBounds = line.CalculatedBounds;
+                    if (!lineBounds.IsEmpty)
+                    {
+                        if (_mouseDown)
+                        {
+                            // Highlight the text which is selected
+                            if (lineBounds.IntersectsWith(_captureRect))
+                            {
+                                foreach (var word in line.Words)
+                                {
+                                    if (word.Bounds.IntersectsWith(_captureRect))
+                                    {
+                                        if (invalidateRectangle.IsEmpty)
+                                        {
+                                            invalidateRectangle = word.Bounds;
+                                        }
+                                        else
+                                        {
+                                            invalidateRectangle = Rectangle.Union(invalidateRectangle, word.Bounds);
+										}
+									}
+                                }
+                            }
+                        }
+                        else if (lineBounds.Contains(_mouseMovePos))
+                        {
+                            foreach (var word in line.Words)
+                            {
+                                if (!word.Bounds.Contains(_mouseMovePos)) continue;
+                                if (invalidateRectangle.IsEmpty)
+                                {
+                                    invalidateRectangle = word.Bounds;
+                                }
+                                else
+                                {
+                                    invalidateRectangle = Rectangle.Union(invalidateRectangle, word.Bounds);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!invalidateRectangle.IsEmpty)
+                {
+                    Invalidate(invalidateRectangle);
+				}
+			}
 			// Force update "now"
 			Update();
 		}
@@ -696,7 +811,7 @@ namespace Greenshot.Forms {
 
 			// Pen to draw
 			using (Pen pen = new Pen(opacyBlack, pixelThickness)) {
-				// Draw the croshair-lines
+				// Draw the cross-hair-lines
 				// Vertical top to middle
 				graphics.DrawLine(pen, drawAtWidth, destinationRectangle.Y + padding, drawAtWidth, destinationRectangle.Y + halfHeightEnd - padding);
 				// Vertical middle + 1 to bottom
@@ -706,7 +821,7 @@ namespace Greenshot.Forms {
 				// Horizontal middle + 1 to right
 				graphics.DrawLine(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, destinationRectangle.X + destinationRectangle.Width - padding, drawAtHeight);
 
-				// Fix offset for drawing the white rectangle around the crosshair-lines
+				// Fix offset for drawing the white rectangle around the cross-hair-lines
 				drawAtHeight -= pixelThickness / 2;
 				drawAtWidth -= pixelThickness / 2;
 				// Fix off by one error with the DrawRectangle
@@ -738,36 +853,65 @@ namespace Greenshot.Forms {
 			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 
             var ocrInfo = _capture.CaptureDetails.OcrInformation;
-            if (ocrInfo != null)
+            if (ocrInfo != null && _captureMode == CaptureMode.Text)
             {
                 using var pen = new Pen(Color.Red);
+                var highlightColor = Color.FromArgb(128, Color.Yellow);
+                using var highlightTextBrush = new SolidBrush(highlightColor);
                 foreach (var line in ocrInfo.Lines)
                 {
                     var lineBounds = line.CalculatedBounds;
                     if (!lineBounds.IsEmpty)
                     {
                         graphics.DrawRectangle(pen, line.CalculatedBounds);
-                    }
-				}
-            }
+                        if (_mouseDown)
+                        {
+                            // Highlight the text which is selected
+                            if (lineBounds.IntersectsWith(_captureRect))
+                            {
+                                foreach (var word in line.Words)
+                                {
+                                    if (word.Bounds.IntersectsWith(_captureRect))
+                                    {
+                                        graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                                    }
+                                }
+                            }
+						}
+                        else if (lineBounds.Contains(_mouseMovePos))
+                        {
+                            foreach (var word in line.Words)
+                            {
+                                if (!word.Bounds.Contains(_mouseMovePos)) continue;
+                                graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                                break;
+                            }
+						}
+					}
+                }
+			}
 
+
+            // QR Code
             if (_capture.CaptureDetails.QrResult != null)
             {
                 var result = _capture.CaptureDetails.QrResult;
 
-				Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
-                var boundingBox = BoundingBox(result.ResultPoints.Select(p => new Point((int)p.X, (int)p.Y)));
+                var boundingBox = _capture.CaptureDetails.QrResult.BoundingQrBox();
+                if (!boundingBox.IsEmpty)
+                {
+                    Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
+                    Invalidate(boundingBox);
+                    using var pen = new Pen(Color.BlueViolet, 10);
+                    using var solidBrush = new SolidBrush(Color.Green);
 
-                using var pen = new Pen(Color.BlueViolet, 10);
-                using var solidBrush = new SolidBrush(Color.Green);
-
-                using var solidWhiteBrush = new SolidBrush(Color.White);
-                using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
-                graphics.FillRectangle(solidWhiteBrush, boundingBox);
-                graphics.DrawRectangle(pen, boundingBox);
-                graphics.DrawString(result.Text, font, solidBrush, boundingBox);
-
-            }
+                    using var solidWhiteBrush = new SolidBrush(Color.White);
+                    using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
+                    graphics.FillRectangle(solidWhiteBrush, boundingBox);
+                    graphics.DrawRectangle(pen, boundingBox);
+                    graphics.DrawString(result.Text, font, solidBrush, boundingBox);
+                }
+			}
 
 			// Only draw Cursor if it's (partly) visible
 			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
@@ -853,7 +997,7 @@ namespace Greenshot.Forms {
                 using Font sizeFont = new Font( FontFamily.GenericSansSerif, 12 );
                 // When capturing a Region we need to add 1 to the height/width for correction
                 string sizeText;
-                if (_captureMode == CaptureMode.Region) {
+                if (_captureMode == CaptureMode.Region || _captureMode == CaptureMode.Text) {
                     // correct the GUI width to real width for the shown size
                     sizeText = _captureRect.Width + 1 + " x " + (_captureRect.Height + 1);
                 } else {

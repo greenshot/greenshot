@@ -57,13 +57,18 @@ namespace GreenshotWin10Plugin
         /// </summary>
         /// <param name="surface">ISurface</param>
         /// <returns>OcrResult sync</returns>
-        public Task<OcrInformation> DoOcrAsync(ISurface surface)
+        public async Task<OcrInformation> DoOcrAsync(ISurface surface)
         {
-            using var imageStream = new MemoryStream();
-            ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
-            imageStream.Position = 0;
-            var randomAccessStream = imageStream.AsRandomAccessStream();
-            return DoOcrAsync(randomAccessStream);
+            OcrInformation result;
+            using (var imageStream = new MemoryStream())
+            {
+                ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+                imageStream.Position = 0;
+                var randomAccessStream = imageStream.AsRandomAccessStream();
+
+                result = await DoOcrAsync(randomAccessStream);
+            }
+            return result;
         }
 
 		/// <summary>

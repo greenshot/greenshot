@@ -35,7 +35,8 @@ namespace GreenshotPlugin.Interfaces
         Clipboard,
         File,
         IE,
-        Import
+        Import,
+        Text
         // Video
     };
 }

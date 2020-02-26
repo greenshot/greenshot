@@ -67,15 +67,20 @@ namespace GreenshotWin10Plugin.Destinations
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
-			{
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-				var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
+            {
+				// TODO: Check if the OcrInformation is for the selected surface... otherwise discard & do it again
+                var ocrInformation = captureDetails.OcrInformation;
+				if (captureDetails.OcrInformation == null)
+                {
+                    var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+					ocrInformation = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
+				}
 
 				// Check if we found text
-				if (!string.IsNullOrWhiteSpace(ocrResult.Text))
+				if (!string.IsNullOrWhiteSpace(ocrInformation.Text))
 				{
 					// Place the OCR text on the
-					ClipboardHelper.SetClipboardData(ocrResult.Text);
+					ClipboardHelper.SetClipboardData(ocrInformation.Text);
 				}
 				exportInformation.ExportMade = true;
 			}

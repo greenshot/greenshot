@@ -21,10 +21,8 @@
 
 using System.Threading.Tasks;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
-using log4net;
 
 namespace GreenshotWin10Plugin.Processors  {
 	/// <summary>
@@ -37,12 +35,18 @@ namespace GreenshotWin10Plugin.Processors  {
 
         public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
         {
+            if (captureDetails.OcrInformation != null)
+            {
+                return false;
+            }
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+
             var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
 
             if (!ocrResult.HasContent) return false;
 
             captureDetails.OcrInformation = ocrResult;
+
             return true;
         }
 	}

@@ -31,6 +31,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
@@ -201,7 +203,7 @@ namespace Greenshot.Helpers {
 		}
 		
 		private void DoCaptureFeedback() {
-			if(CoreConfig.PlayCameraSound) {
+			if (CoreConfig.PlayCameraSound) {
 				SoundHelper.Play();
 			}
 		}
@@ -450,7 +452,7 @@ namespace Greenshot.Helpers {
 					Log.Warn("Unknown capture mode: " + _captureMode);
 					break;
 			}
-			// Wait for thread, otherwise we can't dipose the CaptureHelper
+			// Wait for thread, otherwise we can't dispose the CaptureHelper
 			retrieveWindowDetailsThread?.Join();
 			if (_capture != null) {
 				Log.Debug("Disposing capture");
@@ -546,10 +548,10 @@ namespace Greenshot.Helpers {
 		}
 
 		/// <summary>
-		/// This is the SufraceMessageEvent receiver
+		/// This is the SurfaceMessageEvent receiver
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="eventArgs"></param>
+		/// <param name="sender">object</param>
+		/// <param name="eventArgs">SurfaceMessageEventArgs</param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
 			if (string.IsNullOrEmpty(eventArgs?.Message)) {
 				return;
@@ -579,6 +581,65 @@ namespace Greenshot.Helpers {
 			// Flag to see if the image was "exported" so the FileEditor doesn't
 			// ask to save the file as long as nothing is done.
 			bool outputMade = false;
+
+            if (_capture.CaptureDetails.CaptureMode == CaptureMode.Text)
+            {
+                var selectionRectangle = new Rectangle(Point.Empty, _capture.Image.Size);
+				var ocrInfo = _capture.CaptureDetails.OcrInformation;
+                if (ocrInfo != null)
+                {       
+					var textResult = new StringBuilder();
+                    foreach (var line in ocrInfo.Lines)
+                    {
+                        var lineBounds = line.CalculatedBounds;
+                        if (lineBounds.IsEmpty) continue;
+                        // Highlight the text which is selected
+                        if (!lineBounds.IntersectsWith(selectionRectangle)) continue;
+
+                        for (var index = 0; index < line.Words.Length; index++)
+                        {
+                            var word = line.Words[index];
+                            if (!word.Bounds.IntersectsWith(selectionRectangle)) continue;
+                            textResult.Append(word.Text);
+
+                            if (index + 1 < line.Words.Length && word.Text.Length > 1)
+                            {
+                                textResult.Append(' ');
+							}
+						}
+
+                        textResult.AppendLine();
+                    }
+                    Clipboard.SetText(textResult.ToString());
+                }
+				// Disable capturing
+				_captureMode = CaptureMode.None;
+                // Dispose the capture, we don't need it anymore (the surface copied all information and we got the title (if any)).
+                _capture.Dispose();
+                _capture = null;
+				return;
+            }
+
+			// User clicked on a QR Code
+            var qrResult = _capture.CaptureDetails.QrResult;
+			if (qrResult != null &&  _captureRect.Size.IsEmpty && qrResult.BoundingQrBox().Contains(_captureRect.Location))
+            {
+                if (qrResult.Text.StartsWith("http"))
+                {
+                    Process.Start(qrResult.Text);
+				}
+                else
+                {
+                    Clipboard.SetText(qrResult.Text);
+				}
+				// Disable capturing
+				_captureMode = CaptureMode.None;
+                // Dispose the capture, we don't need it anymore (the surface copied all information and we got the title (if any)).
+                _capture.Dispose();
+                _capture = null;
+                return;
+            }
+
 
 			// Make sure the user sees that the capture is made
 			if (_capture.CaptureDetails.CaptureMode == CaptureMode.File || _capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard) {
@@ -704,7 +765,7 @@ namespace Greenshot.Helpers {
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0) {
 				Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
-				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
+				// Trying workaround, the size 0 arises with e.g. Toad.exe, has a different Window when minimized
 				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(windowToCapture);
 				if (linkedWindow != null) {
 					windowToCapture = linkedWindow;
@@ -966,9 +1027,9 @@ namespace Greenshot.Helpers {
                     Rectangle tmpRectangle = _captureRect;
                     tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
                     CoreConfig.LastCapturedRegion = tmpRectangle;
-                    HandleCapture();
                 }
+                HandleCapture();
             }
-        }
+		}
     }
 }
