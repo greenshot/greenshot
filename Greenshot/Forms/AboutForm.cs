@@ -39,7 +39,7 @@ namespace Greenshot {
 	/// <summary>
 	/// The about form
 	/// </summary>
-	public partial class AboutForm : AnimatingBaseForm {
+	public sealed partial class AboutForm : AnimatingBaseForm {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap _bitmap;
 		private readonly ColorAnimator _backgroundAnimation;
@@ -145,11 +145,11 @@ namespace Greenshot {
 			// Only use double-buffering when we are NOT in a Terminal Server session
 			DoubleBuffered = !IsTerminalServerSession;
 
-			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
+			// Use the self drawn image, first we create the background to be the back-color (as we animate from this)
 			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = "Greenshot " + EnvironmentInfo.GreenshotVersion + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
+            lblTitle.Text = "Greenshot " + EnvironmentInfo.GetGreenshotVersion() + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
 
 			// Number of frames the pixel animation takes
 			int frames = FramesForMillis(2000);

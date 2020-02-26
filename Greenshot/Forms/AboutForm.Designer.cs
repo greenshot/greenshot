@@ -20,6 +20,7 @@
  */
 
 using System.Reflection;
+using Greenshot.Helpers;
 
 namespace Greenshot {
 	partial class AboutForm {
@@ -116,7 +117,7 @@ namespace Greenshot {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + Assembly.GetEntryAssembly().GetName().Version;
+			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
@@ -134,7 +135,7 @@ namespace Greenshot {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version;
+			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations
@@ -170,7 +171,7 @@ namespace Greenshot {
 			this.linkLabel1.Size = new System.Drawing.Size(130, 23);
 			this.linkLabel1.TabIndex = 13;
 			this.linkLabel1.TabStop = true;
-			this.linkLabel1.Text = "http://getgreenshot.org";
+			this.linkLabel1.Text = "http://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 

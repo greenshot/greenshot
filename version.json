@@ -10,14 +10,14 @@
   },
   "cloudBuild": {
     "setVersionVariables": true,
-	"setAllVariables": true,
-    "buildNumber": {
-      "enabled": true,
-      "includeCommitId": {
-        "when": "nonPublicReleaseOnly",
-        "where": "buildMetadata"
+    "setAllVariables": true,
+      "buildNumber": {
+        "enabled": true,
+        "includeCommitId": {
+          "when": "nonPublicReleaseOnly",
+          "where": "buildMetadata"
+        }
       }
-    }
   },
   "inherit": false
 }

@@ -56,38 +56,38 @@ namespace Greenshot.Helpers
 			return Type.GetType("System.Reflection.ReflectionContext", false) != null;
 		}
 
-        public static string GreenshotVersion
+        public static string GetGreenshotVersion(bool shortVersion = false)
         {
-            get
+            var executingAssembly = Assembly.GetExecutingAssembly();
+
+            // Use assembly version
+            string greenshotVersion = executingAssembly.GetName().Version.ToString();
+
+            // Use AssemblyFileVersion if available
+            var assemblyFileVersionAttribute = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+            if (!string.IsNullOrEmpty(assemblyFileVersionAttribute?.Version))
             {
-                var executingAssembly = Assembly.GetExecutingAssembly();
+				var assemblyFileVersion = new Version(assemblyFileVersionAttribute.Version);
+				greenshotVersion = assemblyFileVersion.ToString(3);
+            }
 
-                // Use assembly version
-                string greenshotVersion = executingAssembly.GetName().Version.ToString();
-
-                // Use AssemblyFileVersion if available
-                var v = executingAssembly.GetName().Version;
-                var assemblyFileVersion = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-                if (!string.IsNullOrEmpty(assemblyFileVersion?.Version))
-                {
-                    greenshotVersion = assemblyFileVersion.Version;
-                }
-
+            if (!shortVersion)
+            {
                 // Use AssemblyInformationalVersion if available
-                var assemblyInformationalVersion = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                if (!string.IsNullOrEmpty(assemblyInformationalVersion?.InformationalVersion))
+                var informationalVersionAttribute = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                if (!string.IsNullOrEmpty(informationalVersionAttribute?.InformationalVersion))
                 {
-                    greenshotVersion = assemblyInformationalVersion.InformationalVersion;
+                    greenshotVersion = informationalVersionAttribute.InformationalVersion;
                 }
-
-                return greenshotVersion.Replace("+", " - ");
 			}
+
+			return greenshotVersion.Replace("+", " - ");
 		}
 
 		public static string EnvironmentToString(bool newline)
 		{
 			StringBuilder environment = new StringBuilder();
-			environment.Append("Software version: " + GreenshotVersion);
+			environment.Append("Software version: " + GetGreenshotVersion());
 			if (IniConfig.IsPortable) {
 					environment.Append(" Portable");
 			}
