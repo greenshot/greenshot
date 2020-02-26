@@ -39,7 +39,7 @@
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('Tests')) Or $(MSBuildProjectName.Contains('Demo'))">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
-  </PropertyGroup>  
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -63,8 +63,59 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Tokens Include="Box_ClientId">
+      <ReplacementValue>$(Box_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Box_ClientSecret">
+      <ReplacementValue>$(Box_ClientSecret)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="DropBox_ClientId">
+      <ReplacementValue>$(DropBox_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="DropBox_ClientSecret">
+      <ReplacementValue>$(DropBox_ClientSecret)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Flickr_ClientId">
+      <ReplacementValue>$(Flickr_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Flickr_ClientSecret">
+      <ReplacementValue>$(Flickr_ClientSecret)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Imgur_ClientId">
+      <ReplacementValue>$(Imgur_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Imgur_ClientSecret">
+      <ReplacementValue>$(Imgur_ClientSecret)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Photobucket_ClientId">
+      <ReplacementValue>$(Photobucket_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Photobucket_ClientSecret">
+      <ReplacementValue>$(Photobucket_ClientSecret)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Picasa_ClientId">
+      <ReplacementValue>$(Picasa_ClientId)</ReplacementValue>
+    </Tokens>
+    <Tokens Include="Picasa_ClientSecret">
+      <ReplacementValue>$(Picasa_ClientSecret)</ReplacementValue>
+    </Tokens>
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(ProjectName).Credentials.template')">
+    <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true"/>
+  </ItemGroup>
+
+  <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectName).Credentials.template')"/>
+
+  <Target Name="Process templates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectName).Credentials.template')">
+    <Message Text="Processing: $(ProjectName).Credentials.template" /> 
+    <TemplateFile Template="$(ProjectName).Credentials.template" OutputFilename="$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
+  </Target>
+
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
+
     xcopy /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     xcopy /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     xcopy /y /d &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;
