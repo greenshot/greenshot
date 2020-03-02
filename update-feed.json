@@ -1,3 +1,6 @@
+---
+permalink: update-feed.json
+---
 {
 	"releases": [
 		{% for release in site.github.releases %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}{
