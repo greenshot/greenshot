@@ -2,13 +2,13 @@
 permalink: update-feed.json
 ---
 {
-	"releases": [{% for release in site.github.releases limit:3 %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name | downcase contains 'release'%}{
+	"releases": [{% for release in site.github.releases limit:2 %}{% if release.draft == false and release.prerelease == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
 			"link": "{{asset.browser_download_url}}",
 			"version": "{{release.tag_name}}",
 			"publishDate": "{{asset.created_at}}"
 		}{% if forloop.last == false%},{% endif %}{% endif %}{% endfor %}{% endif %}{% endfor %}
 	],
-	"betas": [{% for release in site.github.releases limit:2 %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name | downcase contains 'unstable'%}{
+	"betas": [{% for release in site.github.releases limit:2 %}{% if release.draft == false and release.prerelease == true %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
 			"link": "{{asset.browser_download_url}}",
 			"version": "{{release.tag_name}}",
 			"publishDate": "{{asset.created_at}}"
