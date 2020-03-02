@@ -3,7 +3,7 @@ permalink: project-feed/
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
-	<channel>{% assign sorted-releases = site.github.releases | where: 'release.draft', "false" | where "release.prerelease", "false" %}
+	<channel>{% assign sorted-releases = site.github.releases | where: "release.draft", "false" | where: "release.prerelease", "false" %}
 		<title>Greenshot</title>
 		<link>https://getgreenshot.org</link>
 		<description>Greenshot update feed</description>{% for release in sorted-releases limit:1 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}
