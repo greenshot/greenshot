@@ -1,9 +1,0 @@
-D:\projects\greenshot\GreenshotPlugin\bin\Debug\GreenshotPlugin.dll
-D:\projects\greenshot\GreenshotPlugin\bin\Debug\GreenshotPlugin.pdb
-D:\projects\greenshot\GreenshotPlugin\bin\Debug\LinqBridge.dll
-D:\projects\greenshot\GreenshotPlugin\bin\Debug\log4net.dll
-D:\projects\greenshot\GreenshotPlugin\obj\Debug\GreenshotPlugin.csprojResolveAssemblyReference.cache
-D:\projects\greenshot\GreenshotPlugin\obj\Debug\GreenshotPlugin.Core.GreenshotResources.resources
-D:\projects\greenshot\GreenshotPlugin\obj\Debug\GreenshotPlugin.csproj.GenerateResource.Cache
-D:\projects\greenshot\GreenshotPlugin\obj\Debug\GreenshotPlugin.dll
-D:\projects\greenshot\GreenshotPlugin\obj\Debug\GreenshotPlugin.pdb

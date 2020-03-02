@@ -1,9 +1,0 @@
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\GreenshotOfficePlugin.dll
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\GreenshotOfficePlugin.pdb
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\GreenshotPlugin.dll
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\log4net.dll
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\LinqBridge.dll
-D:\projects\greenshot\GreenshotOfficePlugin\bin\Debug\GreenshotPlugin.pdb
-D:\projects\greenshot\GreenshotOfficePlugin\obj\Debug\GreenshotOfficePlugin.csprojResolveAssemblyReference.cache
-D:\projects\greenshot\GreenshotOfficePlugin\obj\Debug\GreenshotOfficePlugin.dll
-D:\projects\greenshot\GreenshotOfficePlugin\obj\Debug\GreenshotOfficePlugin.pdb

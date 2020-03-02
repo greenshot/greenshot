@@ -1,8 +1,0 @@
-D:\projects\greenshot\Greenshot\bin\Debug\Greenshot.exe.config
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.csprojResolveAssemblyReference.cache
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.ColorDialog.resources
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.ImageEditorForm.resources
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.MainForm.resources
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.SettingsForm.resources
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.Sounds.resources
-D:\projects\greenshot\Greenshot\obj\Debug\Greenshot.csproj.GenerateResource.Cache
