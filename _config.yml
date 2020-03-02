@@ -4,12 +4,12 @@ title: Greenshot
 description: Greenshot - a free screenshot tool optimized for productivity
 baseurl: ""
 # TODO change URL to getgreenshot.org
-url: http://getgreenshot.org
+url: https://getgreenshot.org
 twitter_username: greenshot_tool
 github_username: greenshot
 #facebook: Greenshot.Tool
-googleplus: 108405649004966849465
 openhub_project: greenshot
+repository: "greenshot/greenshot"
 
 metarobots: index,follow
 
@@ -36,8 +36,9 @@ markdown: kramdown
 permalink: pretty
 exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.sh', '.git']
 
-gems:
+plugins:
   - jemoji
+  - github-pages
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-redirect-from
