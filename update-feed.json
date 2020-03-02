@@ -1,7 +1,7 @@
 ---
 permalink: update-feed.json
 ---
-{{% assign sorted-releases = site.github.releases | where: 'release.draft', "false" | where "release.prerelease", "false" %}
+{% assign sorted-releases = site.github.releases | where: 'release.draft', "false" | where "release.prerelease", "false" %}{
 	"releases": [{% for release in sorted-releases limit:2 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
 			"link": "{{asset.browser_download_url}}",
 			"version": "{{release.tag_name}}",
