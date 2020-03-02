@@ -2,12 +2,16 @@
 permalink: update-feed.json
 ---
 {
-	"releases": [
-		{% for release in site.github.releases %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}{
-			"title": "{{asset.name}}",
+	"releases": [{% for release in site.github.releases limit:3 %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}{
 			"link": "{{asset.browser_download_url}}",
-			"description": "{{asset.label}}",
-			"publishDate": "{{asset.created_at | date_to_rfc822}}"
-		}{% if forloop.last == false%},{% endif %}
-	{% endif %}{% endfor %}{% endif %}{% endfor %}]
+			"version": "{{release.tag_name}}",
+			"publishDate": "{{asset.created_at}}"
+		}{% if forloop.last == false%},{% endif %}{% endif %}{% endfor %}{% endif %}{% endfor %}
+	],
+	"betas": [{% for release in site.github.releases limit:2 %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'UNSTABLE'%}{
+			"link": "{{asset.browser_download_url}}",
+			"version": "{{release.tag_name}}",
+			"publishDate": "{{asset.created_at}}"
+		}{% if forloop.last == false%},{% endif %}{% endif %}{% endfor %}{% endif %}{% endfor %}
+	]
 }
