@@ -26,9 +26,15 @@ stages:
     steps:
     - task: NuGetToolInstaller@1
 
+    - task: NuGetCommand@2
+      displayName: NuGet restore
+      inputs:
+        restoreSolution: '$(solution)'
+        feedsToUse: config
+
     - task: MSBuild@1
       inputs:
-        solution: 'Greenshot-Full.sln' 
+        solution: 'Greenshot.sln' 
         #msbuildLocationMethod: 'version' # Optional. Options: version, location
         #msbuildVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 4.0
         #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
@@ -38,7 +44,6 @@ stages:
         #msbuildArguments: # Optional
         #clean: false # Optional
         #maximumCpuCount: false # Optional
-        restoreNugetPackages: true # Optional
         #logProjectEvents: false # Optional
         #createLogFile: false # Optional
         #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
