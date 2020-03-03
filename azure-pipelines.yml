@@ -1,0 +1,94 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - 'release/1.3'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'Windows-latest'
+
+    variables:
+      solution: '**/src/*.sln'
+      buildPlatform: 'Any CPU'
+      buildConfiguration: 'Release'
+
+    steps:
+    - task: NuGetToolInstaller@1
+
+    - task: MSBuild@1
+      inputs:
+        solution: 'Greenshot-Full.sln' 
+        #msbuildLocationMethod: 'version' # Optional. Options: version, location
+        #msbuildVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 4.0
+        #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+        #msbuildLocation: # Optional
+        platform: $(buildPlatform)
+        configuration: $(buildConfiguration)
+        #msbuildArguments: # Optional
+        #clean: false # Optional
+        #maximumCpuCount: false # Optional
+        restoreNugetPackages: true # Optional
+        #logProjectEvents: false # Optional
+        #createLogFile: false # Optional
+        #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)\Greenshot\releases'
+        Contents: |
+        Greenshot-INSTALLER-*.exe
+        TargetFolder: '$(build.artifactstagingdirectory)'
+        flattenFolders: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- stage: Deploy
+  jobs:
+  - deployment: Deploy to GitHub Releases
+    pool:
+      vmImage: 'Windows-latest'
+
+    environment: 'GitHub Release'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+
+          # GitHub Release
+          # Create, edit, or delete a GitHub release
+          - task: GitHubRelease@0
+            inputs:
+              gitHubConnection: GitHub Release
+              repositoryName: '$(Build.Repository.Name)' 
+              action: 'create' # Options: create, edit, delete
+              target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
+              tagSource: 'auto' # Required when action == Create# Options: auto, manual
+              #tagPattern: # Optional
+              #tag: # Required when action == Edit || Action == Delete || TagSource == Manual
+              title: Greenshot $(Build.SourceVersion) unstable # Optional
+              #releaseNotesSource: 'file' # Optional. Options: file, input
+              #releaseNotesFile: # Optional
+              #releaseNotes: # Optional
+              assets: '$(Pipeline.Workspace)/drop/*.exe'
+              #assetUploadMode: 'delete' # Optional. Options: delete, replace
+              isDraft: true # Optional
+              isPreRelease: true # Optional
+              addChangeLog: true # Optional
+              #compareWith: 'lastFullRelease' # Required when addChangeLog == True. Options: lastFullRelease, lastRelease, lastReleaseByTag
+              #releaseTag: # Required when compareWith == LastReleaseByTag
