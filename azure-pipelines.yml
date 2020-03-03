@@ -3,6 +3,15 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - 'develop'
+    exclude:
+    - 'release/1*'
+
 pool:
   vmImage: 'Windows-2019'
 
