@@ -37,6 +37,7 @@ using System.Text.RegularExpressions;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 

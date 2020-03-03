@@ -22,79 +22,17 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers.Enums;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 using Microsoft.Win32;
 
-namespace GreenshotPlugin.UnmanagedHelpers.Enums {
+namespace GreenshotPlugin.UnmanagedHelpers {
 
-	// See: http://msdn.microsoft.com/en-us/library/aa969502(v=vs.85).aspx
-	[StructLayout(LayoutKind.Sequential)]
-	public struct DWM_THUMBNAIL_PROPERTIES {
-		// A bitwise combination of DWM thumbnail constant values that indicates which members of this structure are set.
-		public int dwFlags;
-		// The area in the destination window where the thumbnail will be rendered.
-		public RECT rcDestination;
-		// The region of the source window to use as the thumbnail. By default, the entire window is used as the thumbnail.
-		public RECT rcSource;
-		// The opacity with which to render the thumbnail. 0 is fully transparent while 255 is fully opaque. The default value is 255.
-		public byte opacity;
-		// TRUE to make the thumbnail visible; otherwise, FALSE. The default is FALSE.
-		public bool fVisible;
-		// TRUE to use only the thumbnail source's client area; otherwise, FALSE. The default is FALSE.
-		public bool fSourceClientAreaOnly;
-		public RECT Destination {
-			set {
-				dwFlags |= DWM_TNP_RECTDESTINATION;
-				rcDestination = value;
-			}
-		}
-		public RECT Source {
-			set {
-				dwFlags |= DWM_TNP_RECTSOURCE;
-				rcSource = value;
-			}
-		}
-		public byte Opacity {
-			set {
-				dwFlags |= DWM_TNP_OPACITY;
-				opacity = value;
-			}
-		}
-		public bool Visible {
-			set {
-				dwFlags |= DWM_TNP_VISIBLE;
-				fVisible = value;
-			}
-		}
-		public bool SourceClientAreaOnly {
-			set {
-				dwFlags |= DWM_TNP_SOURCECLIENTAREAONLY;
-				fSourceClientAreaOnly = value;
-			}
-		}
-		// A value for the rcDestination member has been specified.
-		public const int DWM_TNP_RECTDESTINATION = 0x00000001;
-		// A value for the rcSource member has been specified.
-		public const int DWM_TNP_RECTSOURCE = 0x00000002;
-		// A value for the opacity member has been specified.
-		public const int DWM_TNP_OPACITY = 0x00000004;
-		// A value for the fVisible member has been specified.
-		public const int DWM_TNP_VISIBLE = 0x00000008;
-		// A value for the fSourceClientAreaOnly member has been specified.
-		public const int DWM_TNP_SOURCECLIENTAREAONLY = 0x00000010;
-	}
-	
-	[StructLayout(LayoutKind.Sequential)]
-	public struct DWM_BLURBEHIND {
-		public DWM_BB dwFlags;
-		public bool fEnable;
-		public IntPtr hRgnBlur;
-		public bool fTransitionOnMaximized;
-	}
-	/// <summary>
+    /// <summary>
 	/// Description of DWM.
 	/// </summary>
-	public class DWM {
+	public static class DWM {
 		public static readonly uint DWM_EC_DISABLECOMPOSITION = 0;
 		public static readonly uint DWM_EC_ENABLECOMPOSITION = 1;
 
@@ -112,9 +50,11 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums {
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmIsCompositionEnabled(out bool enabled);
 		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT lpRect, int size);
+		public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT lpRect, int size);
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
 		[DllImport("dwmapi", SetLastError = true)] 
-		public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
+		public static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref DWM_BLURBEHIND blurBehind);
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern uint DwmEnableComposition(uint uCompositionAction);
 
@@ -129,6 +69,22 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums {
 		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
 
 		/// <summary>
+		/// Checks if the window is cloaked, this should solve some issues with the window selection code
+		/// </summary>
+		/// <param name="hWnd">IntPtr as hWmd</param>
+		/// <returns>bool</returns>
+		public static bool IsWindowCloaked(IntPtr hWnd)
+        {
+			if (WindowsVersion.IsWindows8OrLater)
+            {
+                return false;
+            }
+
+            DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out bool isCloaked, sizeof(bool));
+			return isCloaked;
+        }
+
+        /// <summary>
 		/// Helper method for an easy DWM check
 		/// </summary>
 		/// <returns>bool true if DWM is available AND active</returns>
@@ -136,10 +92,10 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums {
 			// According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
 			// And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
 			// DMW is always enabled on Windows 8! So return true and save a check! ;-)
-			if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 2) {
+			if (WindowsVersion.IsWindows8OrLater) {
 				return true;
 			}
-			if (Environment.OSVersion.Version.Major >= 6) {
+			if (WindowsVersion.IsWindowsVistaOrLater) {
                 DwmIsCompositionEnabled(out var dwmEnabled);
 				return dwmEnabled;
 			}
