@@ -1,6 +1,7 @@
 ﻿#define ExeName "Greenshot"
 #define Version GetEnv('BuildVersionSimple')
 #define FileVersion GetEnv('AssemblyInformationalVersion')
+#define BaseDir "..\..\.."
 #define ReleaseDir "..\..\bin\Release\net472"
 
 ; Include the scripts to install .NET Framework
@@ -81,8 +82,8 @@ Source: {#ReleaseDir}\Languages\language_office*.xml; DestDir: {app}\Languages\P
 ;OCR Plugin
 Source: {#ReleaseDir}\GreenshotOCRPlugin.dll; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#ReleaseDir}\Languages\language_ocr*.xml; DestDir: {app}\Languages\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: ..\..\..\GreenshotOCRCommand\bin\Release\net471\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: ..\..\..\GreenshotOCRCommand\bin\Release\net471\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRCommand\bin\Release\net472\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRCommand\bin\Release\net472\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;JIRA Plugin
 Source: {#ReleaseDir}\GreenshotJiraPlugin.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#ReleaseDir}\Dapplo.Jira.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;

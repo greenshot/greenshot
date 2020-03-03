@@ -22,6 +22,7 @@ stages:
       solution: 'Greenshot.sln'
       buildPlatform: 'Any CPU'
       buildConfiguration: 'Release'
+      group: 'Plug-in Credentials'
 
     steps:
     - task: NuGetToolInstaller@1

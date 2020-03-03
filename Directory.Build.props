@@ -102,18 +102,18 @@
     </Tokens>
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('$(ProjectName).Credentials.template')">
+  <ItemGroup Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')">
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true"/>
   </ItemGroup>
 
-  <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectName).Credentials.template')"/>
+  <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')"/>
 
-  <Target Name="Process templates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectName).Credentials.template')">
-    <Message Text="Processing: $(ProjectName).Credentials.template" /> 
-    <TemplateFile Template="$(ProjectName).Credentials.template" OutputFilename="$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
+  <Target Name="Process templates" BeforeTargets="PrepareForBuild" Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')">
+    <Message Text="Processing: $(SolutionDir)$(ProjectName).Credentials.template" /> 
+    <TemplateFile Template="$(SolutionDir)$(ProjectName).Credentials.template" OutputFilename="$(SolutionDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
   </Target>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true' And $(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
 
     xcopy /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
