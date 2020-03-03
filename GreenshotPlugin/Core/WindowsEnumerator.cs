@@ -59,7 +59,6 @@ namespace GreenshotPlugin.Core {
 		/// <param name="classname">Window Classname to copy, use null to copy all</param>
 		public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname) {
 			Items = new List<WindowDetails>();
-			IList<WindowDetails> windows = new List<WindowDetails>();
 			User32.EnumChildWindows(hWndParent, WindowEnum, IntPtr.Zero);
 
 			bool hasParent = !IntPtr.Zero.Equals(hWndParent);
@@ -70,6 +69,7 @@ namespace GreenshotPlugin.Core {
 				parentText = title.ToString();
 			}
 
+            List<WindowDetails> windows = new List<WindowDetails>();
 			foreach (var window in Items) {
 				if (hasParent) {
 					window.Text = parentText;
@@ -104,7 +104,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="hWnd">Window handle to add</param>
 		/// <returns>True to continue enumeration, False to stop</returns>
-		protected bool OnWindowEnum(IntPtr hWnd) {
+        private bool OnWindowEnum(IntPtr hWnd) {
 			if (!WindowDetails.IsIgnoreHandle(hWnd)) {
 				Items.Add(new WindowDetails(hWnd));
 			}

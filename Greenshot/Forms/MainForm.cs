@@ -927,7 +927,7 @@ namespace Greenshot {
 		public void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler) {
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
-			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled();
+			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled;
 
 			foreach(WindowDetails window in WindowDetails.GetTopLevelWindows()) {
 

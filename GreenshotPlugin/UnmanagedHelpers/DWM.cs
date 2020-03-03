@@ -29,8 +29,8 @@ using Microsoft.Win32;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 
-    /// <summary>
-	/// Description of DWM.
+	/// <summary>
+	/// Desktop Window Manager helper code
 	/// </summary>
 	public static class DWM {
 		public static readonly uint DWM_EC_DISABLECOMPOSITION = 0;
@@ -75,12 +75,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <returns>bool</returns>
 		public static bool IsWindowCloaked(IntPtr hWnd)
         {
-			if (WindowsVersion.IsWindows8OrLater)
+			if (!WindowsVersion.IsWindows8OrLater)
             {
                 return false;
             }
 
-            DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out bool isCloaked, sizeof(bool));
+            DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out bool isCloaked, Marshal.SizeOf(typeof(bool)));
 			return isCloaked;
         }
 
@@ -88,18 +88,23 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Helper method for an easy DWM check
 		/// </summary>
 		/// <returns>bool true if DWM is available AND active</returns>
-		public static bool IsDwmEnabled() {
-			// According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
-			// And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
-			// DMW is always enabled on Windows 8! So return true and save a check! ;-)
-			if (WindowsVersion.IsWindows8OrLater) {
-				return true;
+		public static bool IsDwmEnabled {
+            get
+            {
+                // According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
+                // And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
+                // DMW is always enabled on Windows 8! So return true and save a check! ;-)
+                if (WindowsVersion.IsWindows8OrLater)
+                {
+                    return true;
+                }
+                if (WindowsVersion.IsWindowsVistaOrLater)
+                {
+                    DwmIsCompositionEnabled(out var dwmEnabled);
+                    return dwmEnabled;
+                }
+                return false;
 			}
-			if (WindowsVersion.IsWindowsVistaOrLater) {
-                DwmIsCompositionEnabled(out var dwmEnabled);
-				return dwmEnabled;
-			}
-			return false;
 		}
 
 		public static Color ColorizationColor {

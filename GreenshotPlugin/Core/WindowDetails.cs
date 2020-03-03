@@ -553,6 +553,11 @@ namespace GreenshotPlugin.Core
         /// </summary>
         public bool Visible {
             get {
+                // Tip from Raymond Chen
+                if (DWM.IsWindowCloaked(Handle))
+                {
+                    return false;
+                }
                 if (IsApp) {
                     Rectangle windowRectangle = WindowRectangle;
                     foreach (Screen screen in Screen.AllScreens) {
@@ -584,8 +589,7 @@ namespace GreenshotPlugin.Core
                 if (IsAppLauncher) {
                     return IsAppLauncherVisible;
                 }
-                // Tip from Raymond Chen
-                return User32.IsWindowVisible(Handle) && !DWM.IsWindowCloaked(Handle);
+                return User32.IsWindowVisible(Handle);
             }
         }
 
@@ -634,55 +638,57 @@ namespace GreenshotPlugin.Core
                 // Try to return a cached value
                 long now = DateTime.Now.Ticks;
                 if (_previousWindowRectangle.IsEmpty || !_frozen) {
-                    if (_previousWindowRectangle.IsEmpty || now - _lastWindowRectangleRetrieveTime > CacheTime) {
-                        Rectangle windowRect = Rectangle.Empty;
-                        if (DWM.IsDwmEnabled())
+                    if (!_previousWindowRectangle.IsEmpty && now - _lastWindowRectangleRetrieveTime <= CacheTime)
+                    {
+                        return _previousWindowRectangle;
+                    }
+                    Rectangle windowRect = Rectangle.Empty;
+                    if (DWM.IsDwmEnabled)
+                    {
+                        bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+                        if (IsApp)
                         {
-                            bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
-                            if (IsApp)
+                            // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
+                            if (gotFrameBounds)
                             {
-                                // Pre-Cache for Maximised call, this is only on Windows 8 apps (full screen)
-                                if (gotFrameBounds)
-                                {
-                                    _previousWindowRectangle = windowRect;
-                                    _lastWindowRectangleRetrieveTime = now;
-                                }
-                            }
-                            if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
-                            {
-                                // Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
-                                // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
-                                windowRect.Inflate(Conf.Win10BorderCrop);
                                 _previousWindowRectangle = windowRect;
                                 _lastWindowRectangleRetrieveTime = now;
-                                return windowRect;
                             }
                         }
-
-                        if (windowRect.IsEmpty) {
-                            if (!GetWindowRect(out windowRect))
-                            {
-                                Win32Error error = Win32.GetLastErrorCode();
-                                Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
-                            }
+                        if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
+                        {
+                            // Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
+                            // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
+                            windowRect.Inflate(Conf.Win10BorderCrop);
+                            _previousWindowRectangle = windowRect;
+                            _lastWindowRectangleRetrieveTime = now;
+                            return windowRect;
                         }
-
-                        // Correction for maximized windows, only if it's not an app
-                        if (!HasParent && !IsApp && Maximised) {
-                            // Only if the border size can be retrieved
-                            if (GetBorderSize(out var size))
-                            {
-                                windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
-                            }
-                        }
-                        _lastWindowRectangleRetrieveTime = now;
-                        // Try to return something valid, by getting returning the previous size if the window doesn't have a Rectangle anymore
-                        if (windowRect.IsEmpty) {
-                            return _previousWindowRectangle;
-                        }
-                        _previousWindowRectangle = windowRect;
-                        return windowRect;
                     }
+
+                    if (windowRect.IsEmpty) {
+                        if (!GetWindowRect(out windowRect))
+                        {
+                            Win32Error error = Win32.GetLastErrorCode();
+                            Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
+                        }
+                    }
+
+                    // Correction for maximized windows, only if it's not an app
+                    if (!HasParent && !IsApp && Maximised) {
+                        // Only if the border size can be retrieved
+                        if (GetBorderSize(out var size))
+                        {
+                            windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
+                        }
+                    }
+                    _lastWindowRectangleRetrieveTime = now;
+                    // Try to return something valid, by getting returning the previous size if the window doesn't have a Rectangle anymore
+                    if (windowRect.IsEmpty) {
+                        return _previousWindowRectangle;
+                    }
+                    _previousWindowRectangle = windowRect;
+                    return windowRect;
                 }
                 return _previousWindowRectangle;
             }
@@ -752,12 +758,8 @@ namespace GreenshotPlugin.Core
         /// Get / Set the WindowStyle
         /// </summary>
         public WindowStyleFlags WindowStyle {
-            get {
-                return (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE);
-            }
-            set {
-                User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
-            }
+            get => (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE);
+            set => User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
         }
 
         /// <summary>
@@ -778,12 +780,8 @@ namespace GreenshotPlugin.Core
         /// Get/Set the Extended WindowStyle
         /// </summary>
         public ExtendedWindowStyleFlags ExtendedWindowStyle {
-            get {
-                return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE);
-            }
-            set {
-                User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
-            }
+            get => (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE);
+            set => User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
         }
 
         /// <summary>
@@ -806,7 +804,7 @@ namespace GreenshotPlugin.Core
         /// </summary>
         /// <param name="capture">Capture to fill</param>
         /// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
-        /// <param name="autoMode">True if auto modus is used</param>
+        /// <param name="autoMode">True if auto mode is used</param>
         /// <returns>ICapture with the capture</returns>
         public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode) {
             IntPtr thumbnailHandle = IntPtr.Zero;
@@ -838,6 +836,7 @@ namespace GreenshotPlugin.Core
                 if (!Maximised) {
                     // Assume using it's own location
                     formLocation = windowRectangle.Location;
+                    // TODO: Use Rectangle.Union!
                     using Region workingArea = new Region(Screen.PrimaryScreen.Bounds);
                     // Find the screen where the window is and check if it fits
                     foreach (Screen screen in Screen.AllScreens) {
@@ -1152,12 +1151,12 @@ namespace GreenshotPlugin.Core
             if (workaround)
             {
                 const byte alt = 0xA4;
-                const int extendedkey = 0x1;
+                const int extendedKey = 0x1;
                 const int keyup = 0x2;
                 // Simulate an "ALT" key press.
-                User32.keybd_event(alt, 0x45, extendedkey | 0, 0);
+                User32.keybd_event(alt, 0x45, extendedKey | 0, 0);
                 // Simulate an "ALT" key release.
-                User32.keybd_event(alt, 0x45, extendedkey | keyup, 0);
+                User32.keybd_event(alt, 0x45, extendedKey | keyup, 0);
             }
             // Show window in forground.
             User32.BringWindowToTop(handle);

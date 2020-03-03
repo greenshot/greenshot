@@ -813,7 +813,7 @@ namespace Greenshot.Helpers {
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
-			bool dwmEnabled = DWM.IsDwmEnabled();
+			bool dwmEnabled = DWM.IsDwmEnabled;
 			// get process name to be able to exclude certain processes from certain capture modes
 			using (Process process = windowToCapture.Process) {
 				bool isAutoMode = windowCaptureMode == WindowCaptureMode.Auto;
@@ -1010,26 +1010,27 @@ namespace Greenshot.Helpers {
             } finally {
                 captureForm.Hide();
             }
-            if (result == DialogResult.OK) {
-                _selectedCaptureWindow = captureForm.SelectedCaptureWindow;
-                _captureRect = captureForm.CaptureRectangle;
-                // Get title
-                if (_selectedCaptureWindow != null) {
-                    _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-                }
 
-                if (_captureRect.Height > 0 && _captureRect.Width > 0) {
-                    // Take the captureRect, this already is specified as bitmap coordinates
-                    _capture.Crop(_captureRect);
+            if (result != DialogResult.OK) return;
 
-                    // save for re-capturing later and show recapture context menu option
-                    // Important here is that the location needs to be offsetted back to screen coordinates!
-                    Rectangle tmpRectangle = _captureRect;
-                    tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-                    CoreConfig.LastCapturedRegion = tmpRectangle;
-                }
-                HandleCapture();
+            _selectedCaptureWindow = captureForm.SelectedCaptureWindow;
+            _captureRect = captureForm.CaptureRectangle;
+            // Get title
+            if (_selectedCaptureWindow != null) {
+                _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
             }
-		}
+
+            if (_captureRect.Height > 0 && _captureRect.Width > 0) {
+                // Take the captureRect, this already is specified as bitmap coordinates
+                _capture.Crop(_captureRect);
+
+                // save for re-capturing later and show recapture context menu option
+                // Important here is that the location needs to be offsetted back to screen coordinates!
+                Rectangle tmpRectangle = _captureRect;
+                tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+                CoreConfig.LastCapturedRegion = tmpRectangle;
+            }
+            HandleCapture();
+        }
     }
 }

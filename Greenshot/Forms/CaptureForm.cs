@@ -97,7 +97,7 @@ namespace Greenshot.Forms {
 		public WindowDetails SelectedCaptureWindow => _selectedCaptureWindow;
 
 		/// <summary>
-		/// This should prevent childs to draw backgrounds
+		/// This should prevent children to draw backgrounds
 		/// </summary>
 		protected override CreateParams CreateParams {
 			[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
@@ -119,7 +119,7 @@ namespace Greenshot.Forms {
 		}
 
 		private void ClosingHandler(object sender, EventArgs e) {
-			Log.Debug("Closing captureform");
+			Log.Debug("Closing capture form");
 			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
 
