@@ -34,21 +34,12 @@ stages:
         restoreSolution: '$(solution)'
         feedsToUse: config
 
-    - task: MSBuild@1
+    - task: VSBuild@1
       inputs:
-        solution: '$(solution)' 
-        #msbuildLocationMethod: 'version' # Optional. Options: version, location
-        #msbuildVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 4.0
-        #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
-        #msbuildLocation: # Optional
+        solution: '$(solution)'
+        vsVersion: 'latest'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
-        #msbuildArguments: # Optional
-        #clean: false # Optional
-        #maximumCpuCount: false # Optional
-        #logProjectEvents: false # Optional
-        #createLogFile: false # Optional
-        #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
 
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
