@@ -32,7 +32,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Greenshot.Configuration;
-using Greenshot.Experimental;
 using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;

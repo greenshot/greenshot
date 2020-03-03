@@ -227,6 +227,7 @@ namespace GreenshotOfficePlugin.OfficeExport
             }
             try
             {
+                // When called for Outlook, the follow error is created: This object model command is not available in e-mail
                 using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
                 activeWindow.ComObject.Activate();
                 using var activePane = DisposableCom.Create(activeWindow.ComObject.ActivePane);

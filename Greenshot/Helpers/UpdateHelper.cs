@@ -18,18 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using log4net;
 
-namespace Greenshot.Experimental {
+namespace Greenshot.Helpers {
 	/// <summary>
 	/// Description of RssFeedHelper.
 	/// </summary>
