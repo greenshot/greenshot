@@ -21,6 +21,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CliWrap;
+using CliWrap.Buffered;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Addon.ExternalCommand.Configuration;
 using Greenshot.Addon.ExternalCommand.Entities;
@@ -76,11 +77,9 @@ namespace Greenshot.Addon.ExternalCommand
 
 	        var fullPath = captureDetails.Filename ?? surface.SaveNamedTmpFile(CoreConfiguration, _externalCommandConfiguration);
 
-	        var cli = new Cli(_externalCommandDefinition.Command);
-	        var arguments = string.Format(_externalCommandDefinition.Arguments, fullPath);
-	        // Execute
-	        cli.SetArguments(arguments);
-	        var output = await cli.ExecuteAsync().ConfigureAwait(true);
+            var output = await Cli.Wrap(_externalCommandDefinition.Command)
+                .WithArguments(string.Format(_externalCommandDefinition.Arguments, fullPath))
+                .ExecuteBufferedAsync().Task.ConfigureAwait(false);
 
 	        if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
 	        {
