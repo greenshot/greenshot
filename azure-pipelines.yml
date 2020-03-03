@@ -34,13 +34,20 @@ stages:
         restoreSolution: '$(solution)'
         feedsToUse: config
 
-    - task: VSBuild@1
+    - task: MSBuild@1
+      displayName: Generate templates
       inputs:
         solution: '$(solution)'
-        vsVersion: 'latest'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
-        msbuildArgs: '/t:PrepareForBuild /t:Rebuild'
+        msbuildArgs: '/t:PrepareForBuild
+
+    - task: MSBuild@1
+      displayName: Build and package
+      inputs:
+        solution: '$(solution)'
+        platform: $(buildPlatform)
+        configuration: $(buildConfiguration)
 
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'

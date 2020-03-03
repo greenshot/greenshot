@@ -102,15 +102,15 @@
     </Tokens>
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')">
+  <ItemGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true"/>
   </ItemGroup>
 
-  <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')"/>
+  <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
 
-  <Target Name="Process templates" BeforeTargets="PrepareForBuild" Condition="Exists('$(SolutionDir)$(ProjectName).Credentials.template')">
-    <Message Text="Processing: $(SolutionDir)$(ProjectName).Credentials.template" /> 
-    <TemplateFile Template="$(SolutionDir)$(ProjectName).Credentials.template" OutputFilename="$(SolutionDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
+  <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
+    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" /> 
+    <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
   </Target>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
