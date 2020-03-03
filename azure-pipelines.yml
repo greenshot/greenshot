@@ -19,7 +19,7 @@ stages:
       vmImage: 'Windows-latest'
 
     variables:
-      solution: '**/src/*.sln'
+      solution: 'Greenshot.sln'
       buildPlatform: 'Any CPU'
       buildConfiguration: 'Release'
 
@@ -29,12 +29,13 @@ stages:
     - task: NuGetCommand@2
       displayName: NuGet restore
       inputs:
+        command: 'restore'
         restoreSolution: '$(solution)'
         feedsToUse: config
 
     - task: MSBuild@1
       inputs:
-        solution: 'Greenshot.sln' 
+        solution: '$(solution)' 
         #msbuildLocationMethod: 'version' # Optional. Options: version, location
         #msbuildVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 4.0
         #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
