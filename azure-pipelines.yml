@@ -7,7 +7,9 @@ trigger:
   batch: true
   branches:
     include:
-    - 'release/1.3'
+    - 'release/1.*'
+    exclude:
+    - 'develop'
 
 stages:
 - stage: Build
@@ -56,7 +58,7 @@ stages:
 
 - stage: Deploy
   jobs:
-  - deployment: Deploy to GitHub Releases
+  - deployment: GitHub_Release
     pool:
       vmImage: 'Windows-latest'
 
