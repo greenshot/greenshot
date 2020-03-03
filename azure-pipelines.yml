@@ -40,7 +40,7 @@ stages:
         solution: '$(solution)'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
-        msbuildArgs: '/t:PrepareForBuild'
+        msbuildArguments: '/t:PrepareForBuild'
 
     - task: MSBuild@1
       displayName: Build and package
