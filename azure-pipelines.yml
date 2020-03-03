@@ -45,8 +45,7 @@ stages:
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
       inputs:
         SourceFolder: '$(Build.SourcesDirectory)\Greenshot\releases'
-        Contents: |
-        Greenshot-INSTALLER-*.exe
+        Contents: Greenshot-INSTALLER-*.exe
         TargetFolder: '$(build.artifactstagingdirectory)'
         flattenFolders: true
 
