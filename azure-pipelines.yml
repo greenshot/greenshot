@@ -40,6 +40,7 @@ stages:
         vsVersion: 'latest'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
+        msbuildArgs: '/t:PrepareForBuild /t:Rebuild'
 
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
