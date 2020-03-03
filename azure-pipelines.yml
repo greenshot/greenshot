@@ -85,8 +85,8 @@ stages:
               action: 'create' # Options: create, edit, delete
               target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
               tagSource: 'manual' # Required when action == Create# Options: auto, manual
-              tag: 'v$(Build.SourceVersion)' # Required when action == Edit || Action == Delete || TagSource == Manual
-              title: Greenshot $(Build.SourceVersion) unstable # Optional
+              tag: 'v$(Build.BuildNumber)' # Required when action == Edit || Action == Delete || TagSource == Manual
+              title: Greenshot $(Build.BuildNumber) unstable # Optional
               #releaseNotesSource: 'file' # Optional. Options: file, input
               #releaseNotesFile: # Optional
               #releaseNotes: # Optional
