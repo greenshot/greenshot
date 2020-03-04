@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Reflection;
+using System.Windows.Forms;
 using Greenshot.Helpers;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	partial class AboutForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -183,6 +183,7 @@ namespace Greenshot {
 			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
 			this.pictureBox1.TabIndex = 14;
 			this.pictureBox1.TabStop = false;
+            this.pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
 			// 
 			// lblTranslation
 			// 

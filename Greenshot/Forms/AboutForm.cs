@@ -20,32 +20,31 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.IO;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-
-using Greenshot.Helpers;
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Security.Permissions;
+using System.Windows.Forms;
+using Greenshot.Configuration;
+using Greenshot.Helpers;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using log4net;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// The about form
 	/// </summary>
 	public sealed partial class AboutForm : AnimatingBaseForm {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap _bitmap;
 		private readonly ColorAnimator _backgroundAnimation;
-		private readonly IList<RectangleAnimator> _pixels = new List<RectangleAnimator>();
-		private readonly IList<Color> _colorFlow = new List<Color>();
-		private readonly IList<Color> _pixelColors = new List<Color>();
+		private readonly List<RectangleAnimator> _pixels = new List<RectangleAnimator>();
+		private readonly List<Color> _colorFlow = new List<Color>();
+		private readonly List<Color> _pixelColors = new List<Color>();
 		private readonly Random _rand = new Random();
 		private readonly Color _backColor = Color.FromArgb(61, 61, 61);
 		private readonly Color _pixelColor = Color.FromArgb(138, 255, 0);
@@ -57,54 +56,55 @@ namespace Greenshot {
 		private bool _hasAnimationsLeft;
 
 		// Variables are used to define the location of the dots
-		private const int w = 13;
-		private const int p1 = 7;
-		private const int p2 = p1 + w;
-		private const int p3 = p2 + w;
-		private const int p4 = p3 + w;
-		private const int p5 = p4 + w;
-		private const int p6 = p5 + w;
-		private const int p7 = p6 + w;
+		private const int W = 13;
+		private const int P1 = 7;
+		private const int P2 = P1 + W;
+		private const int P3 = P2 + W;
+		private const int P4 = P3 + W;
+		private const int P5 = P4 + W;
+		private const int P6 = P5 + W;
+		private const int P7 = P6 + W;
 
 		/// <summary>
 		/// The location of every dot in the "G"
 		/// </summary>
-		private readonly List<Point> gSpots = new List<Point>() {
+		private readonly List<Point> _gSpots = new List<Point>
+        {
              	// Top row
-             	new Point(p2, p1),	// 0
-             	new Point(p3, p1),  // 1
-             	new Point(p4, p1),  // 2
-             	new Point(p5, p1),	// 3
-             	new Point(p6, p1),	// 4
+             	new Point(P2, P1),	// 0
+             	new Point(P3, P1),  // 1
+             	new Point(P4, P1),  // 2
+             	new Point(P5, P1),	// 3
+             	new Point(P6, P1),	// 4
 
              	// Second row
-             	new Point(p1, p2),	// 5
-             	new Point(p2, p2),	// 6
+             	new Point(P1, P2),	// 5
+             	new Point(P2, P2),	// 6
 
              	// Third row
-             	new Point(p1, p3),	// 7
-             	new Point(p2, p3),	// 8
+             	new Point(P1, P3),	// 7
+             	new Point(P2, P3),	// 8
 
              	// Fourth row
-             	new Point(p1, p4),	// 9
-             	new Point(p2, p4),	// 10
-             	new Point(p5, p4),	// 11
-             	new Point(p6, p4),	// 12
-             	new Point(p7, p4),	// 13
+             	new Point(P1, P4),	// 9
+             	new Point(P2, P4),	// 10
+             	new Point(P5, P4),	// 11
+             	new Point(P6, P4),	// 12
+             	new Point(P7, P4),	// 13
 
              	// Fifth row
-             	new Point(p1, p5),	// 14
-             	new Point(p2, p5),	// 15
-             	new Point(p6, p5),	// 16
-             	new Point(p7, p5),	// 17
+             	new Point(P1, P5),	// 14
+             	new Point(P2, P5),	// 15
+             	new Point(P6, P5),	// 16
+             	new Point(P7, P5),	// 17
 
              	// Sixth row
-             	new Point(p1, p6),	// 18
-             	new Point(p2, p6),	// 19
-             	new Point(p3, p6),	// 20
-             	new Point(p4, p6),	// 21
-             	new Point(p5, p6),	// 22
-             	new Point(p6, p6)	// 23
+             	new Point(P1, P6),	// 18
+             	new Point(P2, P6),	// 19
+             	new Point(P3, P6),	// 20
+             	new Point(P4, P6),	// 21
+             	new Point(P5, P6),	// 22
+             	new Point(P6, P6)	// 23
              };
 
 		//     0  1  2  3  4
@@ -114,18 +114,17 @@ namespace Greenshot {
 		// 14 15          16 17
 		// 18 19 20 21 22 23
 
-		// The order in which we draw the dots & flow the collors.
-		private readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+		// The order in which we draw the dots & flow the colors.
+		private readonly List<int> _flowOrder = new List<int>{ 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
 		/// Cleanup all the allocated resources
 		/// </summary>
 		private void Cleanup(object sender, EventArgs e) {
-			if (_bitmap != null) {
-				_bitmap.Dispose();
-				_bitmap = null;
-			}
-		}
+            if (_bitmap == null) return;
+            _bitmap.Dispose();
+            _bitmap = null;
+        }
 
 		/// <summary>
 		/// Constructor
@@ -146,10 +145,11 @@ namespace Greenshot {
 			DoubleBuffered = !IsTerminalServerSession;
 
 			// Use the self drawn image, first we create the background to be the back-color (as we animate from this)
+
 			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = "Greenshot " + EnvironmentInfo.GetGreenshotVersion() + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) + " bit)";
+            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
 
 			// Number of frames the pixel animation takes
 			int frames = FramesForMillis(2000);
@@ -159,25 +159,25 @@ namespace Greenshot {
 			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
 			int pixelWaitFrames = FramesForMillis(2000);
 			// Create pixels
-			for (int index = 0; index < gSpots.Count; index++) {
+			for (int index = 0; index < _gSpots.Count; index++) {
 				// Read the pixels in the order of the flow
-				Point gSpot = gSpots[flowOrder[index]];
+				Point gSpot = _gSpots[_flowOrder[index]];
 				// Create the animation, first we do nothing (on the final destination)
 				RectangleAnimator pixelAnimation;
 
 				// Make the pixel grow from the middle, if this offset isn't used it looks like it's shifted
-				int offset = (w - 2) / 2;
+				int offset = (W - 2) / 2;
 
 				// If the optimize for Terminal Server is set we make the animation without much ado
 				if (IsTerminalServerSession) {
 					// No animation
-					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
+					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
 				} else {
 					// Create the animation, first we do nothing (on the final destination)
 					Rectangle standingStill = new Rectangle(gSpot.X + offset, gSpot.Y + offset, 0, 0);
 					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingType.Quintic, EasingMode.EaseIn);
 					// And than we size to the wanted size.
-					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
+					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), frames);
 				}
 				// Increase the wait frames
 				pixelWaitFrames += FramesForMillis(100);
@@ -307,10 +307,10 @@ namespace Greenshot {
 									// nothing to do, just using dispose to cleanup
 								}
 							} else {
-								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
+								MessageBox.Show(@"Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
 							}
 						} catch (Exception) {
-							MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+							MessageBox.Show(@"Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, @"Error opening greenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 						}
 						break;
 					case Keys.I:
@@ -318,14 +318,14 @@ namespace Greenshot {
 							using (Process.Start("\"" + IniConfig.ConfigLocation + "\"")) {
 							}
 						} catch (Exception) {
-							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+							MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, @"Error opening greenshot.ini", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 						}
 						break;
 					default:
 						return base.ProcessCmdKey(ref msg, keyData);
 				}
 			} catch (Exception ex) {
-				LOG.Error($"Error handling key '{keyData}'", ex);
+				Log.Error($"Error handling key '{keyData}'", ex);
 			}
 			return true;
 		}
