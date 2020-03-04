@@ -3,6 +3,7 @@
 #define FileVersion GetEnv('AssemblyInformationalVersion')
 #define BaseDir "..\..\.."
 #define ReleaseDir "..\..\bin\Release\net472"
+#define BinDir "bin\Release\net472"
 
 ; Include the scripts to install .NET Framework
 ; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -77,43 +78,42 @@ Source: ..\..\Languages\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ;Office Plugin
-Source: {#ReleaseDir}\GreenshotOfficePlugin.dll; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_office*.xml; DestDir: {app}\Languages\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOfficePlugin\{#BinDir}\GreenshotOfficePlugin.dll; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;OCR Plugin
-Source: {#ReleaseDir}\GreenshotOCRPlugin.dll; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_ocr*.xml; DestDir: {app}\Languages\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotOCRCommand\bin\Release\net472\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotOCRCommand\bin\Release\net472\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRPlugin\{#BinDir}\GreenshotOCRPlugin.dll; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRPlugin\Languages\language_ocr*.xml; DestDir: {app}\Languages\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;JIRA Plugin
-Source: {#ReleaseDir}\GreenshotJiraPlugin.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Dapplo.Jira.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\GreenshotJiraPlugin.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\Dapplo.Jira.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotJiraPlugin\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Imgur Plugin
-Source: {#ReleaseDir}\GreenshotImgurPlugin.dll; DestDir: {app}\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotImgurPlugin\{#BinDir}\GreenshotImgurPlugin.dll; DestDir: {app}\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotImgurPlugin\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Box Plugin
-Source: {#ReleaseDir}\GreenshotBoxPlugin.dll; DestDir: {app}\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotBoxPlugin\{#BinDir}\GreenshotBoxPlugin.dll; DestDir: {app}\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotBoxPlugin\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\GreenshotBoxPlugin; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
 ;DropBox Plugin
-Source: {#ReleaseDir}\GreenshotDropboxPlugin.dll; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotDropBoxPlugin\{#BinDir}\GreenshotDropboxPlugin.dll; DestDir: {app}\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotDropBoxPlugin\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\GreenshotDropBoxPlugin; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Flickr Plugin
-Source: {#ReleaseDir}\GreenshotFlickrPlugin.dll; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotFlickrPlugin\{#BinDir}\GreenshotFlickrPlugin.dll; DestDir: {app}\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotFlickrPlugin\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\GreenshotFlickrPlugin; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Photobucket Plugin
-Source: {#ReleaseDir}\GreenshotPhotobucketPlugin.dll; DestDir: {app}\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotPhotobucketPlugin\{#BinDir}\GreenshotPhotobucketPlugin.dll; DestDir: {app}\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotPhotobucketPlugin\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Picasa Plugin
-Source: {#ReleaseDir}\GreenshotPicasaPlugin.dll; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_picasa*.xml; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotPicasaPlugin\{#BinDir}\GreenshotPicasaPlugin.dll; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotPicasaPlugin\Languages\language_picasa*.xml; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Confluence Plugin
-Source: {#ReleaseDir}\GreenshotConfluencePlugin.dll; DestDir: {app}\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotConfluencePlugin\{#BinDir}\GreenshotConfluencePlugin.dll; DestDir: {app}\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotConfluencePlugin\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
 ;ExternalCommand Plugin
-Source: {#ReleaseDir}\GreenshotExternalCommandPlugin.dll; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#ReleaseDir}\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotExternalCommandPlugin\{#BinDir}\GreenshotExternalCommandPlugin.dll; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotExternalCommandPlugin\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Win 10 Plugin
-Source: {#ReleaseDir}\\GreenshotWin10Plugin.dll; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotWin10Plugin\{#BinDir}\GreenshotWin10Plugin.dll; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -135,7 +135,7 @@ InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1.7600
-OutputBaseFilename={#ExeName}-INSTALLER-{#Version}
+OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
 OutputDir=..\
 PrivilegesRequired=lowest
 SetupIconFile=..\..\icons\applicationIcon\icon.ico

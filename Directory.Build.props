@@ -115,17 +115,13 @@
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="
-
-    xcopy /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    xcopy /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    xcopy /y /d &quot;$(TargetDir)*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;
+    xcopy /f /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
+    xcopy /f /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
         IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
-        del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-installer*.xml&quot;;&#xD;&#xA;
-        del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\language-website*.xml&quot;;&#xD;&#xA;
+        xcopy /f /y /d &quot;$(TargetDir)Languages\*en-US.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
 	)" />
   </Target>
 </Project>

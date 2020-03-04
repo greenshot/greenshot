@@ -13,7 +13,76 @@
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj" />
   </ItemGroup>
-
+  <Target Name="EmbeddingOutlook" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Microsoft.Office.Interop.Outlook</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingOneNote" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Interop.Microsoft.Office.Interop.OneNote</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingExcel" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Microsoft.Office.Interop.Excel</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingPowerPoint" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Microsoft.Office.Interop.PowerPoint</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingWord" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Microsoft.Office.Interop.Word</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingMsHtml" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>Unofficial.Microsoft.mshtml</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="EmbeddingMicrosoftOfficeCore" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <PropertyGroup>
+      <_InteropAssemblyFileName>MicrosoftOfficeCore</_InteropAssemblyFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0">
       <EmbedInteropTypes>true</EmbedInteropTypes>
