@@ -19,10 +19,13 @@ stages:
       vmImage: 'Windows-latest'
 
     variables:
-      solution: 'Greenshot.sln'
-      buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release'
-      group: 'Plug-in Credentials'
+    - group: 'Plug-in Credentials'
+    - name: solution
+      value: 'Greenshot.sln'
+    - name: buildPlatform
+      value: 'Any CPU'
+    - name: buildConfiguration
+      value: 'Release'
 
     steps:
     - task: NuGetToolInstaller@1

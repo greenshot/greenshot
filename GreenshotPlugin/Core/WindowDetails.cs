@@ -549,12 +549,20 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
+        /// Returns if this window is cloaked
+        /// </summary>
+        public bool IsCloaked
+        {
+            get => DWM.IsWindowCloaked(Handle);
+        }
+
+        /// <summary>
         /// Gets whether the window is visible.
         /// </summary>
         public bool Visible {
             get {
                 // Tip from Raymond Chen
-                if (DWM.IsWindowCloaked(Handle))
+                if (IsCloaked)
                 {
                     return false;
                 }
@@ -1525,6 +1533,12 @@ namespace GreenshotPlugin.Core
         /// <returns>bool</returns>
         private static bool IsTopLevel(WindowDetails window)
         {
+            // Window is not on this desktop
+            if (window.IsCloaked)
+            {
+                return false;
+            }
+
             // Ignore windows without title
             if (window.Text.Length == 0)
             {
@@ -1535,7 +1549,7 @@ namespace GreenshotPlugin.Core
                 return false;
             }
             // Windows without size
-            if (window.WindowRectangle.Size.IsEmpty)
+            if (window.WindowRectangle.Size.Width * window.WindowRectangle.Size.Height == 0)
             {
                 return false;
             }
