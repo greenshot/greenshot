@@ -28,6 +28,12 @@ stages:
       vmImage: 'Windows-latest'
 
     steps:
+    - script: |
+        echo $Box_ClientId
+        echo $DropBox_ClientId
+        echo $Flickr_ClientId
+      displayName: 'Show Variable Values'
+
     - task: NuGetToolInstaller@1
 
     - task: NuGetCommand@2
