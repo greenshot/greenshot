@@ -63,6 +63,14 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
+  <Target Name="Test Variables" BeforeTargets="PrepareForBuild" >
+    <Message Text="Box Client Id $(Box_ClientId)" Importance="high"/>
+    <Message Text="DropBox Client Id $(DropBox_ClientId)" Importance="high"/>
+    <Message Text="Flickr Client Id $(Flickr_ClientId)" Importance="high"/>
+    <Message Text="Photobucket Client Id $(Photobucket_ClientId)" Importance="high"/>
+    <Message Text="Picasa Client Id $(Picasa_ClientId)" Importance="high"/>
+  </Target>
+
   <ItemGroup>
     <Tokens Include="Box_ClientId">
       <ReplacementValue>$(Box_ClientId)</ReplacementValue>
@@ -109,7 +117,7 @@
   <Import Project="$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" /> 
+    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
   </Target>
 
