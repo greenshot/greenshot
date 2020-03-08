@@ -27,16 +27,6 @@ stages:
     pool:
       vmImage: 'Windows-latest'
 
-    steps:
-    - script: |
-        echo $Box_ClientId
-        echo $(Box_ClientId)
-        echo $BOX_CLIENTID
-        echo %BOX_CLIENTID%
-        echo $DropBox_ClientId
-        echo $Flickr_ClientId
-      displayName: 'Show Variable Values'
-
     - task: NuGetToolInstaller@1
 
     - task: NuGetCommand@2
@@ -60,6 +50,19 @@ stages:
         solution: '$(solution)'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
+      env:
+        Box_ClientId: $(Box_ClientId)
+        Box_ClientSecret: $(Box_ClientSecret)
+        DropBox_ClientId: $(DropBox_ClientId)
+        DropBox_ClientSecret: $(DropBox_ClientSecret)
+        Flickr_ClientId: $(Flickr_ClientId)
+        Flickr_ClientSecret: $(Flickr_ClientSecret)
+        Imgur_ClientId: $(Imgur_ClientId)
+        Imgur_ClientSecret: $(Imgur_ClientSecret)
+        Photobucket_ClientId: $(Photobucket_ClientId)
+        Photobucket_ClientSecret: $(Photobucket_ClientSecret)
+        Picasa_ClientId: $(Picasa_ClientId)
+        Picasa_ClientSecret: $(Picasa_ClientSecret)
 
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
