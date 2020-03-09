@@ -46,7 +46,6 @@ using System.Threading.Tasks;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace Greenshot {
 	/// <summary>
@@ -350,6 +349,12 @@ namespace Greenshot {
 			// Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
+			// TODO: Enable check if the Windows 10 notification service is available
+            //if (WindowsVersion.IsBeforeWindows10)
+            //{
+                SimpleServiceProvider.Current.AddService(new NotifyIconNotificationService());
+            //}
+
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;
 
@@ -428,20 +433,7 @@ namespace Greenshot {
 			HandleDataTransport(dataTransport);
 		}
 
-		private void BalloonTipClicked(object sender, EventArgs e) {
-			try {
-				ShowSetting();
-			} finally {
-				BalloonTipClosed(sender, e);
-			}
-		}
-
-		private void BalloonTipClosed(object sender, EventArgs e) {
-			notifyIcon.BalloonTipClicked -= BalloonTipClicked;
-			notifyIcon.BalloonTipClosed -= BalloonTipClosed;
-		}
-
-		private void HandleDataTransport(CopyDataTransport dataTransport) {
+        private void HandleDataTransport(CopyDataTransport dataTransport) {
 			foreach(KeyValuePair<CommandEnum, string> command in dataTransport.Commands) {
 				LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
 				switch(command.Key) {
@@ -451,14 +443,9 @@ namespace Greenshot {
 						break;
 					case CommandEnum.FirstLaunch:
 						LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-						try {
-							notifyIcon.BalloonTipClicked += BalloonTipClicked;
-							notifyIcon.BalloonTipClosed += BalloonTipClosed;
-							notifyIcon.ShowBalloonTip(2000, "Greenshot", Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
-						} catch (Exception ex) {
-							LOG.Warn("Exception while showing first launch: ", ex);
-						}
-						break;
+                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<NotifyIconNotificationService>();
+                        notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
+                        break;
 					case CommandEnum.ReloadConfig:
 						LOG.Info("Reload requested");
 						try {

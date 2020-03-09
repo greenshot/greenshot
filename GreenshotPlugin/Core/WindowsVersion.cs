@@ -22,6 +22,12 @@ namespace GreenshotPlugin.Core
         public static bool IsWindows10 { get; } = WinVersion.Major == 10;
 
         /// <summary>
+        ///     Test if the current OS is before Windows 10
+        /// </summary>
+        /// <returns>true if we are running on Windows before 10</returns>
+        public static bool IsBeforeWindows10 { get; } = WinVersion.Major < 10;
+
+        /// <summary>
         ///     Test if the current OS is Windows 10 or later
         /// </summary>
         /// <returns>true if we are running on Windows 10 or later</returns>

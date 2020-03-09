@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,7 +41,7 @@ using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace Greenshot.Helpers {
 	/// <summary>
-	/// CaptureHelper contains all the capture logic 
+	/// CaptureHelper contains all the capture logic
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
@@ -177,7 +177,7 @@ namespace Greenshot.Helpers {
 
 		public CaptureHelper(CaptureMode captureMode) {
 			_captureMode = captureMode;
-			_capture = new Capture();			
+			_capture = new Capture();
 		}
 
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode) {
@@ -192,7 +192,7 @@ namespace Greenshot.Helpers {
 		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor) {
 			_capture.CaptureDetails.AddDestination(destination);
 		}
-		
+
 		public WindowDetails SelectedCaptureWindow {
 			get {
 				return _selectedCaptureWindow;
@@ -201,7 +201,7 @@ namespace Greenshot.Helpers {
 				_selectedCaptureWindow = value;
 			}
 		}
-		
+
 		private void DoCaptureFeedback() {
 			if (CoreConfig.PlayCameraSound) {
 				SoundHelper.Play();
@@ -459,13 +459,13 @@ namespace Greenshot.Helpers {
 				_capture.Dispose();
 			}
 		}
-				
+
 		/// <summary>
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
 		private Thread PrepareForCaptureWithFeedback() {
 			_windows = new List<WindowDetails>();
-			
+
 			// If the App Launcher is visisble, no other windows are active
 			WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
 			if (appLauncherWindow != null && appLauncherWindow.Visible) {
@@ -514,14 +514,12 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// If a balloon tip is show for a taken capture, this handles the click on it
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OpenCaptureOnClick(object sender, EventArgs e) {
+		/// <param name="e">SurfaceMessageEventArgs</param>
+		private void OpenCaptureOnClick(SurfaceMessageEventArgs e) {
             var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
 			if (!(notifyIcon.Tag is SurfaceMessageEventArgs eventArgs)) {
 				Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-				RemoveEventHandler(sender, e);
-				return;
+                return;
 			}
 			ISurface surface = eventArgs.Surface;
 			if (surface != null)
@@ -537,17 +535,9 @@ namespace Greenshot.Helpers {
 				}
 			}
 			Log.DebugFormat("Deregistering the BalloonTipClicked");
-			RemoveEventHandler(sender, e);
-		}
+        }
 
-		private void RemoveEventHandler(object sender, EventArgs e) {
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-            notifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
-            notifyIcon.BalloonTipClosed -= RemoveEventHandler;
-            notifyIcon.Tag = null;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// This is the SurfaceMessageEvent receiver
 		/// </summary>
 		/// <param name="sender">object</param>
@@ -556,26 +546,21 @@ namespace Greenshot.Helpers {
 			if (string.IsNullOrEmpty(eventArgs?.Message)) {
 				return;
 			}
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<NotifyIconNotificationService>();
 			switch (eventArgs.MessageType) {
 				case SurfaceMessageTyp.Error:
-                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
+                    notifyIconClassicMessageHandler.ShowErrorMessage(eventArgs.Message, 10000);
 					break;
 				case SurfaceMessageTyp.Info:
-                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, 10000);
 					break;
 				case SurfaceMessageTyp.FileSaved:
 				case SurfaceMessageTyp.UploadedUri:
 					// Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
-                    notifyIcon.BalloonTipClicked += OpenCaptureOnClick;
-                    notifyIcon.BalloonTipClosed += RemoveEventHandler;
-					// Store for later usage
-                    notifyIcon.Tag = eventArgs;
-                    notifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
+                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, 10000, () => OpenCaptureOnClick(eventArgs));
 					break;
 			}
 		}
-
 
 		private void HandleCapture() {
 			// Flag to see if the image was "exported" so the FileEditor doesn't
@@ -587,7 +572,7 @@ namespace Greenshot.Helpers {
                 var selectionRectangle = new Rectangle(Point.Empty, _capture.Image.Size);
 				var ocrInfo = _capture.CaptureDetails.OcrInformation;
                 if (ocrInfo != null)
-                {       
+                {
 					var textResult = new StringBuilder();
                     foreach (var line in ocrInfo.Lines)
                     {
@@ -666,10 +651,10 @@ namespace Greenshot.Helpers {
 				Modified = !outputMade
 			};
 
-			// Register notify events if this is wanted			
+			// Register notify events if this is wanted
 			if (CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon) {
 				surface.SurfaceMessage += SurfaceMessageReceived;
-				
+
 			}
 			// Let the processors do their job
 			foreach(var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>()) {
@@ -677,7 +662,7 @@ namespace Greenshot.Helpers {
                 Log.InfoFormat("Calling processor {0}", processor.Description);
                 processor.ProcessCapture(surface, _capture.CaptureDetails);
             }
-			
+
 			// As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
 			_capture.Image = null;
 
@@ -749,7 +734,7 @@ namespace Greenshot.Helpers {
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
-			// Fix for Bug #3430560 
+			// Fix for Bug #3430560
 			CoreConfig.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
 			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
 			return returnValue;
@@ -775,7 +760,7 @@ namespace Greenshot.Helpers {
 			}
 			return windowToCapture;
 		}
-		
+
 		/// <summary>
 		/// Check if Process uses PresentationFramework.dll -> meaning it uses WPF
 		/// </summary>
@@ -992,9 +977,9 @@ namespace Greenshot.Helpers {
 
         private void CaptureWithFeedback()
         {
-            // The following, to be precise the HideApp, causes the app to close as described in BUG-1620 
+            // The following, to be precise the HideApp, causes the app to close as described in BUG-1620
 			// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
-			
+
 			//foreach(WindowDetails app in WindowDetails.GetMetroApps()) {
 			//	if (app.Maximised) {
 			//		app.HideApp();
