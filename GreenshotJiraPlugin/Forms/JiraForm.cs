@@ -40,7 +40,7 @@ namespace GreenshotJiraPlugin.Forms {
 
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
-			Icon = GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.GetGreenshotIcon();
 			AcceptButton = uploadButton;
 			CancelButton = cancelButton;
 

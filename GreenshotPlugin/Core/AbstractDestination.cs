@@ -234,7 +234,7 @@ namespace GreenshotPlugin.Core {
 			menu.Items.Add(new ToolStripSeparator());
 			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString("editor_close"))
 			{
-				Image = GreenshotResources.getImage("Close.Image")
+				Image = GreenshotResources.GetImage("Close.Image")
 			};
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface

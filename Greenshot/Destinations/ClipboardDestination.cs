@@ -58,7 +58,7 @@ namespace Greenshot.Destinations {
 
 		public override Image DisplayIcon {
 			get {
-				return GreenshotResources.getImage("Clipboard.Image");
+				return GreenshotResources.GetImage("Clipboard.Image");
 			}
 		}
 

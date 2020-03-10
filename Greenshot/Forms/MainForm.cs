@@ -231,7 +231,7 @@ namespace Greenshot {
                         // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
                         using Form dummyForm = new Form
                         {
-                            Icon = GreenshotResources.getGreenshotIcon(),
+                            Icon = GreenshotResources.GetGreenshotIcon(),
                             ShowInTaskbar = true,
                             FormBorderStyle = FormBorderStyle.None,
                             Location = new Point(int.MinValue, int.MinValue)
@@ -345,7 +345,7 @@ namespace Greenshot {
 			// Make the main menu available
             SimpleServiceProvider.Current.AddService(contextMenu);
 
-			notifyIcon.Icon = GreenshotResources.getGreenshotIcon();
+			notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
 			// Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
@@ -371,6 +371,7 @@ namespace Greenshot {
 			// Check to see if there is already another INotificationService
 			if (SimpleServiceProvider.Current.GetInstance<INotificationService>() == null)
             {
+				// If not we add the internal NotifyIcon notification service
                 SimpleServiceProvider.Current.AddService<INotificationService>(new NotifyIconNotificationService());
             }
 

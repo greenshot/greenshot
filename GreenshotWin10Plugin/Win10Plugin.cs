@@ -20,7 +20,6 @@
  */
 
 using System;
-using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;

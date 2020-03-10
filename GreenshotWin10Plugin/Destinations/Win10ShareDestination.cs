@@ -167,7 +167,7 @@ namespace GreenshotWin10Plugin.Destinations
 
             // Create logo
             RandomAccessStreamReference logoRandomAccessStreamReference;
-            using (var logo = GreenshotResources.getGreenshotIcon().ToBitmap())
+            using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
             using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
             {
                 ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);

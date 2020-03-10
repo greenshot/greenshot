@@ -22,6 +22,8 @@
 using System;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers
@@ -32,6 +34,7 @@ namespace Greenshot.Helpers
     public class NotifyIconNotificationService : INotificationService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotifyIconNotificationService));
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
         private readonly NotifyIcon _notifyIcon;
 
         public NotifyIconNotificationService()
@@ -83,7 +86,13 @@ namespace Greenshot.Helpers
         /// <param name="level">ToolTipIcon</param>
         /// <param name="onClickAction">Action</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowMessage(string message, int timeout, ToolTipIcon level, Action onClickAction = null, Action onClosedAction = null) {
+        private void ShowMessage(string message, int timeout, ToolTipIcon level, Action onClickAction = null, Action onClosedAction = null) {
+            // Do not inform the user if this is disabled
+            if (!CoreConfiguration.ShowTrayNotification)
+            {
+                return;
+            }
+
             void BalloonClickedHandler(object s, EventArgs e)
             {
                 try

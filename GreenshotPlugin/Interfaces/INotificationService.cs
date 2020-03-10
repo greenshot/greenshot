@@ -21,8 +21,11 @@
 
 using System;
 
-namespace Greenshot.Helpers
+namespace GreenshotPlugin.Interfaces
 {
+    /// <summary>
+    /// This is the interface for the different notification service implementations
+    /// </summary>
     public interface INotificationService
     {
         /// <summary>

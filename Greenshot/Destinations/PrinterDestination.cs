@@ -59,7 +59,7 @@ namespace Greenshot.Destinations {
 
         public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 
-        public override Image DisplayIcon => GreenshotResources.getImage("Printer.Image");
+        public override Image DisplayIcon => GreenshotResources.GetImage("Printer.Image");
 
         public override bool IsDynamic => true;
 

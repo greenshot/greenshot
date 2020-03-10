@@ -40,7 +40,7 @@ namespace GreenshotOfficePlugin.Destinations {
 		private const int IconApplication = 0;
 		private const int IconMeeting = 2;
 
-		private static readonly Image MailIcon = GreenshotResources.getImage("Email.Image");
+		private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static readonly string ExePath;
 		private static readonly bool IsActiveFlag;

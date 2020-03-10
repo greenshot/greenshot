@@ -20,20 +20,51 @@
  */
 
 using System;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Windows.UI.Notifications;
-using Greenshot.Helpers;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace GreenshotWin10Plugin
 {
+    /// <summary>
+    /// This service provides a way to inform (notify) the user.
+    /// </summary>
     public class ToastNotificationService : INotificationService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+
+        private readonly string _imageFilePath;
+        public ToastNotificationService()
+        {
+            var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+            if (!Directory.Exists(localAppData))
+            {
+                Directory.CreateDirectory(localAppData);
+            }
+            _imageFilePath = Path.Combine(localAppData, "greenshot.png");
+
+            if (File.Exists(_imageFilePath))
+            {
+                return;
+            }
+
+            using var greenshotImage = GreenshotResources.GetGreenshotIcon().ToBitmap();
+            greenshotImage.Save(_imageFilePath, ImageFormat.Png);
+        }
 
         private void ShowMessage(string message, Action onClickAction, Action onClosedAction)
         {
+            // Do not inform the user if this is disabled
+            if (!CoreConfiguration.ShowTrayNotification)
+            {
+                return;
+            }
             // Get a toast XML template
             var toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastImageAndText01);
 
@@ -41,10 +72,17 @@ namespace GreenshotWin10Plugin
             var stringElement = toastXml.GetElementsByTagName("text").First();
             stringElement.AppendChild(toastXml.CreateTextNode(message));
 
-            // Specify the absolute path to an image
-            //string imagePath = "file:///" + Path.GetFullPath("toastImageAndText.png");
-            //var imageElement = toastXml.GetElementsByTagName("image").First();
-            //imageElement.Attributes.GetNamedItem("src").NodeValue = imagePath;
+            if (_imageFilePath != null && File.Exists(_imageFilePath))
+            {
+                // Specify the absolute path to an image
+                var imageElement = toastXml.GetElementsByTagName("image").First();
+                var imageSrcNode = imageElement.Attributes.GetNamedItem("src");
+                if (imageSrcNode != null)
+                {
+                    imageSrcNode.NodeValue = _imageFilePath;
+                }
+            }
+
 
             // Create the toast and attach event listeners
             var toast = new ToastNotification(toastXml);
