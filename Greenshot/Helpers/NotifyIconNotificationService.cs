@@ -29,7 +29,7 @@ namespace Greenshot.Helpers
     /// <summary>
     /// Notify the user with messages via the NotifyIcon
     /// </summary>
-    public class NotifyIconNotificationService
+    public class NotifyIconNotificationService : INotificationService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotifyIconNotificationService));
         private readonly NotifyIcon _notifyIcon;

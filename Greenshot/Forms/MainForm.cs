@@ -349,12 +349,6 @@ namespace Greenshot {
 			// Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
-			// TODO: Enable check if the Windows 10 notification service is available
-            //if (WindowsVersion.IsBeforeWindows10)
-            //{
-                SimpleServiceProvider.Current.AddService(new NotifyIconNotificationService());
-            //}
-
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;
 
@@ -374,8 +368,14 @@ namespace Greenshot {
 			// Load all the plugins
 			PluginHelper.Instance.LoadPlugins();
 
-			// Check destinations, remove all that don't exist
-			foreach(string destination in _conf.OutputDestinations.ToArray()) {
+			// Check to see if there is already another INotificationService
+			if (SimpleServiceProvider.Current.GetInstance<INotificationService>() == null)
+            {
+                SimpleServiceProvider.Current.AddService<INotificationService>(new NotifyIconNotificationService());
+            }
+
+            // Check destinations, remove all that don't exist
+			foreach (string destination in _conf.OutputDestinations.ToArray()) {
 				if (DestinationHelper.GetDestination(destination) == null) {
 					_conf.OutputDestinations.Remove(destination);
 				}
@@ -416,6 +416,7 @@ namespace Greenshot {
 			if (dataTransport != null) {
 				HandleDataTransport(dataTransport);
 			}
+
 			// Make Greenshot use less memory after startup
 			if (_conf.MinimizeWorkingSetSize) {
 				PsAPI.EmptyWorkingSet();
@@ -443,7 +444,7 @@ namespace Greenshot {
 						break;
 					case CommandEnum.FirstLaunch:
 						LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<NotifyIconNotificationService>();
+                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
                         notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
                         break;
 					case CommandEnum.ReloadConfig:
@@ -497,14 +498,14 @@ namespace Greenshot {
 			base.WndProc(ref m);
 		}
 
-        /// <summary>
+		/// <summary>
 		/// Helper method to cleanly register a hotkey
 		/// </summary>
-		/// <param name="failedKeys"></param>
-		/// <param name="functionName"></param>
-		/// <param name="hotkeyString"></param>
-		/// <param name="handler"></param>
-		/// <returns></returns>
+		/// <param name="failedKeys">StringBuilder</param>
+		/// <param name="functionName">string</param>
+		/// <param name="hotkeyString">string</param>
+		/// <param name="handler">HotKeyHandler</param>
+		/// <returns>bool</returns>
 		private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler) {
 			Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
 			Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
@@ -547,8 +548,8 @@ namespace Greenshot {
 		/// <summary>
 		/// Fix icon reference
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+		/// <param name="sender">object</param>
+		/// <param name="e">PropertyChangedEventArgs</param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "IconSize")
 			{

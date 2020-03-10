@@ -20,7 +20,7 @@
  */
 
 using System;
-using System.Collections.Generic;
+using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
@@ -34,14 +34,14 @@ namespace GreenshotWin10Plugin
 	/// This is the Win10Plugin
 	/// </summary>
 	[Plugin("Win10", false)]
-	public class Win10Plugin : IGreenshotPlugin
+	public sealed class Win10Plugin : IGreenshotPlugin
 	{
 		public void Dispose()
 		{
 			Dispose(true);
 		}
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
@@ -63,8 +63,10 @@ namespace GreenshotWin10Plugin
             {
                 return false;
             }
-            // Set this as IOcrProvider
-            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+
+            SimpleServiceProvider.Current.AddService<INotificationService>(new ToastNotificationService());
+			// Set this as IOcrProvider
+			SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
             // Add the processor
             SimpleServiceProvider.Current.AddService<IProcessor>(new Win10OcrProcessor());
 

@@ -546,7 +546,7 @@ namespace Greenshot.Helpers {
 			if (string.IsNullOrEmpty(eventArgs?.Message)) {
 				return;
 			}
-            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<NotifyIconNotificationService>();
+            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
 			switch (eventArgs.MessageType) {
 				case SurfaceMessageTyp.Error:
                     notifyIconClassicMessageHandler.ShowErrorMessage(eventArgs.Message, 10000);
