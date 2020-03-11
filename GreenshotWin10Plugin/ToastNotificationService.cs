@@ -27,6 +27,7 @@ using Windows.UI.Notifications;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using GreenshotWin10Plugin.Native;
 using log4net;
 
 namespace GreenshotWin10Plugin
@@ -42,6 +43,11 @@ namespace GreenshotWin10Plugin
         private readonly string _imageFilePath;
         public ToastNotificationService()
         {
+            // Register AUMID and COM server (for Desktop Bridge apps, this no-ops)
+            DesktopNotificationManagerCompat.RegisterAumidAndComServer<GreenshotNotificationActivator>("Greenshot.Greenshot");
+            // Register COM server and activator type
+            DesktopNotificationManagerCompat.RegisterActivator<GreenshotNotificationActivator>();
+
             var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
             if (!Directory.Exists(localAppData))
             {
@@ -58,6 +64,12 @@ namespace GreenshotWin10Plugin
             greenshotImage.Save(_imageFilePath, ImageFormat.Png);
         }
 
+        /// <summary>
+        /// This creates the actual toast
+        /// </summary>
+        /// <param name="message">string</param>
+        /// <param name="onClickAction">Action called when clicked</param>
+        /// <param name="onClosedAction">Action called when the toast is closed</param>
         private void ShowMessage(string message, Action onClickAction, Action onClosedAction)
         {
             // Do not inform the user if this is disabled
@@ -65,6 +77,14 @@ namespace GreenshotWin10Plugin
             {
                 return;
             }
+            // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
+            var toastNotifier = DesktopNotificationManagerCompat.CreateToastNotifier();
+            if (toastNotifier.Setting != NotificationSetting.Enabled)
+            {
+                Log.DebugFormat("Ignored toast due to {0}", toastNotifier.Setting);
+                return;
+            }
+
             // Get a toast XML template
             var toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastImageAndText01);
 
@@ -82,7 +102,6 @@ namespace GreenshotWin10Plugin
                     imageSrcNode.NodeValue = _imageFilePath;
                 }
             }
-
 
             // Create the toast and attach event listeners
             var toast = new ToastNotification(toastXml);
@@ -121,10 +140,17 @@ namespace GreenshotWin10Plugin
                 toast.Dismissed -= ToastDismissedHandler;
                 // Remove the other handler too
                 toast.Activated -= ToastActivatedHandler;
+                toast.Failed -= ToastOnFailed;
             }
             toast.Dismissed += ToastDismissedHandler;
-            // Show the toast. Be sure to specify the AppUserModelId on your application's shortcut!
-            ToastNotificationManager.CreateToastNotifier(@"Greenshot").Show(toast);
+            toast.Failed += ToastOnFailed;
+            toastNotifier.Show(toast);
+        }
+
+        private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
+        {
+            Log.WarnFormat("Failed to display a toast due to {0}", args.ErrorCode);
+            Log.Debug(sender.Content.GetXml());
         }
 
         public void ShowWarningMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)

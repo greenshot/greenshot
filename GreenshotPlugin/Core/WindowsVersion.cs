@@ -15,6 +15,7 @@ namespace GreenshotPlugin.Core
         /// </summary>
         public static Version WinVersion { get; } = Environment.OSVersion.Version;
 
+        public static double WinVersionTotal = WinVersion.Major + (double)WinVersion.Minor / 10;
         /// <summary>
         ///     Test if the current OS is Windows 10
         /// </summary>
@@ -39,6 +40,8 @@ namespace GreenshotPlugin.Core
         /// <returns>true if we are running on Windows 7 or later</returns>
         public static bool IsWindows7OrLater { get; } = WinVersion.Major == 6 && WinVersion.Minor >= 1 || WinVersion.Major > 6;
 
+        public static bool IsWindows7OrLower { get; } = WinVersionTotal <= 6.1;
+        
         /// <summary>
         ///     Test if the current OS is Windows 8.0
         /// </summary>
