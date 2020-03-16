@@ -44,7 +44,7 @@ namespace GreenshotWin10Plugin
         public ToastNotificationService()
         {
             // Register AUMID and COM server (for Desktop Bridge apps, this no-ops)
-            DesktopNotificationManagerCompat.RegisterAumidAndComServer<GreenshotNotificationActivator>("Greenshot.Greenshot");
+            DesktopNotificationManagerCompat.RegisterAumidAndComServer<GreenshotNotificationActivator>("Greenshot");
             // Register COM server and activator type
             DesktopNotificationManagerCompat.RegisterActivator<GreenshotNotificationActivator>();
 
@@ -68,9 +68,10 @@ namespace GreenshotWin10Plugin
         /// This creates the actual toast
         /// </summary>
         /// <param name="message">string</param>
+        /// <param name="timeout">milliseconds until the toast timeouts</param>
         /// <param name="onClickAction">Action called when clicked</param>
         /// <param name="onClosedAction">Action called when the toast is closed</param>
-        private void ShowMessage(string message, Action onClickAction, Action onClosedAction)
+        private void ShowMessage(string message, int timeout, Action onClickAction, Action onClosedAction)
         {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
@@ -104,7 +105,11 @@ namespace GreenshotWin10Plugin
             }
 
             // Create the toast and attach event listeners
-            var toast = new ToastNotification(toastXml);
+            var toast = new ToastNotification(toastXml)
+            {
+                ExpiresOnReboot = true,
+                ExpirationTime = timeout > 0 ? DateTimeOffset.Now.AddMilliseconds(timeout) : (DateTimeOffset?)null
+            };
 
             void ToastActivatedHandler(ToastNotification toastNotification, object sender)
             {
@@ -155,17 +160,17 @@ namespace GreenshotWin10Plugin
 
         public void ShowWarningMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, onClickAction, onClosedAction);
+            ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
 
         public void ShowErrorMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, onClickAction, onClosedAction);
+            ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
 
         public void ShowInfoMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, onClickAction, onClosedAction);
+            ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
     }
 }

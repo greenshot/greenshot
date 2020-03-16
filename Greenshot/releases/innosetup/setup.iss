@@ -189,10 +189,11 @@ Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; V
 Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 
 [Icons]
-Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
-Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app}; AppUserModelID: "{#ExeName}.{#ExeName}"
+Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
+Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
 Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
+
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
 Name: cn; MessagesFile: Languages\ChineseSimplified.isl

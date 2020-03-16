@@ -552,7 +552,10 @@ namespace Greenshot.Helpers {
                     notifyIconClassicMessageHandler.ShowErrorMessage(eventArgs.Message, 10000);
 					break;
 				case SurfaceMessageTyp.Info:
-                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, 10000);
+                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, 10000, () =>
+                    {
+                        Log.Info("Clicked!");
+                    });
 					break;
 				case SurfaceMessageTyp.FileSaved:
 				case SurfaceMessageTyp.UploadedUri:

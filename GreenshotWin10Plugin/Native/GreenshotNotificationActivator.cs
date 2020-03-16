@@ -24,7 +24,9 @@ using log4net;
 
 namespace GreenshotWin10Plugin.Native
 {
-    // The GUID CLSID must be unique to your app. Create a new GUID if copying this code.
+    /// <summary>
+    /// This implements the NotificationActivator
+    /// </summary>
     [ClassInterface(ClassInterfaceType.None)]
     [ComSourceInterfaces(typeof(INotificationActivationCallback))]
     [Guid("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"), ComVisible(true)]
