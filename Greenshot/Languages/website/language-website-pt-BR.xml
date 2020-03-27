@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Downloads</resource>
+		<resource name="home_headline">Greenshot - uma ferramenta de captura de tela gratuito e otimizado para a produtividade</resource>
+		<resource name="home_opensource">Greenshot é gratuito e open source</resource>
+		<resource name="home_opensource_donate">Se você achar que Greenshot economiza um monte de tempo e dinheiro, você é muito bem-vindo ao &lt;a href="/support/"&gt;apoiar o desenvolvimento&lt;/a&gt; deste software de captura de tela.</resource>
+		<resource name="home_opensource_gpl">Greenshot foi publicado &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, e.x. este software pode ser baixado e usado gratuitamente, mesmo em um ambiente comercial.</resource>
+		<resource name="home_seemore">Quer ver mais?</resource>
+		<resource name="home_seemore_screenshots">Claro que há mais que Greenshot pode fazer por você. Ter um olhar para alguns &lt;a title="Imagens do Greenshot em ação" href="/screenshots/"&gt;screenshots&lt;/a&gt; de Greenshot em ação ou tentar &lt;a title="Baixe a versão mais recente estável do Greenshot" href="/downloads/"&gt;latest release&lt;/a&gt;.</resource>
+		<resource name="home_whatis">O que é Greenshot????</resource>
+		<resource name="home_whatis_create">Criar rapidamente capturas de tela de uma região selecionada, janela ou tela cheia; você pode até capturar páginas completas (rolagem) do Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Anote facilmente, destaque ou ofuscar partes da imagem.</resource>
+		<resource name="home_whatis_intro">Greenshot é uma ferramenta de software de captura de tela leve para windows com os seguintes recursos principais:</resource>
+		<resource name="home_whatis_more">...e muito mais opções simplesmente para a criação e trabalhar com captura de tela todos os dias.</resource>
+		<resource name="home_whatis_send">Exportar a imagem de várias maneiras: salvar em arquivo, enviar para a impressora, copiar para área de transferência, anexar a e-mail, enviar programas do Office ou upload para sites de fotos como o Flickr ou Google Fotos e outros.</resource>
+		<resource name="home_whatis_usage">Sendo fácil de entender e configurável, Greenshot é uma ferramenta eficiente para gerenciar projetos, desenvolvedores de software, escritores técnicos, testadores e qualquer outra pessoa criando captura de tela.</resource>
+	</resources>
+</language>
