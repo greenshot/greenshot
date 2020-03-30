@@ -43,7 +43,7 @@
 		<resource name="colorpicker_red">Красный</resource>
 		<resource name="colorpicker_title">Палитра цветов</resource>
 		<resource name="colorpicker_transparent">Прозрачный</resource>
-		<resource name="com_rejected">Назначение {0} отклонил доступ к Greenshot, вероятно, отрыто окно. Закройте диалоговое окно и попробуйте ещё раз.</resource>
+		<resource name="com_rejected">Назначение {0} отклонил доступ к Greenshot, вероятно, открыто окно. Закройте диалоговое окно и попробуйте ещё раз.</resource>
 		<resource name="com_rejected_title">Доступ к Greenshot отклонён</resource>
 		<resource name="config_unauthorizedaccess_write">Не удалось сохранить файл конфигурации Greenshot's. Пожалуйста, проверьте права доступа для '{0}'.</resource>
 		<resource name="contextmenu_about">О программе Greenshot</resource>
@@ -66,7 +66,7 @@
 		<resource name="contextmenu_openfile">Открыть изображение из файла</resource>
 		<resource name="contextmenu_openrecentcapture">Открыть последнее место захвата</resource>
 		<resource name="contextmenu_quicksettings">Быстрые настройки</resource>
-		<resource name="contextmenu_settings">Предпочтения...</resource>
+		<resource name="contextmenu_settings">Настройки...</resource>
 		<resource name="destination_exportfailed">Ошибка при экспорте {0}. Пожалуйста, попробуйте ещё раз.</resource>
 		<resource name="EmailFormats.Html">Outlook с HTML</resource>
 		<resource name="EmailFormats.Text">Outlook с текстом</resource>
@@ -134,6 +134,7 @@
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>
 		<resource name="settings_general">Общие</resource>
+		<resource name="settings_iconsize">Размер иконки</resource>
 		<resource name="settings_iecapture">Захват Internet Explorer</resource>
 		<resource name="settings_jpegquality">Качество JPEG</resource>
 		<resource name="settings_language">Язык</resource>
