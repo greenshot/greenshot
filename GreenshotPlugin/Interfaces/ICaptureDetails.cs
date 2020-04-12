@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Interfaces.Ocr;
-using ZXing;
 
 namespace GreenshotPlugin.Interfaces {
     /// <summary>
@@ -100,10 +99,5 @@ namespace GreenshotPlugin.Interfaces {
         /// Store the OCR information for this capture
         /// </summary>
         OcrInformation OcrInformation { get; set; }
-
-        /// <summary>
-        /// Store the QR information for this capture
-        /// </summary>
-        Result QrResult { get; set; }
-	}
+    }
 }

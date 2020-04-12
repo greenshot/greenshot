@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 using log4net;
-using ZXing;
 
 namespace GreenshotPlugin.Core
 {
@@ -20,7 +18,7 @@ namespace GreenshotPlugin.Core
 
         private Rectangle _screenBounds;
         /// <summary>
-        /// Get/Set the Screenbounds
+        /// Get/Set the screen bounds
         /// </summary>
         public Rectangle ScreenBounds {
             get {
@@ -179,19 +177,6 @@ namespace GreenshotPlugin.Core
             // Offset the OCR information
             // TODO: Remove invisible lines/words?
             CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
-
-            // Offset the Qr information
-            // TODO: Remove invisible QR codes?
-            var oldQrResult = CaptureDetails.QrResult;
-            if (oldQrResult != null)
-            {
-                CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
-                var offsetPoints = CaptureDetails.QrResult.ResultPoints
-                    .Select(p => new ResultPoint(p.X - cropRectangle.Location.X, p.Y - cropRectangle.Location.Y)).ToArray();
-
-                var newQqResult = new Result(oldQrResult.Text, oldQrResult.RawBytes, offsetPoints, oldQrResult.BarcodeFormat);
-                CaptureDetails.QrResult = newQqResult;
-            }
 
             // Remove invisible elements
             var visibleElements = new List<ICaptureElement>();

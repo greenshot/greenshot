@@ -31,7 +31,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.Linq;
 using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +38,6 @@ using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
-using ZXing;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -153,11 +151,11 @@ namespace Greenshot.Forms {
 			InitializeComponent();
 			// Only double-buffer when we are not in a TerminalServerSession
 			DoubleBuffered = !IsTerminalServerSession;
-			Text = "Greenshot capture form";
+			Text = @"Greenshot capture form";
 
-			// Make sure we never capture the captureform
+			// Make sure we never capture the capture-form
 			WindowDetails.RegisterIgnoreHandle(Handle);
-			// Unregister at close
+			// Un-register at close
 			FormClosing += ClosingHandler;
 
 			// set cursor location
@@ -322,7 +320,7 @@ namespace Greenshot.Forms {
 					if (_capture.CaptureDetails.OcrInformation is null)
 					{
 						var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-						if (ocrProvider is object)
+						if (ocrProvider != null)
 						{
 							var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
 
@@ -338,30 +336,10 @@ namespace Greenshot.Forms {
                         Invalidate();
 					}
 					break;
-                case Keys.Q:
-                    if (_capture.CaptureDetails.QrResult is null)
-                    {
-                        // create a barcode reader instance
-                        IBarcodeReader reader = new BarcodeReader();
-                        // detect and decode the barcode inside the bitmap
-                        var result = reader.Decode((Bitmap)_capture.Image);
-                        // do something with the result
-                        if (result != null)
-                        {
-                            Log.InfoFormat("Found QR of type {0} with text {1}", result.BarcodeFormat, result.Text);
-                            _capture.CaptureDetails.QrResult = result;
-                        }
-                    }
-                    else
-                    {
-                        Invalidate();
-                    }
-                    break;
-			}
+            }
 		}
 
-
-		/// <summary>
+        /// <summary>
 		/// The mousedown handler of the capture form
 		/// </summary>
 		/// <param name="sender"></param>
@@ -402,13 +380,7 @@ namespace Greenshot.Forms {
                 _captureRect = new Rectangle(_mouseMovePos, new Size(1, 1));
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
-            } else if (_capture.CaptureDetails.QrResult != null && _capture.CaptureDetails.QrResult.BoundingQrBox().Contains(_mouseMovePos))
-            {
-				// Handle a click on a QR code
-				_captureRect = new Rectangle(_mouseMovePos, Size.Empty);
-                // Go and process the capture
-                DialogResult = DialogResult.OK;
-			} else {
+            } else {
 				Invalidate();
 			}
 
@@ -891,29 +863,7 @@ namespace Greenshot.Forms {
                 }
 			}
 
-
-            // QR Code
-            if (_capture.CaptureDetails.QrResult != null)
-            {
-                var result = _capture.CaptureDetails.QrResult;
-
-                var boundingBox = _capture.CaptureDetails.QrResult.BoundingQrBox();
-                if (!boundingBox.IsEmpty)
-                {
-                    Log.InfoFormat("Found QR of type {0} - {1}", result.BarcodeFormat, result.Text);
-                    Invalidate(boundingBox);
-                    using var pen = new Pen(Color.BlueViolet, 10);
-                    using var solidBrush = new SolidBrush(Color.Green);
-
-                    using var solidWhiteBrush = new SolidBrush(Color.White);
-                    using var font = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
-                    graphics.FillRectangle(solidWhiteBrush, boundingBox);
-                    graphics.DrawRectangle(pen, boundingBox);
-                    graphics.DrawString(result.Text, font, solidBrush, boundingBox);
-                }
-			}
-
-			// Only draw Cursor if it's (partly) visible
+            // Only draw Cursor if it's (partly) visible
 			if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size))) {
 				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
 			}

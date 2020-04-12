@@ -16,7 +16,6 @@
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="0.10.9" />
     <PackageReference Include="log4net" version="2.0.8" />
     <PackageReference Include="Svg" Version="3.0.102" />
-    <PackageReference Include="ZXing.Net" Version="0.16.5" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

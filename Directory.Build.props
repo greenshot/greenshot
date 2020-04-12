@@ -56,7 +56,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.74">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

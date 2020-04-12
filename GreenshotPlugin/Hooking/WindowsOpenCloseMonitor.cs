@@ -102,7 +102,7 @@ namespace GreenshotPlugin.Hooking
 		}
 
 		/// <summary>
-		/// WinEventDelegate for the creation & destruction
+		/// WinEventDelegate for the creation and destruction
 		/// </summary>
 		/// <param name="eventType"></param>
 		/// <param name="hWnd"></param>

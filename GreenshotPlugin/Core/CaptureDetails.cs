@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
-using ZXing;
 
 namespace GreenshotPlugin.Core
 {
@@ -44,9 +43,6 @@ namespace GreenshotPlugin.Core
 
         /// <inheritdoc />
         public OcrInformation OcrInformation { get; set; }
-
-        /// <inheritdoc />
-        public Result QrResult { get; set; }
 
         /// <inheritdoc />
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();

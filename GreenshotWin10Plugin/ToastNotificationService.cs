@@ -107,7 +107,7 @@ namespace GreenshotWin10Plugin
             // Create the toast and attach event listeners
             var toast = new ToastNotification(toastXml)
             {
-                ExpiresOnReboot = true,
+                // Windows 10 first with 1903: ExpiresOnReboot = true,
                 ExpirationTime = timeout > 0 ? DateTimeOffset.Now.AddMilliseconds(timeout) : (DateTimeOffset?)null
             };
 

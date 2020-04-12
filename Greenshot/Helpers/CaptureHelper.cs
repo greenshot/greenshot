@@ -145,7 +145,7 @@ namespace Greenshot.Helpers {
 
 		public static void CaptureWindowInteractive(bool captureMouse)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window);
+            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window, captureMouse);
             captureHelper.MakeCapture();
         }
 
@@ -608,28 +608,7 @@ namespace Greenshot.Helpers {
 				return;
             }
 
-			// User clicked on a QR Code
-            var qrResult = _capture.CaptureDetails.QrResult;
-			if (qrResult != null &&  _captureRect.Size.IsEmpty && qrResult.BoundingQrBox().Contains(_captureRect.Location))
-            {
-                if (qrResult.Text.StartsWith("http"))
-                {
-                    Process.Start(qrResult.Text);
-				}
-                else
-                {
-                    Clipboard.SetText(qrResult.Text);
-				}
-				// Disable capturing
-				_captureMode = CaptureMode.None;
-                // Dispose the capture, we don't need it anymore (the surface copied all information and we got the title (if any)).
-                _capture.Dispose();
-                _capture = null;
-                return;
-            }
-
-
-			// Make sure the user sees that the capture is made
+            // Make sure the user sees that the capture is made
 			if (_capture.CaptureDetails.CaptureMode == CaptureMode.File || _capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard) {
 				// Maybe not "made" but the original is still there... somehow
 				outputMade = true;
