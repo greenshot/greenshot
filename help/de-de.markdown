@@ -54,31 +54,27 @@ comments: []
 <h2>Erstellung eines Screenshots</h2>
 <p>
 Zum Erstellen eines Screenshots können Sie entweder die <kbd>Drucken</kbd>-Taste
-verwenden oder sie klicken das Greenshot-Icon im Systray mit der rechten Maustaste.<br>
+verwenden oder Sie klicken das Greenshot-Icon im Systray mit der rechten Maustaste.<br>
 Es gibt verschiedene Optionen bei der Erstellung eines Screenshots:
 </p>
 
 <a name="capture-region"></a>
 <h3>Bereich abfotografieren <kbd>Drucken</kbd></h3>
 <p>
-Im Bereichsmodus können sie einen Bildschirmbereich auswählen, der abfotografiert
+Im Bereichsmodus können Sie einen Bildschirmbereich auswählen, der abfotografiert
 werden soll.<br>
 Nach dem Starten des Bereichsmodus sehen Sie ein Fadenkreuz, das die Position
-des Mousecursors auf dem Bildschirm anzeigt. Klicken und halten sie die linke
+des Mauszeigers auf dem Bildschirm anzeigt. Klicken und halten sie die linke
 Maustaste an der Stelle, wo eine der Ecken Ihres Screenshots liegen soll.
 Halten Sie die Maustaste gedrückt, während sie die Maus bewegen, um das Rechteck
 zu markieren, von dem ein Screenshot erstellt werden soll. Wenn das grüne Rechteck
 den Bereich bedeckt, den Sie aufnehmen wollen, lassen sie die Maustaste los.<br>
 </p>
 <p class="hint">
-Mit Hilfe der <kbd>Leertaste</kbd> können sie vom Bereichsmodus in den
-<a href"#capture-window">Fenstermodus</a> wechseln (und umgekehrt).
+Mit Hilfe der <kbd>Leertaste</kbd> können Sie vom Bereichsmodus in den <a href="#capture-window">Fenstermodus</a> wechseln (und umgekehrt).
 </p>
 <p class="hint">
-Wenn Sie einen exakten Bereich abfotografieren, ist es eventuell einfacher, zuerst
-einen etwas größeren Bereich abzufotografieren und den Screenshot anschließend mit
-Hilfe des Bildeditors <a href="#editor-crop">zuzuschneiden</a>.
-</p>
+Wenn Sie einen exakten Bereich abfotografieren wollen, können Sie die exakte Position des Mauszeigers mithilfe der <kbd>Pfeil</kbd>-Tasten pixelgenau steuern. Das zusätzliche Drücken der <kbd>Strg</kbd>-Taste ändert die Position um 10 Pixel. <kbd>Enter</kbd> übernimmt die Anfangs- respektive Endposition des Auswahlfensters. Mit der <kbd>Z</kbd>-Taste </p> kann das Vergrösserungsglas ausgeblendet werden (und wieder eingeblendet). 
 
 <a name="capture-last-region"></a>
 <h3>Zuletzt gewählten Bereich abfotografieren <kbd>Shift</kbd> + <kbd>Drucken</kbd></h3>
