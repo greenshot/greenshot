@@ -10,7 +10,7 @@ comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
 
-<small>Version 0.8<!-- - Deutsche Übersetzung der Hilfe von IHR_NAME--></small>
+<small>Version 1.2.10<!-- - Deutsche Übersetzung der Hilfe von IHR_NAME--></small>
 
 
 <h2>Inhalt</h2>
