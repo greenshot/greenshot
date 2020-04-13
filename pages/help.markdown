@@ -152,7 +152,7 @@ comments: []
 <p>
 		You can move or resize existing shapes after selecting the selection tool<br />
 		<kbd>ESC</kbd> from the toolbar. The elements can also be moved by using the <kbd>Arrow</kbd> keys, 
-		also in combination	with the <kbd>Shift<Kbd> key.<br>
+		also in combination	with the <kbd>Shift</kbd> key.<br>
 		For every element type there is a specific<br />
 		set of options available to change the look of the element (e.g. line thickness,<br />
 		line color, fill color). You can change the options for an existing element after<br />
