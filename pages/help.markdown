@@ -52,7 +52,7 @@ comments: []
 <h2>Creating a screenshot</h2>
 <p>
 		You can create a screenshot either by using the <kbd>Print</kbd> key on your keyboard<br />
-		or by right clicking the Greenshot icon in the systray.<br><br />
+		or by right clicking the Greenshot icon in the notification area.<br><br />
 		There are several options for creating a screenshot:
 	</p>
 <p>	<a name="capture-region"></a></p>
@@ -124,7 +124,7 @@ comments: []
 <p class="hint">
 		Greenshot's image editor may not only be used for screenshots. You can also<br />
 		open images for editing from a file or from clipboard. Simply right click<br />
-		the Greenshot icon in the systray and select <em>Open image from file</em><br />
+		the Greenshot icon in the notification area and select <em>Open image from file</em><br />
 		or <em>Open image from clipboard</em>, respectively.
 	</p>
 <p class="hint">
