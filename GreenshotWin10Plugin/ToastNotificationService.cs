@@ -23,6 +23,7 @@ using System;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -149,7 +150,14 @@ namespace GreenshotWin10Plugin
             }
             toast.Dismissed += ToastDismissedHandler;
             toast.Failed += ToastOnFailed;
-            toastNotifier.Show(toast);
+            try
+            {
+                toastNotifier.Show(toast);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't show notification.", ex);
+            }
         }
 
         private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
@@ -171,6 +179,21 @@ namespace GreenshotWin10Plugin
         public void ShowInfoMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, onClickAction, onClosedAction);
+        }
+
+        /// <summary>
+        /// Factory method, helping with checking if the notification service is even available
+        /// </summary>
+        /// <returns>ToastNotificationService</returns>
+        public static ToastNotificationService Create()
+        {
+            if (ApiInformation.IsTypePresent("Windows.ApplicationModel.Background.ToastNotificationActionTrigger"))
+            {
+                return new ToastNotificationService();
+            }
+            Log.Warn("ToastNotificationActionTrigger not available.");
+
+            return null;
         }
     }
 }

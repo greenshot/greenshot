@@ -43,6 +43,10 @@ namespace GreenshotPlugin.Core
 
             foreach (var service in services)
             {
+                if (service == null)
+                {
+                    continue;
+                }
                 currentServices.Add(service);
             }
         }

@@ -63,7 +63,7 @@ namespace GreenshotWin10Plugin
                 return false;
             }
 
-            SimpleServiceProvider.Current.AddService<INotificationService>(new ToastNotificationService());
+            SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
 			// Set this as IOcrProvider
 			SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
             // Add the processor
