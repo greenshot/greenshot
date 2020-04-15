@@ -10,7 +10,7 @@ comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
 
-<small>Version 0.8<!-- - Deutsche Übersetzung der Hilfe von IHR_NAME--></small>
+<small>Version 1.2.10</small>
 
 
 <h2>Inhalt</h2>
@@ -31,6 +31,7 @@ comments: []
 <li><a href="#editor-highlight">Hervorheben</a></li>
 <li><a href="#editor-obfuscate">Unkenntlich machen</a></li>
 <li><a href="#editor-crop">Screenshot zuschneiden</a></li>
+<li><a href="#editor-enlarge">Screenshot vergrössern</a></li>
 <li><a href="#editor-adding-graphics">Hinzufügen von Grafiken zum Screenshot</a></li>
 <li><a href="#editor-reuse-elements">Elemente wiederverwenden</a></li>
 <li><a href="#editor-export">Screenshot exportieren</a></li>
@@ -54,31 +55,27 @@ comments: []
 <h2>Erstellung eines Screenshots</h2>
 <p>
 Zum Erstellen eines Screenshots können Sie entweder die <kbd>Drucken</kbd>-Taste
-verwenden oder sie klicken das Greenshot-Icon im Systray mit der rechten Maustaste.<br>
+verwenden oder Sie klicken das Greenshot-Icon in der Taskleiste mit der rechten Maustaste.<br>
 Es gibt verschiedene Optionen bei der Erstellung eines Screenshots:
 </p>
 
 <a name="capture-region"></a>
 <h3>Bereich abfotografieren <kbd>Drucken</kbd></h3>
 <p>
-Im Bereichsmodus können sie einen Bildschirmbereich auswählen, der abfotografiert
+Im Bereichsmodus können Sie einen Bildschirmbereich auswählen, der abfotografiert
 werden soll.<br>
 Nach dem Starten des Bereichsmodus sehen Sie ein Fadenkreuz, das die Position
-des Mousecursors auf dem Bildschirm anzeigt. Klicken und halten sie die linke
+des Mauszeigers auf dem Bildschirm anzeigt. Klicken und halten sie die linke
 Maustaste an der Stelle, wo eine der Ecken Ihres Screenshots liegen soll.
 Halten Sie die Maustaste gedrückt, während sie die Maus bewegen, um das Rechteck
 zu markieren, von dem ein Screenshot erstellt werden soll. Wenn das grüne Rechteck
 den Bereich bedeckt, den Sie aufnehmen wollen, lassen sie die Maustaste los.<br>
 </p>
 <p class="hint">
-Mit Hilfe der <kbd>Leertaste</kbd> können sie vom Bereichsmodus in den
-<a href"#capture-window">Fenstermodus</a> wechseln (und umgekehrt).
+Mit Hilfe der <kbd>Leertaste</kbd> können Sie vom Bereichsmodus in den <a href="#capture-window">Fenstermodus</a> wechseln (und umgekehrt).
 </p>
 <p class="hint">
-Wenn Sie einen exakten Bereich abfotografieren, ist es eventuell einfacher, zuerst
-einen etwas größeren Bereich abzufotografieren und den Screenshot anschließend mit
-Hilfe des Bildeditors <a href="#editor-crop">zuzuschneiden</a>.
-</p>
+Wenn Sie einen exakten Bereich abfotografieren wollen, können Sie die exakte Position des Mauszeigers mithilfe der <kbd>Pfeil</kbd>-Tasten pixelgenau steuern. Das zusätzliche Drücken der <kbd>Strg</kbd>-Taste ändert die Position um 10 Pixel. <kbd>Enter</kbd> resp. <kbd>Return</kbd> übernimmt die Anfangs- respektive Endposition des Auswahlfensters. Mit der <kbd>Z</kbd>-Taste kann die Sichtbarkeit des Vergrösserungsglases umgeschaltet werden. 
 
 <a name="capture-last-region"></a>
 <h3>Zuletzt gewählten Bereich abfotografieren <kbd>Shift</kbd> + <kbd>Drucken</kbd></h3>
@@ -130,10 +127,10 @@ ergänzt werden. Es ist auch möglich, Teile des Screenshots hervorzuheben oder
 unkenntlich zu machen.
 </p>
 <p class="hint">
-Sie können Greenshots Bildeditor nicht nur für Screenshorts verwenden. Sie
+Sie können Greenshots Bildeditor nicht nur für Screenshots verwenden. Sie
 können auch Bilder aus Dateien oder aus der Zwischenablage zur Bearbeitung
-öffnen. Klicken Sie einfach mit der rechten Maustaste auf das Greenshot-Icon im
-Systray und wählen Sie <em>Bild aus Datei öffnen</em> bzw. <em>Bild aus
+öffnen. Klicken Sie einfach mit der rechten Maustaste auf das Greenshot-Icon in
+der Taskleiste und wählen Sie <em>Bild aus Datei öffnen</em> bzw. <em>Bild aus
 Zwischenablage öffnen</em>.
 </p>
 <p class="hint">
@@ -141,7 +138,9 @@ Standardmäßig wird der Bildbearbeiter immer geöffnet, wenn ein Screenshot
 gemacht wird. Wenn Sie den Bildbearbeiter nicht verwenden wollen, können 
 Sie dies in den <a href="#settings">Einstellungen</a> deaktivieren.
 </p>
-
+<p class="hint">
+Wenn bereits ein oder mehrere Editor-Fenster geöffnet sind und das Ziel dynamisch ausgewählt wird, bringt ein kurzes Innehalten des Mauszeigers über dem Eintrag <em>Im Greenshot-Editor öffnen</em> eine Auswahl der vorhandenen Fenster hervor. Im ausgewählten Fenster wird dann der aktuelle Ausschnitt als eigenes Objekt eingefügt.
+</p>
 
 <a name="editor-shapes"></a>
 <h3>Formen zeichnen</h3>
@@ -157,7 +156,7 @@ wenn Sie fertig sind.
 </p>
 <p>
 Sie können bereits gemalte Formen verschieben oder ihre Größe ändern. Wählen Sie
-hierzu das Auswahlwerkzeug <kbd>ESC</kbd> aus der Werkzeugleiste.<br>
+hierzu das Auswahlwerkzeug <kbd>ESC</kbd> aus der Werkzeugleiste. Die Elemente können auch mit den <kbd>Pfeil</kbd>-Tasten - eventuell zusammen mit <kbd>Shift</kbd> - verschoben werden.<br>
 Jede Element-Art hat außerdem bestimmte Einstellungen, mit denen das Aussehen des
 Elements verändert werden kann (z.B. Linienstärke, Rahmenfarbe, Hintergrundfarbe).
 Sie können diese Einstellungen für ein bereits gezeichnetes Element ändern, wenn
@@ -165,8 +164,9 @@ es ausgewählt ist. Sie können die Einstellungen aber auch vor dem Zeichnen ein
 Elements anpassen, direkt nach der Auswahl eines Zeichnen-Werkzeugs.
 </p>
 <p class="hint">
-Sie können mehrere Elemente gleichzeitig zur Bearbeitung auswählen. Halten Sie
+Sie können mehrere Elemente gleichzeitig zur Bearbeitung oder Positionierung auswählen. Halten Sie
 hierzu die <kbd>Shift</kbd>-Taste gedrückt, während Sie die Elemente anklicken.
+</p>
 
 <a name="editor-text"></a>
 <h3>Text hinzufügen</h3>
@@ -180,7 +180,7 @@ Drücken Sie <kbd>Return</kbd> oder <kbd>Enter</kbd> um die Bearbeitung des Text
 </p>
 <p class="hint">
 Wenn Sie Zeilenumbrüche innerhalb einer Textbox benötigen, drücken Sie <kbd>Shift</kbd> + <kbd>Return</kbd> oder
-<kbd>Shift</kbd> + <kbd>Enter</kbd>.
+<kbd>Shift</kbd> + <kbd>Enter</kbd>. <kbd>Strg</kbd> + <kbd>Backspace</kbd> löscht das vorhergehende Wort, <kbd>Strg</kbd> + <kbd>A</kbd> selektiert den gesamten Text.
 </p>
 
 <a name="editor-highlight"></a>
@@ -188,7 +188,7 @@ Wenn Sie Zeilenumbrüche innerhalb einer Textbox benötigen, drücken Sie <kbd>S
 <p>
 Nach der Auswahl des Hervorhebungs-Werkzeugs <kbd>H</kbd> können Sie den hervorzuhebenden
 Bereich wählen, gehen Sie hierzu vor wie beim Zeichnen von <a href="#editor-shapes">Formen</a>.<br>
-Sie habe verschiedene Möglichkeiten der Hervorhebung, wählen Sie ein durch Klicken
+Sie haben verschiedene Möglichkeiten der Hervorhebung, wählen Sie ein durch Klicken
 der Schaltfläche links in der Symbolleiste über dem Screenshot:
 </p>
 <ul>
@@ -233,12 +233,19 @@ des Screenshots, den Sie behalten wollen. Sie können die Größe des ausgewähl
 Bereichs ändern, wie bei jedem anderen Element.<br>
 Wenn Sie mit Ihrer Auswahl zufrieden sind, klicken Sie die Bestätigen-Schaltfläche in
 der Symbolleiste oder drücken Sie die <kbd>Enter</kbd>-Taste. Sie können den Vorgang
-abbrechen, indem Sie die Abbrechen-Schaltfläche klicken oder <kbd>ESC</kbd> drücken.
+abbrechen, indem Sie die Abbrechen-Schaltfläche klicken oder <kbd>ESC</kbd> drücken.<br>
+<kbd>Strg</kbd> + <kbd>-</kbd> schneidet den Bereich sofort auf die vorhandenen Objekte zu.
 </p>
 <p class="hint">
 <em>Auto-Crop</em>: Wenn Sie einen einfarbigen Rahmen von Ihrem Screenshot entfernen möchten,
 wählen Sie einfach <em>Automatisch zuschneiden</em> aus dem Menü <em>Bearbeiten</em> und
 Greenshot wählt automatisch einen Bereich für den Zuschnitt aus.
+</p>
+
+<a name="editor-enlarge"></a>
+<h3>Screenshot vergrössern</h3>
+<p>
+Wenn Sie den Screenshot etwas vergrössern wollen, drücken Sie <kbd>Shift</kbd> + <kbd>+</kbd>, was auf allen vier Seiten je 25 Pixel hinzufügt.
 </p>
 
 <a name="editor-adding-graphics"></a>
