@@ -352,7 +352,7 @@ namespace Greenshot {
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;
 
-			// Make sure all hotkeys pass this window!
+			// Make sure all hot-keys pass this window!
 			HotkeyControl.RegisterHotkeyHwnd(Handle);
 			RegisterHotkeys();
 
@@ -444,9 +444,11 @@ namespace Greenshot {
 						Exit();
 						break;
 					case CommandEnum.FirstLaunch:
-						LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-                        notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
+                        Invoke((MethodInvoker)delegate {
+                            LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
+                            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
+                            notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
+                        });
                         break;
 					case CommandEnum.ReloadConfig:
 						LOG.Info("Reload requested");
