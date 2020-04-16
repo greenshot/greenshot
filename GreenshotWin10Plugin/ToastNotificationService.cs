@@ -81,10 +81,19 @@ namespace GreenshotWin10Plugin
             }
             // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
             var toastNotifier = DesktopNotificationManagerCompat.CreateToastNotifier();
-            if (toastNotifier.Setting != NotificationSetting.Enabled)
+
+            // Here is an interesting article on reading the settings: https://www.rudyhuyn.com/blog/2018/02/10/toastnotifier-and-settings-careful-with-non-uwp-applications/
+            try
             {
-                Log.DebugFormat("Ignored toast due to {0}", toastNotifier.Setting);
-                return;
+                if (toastNotifier.Setting != NotificationSetting.Enabled)
+                {
+                    Log.DebugFormat("Ignored toast due to {0}", toastNotifier.Setting);
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                Log.Info("Ignoring exception as this means that there was no stored settings.");
             }
 
             // Get a toast XML template
