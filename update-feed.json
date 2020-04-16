@@ -2,16 +2,15 @@
 permalink: update-feed.json
 ---
 {% assign sorted-releases = site.github.releases | where: "draft", "false" | where: "prerelease", "false" %}{
-	"releases": [{% for release in sorted-releases limit:2 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
+	"release": {% for release in sorted-releases limit:1 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
 			"link": "{{asset.browser_download_url}}",
 			"version": "{{release.tag_name}}",
 			"publishDate": "{{asset.created_at}}"
-		}{% if forloop.last == false%},{% endif %}{% endif %}{% endfor %}{% endfor %}
-	],{% assign sorted-unstables = site.github.releases | where: "draft", "false" | where: "prerelease", "true" %}
-	"betas": [{% for release in sorted-unstables limit:2 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
-			"link": "{{asset.browser_download_url}}",
-			"version": "{{release.tag_name}}",
-			"publishDate": "{{asset.created_at}}"
-		}{% if forloop.last == false%},{% endif %}{% endif %}{% endfor %}{% endfor %}
-	]
+		}{% endif %}{% endfor %}{% endfor %}
+	,{% assign sorted-unstables = site.github.releases | where: "draft", "false" | where: "prerelease", "true" %}
+	"beta": {% for release in sorted-unstables limit:1 %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' %}{
+		"link": "{{asset.browser_download_url}}",
+		"version": "{{release.tag_name}}",
+		"publishDate": "{{asset.created_at}}"
+	}{% endif %}{% endfor %}{% endfor %}
 }
