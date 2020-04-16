@@ -239,7 +239,7 @@ namespace Greenshot.Drawing
 
 				_counterStart = value;
 				Invalidate();
-				_propertyChanged?.Invoke(this, new PropertyChangedEventArgs("CounterStart"));
+				_propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
 			}
 		}
 

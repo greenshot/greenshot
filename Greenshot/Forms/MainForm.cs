@@ -418,6 +418,11 @@ namespace Greenshot {
 				HandleDataTransport(dataTransport);
 			}
 
+            // Start the update check in the background
+			var updateService = new UpdateService();
+			updateService.Startup();
+            SimpleServiceProvider.Current.AddService(updateService);
+
 			// Make Greenshot use less memory after startup
 			if (_conf.MinimizeWorkingSetSize) {
 				PsAPI.EmptyWorkingSet();
@@ -444,11 +449,9 @@ namespace Greenshot {
 						Exit();
 						break;
 					case CommandEnum.FirstLaunch:
-                        Invoke((MethodInvoker)delegate {
                             LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
                             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
                             notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
-                        });
                         break;
 					case CommandEnum.ReloadConfig:
 						LOG.Info("Reload requested");
@@ -554,15 +557,16 @@ namespace Greenshot {
 		/// <param name="sender">object</param>
 		/// <param name="e">PropertyChangedEventArgs</param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
-			if (e.PropertyName == "IconSize")
-			{
-				ApplyDpiScaling();
-				string ieExePath = PluginUtils.GetExePath("iexplore.exe");
-				if (!string.IsNullOrEmpty(ieExePath)) {
-					contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
-				}
-			}
-		}
+            if (e.PropertyName != "IconSize")
+            {
+                return;
+            }
+            ApplyDpiScaling();
+            string ieExePath = PluginUtils.GetExePath("iexplore.exe");
+            if (!string.IsNullOrEmpty(ieExePath)) {
+                contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
+            }
+        }
 
 		/// <summary>
 		/// Modify the DPI settings depending in the current value
@@ -627,7 +631,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Check if OneDrive is blocking hotkeys
 		/// </summary>
-		/// <returns>true if onedrive has hotkeys turned on</returns>
+		/// <returns>true if one-drive has hotkeys turned on</returns>
 		private static bool IsOneDriveBlockingHotkey()
 		{
 			if (!WindowsVersion.IsWindows10OrLater)
@@ -706,14 +710,16 @@ namespace Greenshot {
 		private void CaptureFile() {
 			var openFileDialog = new OpenFileDialog
 			{
-				Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
+				Filter = @"Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
 			};
-			if (openFileDialog.ShowDialog() == DialogResult.OK) {
-				if (File.Exists(openFileDialog.FileName)) {
-					CaptureHelper.CaptureFile(openFileDialog.FileName);
-				}
-			}
-		}
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            if (File.Exists(openFileDialog.FileName)) {
+                CaptureHelper.CaptureFile(openFileDialog.FileName);
+            }
+        }
 
 		private void CaptureFullScreen() {
 			CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
@@ -807,7 +813,7 @@ namespace Greenshot {
 						int index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
 						captureIeTabItem.Image = tabData.Key.DisplayIcon;
 						captureIeTabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
-						captureIeTabItem.Click += Contextmenu_captureiefromlist_Click;
+						captureIeTabItem.Click += Contextmenu_CaptureIeFromList_Click;
 						contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
 						if (counter.ContainsKey(tabData.Key)) {
 							counter[tabData.Key] = index;
@@ -884,7 +890,7 @@ namespace Greenshot {
 			// captureForm.MakeCapture(CaptureMode.Window, false);
 			// Now we check which windows are there to capture
 			ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem)sender;
-			AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_capturewindowfromlist_Click);
+			AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_CaptureWindowFromList_Click);
 		}
 
 		private void CaptureWindowFromListMenuDropDownClosed(object sender, EventArgs e) {
@@ -959,19 +965,19 @@ namespace Greenshot {
 			});
 		}
 
-		private void Contextmenu_capturelastregionClick(object sender, EventArgs e) {
+		private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureLastRegion(false);
 			});
 		}
 
-		private void Contextmenu_capturewindow_Click(object sender,EventArgs e) {
+		private void Contextmenu_CaptureWindow_Click(object sender,EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureWindowInteractive(false);
 			});
 		}
 
-		private void Contextmenu_capturewindowfromlist_Click(object sender,EventArgs e) {
+		private void Contextmenu_CaptureWindowFromList_Click(object sender,EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			BeginInvoke((MethodInvoker)delegate {
 				try {
@@ -983,11 +989,11 @@ namespace Greenshot {
 			});
 		}
 
-		private void Contextmenu_captureie_Click(object sender, EventArgs e) {
+		private void Contextmenu_CaptureIe_Click(object sender, EventArgs e) {
 			CaptureIE();
 		}
 
-		private void Contextmenu_captureiefromlist_Click(object sender, EventArgs e) {
+		private void Contextmenu_CaptureIeFromList_Click(object sender, EventArgs e) {
 			if (!_conf.IECapture) {
 				LOG.InfoFormat("IE Capture is disabled.");
 				return;
@@ -1015,9 +1021,9 @@ namespace Greenshot {
 		/// <summary>
 		/// Context menu entry "Support Greenshot"
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void Contextmenu_donateClick(object sender, EventArgs e) {
+		/// <param name="sender">object</param>
+		/// <param name="e">EventArgs</param>
+		private void Contextmenu_DonateClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				Process.Start("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version);
 			});
@@ -1028,7 +1034,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Contextmenu_settingsClick(object sender, EventArgs e) {
+		private void Contextmenu_SettingsClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)ShowSetting);
 		}
 
@@ -1056,7 +1062,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Contextmenu_aboutClick(object sender, EventArgs e) {
+		private void Contextmenu_AboutClick(object sender, EventArgs e) {
 			ShowAbout();
 		}
 
@@ -1110,7 +1116,7 @@ namespace Greenshot {
 
 			// Only add if the value is not fixed
 			if (!_conf.Values["CaptureMousepointer"].IsFixed) {
-				// For the capture mousecursor option
+				// For the capture mouse-cursor option
 				ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem
 				{
 					Text = Language.GetString("settings_capture_mousepointer"),
@@ -1463,27 +1469,5 @@ namespace Greenshot {
 				notifyIcon = null;
 			}
 		}
-
-
-		/// <summary>
-		/// Do work in the background
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void BackgroundWorkerTimerTick(object sender, EventArgs e) {
-			if (_conf.MinimizeWorkingSetSize) {
-				PsAPI.EmptyWorkingSet();
-			}
-			if (UpdateHelper.IsUpdateCheckNeeded()) {
-				LOG.Debug("BackgroundWorkerTimerTick checking for update");
-				// Start update check in the background
-				var backgroundTask = new Thread(UpdateHelper.CheckAndAskForUpdate)
-				{
-					Name = "Update check",
-					IsBackground = true
-				};
-				backgroundTask.Start();
-			}
-		}
-	}
+    }
 }
