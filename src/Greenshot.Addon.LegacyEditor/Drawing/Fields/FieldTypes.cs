@@ -59,7 +59,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields
         /// <summary>
         /// This field specifies the font size
         /// </summary>
-	    public static readonly IFieldType FONT_SIZE = new FieldType<int>("FONT_SIZE");
+	    public static readonly IFieldType FONT_SIZE = new FieldType<float>("FONT_SIZE");
         /// <summary>
         /// This field specifies the horizontal text alignment
         /// </summary>
