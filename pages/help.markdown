@@ -11,7 +11,7 @@ comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
 
-<p><small>Version 1.2.10<!-- - English translation of help content by YOUR_NAME--></small></p>
+<p><small>Version 1.2.10</small> - Edit this page under <a href="https://github.com/greenshot/greenshot/blob/gh-pages/pages/help.markdown">Github</a></p>
 <h2>Contents</h2>
 <ol>
 <li><a href="#screenshot">Creating a screenshot</a></li>
@@ -66,8 +66,7 @@ comments: []
 		be captured in your screenshot, release the mouse button.
 	</p>
 <p class="hint">
-		You can use the <kbd>Space</kbd> key to switch between region and<br />
-		<a href="#capture-window">window</a> mode.
+		You can use the <kbd>Space</kbd> key to switch between region and <a href="#capture-window">window</a> mode.
 	</p>
 <p class="hint">
 	If you want to capture an exact area, you can use the <kbd>Arrow</kbd> keys to adjust the mouse cursor
@@ -77,7 +76,7 @@ comments: []
 <p>	<a name="capture-last-region"></a></p>
 <h3>Capture last region <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
 <p>
-		If you did a <a href="#capture-region">region</a> or <a href="#capture-window">window</a> capture<br />
+		If you did a <a href="#capture-region">region</a> or <a href="#capture-window">window</a> capture 
 		before, you can capture the same region again using this option.
 	</p>
 <p>	<a name="capture-window"></a></p>
@@ -232,9 +231,8 @@ comments: []
 		After selecting the crop tool, draw a rectangle for the area of the screenshot you want<br />
 		to keep. You can resize the selected area like any other element.<br><br />
 		When you are content with your selection, use the confirm button in the toolbar or hit<br />
-		the <kbd>Enter</kbd> key. You can cancel cropping by clicking the cancel button or hitting<br />
-		<kbd>ESC</kbd>.<br>
-		<kbd>Strg</kbd> + <kbd>-</kbd> immediately crops the area to match all existing elements.
+		the <kbd>Enter</kbd> or the <kbd>Return</kbd> key. You can cancel cropping by clicking the cancel button or hitting <kbd>ESC</kbd>.<br>
+		<kbd>Ctrl</kbd> + <kbd>-</kbd> immediately crops the area to match all existing elements.
 	</p>
 <p class="hint">
 		<em>Auto-Crop</em>: If you need to crop a border of solid background color from your screenshot,<br />
@@ -252,7 +250,7 @@ comments: []
 		You can simply add graphics or images to your screenshot by dragging and dropping an image<br />
 		file into the editor window. You can also insert screenshots of other windows by selecting<br />
 		<em>Insert window</em> from the <em>Edit</em> menu. A list of all open windows appears,<br />
-		allowing you to select one for insertion.
+		allowing you to select one for insertion. Insert an image by <kbd>Strg</kbd> + <kbd>v</kbd> works as well.
 	</p>
 <p>	<a name="editor-reuse-elements"></a></p>
 <h3>Re-using drawn elements</h3>
@@ -272,7 +270,7 @@ comments: []
 		menu, the topmost toolbar or via shortcuts:
 	</p>
 <ul>
-<li><em>Save</em> <kbd>Control</kbd> + <kbd>S</kbd>: saves the image to a file (if the image has already been saved, else displays <em>Save as...</em> dialog</li>
+<li><em>Save</em> <kbd>Control</kbd> + <kbd>S</kbd>: saves the image to a file (if the image has already been saved, else displays <em>Save as...</em> dialog)</li>
 <li><em>Save as...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: lets you choose location, filename and image format for the file to save</li>
 <li><em>Copy image to clipboard</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: puts a copy of the image into the clipboard, allowing to paste into other programs</li>
 <li><em>Print...</em> <kbd>Control</kbd> + <kbd>P</kbd>: sends the image to a printer</li>
@@ -288,7 +286,7 @@ comments: []
 <p>	<a name="settings-general"></a></p>
 <h3>General settings</h3>
 <ul>
-<li><em>Language</em>: The language you prefer to be used.<br><br />
+<li><em>Language</em>: The language you prefer to be used.<br>
 			You can download additional language files for Greenshot <a target="_blank" href="/downloads/">here</a>. </li>
 <li><em>Launch Greenshot on startup</em>: Start the program when the system has been booted.</li>
 <li><em>Hotkeys</em>: Customize the hotkeys to be used to create screenshots.</li>
@@ -299,7 +297,7 @@ comments: []
 <p>	<a name="settings-capture"></a></p>
 <h3>Capture settings</h3>
 <ul>
-<li><em>Capture mousepointer</em>: If checked, the mousepointer will be captured. The pointer is handled is a separate element in the editor, so that you can move or remove it later.</li>
+<li><em>Capture mousepointer</em>: If checked, the mousepointer will be captured. The pointer is handled as a separate element in the editor, so that you can move or remove it later.</li>
 <li><em>Play camera sound</em>: Audible feedback when doing a capture</li>
 <li><em>Milliseconds to wait before capture</em>: Add a custom time lag before actually capturing the screen.</li>
 <li><em>Use interactive window capture mode</em>: Instead of capturing the active window right away, interactive mode<br />
