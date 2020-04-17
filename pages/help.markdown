@@ -66,7 +66,8 @@ comments: []
 		be captured in your screenshot, release the mouse button.
 	</p>
 <p class="hint">
-		You can use the <kbd>Space</kbd> key to switch between region and <a href="#capture-window">window</a> mode.
+		You can use the <kbd>Space</kbd> key to switch between region and <a href="#capture-window">window</a> mode.<br />
+		Holding down the <kbd>Shift</kbd> key while capturing fixes one dimension of the selection rectangle.
 	</p>
 <p class="hint">
 	If you want to capture an exact area, you can use the <kbd>Arrow</kbd> keys to adjust the mouse cursor
@@ -206,8 +207,7 @@ comments: []
 <p>
 		Obfuscating parts of a screenshot is a good idea if it contains data which is not<br />
 		intended for other people to see, e.g. bank account data, names, passwords or faces on images.<br><br />
-		Use the obfuscate tool <kbd>O</kbd> exactly like the <a href="#editor-highlight">highlight</a><br />
-		tool.<br><br />
+		Use the obfuscate tool <kbd>O</kbd> exactly like the <a href="#editor-highlight">highlight</a> tool.<br />
 		Available options for obfuscation are:
 	</p>
 <ul>
@@ -250,7 +250,7 @@ comments: []
 		You can simply add graphics or images to your screenshot by dragging and dropping an image<br />
 		file into the editor window. You can also insert screenshots of other windows by selecting<br />
 		<em>Insert window</em> from the <em>Edit</em> menu. A list of all open windows appears,<br />
-		allowing you to select one for insertion. Insert an image by <kbd>Strg</kbd> + <kbd>v</kbd> works as well.
+		allowing you to select one for insertion. Insert an image from the clipboard by <kbd>Ctrl</kbd> + <kbd>v</kbd> works as well.
 	</p>
 <p>	<a name="editor-reuse-elements"></a></p>
 <h3>Re-using drawn elements</h3>
