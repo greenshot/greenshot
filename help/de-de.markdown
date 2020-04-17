@@ -10,7 +10,7 @@ comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
 
-<small>Version 1.2.10</small>
+<small>Version 1.2.10</small> - Diese Datei kann bearbeitet werden unter <a href="https://github.com/greenshot/greenshot/blob/gh-pages/help/de-de.markdown">Github</a>
 
 
 <h2>Inhalt</h2>
@@ -113,7 +113,7 @@ Erstellt einen Screenhot vom gesamten Bildschirm.
 <h3>Internet Explorer abfotografieren <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
 <p>
 Erstellt komfortabel einen Screenshot von einer Webseite, die gerade im Internet Explorer
-geöffnet ist. Benutzen Sie Greenshots Kontextmenü, um das abzufotografierende Tab im Internet
+geöffnet ist. Benutzen Sie Greenshots Kontextmenü, um die abzufotografierende Registerkarte im Internet
 Explorer aus einer Liste zu wählen oder drücken Sie <kbd>Strg</kbd> + <kbd>Shift</kbd> + <kbd>Drucken</kbd>
 um das aktive Tab abzufotografieren.
 </p>
@@ -121,7 +121,7 @@ um das aktive Tab abzufotografieren.
 <a name="editor"></a>
 <h2>Verwendung des Bildeditors</h2>
 <p>
-Greenshot bietet Ihnen einen einfaches Bildbearbeitungswerkzeug mit praktischen
+Greenshot bietet Ihnen ein einfaches Bildbearbeitungswerkzeug mit praktischen
 Möglichkeiten; ein Screenshot kann beispielsweise mit Anmerkungen und Formen
 ergänzt werden. Es ist auch möglich, Teile des Screenshots hervorzuheben oder
 unkenntlich zu machen.
@@ -152,7 +152,7 @@ Folgende Formen sind verfügbar: Rechteck <kbd>R</kbd>, Ellipse <kbd>E</kbd>,
 Linie <kbd>L</kbd> und Pfeil <kbd>A</kbd>.<br>
 Klicken Sie die linke Maustaste, halten Sie diese gedrückt und bewegen Sie die Maus,
 um den Position und Größe der Form zu bestimmen. Lassen Sie die Maustaste los,
-wenn Sie fertig sind.
+wenn Sie fertig sind. Das Drücken der <kbd>Shift</kbd>-Taste bewirkt, dass die Proportionen gleichmäßig sind, ein Rechteck wird zu einem Quadrat und eine Ellipse zu einem Kreis.
 </p>
 <p>
 Sie können bereits gemalte Formen verschieben oder ihre Größe ändern. Wählen Sie
@@ -245,16 +245,15 @@ Greenshot wählt automatisch einen Bereich für den Zuschnitt aus.
 <a name="editor-enlarge"></a>
 <h3>Screenshot vergrössern</h3>
 <p>
-Wenn Sie den Screenshot etwas vergrössern wollen, drücken Sie <kbd>Shift</kbd> + <kbd>+</kbd>, was auf allen vier Seiten je 25 Pixel hinzufügt.
+Wenn Sie den Screenshot etwas vergrössern wollen, drücken Sie <kbd>Strg</kbd> + <kbd>+</kbd>, was auf allen vier Seiten je 25 Pixel hinzufügt.
 </p>
 
 <a name="editor-adding-graphics"></a>
-<h3>Adding graphics to a screenshot</h3>
+<h3>Grafiken zu einem Screenshot hinzufügen</h3>
 <p>
-You can simply add graphics or images to your screenshot by dragging and dropping an image
-file into the editor window. You can also insert screenshots of other windows by selecting
-<em>Insert window</em> from the <em>Edit</em> menu. A list of all open windows appears, 
-allowing you to select one for insertion.
+Sie können einfach Grafiken oder Bilder zu einem Screenshot hinzufügen indem Sie eine Datei in den den Editor ziehen und ablegen (Drag & Drop).<br>
+Auch können Sie Screenshots von anderen Fenster einfügen mittels <em>Fenster einfügen</em> aus dem <em>Bearbeiten</em> Menu. Eine Liste aller offenen Fenster erscheint und ermöglicht es eines auszuwählen um es einzufügen.<br>
+Einfügen aus der Zwischenablage mittels <kbd>Strg</kbd> + <kbd>v</kbd> funktioniert ebenfalls.
 </p>
 
 <a name="editor-reuse-elements"></a>
