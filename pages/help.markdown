@@ -48,6 +48,11 @@ comments: []
 <li><a href="#help-translate">Submit a translation</a></li>
 </ol>
 </ol>
+<p>	<a name="preface"></a></p>
+<h2>Preface</h2>
+<p>
+		Greenshot is running as an own process in the background. To reach the application, you can right click the Greenshot icon in the notification area or directly take a <a href="#screenshot">screenshot</a> by pressing one of the defined keys. Several editor windows can be open in parallel.
+	</p>
 <p>	<a name="screenshot"></a></p>
 <h2>Creating a screenshot</h2>
 <p>
