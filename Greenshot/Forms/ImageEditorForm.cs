@@ -871,12 +871,12 @@ namespace Greenshot {
 					case Keys.OemMinus:	// Ctrl + -
 						ZoomOutMenuItemClick(sender, e);
 						break;
-					case Keys.Divide:		// Ctrl + Num/
-					case Keys.OemQuestion:	// Ctrl + / (?)
+					case Keys.NumPad0:	// Ctrl + Num0
+					case Keys.D0:       // Ctrl + 0
 						ZoomSetValueMenuItemClick(zoomActualSizeMenuItem, e);
 						break;
-					case Keys.Multiply:	// Ctrl + Num*
-					case Keys.D8:		// Ctrl + 8 (*)
+					case Keys.NumPad9:	// Ctrl + Num9
+					case Keys.D9:		// Ctrl + 9
 						ZoomBestFitMenuItemClick(sender, e);
 						break;
 				}

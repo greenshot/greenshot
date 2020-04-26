@@ -1704,7 +1704,7 @@ namespace Greenshot {
 			// 
 			this.zoomBestFitMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomBestFitMenuItem.Image")));
 			this.zoomBestFitMenuItem.Name = "zoomBestFitMenuItem";
-			this.zoomBestFitMenuItem.ShortcutKeyDisplayString = "Ctrl+*";
+			this.zoomBestFitMenuItem.ShortcutKeyDisplayString = "Ctrl+9";
 			this.zoomBestFitMenuItem.Size = new System.Drawing.Size(209, 22);
 			this.zoomBestFitMenuItem.Text = "Best Fit";
 			this.zoomBestFitMenuItem.Click += new System.EventHandler(this.ZoomBestFitMenuItemClick);
@@ -1755,7 +1755,7 @@ namespace Greenshot {
 			// 
 			this.zoomActualSizeMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomActualSizeMenuItem.Image")));
 			this.zoomActualSizeMenuItem.Name = "zoomActualSizeMenuItem";
-			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+/";
+			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+0";
 			this.zoomActualSizeMenuItem.Size = new System.Drawing.Size(209, 22);
 			this.zoomActualSizeMenuItem.Tag = "100";
 			this.zoomActualSizeMenuItem.Text = "100% - Actual Size";
