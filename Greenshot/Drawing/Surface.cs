@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -1405,7 +1405,7 @@ namespace Greenshot.Drawing
 			return GetImage(RenderMode.EXPORT);
 		}
 
-		private Rectangle ZoomClipRectangle(Rectangle rc, double scale)
+		private static Rectangle ZoomClipRectangle(Rectangle rc, double scale)
 			=> new Rectangle(
 				(int)(rc.X * scale),
 				(int)(rc.Y * scale),
@@ -1413,7 +1413,7 @@ namespace Greenshot.Drawing
 				(int)((rc.Height + 1) * scale) + 1
 				);
 
-		private RectangleF ZoomClipRectangle(RectangleF rc, double scale)
+		private static RectangleF ZoomClipRectangle(RectangleF rc, double scale)
 			=> new RectangleF(
 				(float)Math.Floor(rc.X * scale),
 				(float)Math.Floor(rc.Y * scale),

@@ -61,7 +61,7 @@ namespace Greenshot.Drawing {
 				if (_parent?.Image is Image image) {
 					return new Rectangle(0, 0, image.Width, image.Height);
 				} else {
-					return new Rectangle();
+					return Rectangle.Empty;
 				}
 			}
 		}

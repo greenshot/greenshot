@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -96,7 +96,7 @@ namespace Greenshot.Drawing.Adorners
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 
-			var bounds = SurfaceBounds;
+			var bounds = BoundsOnSurface;
 			targetGraphics.FillRectangle(Brushes.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
 		}
 

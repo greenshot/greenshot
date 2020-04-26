@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -119,7 +119,7 @@ namespace Greenshot.Drawing.Adorners
 		/// <summary>
 		/// Return the bounds of the Adorner as displayed on the parent Surface
 		/// </summary>
-		protected virtual Rectangle SurfaceBounds
+		protected virtual Rectangle BoundsOnSurface
 		{
 			get
 			{
