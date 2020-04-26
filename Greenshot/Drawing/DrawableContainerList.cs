@@ -581,5 +581,16 @@ namespace Greenshot.Drawing {
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
-    }
+
+		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		public void AdjustToDpi(uint dpi)
+		{
+			foreach (var drawableContainer in this) {
+				drawableContainer.AdjustToDpi(dpi);
+			}
+		}
+	}
 }

@@ -96,6 +96,8 @@ namespace Greenshot {
 			destinationsToolStrip.ImageScalingSize = newSize;
 			propertiesToolStrip.ImageScalingSize = newSize;
 			propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
+
+			_surface.AdjustToDpi(dpi);
 		}
 
 		public ImageEditorForm(ISurface iSurface, bool outputMade)
