@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -61,26 +61,26 @@ namespace Greenshot.Drawing.Adorners
 
 			Owner.Invalidate();
 			Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-			Rectangle surfaceBounds = new Rectangle(0, 0, Owner.Parent.Width, Owner.Parent.Height);
+			Rectangle imageBounds = new Rectangle(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
 			// Check if gripper inside the parent (surface), if not we need to move it inside
 			// This was made for BUG-1682
-			if (!surfaceBounds.Contains(newGripperLocation))
+			if (!imageBounds.Contains(newGripperLocation))
 			{
-				if (newGripperLocation.X > surfaceBounds.Right)
+				if (newGripperLocation.X > imageBounds.Right)
 				{
-					newGripperLocation.X = surfaceBounds.Right - 5;
+					newGripperLocation.X = imageBounds.Right - 5;
 				}
-				if (newGripperLocation.X < surfaceBounds.Left)
+				if (newGripperLocation.X < imageBounds.Left)
 				{
-					newGripperLocation.X = surfaceBounds.Left;
+					newGripperLocation.X = imageBounds.Left;
 				}
-				if (newGripperLocation.Y > surfaceBounds.Bottom)
+				if (newGripperLocation.Y > imageBounds.Bottom)
 				{
-					newGripperLocation.Y = surfaceBounds.Bottom - 5;
+					newGripperLocation.Y = imageBounds.Bottom - 5;
 				}
-				if (newGripperLocation.Y < surfaceBounds.Top)
+				if (newGripperLocation.Y < imageBounds.Top)
 				{
-					newGripperLocation.Y = surfaceBounds.Top;
+					newGripperLocation.Y = imageBounds.Top;
 				}
 			}
 

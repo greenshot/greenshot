@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
@@ -200,9 +199,15 @@ namespace GreenshotPlugin.Interfaces
         /// </summary>
         float ZoomFactor { get; set; }
         /// <summary>
-        /// Matrix representing zoom applied to the surface.
+        /// Translate a point from image coorditate space to surface coordinate space.
         /// </summary>
-        Matrix ZoomMatrix { get; }
+        /// <param name="point">A point in the coordinate space of the image.</param>
+        Point ToSurfaceCoordinates(Point point);
+        /// <summary>
+        /// Translate a rectangle from image coorditate space to surface coordinate space.
+        /// </summary>
+        /// <param name="rc">A rectangle in the coordinate space of the image.</param>
+        Rectangle ToSurfaceCoordinates(Rectangle rc);
 
         void MakeUndoable(IMemento memento, bool allowMerge);
     }

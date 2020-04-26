@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -303,6 +303,8 @@ namespace Greenshot.Drawing
 		}
 
 		[NonSerialized]
+		private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
+		[NonSerialized]
 		private float _zoomFactor = 1.0f;
 		public float ZoomFactor
 		{
@@ -310,12 +312,11 @@ namespace Greenshot.Drawing
 			set
 			{
 				_zoomFactor = value;
-				ZoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
+				_zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
 				UpdateSize();
 			}
 		}
 
-		public Matrix ZoomMatrix { get; private set; } = new Matrix(1, 0, 0, 1, 0, 0);
 
 		/// <summary>
 		/// Sets the surface size as zoomed image size.
@@ -2107,6 +2108,27 @@ namespace Greenshot.Drawing
 		public bool IsOnSurface(IDrawableContainer container)
 		{
 			return _elements.Contains(container);
+		}
+
+		public Point ToSurfaceCoordinates(Point point)
+		{
+			Point[] points = { point };
+			_zoomMatrix.TransformPoints(points);
+			return points[0];
+		}
+
+		public Rectangle ToSurfaceCoordinates(Rectangle rc)
+		{
+			if (_zoomMatrix.IsIdentity)
+			{
+				return rc;
+			}
+			else
+			{
+				Point[] points = { rc.Location, rc.Location + rc.Size };
+				_zoomMatrix.TransformPoints(points);
+				return new Rectangle(points[0].X, points[0].Y, points[1].X - points[0].X, points[1].Y - points[1].Y);
+			}
 		}
 	}
 }

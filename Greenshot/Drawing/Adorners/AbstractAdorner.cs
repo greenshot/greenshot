@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -123,13 +123,8 @@ namespace Greenshot.Drawing.Adorners
 		{
 			get
 			{
-				Point[] points = { Location };
-				var matrix = Owner.Parent.ZoomMatrix;
-				if (!matrix.IsIdentity)
-				{
-					matrix.TransformPoints(points);
-				}
-				return new Rectangle(points[0].X - _size.Width / 2, points[0].Y - _size.Height / 2, _size.Width, _size.Height);
+				Point displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
+				return new Rectangle(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
 			}
 		}
 

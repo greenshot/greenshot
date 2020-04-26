@@ -523,9 +523,9 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public virtual void ShowContextMenu(MouseEventArgs e, ISurface surface)
+		public virtual void ShowContextMenu(MouseEventArgs e, ISurface iSurface)
 		{
-			if (!(surface is Surface))
+			if (!(iSurface is Surface surface))
 			{
 				return;
 			}
@@ -542,8 +542,7 @@ namespace Greenshot.Drawing {
 				ContextMenuStrip menu = new ContextMenuStrip();
 				AddContextMenuItems(menu, surface);
 				if (menu.Items.Count > 0) {
-					// TODO: cast should be somehow avoided
-					menu.Show((Surface)surface, e.Location);
+					menu.Show(surface, surface.ToSurfaceCoordinates(e.Location));
 					while (true) {
 						if (menu.Visible) {
 							Application.DoEvents();
