@@ -1502,10 +1502,9 @@ namespace Greenshot {
 			var newHeight = chromeSize.Height + surfaceSize.Height;
 
 			// Upper bound. Don't make it bigger than the available working area.
-			var screen = Screen.FromControl(this);
-			var workingArea = screen.WorkingArea;
-			newWidth = Math.Min(newWidth, workingArea.Width);
-			newHeight = Math.Min(newHeight, workingArea.Height);
+			var maxWindowSize = GetAvailableScreenSpace();
+			newWidth = Math.Min(newWidth, maxWindowSize.Width);
+			newHeight = Math.Min(newHeight, maxWindowSize.Height);
 
 			// Lower bound. Don't make it smaller than a fixed value.
 			int minimumFormWidth = 650;
