@@ -442,14 +442,20 @@ namespace Greenshot.Drawing
                 correction = -1;
             }
             Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            _textBox.Left = absRectangle.Left + lineWidth;
-            _textBox.Top = absRectangle.Top + lineWidth;
+            Point[] points = { absRectangle.Location, absRectangle.Location + absRectangle.Size };
+            var matrix = Parent.ZoomMatrix;
+            if (!matrix.IsIdentity)
+            {
+                matrix.TransformPoints(points);
+            }
+            _textBox.Left = points[0].X + lineWidth;
+            _textBox.Top = points[0].Y + lineWidth;
             if (lineThickness <= 1)
             {
                 lineWidth = 0;
             }
-            _textBox.Width = absRectangle.Width - 2 * lineWidth + correction;
-            _textBox.Height = absRectangle.Height - 2 * lineWidth + correction;
+            _textBox.Width = points[1].X - points[0].X - 2 * lineWidth + correction;
+            _textBox.Height = points[1].Y - points[0].Y - 2 * lineWidth + correction;
         }
 
         public override void ApplyBounds(RectangleF newBounds)

@@ -194,6 +194,26 @@ namespace Greenshot {
 			this.alignLeftToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.alignCenterToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.alignRightToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.zoomMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.zoomInMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomOutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomMenuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.zoomBestFitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomMenuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.zoom25MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom50MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom66MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom75MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomMenuSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.zoomActualSizeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomMenuSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.zoom200MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom300MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom400MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoom600MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomStatusDropDownBtn = new System.Windows.Forms.ToolStripDropDownButton();
+			this.zoomMainMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.statusStripSpacer = new System.Windows.Forms.ToolStripStatusLabel();
 			this.topToolStripContainer.BottomToolStripPanel.SuspendLayout();
 			this.topToolStripContainer.ContentPanel.SuspendLayout();
 			this.topToolStripContainer.LeftToolStripPanel.SuspendLayout();
@@ -203,6 +223,7 @@ namespace Greenshot {
 			this.tableLayoutPanel1.SuspendLayout();
 			this.toolsToolStrip.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
+			this.zoomMenuStrip.SuspendLayout();
 			this.destinationsToolStrip.SuspendLayout();
 			this.propertiesToolStrip.SuspendLayout();
 			this.fileSavedStatusContextMenu.SuspendLayout();
@@ -238,7 +259,9 @@ namespace Greenshot {
 			this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.dimensionsLabel,
-									this.statusLabel});
+									this.statusLabel,
+									this.statusStripSpacer,
+									this.zoomStatusDropDownBtn});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 0);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(785, 24);
@@ -538,6 +561,7 @@ namespace Greenshot {
 									this.editToolStripMenuItem,
 									this.objectToolStripMenuItem,
 									this.pluginToolStripMenuItem,
+									this.zoomMainMenuItem,
 									this.helpToolStripMenuItem});
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
@@ -1624,6 +1648,171 @@ namespace Greenshot {
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
+			// zoomMainMenuItem
+			// 
+			this.zoomMainMenuItem.DropDown = this.zoomMenuStrip;
+			this.zoomMainMenuItem.Name = "zoomMainMenuItem";
+			this.zoomMainMenuItem.Size = new System.Drawing.Size(51, 20);
+			this.zoomMainMenuItem.Text = "Zoom";
+			// 
+			// zoomMenuStrip
+			// 
+			this.zoomMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.zoomInMenuItem,
+			this.zoomOutMenuItem,
+			this.zoomMenuSeparator1,
+			this.zoomBestFitMenuItem,
+			this.zoomMenuSeparator2,
+			this.zoom25MenuItem,
+			this.zoom50MenuItem,
+			this.zoom66MenuItem,
+			this.zoom75MenuItem,
+			this.zoomMenuSeparator3,
+			this.zoomActualSizeMenuItem,
+			this.zoomMenuSeparator4,
+			this.zoom200MenuItem,
+			this.zoom300MenuItem,
+			this.zoom400MenuItem,
+			this.zoom600MenuItem});
+			this.zoomMenuStrip.Name = "zoomMenuStrip";
+			this.zoomMenuStrip.Size = new System.Drawing.Size(210, 292);
+			// 
+			// zoomInMenuItem
+			// 
+			this.zoomInMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomInMenuItem.Image")));
+			this.zoomInMenuItem.Name = "zoomInMenuItem";
+			this.zoomInMenuItem.ShortcutKeyDisplayString = "Ctrl++";
+			this.zoomInMenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoomInMenuItem.Text = "Zoom In";
+			this.zoomInMenuItem.Click += new System.EventHandler(this.ZoomInMenuItemClick);
+			// 
+			// zoomOutMenuItem
+			// 
+			this.zoomOutMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomOutMenuItem.Image")));
+			this.zoomOutMenuItem.Name = "zoomOutMenuItem";
+			this.zoomOutMenuItem.ShortcutKeyDisplayString = "Ctrl+-";
+			this.zoomOutMenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoomOutMenuItem.Text = "Zoom Out";
+			this.zoomOutMenuItem.Click += new System.EventHandler(this.ZoomOutMenuItemClick);
+			// 
+			// zoomMenuSeparator1
+			// 
+			this.zoomMenuSeparator1.Name = "zoomMenuSeparator1";
+			this.zoomMenuSeparator1.Size = new System.Drawing.Size(206, 6);
+			// 
+			// zoomBestFitMenuItem
+			// 
+			this.zoomBestFitMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomBestFitMenuItem.Image")));
+			this.zoomBestFitMenuItem.Name = "zoomBestFitMenuItem";
+			this.zoomBestFitMenuItem.ShortcutKeyDisplayString = "Ctrl+*";
+			this.zoomBestFitMenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoomBestFitMenuItem.Text = "Best Fit";
+			this.zoomBestFitMenuItem.Click += new System.EventHandler(this.ZoomBestFitMenuItemClick);
+			// 
+			// zoomMenuSeparator2
+			// 
+			this.zoomMenuSeparator2.Name = "zoomMenuSeparator2";
+			this.zoomMenuSeparator2.Size = new System.Drawing.Size(206, 6);
+			// 
+			// zoom25MenuItem
+			// 
+			this.zoom25MenuItem.Name = "zoom25MenuItem";
+			this.zoom25MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom25MenuItem.Tag = "25";
+			this.zoom25MenuItem.Text = "25%";
+			this.zoom25MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom50MenuItem
+			// 
+			this.zoom50MenuItem.Name = "zoom50MenuItem";
+			this.zoom50MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom50MenuItem.Tag = "50";
+			this.zoom50MenuItem.Text = "50%";
+			this.zoom50MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom66MenuItem
+			// 
+			this.zoom66MenuItem.Name = "zoom66MenuItem";
+			this.zoom66MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom66MenuItem.Tag = "66";
+			this.zoom66MenuItem.Text = "66%";
+			this.zoom66MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom75MenuItem
+			// 
+			this.zoom75MenuItem.Name = "zoom75MenuItem";
+			this.zoom75MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom75MenuItem.Tag = "75";
+			this.zoom75MenuItem.Text = "75%";
+			this.zoom75MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoomMenuSeparator3
+			// 
+			this.zoomMenuSeparator3.Name = "zoomMenuSeparator3";
+			this.zoomMenuSeparator3.Size = new System.Drawing.Size(206, 6);
+			// 
+			// zoomActualSizeMenuItem
+			// 
+			this.zoomActualSizeMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomActualSizeMenuItem.Image")));
+			this.zoomActualSizeMenuItem.Name = "zoomActualSizeMenuItem";
+			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+/";
+			this.zoomActualSizeMenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoomActualSizeMenuItem.Tag = "100";
+			this.zoomActualSizeMenuItem.Text = "100% - Actual Size";
+			this.zoomActualSizeMenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoomMenuSeparator4
+			// 
+			this.zoomMenuSeparator4.Name = "zoomMenuSeparator4";
+			this.zoomMenuSeparator4.Size = new System.Drawing.Size(206, 6);
+			// 
+			// zoom200MenuItem
+			// 
+			this.zoom200MenuItem.Name = "zoom200MenuItem";
+			this.zoom200MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom200MenuItem.Tag = "200";
+			this.zoom200MenuItem.Text = "200%";
+			this.zoom200MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom300MenuItem
+			// 
+			this.zoom300MenuItem.Name = "zoom300MenuItem";
+			this.zoom300MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom300MenuItem.Tag = "300";
+			this.zoom300MenuItem.Text = "300%";
+			this.zoom300MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom400MenuItem
+			// 
+			this.zoom400MenuItem.Name = "zoom400MenuItem";
+			this.zoom400MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom400MenuItem.Tag = "400";
+			this.zoom400MenuItem.Text = "400%";
+			this.zoom400MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// zoom600MenuItem
+			// 
+			this.zoom600MenuItem.Name = "zoom600MenuItem";
+			this.zoom600MenuItem.Size = new System.Drawing.Size(209, 22);
+			this.zoom600MenuItem.Tag = "600";
+			this.zoom600MenuItem.Text = "600%";
+			this.zoom600MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
+			// 
+			// statusStripSpacer
+			// 
+			this.statusStripSpacer.Name = "statusStripSpacer";
+			this.statusStripSpacer.Size = new System.Drawing.Size(599, 19);
+			this.statusStripSpacer.Spring = true;
+			// 
+			// zoomStatusDropDownBtn
+			// 
+			this.zoomStatusDropDownBtn.DropDown = this.zoomMenuStrip;
+			this.zoomStatusDropDownBtn.Image = ((System.Drawing.Image)(resources.GetObject("zoomStatusDropDownBtn.Image")));
+			this.zoomStatusDropDownBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.zoomStatusDropDownBtn.Name = "zoomStatusDropDownBtn";
+			this.zoomStatusDropDownBtn.Size = new System.Drawing.Size(64, 22);
+			this.zoomStatusDropDownBtn.Text = "100%";
+			// 
 			// ImageEditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1645,6 +1834,7 @@ namespace Greenshot {
 			this.statusStrip1.ResumeLayout(true);
 			this.tableLayoutPanel1.ResumeLayout(true);
 			this.toolsToolStrip.ResumeLayout(true);
+			this.zoomMenuStrip.ResumeLayout(false);
 			this.menuStrip1.ResumeLayout(true);
 			this.destinationsToolStrip.ResumeLayout(true);
 			this.propertiesToolStrip.ResumeLayout(true);
@@ -1794,5 +1984,25 @@ namespace Greenshot {
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem autoCropToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator17;
+		private System.Windows.Forms.ContextMenuStrip zoomMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem zoomInMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoomOutMenuItem;
+		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator1;
+		private System.Windows.Forms.ToolStripMenuItem zoomBestFitMenuItem;
+		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator2;
+		private System.Windows.Forms.ToolStripMenuItem zoom25MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom50MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom66MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom75MenuItem;
+		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator3;
+		private System.Windows.Forms.ToolStripMenuItem zoomActualSizeMenuItem;
+		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator4;
+		private System.Windows.Forms.ToolStripMenuItem zoom200MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom300MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom400MenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoom600MenuItem;
+		private System.Windows.Forms.ToolStripDropDownButton zoomStatusDropDownBtn;
+		private System.Windows.Forms.ToolStripMenuItem zoomMainMenuItem;
+		private System.Windows.Forms.ToolStripStatusLabel statusStripSpacer;
 	}
 }

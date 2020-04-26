@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
@@ -147,8 +148,13 @@ namespace GreenshotPlugin.Interfaces
         /// <param name="container"></param>
         /// <returns>This returns false if the container is deleted but still in the undo stack</returns>
         bool IsOnSurface(IDrawableContainer container);
-        void Invalidate(Rectangle rectangleToInvalidate);
         void Invalidate();
+        /// <summary>
+        /// Invalidates the specified region of the Surface.
+        /// Takes care of the Surface zoom level, accepts rectangle in the coordinate space of the Image.
+        /// </summary>
+        /// <param name="rectangleToInvalidate">Bounding rectangle for updated elements, in the coordinate space of the Image.</param>
+        void InvalidateElements(Rectangle rectangleToInvalidate);
         bool Modified
         {
             get;
@@ -188,6 +194,15 @@ namespace GreenshotPlugin.Interfaces
         }
         int Width { get; }
         int Height { get; }
+
+        /// <summary>
+        /// Zoom value applied to the surface. 1.0f for actual size (100%).
+        /// </summary>
+        float ZoomFactor { get; set; }
+        /// <summary>
+        /// Matrix representing zoom applied to the surface.
+        /// </summary>
+        Matrix ZoomMatrix { get; }
 
         void MakeUndoable(IMemento memento, bool allowMerge);
     }

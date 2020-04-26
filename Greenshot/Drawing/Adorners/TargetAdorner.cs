@@ -96,7 +96,7 @@ namespace Greenshot.Drawing.Adorners
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 
-			var bounds = Bounds;
+			var bounds = SurfaceBounds;
 			targetGraphics.FillRectangle(Brushes.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
 		}
 

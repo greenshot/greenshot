@@ -298,8 +298,32 @@ namespace Greenshot.Drawing
             set
 			{
 				_image = value;
-				Size = _image.Size;
+				UpdateSize();
 			}
+		}
+
+		[NonSerialized]
+		private float _zoomFactor = 1.0f;
+		public float ZoomFactor
+		{
+			get => _zoomFactor;
+			set
+			{
+				_zoomFactor = value;
+				ZoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
+				UpdateSize();
+			}
+		}
+
+		public Matrix ZoomMatrix { get; private set; } = new Matrix(1, 0, 0, 1, 0, 0);
+
+		/// <summary>
+		/// Sets the surface size as zoomed image size.
+		/// </summary>
+		private void UpdateSize()
+		{
+			var size = _image.Size;
+			Size = new Size((int)(size.Width * _zoomFactor), (int)(size.Height * _zoomFactor));
 		}
 
 		/// <summary>
@@ -447,7 +471,6 @@ namespace Greenshot.Drawing
 
 			// Set new values
 			Image = newImage;
-			Size = newImage.Size;
 
 			_modified = true;
 		}
@@ -1087,12 +1110,19 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
+		/// Translate mouse coordinates as if they were applied directly to unscaled image.
+		/// </summary>
+		private MouseEventArgs InverseZoomMouseCoordinates(MouseEventArgs e)
+			=> new MouseEventArgs(e.Button, e.Clicks, (int)(e.X / _zoomFactor), (int)(e.Y / _zoomFactor), e.Delta);
+
+		/// <summary>
 		/// This event handler is called when someone presses the mouse on a surface.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void SurfaceMouseDown(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
 
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
@@ -1187,6 +1217,7 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		private void SurfaceMouseUp(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
 
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
@@ -1276,6 +1307,8 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		private void SurfaceMouseMove(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
+
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
 			if (adorner != null)
@@ -1371,6 +1404,25 @@ namespace Greenshot.Drawing
 			return GetImage(RenderMode.EXPORT);
 		}
 
+		private Rectangle ZoomClipRectangle(Rectangle rc, double scale)
+			=> new Rectangle(
+				(int)(rc.X * scale),
+				(int)(rc.Y * scale),
+				(int)((rc.Width + 1) * scale) + 1, // making sure to redraw enough pixels when moving scaled image
+				(int)((rc.Height + 1) * scale) + 1
+				);
+
+		private RectangleF ZoomClipRectangle(RectangleF rc, double scale)
+			=> new RectangleF(
+				(float)Math.Floor(rc.X * scale),
+				(float)Math.Floor(rc.Y * scale),
+				(float)Math.Ceiling(rc.Width * scale),
+				(float)Math.Ceiling(rc.Height * scale)
+				);
+
+		public void InvalidateElements(Rectangle rc)
+			=> Invalidate(ZoomClipRectangle(rc, _zoomFactor));
+
 		/// <summary>
 		/// This is the event handler for the Paint Event, try to draw as little as possible!
 		/// </summary>
@@ -1379,14 +1431,16 @@ namespace Greenshot.Drawing
 		private void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
-			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
-			if (Rectangle.Empty.Equals(clipRectangle))
+			Rectangle targetClipRectangle = paintEventArgs.ClipRectangle;
+			if (Rectangle.Empty.Equals(targetClipRectangle))
 			{
 				LOG.Debug("Empty cliprectangle??");
 				return;
 			}
+			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, 1.0 / _zoomFactor);
 
-			if (_elements.HasIntersectingFilters(clipRectangle))
+			bool isZoomedIn = ZoomFactor > 1f;
+			if (_elements.HasIntersectingFilters(imageClipRectangle) || isZoomedIn)
 			{
 				if (_buffer != null)
 				{
@@ -1409,18 +1463,38 @@ namespace Greenshot.Drawing
 					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 					//graphics.CompositingQuality = CompositingQuality.HighQuality;
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					DrawBackground(graphics, clipRectangle);
-					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-					graphics.SetClip(targetGraphics);
-					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
+					DrawBackground(graphics, imageClipRectangle);
+					graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+					graphics.SetClip(ZoomClipRectangle(targetGraphics.ClipBounds, 1.0 / _zoomFactor));
+					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
-				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
+				if (isZoomedIn)
+				{
+					var state = targetGraphics.Save();
+					targetGraphics.SmoothingMode = SmoothingMode.None;
+					targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+					targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
+					targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+
+					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+
+					targetGraphics.Restore(state);
+				}
+				else
+				{
+					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				}
+				targetGraphics.ResetTransform();
 			}
 			else
 			{
-				DrawBackground(targetGraphics, clipRectangle);
-				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+				DrawBackground(targetGraphics, targetClipRectangle);
+
+				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
+				targetGraphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
+				targetGraphics.ResetTransform();
 			}
 
 			// No clipping for the adorners

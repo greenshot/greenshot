@@ -67,6 +67,12 @@ namespace Greenshot {
 		private bool _controlsDisabledDueToConfirmable;
 
 		/// <summary>
+		/// All provided zoom values (in percents) in ascending order.
+		/// </summary>
+		private readonly int[] ZOOM_VALUES = new[] { 25, 50, 66, 75, 100, 200, 300, 400, 600 };
+		private int _zoomValue = 100;
+
+		/// <summary>
 		/// An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
 		/// </summary>
 		public IWin32Window WindowHandle => this;
@@ -420,20 +426,14 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void SurfaceSizeChanged(object sender, EventArgs e) {
-			if (EditorConfiguration.MatchSizeToCapture) {
-				// Set editor's initial size to the size of the surface plus the size of the chrome
-				Size imageSize = Surface.Image.Size;
-				Size currentFormSize = Size;
-				Size currentImageClientSize = panel1.ClientSize;
-				int minimumFormWidth = 650;
-				int minimumFormHeight = 530;
-				int newWidth = Math.Max(minimumFormWidth, currentFormSize.Width - currentImageClientSize.Width + imageSize.Width);
-				int newHeight = Math.Max(minimumFormHeight, currentFormSize.Height - currentImageClientSize.Height + imageSize.Height);
-				Size = new Size(newWidth, newHeight);
+		private void SurfaceSizeChanged(object sender, EventArgs e)
+		{
+			if (EditorConfiguration.MatchSizeToCapture)
+			{
+				Size = GetOptimalWindowSize();
 			}
 			dimensionsLabel.Text = Surface.Image.Width + "x" + Surface.Image.Height;
-			ImageEditorFormResize(sender, new EventArgs());
+			AlignCanvasPositionAfterResize();
 		}
 
 		public ISurface Surface {
@@ -860,15 +860,34 @@ namespace Greenshot {
 					case Keys.Oemcomma:	// Rotate CCW Ctrl + ,
 						RotateCcwToolstripButtonClick(sender, e);
 						break;
-					case Keys.OemPeriod:    // Rotate CW Ctrl + .
+					case Keys.OemPeriod:	// Rotate CW Ctrl + .
 						RotateCwToolstripButtonClick(sender, e);
 						break;
-					case Keys.Add:    // Ctrl + +
-					case Keys.Oemplus:    // Ctrl + +
+					case Keys.Add:		// Ctrl + Num+
+					case Keys.Oemplus:	// Ctrl + +
+						ZoomInMenuItemClick(sender, e);
+						break;
+					case Keys.Subtract:	// Ctrl + Num-
+					case Keys.OemMinus:	// Ctrl + -
+						ZoomOutMenuItemClick(sender, e);
+						break;
+					case Keys.Divide:		// Ctrl + Num/
+					case Keys.OemQuestion:	// Ctrl + / (?)
+						ZoomSetValueMenuItemClick(zoomActualSizeMenuItem, e);
+						break;
+					case Keys.Multiply:	// Ctrl + Num*
+					case Keys.D8:		// Ctrl + 8 (*)
+						ZoomBestFitMenuItemClick(sender, e);
+						break;
+				}
+			} else if (e.Modifiers.Equals(Keys.Control | Keys.Shift)) {
+				switch (e.KeyCode) {
+					case Keys.Add:		// Ctrl + Shift + Num+
+					case Keys.Oemplus:	// Ctrl + Shift + +
 						EnlargeCanvasToolStripMenuItemClick(sender, e);
 						break;
-					case Keys.Subtract:    // Ctrl + -
-					case Keys.OemMinus:    // Ctrl + -
+					case Keys.Subtract:	// Ctrl + Shift + Num-
+					case Keys.OemMinus:	// Ctrl + Shift + -
 						ShrinkCanvasToolStripMenuItemClick(sender, e);
 						break;
 				}
@@ -1444,28 +1463,130 @@ namespace Greenshot {
 		}
 
 		private void ImageEditorFormResize(object sender, EventArgs e) {
+			AlignCanvasPositionAfterResize();
+		}
+
+		private void AlignCanvasPositionAfterResize() {
 			if (Surface?.Image == null || panel1 == null) {
 				return;
 			}
-			Size imageSize = Surface.Image.Size;
-			Size currentClientSize = panel1.ClientSize;
 			var canvas = Surface as Control;
+			Size canvasSize = canvas.Size;
+			Size currentClientSize = panel1.ClientSize;
 			Panel panel = (Panel) canvas?.Parent;
 			if (panel == null) {
 				return;
 			}
 			int offsetX = -panel.HorizontalScroll.Value;
 			int offsetY = -panel.VerticalScroll.Value;
-			if (currentClientSize.Width > imageSize.Width) {
-				canvas.Left = offsetX + (currentClientSize.Width - imageSize.Width) / 2;
+			if (currentClientSize.Width > canvasSize.Width) {
+				canvas.Left = offsetX + (currentClientSize.Width - canvasSize.Width) / 2;
 			} else {
 				canvas.Left = offsetX + 0;
 			}
-			if (currentClientSize.Height > imageSize.Height) {
-				canvas.Top = offsetY + (currentClientSize.Height - imageSize.Height) / 2;
+			if (currentClientSize.Height > canvasSize.Height) {
+				canvas.Top = offsetY + (currentClientSize.Height - canvasSize.Height) / 2;
 			} else {
 				canvas.Top = offsetY + 0;
 			}
+		}
+
+		/// <summary>
+		/// Compute a size as a sum of surface size and chrome.
+		/// Upper bound is working area of the screen. Lower bound is fixed value.
+		/// </summary>
+		private Size GetOptimalWindowSize() {
+			var surfaceSize = (Surface as Control).Size;
+			var chromeSize = GetChromeSize();
+			var newWidth = chromeSize.Width + surfaceSize.Width;
+			var newHeight = chromeSize.Height + surfaceSize.Height;
+
+			// Upper bound. Don't make it bigger than the available working area.
+			var screen = Screen.FromControl(this);
+			var workingArea = screen.WorkingArea;
+			newWidth = Math.Min(newWidth, workingArea.Width);
+			newHeight = Math.Min(newHeight, workingArea.Height);
+
+			// Lower bound. Don't make it smaller than a fixed value.
+			int minimumFormWidth = 650;
+			int minimumFormHeight = 530;
+			newWidth = Math.Max(minimumFormWidth, newWidth);
+			newHeight = Math.Max(minimumFormHeight, newHeight);
+
+			return new Size(newWidth, newHeight);
+		}
+
+		private Size GetChromeSize()
+			=> Size - panel1.ClientSize;
+
+		/// <summary>
+		/// Compute a size that the form can take without getting out of working area of the screen.
+		/// </summary>
+		private Size GetAvailableScreenSpace() {
+			var screen = Screen.FromControl(this);
+			var screenBounds = screen.Bounds;
+			var workingArea = screen.WorkingArea;
+			if (Left > screenBounds.Left && Top > screenBounds.Top) {
+				return new Size(workingArea.Width - Left, workingArea.Height - Top);
+			} else {
+				return workingArea.Size;
+			}
+		}
+
+		private void ZoomInMenuItemClick(object sender, EventArgs e) {
+			var nextIndex = Array.FindIndex(ZOOM_VALUES, v => v > _zoomValue);
+			var nextValue = nextIndex < 0 ? ZOOM_VALUES[ZOOM_VALUES.Length - 1] : ZOOM_VALUES[nextIndex];
+
+			ZoomSetValue(nextValue);
+		}
+
+		private void ZoomOutMenuItemClick(object sender, EventArgs e) {
+			var nextIndex = Array.FindLastIndex(ZOOM_VALUES, v => v < _zoomValue);
+			var nextValue = nextIndex < 0 ? ZOOM_VALUES[0] : ZOOM_VALUES[nextIndex];
+
+			ZoomSetValue(nextValue);
+		}
+
+		private void ZoomSetValueMenuItemClick(object sender, EventArgs e) {
+			var senderMenuItem = (ToolStripMenuItem)sender;
+			int zoomPercent = int.Parse((string)senderMenuItem.Tag);
+
+			ZoomSetValue(zoomPercent);
+		}
+
+		private void ZoomBestFitMenuItemClick(object sender, EventArgs e) {
+			var maxWindowSize = GetAvailableScreenSpace();
+			var chromeSize = GetChromeSize();
+			var maxImageSize = maxWindowSize - chromeSize;
+			var imageSize = Surface.Image.Size;
+
+			static bool isFit(int zoom, int source, int boundary)
+				=> source * zoom / 100 <= boundary;
+
+			var nextValue = Array.FindLast(
+				ZOOM_VALUES,
+				zoom => isFit(zoom, imageSize.Width, maxImageSize.Width)
+					&& isFit(zoom, imageSize.Height, maxImageSize.Height)
+				);
+
+			ZoomSetValue(nextValue);
+		}
+
+		private void ZoomSetValue(int value) {
+			_zoomValue = value;
+			Surface.ZoomFactor = 1f * value / 100;
+
+			// Update zoom controls
+			string valueString = value.ToString();
+			zoomStatusDropDownBtn.Text = valueString + "%";
+			foreach (var item in zoomMenuStrip.Items) {
+				if (item is ToolStripMenuItem menuItem) {
+					menuItem.Checked = menuItem.Tag as string == valueString;
+				}
+			}
+
+			Size = GetOptimalWindowSize();
+			AlignCanvasPositionAfterResize();
 		}
 	}
 }

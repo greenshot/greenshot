@@ -298,7 +298,7 @@ namespace Greenshot.Drawing
 
 		public virtual void Invalidate() {
 			if (Status != EditStatus.UNDRAWN) {
-				_parent?.Invalidate(DrawingBounds);
+				_parent?.InvalidateElements(DrawingBounds);
 			}
 		}
 

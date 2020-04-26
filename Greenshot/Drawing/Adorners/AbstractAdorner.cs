@@ -117,6 +117,23 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
+		/// Return the bounds of the Adorner as displayed on the parent Surface
+		/// </summary>
+		protected virtual Rectangle SurfaceBounds
+		{
+			get
+			{
+				Point[] points = { Location };
+				var matrix = Owner.Parent.ZoomMatrix;
+				if (!matrix.IsIdentity)
+				{
+					matrix.TransformPoints(points);
+				}
+				return new Rectangle(points[0].X - _size.Width / 2, points[0].Y - _size.Height / 2, _size.Width, _size.Height);
+			}
+		}
+
+		/// <summary>
 		/// The adorner is active if the edit status is not idle or undrawn
 		/// </summary>
 		public virtual bool IsActive

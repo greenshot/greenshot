@@ -286,7 +286,7 @@ namespace Greenshot.Drawing {
 			{
 				region = Rectangle.Union(region, dc.DrawingBounds);
 			}
-			Parent.Invalidate(region);
+			Parent.InvalidateElements(region);
 		}
 		/// <summary>
 		/// Indicates whether the given list of elements can be pulled up, 

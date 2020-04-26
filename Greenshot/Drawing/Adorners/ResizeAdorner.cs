@@ -169,7 +169,7 @@ namespace Greenshot.Drawing.Adorners
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 
-			var bounds = Bounds;
+			var bounds = SurfaceBounds;
 			GraphicsState state = targetGraphics.Save();
 
 			targetGraphics.SmoothingMode = SmoothingMode.None;
