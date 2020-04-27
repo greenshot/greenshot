@@ -991,13 +991,13 @@ namespace Greenshot.Drawing
 			{
 				cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
 			}
-			if (cropRectangle.Left + cropRectangle.Width > Width)
+			if (cropRectangle.Left + cropRectangle.Width > Image.Width)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Width - cropRectangle.Left, cropRectangle.Height);
+				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
 			}
-			if (cropRectangle.Top + cropRectangle.Height > Height)
+			if (cropRectangle.Top + cropRectangle.Height > Image.Height)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Height - cropRectangle.Top);
+				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
 			}
 			if (cropRectangle.Height > 0 && cropRectangle.Width > 0)
 			{
