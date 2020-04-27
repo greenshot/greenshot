@@ -191,8 +191,6 @@ namespace GreenshotPlugin.Interfaces
             get;
             set;
         }
-        int Width { get; }
-        int Height { get; }
 
         /// <summary>
         /// Zoom value applied to the surface. 1.0f for actual size (100%).
