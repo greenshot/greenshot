@@ -428,7 +428,7 @@ namespace Greenshot.Drawing
         /// </summary>
         private void UpdateTextBoxPosition()
         {
-            if (_textBox == null)
+            if (_textBox == null || Parent == null)
             {
                 return;
             }
