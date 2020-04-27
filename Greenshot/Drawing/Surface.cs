@@ -305,6 +305,8 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
 		[NonSerialized]
+		private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
+		[NonSerialized]
 		private float _zoomFactor = 1.0f;
 		public float ZoomFactor
 		{
@@ -313,6 +315,7 @@ namespace Greenshot.Drawing
 			{
 				_zoomFactor = value;
 				_zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
+				_inverseZoomMatrix = new Matrix(1f / _zoomFactor, 0, 0, 1f / _zoomFactor, 0, 0);
 				UpdateSize();
 			}
 		}
@@ -803,9 +806,9 @@ namespace Greenshot.Drawing
 			return cursorContainer;
 		}
 
-		public ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
+		public ITextContainer AddTextContainer(string text, int x, int y, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
 		{
-			TextContainer textContainer = new TextContainer(this) {Text = text};
+			TextContainer textContainer = new TextContainer(this) {Text = text, Left = x, Top = y};
 			textContainer.SetFieldValue(FieldType.FONT_FAMILY, family.Name);
 			textContainer.SetFieldValue(FieldType.FONT_BOLD, bold);
 			textContainer.SetFieldValue(FieldType.FONT_ITALIC, italic);
@@ -816,8 +819,6 @@ namespace Greenshot.Drawing
 			textContainer.SetFieldValue(FieldType.SHADOW, shadow);
 			// Make sure the Text fits
 			textContainer.FitToText();
-			// Align to Surface
-			textContainer.AlignToParent(horizontalAlignment, verticalAlignment);
 
 			//AggregatedProperties.UpdateElement(textContainer);
 			AddElement(textContainer);
@@ -1817,41 +1818,70 @@ namespace Greenshot.Drawing
 			}
 			else if (ClipboardHelper.ContainsImage(clipboard))
 			{
-				int x = 10;
-				int y = 10;
-
-				// FEATURE-995: Added a check for the current mouse cursor location, to paste the image on that location.
-				var mousePositionOnControl = PointToClient(MousePosition);
-				if (ClientRectangle.Contains(mousePositionOnControl))
-				{
-					x = mousePositionOnControl.X;
-					y = mousePositionOnControl.Y;
-				}
+				Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
 				foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
 				{
 					if (clipboardImage != null)
 					{
 						DeselectAllElements();
-						IImageContainer container = AddImageContainer(clipboardImage as Bitmap, x, y);
+						IImageContainer container = AddImageContainer(clipboardImage as Bitmap, pasteLocation.X, pasteLocation.Y);
 						SelectElement(container);
 						clipboardImage.Dispose();
-						x += 10;
-						y += 10;
+						pasteLocation.X += 10;
+						pasteLocation.Y += 10;
 					}
 				}
 			}
 			else if (ClipboardHelper.ContainsText(clipboard))
 			{
+				Point pasteLocation = GetPasteLocation(0.4f, 0.4f);
+
 				string text = ClipboardHelper.GetText(clipboard);
 				if (text != null)
 				{
 					DeselectAllElements();
-					ITextContainer textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.CENTER,
+					ITextContainer textContainer = AddTextContainer(text, pasteLocation.X, pasteLocation.Y,
 						FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Black, Color.Transparent);
 					SelectElement(textContainer);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Find a location to paste elements.
+		/// If mouse is over the surface - use it's position, otherwise use the visible area.
+		/// Return a point in image coordinate space.
+		/// </summary>
+		/// <param name="horizontalRatio">0.0f for the left edge of visible area, 1.0f for the right edge of visible area.</param>
+		/// <param name="verticalRatio">0.0f for the top edge of visible area, 1.0f for the bottom edge of visible area.</param>
+		private Point GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
+		{
+			var point = PointToClient(MousePosition);
+			var rc = GetVisibleRectangle();
+			if (!rc.Contains(point))
+			{
+				point = new Point(
+					rc.Left + (int)(rc.Width * horizontalRatio),
+					rc.Top + (int)(rc.Height * verticalRatio)
+					);
+			}
+			return ToImageCoordinates(point);
+		}
+
+		/// <summary>
+		/// Get the rectangle bounding the part of this Surface currently visible in the editor (in surface coordinate space).
+		/// </summary>
+		private Rectangle GetVisibleRectangle()
+		{
+			var bounds = Bounds;
+			var clientArea = Parent.ClientRectangle;
+			return new Rectangle(
+				Math.Max(0, -bounds.Left),
+				Math.Max(0, -bounds.Top),
+				clientArea.Width,
+				clientArea.Height
+				);
 		}
 
 		/// <summary>
@@ -2127,7 +2157,38 @@ namespace Greenshot.Drawing
 			{
 				Point[] points = { rc.Location, rc.Location + rc.Size };
 				_zoomMatrix.TransformPoints(points);
-				return new Rectangle(points[0].X, points[0].Y, points[1].X - points[0].X, points[1].Y - points[1].Y);
+				return new Rectangle(
+					points[0].X,
+					points[0].Y,
+					points[1].X - points[0].X,
+					points[1].Y - points[0].Y
+					);
+			}
+		}
+
+		public Point ToImageCoordinates(Point point)
+		{
+			Point[] points = { point };
+			_inverseZoomMatrix.TransformPoints(points);
+			return points[0];
+		}
+
+		public Rectangle ToImageCoordinates(Rectangle rc)
+		{
+			if (_inverseZoomMatrix.IsIdentity)
+			{
+				return rc;
+			}
+			else
+			{
+				Point[] points = { rc.Location, rc.Location + rc.Size };
+				_inverseZoomMatrix.TransformPoints(points);
+				return new Rectangle(
+					points[0].X,
+					points[0].Y,
+					points[1].X - points[0].X,
+					points[1].Y - points[0].Y
+					);
 			}
 		}
 	}

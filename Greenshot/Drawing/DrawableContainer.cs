@@ -302,33 +302,6 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-			if (_parent == null)
-			{
-				return;
-			}
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			if (horizontalAlignment == HorizontalAlignment.Left) {
-				Left = lineThickness/2;
-			}
-			if (horizontalAlignment == HorizontalAlignment.Right) {
-				Left = _parent.Width - Width - lineThickness/2;
-			}
-			if (horizontalAlignment == HorizontalAlignment.Center) {
-				Left = (_parent.Width / 2) - (Width / 2) - lineThickness/2;
-			}
-
-			if (verticalAlignment == VerticalAlignment.TOP) {
-				Top = lineThickness/2;
-			}
-			if (verticalAlignment == VerticalAlignment.BOTTOM) {
-				Top = _parent.Height - Height - lineThickness/2;
-			}
-			if (verticalAlignment == VerticalAlignment.CENTER) {
-				Top = (_parent.Height / 2) - (Height / 2) - lineThickness/2;
-			}
-		}
-
 		public virtual bool InitContent() { return true; }
 
 		public virtual void OnDoubleClick() {}
