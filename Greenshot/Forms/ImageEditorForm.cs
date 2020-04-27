@@ -1526,7 +1526,7 @@ namespace Greenshot {
 			var screenBounds = screen.Bounds;
 			var workingArea = screen.WorkingArea;
 			if (Left > screenBounds.Left && Top > screenBounds.Top) {
-				return new Size(workingArea.Width - Left, workingArea.Height - Top);
+				return new Size(workingArea.Right - Left, workingArea.Bottom - Top);
 			} else {
 				return workingArea.Size;
 			}
