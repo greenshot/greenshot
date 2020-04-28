@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -1473,19 +1473,11 @@ namespace Greenshot.Drawing
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
 				if (isZoomedIn)
 				{
-					var state = targetGraphics.Save();
-					targetGraphics.SmoothingMode = SmoothingMode.None;
-					targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-					targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
-					targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
-
-					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-
-					targetGraphics.Restore(state);
+					DrawSharpImage(targetGraphics, _buffer, imageClipRectangle);
 				}
 				else
 				{
-					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+					DrawSmoothImage(targetGraphics, _buffer, imageClipRectangle);
 				}
 				targetGraphics.ResetTransform();
 			}
@@ -1494,7 +1486,7 @@ namespace Greenshot.Drawing
 				DrawBackground(targetGraphics, targetClipRectangle);
 
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
-				targetGraphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				DrawSmoothImage(targetGraphics, Image, imageClipRectangle);
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
 				targetGraphics.ResetTransform();
 			}
@@ -1509,6 +1501,32 @@ namespace Greenshot.Drawing
 					adorner.Paint(paintEventArgs);
 				}
 			}
+		}
+
+		private void DrawSmoothImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+		{
+			var state = targetGraphics.Save();
+			targetGraphics.SmoothingMode = SmoothingMode.HighQuality;
+			targetGraphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+			targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+
+			targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+
+			targetGraphics.Restore(state);
+		}
+
+		private void DrawSharpImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+		{
+			var state = targetGraphics.Save();
+			targetGraphics.SmoothingMode = SmoothingMode.None;
+			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+
+			targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+
+			targetGraphics.Restore(state);
 		}
 
 		private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle)
