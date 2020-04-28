@@ -1406,24 +1406,24 @@ namespace Greenshot.Drawing
 			return GetImage(RenderMode.EXPORT);
 		}
 
-		private static Rectangle ZoomClipRectangle(Rectangle rc, double scale)
-			=> new Rectangle(
+		private static Rectangle ZoomClipRectangle(Rectangle rc, double scale, int inflateAmount = 0)
+		{
+			rc = new Rectangle(
 				(int)(rc.X * scale),
 				(int)(rc.Y * scale),
-				(int)((rc.Width + 1) * scale) + 1, // making sure to redraw enough pixels when moving scaled image
-				(int)((rc.Height + 1) * scale) + 1
+				(int)(rc.Width * scale) + 1,
+				(int)(rc.Height * scale) + 1
 				);
-
-		private static RectangleF ZoomClipRectangle(RectangleF rc, double scale)
-			=> new RectangleF(
-				(float)Math.Floor(rc.X * scale),
-				(float)Math.Floor(rc.Y * scale),
-				(float)Math.Ceiling(rc.Width * scale),
-				(float)Math.Ceiling(rc.Height * scale)
-				);
+			if (scale > 1)
+			{
+				inflateAmount = (int)(inflateAmount * scale);
+			}
+			rc.Inflate(inflateAmount, inflateAmount);
+			return rc;
+		}
 
 		public void InvalidateElements(Rectangle rc)
-			=> Invalidate(ZoomClipRectangle(rc, _zoomFactor));
+			=> Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
 
 		/// <summary>
 		/// This is the event handler for the Paint Event, try to draw as little as possible!
@@ -1439,7 +1439,7 @@ namespace Greenshot.Drawing
 				LOG.Debug("Empty cliprectangle??");
 				return;
 			}
-			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, 1.0 / _zoomFactor);
+			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, 1.0 / _zoomFactor, 2);
 
 			bool isZoomedIn = ZoomFactor > 1f;
 			if (_elements.HasIntersectingFilters(imageClipRectangle) || isZoomedIn)
@@ -1467,7 +1467,7 @@ namespace Greenshot.Drawing
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					DrawBackground(graphics, imageClipRectangle);
 					graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-					graphics.SetClip(ZoomClipRectangle(targetGraphics.ClipBounds, 1.0 / _zoomFactor));
+					graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), 1.0 / _zoomFactor, 2));
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
