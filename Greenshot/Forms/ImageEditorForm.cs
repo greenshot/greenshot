@@ -1572,8 +1572,24 @@ namespace Greenshot {
 		}
 
 		private void ZoomSetValue(int value) {
+			var surface = Surface as Surface;
+			var panel = surface?.Parent as Panel;
+			if (panel == null)
+			{
+				return;
+			}
+
+			// Store old scroll position
+			var rc = surface.GetVisibleRectangle();
+			var size = surface.Size;
+			var horizontalCenter = 1.0 * (rc.Left + rc.Width / 2) / size.Width;
+			var verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
+
+			// Set the new zoom value
 			_zoomValue = value;
 			Surface.ZoomFactor = 1f * value / 100;
+			Size = GetOptimalWindowSize();
+			AlignCanvasPositionAfterResize();
 
 			// Update zoom controls
 			string valueString = value.ToString();
@@ -1584,8 +1600,13 @@ namespace Greenshot {
 				}
 			}
 
-			Size = GetOptimalWindowSize();
-			AlignCanvasPositionAfterResize();
+			// Restore scroll position
+			rc = surface.GetVisibleRectangle();
+			size = surface.Size;
+			panel.AutoScrollPosition = new Point(
+				(int)(horizontalCenter * size.Width) - rc.Width / 2,
+				(int)(verticalCenter * size.Height) - rc.Height / 2
+				);
 		}
 	}
 }

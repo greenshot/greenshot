@@ -1890,7 +1890,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Get the rectangle bounding the part of this Surface currently visible in the editor (in surface coordinate space).
 		/// </summary>
-		private Rectangle GetVisibleRectangle()
+		public Rectangle GetVisibleRectangle()
 		{
 			var bounds = Bounds;
 			var clientArea = Parent.ClientRectangle;
