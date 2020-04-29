@@ -1562,11 +1562,12 @@ namespace Greenshot {
 			static bool isFit(int zoom, int source, int boundary)
 				=> source * zoom / 100 <= boundary;
 
-			var nextValue = Array.FindLast(
+			var nextIndex = Array.FindLastIndex(
 				ZOOM_VALUES,
 				zoom => isFit(zoom, imageSize.Width, maxImageSize.Width)
 					&& isFit(zoom, imageSize.Height, maxImageSize.Height)
 				);
+			var nextValue = nextIndex < 0 ? ZOOM_VALUES[0] : ZOOM_VALUES[nextIndex];
 
 			ZoomSetValue(nextValue);
 		}
