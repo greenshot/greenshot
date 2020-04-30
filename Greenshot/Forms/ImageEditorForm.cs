@@ -1581,10 +1581,19 @@ namespace Greenshot {
 			}
 
 			// Store old scroll position
+			// When no scroll is currently needed - prefer top left corner.
+			var horizontalCenter = 0.0;
+			var verticalCenter = 0.0;
 			var rc = surface.GetVisibleRectangle();
 			var size = surface.Size;
-			var horizontalCenter = 1.0 * (rc.Left + rc.Width / 2) / size.Width;
-			var verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
+			if (size.Width > rc.Width)
+			{
+				horizontalCenter = 1.0 * (rc.Left + rc.Width / 2) / size.Width;
+			}
+			if (size.Height > rc.Height)
+			{
+				verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
+			}
 
 			// Set the new zoom value
 			_zoomValue = value;
