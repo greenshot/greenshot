@@ -1440,6 +1440,25 @@ namespace Greenshot.Drawing
 				LOG.Debug("Empty cliprectangle??");
 				return;
 			}
+
+			// Correction to prevent rounding errors at certain zoom levels.
+			// When zooming to N/M, clip rectangle top and left coordinates should be multiples of N.
+			if (_zoomFactor.Numerator > 1 && _zoomFactor.Denominator > 1)
+			{
+				int horizontalCorrection = targetClipRectangle.Left % (int)_zoomFactor.Numerator;
+				int verticalCorrection = targetClipRectangle.Top % (int)_zoomFactor.Numerator;
+				if (horizontalCorrection != 0)
+				{
+					targetClipRectangle.X -= horizontalCorrection;
+					targetClipRectangle.Width += horizontalCorrection;
+				}
+				if (verticalCorrection != 0)
+				{
+					targetClipRectangle.Y -= verticalCorrection;
+					targetClipRectangle.Height += verticalCorrection;
+				}
+			}
+
 			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
 
 			bool isZoomedIn = _zoomFactor > Fraction.Identity;
