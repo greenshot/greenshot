@@ -69,8 +69,7 @@ namespace Greenshot {
 		/// <summary>
 		/// All provided zoom values (in percents) in ascending order.
 		/// </summary>
-		private readonly int[] ZOOM_VALUES = new[] { 25, 50, 66, 75, 100, 200, 300, 400, 600 };
-		private int _zoomValue = 100;
+		private readonly Fraction[] ZOOM_VALUES = new Fraction[] { (1, 4), (1, 2), (2, 3), (3, 4), (1 ,1), (2, 1), (3, 1), (4, 1), (6, 1) };
 
 		/// <summary>
 		/// An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
@@ -1533,14 +1532,16 @@ namespace Greenshot {
 		}
 
 		private void ZoomInMenuItemClick(object sender, EventArgs e) {
-			var nextIndex = Array.FindIndex(ZOOM_VALUES, v => v > _zoomValue);
+			var zoomValue = Surface.ZoomFactor;
+			var nextIndex = Array.FindIndex(ZOOM_VALUES, v => v > zoomValue);
 			var nextValue = nextIndex < 0 ? ZOOM_VALUES[ZOOM_VALUES.Length - 1] : ZOOM_VALUES[nextIndex];
 
 			ZoomSetValue(nextValue);
 		}
 
 		private void ZoomOutMenuItemClick(object sender, EventArgs e) {
-			var nextIndex = Array.FindLastIndex(ZOOM_VALUES, v => v < _zoomValue);
+			var zoomValue = Surface.ZoomFactor;
+			var nextIndex = Array.FindLastIndex(ZOOM_VALUES, v => v < zoomValue);
 			var nextValue = nextIndex < 0 ? ZOOM_VALUES[0] : ZOOM_VALUES[nextIndex];
 
 			ZoomSetValue(nextValue);
@@ -1548,7 +1549,7 @@ namespace Greenshot {
 
 		private void ZoomSetValueMenuItemClick(object sender, EventArgs e) {
 			var senderMenuItem = (ToolStripMenuItem)sender;
-			int zoomPercent = int.Parse((string)senderMenuItem.Tag);
+			var zoomPercent = Fraction.Parse((string)senderMenuItem.Tag);
 
 			ZoomSetValue(zoomPercent);
 		}
@@ -1559,8 +1560,8 @@ namespace Greenshot {
 			var maxImageSize = maxWindowSize - chromeSize;
 			var imageSize = Surface.Image.Size;
 
-			static bool isFit(int zoom, int source, int boundary)
-				=> source * zoom / 100 <= boundary;
+			static bool isFit(Fraction scale, int source, int boundary)
+				=> (int)(source * scale) <= boundary;
 
 			var nextIndex = Array.FindLastIndex(
 				ZOOM_VALUES,
@@ -1572,7 +1573,7 @@ namespace Greenshot {
 			ZoomSetValue(nextValue);
 		}
 
-		private void ZoomSetValue(int value) {
+		private void ZoomSetValue(Fraction value) {
 			var surface = Surface as Surface;
 			var panel = surface?.Parent as Panel;
 			if (panel == null)
@@ -1596,14 +1597,13 @@ namespace Greenshot {
 			}
 
 			// Set the new zoom value
-			_zoomValue = value;
-			Surface.ZoomFactor = 1f * value / 100;
+			Surface.ZoomFactor = value;
 			Size = GetOptimalWindowSize();
 			AlignCanvasPositionAfterResize();
 
 			// Update zoom controls
-			string valueString = value.ToString();
-			zoomStatusDropDownBtn.Text = valueString + "%";
+			zoomStatusDropDownBtn.Text = ((int)(100 * (double)value)).ToString() + "%";
+			var valueString = value.ToString();
 			foreach (var item in zoomMenuStrip.Items) {
 				if (item is ToolStripMenuItem menuItem) {
 					menuItem.Checked = menuItem.Tag as string == valueString;

@@ -1718,7 +1718,7 @@ namespace Greenshot {
 			// 
 			this.zoom25MenuItem.Name = "zoom25MenuItem";
 			this.zoom25MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom25MenuItem.Tag = "25";
+			this.zoom25MenuItem.Tag = "1/4";
 			this.zoom25MenuItem.Text = "25%";
 			this.zoom25MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1726,7 +1726,7 @@ namespace Greenshot {
 			// 
 			this.zoom50MenuItem.Name = "zoom50MenuItem";
 			this.zoom50MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom50MenuItem.Tag = "50";
+			this.zoom50MenuItem.Tag = "1/2";
 			this.zoom50MenuItem.Text = "50%";
 			this.zoom50MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1734,7 +1734,7 @@ namespace Greenshot {
 			// 
 			this.zoom66MenuItem.Name = "zoom66MenuItem";
 			this.zoom66MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom66MenuItem.Tag = "66";
+			this.zoom66MenuItem.Tag = "2/3";
 			this.zoom66MenuItem.Text = "66%";
 			this.zoom66MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1742,7 +1742,7 @@ namespace Greenshot {
 			// 
 			this.zoom75MenuItem.Name = "zoom75MenuItem";
 			this.zoom75MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom75MenuItem.Tag = "75";
+			this.zoom75MenuItem.Tag = "3/4";
 			this.zoom75MenuItem.Text = "75%";
 			this.zoom75MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1757,7 +1757,7 @@ namespace Greenshot {
 			this.zoomActualSizeMenuItem.Name = "zoomActualSizeMenuItem";
 			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+0";
 			this.zoomActualSizeMenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoomActualSizeMenuItem.Tag = "100";
+			this.zoomActualSizeMenuItem.Tag = "1/1";
 			this.zoomActualSizeMenuItem.Text = "100% - Actual Size";
 			this.zoomActualSizeMenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1770,7 +1770,7 @@ namespace Greenshot {
 			// 
 			this.zoom200MenuItem.Name = "zoom200MenuItem";
 			this.zoom200MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom200MenuItem.Tag = "200";
+			this.zoom200MenuItem.Tag = "2/1";
 			this.zoom200MenuItem.Text = "200%";
 			this.zoom200MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1778,7 +1778,7 @@ namespace Greenshot {
 			// 
 			this.zoom300MenuItem.Name = "zoom300MenuItem";
 			this.zoom300MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom300MenuItem.Tag = "300";
+			this.zoom300MenuItem.Tag = "3/1";
 			this.zoom300MenuItem.Text = "300%";
 			this.zoom300MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1786,7 +1786,7 @@ namespace Greenshot {
 			// 
 			this.zoom400MenuItem.Name = "zoom400MenuItem";
 			this.zoom400MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom400MenuItem.Tag = "400";
+			this.zoom400MenuItem.Tag = "4/1";
 			this.zoom400MenuItem.Text = "400%";
 			this.zoom400MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
@@ -1794,7 +1794,7 @@ namespace Greenshot {
 			// 
 			this.zoom600MenuItem.Name = "zoom600MenuItem";
 			this.zoom600MenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoom600MenuItem.Tag = "600";
+			this.zoom600MenuItem.Tag = "6/1";
 			this.zoom600MenuItem.Text = "600%";
 			this.zoom600MenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 

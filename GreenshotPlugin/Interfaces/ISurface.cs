@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -193,9 +194,9 @@ namespace GreenshotPlugin.Interfaces
         }
 
         /// <summary>
-        /// Zoom value applied to the surface. 1.0f for actual size (100%).
+        /// Zoom value applied to the surface.
         /// </summary>
-        float ZoomFactor { get; set; }
+        Fraction ZoomFactor { get; set; }
         /// <summary>
         /// Translate a point from image coorditate space to surface coordinate space.
         /// </summary>

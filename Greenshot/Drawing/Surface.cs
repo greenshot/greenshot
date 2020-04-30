@@ -307,15 +307,16 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
 		[NonSerialized]
-		private float _zoomFactor = 1.0f;
-		public float ZoomFactor
+		private Fraction _zoomFactor = Fraction.Identity;
+		public Fraction ZoomFactor
 		{
 			get => _zoomFactor;
 			set
 			{
 				_zoomFactor = value;
+				var inverse = _zoomFactor.Inverse();
 				_zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
-				_inverseZoomMatrix = new Matrix(1f / _zoomFactor, 0, 0, 1f / _zoomFactor, 0, 0);
+				_inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
 				UpdateSize();
 			}
 		}
@@ -1439,9 +1440,9 @@ namespace Greenshot.Drawing
 				LOG.Debug("Empty cliprectangle??");
 				return;
 			}
-			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, 1.0 / _zoomFactor, 2);
+			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
 
-			bool isZoomedIn = ZoomFactor > 1f;
+			bool isZoomedIn = _zoomFactor > Fraction.Identity;
 			if (_elements.HasIntersectingFilters(imageClipRectangle) || isZoomedIn)
 			{
 				if (_buffer != null)
@@ -1467,7 +1468,7 @@ namespace Greenshot.Drawing
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					DrawBackground(graphics, imageClipRectangle);
 					graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-					graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), 1.0 / _zoomFactor, 2));
+					graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
