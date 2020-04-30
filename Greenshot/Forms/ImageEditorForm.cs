@@ -1549,9 +1549,9 @@ namespace Greenshot {
 
 		private void ZoomSetValueMenuItemClick(object sender, EventArgs e) {
 			var senderMenuItem = (ToolStripMenuItem)sender;
-			var zoomPercent = Fraction.Parse((string)senderMenuItem.Tag);
+			var nextValue = Fraction.Parse((string)senderMenuItem.Tag);
 
-			ZoomSetValue(zoomPercent);
+			ZoomSetValue(nextValue);
 		}
 
 		private void ZoomBestFitMenuItemClick(object sender, EventArgs e) {
