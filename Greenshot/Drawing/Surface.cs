@@ -1461,8 +1461,7 @@ namespace Greenshot.Drawing
 
 			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
 
-			bool isZoomedIn = _zoomFactor > Fraction.Identity;
-			if (_elements.HasIntersectingFilters(imageClipRectangle) || isZoomedIn)
+			if (_elements.HasIntersectingFilters(imageClipRectangle) || _zoomFactor > Fraction.Identity)
 			{
 				if (_buffer != null)
 				{
@@ -1491,7 +1490,11 @@ namespace Greenshot.Drawing
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
-				if (isZoomedIn)
+				if (_zoomFactor == Fraction.Identity)
+				{
+					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				}
+				else if(_zoomFactor > Fraction.Identity)
 				{
 					DrawSharpImage(targetGraphics, _buffer, imageClipRectangle);
 				}
@@ -1506,7 +1509,14 @@ namespace Greenshot.Drawing
 				DrawBackground(targetGraphics, targetClipRectangle);
 
 				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
-				DrawSmoothImage(targetGraphics, Image, imageClipRectangle);
+				if (_zoomFactor == Fraction.Identity)
+				{
+					targetGraphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				}
+				else
+				{
+					DrawSmoothImage(targetGraphics, Image, imageClipRectangle);
+				}
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
 				targetGraphics.ResetTransform();
 			}
