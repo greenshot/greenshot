@@ -1489,36 +1489,39 @@ namespace Greenshot.Drawing
 					graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
-				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
 				if (_zoomFactor == Fraction.Identity)
 				{
 					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
 				}
-				else if(_zoomFactor > Fraction.Identity)
-				{
-					DrawSharpImage(targetGraphics, _buffer, imageClipRectangle);
-				}
 				else
 				{
-					DrawSmoothImage(targetGraphics, _buffer, imageClipRectangle);
+					targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
+					if (_zoomFactor > Fraction.Identity)
+					{
+						DrawSharpImage(targetGraphics, _buffer, imageClipRectangle);
+					}
+					else
+					{
+						DrawSmoothImage(targetGraphics, _buffer, imageClipRectangle);
+					}
+					targetGraphics.ResetTransform();
 				}
-				targetGraphics.ResetTransform();
 			}
 			else
 			{
 				DrawBackground(targetGraphics, targetClipRectangle);
-
-				targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
 				if (_zoomFactor == Fraction.Identity)
 				{
 					targetGraphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+					_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
 				}
 				else
 				{
+					targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
 					DrawSmoothImage(targetGraphics, Image, imageClipRectangle);
+					_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
+					targetGraphics.ResetTransform();
 				}
-				_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
-				targetGraphics.ResetTransform();
 			}
 
 			// No clipping for the adorners
