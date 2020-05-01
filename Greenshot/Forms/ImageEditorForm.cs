@@ -1590,10 +1590,11 @@ namespace Greenshot {
 			var size = surface.Size;
 			if (value > Surface.ZoomFactor) // being smart on zoom-in
 			{
-				var sel = surface.GetSelectionRectangle();
-				if (sel != Rectangle.Empty)
+				var selection = surface.GetSelectionRectangle();
+				selection.Intersect(rc);
+				if (selection != Rectangle.Empty)
 				{
-					rc.Intersect(sel); // zoom to visible part of selection
+					rc = selection; // zoom to visible part of selection
 				}
 				else
 				{
