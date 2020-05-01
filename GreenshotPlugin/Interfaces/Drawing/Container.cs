@@ -145,6 +145,10 @@ namespace GreenshotPlugin.Interfaces.Drawing
 			get;
 			set;
 		}
+		Rectangle DrawingBounds
+		{
+			get;
+		}
 		void MakeBoundsChangeUndoable(bool allowMerge);
 		void Transform(Matrix matrix);
 		void MoveBy(int dx, int dy);

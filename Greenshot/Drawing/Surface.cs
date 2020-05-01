@@ -1923,6 +1923,13 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
+		/// Get the rectangle bounding all selected elements (in surface coordinates space),
+		/// or empty rectangle if nothing is selcted.
+		/// </summary>
+		public Rectangle GetSelectionRectangle()
+			=> ToSurfaceCoordinates(selectedElements.DrawingBounds);
+
+		/// <summary>
 		/// Duplicate all the selecteded elements
 		/// </summary>
 		public void DuplicateSelectedElements()

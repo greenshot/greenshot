@@ -1580,21 +1580,37 @@ namespace Greenshot {
 			{
 				return;
 			}
+			if (value == Surface.ZoomFactor)
+			{
+				return;
+			}
 
-			// Store old scroll position
-			// When no scroll is currently needed - prefer top left corner.
-			var horizontalCenter = 0.0;
-			var verticalCenter = 0.0;
-			var rc = surface.GetVisibleRectangle();
+			// Store scroll position
+			var rc = surface.GetVisibleRectangle(); // use visible rc by default
 			var size = surface.Size;
-			if (size.Width > rc.Width)
+			if (value > Surface.ZoomFactor) // being smart on zoom-in
 			{
-				horizontalCenter = 1.0 * (rc.Left + rc.Width / 2) / size.Width;
+				var sel = surface.GetSelectionRectangle();
+				if (sel != Rectangle.Empty)
+				{
+					rc.Intersect(sel); // zoom to visible part of selection
+				}
+				else
+				{
+					// if image fits completely to currently visible rc and there are no things to focus on
+					// - prefer top left corner to zoom-in as less disorienting for screenshots
+					if (size.Width < rc.Width)
+					{
+						rc.Width = 0;
+					}
+					if (size.Height < rc.Height)
+					{
+						rc.Height = 0;
+					}
+				}
 			}
-			if (size.Height > rc.Height)
-			{
-				verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
-			}
+			var horizontalCenter = 1.0 * (rc.Left + rc.Width / 2) / size.Width;
+			var verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
 
 			// Set the new zoom value
 			Surface.ZoomFactor = value;

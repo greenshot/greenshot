@@ -236,6 +236,30 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
+		/// A rectangle containing DrawingBounds of all drawableContainers in this list,
+		/// or empty rectangle if nothing is there.
+		/// </summary>
+		public Rectangle DrawingBounds
+		{
+			get
+			{
+				if (Count == 0)
+				{
+					return Rectangle.Empty;
+				}
+				else
+				{
+					var result = this[0].DrawingBounds;
+					for (int i = 1; i < Count; i++)
+					{
+						result = Rectangle.Union(result, this[i].DrawingBounds);
+					}
+					return result;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Triggers all elements in the list ot be redrawn.
 		/// </summary>
 		/// <param name="g">the to the bitmap related Graphics object</param>
