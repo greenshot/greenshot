@@ -14,7 +14,7 @@ Detaillierte Informationen zur GNU General Public License:</resource>
 		<resource name="bugreport_info">Tut uns leid, ein unerwarteter Fehler ist aufgetreten.
 Die gute Nachricht ist: Sie können uns helfen, ihn zu beseitigen, indem Sie uns einen Fehlerbericht zukommen lassen.
 Besuchen Sie die unten stehende URL und erstellen Sie einen neuen Fehlerbericht.
-Bitte geben Sie eine aussgekräftige Zusammenfassung an, fügen Sie den Inhalt des Textfelds in die Beschreibung ein, und ergänzen Sie diese mit zusätzlichen
+Bitte geben Sie eine aussagekräftige Zusammenfassung an, fügen Sie den Inhalt des Textfelds in die Beschreibung ein, und ergänzen Sie diese mit zusätzlichen
 Informationen, die für das Nachvollziehen des Fehlers hilfreich sein könnten.
 Wir wären sehr dankbar, wenn Sie vorher prüfen würden, ob dieser Fehler schon gemeldet wurde - nutzen Sie einfach die Suche, um bestehende Fehlerberichte
 schnell zu finden. Vielen Dank :)</resource>
@@ -161,12 +161,12 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="error_multipleinstances">Greenshot läuft bereits.</resource>
 		<resource name="error_nowriteaccess">Konnte Datei nicht nach {0} speichern.
 Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicherort.</resource>
-		<resource name="error_openfile">Die Datei "{0}" konnte nicht geöffnet werden.</resource>
+		<resource name="error_openfile">Die Datei '{0}' konnte nicht geöffnet werden.</resource>
 		<resource name="error_openlink">Konnte Link '{0}' nicht öffnen.</resource>
 		<resource name="error_save">Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.</resource>
     <resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateiname-Muster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
-		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder erstellen bei weniger als 256 Farben</resource>
+		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder bei weniger als 256 Farben erstellen</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateiname-Muster</resource>
@@ -178,7 +178,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="expertsettings_suppresssavedialogatclose">Speichern-Dialog beim Schließen des Editors unterdrücken</resource>
 		<resource name="expertsettings_thumbnailpreview">Fenster-Vorschau im Kontextmenü anzeigen (für Vista und Windows 7)</resource>
 		<resource name="exported_to">Exportiert nach: {0}</resource>
-		<resource name="exported_to_error">Beim Export zu {0} ist ein Fehler aufgetreten:</resource>
+		<resource name="exported_to_error">Beim Export nach {0} ist ein Fehler aufgetreten:</resource>
 		<resource name="help_title">Greenshot - Hilfe</resource>
 		<resource name="hotkeys">Tastenkombinationen</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG-Bildes.</resource>
@@ -194,7 +194,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="printoptions_layout">Layout-Einstellungen</resource>
 		<resource name="printoptions_printcolor">Farbdruck</resource>
 		<resource name="printoptions_printgrayscale">Nur in Graustufen ausdrucken</resource>
-		<resource name="printoptions_printmonochrome">Schwarzweiß-Druck erzwingen</resource>
+		<resource name="printoptions_printmonochrome">Schwarz-Weiß-Druck erzwingen</resource>
 		<resource name="printoptions_timestamp">Datum und Uhrzeit am Ende der Seite einfügen</resource>
 		<resource name="printoptions_title">Greenshot - Druckeinstellungen</resource>
 		<resource name="qualitydialog_dontaskagain">Als Standardqualität speichern und nicht wieder fragen</resource>
@@ -206,16 +206,16 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_autostartshortcut">Greenshot mit Windows starten</resource>
 		<resource name="settings_capture">Abfotografieren</resource>
 		<resource name="settings_capture_mousepointer">Mauszeiger mitfotografieren</resource>
-		<resource name="settings_capture_windows_interactive">Fenster-Teile einzeln abfotografieren</resource>
+		<resource name="settings_capture_windows_interactive">Fensterteile einzeln abfotografieren</resource>
 		<resource name="settings_checkperiod">Prüfen auf Updates alle X Tage (0=keine Prüfung)</resource>
-		<resource name="settings_configureplugin">Konfigurieren</resource>
+		<resource name="settings_configureplugin">Konfigurieren...</resource>
 		<resource name="settings_copypathtoclipboard">Dateipfad in die Zwischenablage kopieren, wenn ein Bild gespeichert wird</resource>
 		<resource name="settings_destination">Ziele</resource>
 		<resource name="settings_destination_clipboard">In Zwischenablage kopieren</resource>
 		<resource name="settings_destination_editor">Im Greenshot-Editor öffnen</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Sofort speichern</resource>
-		<resource name="settings_destination_fileas">Speichern unter (mit Dialog)</resource>
+		<resource name="settings_destination_fileas">Speichern unter... (mit Dialog)</resource>
 		<resource name="settings_destination_picker">Ziel dynamisch auswählen</resource>
 		<resource name="settings_destination_printer">An Drucker senden</resource>
 		<resource name="settings_editor">Editor</resource>
@@ -238,7 +238,7 @@ ${domain} Windows-Domäne
 ${hostname} Computername
 
 Greenshot kann auch Verzeichnisse dynamisch erstellen.
-Verwenden Sie das Backslash-Symbol \ um Verzeichnisse vom Dateinamen zu trennen.
+Verwenden Sie den Backslash \ um Verzeichnisse vom Dateinamen zu trennen.
 Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format, mit der vorgegebenen Dateiendung ab.
 z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
@@ -264,22 +264,21 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_tooltip_filenamepattern">Muster, das beim Speichern von Screenshots zum Generieren von Dateinamen verwendet wird</resource>
 		<resource name="settings_tooltip_language">Sprache der Benutzeroberfläche</resource>
 		<resource name="settings_tooltip_primaryimageformat">Standard-Bildformat</resource>
-		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Drucken, Strg + Drucken, Alt + Drucken beim Betriebssystem zur globalen
-Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
+		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Druck, Strg + Druck, Alt + Druck beim Betriebssystem zur globalen Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
 		<resource name="settings_tooltip_storagelocation">Standardpfad für Bildschirmausdrucke. Leer lassen für Desktop.</resource>
 		<resource name="settings_usedefaultproxy">Standard-Proxyserver des Betriebssystems verwenden</resource>
 		<resource name="settings_visualization">Effekte</resource>
-		<resource name="settings_waittime">Millisekunden warten vor abfotografieren</resource>
-		<resource name="settings_window_capture_mode">Fenster abfotografier Modus</resource>
+		<resource name="settings_waittime">Millisekunden vor dem Abfotografieren warten</resource>
+		<resource name="settings_window_capture_mode">Abfotografiermodus-Fenster</resource>
 		<resource name="settings_windowscapture">Fenster abfotografieren</resource>
 		<resource name="settings_zoom">Lupe anzeigen</resource>
-		<resource name="tooltip_firststart">Klicken Sie hier mit der rechten Maustaste oder drücken Sie die {0} Taste.</resource>
-		<resource name="update_found">Eine neuere Greenshot Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
+		<resource name="tooltip_firststart">Klicken Sie hier mit der rechten Maustaste oder drücken Sie die Taste {0}.</resource>
+		<resource name="update_found">Eine neuere Greenshot-Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
 		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
 		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
 Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1} reserviert.
-Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
+Sie können die Tastenkombination für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
 		<resource name="WindowCaptureMode.Aero">Benutzerdefinierte Farbe verwenden</resource>
