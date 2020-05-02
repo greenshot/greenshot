@@ -147,12 +147,13 @@ namespace Greenshot.Drawing.Adorners
 
 			targetGraphics.SmoothingMode = SmoothingMode.None;
 			targetGraphics.CompositingMode = CompositingMode.SourceCopy;
-			targetGraphics.PixelOffsetMode = PixelOffsetMode.Half;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
 			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
 			try
 			{
-				targetGraphics.FillRectangle(Brushes.Black, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+				targetGraphics.FillRectangle(Brushes.Black, bounds);
+				targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
 			}
 			catch
 			{
