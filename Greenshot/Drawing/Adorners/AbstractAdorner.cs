@@ -32,7 +32,7 @@ namespace Greenshot.Drawing.Adorners
 	{
 		public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-		private static readonly Size defaultSize = new Size(4, 4);
+		private static readonly Size defaultSize = new Size(6, 6);
 		protected Size _size = defaultSize;
 
 		public AbstractAdorner(IDrawableContainer owner)
