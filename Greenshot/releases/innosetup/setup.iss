@@ -1,4 +1,4 @@
-﻿#define ExeName "Greenshot"
+#define ExeName "Greenshot"
 #define Version GetEnv('BuildVersionSimple')
 #define FileVersion GetEnv('AssemblyInformationalVersion')
 #define BaseDir "..\..\.."
@@ -203,6 +203,7 @@ Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: lt; MessagesFile: Languages\Latvian.isl
 Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
+Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: Languages\Swedish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
@@ -314,6 +315,19 @@ nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
 nn.win10=Windows 10 Tillegg
+
+ru.confluence=Плагин Confluence
+ru.default=${default}
+ru.office=Плагин Microsoft Office
+ru.externalcommand=Открыть с плагином с помощью внешней команды
+ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
+ru.jira=Плагин Jira
+ru.language=Дополнительные языки
+ru.ocr=Плагин OCR (требуется Microsoft Office Document Imaging (MODI))
+ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
+ru.startgreenshot=Запустить {#ExeName}
+ru.startup=Запускать {#ExeName} при старте Windows
+ru.win10=Плагин Windows 10
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
