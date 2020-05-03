@@ -1,4 +1,4 @@
-#define ExeName "Greenshot"
+﻿#define ExeName "Greenshot"
 #define Version GetEnv('BuildVersionSimple')
 #define FileVersion GetEnv('AssemblyInformationalVersion')
 #define BaseDir "..\..\.."
@@ -215,7 +215,7 @@ Name: startup; Description: {cm:startup}
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
-en.office=Microsoft Office Plug-in
+de.office=Microsoft Office Plug-in
 de.externalcommand=Externes Kommando Plug-in
 de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
 de.jira=Jira Plug-in
