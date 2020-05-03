@@ -35,8 +35,8 @@ namespace Greenshot.Drawing.Fields.Binding {
 		}
 		
 		protected override int convert(decimal o) {
-			return Convert.ToInt16(o);
-		}
+			return Convert.ToInt32(o);
+        }
 		
 		public static DecimalIntConverter GetInstance()
         {
