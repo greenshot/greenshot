@@ -2,6 +2,7 @@
 <language description="Russian" ietf="ru-RU" version="1.0.0" languagegroup="1">
 	<resources>
 		<resource name="confluence">Плагин Confluence</resource>
+		<resource name="office">Плагин Microsoft Office</resource>
 		<resource name="externalcommand">Открыть с плагином с помощью внешней команды</resource>
 		<resource name="imgur">Плагин Imgur (смотрите https://imgur.com/)</resource>
 		<resource name="jira">Плагин Jira</resource>
