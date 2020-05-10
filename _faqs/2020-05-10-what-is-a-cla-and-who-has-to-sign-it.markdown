@@ -2,7 +2,7 @@
 layout: faq
 status: publish
 published: true
-title: What is a CLA - and who has to sign it?
+title: What is a Contributor License Agreement (CLA) - and who has to sign it?
 tags: []
  
 ---
