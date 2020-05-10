@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core
         public static bool IsWindows7OrLater { get; } = WinVersion.Major == 6 && WinVersion.Minor >= 1 || WinVersion.Major > 6;
 
         public static bool IsWindows7OrLower { get; } = WinVersionTotal <= 6.1;
-        
+
         /// <summary>
         ///     Test if the current OS is Windows 8.0
         /// </summary>
@@ -101,6 +101,11 @@ namespace GreenshotPlugin.Core
         /// </summary>
         /// <returns>true if we are running on Windows XP or later</returns>
         public static bool IsWindowsXpOrLater { get; } = WinVersion.Major >= 5 || WinVersion.Major == 5 && WinVersion.Minor >= 1;
+
+        /// <summary>
+        /// Returns the windows build number
+        /// </summary>
+        public static int BuildVersion => WinVersion.Build;
 
         /// <summary>
         ///     Test if the current Windows version is 10 and the build number or later

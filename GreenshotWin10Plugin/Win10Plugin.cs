@@ -35,7 +35,9 @@ namespace GreenshotWin10Plugin
 	[Plugin("Win10", false)]
 	public sealed class Win10Plugin : IGreenshotPlugin
 	{
-		public void Dispose()
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10Plugin));
+
+        public void Dispose()
 		{
 			Dispose(true);
 		}
@@ -58,8 +60,10 @@ namespace GreenshotWin10Plugin
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public bool Initialize()
 		{
-            if (!WindowsVersion.IsWindows10OrLater)
+			// Here we check if the build version of Windows is actually what we support
+            if (!WindowsVersion.IsWindows10BuildOrLater(17763))
             {
+				Log.WarnFormat("No support for Windows build {0}", WindowsVersion.BuildVersion);
                 return false;
             }
 
