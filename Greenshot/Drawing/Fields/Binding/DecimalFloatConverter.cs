@@ -35,13 +35,13 @@ namespace Greenshot.Drawing.Fields.Binding {
 		}
 		
 		protected override float convert(decimal o) {
-			return Convert.ToInt16(o);
+			return Convert.ToSingle(o);
 		}
 		
 		public static DecimalFloatConverter GetInstance()
-        {
-            return _uniqueInstance ??= new DecimalFloatConverter();
-        }
+		{
+			return _uniqueInstance ??= new DecimalFloatConverter();
+		}
 		
 	}
 }

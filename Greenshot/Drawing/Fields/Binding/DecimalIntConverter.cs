@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -35,13 +35,13 @@ namespace Greenshot.Drawing.Fields.Binding {
 		}
 		
 		protected override int convert(decimal o) {
-			return Convert.ToInt16(o);
+			return Convert.ToInt32(o);
 		}
 		
 		public static DecimalIntConverter GetInstance()
-        {
-            return _uniqueInstance ??= new DecimalIntConverter();
-        }
+		{
+			return _uniqueInstance ??= new DecimalIntConverter();
+		}
 		
 	}
 }
