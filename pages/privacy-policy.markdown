@@ -53,7 +53,7 @@ Third party vendors, including Google, use cookies to serve ads based on a user'
 You can opt-out of personalized advertising in [Google's Ad Settings]\
 See also [Google's Privacy Policy]
 
-## Our Application
+## Our Applications
 
 ### Greenshot for Windows
 Our Windows application does not send any data to our or any other servers as long as you not explicitely initiate it or configure Greenshot to do so, with a single exception:
@@ -67,6 +67,10 @@ Several plugins available for Greenshot allow to conveniently upload screenshots
 ### Greenshot for Mac
 Our Mac application does not send any data to our or any other servers.
 
+## Your Contribitions
+If you want to contribute code (or anything else that might be subject to copyright) to our repository we ask you to sign a Contributor License Agreement (CLA), like many other open source projects. Your signature will be stored in [CLAassistant] by SAP SE.
+See also: [CLAassistant's Terms of Service & Privacy Policy]
+
 [Github's Privacy Statement]: https://help.github.com/articles/github-privacy-statement/
 [Cloudflare's Privacy Policy]: https://www.cloudflare.com/privacypolicy/
 [Google's Privacy Policy]: https://policies.google.com/privacy
@@ -77,3 +81,6 @@ Our Mac application does not send any data to our or any other servers.
 [opt-out plugins for various browsers]: https://tools.google.com/dlpage/gaoptout
 [Google Analytics: Cookie Usage on Websites]: https://developers.google.com/analytics/devguides/collection/analyticsjs/cookie-usage#gajs
 [Google's Ad Settings]: https://www.google.com/settings/ads
+
+[CLAassistant](https://cla-assistant.io/)
+[CLAassistant's Terms of Service & Privacy Policy](https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30)
