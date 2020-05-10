@@ -117,6 +117,18 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
+		/// Return the bounds of the Adorner as displayed on the parent Surface
+		/// </summary>
+		protected virtual Rectangle BoundsOnSurface
+		{
+			get
+			{
+				Point displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
+				return new Rectangle(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
+			}
+		}
+
+		/// <summary>
 		/// The adorner is active if the edit status is not idle or undrawn
 		/// </summary>
 		public virtual bool IsActive

@@ -236,6 +236,30 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
+		/// A rectangle containing DrawingBounds of all drawableContainers in this list,
+		/// or empty rectangle if nothing is there.
+		/// </summary>
+		public Rectangle DrawingBounds
+		{
+			get
+			{
+				if (Count == 0)
+				{
+					return Rectangle.Empty;
+				}
+				else
+				{
+					var result = this[0].DrawingBounds;
+					for (int i = 1; i < Count; i++)
+					{
+						result = Rectangle.Union(result, this[i].DrawingBounds);
+					}
+					return result;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Triggers all elements in the list ot be redrawn.
 		/// </summary>
 		/// <param name="g">the to the bitmap related Graphics object</param>
@@ -286,7 +310,7 @@ namespace Greenshot.Drawing {
 			{
 				region = Rectangle.Union(region, dc.DrawingBounds);
 			}
-			Parent.Invalidate(region);
+			Parent.InvalidateElements(region);
 		}
 		/// <summary>
 		/// Indicates whether the given list of elements can be pulled up, 
@@ -523,9 +547,9 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public virtual void ShowContextMenu(MouseEventArgs e, ISurface surface)
+		public virtual void ShowContextMenu(MouseEventArgs e, ISurface iSurface)
 		{
-			if (!(surface is Surface))
+			if (!(iSurface is Surface surface))
 			{
 				return;
 			}
@@ -542,8 +566,7 @@ namespace Greenshot.Drawing {
 				ContextMenuStrip menu = new ContextMenuStrip();
 				AddContextMenuItems(menu, surface);
 				if (menu.Items.Count > 0) {
-					// TODO: cast should be somehow avoided
-					menu.Show((Surface)surface, e.Location);
+					menu.Show(surface, surface.ToSurfaceCoordinates(e.Location));
 					while (true) {
 						if (menu.Visible) {
 							Application.DoEvents();

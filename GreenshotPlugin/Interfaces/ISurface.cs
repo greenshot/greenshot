@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -84,8 +85,8 @@ namespace GreenshotPlugin.Interfaces
         /// The TextContainer will be "re"sized to the text size.
         /// </summary>
         /// <param name="text">String to show</param>
-        /// <param name="horizontalAlignment">Left, Center, Right</param>
-        /// <param name="verticalAlignment">TOP, CENTER, BOTTOM</param>
+        /// <param name="x">Where to put the container, X coordinate in the Image coordinate space</param>
+        /// <param name="y">Where to put the container, Y coordinate in the Image coordinate space</param>
         /// <param name="family">FontFamily</param>
         /// <param name="size">Font Size in float</param>
         /// <param name="italic">bool true if italic</param>
@@ -94,7 +95,7 @@ namespace GreenshotPlugin.Interfaces
         /// <param name="borderSize">size of border (0 for none)</param>
         /// <param name="color">Color of string</param>
         /// <param name="fillColor">Color of background (e.g. Color.Transparent)</param>
-        ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor);
+        ITextContainer AddTextContainer(string text, int x, int y, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor);
 
         IImageContainer AddImageContainer(Image image, int x, int y);
         ICursorContainer AddCursorContainer(Cursor cursor, int x, int y);
@@ -147,8 +148,13 @@ namespace GreenshotPlugin.Interfaces
         /// <param name="container"></param>
         /// <returns>This returns false if the container is deleted but still in the undo stack</returns>
         bool IsOnSurface(IDrawableContainer container);
-        void Invalidate(Rectangle rectangleToInvalidate);
         void Invalidate();
+        /// <summary>
+        /// Invalidates the specified region of the Surface.
+        /// Takes care of the Surface zoom level, accepts rectangle in the coordinate space of the Image.
+        /// </summary>
+        /// <param name="rectangleToInvalidate">Bounding rectangle for updated elements, in the coordinate space of the Image.</param>
+        void InvalidateElements(Rectangle rectangleToInvalidate);
         bool Modified
         {
             get;
@@ -186,8 +192,31 @@ namespace GreenshotPlugin.Interfaces
             get;
             set;
         }
-        int Width { get; }
-        int Height { get; }
+
+        /// <summary>
+        /// Zoom value applied to the surface.
+        /// </summary>
+        Fraction ZoomFactor { get; set; }
+        /// <summary>
+        /// Translate a point from image coorditate space to surface coordinate space.
+        /// </summary>
+        /// <param name="point">A point in the coordinate space of the image.</param>
+        Point ToSurfaceCoordinates(Point point);
+        /// <summary>
+        /// Translate a rectangle from image coorditate space to surface coordinate space.
+        /// </summary>
+        /// <param name="rc">A rectangle in the coordinate space of the image.</param>
+        Rectangle ToSurfaceCoordinates(Rectangle rc);
+        /// <summary>
+        /// Translate a point from surface coorditate space to image coordinate space.
+        /// </summary>
+        /// <param name="point">A point in the coordinate space of the surface.</param>
+        Point ToImageCoordinates(Point point);
+        /// <summary>
+        /// Translate a rectangle from surface coorditate space to image coordinate space.
+        /// </summary>
+        /// <param name="rc">A rectangle in the coordinate space of the surface.</param>
+        Rectangle ToImageCoordinates(Rectangle rc);
 
         void MakeUndoable(IMemento memento, bool allowMerge);
     }
