@@ -123,7 +123,7 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		IList<IAdorner> Adorners { get; }
 
 		/// <summary>
-		/// Adjust UI elements to the supplied DPI settings 
+		/// Adjust UI elements to the supplied DPI settings
 		/// </summary>
 		/// <param name="dpi"></param>
 		void AdjustToDpi(uint dpi);
