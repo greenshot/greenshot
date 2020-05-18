@@ -13,11 +13,11 @@ This GitHub repository is for developers, if you want to report a bug for Greens
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Example steps to reproduce the behavior:
+1. Capture '....'
+2. Open Editor
+3. Add a line
+4. Resize
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -25,16 +25,9 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Versions (please complete the following information):**
+ - Greenshot version
+ - Windows version
 
 **Additional context**
 Add any other context about the problem here.
