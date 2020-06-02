@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Russian" ietf="ru-RU" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="confluence">Плагин Confluence</resource>
+		<resource name="office">Плагин Microsoft Office</resource>
+		<resource name="externalcommand">Открыть с плагином с помощью внешней команды</resource>
+		<resource name="imgur">Плагин Imgur (смотрите https://imgur.com/)</resource>
+		<resource name="jira">Плагин Jira</resource>
+		<resource name="language">Дополнительные языки</resource>
+		<resource name="ocr">Плагин OCR (требуется Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="optimize">Идет оптимизация производительности, это может занять некоторое время.</resource>
+		<resource name="startgreenshot">Запустить {#ExeName}</resource>
+		<resource name="startup">Запускать {#ExeName} при старте Windows</resource>
+		<resource name="win10">Плагин Windows 10</resource>
+	</resources>
+</language>
