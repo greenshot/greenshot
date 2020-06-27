@@ -232,6 +232,7 @@ ${hh} hour, 2 digits
 ${mm} minute, 2 digits
 ${ss} second, 2 digits
 ${NUM} incrementing number, 6 digits
+${RRR...} random alphanumerics, same length as 'R's
 ${title} Window title
 ${user} Windows user
 ${domain} Windows domain
