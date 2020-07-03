@@ -172,10 +172,7 @@ namespace Greenshot.Drawing.Adorners
 			var bounds = BoundsOnSurface;
 			GraphicsState state = targetGraphics.Save();
 
-			targetGraphics.SmoothingMode = SmoothingMode.None;
 			targetGraphics.CompositingMode = CompositingMode.SourceCopy;
-			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
-			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
 			targetGraphics.FillRectangle(Brushes.Black, bounds);
 			targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);

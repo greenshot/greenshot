@@ -145,10 +145,7 @@ namespace Greenshot.Drawing.Adorners
 			var bounds = BoundsOnSurface;
 			GraphicsState state = targetGraphics.Save();
 
-			targetGraphics.SmoothingMode = SmoothingMode.None;
 			targetGraphics.CompositingMode = CompositingMode.SourceCopy;
-			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
-			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
 			try
 			{
