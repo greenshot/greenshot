@@ -102,7 +102,6 @@ namespace GreenshotPlugin.Interfaces.Drawing
 			get;
 			set;
 		}
-		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		void Invalidate();
 		bool ClickableAt(int x, int y);
 		void MoveBy(int x, int y);
@@ -151,6 +150,10 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		{
 			get;
 			set;
+		}
+		Rectangle DrawingBounds
+		{
+			get;
 		}
 		void MakeBoundsChangeUndoable(bool allowMerge);
 		void Transform(Matrix matrix);

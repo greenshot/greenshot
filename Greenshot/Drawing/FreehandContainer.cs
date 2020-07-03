@@ -47,8 +47,8 @@ namespace Greenshot.Drawing {
 		/// Constructor
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent) {
-			Width = parent.Width;
-			Height = parent.Height;
+			Width = parent.Image.Width;
+			Height = parent.Image.Height;
 			Top = 0;
 			Left = 0;
 		}
@@ -236,7 +236,14 @@ namespace Greenshot.Drawing {
 					int safetymargin = 10;
 					return new Rectangle(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
-				return new Rectangle(0, 0, _parent?.Width??0, _parent?.Height?? 0);
+				if (_parent?.Image is Image image)
+				{
+					return new Rectangle(0, 0, image.Width, image.Height);
+				}
+				else
+				{
+					return Rectangle.Empty;
+				}
 			}
 		}
 

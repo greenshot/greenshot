@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -298,8 +298,37 @@ namespace Greenshot.Drawing
             set
 			{
 				_image = value;
-				Size = _image.Size;
+				UpdateSize();
 			}
+		}
+
+		[NonSerialized]
+		private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
+		[NonSerialized]
+		private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
+		[NonSerialized]
+		private Fraction _zoomFactor = Fraction.Identity;
+		public Fraction ZoomFactor
+		{
+			get => _zoomFactor;
+			set
+			{
+				_zoomFactor = value;
+				var inverse = _zoomFactor.Inverse();
+				_zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
+				_inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
+				UpdateSize();
+			}
+		}
+
+
+		/// <summary>
+		/// Sets the surface size as zoomed image size.
+		/// </summary>
+		private void UpdateSize()
+		{
+			var size = _image.Size;
+			Size = new Size((int)(size.Width * _zoomFactor), (int)(size.Height * _zoomFactor));
 		}
 
 		/// <summary>
@@ -458,7 +487,6 @@ namespace Greenshot.Drawing
 
 			// Set new values
 			Image = newImage;
-			Size = newImage.Size;
 
 			_modified = true;
 		}
@@ -790,9 +818,9 @@ namespace Greenshot.Drawing
 			return cursorContainer;
 		}
 
-		public ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
+		public ITextContainer AddTextContainer(string text, int x, int y, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
 		{
-			TextContainer textContainer = new TextContainer(this) {Text = text};
+			TextContainer textContainer = new TextContainer(this) {Text = text, Left = x, Top = y};
 			textContainer.SetFieldValue(FieldType.FONT_FAMILY, family.Name);
 			textContainer.SetFieldValue(FieldType.FONT_BOLD, bold);
 			textContainer.SetFieldValue(FieldType.FONT_ITALIC, italic);
@@ -803,8 +831,6 @@ namespace Greenshot.Drawing
 			textContainer.SetFieldValue(FieldType.SHADOW, shadow);
 			// Make sure the Text fits
 			textContainer.FitToText();
-			// Align to Surface
-			textContainer.AlignToParent(horizontalAlignment, verticalAlignment);
 
 			//AggregatedProperties.UpdateElement(textContainer);
 			AddElement(textContainer);
@@ -978,13 +1004,13 @@ namespace Greenshot.Drawing
 			{
 				cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
 			}
-			if (cropRectangle.Left + cropRectangle.Width > Width)
+			if (cropRectangle.Left + cropRectangle.Width > Image.Width)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Width - cropRectangle.Left, cropRectangle.Height);
+				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
 			}
-			if (cropRectangle.Top + cropRectangle.Height > Height)
+			if (cropRectangle.Top + cropRectangle.Height > Image.Height)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Height - cropRectangle.Top);
+				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
 			}
 			if (cropRectangle.Height > 0 && cropRectangle.Width > 0)
 			{
@@ -1098,12 +1124,19 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
+		/// Translate mouse coordinates as if they were applied directly to unscaled image.
+		/// </summary>
+		private MouseEventArgs InverseZoomMouseCoordinates(MouseEventArgs e)
+			=> new MouseEventArgs(e.Button, e.Clicks, (int)(e.X / _zoomFactor), (int)(e.Y / _zoomFactor), e.Delta);
+
+		/// <summary>
 		/// This event handler is called when someone presses the mouse on a surface.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void SurfaceMouseDown(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
 
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
@@ -1198,6 +1231,7 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		private void SurfaceMouseUp(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
 
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
@@ -1287,6 +1321,8 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		private void SurfaceMouseMove(object sender, MouseEventArgs e)
 		{
+			e = InverseZoomMouseCoordinates(e);
+
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
 			if (adorner != null)
@@ -1382,6 +1418,25 @@ namespace Greenshot.Drawing
 			return GetImage(RenderMode.EXPORT);
 		}
 
+		private static Rectangle ZoomClipRectangle(Rectangle rc, double scale, int inflateAmount = 0)
+		{
+			rc = new Rectangle(
+				(int)(rc.X * scale),
+				(int)(rc.Y * scale),
+				(int)(rc.Width * scale) + 1,
+				(int)(rc.Height * scale) + 1
+				);
+			if (scale > 1)
+			{
+				inflateAmount = (int)(inflateAmount * scale);
+			}
+			rc.Inflate(inflateAmount, inflateAmount);
+			return rc;
+		}
+
+		public void InvalidateElements(Rectangle rc)
+			=> Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
+
 		/// <summary>
 		/// This is the event handler for the Paint Event, try to draw as little as possible!
 		/// </summary>
@@ -1390,14 +1445,34 @@ namespace Greenshot.Drawing
 		private void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
-			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
-			if (Rectangle.Empty.Equals(clipRectangle))
+			Rectangle targetClipRectangle = paintEventArgs.ClipRectangle;
+			if (Rectangle.Empty.Equals(targetClipRectangle))
 			{
 				LOG.Debug("Empty cliprectangle??");
 				return;
 			}
 
-			if (_elements.HasIntersectingFilters(clipRectangle))
+			// Correction to prevent rounding errors at certain zoom levels.
+			// When zooming to N/M, clip rectangle top and left coordinates should be multiples of N.
+			if (_zoomFactor.Numerator > 1 && _zoomFactor.Denominator > 1)
+			{
+				int horizontalCorrection = targetClipRectangle.Left % (int)_zoomFactor.Numerator;
+				int verticalCorrection = targetClipRectangle.Top % (int)_zoomFactor.Numerator;
+				if (horizontalCorrection != 0)
+				{
+					targetClipRectangle.X -= horizontalCorrection;
+					targetClipRectangle.Width += horizontalCorrection;
+				}
+				if (verticalCorrection != 0)
+				{
+					targetClipRectangle.Y -= verticalCorrection;
+					targetClipRectangle.Height += verticalCorrection;
+				}
+			}
+
+			Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
+
+			if (_elements.HasIntersectingFilters(imageClipRectangle) || _zoomFactor > Fraction.Identity)
 			{
 				if (_buffer != null)
 				{
@@ -1420,18 +1495,44 @@ namespace Greenshot.Drawing
 					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 					//graphics.CompositingQuality = CompositingQuality.HighQuality;
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					DrawBackground(graphics, clipRectangle);
-					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-					graphics.SetClip(targetGraphics);
-					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
+					DrawBackground(graphics, imageClipRectangle);
+					graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+					graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
+					_elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
 				}
-				targetGraphics.DrawImage(_buffer, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				if (_zoomFactor == Fraction.Identity)
+				{
+					targetGraphics.DrawImage(_buffer, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+				}
+				else
+				{
+					targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
+					if (_zoomFactor > Fraction.Identity)
+					{
+						DrawSharpImage(targetGraphics, _buffer, imageClipRectangle);
+					}
+					else
+					{
+						DrawSmoothImage(targetGraphics, _buffer, imageClipRectangle);
+					}
+					targetGraphics.ResetTransform();
+				}
 			}
 			else
 			{
-				DrawBackground(targetGraphics, clipRectangle);
-				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
-				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+				DrawBackground(targetGraphics, targetClipRectangle);
+				if (_zoomFactor == Fraction.Identity)
+				{
+					targetGraphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+					_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
+				}
+				else
+				{
+					targetGraphics.ScaleTransform(_zoomFactor, _zoomFactor);
+					DrawSmoothImage(targetGraphics, Image, imageClipRectangle);
+					_elements.Draw(targetGraphics, null, RenderMode.EDIT, imageClipRectangle);
+					targetGraphics.ResetTransform();
+				}
 			}
 
 			// No clipping for the adorners
@@ -1444,6 +1545,32 @@ namespace Greenshot.Drawing
 					adorner.Paint(paintEventArgs);
 				}
 			}
+		}
+
+		private void DrawSmoothImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+		{
+			var state = targetGraphics.Save();
+			targetGraphics.SmoothingMode = SmoothingMode.HighQuality;
+			targetGraphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+			targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+
+			targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+
+			targetGraphics.Restore(state);
+		}
+
+		private void DrawSharpImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+		{
+			var state = targetGraphics.Save();
+			targetGraphics.SmoothingMode = SmoothingMode.None;
+			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+
+			targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+
+			targetGraphics.Restore(state);
 		}
 
 		private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle)
@@ -1753,42 +1880,78 @@ namespace Greenshot.Drawing
 			}
 			else if (ClipboardHelper.ContainsImage(clipboard))
 			{
-				int x = 10;
-				int y = 10;
-
-				// FEATURE-995: Added a check for the current mouse cursor location, to paste the image on that location.
-				var mousePositionOnControl = PointToClient(MousePosition);
-				if (ClientRectangle.Contains(mousePositionOnControl))
-				{
-					x = mousePositionOnControl.X;
-					y = mousePositionOnControl.Y;
-				}
+				Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
 				foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
 				{
 					if (clipboardImage != null)
 					{
 						DeselectAllElements();
-						IImageContainer container = AddImageContainer(clipboardImage as Bitmap, x, y);
+						IImageContainer container = AddImageContainer(clipboardImage as Bitmap, pasteLocation.X, pasteLocation.Y);
 						SelectElement(container);
 						clipboardImage.Dispose();
-						x += 10;
-						y += 10;
+						pasteLocation.X += 10;
+						pasteLocation.Y += 10;
 					}
 				}
 			}
 			else if (ClipboardHelper.ContainsText(clipboard))
 			{
+				Point pasteLocation = GetPasteLocation(0.4f, 0.4f);
+
 				string text = ClipboardHelper.GetText(clipboard);
 				if (text != null)
 				{
 					DeselectAllElements();
-					ITextContainer textContainer = AddTextContainer(text, HorizontalAlignment.Center, VerticalAlignment.CENTER,
+					ITextContainer textContainer = AddTextContainer(text, pasteLocation.X, pasteLocation.Y,
 						FontFamily.GenericSansSerif, 12f, false, false, false, 2, Color.Black, Color.Transparent);
 					SelectElement(textContainer);
 				}
 			}
 		}
+
+		/// <summary>
+		/// Find a location to paste elements.
+		/// If mouse is over the surface - use it's position, otherwise use the visible area.
+		/// Return a point in image coordinate space.
+		/// </summary>
+		/// <param name="horizontalRatio">0.0f for the left edge of visible area, 1.0f for the right edge of visible area.</param>
+		/// <param name="verticalRatio">0.0f for the top edge of visible area, 1.0f for the bottom edge of visible area.</param>
+		private Point GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
+		{
+			var point = PointToClient(MousePosition);
+			var rc = GetVisibleRectangle();
+			if (!rc.Contains(point))
+			{
+				point = new Point(
+					rc.Left + (int)(rc.Width * horizontalRatio),
+					rc.Top + (int)(rc.Height * verticalRatio)
+					);
+			}
+			return ToImageCoordinates(point);
+		}
+
+		/// <summary>
+		/// Get the rectangle bounding the part of this Surface currently visible in the editor (in surface coordinate space).
+		/// </summary>
+		public Rectangle GetVisibleRectangle()
+		{
+			var bounds = Bounds;
+			var clientArea = Parent.ClientRectangle;
+			return new Rectangle(
+				Math.Max(0, -bounds.Left),
+				Math.Max(0, -bounds.Top),
+				clientArea.Width,
+				clientArea.Height
+				);
+		}
+
+		/// <summary>
+		/// Get the rectangle bounding all selected elements (in surface coordinates space),
+		/// or empty rectangle if nothing is selcted.
+		/// </summary>
+		public Rectangle GetSelectionRectangle()
+			=> ToSurfaceCoordinates(selectedElements.DrawingBounds);
 
 		/// <summary>
 		/// Duplicate all the selecteded elements
@@ -2044,6 +2207,58 @@ namespace Greenshot.Drawing
 		public bool IsOnSurface(IDrawableContainer container)
 		{
 			return _elements.Contains(container);
+		}
+
+		public Point ToSurfaceCoordinates(Point point)
+		{
+			Point[] points = { point };
+			_zoomMatrix.TransformPoints(points);
+			return points[0];
+		}
+
+		public Rectangle ToSurfaceCoordinates(Rectangle rc)
+		{
+			if (_zoomMatrix.IsIdentity)
+			{
+				return rc;
+			}
+			else
+			{
+				Point[] points = { rc.Location, rc.Location + rc.Size };
+				_zoomMatrix.TransformPoints(points);
+				return new Rectangle(
+					points[0].X,
+					points[0].Y,
+					points[1].X - points[0].X,
+					points[1].Y - points[0].Y
+					);
+			}
+		}
+
+		public Point ToImageCoordinates(Point point)
+		{
+			Point[] points = { point };
+			_inverseZoomMatrix.TransformPoints(points);
+			return points[0];
+		}
+
+		public Rectangle ToImageCoordinates(Rectangle rc)
+		{
+			if (_inverseZoomMatrix.IsIdentity)
+			{
+				return rc;
+			}
+			else
+			{
+				Point[] points = { rc.Location, rc.Location + rc.Size };
+				_inverseZoomMatrix.TransformPoints(points);
+				return new Rectangle(
+					points[0].X,
+					points[0].Y,
+					points[1].X - points[0].X,
+					points[1].Y - points[0].Y
+					);
+			}
 		}
 	}
 }

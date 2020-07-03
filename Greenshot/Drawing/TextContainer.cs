@@ -22,6 +22,7 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
@@ -155,6 +156,24 @@ namespace Greenshot.Drawing
             FieldChanged += TextContainer_FieldChanged;
         }
 
+        protected override void SwitchParent(Surface newParent)
+        {
+            _parent.SizeChanged -= Parent_SizeChanged;
+            base.SwitchParent(newParent);
+            _parent.SizeChanged += Parent_SizeChanged;
+        }
+
+        private void Parent_SizeChanged(object sender, EventArgs e)
+        {
+            UpdateTextBoxPosition();
+            UpdateTextBoxFont();
+        }
+
+        public override void ApplyBounds(RectangleF newBounds)
+        {
+            base.ApplyBounds(newBounds);
+            UpdateTextBoxPosition();
+        }
 
         public override void Invalidate()
         {
@@ -255,7 +274,8 @@ namespace Greenshot.Drawing
                 AcceptsTab = true,
                 AcceptsReturn = true,
                 BorderStyle = BorderStyle.None,
-                Visible = false
+                Visible = false,
+                Font = new Font(FontFamily.GenericSansSerif, 1) // just need something non-default here
             };
 
             _textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
@@ -388,7 +408,6 @@ namespace Greenshot.Drawing
                 var newFont = CreateFont(fontFamily, fontBold, fontItalic, fontSize);
                 _font?.Dispose();
                 _font = newFont;
-                _textBox.Font = _font;
             }
             catch (Exception ex)
             {
@@ -400,7 +419,6 @@ namespace Greenshot.Drawing
                     var newFont = CreateFont(fontFamily, fontBold, fontItalic, fontSize);
                     _font?.Dispose();
                     _font = newFont;
-                    _textBox.Font = _font;
                 }
                 catch (Exception)
                 {
@@ -413,6 +431,8 @@ namespace Greenshot.Drawing
                 }
             }
 
+            UpdateTextBoxFont();
+
             UpdateAlignment();
         }
 
@@ -423,12 +443,34 @@ namespace Greenshot.Drawing
         }
 
         /// <summary>
-        /// This will create the textbox exactly to the inner size of the element
+        /// Set TextBox font according to the TextContainer font and the parent zoom factor.
+        /// </summary>
+        private void UpdateTextBoxFont()
+        {
+            if (_textBox == null || _font == null)
+            {
+                return;
+            }
+
+            var textBoxFontScale = _parent?.ZoomFactor ?? Fraction.Identity;
+
+            var newFont = new Font(
+                _font.FontFamily,
+                _font.Size * textBoxFontScale,
+                _font.Style,
+                GraphicsUnit.Pixel
+                );
+            _textBox.Font.Dispose();
+            _textBox.Font = newFont;
+        }
+
+        /// <summary>
+        /// This will align the textbox exactly to the inner size of the element
         /// is a bit of a hack, but for now it seems to work...
         /// </summary>
         private void UpdateTextBoxPosition()
         {
-            if (_textBox == null)
+            if (_textBox == null || Parent == null)
             {
                 return;
             }
@@ -442,22 +484,20 @@ namespace Greenshot.Drawing
                 correction = -1;
             }
             Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            _textBox.Left = absRectangle.Left + lineWidth;
-            _textBox.Top = absRectangle.Top + lineWidth;
+            Rectangle displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
+            _textBox.Left = displayRectangle.X + lineWidth;
+            _textBox.Top = displayRectangle.Y + lineWidth;
             if (lineThickness <= 1)
             {
                 lineWidth = 0;
             }
-            _textBox.Width = absRectangle.Width - 2 * lineWidth + correction;
-            _textBox.Height = absRectangle.Height - 2 * lineWidth + correction;
+            _textBox.Width = displayRectangle.Width - 2 * lineWidth + correction;
+            _textBox.Height = displayRectangle.Height - 2 * lineWidth + correction;
         }
 
-        public override void ApplyBounds(RectangleF newBounds)
-        {
-            base.ApplyBounds(newBounds);
-            UpdateTextBoxPosition();
-        }
-
+        /// <summary>
+        /// Set TextBox text align and fore color according to field values.
+        /// </summary>
         private void UpdateTextBoxFormat()
         {
             if (_textBox == null)
