@@ -97,8 +97,8 @@ namespace Greenshot.Drawing.Adorners
 			Graphics targetGraphics = paintEventArgs.Graphics;
 
 			var bounds = BoundsOnSurface;
-			targetGraphics.FillRectangle(Brushes.Green, bounds);
-			targetGraphics.DrawRectangle(new Pen(Brushes.Green), bounds);
+            targetGraphics.FillRectangle(Brushes.Green, bounds);
+			targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
 		}
 
 		/// <summary>
