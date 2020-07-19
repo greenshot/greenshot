@@ -49,6 +49,7 @@ namespace GreenshotPlugin.Core {
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
 		private static readonly string FORMAT_17 = "Format17";
 		private static readonly string FORMAT_JPG = "JPG";
+        private static readonly string FORMAT_JPEG = "JPEG";
 		private static readonly string FORMAT_JFIF = "JFIF";
 		private static readonly string FORMAT_JFIF_OFFICEART = "JFIF+Office Art";
 		private static readonly string FORMAT_GIF = "GIF";
@@ -253,7 +254,9 @@ EndSelection:<<<<<<<4
 					|| dataObject.GetDataPresent(FORMAT_PNG)
 					|| dataObject.GetDataPresent(FORMAT_17)
 					|| dataObject.GetDataPresent(FORMAT_JPG)
-					|| dataObject.GetDataPresent(FORMAT_GIF)) {
+                    || dataObject.GetDataPresent(FORMAT_JFIF)
+                    || dataObject.GetDataPresent(FORMAT_JPEG)
+                    || dataObject.GetDataPresent(FORMAT_GIF)) {
 					return true;
 				}
 				var imageFiles = GetImageFilenames(dataObject);
@@ -345,9 +348,9 @@ EndSelection:<<<<<<<4
 				if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib)) {
 					// Outlook ??
 					Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
-					retrieveFormats = new[] { DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
+					retrieveFormats = new[] { DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
 				} else {
-					retrieveFormats = new[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF };
+					retrieveFormats = new[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF };
 				}
 				foreach (string currentFormat in retrieveFormats) {
 					if (formats != null && formats.Contains(currentFormat)) {
@@ -700,7 +703,7 @@ EndSelection:<<<<<<<4
 			//now copy to clipboard
 			IDataObject dataObj = new DataObject();
 			dataObj.SetData(format.Name, false, obj);
-			// Use false to make the object dissapear when the application stops.
+			// Use false to make the object disappear when the application stops.
 			SetDataObject(dataObj, true);
 		}
 		

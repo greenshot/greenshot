@@ -41,9 +41,17 @@ namespace GreenshotWin10Plugin.Processors  {
             }
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
 
+            if (ocrProvider == null)
+            {
+                return false;
+            }
+
             var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
 
-            if (!ocrResult.HasContent) return false;
+            if (!ocrResult.HasContent)
+            {
+                return false;
+            }
 
             captureDetails.OcrInformation = ocrResult;
 
