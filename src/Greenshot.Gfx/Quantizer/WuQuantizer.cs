@@ -1,19 +1,19 @@
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
-// 
+//
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -21,16 +21,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using Dapplo.Log;
-using Greenshot.Gfx.FastBitmap;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Gfx.Quantizer
 {
 	/// <summary>
 	///     Implementation of the WuQuantizer algorithm
 	/// </summary>
-	public class WuQuantizer : IDisposable
+	public class WuQuantizer<TPixel> : IDisposable where TPixel : unmanaged
 	{
 		private const int Maxcolor = 512;
 		private const int Red = 2;
@@ -39,7 +39,6 @@ namespace Greenshot.Gfx.Quantizer
 		private const int Sidesize = 33;
 		private const int Maxsideindex = 32;
 		private const int Maxvolume = Sidesize * Sidesize * Sidesize;
-		private static readonly LogSource Log = new LogSource();
 
 		// To count the colors
 		private readonly int _colorCount;
@@ -49,23 +48,25 @@ namespace Greenshot.Gfx.Quantizer
 		private readonly long[,,] _momentsBlue;
 		private readonly long[,,] _momentsGreen;
 		private readonly long[,,] _momentsRed;
-		private readonly IBitmapWithNativeSupport _sourceBitmap;
+		private readonly UnmanagedBitmap<TPixel> _sourceBitmap;
 
 		private readonly long[,,] _weights;
-		private int[] _blues;
-		private int[] _greens;
-
-		private int[] _reds;
-		private IBitmapWithNativeSupport _resultBitmap;
-		private int[] _sums;
-
-		private byte[] _tag;
+		private ChunkyBitmap _resultBitmap;
 
         /// <summary>
         /// The constructor for the WuQauntizer
         /// </summary>
-        /// <param name="sourceBitmap"></param>
-		public WuQuantizer(IBitmapWithNativeSupport sourceBitmap)
+        /// <param name="sourceBitmap">IBitmapWithNativeSupport</param>
+        public WuQuantizer(IBitmapWithNativeSupport sourceBitmap) : this(sourceBitmap as UnmanagedBitmap<TPixel>)
+        {
+
+        }
+
+        /// <summary>
+        /// The constructor for the WuQauntizer
+        /// </summary>
+        /// <param name="sourceBitmap">UnmanagedBitmap of TPixel</param>
+        public WuQuantizer(UnmanagedBitmap<TPixel> sourceBitmap)
 		{
 			_sourceBitmap = sourceBitmap;
 			// Make sure the color count variables are reset
@@ -74,12 +75,6 @@ namespace Greenshot.Gfx.Quantizer
 
 			// creates all the cubes
 			_cubes = new WuColorCube[Maxcolor];
-
-			// initializes all the cubes
-			for (var cubeIndex = 0; cubeIndex < Maxcolor; cubeIndex++)
-			{
-				_cubes[cubeIndex] = new WuColorCube();
-			}
 
 			// resets the reference minimums
 			_cubes[0].RedMinimum = 0;
@@ -97,32 +92,23 @@ namespace Greenshot.Gfx.Quantizer
 			_momentsBlue = new long[Sidesize, Sidesize, Sidesize];
 			_moments = new float[Sidesize, Sidesize, Sidesize];
 
-			var table = new int[256];
-
-			for (var tableIndex = 0; tableIndex < 256; ++tableIndex)
+            Span<int> table = stackalloc int[256];
+            for (var tableIndex = 0; tableIndex < 256; ++tableIndex)
 			{
 				table[tableIndex] = tableIndex * tableIndex;
 			}
 
-			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-            using var sourceFastBitmap = FastBitmapFactory.Create(sourceBitmap);
-            sourceFastBitmap.Lock();
-            using var destinationFastBitmap = FastBitmapFactory.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap;
-            for (var y = 0; y < sourceFastBitmap.Height; y++)
+            _resultBitmap = new ChunkyBitmap(sourceBitmap.Width, sourceBitmap.Height);
+            for (var y = 0; y < sourceBitmap.Height; y++)
             {
-                for (var x = 0; x < sourceFastBitmap.Width; x++)
+                var srcPixelSpan = MemoryMarshal.Cast<TPixel, Bgra32>(_sourceBitmap[y]);
+                var destPixelSpan = _resultBitmap[y];
+                for (var x = 0; x < sourceBitmap.Width; x++)
                 {
-                    Color color;
-                    if (!(sourceFastBitmap is IFastBitmapWithBlend sourceFastBitmapWithBlend))
-                    {
-                        color = sourceFastBitmap.GetColorAt(x, y);
-                    }
-                    else
-                    {
-                        color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
-                    }
+                    var color = srcPixelSpan[x];
+
                     // To count the colors
-                    var index = color.ToArgb() & 0x00ffffff;
+                    var index = (color.B << 16) | (color.G << 8) | color.R;
                     // Check if we already have this color
                     if (!bitArray.Get(index))
                     {
@@ -143,10 +129,9 @@ namespace Greenshot.Gfx.Quantizer
 
                     // Store the initial "match"
                     var paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-                    destinationFastBitmap.SetColorIndexAt(x, y, (byte) (paletteIndex & 0xff));
+                    destPixelSpan[x] = (byte)(paletteIndex & 0xff);
                 }
             }
-            _resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
         }
 
         /// <inheritdoc/>
@@ -155,7 +140,7 @@ namespace Greenshot.Gfx.Quantizer
 			Dispose(true);
 		}
 
-		
+
 		/// <summary>
 		/// Dispose implementation
 		/// </summary>
@@ -191,39 +176,30 @@ namespace Greenshot.Gfx.Quantizer
 		/// <returns>Bitmap</returns>
 		public IBitmapWithNativeSupport SimpleReindex()
 		{
-			var colors = new List<Color>();
-			var lookup = new Dictionary<Color, byte>();
-			using (var bbbDest = FastBitmapFactory.Create(_resultBitmap) as FastChunkyBitmap)
-			{
-				bbbDest.Lock();
-                using var bbbSrc = FastBitmapFactory.Create(_sourceBitmap);
-                bbbSrc.Lock();
-                for (var y = 0; y < bbbSrc.Height; y++)
+            Span<uint> colors = stackalloc uint[256];
+			var lookup = new Dictionary<uint, byte>();
+
+            byte colorCount = 0;
+            for (var y = 0; y < _sourceBitmap.Height; y++)
+            {
+                var srcSpan = MemoryMarshal.Cast<TPixel, uint>(_sourceBitmap[y]);
+                var destSpan = _resultBitmap[y];
+                for (var x = 0; x < _sourceBitmap.Width; x++)
                 {
-                    for (var x = 0; x < bbbSrc.Width; x++)
+                    var color = srcSpan[x];
+                    byte index;
+                    if (lookup.ContainsKey(color))
                     {
-                        Color color;
-                        if (bbbSrc is IFastBitmapWithBlend bbbSrcBlend)
-                        {
-                            color = bbbSrcBlend.GetBlendedColorAt(x, y);
-                        }
-                        else
-                        {
-                            color = bbbSrc.GetColorAt(x, y);
-                        }
-                        byte index;
-                        if (lookup.ContainsKey(color))
-                        {
-                            index = lookup[color];
-                        }
-                        else
-                        {
-                            colors.Add(color);
-                            index = (byte) (colors.Count - 1);
-                            lookup.Add(color, index);
-                        }
-                        bbbDest.SetColorIndexAt(x, y, index);
+                        index = lookup[color];
                     }
+                    else
+                    {
+                        colors[colorCount] = color;
+                        index = colorCount;
+                        colorCount++;
+                        lookup.Add(color, index);
+                    }
+                    destSpan[x] = index;
                 }
             }
 
@@ -232,9 +208,9 @@ namespace Greenshot.Gfx.Quantizer
 			var entries = imagePalette.Entries;
 			for (var paletteIndex = 0; paletteIndex < 256; paletteIndex++)
 			{
-				if (paletteIndex < _colorCount)
+				if (paletteIndex < colorCount)
 				{
-					entries[paletteIndex] = colors[paletteIndex];
+					entries[paletteIndex] = colors[paletteIndex].ToColor();
 				}
 				else
 				{
@@ -261,12 +237,10 @@ namespace Greenshot.Gfx.Quantizer
 			if (_colorCount < allowedColorCount)
 			{
 				// Simple logic to reduce to 8 bit
-				Log.Info().WriteLine("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
 			CalculateMoments();
-			Log.Info().WriteLine("Calculated the moments...");
 			var next = 0;
 			var volumeVariance = new float[Maxcolor];
 
@@ -274,7 +248,7 @@ namespace Greenshot.Gfx.Quantizer
 			for (var cubeIndex = 1; cubeIndex < allowedColorCount; ++cubeIndex)
 			{
 				// if cut is possible; make it
-				if (Cut(_cubes[next], _cubes[cubeIndex]))
+				if (Cut(ref _cubes[next], ref _cubes[cubeIndex]))
 				{
 					volumeVariance[next] = _cubes[next].Volume > 1 ? CalculateVariance(_cubes[next]) : 0.0f;
 					volumeVariance[cubeIndex] = _cubes[cubeIndex].Volume > 1 ? CalculateVariance(_cubes[cubeIndex]) : 0.0f;
@@ -307,16 +281,16 @@ namespace Greenshot.Gfx.Quantizer
 				break;
 			}
 
-			var lookupRed = new int[Maxcolor];
-			var lookupGreen = new int[Maxcolor];
-			var lookupBlue = new int[Maxcolor];
+			Span<int> lookupRed = stackalloc int[Maxcolor];
+            Span<int> lookupGreen = stackalloc int[Maxcolor];
+            Span<int> lookupBlue = stackalloc int[Maxcolor];
 
-			_tag = new byte[Maxvolume];
+			Span<byte> tag = stackalloc byte[Maxvolume];
 
 			// pre-calculates lookup tables
 			for (var k = 0; k < allowedColorCount; ++k)
 			{
-				Mark(_cubes[k], k, _tag);
+				Mark(_cubes[k], k, tag);
 
 				var weight = Volume(_cubes[k], _weights);
 
@@ -334,92 +308,78 @@ namespace Greenshot.Gfx.Quantizer
 				}
 			}
 
-			_reds = new int[allowedColorCount + 1];
-			_greens = new int[allowedColorCount + 1];
-			_blues = new int[allowedColorCount + 1];
-			_sums = new int[allowedColorCount + 1];
+			Span<int> reds = stackalloc int[allowedColorCount + 1];
+            Span<int> greens = stackalloc int[allowedColorCount + 1];
+            Span<int> blues = stackalloc int[allowedColorCount + 1];
+            Span<int> sums = stackalloc int[allowedColorCount + 1];
 
-			Log.Info().WriteLine("Starting bitmap reconstruction...");
 
-			using (var dest = FastBitmapFactory.Create(_resultBitmap) as FastChunkyBitmap)
+            var lookup = new Dictionary<Bgra32, byte>();
+            for (var y = 0; y < _sourceBitmap.Height; y++)
             {
-                using var src = FastBitmapFactory.Create(_sourceBitmap);
-                var lookup = new Dictionary<Color, byte>();
-                for (var y = 0; y < src.Height; y++)
+                var destSpan = _resultBitmap[y];
+                var srcSpan = MemoryMarshal.Cast<TPixel, Bgra32>(_sourceBitmap[y]);
+                for (var x = 0; x < _sourceBitmap.Width; x++)
                 {
-                    for (var x = 0; x < src.Width; x++)
+                    var color = srcSpan[x];
+                    // Check if we already matched the color
+                    byte bestMatch;
+                    if (!lookup.ContainsKey(color))
                     {
-                        Color color;
-                        if (src is IFastBitmapWithBlend srcBlend)
-                        {
-                            // WithoutAlpha, this makes it possible to ignore the alpha
-                            color = srcBlend.GetBlendedColorAt(x, y);
-                        }
-                        else
-                        {
-                            color = src.GetColorAt(x, y);
-                        }
+                        // If not we need to find the best match
 
-                        // Check if we already matched the color
-                        byte bestMatch;
-                        if (!lookup.ContainsKey(color))
+                        // First get initial match
+                        bestMatch = destSpan[x];
+                        bestMatch = tag[bestMatch];
+
+                        var bestDistance = 100000000;
+                        for (var lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++)
                         {
-                            // If not we need to find the best match
+                            var foundRed = lookupRed[lookupIndex];
+                            var foundGreen = lookupGreen[lookupIndex];
+                            var foundBlue = lookupBlue[lookupIndex];
+                            var deltaRed = color.R - foundRed;
+                            var deltaGreen = color.G - foundGreen;
+                            var deltaBlue = color.B - foundBlue;
 
-                            // First get initial match
-                            bestMatch = dest.GetColorIndexAt(x, y);
-                            bestMatch = _tag[bestMatch];
+                            var distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
 
-                            var bestDistance = 100000000;
-                            for (var lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++)
+                            if (distance < bestDistance)
                             {
-                                var foundRed = lookupRed[lookupIndex];
-                                var foundGreen = lookupGreen[lookupIndex];
-                                var foundBlue = lookupBlue[lookupIndex];
-                                var deltaRed = color.R - foundRed;
-                                var deltaGreen = color.G - foundGreen;
-                                var deltaBlue = color.B - foundBlue;
-
-                                var distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
-
-                                if (distance < bestDistance)
-                                {
-                                    bestDistance = distance;
-                                    bestMatch = (byte) lookupIndex;
-                                }
+                                bestDistance = distance;
+                                bestMatch = (byte) lookupIndex;
                             }
-                            lookup.Add(color, bestMatch);
                         }
-                        else
-                        {
-                            // Already matched, so we just use the lookup
-                            bestMatch = lookup[color];
-                        }
-
-                        _reds[bestMatch] += color.R;
-                        _greens[bestMatch] += color.G;
-                        _blues[bestMatch] += color.B;
-                        _sums[bestMatch]++;
-
-                        dest.SetColorIndexAt(x, y, bestMatch);
+                        lookup.Add(color, bestMatch);
                     }
+                    else
+                    {
+                        // Already matched, so we just use the lookup
+                        bestMatch = lookup[color];
+                    }
+
+                    reds[bestMatch] += color.R;
+                    greens[bestMatch] += color.G;
+                    blues[bestMatch] += color.B;
+                    sums[bestMatch]++;
+
+                    destSpan[x] = bestMatch;
                 }
             }
-
 
 			// generates palette
 			var imagePalette = _resultBitmap.NativeBitmap.Palette;
 			var entries = imagePalette.Entries;
 			for (var paletteIndex = 0; paletteIndex < allowedColorCount; paletteIndex++)
 			{
-				if (_sums[paletteIndex] > 0)
+				if (sums[paletteIndex] > 0)
 				{
-					_reds[paletteIndex] /= _sums[paletteIndex];
-					_greens[paletteIndex] /= _sums[paletteIndex];
-					_blues[paletteIndex] /= _sums[paletteIndex];
+					reds[paletteIndex] /= sums[paletteIndex];
+					greens[paletteIndex] /= sums[paletteIndex];
+					blues[paletteIndex] /= sums[paletteIndex];
 				}
 
-				entries[paletteIndex] = Color.FromArgb(255, _reds[paletteIndex], _greens[paletteIndex], _blues[paletteIndex]);
+				entries[paletteIndex] = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
 			}
 			_resultBitmap.NativeBitmap.Palette = imagePalette;
 
@@ -434,11 +394,11 @@ namespace Greenshot.Gfx.Quantizer
 		/// </summary>
 		private void CalculateMoments()
 		{
-			var area = new long[Sidesize];
-			var areaRed = new long[Sidesize];
-			var areaGreen = new long[Sidesize];
-			var areaBlue = new long[Sidesize];
-			var area2 = new float[Sidesize];
+			Span<long> area = stackalloc long[Sidesize];
+            Span<long> areaRed = stackalloc long[Sidesize];
+            Span<long> areaGreen = stackalloc long[Sidesize];
+            Span<long> areaBlue = stackalloc long[Sidesize];
+            var area2 = new float[Sidesize];
 
 			for (var redIndex = 1; redIndex <= Maxsideindex; ++redIndex)
 			{
@@ -483,10 +443,11 @@ namespace Greenshot.Gfx.Quantizer
 			}
 		}
 
-		/// <summary>
-		///     Computes the volume of the cube in a specific moment.
-		/// </summary>
-		private static long Volume(WuColorCube cube, long[,,] moment)
+        /// <summary>
+        ///     Computes the volume of the cube in a specific moment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static long Volume(in WuColorCube cube, long[,,] moment)
 		{
 			return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
 			       moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
@@ -498,10 +459,11 @@ namespace Greenshot.Gfx.Quantizer
 			       moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
 		}
 
-		/// <summary>
-		///     Computes the volume of the cube in a specific moment. For the floating-point values.
-		/// </summary>
-		private static float VolumeFloat(WuColorCube cube, float[,,] moment)
+        /// <summary>
+        ///     Computes the volume of the cube in a specific moment. For the floating-point values.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float VolumeFloat(in WuColorCube cube, float[,,] moment)
 		{
 			return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
 			       moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
@@ -513,10 +475,11 @@ namespace Greenshot.Gfx.Quantizer
 			       moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
 		}
 
-		/// <summary>
-		///     Splits the cube in given position, and color direction.
-		/// </summary>
-		private static long Top(WuColorCube cube, int direction, int position, long[,,] moment) =>
+        /// <summary>
+        ///     Splits the cube in given position, and color direction.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static long Top(in WuColorCube cube, int direction, int position, long[,,] moment) =>
             direction switch
             {
                 Red => (moment[position, cube.GreenMaximum, cube.BlueMaximum] -
@@ -537,7 +500,8 @@ namespace Greenshot.Gfx.Quantizer
         /// <summary>
 		///     Splits the cube in a given color direction at its minimum.
 		/// </summary>
-		private static long Bottom(WuColorCube cube, int direction, long[,,] moment) =>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static long Bottom(in WuColorCube cube, int direction, long[,,] moment) =>
             direction switch
             {
                 Red => (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
@@ -558,7 +522,7 @@ namespace Greenshot.Gfx.Quantizer
         /// <summary>
 		///     Calculates statistical variance for a given cube.
 		/// </summary>
-		private float CalculateVariance(WuColorCube cube)
+		private float CalculateVariance(in WuColorCube cube)
 		{
 			float volumeRed = Volume(cube, _momentsRed);
 			float volumeGreen = Volume(cube, _momentsGreen);
@@ -574,7 +538,7 @@ namespace Greenshot.Gfx.Quantizer
 		/// <summary>
 		///     Finds the optimal (maximal) position for the cut.
 		/// </summary>
-		private float Maximize(WuColorCube cube, int direction, int first, int last, int[] cut, long wholeRed, long wholeGreen, long wholeBlue, long wholeWeight)
+		private float Maximize(in WuColorCube cube, int direction, int first, int last, int[] cut, long wholeRed, long wholeGreen, long wholeBlue, long wholeWeight)
 		{
 			var bottomRed = Bottom(cube, direction, _momentsRed);
 			var bottomGreen = Bottom(cube, direction, _momentsGreen);
@@ -623,7 +587,7 @@ namespace Greenshot.Gfx.Quantizer
 		/// <summary>
 		///     Cuts a cube with another one.
 		/// </summary>
-		private bool Cut(WuColorCube first, WuColorCube second)
+		private bool Cut(ref WuColorCube first, ref WuColorCube second)
 		{
 			int direction;
 
@@ -699,7 +663,7 @@ namespace Greenshot.Gfx.Quantizer
 		/// <summary>
 		///     Marks all the tags with a given label.
 		/// </summary>
-		private static void Mark(WuColorCube cube, int label, byte[] tag)
+		private static void Mark(in WuColorCube cube, int label, Span<byte> tag)
 		{
 			for (var redIndex = cube.RedMinimum + 1; redIndex <= cube.RedMaximum; ++redIndex)
 			{

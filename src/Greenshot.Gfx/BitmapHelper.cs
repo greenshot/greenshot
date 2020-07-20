@@ -1,19 +1,19 @@
 ﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
-// 
+//
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -46,7 +46,7 @@ namespace Greenshot.Gfx
 		private static readonly LogSource Log = new LogSource();
 
         /// <summary>
-        /// This defines all available bitmap reader functions, registered to an "extension" is called with a stream to a IBitmap. 
+        /// This defines all available bitmap reader functions, registered to an "extension" is called with a stream to a IBitmap.
         /// </summary>
 		public static IDictionary<string, IImageFormatReader> StreamConverters { get; } = new Dictionary<string, IImageFormatReader>(StringComparer.OrdinalIgnoreCase);
 
@@ -444,7 +444,7 @@ namespace Greenshot.Gfx
 				Matrix22 = 0,
                 Matrix33 = darkness
 			};
-			
+
 			var shadowRectangle = new NativeRect(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
 			ApplyColorMatrix(sourceBitmap, NativeRect.Empty, returnImage, shadowRectangle, maskMatrix);
 
@@ -755,7 +755,6 @@ namespace Greenshot.Gfx
                     colors += lineColorCount;
                 }
             });
-                
             return colors;
         }
 
@@ -815,7 +814,7 @@ namespace Greenshot.Gfx
 				return original;
 			}
 
-            
+
 			if (width == original.Width * 2)
 			{
 				return original.Scale2X();

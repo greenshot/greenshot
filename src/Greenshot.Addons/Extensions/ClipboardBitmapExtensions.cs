@@ -1,19 +1,19 @@
 ﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
-// 
+//
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -39,7 +39,7 @@ namespace Greenshot.Addons.Extensions
     public static class ClipboardBitmapExtensions
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly string[] SupportedBitmapFormats = 
+        private static readonly string[] SupportedBitmapFormats =
         {
             "PNG",
             "PNG+Office Art",
@@ -73,7 +73,7 @@ namespace Greenshot.Addons.Extensions
                 return true;
             }
 
-            return clipboardAccessToken.GetFilenames()
+            return clipboardAccessToken.GetFileNames()
                 .Select(filename => Path.GetExtension(filename).ToLowerInvariant())
                 .Intersect(SupportedExtensions)
                 .Any();
@@ -236,7 +236,7 @@ namespace Greenshot.Addons.Extensions
         /// <returns>byte[]</returns>
         private static byte[] BitmapToByteArray(IBitmapWithNativeSupport bitmap)
         {
-            // Lock the bitmap's bits.  
+            // Lock the bitmap's bits.
             var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
             var bmpData = bitmap.NativeBitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
