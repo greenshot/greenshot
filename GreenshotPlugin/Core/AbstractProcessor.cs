@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Core {
 				return 1;
 			}
 			if (Priority == other.Priority) {
-				return Description.CompareTo(other.Description);
+				return string.Compare(Description, other.Description, StringComparison.Ordinal);
 			}
 			return Priority - other.Priority;
 		}

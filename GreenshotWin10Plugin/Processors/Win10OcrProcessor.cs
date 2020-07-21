@@ -21,6 +21,7 @@
 
 using System.Threading.Tasks;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 
@@ -29,13 +30,23 @@ namespace GreenshotWin10Plugin.Processors  {
 	/// This processor processes a capture to see if there is text on it
 	/// </summary>
 	public class Win10OcrProcessor : AbstractProcessor {
+        private static readonly Win10Configuration Win10Configuration = IniConfig.GetIniSection<Win10Configuration>();
         public override string Designation => "Windows10OcrProcessor";
 
         public override string Description => Designation;
 
         public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
         {
-            if (captureDetails.OcrInformation != null)
+            if (!Win10Configuration.AlwaysRunOCROnCapture)
+            {
+                return false;
+            }
+
+            if (surface == null)
+            {
+                return false;
+            }
+            if (captureDetails == null || captureDetails.OcrInformation != null)
             {
                 return false;
             }
