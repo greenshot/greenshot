@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italian" ietf="it-IT" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="startup">Esegui {#ExeName} all'avvio di Windows</resource>
+		<resource name="startgreenshot">Esegui {#ExeName}</resource>
+		<resource name="jira">Plugin Jira</resource>
+		<resource name="confluence">Plugin Confluence</resource>
+		<resource name="externalcommand">Apri con comando esterno plugin</resource>
+		<resource name="ocr">Plugin OCR (richiede Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="imgur">Plugin Imgur (vedi: http://imgur.com)</resource>
+		<resource name="language">Lingue aggiuntive</resource>
+		<resource name="optimize">Ottimizzazione prestazioni (può richiedere tempo).</resource>
+	</resources>
+</language>
