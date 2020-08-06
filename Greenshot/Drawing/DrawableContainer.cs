@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.Serialization;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -205,10 +206,8 @@ namespace Greenshot.Drawing
 		}
 
 		public Size Size {
-			get {
-				return new Size(width, height);
-			}
-			set {
+			get => new Size(width, height);
+            set {
 				width = value.Width;
 				height = value.Height;
 			}
@@ -219,15 +218,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		[NonSerialized]
 		private IList<IAdorner> _adorners = new List<IAdorner>();
-		public IList<IAdorner> Adorners
-		{
-			get
-			{
-				return _adorners;
-			}
-		}
+		public IList<IAdorner> Adorners => _adorners;
 
-		[NonSerialized]
+        [NonSerialized]
 		// will store current bounds of this DrawableContainer before starting a resize
 		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
 
@@ -236,8 +229,8 @@ namespace Greenshot.Drawing
 		protected RectangleF _boundsAfterResize = RectangleF.Empty;
 
 		public Rectangle Bounds {
-			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
-			set {
+			get => GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            set {
 				Left = Round(value.Left);
 				Top = Round(value.Top);
 				Width = Round(value.Width);
@@ -279,8 +272,12 @@ namespace Greenshot.Drawing
 						return new Rectangle(Point.Empty, _parent.Image.Size);
 					}
 				}
-				// Take a base safetymargin
+				// Take a base safety margin
 				int lineThickness = 5;
+
+                // add adorner size
+                lineThickness += Adorners.Max(adorner => Math.Max(adorner.Bounds.Width, adorner.Bounds.Height));
+
 				if (HasField(FieldType.LINE_THICKNESS)) {
 					lineThickness += GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 				}
@@ -372,10 +369,10 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Adjust UI elements to the supplied DPI settings
 		/// </summary>
-		/// <param name="dpi"></param>
+		/// <param name="dpi">uint with dpi value</param>
 		public void AdjustToDpi(uint dpi)
 		{
-			foreach(var adorner in Adorners) 
+			foreach(var adorner in Adorners)
 			{
 				adorner.AdjustToDpi(dpi);
 			}

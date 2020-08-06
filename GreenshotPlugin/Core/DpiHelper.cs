@@ -35,6 +35,10 @@ namespace GreenshotPlugin.Core
         /// <returns>double</returns>
         public static float DpiScaleFactor(uint dpi)
         {
+            if (dpi == 0)
+            {
+                dpi = Dpi;
+            }
             return (float)dpi / DefaultScreenDpi;
         }
 
