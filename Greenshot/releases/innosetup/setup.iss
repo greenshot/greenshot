@@ -200,6 +200,7 @@ Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
+Name: it; MessagesFile: compiler:Languages\Italian.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: lt; MessagesFile: Languages\Latvian.isl
 Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
@@ -276,6 +277,30 @@ fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 fr.win10=Greffon Windows 10
+
+it.startup=Esegui {#ExeName} all''avvio di Windows
+it.startgreenshot=Esegui {#ExeName}
+it.jira=Plugin Jira
+it.confluence=Plugin Confluence
+it.externalcommand=Apri con comando esterno plugin
+it.ocr=Plugin OCR (richiede Microsoft Office Document Imaging (MODI))
+it.imgur=Plugin Imgur (vedi: http://imgur.com)
+it.language=Lingue aggiuntive
+it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
+it.win10=Plugin Windows 10
+
+lt.confluence=Confluence spraudnis
+lt.default=${default}
+lt.office=Microsoft Office spraudnis
+lt.externalcommand=Pielāgotu darbību spraudnis
+lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
+lt.jira=Jira spraudnis
+lt.language=Papildus valodas
+lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
+lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
+lt.startgreenshot=Palaist {#ExeName}
+lt.startup=Palaist {#ExeName} uzsākot darbus
+lt.win10=Windows 10 spraudnis
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
