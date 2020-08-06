@@ -158,9 +158,15 @@ namespace Greenshot.Drawing
 
         protected override void SwitchParent(Surface newParent)
         {
-            _parent.SizeChanged -= Parent_SizeChanged;
+            if (_parent != null)
+            {
+                _parent.SizeChanged -= Parent_SizeChanged;
+            }
             base.SwitchParent(newParent);
-            _parent.SizeChanged += Parent_SizeChanged;
+            if (_parent != null)
+            {
+                _parent.SizeChanged += Parent_SizeChanged;
+            }
         }
 
         private void Parent_SizeChanged(object sender, EventArgs e)
@@ -320,8 +326,12 @@ namespace Greenshot.Drawing
 
         private void HideTextBox()
         {
-            _parent.Focus();
+            _parent?.Focus();
             _textBox?.Hide();
+            if (_parent == null)
+            {
+                return;
+            }
             _parent.KeysLocked = false;
             _parent.Controls.Remove(_textBox);
         }
