@@ -8,8 +8,7 @@
         <resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene fornito SENZA ALCUNA GARANZIA.
 Questo software è garuitio", e potete ri-distribuirlo secondo certe condizioni.
-Dettagli della General Public License GNU:
-        </resource>
+Dettagli della General Public License GNU:</resource>
         <resource name="about_title">Notizie su Greenshot</resource>
         <resource name="about_translation">Traduzione in Italiano curata da bovirus e tonytogna</resource>
         <resource name="application_title">Greenshot - Uno straordinario strumento per copiare immagini dallo schermo</resource>
@@ -20,19 +19,15 @@ La buona notizia è che puoi aiutarci ad eliminarlo segnalandoci l'errore.
 Visita la pagina internet qui sotto, crea una nuova segnalazione errore e copia nella descrizione il
 contenuto preso dall'area di testo.
 
-Aggiungi un riepilogo significativo e includi qualsiasi informazione tu consideri possa esserci d'aiuto per
-risolvere il problema.
-Inoltre apprezzeremo molto, se prima di inserire la segnaalzione, controllassi se esiste già una
-segnalazione per questo tipo di errore (puoi usare la ricerca)
-Grazie :)
-        </resource>
+Aggiungi un riepilogo significativo e includi qualsiasi informazione tu consideri possa esserci d'aiuto per risolvere il problema.
+Inoltre apprezzeremo molto, se prima di inserire la segnalazione, controllassi se esiste già una segnalazione per questo tipo di errore (puoi usare la ricerca)
+Grazie :)</resource>
         <resource name="bugreport_title">Errore</resource>
         <resource name="CANCEL">Annulla</resource>
         <resource name="clipboard_error">Si è verificato un errore inaspettato durante la scrittura negli Appunti.
         </resource>
         <resource name="clipboard_noimage">Nessuna immagine sugli Appunti.</resource>
-        <resource name="clipboard_inuse">Greenshot non è riuscito a scrivere negli Appunti poichè il processo {0} teneva
-            l'accesso bloccato.
+        <resource name="clipboard_inuse">Greenshot non è riuscito a scrivere negli Appunti poiché il processo {0} teneva l'accesso bloccato.
         </resource>
         <resource name="ClipboardFormat.BITMAP">BMO (Bitmap Windows)</resource>
         <resource name="ClipboardFormat.DIB">DIB (Device independent Bitmap)</resource>
@@ -73,9 +68,9 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="contextmenu_help">Aiuto</resource>
         <resource name="contextmenu_openfile">Apri immagine da file</resource>
         <resource name="contextmenu_openrecentcapture">Apri ultimo percorso cattura</resource>
-        <resource name="contextmenu_quicksettings">Imposatzioni rapide</resource>
+        <resource name="contextmenu_quicksettings">Impostazioni rapide</resource>
         <resource name="contextmenu_settings">Impostazioni...</resource>
-        <resource name="destination_exportfailed">Errori durente l'esportazione in {0}. Riprova.</resource>
+        <resource name="destination_exportfailed">Errori durante l'esportazione in {0}. Riprova.</resource>
         <resource name="editor_align_bottom">In basso</resource>
         <resource name="editor_align_center">Centro</resource>
         <resource name="editor_align_horizontal">Allineamento orizzontale</resource>
@@ -96,14 +91,14 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_bold">Grassetto</resource>
         <resource name="editor_border">Bordi</resource>
         <resource name="editor_brightness">Luminosità</resource>
-        <resource name="editor_cancel">Cancella</resource>
-        <resource name="editor_clipboardfailed">Errore durante l'accesso agli appunti. Ritenta nuovamente.</resource>
+        <resource name="editor_cancel">Annulla</resource>
+        <resource name="editor_clipboardfailed">Errore durante l'accesso agli Appunti. Ritenta nuovamente.</resource>
         <resource name="editor_close">Chiudi</resource>
-        <resource name="editor_close_on_save">Desideri salvare l'immagine?</resource>
-        <resource name="editor_close_on_save_title">Salva l'immagine?</resource>
+        <resource name="editor_close_on_save">Vuoi salvare l'immagine?</resource>
+        <resource name="editor_close_on_save_title">Vuoi salvare l'immagine?</resource>
         <resource name="editor_confirm">Conferma</resource>
-        <resource name="editor_copyimagetoclipboard">Copia immagine sugli appunti</resource>
-        <resource name="editor_copypathtoclipboard">Copia percorso sugli appunti</resource>
+        <resource name="editor_copyimagetoclipboard">Copia immagine negli Appunti</resource>
+        <resource name="editor_copypathtoclipboard">Copia percorso negli appunti</resource>
         <resource name="editor_copytoclipboard">Copia</resource>
         <resource name="editor_crop">Ritaglia (C)</resource>
         <resource name="editor_cursortool">Strumento di selezione (ESC)</resource>
@@ -113,15 +108,15 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_downtobottom">Giù fino in fondo</resource>
         <resource name="editor_drawarrow">Disegna freccia (A)</resource>
         <resource name="editor_drawellipse">Disegna ellisse (E)</resource>
-        <resource name="editor_drawfreehand">Disegna mano libera (F)</resource>
+        <resource name="editor_drawfreehand">Disegna a mano libera (F)</resource>
         <resource name="editor_drawhighlighter">Evidenzia (H)</resource>
         <resource name="editor_drawline">Disegna linea (L)</resource>
         <resource name="editor_drawrectangle">Disegna rettangolo (R)</resource>
-        <resource name="editor_drawtextbox">Aggiungi casella di testo (T)</resource>
+        <resource name="editor_drawtextbox">Aggiungi casella testo (T)</resource>
         <resource name="editor_duplicate">Duplica elementi selezionati</resource>
         <resource name="editor_edit">Modifica</resource>
         <resource name="editor_effects">Effetti</resource>
-        <resource name="editor_email">E-Mail</resource>
+        <resource name="editor_email">Email</resource>
         <resource name="editor_file">File</resource>
         <resource name="editor_fontsize">Dimensioni</resource>
         <resource name="editor_forecolor">Colore linea</resource>
@@ -130,7 +125,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_highlight_grayscale">Scala di grigi</resource>
         <resource name="editor_highlight_magnify">Ingrandisci</resource>
         <resource name="editor_highlight_mode">Modalità evidenziazione</resource>
-        <resource name="editor_highlight_text">Evidenzia il testo</resource>
+        <resource name="editor_highlight_text">Evidenzia testo</resource>
         <resource name="editor_image_shadow">Aggiungi ombra</resource>
         <resource name="editor_imagesaved">Immagine salvata su {0}.</resource>
         <resource name="editor_insertwindow">Inserisci finestra</resource>
@@ -142,7 +137,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_obfuscate">Offusca (O)</resource>
         <resource name="editor_obfuscate_blur">Sfuma</resource>
         <resource name="editor_obfuscate_mode">Modalità di offuscamento</resource>
-        <resource name="editor_obfuscate_pixelize">Offusca/ pixelize</resource>
+        <resource name="editor_obfuscate_pixelize">Offusca/pixelizza</resource>
         <resource name="editor_object">Oggetti</resource>
         <resource name="editor_opendirinexplorer">Apri cartella su Windows Explorer</resource>
         <resource name="editor_pastefromclipboard">Incolla</resource>
@@ -150,9 +145,9 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_preview_quality">Qualità anteprima</resource>
         <resource name="editor_print">Stampa</resource>
         <resource name="editor_redo">Ripeti azione {0}</resource>
-        <resource name="editor_resetsize">Azzera Dimensione</resource>
+        <resource name="editor_resetsize">Azzera dimensione</resource>
         <resource name="editor_resize_percent">Percentuale</resource>
-        <resource name="editor_resize_pixel">Pixels</resource>
+        <resource name="editor_resize_pixel">Pixel</resource>
         <resource name="editor_rotateccw">Ruota senso antiorario</resource>
         <resource name="editor_rotatecw">Ruota senso orario</resource>
         <resource name="editor_save">Salva</resource>
@@ -162,9 +157,9 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_senttoprinter">Stampa inviata a '{0}'.</resource>
         <resource name="editor_shadow">Ombra</resource>
         <resource name="editor_image_shadow">Ombra</resource>
-        <resource name="editor_storedtoclipboard">Immagine posta negli appunti (clipboard).</resource>
+        <resource name="editor_storedtoclipboard">Immagine copiata negli Appunti.</resource>
         <resource name="editor_thickness">Spessore linea</resource>
-        <resource name="editor_title">Gestione Immagini di Greenshot</resource>
+        <resource name="editor_title">Gestione immagini di Greenshot</resource>
         <resource name="editor_torn_edge">Bordi strappati</resource>
         <resource name="editor_undo">Annulla azione {0}</resource>
         <resource name="editor_uponelevel">Su di un livello</resource>
@@ -176,19 +171,16 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="error_multipleinstances">È già attiva un'istanza di Greenshot.</resource>
         <resource name="error_nowriteaccess">
 Non è possibile salvare il file in {0}.
-Verifica l'accesso in scrittura nel percorso di salvataggio.
-        </resource>
+Verifica l'accesso in scrittura nel percorso di salvataggio.</resource>
         <resource name="error_openfile">Il file "{0}" non può essere aperto.</resource>
         <resource name="error_openlink">Impossibile aprire il collegamento '{0}'.</resource>
         <resource name="error_save">Impossibile salvare l'immagine.
-È necessario trovare una destinazione valida.
-        </resource>
+È necessario trovare una destinazione valida.</resource>
         <resource name="error_save_invalid_chars">Il nome file o cartella generato non è valido.
-Correggi la maschera noem file e riprova.
-        </resource>
+Correggi la maschera noem file e riprova.</resource>
         <resource name="expertsettings">Utente esperto</resource>
-        <resource name="expertsettings_autoreducecolors">Crea una immagine a 8bit se i colori sono meno di 256 el'immagine ha &gt; 8 bit</resource>
-        <resource name="expertsettings_checkunstableupdates">Controlla disponibilità Aggiornamenti versioni beta</resource>
+        <resource name="expertsettings_autoreducecolors">Crea una immagine a 8bit se i colori sono meno di 256 e l'immagine ha &gt; 8 bit</resource>
+        <resource name="expertsettings_checkunstableupdates">Controlla disponibilità aggiornamenti versioni beta</resource>
         <resource name="expertsettings_clipboardformats">Formati degli Appunti</resource>
         <resource name="expertsettings_counter">Numero per var. ${NUM} nel modello del nome file</resource>
         <resource name="expertsettings_enableexpert">Sono consapevole di ciò che sto facendo!</resource>
@@ -200,7 +192,7 @@ Correggi la maschera noem file e riprova.
         <resource name="expertsettings_thumbnailpreview">Visualizza anteprima finestra nel menù di contesto (Vista e Windows 7)</resource>
         <resource name="exported_to">Esportato in: {0}</resource>
         <resource name="exported_to_error">Si è verificato un errore durante l'esportazione in {0}:</resource>
-        <resource name="help_title">Guida di Greenshot</resource>
+        <resource name="help_title">Guida in linea Greenshot</resource>
         <resource name="hotkeys">Scorciatoie tastiera</resource>
         <resource name="jpegqualitydialog_choosejpegquality">Scegli la qualità dell'immagine JPEG.</resource>
         <resource name="OK">OK</resource>
@@ -218,7 +210,7 @@ Correggi la maschera noem file e riprova.
         <resource name="printoptions_printmonochrome">Forza stampa in bianco e nero</resource>
         <resource name="printoptions_timestamp">Aggiungi data/ora nel piè di pagina</resource>
         <resource name="printoptions_title">Opzioni di stampa di Greenshot</resource>
-        <resource name="qualitydialog_dontaskagain">Save come qualità predefinita e non chiedere più</resource>
+        <resource name="qualitydialog_dontaskagain">Salva come qualità predefinita e non chiedere più</resource>
         <resource name="qualitydialog_title">Qualità di Greenshot</resource>
         <resource name="quicksettings_destination_file">Salva direttamente (usando le impostazioni preferite file destinazione)</resource>
         <resource name="settings_alwaysshowprintoptionsdialog">Visualizza scelta opzioni di stampa ogni volta che stampi un'immagine</resource>
@@ -233,14 +225,14 @@ Correggi la maschera noem file e riprova.
         <resource name="settings_copypathtoclipboard">Ogni volta che una immagine viene salvata copia percorso file negli Appunti</resource>
         <resource name="settings_destination">Destinazione immagine</resource>
         <resource name="settings_destination_clipboard">Copia negli Appunti</resource>
-        <resource name="settings_destination_editor">Apri in Gest. Immagini</resource>
+        <resource name="settings_destination_editor">Apri in Gestione immagini</resource>
         <resource name="settings_destination_email">Email</resource>
-        <resource name="settings_destination_file">Salva direttamente (usando le impostazioni esposte qui sotto)</resource>
+        <resource name="settings_destination_file">Salva direttamente (usando impostazioni indicate qui sotto)</resource>
         <resource name="settings_destination_fileas">Salva come (visualizzando le scelte)</resource>
-        <resource name="settings_destination_picker">Scegli la destinazione dinamicamente</resource>
+        <resource name="settings_destination_picker">Scegli dinamicamente la destinazione</resource>
         <resource name="settings_destination_printer">Invia alla stampante</resource>
         <resource name="settings_editor">Gestione immagini</resource>
-        <resource name="settings_filenamepattern">Modello nome fFile</resource>
+        <resource name="settings_filenamepattern">Modello nome file</resource>
         <resource name="settings_general">Generali</resource>
         <resource name="settings_iecapture">Cattura Internet Explorer</resource>
         <resource name="settings_jpegquality">Qualità JPEG</resource>
@@ -250,7 +242,7 @@ Correggi la maschera noem file e riprova.
 ${YYYY} anno, 4 numeri
 ${MM} mese, 2 numeri
 ${DD} giorno, 2 numeri
-${hh} ora, 2 nuemri
+${hh} ora, 2 numeri
 ${mm} minuti, 2 numeri
 ${ss} secondi, 2 numeri
 ${NUM} numero progressivo, 6 numeri
@@ -262,12 +254,11 @@ ${hostname} Nome PC
 Puoi anche chiedere a Greenshot di creare le cartelle dinamicamente, usando la barra rovesciata (\) per
 separare cartelle e nome file.
 Esempio modello: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-creerà nelal destinazione predefinita una cartella con il giorno corrente , es: 2008-06-29.
+creerà nella destinazione predefinita una cartella con il giorno attuale, es: 2008-06-29.
 Il nome del file di immagine sarà basato sull'orario attuale, es: 11_58_32 (più l'estensione definita nelle
-impostazioni)
-        </resource>
+impostazioni)</resource>
         <resource name="settings_network">Rete e aggiornamenti</resource>
-        <resource name="settings_output">Destinazionione</resource>
+        <resource name="settings_output">Destinazione</resource>
         <resource name="settings_playsound">Riproduci suono fotocamera</resource>
         <resource name="settings_plugins">Componenti Aggiuntivi</resource>
         <resource name="settings_plugins_createdby">Creato da</resource>
@@ -289,7 +280,7 @@ impostazioni)
         <resource name="settings_tooltip_filenamepattern">Modello usato per generare il nome file in fase di salvataggio delle immagini</resource>
         <resource name="settings_tooltip_language">Lingua dell'interfaccia utente di Greenshot (richiede il riavvio)</resource>
         <resource name="settings_tooltip_primaryimageformat">Formato immagine predefinito</resource>
-        <resource name="settings_tooltip_registerhotkeys">Definisce se le scorciatoie Stamp, Ctrl + Stamp, Alt + Stamp sono riservate per uso globale di Greenshot dall'avvio del programma fino a quando viene chiuso.</resource>
+        <resource name="settings_tooltip_registerhotkeys">Definisce se le scorciatoie 'Stamp', 'Ctrl+Stamp', 'Alt+Stamp' sono riservate per uso globale di Greenshot dall'avvio del programma fino a quando viene chiuso.</resource>
         <resource name="settings_tooltip_storagelocation">Percorso predefinito dove le immagini catturate vengono salvate (lascia vuoto per salvare sul desktop)</resource>
         <resource name="settings_usedefaultproxy">Usa proxy predefinito del sistema</resource>
         <resource name="settings_visualization">Effetti</resource>
@@ -301,40 +292,42 @@ impostazioni)
         <resource name="wait_ie_capture">Attendi finchè viene completata la cattura della pagina di Internet Explorer...</resource>
         <resource name="warning">Attenzione</resource>
         <resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine.
-Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di
-tastiera.
+Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera.
 E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software.
 
-In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal
-menù visualizzabile con il tasto destro del mouse sull'icona G nella barra.
-        </resource>
+In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con il tasto destro del mouse sull'icona G nella barra.</resource>
 
-        <resource name="WindowCaptureModes.Aero">Usa colori personalizzati</resource>
-        <resource name="WindowCaptureModes.AeroTransparent">Mantieni trasparenza</resource>
-        <resource name="WindowCaptureModes.Auto">Automaticamente</resource>
-        <resource name="WindowCaptureModes.GDI">Usa i colori predefiniti</resource>
+     <resource name="WindowCaptureModes.Aero">Usa colori personalizzati</resource>
+     <resource name="WindowCaptureModes.AeroTransparent">Mantieni trasparenza</resource>
+     <resource name="WindowCaptureModes.Auto">Automaticamente</resource>
+     <resource name="WindowCaptureModes.GDI">Usa i colori predefiniti</resource>
         <resource name="WindowCaptureModes.Screen">Come visualizzata</resource>
-        <resource name="settings_iconsize">Dimensione icona</resource>
-        <resource name="editor_counter">Aggiungi conteggio</resource>
-        <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>
-        <resource name="editor_resize">Ridimensiona</resource>
-        <resource name="editor_resize_settings">Impostazioni ridimensionamento</resource>
-        <resource name="editor_resize_aspectratio">Mantieni il rapporto dimensioni</resource>
-        <resource name="editor_resize_width">Larghezza</resource>
-        <resource name="editor_resize_height">Altezza</resource>
-        <resource name="editor_dropshadow_darkness">Intensità ombra</resource>
-        <resource name="editor_dropshadow_offset">Offset ombra</resource>
-        <resource name="editor_dropshadow_settings">Impostazioni Ombreggiatura</resource>
-        <resource name="editor_dropshadow_thickness">Spessore ombra</resource>
 
-        <resource name="editor_tornedge_horizontaltoothrange">Intervallo orizzontale dentellatura</resource>
-        <resource name="editor_tornedge_settings">Impostazioni Bordi Strappati</resource>
-        <resource name="editor_tornedge_toothsize">Dimensione dentellatura</resource>
-        <resource name="editor_tornedge_verticaltoothrange">Intervallo verticale dentellatura</resource>
-        <resource name="editor_tornedge_left">Strappo lato sinistro</resource>
-        <resource name="editor_tornedge_right">Strappo lato destro</resource>
-        <resource name="editor_tornedge_top">Strappo lato in alto</resource>
-        <resource name="editor_tornedge_bottom">Strappo lato in basso</resource>
-        <resource name="editor_tornedge_shadow">Genera ombra</resource>
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Intensità ombra</resource>
+    <resource name="editor_dropshadow_offset">Offset ombra</resource>
+    <resource name="editor_dropshadow_settings">Impostazioni ombreggiatura</resource>
+    <resource name="editor_dropshadow_thickness">Spessore ombra</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">Intervallo orizzontale dentellatura</resource>
+    <resource name="editor_tornedge_settings">Impostazioni bordi strappati</resource>
+    <resource name="editor_tornedge_toothsize">Dimensione dentellatura</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Intervallo verticale dentellatura</resource>
+    <resource name="editor_tornedge_left">Strappo lato sinistro</resource>
+    <resource name="editor_tornedge_right">Strappo lato destro</resource>
+    <resource name="editor_tornedge_top">Strappo lato in alto</resource>
+    <resource name="editor_tornedge_bottom">Strappo lato in basso</resource>
+    <resource name="editor_tornedge_shadow">Genera ombra</resource>
+
+    <resource name="editor_counter">Aggiungi conteggio</resource>
+    <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>
+
+    <resource name="editor_resize">Ridimensiona</resource>
+    <resource name="editor_resize_settings">Impostazioni ridimensionamento</resource>
+    <resource name="editor_resize_aspectratio">Mantieni rapporto dimensioni</resource>
+    <resource name="editor_resize_width">Larghezza</resource>
+    <resource name="editor_resize_height">Altezza</resource>
+    <resource name="settings_iconsize">Dimensione icona</resource>
+
     </resources>
 </language>
