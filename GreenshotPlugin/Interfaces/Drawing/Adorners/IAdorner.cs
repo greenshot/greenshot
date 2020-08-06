@@ -87,5 +87,11 @@ namespace GreenshotPlugin.Interfaces.Drawing.Adorners
 		/// </summary>
 		/// <param name="matrix">Matrix</param>
 		void Transform(Matrix matrix);
+
+		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		void AdjustToDpi(uint dpi);
 	}
 }

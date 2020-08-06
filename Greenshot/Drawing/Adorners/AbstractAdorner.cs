@@ -22,6 +22,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
@@ -31,7 +32,8 @@ namespace Greenshot.Drawing.Adorners
 	{
 		public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-		protected Size _size = new Size(4, 4);
+		private static readonly Size defaultSize = new Size(6, 6);
+		protected Size _size = defaultSize;
 
 		public AbstractAdorner(IDrawableContainer owner)
 		{
@@ -137,6 +139,15 @@ namespace Greenshot.Drawing.Adorners
 			{
 				return EditStatus != EditStatus.IDLE && EditStatus != EditStatus.UNDRAWN;
 			}
+		}
+
+		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		public void AdjustToDpi(uint dpi)
+		{
+			_size = DpiHelper.ScaleWithDpi(defaultSize, dpi);
 		}
 
 		/// <summary>

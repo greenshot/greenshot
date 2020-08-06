@@ -369,6 +369,18 @@ namespace Greenshot.Drawing
 			Draw(graphics, renderMode);
 		}
 
+		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		public void AdjustToDpi(uint dpi)
+		{
+			foreach(var adorner in Adorners) 
+			{
+				adorner.AdjustToDpi(dpi);
+			}
+		}
+
 		public virtual bool Contains(int x, int y) {
 			return Bounds.Contains(x , y);
 		}

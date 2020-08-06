@@ -433,6 +433,17 @@ namespace Greenshot.Drawing
 		public ICaptureDetails CaptureDetails { get; set; }
 
 		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		public void AdjustToDpi(uint dpi)
+		{
+			foreach (var element in this._elements) {
+				element.AdjustToDpi(dpi);
+			}
+		}
+
+		/// <summary>
 		/// Base Surface constructor
 		/// </summary>
 		public Surface()

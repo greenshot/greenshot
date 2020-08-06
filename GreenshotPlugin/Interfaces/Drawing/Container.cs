@@ -120,6 +120,12 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		/// Available adorners for the DrawableContainer
 		/// </summary>
 		IList<IAdorner> Adorners { get; }
+
+		/// <summary>
+		/// Adjust UI elements to the supplied DPI settings
+		/// </summary>
+		/// <param name="dpi"></param>
+		void AdjustToDpi(uint dpi);
 	}
 
 	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
@@ -167,6 +173,7 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		void PushElementsToBottom(IDrawableContainerList elements);
 		void ShowContextMenu(MouseEventArgs e, ISurface surface);
 		void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
+		void AdjustToDpi(uint dpi);
 	}
 
 	public interface ITextContainer : IDrawableContainer
