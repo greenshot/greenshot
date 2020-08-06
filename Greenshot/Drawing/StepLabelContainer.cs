@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,9 +40,7 @@ namespace Greenshot.Drawing {
 
 		private readonly bool _drawAsRectangle = false;
 
-		private float fontSize = 16;
-
-		public StepLabelContainer(Surface parent) : base(parent) {
+        public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
 			Init();
@@ -169,26 +167,6 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
-		/// Make sure the size of the font is scaled
-		/// </summary>
-		/// <param name="matrix"></param>
-		public override void Transform(Matrix matrix) {
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			int widthBefore = rect.Width;
-			int heightBefore = rect.Height;
-
-			// Transform this container
-			base.Transform(matrix);
-			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-
-			int widthAfter = rect.Width;
-			int heightAfter = rect.Height;
-			float factor = ((float)widthAfter / widthBefore + (float)heightAfter / heightBefore) / 2;
-
-			fontSize *= factor;
-		}
-
-		/// <summary>
 		/// Override the parent, calculate the label number, than draw
 		/// </summary>
 		/// <param name="graphics"></param>
@@ -209,6 +187,7 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 
+            float fontSize = Math.Min(Width,Height) / 1.4f;
             using FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name);
             using Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
@@ -219,9 +198,9 @@ namespace Greenshot.Drawing {
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			if (_drawAsRectangle) {
 				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
-			} else {
-				return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
 			}
-		}
+
+            return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
+        }
 	}
 }
