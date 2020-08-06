@@ -44,6 +44,8 @@ namespace GreenshotPlugin.Core {
 		private const int MaxTitleLength = 80;
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string UnsafeReplacement = "_";
+		private static readonly Random RandomNumberGen = new Random();
+		private static readonly Regex RandRegexp = new Regex("^R+$", RegexOptions.Compiled);
 
 		/// <summary>
 		/// Remove invalid characters from the fully qualified filename
@@ -160,6 +162,7 @@ namespace GreenshotPlugin.Core {
 			string replaceValue = string.Empty;
 			string variable = match.Groups["variable"].Value;
 			string parameters = match.Groups["parameters"].Value;
+			string randomChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 			if (parameters.Length > 0) {
 				string[] parms = SplitRegexp.Split(parameters);
@@ -240,6 +243,10 @@ namespace GreenshotPlugin.Core {
 				replaceValue = captureDetails.MetaData[variable];
 				if (filenameSafeMode) {
 					replaceValue = MakePathSafe(replaceValue);
+				}
+			} else if (RandRegexp.IsMatch(variable)) {
+				for (int i = 0; i < variable.Length; i++) {
+					replaceValue += randomChars[RandomNumberGen.Next(randomChars.Length)];
 				}
 			} else {
 				// Handle other variables
