@@ -213,16 +213,58 @@ Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 Name: startup; Description: {cm:startup}
 
 [CustomMessages]
+;Language names in the original language
+dexfranconia=Frängisch (Deutsch)
+arSY=العربية
+caCA=Català
+csCZ=Ceština
+daDK=Dansk
+elGR=ελληνικά
+esES=Español
+etEE=Eesti
+faIR=پارسی
+fiFI=Suomi
+frFR=Français
+frQC=Français - Québec
+heIL=עִבְרִית
+huHU=Magyar
+idID=Bahasa Indonesia
+itIT=Italiano
+jaJP=日本語
+kabDZ=Taqbaylit
+koKR=한국어
+ltLT=Lietuvių
+lvLV=Latviski
+nnNO=Nynorsk
+plPL=Polski
+ptBR=Português do Brasil
+ptPT=Português de Portugal
+roRO=Română
+ruRU=Pусский
+skSK=Slovenčina
+slSI=Slovenščina
+srRS=Српски
+svSE=Svenska
+trTR=Türk
+ukUA=Українська
+viVN=Việt
+zhCN=简体中文
+zhTW=繁體中文
 
+en.box=Box plug-in
 en.confluence=Confluence plug-in
 en.default=Default installation
+en.dropbox=Dropbox plug-in
 en.externalcommand=Open with external command plug-in
+en.flickr=Flickr plug-in
 en.imgur=Imgur plug-in (See: http://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.office=Microsoft Office plug-in
 en.optimize=Optimizing performance, this may take a while.
+en.photobucket=Photobucket plug-in
+en.picasa=Picasa plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.win10=Windows 10 plug-in
@@ -278,15 +320,20 @@ fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 fr.win10=Greffon Windows 10
 
+it.box=Plugin Box
 it.confluence=Plugin Confluence
 it.default=Installazione di default
+it.dropbox=Plugin Dropbox
 it.externalcommand=Apri con comando esterno plugin
+it.flickr=Plugin Flickr
 it.imgur=Plugin Imgur (vedi: http://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
 it.ocr=Plugin OCR (richiede Microsoft Office Document Imaging (MODI))
 it.office=Plugin Microsoft Office
 it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
+it.photobucket=Plugin Photobucket
+it.picasa=Plugin Picasa
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.win10=Plugin Windows 10
@@ -411,56 +458,56 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
-Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
-Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning
-Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
-Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer()
+Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\dropbox"; Description: {cm:dropbox}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\flickr"; Description: {cm:flickr}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\picasa"; Description: {cm:picasa}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\win10"; Description: {cm:win10}; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer()
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
-Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
-Name: "languages\caCA"; Description: "Català"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\dexfranconia"; Description: "Frängisch (Deutsch)"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\elGR"; Description: "ελληνικά"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('4')
-Name: "languages\esES"; Description: "Español"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\etEE"; Description: "Eesti"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\faIR"; Description: "پارسی"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
-Name: "languages\fiFI"; Description: "Suomi"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\frFR"; Description: "Français"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\frQC"; Description: "Français - Québec"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\heIL"; Description: "עִבְרִית"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('c')
-Name: "languages\huHU"; Description: "Magyar"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\idID"; Description: "Bahasa Indonesia"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
-Name: "languages\koKR"; Description: "한국어"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
-Name: "languages\kabDZ"; Description: "Taqbaylit"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
-Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
-Name: "languages\lvLV"; Description: "Latviski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
-Name: "languages\nnNO"; Description: "Nynorsk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\plPL"; Description: "Polski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\ptBR"; Description: "Português do Brasil"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\ptPT"; Description: "Português de Portugal"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\ruRU"; Description: "Pусский"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
-Name: "languages\roRO"; Description: "Română"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\skSK"; Description: "Slovenčina"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\slSI"; Description: "Slovenščina"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
-Name: "languages\srRS"; Description: "Српски"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
-Name: "languages\svSE"; Description: "Svenska"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
-Name: "languages\trTR"; Description: "Türk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
-Name: "languages\ukUA"; Description: "Українська"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
-Name: "languages\viVN"; Description: "Việt"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
-Name: "languages\zhCN"; Description: "简体中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
-Name: "languages\zhTW"; Description: "繁體中文"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
+Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\caCA"; Description: {cm:caCA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\csCZ"; Description: {cm:csCZ}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\daDK"; Description: {cm:daDK}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\dexfranconia"; Description: {cm:dexfranconia}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\elGR"; Description: {cm:elGR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('4')
+Name: "languages\esES"; Description: {cm:esES}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\etEE"; Description: {cm:etEE}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\faIR"; Description: {cm:faIR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\fiFI"; Description: {cm:fiFI}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\frFR"; Description: {cm:frFR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\frQC"; Description: {cm:frQC}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\heIL"; Description: {cm:heIL}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('c')
+Name: "languages\huHU"; Description: {cm:huHU}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\idID"; Description: {cm:idID}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\itIT"; Description: {cm:itIT}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\jaJP"; Description: {cm:jaJP}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
+Name: "languages\kabDZ"; Description: {cm:kabDZ}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
+Name: "languages\koKR"; Description: {cm:koKR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
+Name: "languages\ltLT"; Description: {cm:ltLT}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
+Name: "languages\lvLV"; Description: {cm:lvLV}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
+Name: "languages\nnNO"; Description: {cm:nnNO}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\plPL"; Description: {cm:plPL}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\ptBR"; Description: {cm:ptBR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\ptPT"; Description: {cm:ptPT}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\roRO"; Description: {cm:roRO}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\ruRU"; Description: {cm:ruRU}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\skSK"; Description: {cm:skSK}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\slSI"; Description: {cm:slSI}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('2')
+Name: "languages\srRS"; Description: {cm:srRS}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\svSE"; Description: {cm:svSE}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
+Name: "languages\trTR"; Description: {cm:trTR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
+Name: "languages\ukUA"; Description: {cm:ukUA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\viVN"; Description: {cm:viVN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
+Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
+Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
 [Code]
 // Do we have a regular user trying to install this?
 function IsRegularUser(): Boolean;
