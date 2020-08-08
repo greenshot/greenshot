@@ -1,19 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.0.2" languagegroup="1">
 	<resources>
 		<resource name="home_downloads">Download</resource>
-		<resource name="home_headline">Greenshot - strumento di cattura gratis ottimizzato per la produttività</resource>
-		<resource name="home_opensource">Greenshot è gratuito e open source</resource>
-		<resource name="home_opensource_donate">Se si scopre che Greenshot risparmiare un sacco di tempo e / o denaro, è possibile &lt;a href="/support/"&gt;sostenere lo sviluppo&lt;/a&gt; di questa strumento di cattura.</resource>
-		<resource name="home_opensource_gpl">Greenshot è pubblicato sotto licenza &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;. Questo software può essere scaricato e utilizzato gratuitamente, anche in un ambiente commerciale.</resource>
+		<resource name="home_headline">Greenshot - è uno strumento di cattura gratuito ottimizzato per la produttività</resource>
+		<resource name="home_opensource">Greenshot è gratuito ed open source</resource>
+		<resource name="home_opensource_donate">Se scopri che Greenshot ti fa risparmiare un sacco di tempo e/o denaro, puoi &lt;a href="/support/"&gt;sostenere lo sviluppo&lt;/a&gt; di questa strumento di cattura.</resource>
+		<resource name="home_opensource_gpl">Greenshot è pubblicato sotto licenza &lt;a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;. Questo software può essere scaricato e usato gratuitamente, anche in un ambiente commerciale.</resource>
 		<resource name="home_seemore">Vuoi saperne di più?</resource>
-		<resource name="home_seemore_screenshots">Naturalmente c'è molto di più che si può fare per Greenshot. Check out alcuni &lt;a href="/screenshots/"&gt;screenshot&lt;/a&gt; di Greenshot in azione o provare la versione &lt;a href="/downloads/"&gt;più recente&lt;/a&gt;.</resource>
+		<resource name="home_seemore_screenshots">Naturalmente Greenshot pò fare molto di più per te. Guarda alcunr &lt;a title="schermate di Greenshot in azione" href="/screenshots/"&gt;screenshots&lt;/a&gt; of Greenshot in action or try the &lt;a title="Scarica la versione stabile più recente di Greenshot" href="/downloads/"&gt;latest release&lt;/a&gt;.</resource>
 		<resource name="home_whatis">Greenshot - Che cosa è questo?</resource>
-		<resource name="home_whatis_create">Rapidamente rendere le immagini di uno schermo selezionata regione, finestra o completo schermo. È possibile anche catturare le pagine web da Internet Explorer completi (scorrimento).</resource>
-		<resource name="home_whatis_edit">Annotare, evidenziare o nascondere parti di screenshot è facilmente.</resource>
-		<resource name="home_whatis_intro">Greenshot è uno strumento di cattura schermo per Windows con leggeri caratteristiche essenziali:</resource>
+		<resource name="home_whatis_create">Cattura facilmente una zona, una finestra o lo schermo per intero. È possibile anche catturare le pagine web complete (incluso lo scorrimento) in Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Annota, evidenzia o nascondi facilmente parti di una schermata.</resource>
+		<resource name="home_whatis_intro">Greenshot è uno strumento di cattura schermo per Windows con le seguenti funzionalità principali:</resource>
 		<resource name="home_whatis_more">... e molte altre opzioni per creare e lavorare con le immagini ogni giorno.</resource>
-		<resource name="home_whatis_send">Esportazione screenshot in vari modi: salvare in un file, stampa, copia negli appunti, attaccare a un messaggio, inviare ai programmi di Office o caricare su siti di foto come Flickr e Picasa, tra gli altri.</resource>
-		<resource name="home_whatis_usage">Essere facile da capire e configurare, Greenshot è uno strumento efficace per i project manager, sviluppatori di software, redattori tecnici, collaudatori e chiunque altro la creazione di screenshot.</resource>
+		<resource name="home_whatis_send">Esporta la schermate in vari modi: salvataggio in un file, stampa, copia negli Appunti, come allegati ad un messaggio, invio a programmi come Office o upload in siti di foto come Flickr e Picasa, etc.</resource>
+		<resource name="home_whatis_usage">Greenshot è facile da comprendere e configurare, ed è uno strumento efficace per i project manager, sviluppatori di software, redattori tecnici, collaudatori e chiunque altro crea schermate.</resource>
 	</resources>
 </language>
