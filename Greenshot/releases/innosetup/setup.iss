@@ -189,7 +189,7 @@ Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: st
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
-Name: {group}\Uninstall {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
+Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
 Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 
@@ -268,6 +268,7 @@ en.picasa=Picasa plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.win10=Windows 10 plug-in
+en.UninstallIconDescription=Uninstall
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -322,7 +323,7 @@ fr.win10=Greffon Windows 10
 
 it.box=Plugin Box
 it.confluence=Plugin Confluence
-it.default=Installazione di default
+it.default=Installazione predefinita
 it.dropbox=Plugin Dropbox
 it.externalcommand=Apri con comando esterno plugin
 it.flickr=Plugin Flickr
@@ -337,6 +338,43 @@ it.picasa=Plugin Picasa
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.win10=Plugin Windows 10
+it.UninstallIconDescription=Disinstalla
+it.dexfranconia=Fräncofono (Tedesco)
+it.arSY=Arabo (Siria)
+it.caCA=Catalano
+it.csCZ=Ceco
+it.daDK=Danese
+it.elGR=Greco
+it.esES=Spagnolo
+it.etEE=Eesti
+it.faIR=Farsi (Iran)
+it.fiFI=Suomi
+it.frFR=Francese
+it.frQC=Francese (Québec)
+it.heIL=Ebraico (Israele)
+it.huHU=Ungherese
+it.idID=Bahasa Indonesia
+it.itIT=Italiano
+it.jaJP=Giapponese
+it.kabDZ=Taqbaylit
+it.koKR=Coreano
+it.ltLT=Lituano
+it.lvLV=Latviano
+it.nnNO=Norvegese
+it.plPL=Polacco
+it.ptBR=Portoghese (Brasile)
+it.ptPT=Portoghese (Portogallo)
+it.roRO=Rumeno
+it.ruRU=Russo
+it.skSK=Slovacco
+it.slSI=Sloveno
+it.srRS=Serbo (Russia)
+it.svSE=Svedese
+it.trTR=Türco
+it.ukUA=Ucraino
+it.viVN=Vietnamita
+it.zhCN=Cinese (Semplificato)
+it.zhTW=Cinese (Taiwan)
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
