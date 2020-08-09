@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.0">
+<language description="Italiano" ietf="it-IT" version="1.0.1">
   <resources>
 	<resource name="upload_menu_item">
 		Carica su Jira
@@ -14,7 +14,7 @@
 		ID
 	</resource>
 	<resource name="column_reporter">
-		Reporter
+		Segnalatore
 	</resource>
 	<resource name="column_summary">
 		Riepilogo
@@ -23,7 +23,7 @@
 		Commento
 	</resource>
 	<resource name="label_filename">
-		Nome File
+		Nome file
 	</resource>
 	<resource name="label_jira">
 		JIRA
@@ -35,10 +35,10 @@
 		Si è verificato un problema durante il collegamento: {0}
 	</resource>
 	<resource name="label_url">
-		Url
+		URL
 	</resource>
   	<resource name="login_title">
-		Inserisci le tue credenziali di collegamento a Jira
+		Inserisci le credenziali di accesso a Jira
 	</resource>
 	<resource name="settings_title">
 		Impostazioni Jira
@@ -50,7 +50,7 @@
 		Annulla
 	</resource>
   	<resource name="upload_success">
-		Immagine caricata correttamente su Jira!
+		caricamento immagine su Jira completato!
 	</resource>
   	<resource name="upload_failure">
 		Si è verificato un errore durante il caricamento su Jira:
@@ -59,7 +59,7 @@
   		Formato immagine
 	</resource>
   	<resource name="communication_wait">
-  		Trasferimento dati verso JIRA, attendere prego...
+  		Trasferimento dati verso JIRA...
 	</resource>
   </resources>
 </language>
