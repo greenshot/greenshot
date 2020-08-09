@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.3.0" languagegroup="1">
     <resources>
-        <resource name="about_bugs">Seganal le anomalie a</resource>
-        <resource name="about_donations">Se ti piace Greenshot, dacci il tuo aiuto su:</resource>
-        <resource name="about_host">Greenshot è disponibile su GitHub in</resource>
+        <resource name="about_bugs">Segnala eventuali bug a questo indirizzo</resource>
+        <resource name="about_donations">Se ti piace Greenshot, supportaci su:</resource>
+        <resource name="about_host">Greenshot è disponibile nel repository GitHub</resource>
         <resource name="about_icons">Libreria icone del set icone Fugue di Yusuke Kamiyamane (Creative Commons Attribution 3.0 license)</resource>
         <resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene fornito SENZA ALCUNA GARANZIA.
 Questo software è garuitio", e potete ri-distribuirlo secondo certe condizioni.
 Dettagli della General Public License GNU:</resource>
-        <resource name="about_title">Notizie su Greenshot</resource>
+        <resource name="about_title">Info su Greenshot</resource>
         <resource name="about_translation">Traduzione in Italiano curata da bovirus e tonytogna</resource>
         <resource name="application_title">Greenshot - Uno straordinario strumento per copiare immagini dallo schermo</resource>
         <resource name="bugreport_cancel">Chiudi</resource>
@@ -49,7 +49,7 @@ Chiudi la finestra e riprova nuovamente.</resource>
         <resource name="com_rejected_title">Accesso rifiutato a Greenshot</resource>
         <resource name="config_unauthorizedaccess_write">Il file di configurazione di Greenshot non può essere salvato.
 Controlla i permessi di accesso per '{0}'.</resource>
-        <resource name="contextmenu_about">Notizie su Greenshot</resource>
+        <resource name="contextmenu_about">Info su Greenshot</resource>
         <resource name="contextmenu_capturearea">Cattura regione</resource>
         <resource name="contextmenu_captureclipboard">Apri immagine dagli Appunti</resource>
         <resource name="contextmenu_capturefullscreen">Cattura schermo intero</resource>
@@ -260,8 +260,8 @@ impostazioni)</resource>
         <resource name="settings_network">Rete e aggiornamenti</resource>
         <resource name="settings_output">Destinazione</resource>
         <resource name="settings_playsound">Riproduci suono fotocamera</resource>
-        <resource name="settings_plugins">Componenti Aggiuntivi</resource>
-        <resource name="settings_plugins_createdby">Creato da</resource>
+        <resource name="settings_plugins">Componenti aggiuntivi</resource>
+        <resource name="settings_plugins_createdby">Autore</resource>
         <resource name="settings_plugins_dllpath">Percorso DLL</resource>
         <resource name="settings_plugins_name">Nome</resource>
         <resource name="settings_plugins_version">Versione</resource>
