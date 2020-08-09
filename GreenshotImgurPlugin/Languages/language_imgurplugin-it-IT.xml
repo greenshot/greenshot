@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.0">
+<language description="Italiano" ietf="it-IT" version="1.0.1">
   <resources>
 	<resource name="upload_menu_item">
 		Carica su Imgur
@@ -8,7 +8,7 @@
 		Impostazioni Imgur
 	</resource>
 	<resource name="label_url">
-		Url
+		URL
 	</resource>
 	<resource name="OK">
 		OK
@@ -17,34 +17,37 @@
 		Annulla
 	</resource>
 	<resource name="upload_success">
-		Immagine caricata correttamente su Imgur!
+		caricamento immagine su Imgur completato!
 	</resource>
 	<resource name="upload_failure">
-		Si è verificato un problema durante il collegamento:
+		Si è verificato un problema durante il caricamento:
 	</resource>
 	<resource name="label_upload_format">
 		Formato immagine
 	</resource>
 	<resource name="communication_wait">
-		Comunicazione con Imgur. Attendere prego...
+		Comunicazione con Imgur...
 	</resource>
 	<resource name="delete_question">
-		Sei sicuro si voler eliminare l'immagine {0} da Imgur?
+		Sei sicuro di voler eliminare l'immagine {0} da Imgur?
 	</resource>
 	<resource name="clear_question">
-		Sei sicuro si voler eliminare la cronologia locale di Imgur?
+		Sei sicuro di voler eliminare la cronologia locale di Imgur?
 	</resource>
 	<resource name="delete_title">
 		Elimina Imgur {0}
 	</resource>
+	<resource name="anonymous_access">
+		Usa accesso anonimo
+	</resource>
 	<resource name="use_page_link">
-		Usa il collegamento alla pagina invece di quello all'immagine su appunti
+		Negli Appunti usa collegamento pagina invece di quello all'immagine
 	</resource>
 	<resource name="history">
 		Cronologia
 	</resource>
 	<resource name="configure">
-		Configurazione
+		Impostazioni
 	</resource>
   </resources>
 </language>
