@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.0">
+<language description="Italiano" ietf="it-IT" version="1.0.1">
 	<resources>
 	 <resource name="label_HiddenFromSearch">
 			Visibilità
@@ -8,13 +8,13 @@
 			Liv. sicurezza
 		</resource>
     <resource name="label_AfterUploadLinkToClipBoard">
-     Collegamento agli appunti
+     Collegamento agli Appunti
     </resource>
 		<resource name="label_AfterUpload">
-		Dopo il carico
+		Dopo il caricamento
 		</resource>
     <resource name="Configure">
-			Configurazione Flickr
+			Impostazioni Flickr
 		</resource>
 		<resource name="upload_menu_item">
 		Carica su Flickr
@@ -23,7 +23,7 @@
 		Impostazioni di Flickr
 	</resource>
 		<resource name="upload_success">
-		Immagine caricata correttamente su Flickr!
+		Caricamento immagine su Flickr completato!
 	</resource>
 		<resource name="upload_failure">
 		Si è verificato un errore durante il caricamento su Flickr:
@@ -32,7 +32,7 @@
 			Formato immagine
 	</resource>
 		<resource name="communication_wait">
-			Comunicazione con Flickr. Attendere prego...
+			Comunicazione con Flickr...
 	</resource>
 	  <resource name="public">
       Pubblica

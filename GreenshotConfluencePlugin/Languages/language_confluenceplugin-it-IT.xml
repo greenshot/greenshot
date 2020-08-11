@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="0.8.0">
+<language description="Italiano" ietf="it-IT" version="1.0.1">
  <resources>
 	<resource name="plugin_settings">
 		Impostazioni di Confluence
 	</resource>
 	<resource name="login_error">
-		Si è verificato un problema durante il collegamento: {0}
+		Si è verificato un problema durante il caricamento: {0}
 	</resource>
 	<resource name="label_url">
-		Indirizzo Url
+		Indirizzo URL
 	</resource>
 	<resource name="label_timeout">
 		Timeout
@@ -17,10 +17,10 @@
 		Utente
 	</resource>
 	<resource name="label_password">
-		Parola d'ordine
+		Password
 	</resource>
 	<resource name="login_title">
-		Inserisci le tue credenziali di collegamento a Confluence
+		Inserisci le credenziali di accesso a Confluence
 	</resource>
 	<resource name="OK">
 		OK
@@ -32,7 +32,7 @@
 		Carica su Confluence
 	</resource>
 	<resource name="upload_success">
-		Immagine caricata correttamente su Confluence!
+		Caricamento immagine su Confluence completato!
 	</resource>
 	<resource name="upload_failure">
 		Si è verificato un errore durante il caricamento su Confluence:
@@ -44,10 +44,10 @@
 		Formato di caricamento
 	</resource>
 	<resource name="copy_wikimarkup">
-		Copia Wikimarkup sugli appunti
+		Copia Wikimarkup negli Appunti
 	</resource>
 	<resource name="filename">
-		Nome File
+		Nome file
 	</resource>
   <resource name="upload">
 		Carica
@@ -59,7 +59,7 @@
 		Cerca pagine
 	</resource>
   <resource name="browse_pages">
-		Naviga pagine
+		Sfoglia pagine
 	</resource>
   <resource name="search_text">
 		Cerca testo
@@ -68,13 +68,13 @@
 		Cerca
 	</resource>
   <resource name="loading">
-		Caricamento dati di Confluence, attendere prego...
+		Caricamento dati di Confluence...
 	</resource>
   <resource name="include_person_spaces">
     Includi spazi personali in ricerca e navigazione
   </resource>
    <resource name="communication_wait">
-     Trasferimento dati verso Confluence, attendere prego...
+     Trasferimento dati su Confluence...
    </resource>
  </resources>
 </language>
