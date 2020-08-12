@@ -2,7 +2,7 @@
 layout: faq
 status: publish
 published: true
-title: How can I open an image in Greenshot directly?
+title: How can I open an image in Greenshot?
 tags: []
  
 ---
