@@ -297,11 +297,11 @@ E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare
 
 In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con il tasto destro del mouse sull'icona G nella barra.</resource>
 
-     <resource name="WindowCaptureModes.Aero">Usa colori personalizzati</resource>
-     <resource name="WindowCaptureModes.AeroTransparent">Mantieni trasparenza</resource>
-     <resource name="WindowCaptureModes.Auto">Automaticamente</resource>
-     <resource name="WindowCaptureModes.GDI">Usa i colori predefiniti</resource>
-        <resource name="WindowCaptureModes.Screen">Come visualizzata</resource>
+     <resource name="WindowCaptureMode.Aero">Usa colori personalizzati</resource>
+     <resource name="WindowCaptureMode.AeroTransparent">Mantieni trasparenza</resource>
+     <resource name="WindowCaptureMode.Auto">Automaticamente</resource>
+     <resource name="WindowCaptureMode.GDI">Usa i colori predefiniti</resource>
+     <resource name="WindowCaptureModes.Screen">Come visualizzata</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Intensità ombra</resource>
