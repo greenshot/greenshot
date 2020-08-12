@@ -30,7 +30,7 @@ Greenshot knows of 3 different files, which are loaded in the following order:
 2. greenshot.ini: this is the normal file, with all the settings of the user, which is written by Greenshot. This overrules the settings in the greenshot-defaults.ini file.
 3. greenshot-fixed.ini: has settings which will overrule all settings in the files above.
 
-Greenshot will look for every mentioned file, in the described order, first in the same location as the executable (e.g. installation directory) and if there is not there than in %APPDATA%\Greenshot (e.g. ```C:\Users\USERNAME\AppData\Roaming\Greenshot\```).
+Greenshot will look for every mentioned file, in the described order, first in the same location as the executable (e.g. installation directory) and if there is not there than in %APPDATA%\Greenshot (e.g. ```C:\Users\%USERNAME%\AppData\Roaming\Greenshot\```).
 
 The configuration is build from zero, setting for setting, by using the following 4 steps:
 

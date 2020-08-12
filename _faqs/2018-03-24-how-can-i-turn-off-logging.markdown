@@ -19,6 +19,8 @@ you can insert
 to turn off logging completey or
 
     <level value="ERROR"/>
+    
+to turn on error logging.
 
 
 **See also:**
