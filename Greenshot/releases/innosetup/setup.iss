@@ -190,8 +190,8 @@ Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: st
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
 Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
-Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
-Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowFile} Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowFile} License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
@@ -214,42 +214,42 @@ Name: startup; Description: {cm:startup}
 
 [CustomMessages]
 ;Language names in the original language
-dexfranconia=Frängisch (Deutsch)
-arSY=العربية
-caCA=Català
-csCZ=Ceština
-daDK=Dansk
-elGR=ελληνικά
-esES=Español
-etEE=Eesti
-faIR=پارسی
-fiFI=Suomi
-frFR=Français
-frQC=Français - Québec
-heIL=עִבְרִית
-huHU=Magyar
-idID=Bahasa Indonesia
-itIT=Italiano
-jaJP=日本語
-kabDZ=Taqbaylit
-koKR=한국어
-ltLT=Lietuvių
-lvLV=Latviski
-nnNO=Nynorsk
-plPL=Polski
-ptBR=Português do Brasil
-ptPT=Português de Portugal
-roRO=Română
-ruRU=Pусский
-skSK=Slovenčina
-slSI=Slovenščina
-srRS=Српски
-svSE=Svenska
-trTR=Türk
-ukUA=Українська
-viVN=Việt
-zhCN=简体中文
-zhTW=繁體中文
+en.dexfranconia=Frängisch (Deutsch)
+en.arSY=العربية
+en.caCA=Català
+en.csCZ=Ceština
+en.daDK=Dansk
+en.elGR=ελληνικά
+en.esES=Español
+en.etEE=Eesti
+en.faIR=پارسی
+en.fiFI=Suomi
+en.frFR=Français
+en.frQC=Français - Québec
+en.heIL=עִבְרִית
+en.huHU=Magyar
+en.idID=Bahasa Indonesia
+en.itIT=Italiano
+en.jaJP=日本語
+en.kabDZ=Taqbaylit
+en.koKR=한국어
+en.ltLT=Lietuvių
+en.lvLV=Latviski
+en.nnNO=Nynorsk
+en.plPL=Polski
+en.ptBR=Português do Brasil
+en.ptPT=Português de Portugal
+en.roRO=Română
+en.ruRU=Pусский
+en.skSK=Slovenčina
+en.slSI=Slovenščina
+en.srRS=Српски
+en.svSE=Svenska
+en.trTR=Türk
+en.ukUA=Українська
+en.viVN=Việt
+en.zhCN=简体中文
+en.zhTW=繁體中文
 
 en.box=Box plug-in
 en.confluence=Confluence plug-in
@@ -269,6 +269,7 @@ en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
+en.ShowFile=Show
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -339,6 +340,8 @@ it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.win10=Plugin Windows 10
 it.UninstallIconDescription=Disinstalla
+it.ShowFile=Visualizza
+
 it.dexfranconia=Fräncofono (Tedesco)
 it.arSY=Arabo (Siria)
 it.caCA=Catalano
