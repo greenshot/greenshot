@@ -9,6 +9,7 @@
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">About Greenshot</resource>
+		<resource name="about_translation">Info about translation</resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">Close</resource>
 		<resource name="bugreport_info">Sorry, an unexpected error occured.
