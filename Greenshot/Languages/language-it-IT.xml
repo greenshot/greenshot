@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.3.0" languagegroup="1">
     <resources>
         <resource name="about_bugs">Segnala eventuali bug a questo indirizzo</resource>
@@ -10,25 +10,22 @@ Greenshot viene fornito SENZA ALCUNA GARANZIA.
 Questo software è garuitio", e potete ri-distribuirlo secondo certe condizioni.
 Dettagli della General Public License GNU:</resource>
         <resource name="about_title">Info su Greenshot</resource>
-        <resource name="about_translation">Traduzione in Italiano curata da bovirus e tonytogna</resource>
+        <resource name="about_translation">Traduzione italiana (v. 16.08.2020) di bovirus e tonytogna</resource>
         <resource name="application_title">Greenshot - Uno straordinario strumento per copiare immagini dallo schermo</resource>
         <resource name="bugreport_cancel">Chiudi</resource>
         <resource name="bugreport_info">Si è verificato un errore inaspettato.
 
 La buona notizia è che puoi aiutarci ad eliminarlo segnalandoci l'errore.
-Visita la pagina internet qui sotto, crea una nuova segnalazione errore e copia nella descrizione il
-contenuto preso dall'area di testo.
+Visita la pagina internet qui sotto, crea una nuova segnalazione errore e copia nella descrizione il contenuto preso dall'area di testo.
 
 Aggiungi un riepilogo significativo e includi qualsiasi informazione tu consideri possa esserci d'aiuto per risolvere il problema.
 Inoltre apprezzeremo molto, se prima di inserire la segnalazione, controllassi se esiste già una segnalazione per questo tipo di errore (puoi usare la ricerca)
 Grazie :)</resource>
         <resource name="bugreport_title">Errore</resource>
         <resource name="CANCEL">Annulla</resource>
-        <resource name="clipboard_error">Si è verificato un errore inaspettato durante la scrittura negli Appunti.
-        </resource>
+        <resource name="clipboard_error">Si è verificato un errore inaspettato durante la scrittura negli Appunti.</resource>
         <resource name="clipboard_noimage">Nessuna immagine sugli Appunti.</resource>
-        <resource name="clipboard_inuse">Greenshot non è riuscito a scrivere negli Appunti poiché il processo {0} teneva l'accesso bloccato.
-        </resource>
+        <resource name="clipboard_inuse">Greenshot non è riuscito a scrivere negli Appunti poiché il processo {0} teneva l'accesso bloccato.</resource>
         <resource name="ClipboardFormat.BITMAP">BMO (Bitmap Windows)</resource>
         <resource name="ClipboardFormat.DIB">DIB (Device independent Bitmap)</resource>
         <resource name="ClipboardFormat.HTML">HTML</resource>
@@ -236,7 +233,6 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="settings_general">Generali</resource>
         <resource name="settings_iecapture">Cattura Internet Explorer</resource>
         <resource name="settings_jpegquality">Qualità JPEG</resource>
-        <resource name="settings_jpegsettings">Impostazioni JPEG</resource>
         <resource name="settings_language">Lingua</resource>
         <resource name="settings_message_filenamepattern">I parametri racchiusi tra % verranno automaticamente sostituiti:
 ${YYYY} anno, 4 numeri
@@ -301,7 +297,7 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
      <resource name="WindowCaptureMode.AeroTransparent">Mantieni trasparenza</resource>
      <resource name="WindowCaptureMode.Auto">Automaticamente</resource>
      <resource name="WindowCaptureMode.GDI">Usa i colori predefiniti</resource>
-     <resource name="WindowCaptureModes.Screen">Come visualizzata</resource>
+     <resource name="WindowCaptureMode.Screen">Come visualizzata</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Intensità ombra</resource>
@@ -313,6 +309,7 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
     <resource name="editor_tornedge_settings">Impostazioni bordi strappati</resource>
     <resource name="editor_tornedge_toothsize">Dimensione dentellatura</resource>
     <resource name="editor_tornedge_verticaltoothrange">Intervallo verticale dentellatura</resource>
+    <resource name="editor_tornedge_all">Strappo su tutti i lati</resource>
     <resource name="editor_tornedge_left">Strappo lato sinistro</resource>
     <resource name="editor_tornedge_right">Strappo lato destro</resource>
     <resource name="editor_tornedge_top">Strappo lato in alto</resource>
