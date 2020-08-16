@@ -190,8 +190,8 @@ Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: st
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
 Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
-Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
-Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowReadme}; Filename: {app}\readme.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowLicense}; Filename: {app}\license.txt; WorkingDir: {app}
 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
@@ -269,6 +269,8 @@ en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
+en.ShowLicense=Show licenze
+en.ShowReadme=how Readme
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -339,6 +341,8 @@ it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.win10=Plugin Windows 10
 it.UninstallIconDescription=Disinstalla
+it.ShowLicense=Visualizza licenza (in inglese)
+it.ShowReadme=Visualizza Readme (in inglese)
 it.dexfranconia=Fräncofono (Tedesco)
 it.arSY=Arabo (Siria)
 it.caCA=Catalano
