@@ -103,7 +103,10 @@ namespace Greenshot.Gfx.Structs
         /// <returns>Color</returns>
         public static Color ToColor(this uint color)
         {
-            return Color.FromArgb((int)color);
+            unchecked
+            {
+                return Color.FromArgb((int)color);
+            }
         }
     }
 }

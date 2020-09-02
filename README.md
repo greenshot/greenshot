@@ -31,20 +31,20 @@ This repository is work in progress for the next Greenshot (2.0?).
 Quick start for developers
 ----------------------------
 * Download the latest (!!!) dotnet core SDK from here: https://github.com/dotnet/core-sdk ([quick-link to download](https://dotnetcli.blob.core.windows.net/dotnet/Sdk/master/dotnet-sdk-latest-win-x64.exe))
-  * Make sure you only have the latest dotnet core 3.1 installed!
-* Make sure you have the latest Visual Studio 2019, and enable "Use previews of the dotnet core SDK", as is shown here: https://stackoverflow.com/a/55033763
+  * Make sure you only have the latest dotnet core 5 installed!
+* Make sure you have the latest Visual Studio 2019 Preview, and enable "Use previews of the dotnet core SDK", as is shown here: https://stackoverflow.com/a/55033763
 * Clone the [repository](https://github.com/greenshot/greenshot/tree/develop), branch develop
 * Open the solution from the src directory in Visual Studio
 * Rebuild and start...
 
-If you can't use Visual Studio 2019, Rider from Jetbrains is also supported and you can also work with the commandline:
+If you can't use Visual Studio 2019, Rider from Jetbrains might also work and you can also work with the commandline:
 * Open a powershell / shell in the directory where you cloned this repo
 * run dotnet build src/Greenshot.sln
 
 For users the major changes since 1.2.x are:
-* dotnet core 3.1 support (why, read here: https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/ )
+* .NET 5 support (why, read here: https://blogs.msdn.microsoft.com/dotnet/2018/10/04/update-on-net-core-3-0-and-net-framework-4-8/ )
 * A newer and more modern configuration UI, using [MahApps.Metro](https://github.com/MahApps/MahApps.Metro "MahApps.Metro")
-* Due to the update of .NET 2.0 to .NET 4.7.2 a lot of bugs are solved
+* Due to the update of .NET 2.0 to .NET 4.7.2, and later to dotnet core 3.1, and now .NET 5, a lot of bugs are solved
 * Added Windows 10 destinations, OCR & share
 * Better DPI support
 * Simplified code should make development easier and quicker

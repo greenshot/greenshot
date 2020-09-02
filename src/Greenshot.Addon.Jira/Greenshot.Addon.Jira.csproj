@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Jira</RootNamespace>
     <AssemblyName>Greenshot.Addon.Jira</AssemblyName>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +20,8 @@
   </ItemGroup>
   
   <ItemGroup>
-	<PackageReference Include="Dapplo.Jira" Version="0.9.28" />
-	<PackageReference Include="DynamicData" Version="6.16.1" />
+	<PackageReference Include="Dapplo.Jira" Version="1.0.5" />
+	<PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.0.5" />
+	<PackageReference Include="DynamicData" Version="6.16.8" />
   </ItemGroup>
 </Project>

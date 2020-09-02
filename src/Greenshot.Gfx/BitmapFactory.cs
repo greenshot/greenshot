@@ -1,19 +1,19 @@
 ﻿// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
-// 
+//
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -23,6 +23,7 @@ using System.Drawing.Imaging;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx.Structs;
 
 namespace Greenshot.Gfx
 {
@@ -47,7 +48,7 @@ namespace Greenshot.Gfx
             }
             return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
         }
-        
+
         /// <summary>
         ///     A generic way to create an empty image
         /// </summary>
@@ -137,7 +138,7 @@ namespace Greenshot.Gfx
                 sourceRect = sourceRect.Intersect(bitmapRect);
             }
 
-            // If no pixelformat is supplied 
+            // If no pixelformat is supplied
             if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat)
             {
                 if (sourceBitmap.PixelFormat.IsPixelFormatSupported())
@@ -206,7 +207,7 @@ namespace Greenshot.Gfx
                     Log.Warn().WriteLine(ex, "Problem cloning a propertyItem.");
                 }
             }
-            
+
             return BitmapWrapper.FromBitmap(newImage);
         }
 
