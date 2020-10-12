@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,6 +32,8 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
+using GreenshotPlugin.Hooking;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -41,16 +43,17 @@ namespace GreenshotPlugin.Core {
 		HMACSHA1,
 		PLAINTEXT,
 	}
-	
+
 	/// <summary>
-	/// Specify the autorize mode that is used to get the token from the cloud service.
+	/// Specify the authorize mode that is used to get the token from the cloud service.
 	/// </summary>
 	public enum OAuth2AuthorizeMode {
-		Unknown,		// Will give an exception, caller needs to specify another value
-		LocalServer,	// Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
-		MonitorTitle,	// Not implemented yet: Will monitor for title changes
-		Pin,			// Not implemented yet: Will ask the user to enter the shown PIN
-		EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
+		Unknown,		 // Will give an exception, caller needs to specify another value
+		LocalServer,	 // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
+		MonitorTitle,	 // Not implemented yet: Will monitor for title changes
+		Pin,			 // Not implemented yet: Will ask the user to enter the shown PIN
+		EmbeddedBrowser, // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
+        OutOfBoundAuto
 	}
 
 	/// <summary>
@@ -211,7 +214,7 @@ namespace GreenshotPlugin.Core {
 
 		//
 		// List of know and used oauth parameters' names
-		//		
+		//
 		protected const string OAUTH_CONSUMER_KEY_KEY = "oauth_consumer_key";
 		protected const string OAUTH_CALLBACK_KEY = "oauth_callback";
 		protected const string OAUTH_VERSION_KEY = "oauth_version";
@@ -395,7 +398,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Generate the timestamp for the signature		
+		/// Generate the timestamp for the signature
 		/// </summary>
 		/// <returns></returns>
 		public static string GenerateTimeStamp() {
@@ -472,7 +475,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the access token
 		/// </summary>
-		/// <returns>The access token.</returns>		
+		/// <returns>The access token.</returns>
 		private string GetAccessToken() {
 			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
 				Exception e = new Exception("The request token and verifier were not set");
@@ -1121,12 +1124,43 @@ Greenshot received information from CloudServiceName. You can close this browser
 			{
 				OAuth2AuthorizeMode.LocalServer => AuthenticateViaLocalServer(settings),
 				OAuth2AuthorizeMode.EmbeddedBrowser => AuthenticateViaEmbeddedBrowser(settings),
-				_ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
+                OAuth2AuthorizeMode.OutOfBoundAuto => AuthenticateViaDefaultBrowser(settings),
+                _ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
 			};
 			return completed;
 		}
 
-		/// <summary>
+        /// <summary>
+        /// Authenticate via the default browser
+        /// If this works, return the code
+        /// </summary>
+        /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
+        /// <returns>true if completed, false if canceled</returns>
+        private static bool AuthenticateViaDefaultBrowser(OAuth2Settings settings)
+        {
+            var monitor = new WindowsTitleMonitor();
+
+            string[] code = new string[1];
+            monitor.TitleChangeEvent += args =>
+            {
+                if (args.Title.Contains(settings.State))
+                {
+                    code[0] = args.Title;
+                    settings.Code = args.Title;
+                }
+            };
+			using (var process = Process.Start(settings.FormattedAuthUrl))
+			{
+                while (string.IsNullOrEmpty(code[0]))
+                {
+					Application.DoEvents();
+                }
+			};
+
+            return true;
+        }
+
+        /// <summary>
 		/// Authenticate via an embedded browser
 		/// If this works, return the code
 		/// </summary>
@@ -1192,7 +1226,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 		}
 
 		/// <summary>
-		/// Check and authenticate or refresh tokens 
+		/// Check and authenticate or refresh tokens
 		/// </summary>
 		/// <param name="settings">OAuth2Settings</param>
 		public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings) {

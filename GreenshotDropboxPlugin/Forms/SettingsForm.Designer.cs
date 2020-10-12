@@ -106,7 +106,6 @@ namespace GreenshotDropboxPlugin {
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
-			this.checkboxAfterUploadLinkToClipBoard.AutoSize = true;
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "dropbox.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(116, 37);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";

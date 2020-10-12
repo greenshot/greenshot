@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -171,12 +171,11 @@ namespace GreenshotImgurPlugin {
 				{
 					AuthUrlPattern = AuthUrlPattern,
 					TokenUrl = TokenUrl,
-					RedirectUrl = "https://imgur.com",
+					RedirectUrl = "https://getgreenshot.org/oauth/imgur",
 					CloudServiceName = "Imgur",
 					ClientId = ImgurCredentials.CONSUMER_KEY,
 					ClientSecret = ImgurCredentials.CONSUMER_SECRET,
-					AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
-					BrowserSize = new Size(680, 880),
+					AuthorizeMode = OAuth2AuthorizeMode.OutOfBoundAuto,
 					RefreshToken = Config.RefreshToken,
 					AccessToken = Config.AccessToken,
 					AccessTokenExpires = Config.AccessTokenExpires
@@ -280,7 +279,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="imgurInfo"></param>
 		public static void DeleteImgurImage(ImgurInfo imgurInfo) {
 			Log.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
-			
+
 			try {
 				string url = Config.ImgurApi3Url + "/image/" + imgurInfo.DeleteHash + ".xml";
 				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.DELETE);

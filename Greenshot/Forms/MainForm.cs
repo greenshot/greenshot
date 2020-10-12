@@ -245,7 +245,7 @@ namespace Greenshot {
 					return;
 				}
                 // Make sure we can use forms
-                WindowsFormsHost.EnableWindowsFormsInterop();
+				WindowsFormsHost.EnableWindowsFormsInterop();
 
 				// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
 				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
@@ -744,7 +744,10 @@ namespace Greenshot {
 		}
 
 
-        private void ContextMenuOpening(object sender, CancelEventArgs e)	{
+        private void ContextMenuOpening(object sender, CancelEventArgs e)
+        {
+            var factor = DeviceDpi / 96f;
+			contextMenu.Scale(new SizeF(factor,factor));
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
 			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
@@ -1025,7 +1028,7 @@ namespace Greenshot {
 		/// <param name="e">EventArgs</param>
 		private void Contextmenu_DonateClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
-				Process.Start("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version);
+				Process.Start("http://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true));
 			});
 		}
 

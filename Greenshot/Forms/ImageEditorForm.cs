@@ -102,13 +102,12 @@ namespace Greenshot {
 			propertiesToolStrip.ImageScalingSize = newSize;
 			propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
 
-			_surface.AdjustToDpi(dpi);
+			_surface?.AdjustToDpi(dpi);
+            UpdateUi();
 		}
 
 		public ImageEditorForm(ISurface iSurface, bool outputMade)
 		{
-			// Make sure we change the icon size depending on the scaling
-			DpiChanged += AdjustToDpi;
 			EditorList.Add(this);
 
 			//
@@ -116,6 +115,8 @@ namespace Greenshot {
 			//
 			ManualLanguageApply = true;
 			InitializeComponent();
+            // Make sure we change the icon size depending on the scaling
+            DpiChanged += AdjustToDpi;
 			Load += delegate {
 				var thread = new Thread(AddDestinations)
 				{
@@ -236,7 +237,10 @@ namespace Greenshot {
 			MouseWheel += PanelMouseWheel;
 
 			// Make sure the value is set correctly when starting
-			counterUpDown.Value = Surface.CounterStart;
+            if (Surface != null)
+            {
+                counterUpDown.Value = Surface.CounterStart;
+			}
 			ApplyLanguage();
 		}
 

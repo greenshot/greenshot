@@ -105,7 +105,6 @@ namespace GreenshotFlickrPlugin {
 			// 
 			// checkBoxPublic
 			// 
-			this.checkBoxPublic.AutoSize = true;
 			this.checkBoxPublic.LanguageKey = "flickr.public";
 			this.checkBoxPublic.Location = new System.Drawing.Point(174, 88);
 			this.checkBoxPublic.Name = "checkBoxPublic";
@@ -117,7 +116,6 @@ namespace GreenshotFlickrPlugin {
 			// 
 			// checkBoxFamily
 			// 
-			this.checkBoxFamily.AutoSize = true;
 			this.checkBoxFamily.LanguageKey = "flickr.family";
 			this.checkBoxFamily.Location = new System.Drawing.Point(265, 88);
 			this.checkBoxFamily.Name = "checkBoxFamily";
@@ -129,7 +127,6 @@ namespace GreenshotFlickrPlugin {
 			// 
 			// checkBoxFriend
 			// 
-			this.checkBoxFriend.AutoSize = true;
 			this.checkBoxFriend.LanguageKey = "flickr.friend";
 			this.checkBoxFriend.Location = new System.Drawing.Point(350, 88);
 			this.checkBoxFriend.Name = "checkBoxFriend";
@@ -170,7 +167,6 @@ namespace GreenshotFlickrPlugin {
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
-			this.checkboxAfterUploadLinkToClipBoard.AutoSize = true;
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "flickr.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(173, 116);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
@@ -182,7 +178,6 @@ namespace GreenshotFlickrPlugin {
 			// 
 			// checkBox_hiddenfromsearch
 			// 
-			this.checkBox_hiddenfromsearch.AutoSize = true;
 			this.checkBox_hiddenfromsearch.LanguageKey = "flickr.label_HiddenFromSearch";
 			this.checkBox_hiddenfromsearch.Location = new System.Drawing.Point(174, 60);
 			this.checkBox_hiddenfromsearch.Name = "checkBox_hiddenfromsearch";

@@ -71,7 +71,6 @@ namespace GreenshotJiraPlugin.Forms {
 			// 
 			// label_jirafilter
 			// 
-			this.label_jirafilter.AutoSize = true;
 			this.label_jirafilter.Location = new System.Drawing.Point(14, 14);
 			this.label_jirafilter.Name = "label_jirafilter";
 			this.label_jirafilter.Size = new System.Drawing.Size(52, 13);
@@ -80,7 +79,6 @@ namespace GreenshotJiraPlugin.Forms {
 			// 
 			// label_jira
 			// 
-			this.label_jira.AutoSize = true;
 			this.label_jira.Location = new System.Drawing.Point(14, 41);
 			this.label_jira.Name = "label_jira";
 			this.label_jira.Size = new System.Drawing.Size(30, 13);
@@ -127,7 +125,6 @@ namespace GreenshotJiraPlugin.Forms {
 			// label_filename
 			// 
 			this.label_filename.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label_filename.AutoSize = true;
 			this.label_filename.Location = new System.Drawing.Point(14, 222);
 			this.label_filename.Name = "label_filename";
 			this.label_filename.Size = new System.Drawing.Size(49, 13);
@@ -137,7 +134,6 @@ namespace GreenshotJiraPlugin.Forms {
 			// label_comment
 			// 
 			this.label_comment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label_comment.AutoSize = true;
 			this.label_comment.Location = new System.Drawing.Point(14, 248);
 			this.label_comment.Name = "label_comment";
 			this.label_comment.Size = new System.Drawing.Size(51, 13);
@@ -167,7 +163,6 @@ namespace GreenshotJiraPlugin.Forms {
 			// label1
 			// 
 			this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label1.AutoSize = true;
 			this.label1.Location = new System.Drawing.Point(14, 274);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(23, 13);

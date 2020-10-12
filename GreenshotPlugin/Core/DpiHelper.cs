@@ -454,6 +454,24 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
+        /// Return the DPI for the screen which the location is located on
+        /// </summary>
+        /// <param name="location">POINT</param>
+        /// <returns>uint</returns>
+        public static uint GetDpi(POINT location)
+        {
+            RECT rect = new RECT(location.X, location.Y, 1,1);
+            IntPtr hMonitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONEAREST);
+            var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
+            if (result.Succeeded())
+            {
+                return dpiX;
+            }
+            return DefaultScreenDpi;
+        }
+
+
+        /// <summary>
         ///     Retrieve the DPI value for the supplied window handle
         /// </summary>
         /// <param name="hWnd">IntPtr</param>
@@ -476,7 +494,8 @@ namespace GreenshotPlugin.Core
             {
                 var hMonitor = User32.MonitorFromWindow(hWnd, MonitorFrom.DefaultToNearest);
                 // ReSharper disable once UnusedVariable
-                if (GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY))
+                var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
+                if (result.Succeeded())
                 {
                     return dpiX;
                 }
@@ -544,9 +563,8 @@ namespace GreenshotPlugin.Core
         /// <param name="dpiX">out int for the horizontal dpi</param>
         /// <param name="dpiY">out int for the vertical dpi</param>
         /// <returns>true if all okay</returns>
-        [DllImport("shcore")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetDpiForMonitor(IntPtr hMonitor, MonitorDpiType dpiType, out uint dpiX, out uint dpiY);
+        [DllImport("shcore.dll", SetLastError = true)]
+        private static extern HResult GetDpiForMonitor(IntPtr hMonitor, MonitorDpiType dpiType, out uint dpiX, out uint dpiY);
 
         /// <summary>
         ///     See <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/mt748621(v=vs.85).aspx">EnableNonClientDpiScaling function</a>

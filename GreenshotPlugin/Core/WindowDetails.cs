@@ -1137,46 +1137,50 @@ namespace GreenshotPlugin.Core
         /// <summary>
         /// Set the window as foreground window
         /// </summary>
-        /// <param name="handle">hWnd of the window to bring to the foreground</param>
-        /// <param name="workaround">bool with true to use a trick to really bring the window to the foreground</param>
-        public static void ToForeground(IntPtr handle, bool workaround = true)
+        /// <param name="hWnd">hWnd of the window to bring to the foreground</param>
+        public static void ToForeground(IntPtr hWnd)
         {
-            var window = new WindowDetails(handle);
+            var foregroundWindow = User32.GetForegroundWindow();
+            if (hWnd == foregroundWindow)
+            {
+                return;
+            }
+
+            var window = new WindowDetails(hWnd);
             // Nothing we can do if it's not visible!
             if (!window.Visible)
             {
                 return;
             }
+
+            var threadId1 = User32.GetWindowThreadProcessId(foregroundWindow, IntPtr.Zero);
+            var threadId2 = User32.GetWindowThreadProcessId(hWnd, IntPtr.Zero);
+
+            // Show window in foreground.
+            if (threadId1 != threadId2)
+            {
+                User32.AttachThreadInput(threadId1, threadId2, 1);
+                User32.SetForegroundWindow(hWnd);
+                User32.AttachThreadInput(threadId1, threadId2, 0);
+            }
+            else
+            {
+                User32.SetForegroundWindow(hWnd);
+            }
+
+            User32.BringWindowToTop(hWnd);
+
             if (window.Iconic)
             {
                 window.Iconic = false;
-                while (window.Iconic)
-                {
-                    Application.DoEvents();
-                }
             }
-            // See https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx
-            if (workaround)
-            {
-                const byte alt = 0xA4;
-                const int extendedKey = 0x1;
-                const int keyup = 0x2;
-                // Simulate an "ALT" key press.
-                User32.keybd_event(alt, 0x45, extendedKey | 0, 0);
-                // Simulate an "ALT" key release.
-                User32.keybd_event(alt, 0x45, extendedKey | keyup, 0);
-            }
-            // Show window in forground.
-            User32.BringWindowToTop(handle);
-            User32.SetForegroundWindow(handle);
         }
 
         /// <summary>
         /// Set the window as foreground window
         /// </summary>
-        /// <param name="workaround">true to use a workaround, otherwise the window might only flash</param>
-        public void ToForeground(bool workaround = true) {
-            ToForeground(Handle, workaround);
+        public void ToForeground() {
+            ToForeground(Handle);
         }
 
         /// <summary>

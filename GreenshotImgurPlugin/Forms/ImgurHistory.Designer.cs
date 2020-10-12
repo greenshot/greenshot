@@ -87,7 +87,6 @@ namespace GreenshotImgurPlugin
 			// deleteButton
 			// 
 			this.deleteButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.deleteButton.AutoSize = true;
 			this.deleteButton.Location = new System.Drawing.Point(109, 272);
 			this.deleteButton.Name = "deleteButton";
 			this.deleteButton.Size = new System.Drawing.Size(75, 23);
@@ -99,7 +98,6 @@ namespace GreenshotImgurPlugin
 			// openButton
 			// 
 			this.openButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.openButton.AutoSize = true;
 			this.openButton.Location = new System.Drawing.Point(109, 305);
 			this.openButton.Name = "openButton";
 			this.openButton.Size = new System.Drawing.Size(75, 23);
@@ -122,7 +120,6 @@ namespace GreenshotImgurPlugin
 			// clipboardButton
 			// 
 			this.clipboardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.clipboardButton.AutoSize = true;
 			this.clipboardButton.Location = new System.Drawing.Point(109, 338);
 			this.clipboardButton.Name = "clipboardButton";
 			this.clipboardButton.Size = new System.Drawing.Size(129, 23);
@@ -144,8 +141,8 @@ namespace GreenshotImgurPlugin
 			// 
 			// ImgurHistory
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(534, 372);
 			this.Controls.Add(this.clearHistoryButton);
 			this.Controls.Add(this.clipboardButton);

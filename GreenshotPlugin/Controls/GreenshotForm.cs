@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -101,10 +101,10 @@ namespace GreenshotPlugin.Controls {
             _designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
             try {
                 ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
-					
+
                 // Add a hard-path if you are using SharpDevelop
                 // Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
-					
+
                 // this "type"
                 Assembly currentAssembly = GetType().Assembly;
                 if (typeResService != null)
@@ -209,11 +209,11 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void ClearChangeNotifications() {
-			// The m_changeService value is null when not in design mode, 
-			// as the IComponentChangeService is only available at design time.	
+			// The m_changeService value is null when not in design mode,
+			// as the IComponentChangeService is only available at design time.
 			m_changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
 
-			// Clear our the component change events to prepare for re-siting.				
+			// Clear our the component change events to prepare for re-siting.
 			if (m_changeService != null) {
 				m_changeService.ComponentChanged -= OnComponentChanged;
 				m_changeService.ComponentAdded -= OnComponentAdded;
@@ -335,7 +335,7 @@ namespace GreenshotPlugin.Controls {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Helper method to cache the fieldinfo values, so we don't need to reflect all the time!
 		/// </summary>
@@ -379,8 +379,8 @@ namespace GreenshotPlugin.Controls {
 						ApplyLanguage(applyToControl);
 					}
 				}
-	
-				if (DesignMode) {
+
+                if (DesignMode) {
 					foreach (Control designControl in _designTimeControls.Values) {
 						ApplyLanguage(designControl);
 					}
@@ -514,7 +514,7 @@ namespace GreenshotPlugin.Controls {
 							iniValue.Value = comboxBox.GetSelectedEnum();
 							iniDirty = true;
 						}
-						
+
 					}
 				}
 			}

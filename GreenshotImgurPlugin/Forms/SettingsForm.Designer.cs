@@ -109,7 +109,6 @@ namespace GreenshotImgurPlugin {
 			// 
 			// checkbox_anonymous_access
 			// 
-			this.checkbox_anonymous_access.AutoSize = true;
 			this.checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
 			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 38);
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
@@ -121,7 +120,6 @@ namespace GreenshotImgurPlugin {
 			// 
 			// checkbox_usepagelink
 			// 
-			this.checkbox_usepagelink.AutoSize = true;
 			this.checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 57);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
