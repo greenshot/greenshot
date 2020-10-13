@@ -161,8 +161,10 @@ namespace GreenshotPlugin.Core {
 				var screenDpi = DpiHelper.GetDpi(menu.Location);
 				var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
                 menu.SuspendLayout();
-				menu.ImageScalingSize = scaledIconSize;
-                menu.ResumeLayout();
+                var fontSize = DpiHelper.ScaleWithDpi(12f, screenDpi);
+				menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                menu.ImageScalingSize = scaledIconSize;
+				menu.ResumeLayout();
 			};
 
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
