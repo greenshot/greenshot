@@ -79,7 +79,7 @@ namespace Greenshot.Addon.ExternalCommand
 
             var output = await Cli.Wrap(_externalCommandDefinition.Command)
                 .WithArguments(string.Format(_externalCommandDefinition.Arguments, fullPath))
-                .ExecuteBufferedAsync().Task.ConfigureAwait(false);
+                .ExecuteBufferedAsync().ConfigureAwait(false);
 
 	        if (_externalCommandDefinition.CommandBehavior.HasFlag(CommandBehaviors.ParseOutputForUris))
 	        {
