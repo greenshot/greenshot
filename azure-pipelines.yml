@@ -19,15 +19,16 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  targetFramework: 'net5.0-windows'
 
 steps:
 - task: NuGetToolInstaller@1
 
 - task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 3.1.2'
+  displayName: 'Use .NET Core sdk 5.0.100-rc.2'
   inputs:
     packageType: sdk
-    version: 3.1.102
+    version: 5.0.100-rc.2.20479.15
 
 - task: NuGetCommand@2
   displayName: NuGet restore
@@ -41,13 +42,13 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.1 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
+    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
 - task: CmdLine@2
   displayName: Rename single-exe x64
   inputs:
-    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1\win-x64\publish\Greenshot.exe Greenshot-x64.exe'
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\$(targetFramework)\win-x64\publish\Greenshot.exe Greenshot-x64.exe'
 
 - task: DotNetCoreCLI@2
   displayName: Publish single-exe x86
@@ -55,18 +56,18 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f netcoreapp3.1 -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x86'
+    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x86'
     zipAfterPublish: false
 
 - task: CmdLine@2
   displayName: Rename single-exe x86
   inputs:
-    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1\win-x86\publish\Greenshot.exe Greenshot-x86.exe' 
+    script: 'rename $(Build.SourcesDirectory)\src\Greenshot\bin\Release\$(targetFramework)\win-x86\publish\Greenshot.exe Greenshot-x86.exe' 
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\netcoreapp3.1'
+    SourceFolder: '$(Build.SourcesDirectory)\src\Greenshot\bin\Release\$(targetFramework)'
     Contents: |
      win-x64\publish\Greenshot-x64.exe
      win-x86\publish\Greenshot-x86.exe
