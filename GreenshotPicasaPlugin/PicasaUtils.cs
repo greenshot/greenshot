@@ -21,6 +21,7 @@
 using GreenshotPlugin.Core;
 using System;
 using System.Xml;
+using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

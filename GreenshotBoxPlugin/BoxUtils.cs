@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 
 namespace GreenshotBoxPlugin {
