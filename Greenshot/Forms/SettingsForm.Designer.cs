@@ -705,7 +705,6 @@ namespace Greenshot {
 			// 
 			// colorButton_window_background
 			// 
-			this.colorButton_window_background.AutoSize = true;
 			this.colorButton_window_background.Image = ((System.Drawing.Image)(resources.GetObject("colorButton_window_background.Image")));
 			this.colorButton_window_background.Location = new System.Drawing.Point(374, 37);
 			this.colorButton_window_background.Name = "colorButton_window_background";
@@ -716,7 +715,6 @@ namespace Greenshot {
 			// 
 			// radiobuttonWindowCapture
 			// 
-			this.radiobuttonWindowCapture.AutoSize = true;
 			this.radiobuttonWindowCapture.LanguageKey = "settings_window_capture_mode";
 			this.radiobuttonWindowCapture.Location = new System.Drawing.Point(11, 44);
 			this.radiobuttonWindowCapture.Name = "radiobuttonWindowCapture";
@@ -727,7 +725,6 @@ namespace Greenshot {
 			// 
 			// radiobuttonInteractiveCapture
 			// 
-			this.radiobuttonInteractiveCapture.AutoSize = true;
 			this.radiobuttonInteractiveCapture.LanguageKey = "settings_capture_windows_interactive";
 			this.radiobuttonInteractiveCapture.Location = new System.Drawing.Point(11, 20);
 			this.radiobuttonInteractiveCapture.Name = "radiobuttonInteractiveCapture";
@@ -868,7 +865,6 @@ namespace Greenshot {
 			// 
 			// groupBoxColors
 			// 
-			this.groupBoxColors.AutoSize = true;
 			this.groupBoxColors.Controls.Add(this.checkboxPrintInverted);
 			this.groupBoxColors.Controls.Add(this.radioBtnColorPrint);
 			this.groupBoxColors.Controls.Add(this.radioBtnGrayScale);
@@ -882,7 +878,6 @@ namespace Greenshot {
 			// 
 			// checkboxPrintInverted
 			// 
-			this.checkboxPrintInverted.AutoSize = true;
 			this.checkboxPrintInverted.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
@@ -896,7 +891,6 @@ namespace Greenshot {
 			// 
 			// radioBtnColorPrint
 			// 
-			this.radioBtnColorPrint.AutoSize = true;
 			this.radioBtnColorPrint.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnColorPrint.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
@@ -910,7 +904,6 @@ namespace Greenshot {
 			// 
 			// radioBtnGrayScale
 			// 
-			this.radioBtnGrayScale.AutoSize = true;
 			this.radioBtnGrayScale.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnGrayScale.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
@@ -925,7 +918,6 @@ namespace Greenshot {
 			// 
 			// radioBtnMonochrome
 			// 
-			this.radioBtnMonochrome.AutoSize = true;
 			this.radioBtnMonochrome.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnMonochrome.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
@@ -939,7 +931,6 @@ namespace Greenshot {
 			// 
 			// groupBoxPrintLayout
 			// 
-			this.groupBoxPrintLayout.AutoSize = true;
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxDateTime);
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowShrink);
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowEnlarge);
@@ -954,7 +945,6 @@ namespace Greenshot {
 			// 
 			// checkboxDateTime
 			// 
-			this.checkboxDateTime.AutoSize = true;
 			this.checkboxDateTime.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
@@ -968,7 +958,6 @@ namespace Greenshot {
 			// 
 			// checkboxAllowShrink
 			// 
-			this.checkboxAllowShrink.AutoSize = true;
 			this.checkboxAllowShrink.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
@@ -982,7 +971,6 @@ namespace Greenshot {
 			// 
 			// checkboxAllowEnlarge
 			// 
-			this.checkboxAllowEnlarge.AutoSize = true;
 			this.checkboxAllowEnlarge.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
@@ -996,7 +984,6 @@ namespace Greenshot {
 			// 
 			// checkboxAllowRotate
 			// 
-			this.checkboxAllowRotate.AutoSize = true;
 			this.checkboxAllowRotate.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
@@ -1010,7 +997,6 @@ namespace Greenshot {
 			// 
 			// checkboxAllowCenter
 			// 
-			this.checkboxAllowCenter.AutoSize = true;
 			this.checkboxAllowCenter.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
@@ -1075,7 +1061,6 @@ namespace Greenshot {
 			// button_pluginconfigure
 			// 
 			this.button_pluginconfigure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.button_pluginconfigure.AutoSize = true;
 			this.button_pluginconfigure.Enabled = false;
 			this.button_pluginconfigure.LanguageKey = "settings_configureplugin";
 			this.button_pluginconfigure.Location = new System.Drawing.Point(6, 285);
@@ -1164,7 +1149,6 @@ namespace Greenshot {
 			// 
 			// label_counter
 			// 
-			this.label_counter.AutoSize = true;
 			this.label_counter.LanguageKey = "expertsettings_counter";
 			this.label_counter.Location = new System.Drawing.Point(7, 285);
 			this.label_counter.Name = "label_counter";
@@ -1181,7 +1165,6 @@ namespace Greenshot {
 			// 
 			// label_footerpattern
 			// 
-			this.label_footerpattern.AutoSize = true;
 			this.label_footerpattern.LanguageKey = "expertsettings_footerpattern";
 			this.label_footerpattern.Location = new System.Drawing.Point(7, 259);
 			this.label_footerpattern.Name = "label_footerpattern";
@@ -1229,7 +1212,6 @@ namespace Greenshot {
 			// 
 			// label_clipboardformats
 			// 
-			this.label_clipboardformats.AutoSize = true;
 			this.label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
 			this.label_clipboardformats.Location = new System.Drawing.Point(7, 39);
 			this.label_clipboardformats.Name = "label_clipboardformats";
@@ -1273,7 +1255,6 @@ namespace Greenshot {
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.AutoSize = true;
 			this.ClientSize = new System.Drawing.Size(451, 431);
 			this.Controls.Add(this.tabcontrol);
 			this.Controls.Add(this.settings_confirm);

@@ -68,7 +68,6 @@ namespace Greenshot.Forms
 			// 
 			// checkbox_dontaskagain
 			// 
-			this.checkbox_dontaskagain.AutoSize = true;
 			this.checkbox_dontaskagain.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
@@ -82,7 +81,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxAllowShrink
 			// 
-			this.checkboxAllowShrink.AutoSize = true;
 			this.checkboxAllowShrink.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
@@ -97,7 +95,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxAllowEnlarge
 			// 
-			this.checkboxAllowEnlarge.AutoSize = true;
 			this.checkboxAllowEnlarge.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
@@ -112,7 +109,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxAllowCenter
 			// 
-			this.checkboxAllowCenter.AutoSize = true;
 			this.checkboxAllowCenter.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
@@ -127,7 +123,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxAllowRotate
 			// 
-			this.checkboxAllowRotate.AutoSize = true;
 			this.checkboxAllowRotate.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
@@ -155,7 +150,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxDateTime
 			// 
-			this.checkboxDateTime.AutoSize = true;
 			this.checkboxDateTime.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
@@ -182,7 +176,6 @@ namespace Greenshot.Forms
 			// 
 			// checkboxPrintInverted
 			// 
-			this.checkboxPrintInverted.AutoSize = true;
 			this.checkboxPrintInverted.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
@@ -197,7 +190,6 @@ namespace Greenshot.Forms
 			// 
 			// radioBtnGrayScale
 			// 
-			this.radioBtnGrayScale.AutoSize = true;
 			this.radioBtnGrayScale.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnGrayScale.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
@@ -212,7 +204,6 @@ namespace Greenshot.Forms
 			// 
 			// radioBtnMonochrome
 			// 
-			this.radioBtnMonochrome.AutoSize = true;
 			this.radioBtnMonochrome.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnMonochrome.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
@@ -227,7 +218,6 @@ namespace Greenshot.Forms
 			// 
 			// groupBoxPrintLayout
 			// 
-			this.groupBoxPrintLayout.AutoSize = true;
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxDateTime);
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowShrink);
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowEnlarge);
@@ -243,7 +233,6 @@ namespace Greenshot.Forms
 			// 
 			// groupBoxColors
 			// 
-			this.groupBoxColors.AutoSize = true;
 			this.groupBoxColors.Controls.Add(this.checkboxPrintInverted);
 			this.groupBoxColors.Controls.Add(this.radioBtnColorPrint);
 			this.groupBoxColors.Controls.Add(this.radioBtnGrayScale);
@@ -258,7 +247,6 @@ namespace Greenshot.Forms
 			// 
 			// radioBtnColorPrint
 			// 
-			this.radioBtnColorPrint.AutoSize = true;
 			this.radioBtnColorPrint.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnColorPrint.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
@@ -274,7 +262,6 @@ namespace Greenshot.Forms
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.AutoSize = true;
 			this.ClientSize = new System.Drawing.Size(355, 390);
 			this.Controls.Add(this.groupBoxColors);
 			this.Controls.Add(this.groupBoxPrintLayout);

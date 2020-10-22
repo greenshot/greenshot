@@ -50,7 +50,6 @@ namespace GreenshotPlugin.Controls {
 			// 
 			// label_pleasewait
 			// 
-			this.label_pleasewait.AutoSize = true;
 			this.label_pleasewait.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.label_pleasewait.Location = new System.Drawing.Point(0, 0);
 			this.label_pleasewait.Name = "label_pleasewait";
@@ -77,9 +76,8 @@ namespace GreenshotPlugin.Controls {
 			// 
 			// PleaseWaitForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.AutoSize = true;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cancelButton;
 			this.ClientSize = new System.Drawing.Size(169, 76);
 			this.Controls.Add(this.cancelButton);

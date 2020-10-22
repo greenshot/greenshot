@@ -76,7 +76,6 @@ namespace Greenshot.Forms {
 			// 
 			// checkbox_aspectratio
 			// 
-			this.checkbox_aspectratio.AutoSize = true;
 			this.checkbox_aspectratio.LanguageKey = "editor_resize_aspectratio";
 			this.checkbox_aspectratio.Location = new System.Drawing.Point(22, 64);
 			this.checkbox_aspectratio.Name = "checkbox_aspectratio";
@@ -86,7 +85,6 @@ namespace Greenshot.Forms {
 			// 
 			// label_width
 			// 
-			this.label_width.AutoSize = true;
 			this.label_width.LanguageKey = "editor_resize_width";
 			this.label_width.Location = new System.Drawing.Point(19, 15);
 			this.label_width.Name = "label_width";
@@ -95,7 +93,6 @@ namespace Greenshot.Forms {
 			// 
 			// label_height
 			// 
-			this.label_height.AutoSize = true;
 			this.label_height.LanguageKey = "editor_resize_height";
 			this.label_height.Location = new System.Drawing.Point(19, 38);
 			this.label_height.Name = "label_height";
@@ -140,8 +137,8 @@ namespace Greenshot.Forms {
 			// ResizeSettingsForm
 			// 
 			this.AcceptButton = this.buttonOK;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(244, 122);
 			this.ControlBox = false;

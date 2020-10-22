@@ -846,7 +846,7 @@ namespace Greenshot.Helpers {
 									// Restore the window making sure it's visible!
 									windowToCapture.Restore();
 								} else {
-									windowToCapture.ToForeground(false);
+									windowToCapture.ToForeground();
 								}
 								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null) {
@@ -941,7 +941,7 @@ namespace Greenshot.Helpers {
 		}
 
 		private void SetDpi() {
-			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
+			// Workaround for problem with DPI retrieval, the FromHwnd activates the window...
 			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
             var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
@@ -950,7 +950,7 @@ namespace Greenshot.Helpers {
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			// Set previouslyActiveWindow as foreground window
-			previouslyActiveWindow?.ToForeground(false);
+			previouslyActiveWindow?.ToForeground();
 			if (_capture.CaptureDetails != null) {
 				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 			}

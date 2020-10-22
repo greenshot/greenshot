@@ -52,9 +52,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public const int MONITOR_DEFAULTTONEAREST = 2;
 		public const int CURSOR_SHOWING = 0x00000001;
 
-        [DllImport("user32", SetLastError = true)]
-		public static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
-
 		/// <summary>
 		/// Determines whether the specified window handle identifies an existing window.
 		/// </summary>
@@ -72,6 +69,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool IsWindowVisible(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
+        [DllImport("user32", SetLastError = true)]
+        public static extern int GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
+        [DllImport("user32")]
+        public static extern IntPtr AttachThreadInput(int idAttach, int idAttachTo, int fAttach);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]

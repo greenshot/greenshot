@@ -231,8 +231,8 @@ namespace Greenshot {
 			// 
 			// topToolStripContainer
 			// 
-			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			// 
 			// topToolStripContainer.BottomToolStripPanel
 			// 
@@ -1037,7 +1037,6 @@ namespace Greenshot {
 			// 
 			// propertiesToolStrip
 			// 
-			this.propertiesToolStrip.AutoSize = false;
 			this.propertiesToolStrip.ClickThrough = true;
 			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.ScaledIconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1225,7 +1224,6 @@ namespace Greenshot {
 			// fontFamilyComboBox
 			// 
 			this.fontFamilyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.fontFamilyComboBox.AutoSize = false;
 			this.fontFamilyComboBox.MaxDropDownItems = 20;
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
 			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 20);
@@ -1815,8 +1813,8 @@ namespace Greenshot {
 			// 
 			// ImageEditorForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;

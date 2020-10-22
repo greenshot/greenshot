@@ -96,7 +96,6 @@ namespace GreenshotPhotobucketPlugin {
 			// 
 			// checkbox_usepagelink
 			// 
-			this.checkbox_usepagelink.AutoSize = true;
 			this.checkbox_usepagelink.LanguageKey = "photobucket.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 43);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";

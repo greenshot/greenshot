@@ -155,10 +155,16 @@ namespace GreenshotPlugin.Core {
 				TopLevel = true
 			};
 
-			menu.Opened += (sender, args) =>
-			{
-				var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, DpiHelper.GetDpi(menu.Handle));
-				menu.ImageScalingSize = scaledIconSize;
+			menu.Opening += (sender, args) =>
+            {
+				// find the DPI settings for the screen where this is going to land
+				var screenDpi = DpiHelper.GetDpi(menu.Location);
+				var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
+                menu.SuspendLayout();
+                var fontSize = DpiHelper.ScaleWithDpi(12f, screenDpi);
+				menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                menu.ImageScalingSize = scaledIconSize;
+				menu.ResumeLayout();
 			};
 
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
@@ -191,7 +197,10 @@ namespace GreenshotPlugin.Core {
 			menu.MouseEnter += delegate
 			{
 				// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
-				if(!menu.ContainsFocus) menu.Focus();
+                if (!menu.ContainsFocus)
+                {
+                    menu.Focus();
+                }
 			};
 			foreach (IDestination destination in destinations) {
 				// Fix foreach loop variable for the delegate
