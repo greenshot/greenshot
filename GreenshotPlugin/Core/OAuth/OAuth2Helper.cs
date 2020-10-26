@@ -221,6 +221,10 @@ namespace GreenshotPlugin.Core.OAuth {
 			var codeReceiver = new LocalJsonReceiver();
             IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
+            if (result == null || result.Count == 0)
+            {
+                return false;
+            }
             foreach (var key in result.Keys)
             {
                 switch (key)

@@ -1,23 +1,25 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -38,10 +40,18 @@ namespace GreenshotDropboxPlugin {
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Dropbox link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard { get; set; }
 
-		[IniProperty("DropboxToken", Description = "The Dropbox token", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxToken { get; set; }
-		[IniProperty("DropboxTokenSecret", Description = "The Dropbox token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxTokenSecret { get; set; }
+        [IniProperty("RefreshToken", Description = "Dropbox refresh Token", Encrypted = true, ExcludeIfNull = true)]
+        public string RefreshToken { get; set; }
+
+        /// <summary>
+        /// AccessToken, not stored
+        /// </summary>
+        public string AccessToken { get; set; }
+
+        /// <summary>
+        /// AccessTokenExpires, not stored
+        /// </summary>
+        public DateTimeOffset AccessTokenExpires { get; set; }
 
 		/// <summary>
 		/// A form for token
