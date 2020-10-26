@@ -21,12 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Net;
-using System.Windows.Forms;
 using GreenshotPlugin.Controls;
-using GreenshotPlugin.Hooking;
 
 namespace GreenshotPlugin.Core.OAuth {
     /// <summary>
@@ -134,7 +131,7 @@ namespace GreenshotPlugin.Core.OAuth {
 
 		/// <summary>
 		/// Go out and retrieve a new access token via refresh-token with the TokenUrl in the settings
-		/// Will upate the access token, refresh token, expire date
+		/// Will update the access token, refresh token, expire date
 		/// </summary>
 		/// <param name="settings"></param>
 		public static void GenerateAccessToken(OAuth2Settings settings) {
@@ -159,22 +156,23 @@ namespace GreenshotPlugin.Core.OAuth {
 			//	"token_type":"Bearer",
 
 			IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
-			if (accessTokenResult.ContainsKey("error")) {
-				if ("invalid_grant" == (string)accessTokenResult["error"]) {
+			if (accessTokenResult.ContainsKey("error"))
+            {
+                if ("invalid_grant" == (string)accessTokenResult["error"]) {
 					// Refresh token has also expired, we need a new one!
 					settings.RefreshToken = null;
 					settings.AccessToken = null;
 					settings.AccessTokenExpires = DateTimeOffset.MinValue;
 					settings.Code = null;
 					return;
-				} else {
-					if (accessTokenResult.ContainsKey("error_description")) {
-						throw new Exception($"{accessTokenResult["error"]} - {accessTokenResult["error_description"]}");
-					} else {
-						throw new Exception((string)accessTokenResult["error"]);
-					}
 				}
-			}
+
+                if (accessTokenResult.ContainsKey("error_description")) {
+                    throw new Exception($"{accessTokenResult["error"]} - {accessTokenResult["error_description"]}");
+                }
+
+                throw new Exception((string)accessTokenResult["error"]);
+            }
 
 			if (accessTokenResult.ContainsKey(AccessToken))
 			{
@@ -205,76 +203,62 @@ namespace GreenshotPlugin.Core.OAuth {
 			{
 				OAuth2AuthorizeMode.LocalServer => AuthenticateViaLocalServer(settings),
 				OAuth2AuthorizeMode.EmbeddedBrowser => AuthenticateViaEmbeddedBrowser(settings),
-                OAuth2AuthorizeMode.MonitorTitle => AuthenticateViaDefaultBrowser(settings),
+                OAuth2AuthorizeMode.JsonReceiver => AuthenticateViaDefaultBrowser(settings),
                 _ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
 			};
 			return completed;
 		}
 
         /// <summary>
-        /// Authenticate via the default browser, using the browser title.
+        /// Authenticate via the default browser, via the Greenshot website.
+        /// It will wait for a Json post.
         /// If this works, return the code
         /// </summary>
         /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
         /// <returns>true if completed, false if canceled</returns>
         private static bool AuthenticateViaDefaultBrowser(OAuth2Settings settings)
         {
-            var monitor = new WindowsTitleMonitor();
+			var codeReceiver = new LocalJsonReceiver();
+            IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
-            string error = null;
-			var fields = new HashSet<string>();
-            int nrOfFields = 100;
-
-			monitor.TitleChangeEvent += args =>
+            foreach (var key in result.Keys)
             {
-                if (!args.Title.Contains(settings.State))
+                switch (key)
                 {
-                    return;
+                    case AccessToken:
+                        settings.AccessToken = result[key];
+                        break;
+                    case ExpiresIn:
+                        if (int.TryParse(result[key], out var seconds))
+                        {
+                            settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
+                        }
+                        break;
+                    case RefreshToken:
+                        settings.RefreshToken = result[key];
+                        break;
                 }
+            }
 
-                var title = args.Title;
-                title = title.Substring(0,title.IndexOf(' '));
-
-                var parameters = NetworkHelper.ParseQueryString(title);
-
-                if (parameters.ContainsKey("nr"))
+            if (result.TryGetValue("error", out var error))
+            {
+                if (result.TryGetValue("error_description", out var errorDescription))
                 {
-                    nrOfFields = int.Parse(parameters["nr"]);
+                    throw new Exception(errorDescription);
                 }
+                if ("access_denied" == error)
+                {
+                    throw new UnauthorizedAccessException("Access denied");
+                }
+                throw new Exception(error);
+			}
+            if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
+            {
+                settings.Code = code;
+                GenerateRefreshToken(settings);
+            }
 
-                foreach (var key in parameters.Keys)
-                {
-                    fields.Add(key);
-                    switch (key)
-                    {
-                        case AccessToken:
-                            settings.AccessToken = parameters[key];
-                            break;
-                        case ExpiresIn:
-                            if (int.TryParse(parameters[key], out var seconds))
-                            {
-                                settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
-                            }
-                            break;
-                        case RefreshToken:
-                            settings.RefreshToken = parameters[key];
-                            break;
-                        case Error:
-                            error = parameters[key];
-                            break;
-					}
-                }
-            };
-			using (var process = Process.Start(settings.FormattedAuthUrl))
-			{
-                while (nrOfFields > fields.Count)
-                {
-					// Have the thread process Forms events
-					Application.DoEvents();
-                }
-			};
-			monitor.Dispose();
-            return error == null;
+			return true;
         }
 
         /// <summary>

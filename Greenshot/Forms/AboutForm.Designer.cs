@@ -21,6 +21,7 @@
 
 using System.Windows.Forms;
 using Greenshot.Helpers;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	partial class AboutForm {

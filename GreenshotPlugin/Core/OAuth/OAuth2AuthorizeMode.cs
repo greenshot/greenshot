@@ -27,8 +27,7 @@ namespace GreenshotPlugin.Core.OAuth
     public enum OAuth2AuthorizeMode {
         Unknown,		 // Will give an exception, caller needs to specify another value
         LocalServer,	 // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
-        MonitorTitle,	 // Will monitor for title changes, the title needs the status and query params
-        Pin,			 // Not implemented yet: Will ask the user to enter the shown PIN
+        JsonReceiver,	 // Will start a local HttpListener and wait for a Json post
         EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
     }
 }

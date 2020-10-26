@@ -169,11 +169,11 @@ namespace GreenshotImgurPlugin {
 				{
 					AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}",
 					TokenUrl = "https://api.imgur.com/oauth2/token",
-					RedirectUrl = "https://getgreenshot.org/oauth/imgur",
+					RedirectUrl = "https://getgreenshot.org/authorize/imgur",
 					CloudServiceName = "Imgur",
 					ClientId = ImgurCredentials.CONSUMER_KEY,
 					ClientSecret = ImgurCredentials.CONSUMER_SECRET,
-					AuthorizeMode = OAuth2AuthorizeMode.MonitorTitle,
+					AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
 					RefreshToken = Config.RefreshToken,
 					AccessToken = Config.AccessToken,
 					AccessTokenExpires = Config.AccessTokenExpires
