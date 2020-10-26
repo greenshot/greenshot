@@ -14,7 +14,7 @@ var release_blog_posts = new Array();
 <i class="fa fa-check-circle"></i> You are using the most recent version of Greenshot.
 <div id="blogPost1" class="collapse">More information about this version can be found <a id="blog1" href="">here</a>.</div>
 </div>
-<div id="oldVersion" class="alert alert-danger collapse" role="alert">
+<div id="oldVersion" class="alert alert-warning collapse" role="alert">
 <i class="fa fa-exclamation-triangle"></i> <strong>You are not using the newest Greenshot version.</strong><br/>
 <div id="blogPost2" class="collapse">More information about the version you are using can be found <a id="blog2" href="">here</a>.</div>
 You might want to download the newest version, which is {{ latest_release.tag_name }}, from <a href="/downloads/">here</a>. Also always make sure to get Greenshot from <a href="https://getgreenshot.org/">getgreenshot.org</a>, .
@@ -67,10 +67,7 @@ function compareVersion(a, b) {
     return 0;
 }
 
-$(document).ready(function () {
-var versionMatch = /version=([^&]+)/.exec(location);
-if (versionMatch) {
-    var installedVersion = versionMatch[1];
+function checkVersion(installedVersion) {
     var greenshotTag = {% if latest_release.tag_name %}"{{ latest_release.tag_name }}"{% else %}"Greenshot-Test-1.2.9.129"{% endif %};
     var releaseVersion = /.*(\d+\.\d+\.\d+\.\d+)/.exec(greenshotTag)[1];
     var compare=compareVersion(releaseVersion, installedVersion);
@@ -89,6 +86,12 @@ if (versionMatch) {
         jQuery('#currentVersion').slideDown();
     }
 }
+
+$(document).ready(function () {
+    var versionMatch = /version=([^&]+)/.exec(location);
+    if (versionMatch) {
+        checkVersion(versionMatch[1]);
+    }
 });
 
 </script>

@@ -1,0 +1,20 @@
+{% include version-check.html %}
+
+<div id="doingAuth">
+    <strong>Trying to inform Greenshot about the {{ include.service }} authorization...</strong></p>
+</div>
+<div id="authOkay" class="alert alert-success collapse" role="alert">
+    <i class="fa fa-check-circle"></i> Greenshot should now be able to use {{ include.service }}, you can close this window.
+</div>
+<div id="authFailed" class="alert alert-danger collapse" role="alert">
+    <i class="fa fa-exclamation-triangle"></i> <strong>Failed to contact Greenshot to inform about the {{ include.service }} authorization.</strong><br/>
+</div>
+
+{% include oauth-code.html %}
+
+<p></p>
+
+<div id="donation" class="collapse">
+    <strong>We are happy that you use Greenshot. If you like it, please consider to support the development of this open source screenshot tool with a donation.</strong></p>
+    {% include donate.html %}
+</div>

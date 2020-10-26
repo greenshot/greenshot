@@ -1,0 +1,61 @@
+<script language="JavaScript">
+	var urlPart = window.location.href.split('?')[1];
+	var anchor = urlPart.split("#")[1];
+	var searchQuery = urlPart.split("#")[0];
+	
+	function getQueryVariable(query, variable) {
+		var vars = query.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			if (decodeURIComponent(pair[0]) == variable) {
+				return decodeURIComponent(pair[1]);
+			}
+		}
+		return null;
+	}
+
+	var error = getQueryVariable(anchor, "error");
+	if (error != null) {
+		// Handle error?
+		window.console.error("Error: " + error);
+		jQuery('#authFailed').slideUp();
+	}
+	var port = getQueryVariable(searchQuery, "state");
+
+	// Build json object from the values provided by the oauth redirect
+	var jsonObject = {};
+
+	var vars = anchor.split('&');
+	for (var i = 0; i < vars.length; i++) {
+		var pair = vars[i].split('=');
+		jsonObject[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+	}
+
+	// Send the data to the server, uses JQuery
+	$.ajax({
+		url: 'http://localhost:' + port + '/authorize',
+		contentType: 'application/json',
+		method: 'POST',
+		data: JSON.stringify(jsonObject),
+		dataType: 'json'
+	}).done(function(data) {
+		jQuery('#doingAuth').slideUp();
+		if (data.hasOwnProperty('version')) {
+			// Process used version to show any hints about newer versions, this is in the included "version-check.html"
+			checkVersion(data.version);
+		}
+		if (data.hasOwnProperty('error')) {
+			jQuery('#authFailed').slideDown();
+		} else {
+			jQuery('#authFailed').slideUp();
+			jQuery('#authOkay').slideDown();
+			jQuery('#donation').slideDown();
+		}
+	}).fail(function( jqXHR, textStatus, errorThrown) {
+		jQuery('#doingAuth').slideUp();
+		jQuery('#authFailed').slideDown();
+		jQuery('#authOkay').slideUp();
+		window.console.error("Error: " + textStatus);
+	});
+
+</script>
