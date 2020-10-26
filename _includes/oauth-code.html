@@ -1,8 +1,21 @@
 <script language="JavaScript">
-	var urlPart = window.location.href.split('?')[1];
-	var anchor = urlPart.split("#")[1];
-	var searchQuery = urlPart.split("#")[0];
-	
+	// Build the search query by using the hash (anchor) too
+	var search = window.location.search;
+	var searchQuery = "";
+	if (search.length > 1) {
+		search = search.split('?')[1];
+		searchQuery = search;
+	}
+	var anchor = window.location.hash;
+	if (anchor.length > 1) {
+		anchor = anchor.split('#')[1];
+	}
+	if (searchQuery.length > 0 && anchor.length > 0) {
+		searchQuery = search + "&" + anchor;
+	} else {
+		searchQuery = anchor;
+	}
+
 	function getQueryVariable(query, variable) {
 		var vars = query.split('&');
 		for (var i = 0; i < vars.length; i++) {
@@ -14,7 +27,7 @@
 		return null;
 	}
 
-	var error = getQueryVariable(anchor, "error");
+	var error = getQueryVariable(searchQuery, "error");
 	if (error != null) {
 		// Handle error?
 		window.console.error("Error: " + error);
@@ -25,10 +38,15 @@
 	// Build json object from the values provided by the oauth redirect
 	var jsonObject = {};
 
-	var vars = anchor.split('&');
+	var vars = searchQuery.split('&');
 	for (var i = 0; i < vars.length; i++) {
 		var pair = vars[i].split('=');
-		jsonObject[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+		var propertyName = decodeURIComponent(pair[0]);
+		var propertyValue = decodeURIComponent(pair[1]);
+		if (propertyName == "state") {
+			continue;
+		}
+		jsonObject[propertyName] = propertyValue;
 	}
 
 	// Send the data to the server, uses JQuery
