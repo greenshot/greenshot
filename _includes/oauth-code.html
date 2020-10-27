@@ -10,10 +10,12 @@
 	if (anchor.length > 1) {
 		anchor = anchor.split('#')[1];
 	}
-	if (searchQuery.length > 0 && anchor.length > 0) {
-		searchQuery = search + "&" + anchor;
-	} else {
-		searchQuery = anchor;
+	if (anchor.length > 0) {
+		if (search.length > 0) {
+			searchQuery = search + "&" + anchor;
+		} else {
+			searchQuery = anchor;
+		}
 	}
 
 	function getQueryVariable(query, variable) {
