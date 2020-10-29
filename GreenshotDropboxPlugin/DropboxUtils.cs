@@ -20,11 +20,13 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Newtonsoft.Json;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
@@ -37,11 +39,11 @@ namespace GreenshotDropboxPlugin {
 		private DropboxUtils() {
 		}
 
-		public static string UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename) {
-
+		public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
+        {
             var oauth2Settings = new OAuth2Settings
             {
-                AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
+                AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
                 TokenUrl = "https://api.dropbox.com/oauth2/token",
                 RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
                 CloudServiceName = "Dropbox",
@@ -55,20 +57,28 @@ namespace GreenshotDropboxPlugin {
 
             try
 			{
+                string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
                 SurfaceContainer image = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-                IDictionary<string, object> parameters = new Dictionary<string, object>
+                IDictionary<string, object> arguments = new Dictionary<string, object>
                 {
-                    { "file", image },
                     { "autorename", true },
-                    { "mute", true},
-                    { "path", filename}
+                    { "mute", true },
+                    { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')}
                 };
-                var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://api.dropbox.com//2/files/upload", oauth2Settings);
-                NetworkHelper.WriteMultipartFormData(webRequest, parameters);
-                var response = NetworkHelper.GetResponseAsString(webRequest);
-                Log.DebugFormat("Upload response: {0}", response);
-			} catch (Exception ex) {
+                IDictionary<string, object> headers = new Dictionary<string, object>
+                {
+                    { "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)}
+                };
+                var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);
+
+                NetworkHelper.Post(webRequest, headers, image);
+                var responseString = NetworkHelper.GetResponseAsString(webRequest);
+                Log.DebugFormat("Upload response: {0}", responseString);
+                var response = JsonConvert.DeserializeObject<IDictionary<string, string>>(responseString);
+                return response.ContainsKey("id");
+            }
+            catch (Exception ex) {
 				Log.Error("Upload error: ", ex);
 				throw;
 			} finally {
@@ -78,7 +88,6 @@ namespace GreenshotDropboxPlugin {
                 DropboxConfig.IsDirty = true;
                 IniConfig.Save();
 			}
-            return null;
-		}
+        }
 	}
 }

@@ -358,6 +358,84 @@ namespace GreenshotPlugin.Core {
             WriteMultipartFormData(formDataStream, boundary, postParameters);
         }
 
+
+		/// <summary>
+		/// Post content HttpWebRequest
+		/// </summary>
+		/// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
+		/// <param name="headers">IDictionary with the headers</param>
+		/// <param name="binaryContainer">IBinaryContainer</param>
+        public static void Post(HttpWebRequest webRequest, IDictionary<string, object> headers, IBinaryContainer binaryContainer = null)
+        {
+            foreach (var header in headers)
+            {
+                switch (header.Key)
+                {
+					case "Content-Type":
+                        webRequest.ContentType = header.Value as string;
+                        break;
+                    case "Accept":
+                        webRequest.Accept = header.Value as string;
+                        break;
+					default:
+                        webRequest.Headers.Add(header.Key, Convert.ToString(header.Value));
+                        break;
+				}
+			}
+            if (!headers.ContainsKey("Content-Type"))
+            {
+                webRequest.ContentType = "application/octet-stream";
+            }
+
+            if (binaryContainer != null)
+            {
+                using var requestStream = webRequest.GetRequestStream();
+                binaryContainer.WriteToStream(requestStream);
+			}
+        }
+
+        /// <summary>
+        /// Post content HttpWebRequest
+        /// </summary>
+        /// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
+        /// <param name="headers">IDictionary with the headers</param>
+        /// <param name="jsonString">string</param>
+        public static void Post(HttpWebRequest webRequest, IDictionary<string, object> headers, string jsonString)
+        {
+            if (headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    switch (header.Key)
+                    {
+                        case "Content-Type":
+                            webRequest.ContentType = header.Value as string;
+                            break;
+                        case "Accept":
+                            webRequest.Accept = header.Value as string;
+                            break;
+                        default:
+                            webRequest.Headers.Add(header.Key, Convert.ToString(header.Value));
+                            break;
+                    }
+                }
+                if (!headers.ContainsKey("Content-Type"))
+                {
+                    webRequest.ContentType = "application/json";
+                }
+			}
+            else
+            {
+                webRequest.ContentType = "application/json";
+            }
+
+			if (jsonString != null)
+            {
+                using var requestStream = webRequest.GetRequestStream();
+				using var streamWriter = new StreamWriter(requestStream);
+                streamWriter.Write(jsonString);
+            }
+        }
 		/// <summary>
 		/// Write Multipart Form Data to the HttpListenerResponse
 		/// </summary>

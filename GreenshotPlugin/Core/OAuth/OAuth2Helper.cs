@@ -51,7 +51,6 @@ namespace GreenshotPlugin.Core.OAuth {
 				// Use the returned code to get a refresh code
 				{ Code, settings.Code },
 				{ ClientId, settings.ClientId },
-				{ RedirectUri, settings.RedirectUrl },
 				{ ClientSecret, settings.ClientSecret },
 				{ GrantType, AuthorizationCode }
 			};
@@ -194,29 +193,29 @@ namespace GreenshotPlugin.Core.OAuth {
 		}
 
 		/// <summary>
-		/// Authenticate by using the mode specified in the settings
+		/// Authorize by using the mode specified in the settings
 		/// </summary>
 		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>false if it was canceled, true if it worked, exception if not</returns>
-		public static bool Authenticate(OAuth2Settings settings) {
+		public static bool Authorize(OAuth2Settings settings) {
 			var completed = settings.AuthorizeMode switch
 			{
-				OAuth2AuthorizeMode.LocalServer => AuthenticateViaLocalServer(settings),
-				OAuth2AuthorizeMode.EmbeddedBrowser => AuthenticateViaEmbeddedBrowser(settings),
-                OAuth2AuthorizeMode.JsonReceiver => AuthenticateViaDefaultBrowser(settings),
+				OAuth2AuthorizeMode.LocalServer => AuthorizeViaLocalServer(settings),
+				OAuth2AuthorizeMode.EmbeddedBrowser => AuthorizeViaEmbeddedBrowser(settings),
+                OAuth2AuthorizeMode.JsonReceiver => AuthorizeViaDefaultBrowser(settings),
                 _ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
 			};
 			return completed;
 		}
 
         /// <summary>
-        /// Authenticate via the default browser, via the Greenshot website.
+        /// Authorize via the default browser, via the Greenshot website.
         /// It will wait for a Json post.
         /// If this works, return the code
         /// </summary>
         /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
         /// <returns>true if completed, false if canceled</returns>
-        private static bool AuthenticateViaDefaultBrowser(OAuth2Settings settings)
+        private static bool AuthorizeViaDefaultBrowser(OAuth2Settings settings)
         {
 			var codeReceiver = new LocalJsonReceiver();
             IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
@@ -258,20 +257,21 @@ namespace GreenshotPlugin.Core.OAuth {
 			}
             if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
             {
-                settings.Code = code;
+				settings.Code = code;
                 GenerateRefreshToken(settings);
+                return !string.IsNullOrEmpty(settings.AccessToken);
             }
 
 			return true;
         }
 
         /// <summary>
-		/// Authenticate via an embedded browser
+		/// Authorize via an embedded browser
 		/// If this works, return the code
 		/// </summary>
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <returns>true if completed, false if canceled</returns>
-		private static bool AuthenticateViaEmbeddedBrowser(OAuth2Settings settings) {
+		private static bool AuthorizeViaEmbeddedBrowser(OAuth2Settings settings) {
 			if (string.IsNullOrEmpty(settings.CloudServiceName)) {
 				throw new ArgumentNullException(nameof(settings.CloudServiceName));
 			}
@@ -290,12 +290,12 @@ namespace GreenshotPlugin.Core.OAuth {
         }
 
 		/// <summary>
-		/// Authenticate via a local server by using the LocalServerCodeReceiver
+		/// Authorize via a local server by using the LocalServerCodeReceiver
 		/// If this works, return the code
 		/// </summary>
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <returns>true if completed</returns>
-		private static bool AuthenticateViaLocalServer(OAuth2Settings settings) {
+		private static bool AuthorizeViaLocalServer(OAuth2Settings settings) {
 			var codeReceiver = new LocalServerCodeReceiver();
 			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
@@ -335,7 +335,7 @@ namespace GreenshotPlugin.Core.OAuth {
 		public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings) {
 			// Get Refresh / Access token
 			if (string.IsNullOrEmpty(settings.RefreshToken)) {
-				if (!Authenticate(settings)) {
+				if (!Authorize(settings)) {
 					throw new Exception("Authentication cancelled");
 				}
 			}
@@ -343,7 +343,7 @@ namespace GreenshotPlugin.Core.OAuth {
 				GenerateAccessToken(settings);
 				// Get Refresh / Access token
 				if (string.IsNullOrEmpty(settings.RefreshToken)) {
-					if (!Authenticate(settings)) {
+					if (!Authorize(settings)) {
 						throw new Exception("Authentication cancelled");
 					}
 					GenerateAccessToken(settings);

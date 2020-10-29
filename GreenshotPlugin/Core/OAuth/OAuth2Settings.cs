@@ -137,6 +137,10 @@ namespace GreenshotPlugin.Core.OAuth
         /// </summary>
         public bool IsAccessTokenExpired {
             get {
+                if (AccessTokenExpires == default)
+                {
+                    return false;
+                }
                 bool expired = true;
                 if (!string.IsNullOrEmpty(AccessToken)) {
                     expired = DateTimeOffset.Now.AddSeconds(60) > AccessTokenExpires;
