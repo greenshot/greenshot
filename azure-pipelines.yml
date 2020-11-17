@@ -16,7 +16,7 @@ pool:
   vmImage: 'Windows-latest'
 
 variables:
-  solution: '**/*.sln'
+  solution: '**/Greenshot-Full.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   targetFramework: 'net5.0-windows'
@@ -34,7 +34,7 @@ steps:
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
-    projects: '**/*.csproj'
+    projects: ${solution}
     feedsToUse: 'config'
 
 - task: DotNetCoreCLI@2
