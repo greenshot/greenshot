@@ -30,11 +30,12 @@ steps:
     packageType: sdk
     version: 5.0.100
 
-- task: NuGetCommand@2
-  displayName: NuGet restore
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
   inputs:
-    restoreSolution: '$(solution)'
-    feedsToUse: config
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'config'
 
 - task: DotNetCoreCLI@2
   displayName: Publish single-exe x64
