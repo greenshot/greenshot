@@ -13,7 +13,7 @@ trigger:
     - 'release/1*'
 
 pool:
-  vmImage: 'Windows-2019'
+  vmImage: 'Windows-latest'
 
 variables:
   solution: '**/*.sln'
