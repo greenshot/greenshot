@@ -34,7 +34,7 @@ steps:
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
-    projects: ${solution}
+    projects: '${solution}'
     feedsToUse: 'config'
 
 - task: DotNetCoreCLI@2
