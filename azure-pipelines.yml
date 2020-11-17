@@ -16,7 +16,7 @@ pool:
   vmImage: 'Windows-latest'
 
 variables:
-  solution: '**/Greenshot-Full.sln'
+  solution: 'src/Greenshot-Full.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   targetFramework: 'net5.0-windows'
