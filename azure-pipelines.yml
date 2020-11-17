@@ -31,13 +31,6 @@ steps:
     version: 5.0.100
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet restore'
-  inputs:
-    command: 'restore'
-    projects: '${solution}'
-    feedsToUse: 'config'
-
-- task: DotNetCoreCLI@2
   displayName: Publish single-exe x64
   inputs:
     command: 'publish'
