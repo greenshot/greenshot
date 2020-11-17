@@ -55,7 +55,6 @@ namespace Greenshot.Addons.Controls
 			// 
 			// label_pleasewait
 			// 
-			this.label_pleasewait.AutoSize = true;
 			this.label_pleasewait.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.label_pleasewait.Location = new System.Drawing.Point(0, 0);
 			this.label_pleasewait.Name = "label_pleasewait";
@@ -70,12 +69,11 @@ namespace Greenshot.Addons.Controls
 			// 
 			this.timer_checkforclose.Interval = 200;
 			this.timer_checkforclose.Tick += new System.EventHandler(this.Timer_checkforcloseTick);
-			// 
-			// BackgroundForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.AutoSize = true;
+            // 
+            // BackgroundForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(169, 52);
 			this.ControlBox = true;
 			this.Controls.Add(this.label_pleasewait);

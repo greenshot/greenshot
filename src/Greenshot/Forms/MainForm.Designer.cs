@@ -253,12 +253,12 @@ namespace Greenshot.Forms {
 			this.backgroundWorkerTimer.Enabled = true;
 			this.backgroundWorkerTimer.Interval = 300000;
 			this.backgroundWorkerTimer.Tick += new System.EventHandler(this.BackgroundWorkerTimerTick);
-			// 
-			// MainForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(0, 0);
+            // 
+            // MainForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(0, 0);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.LanguageKey = "application_title";
 			this.Name = "MainForm";

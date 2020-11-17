@@ -23,6 +23,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0409" />
+    <PackageReference Include="MahApps.Metro" Version="2.3.4" />
   </ItemGroup>
 </Project>

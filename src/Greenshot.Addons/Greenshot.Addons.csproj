@@ -26,8 +26,8 @@
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="0.11.17" />
     <PackageReference Include="Dapplo.Windows.Dpi" Version="0.11.17" />
     <PackageReference Include="Dapplo.Windows.Icons" Version="0.11.17" />
-    <PackageReference Include="gong-wpf-dragdrop" Version="2.2.0" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.3.0" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.8.0" />
     <PackageReference Include="Svg" Version="3.1.1" />
   </ItemGroup>
 

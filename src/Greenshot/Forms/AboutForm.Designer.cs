@@ -177,12 +177,12 @@ namespace Greenshot.Forms {
 			this.lblTranslation.Name = "lblTranslation";
 			this.lblTranslation.Size = new System.Drawing.Size(466, 23);
 			this.lblTranslation.TabIndex = 15;
-			// 
-			// AboutForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(530, 293);
+            // 
+            // AboutForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(530, 293);
 			this.Controls.Add(this.lblTranslation);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.linkLabel1);

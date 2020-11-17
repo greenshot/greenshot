@@ -52,18 +52,19 @@ namespace Greenshot.Forms {
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnMouseDown);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.OnPaint);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUp);
-			// 
-			// CaptureForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(0, 0);
+            // 
+            // CaptureForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(0, 0);
 			this.Cursor = System.Windows.Forms.Cursors.Cross;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.Name = "CaptureForm";
 			this.ShowIcon = true;
 			this.ShowInTaskbar = false;
 			this.TopMost = true;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CaptureFormKeyDown);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CaptureFormKeyUp);
 			this.Visible = false;

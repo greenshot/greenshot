@@ -7,7 +7,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>

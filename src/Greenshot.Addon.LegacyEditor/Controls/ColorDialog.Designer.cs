@@ -258,8 +258,8 @@ namespace Greenshot.Addon.LegacyEditor.Controls {
             // 
             // ColorDialog
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(584, 404);
             this.Controls.Add(this.panelRecentColors);
             this.Controls.Add(this.panelColors);

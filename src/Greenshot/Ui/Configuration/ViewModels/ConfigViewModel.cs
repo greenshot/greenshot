@@ -87,7 +87,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         public Control Icon => new PackIconMaterial
         {
-            Kind = PackIconMaterialKind.Settings,
+            Kind = PackIconMaterialKind.Cog,
             Margin = new Thickness(10)
         };
 

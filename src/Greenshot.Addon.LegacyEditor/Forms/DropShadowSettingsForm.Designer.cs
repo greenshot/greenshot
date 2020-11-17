@@ -108,7 +108,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// label3
 			// 
-			this.label3.AutoSize = true;
 			this.label3.Location = new System.Drawing.Point(153, 35);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(14, 13);
@@ -169,7 +168,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// labelDarkness
 			// 
-			this.labelDarkness.AutoSize = true;
             this.labelDarkness.LanguageKey = "editor.editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
@@ -178,7 +176,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// labelOffset
 			// 
-			this.labelOffset.AutoSize = true;
 			this.labelOffset.LanguageKey = "editor.editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
@@ -187,7 +184,6 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// labelThickness
 			// 
-			this.labelThickness.AutoSize = true;
 			this.labelThickness.LanguageKey = "editor.editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
@@ -197,9 +193,9 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// DropShadowSettingsForm
 			// 
 			this.AcceptButton = this.buttonOK;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.CancelButton = this.buttonCancel;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(230, 154);
 			this.ControlBox = false;
 			this.Controls.Add(this.labelThickness);

@@ -7,7 +7,7 @@
                                             xmlns:cal="http://www.caliburnproject.org"
                                             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                                             xmlns:toasts="clr-namespace:Dapplo.CaliburnMicro.Toasts;assembly=Dapplo.CaliburnMicro.Toasts"
-                                            mc:Ignorable="d" Background="{DynamicResource AccentBaseColorBrush}" Width="300" Height="256" Padding="5"
+                                            mc:Ignorable="d" Background="{DynamicResource MahApps.Brushes.AccentBase}" Width="300" Height="256" Padding="5"
                                             d:DataContext="{d:DesignInstance viewModels:ExportNotificationViewModel,IsDesignTimeCreatable=False}"
                                             d:DesignHeight="100" d:DesignWidth="200" HorizontalContentAlignment="Stretch" HorizontalAlignment="Right">
     <toasts:ToastView.Resources>
@@ -27,7 +27,7 @@
 
         <!-- Top row -->
         <Image Source="{Binding GreenshotIcon}" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" UseLayoutRounding="True" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0"/>
-        <TextBlock Text="{Binding Information.DestinationDesignation}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Light" Foreground="{DynamicResource IdealForegroundColorBrush}" TextWrapping="WrapWithOverflow" Grid.Row="0" Grid.Column="1" />
+        <TextBlock Text="{Binding Information.DestinationDesignation}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Light" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}" TextWrapping="WrapWithOverflow" Grid.Row="0" Grid.Column="1" />
         <Image Source="{Binding Source.DisplayIconWpf}" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" UseLayoutRounding="True" VerticalAlignment="Top" Grid.Row="0" Grid.Column="2"/>
 
         <!-- Middle row -->
@@ -35,9 +35,9 @@
         <Image cal:Message.Attach="[Event MouseDown] = [Action OpenExport()]" Source="{Binding ExportBitmapSource}" Visibility="{Binding Information.IsOk, Converter={StaticResource BooleanToVisibility}}" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform"  RenderOptions.BitmapScalingMode="Fant" UseLayoutRounding="True"  Grid.Row="1" Grid.Column="1"/>
 
         <!-- Bottom row -->
-        <TextBlock Text="{Binding Information.DestinationDescription}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Light" Foreground="{DynamicResource IdealForegroundColorBrush}" TextWrapping="WrapWithOverflow" Grid.Row="2" Grid.Column="1" />
-        <Button x:Name="Configure" ToolTip="Configure" Style="{DynamicResource SquareButtonStyle}" Grid.Row="2" Grid.Column="2" >
-            <iconPacks:PackIconMaterial Kind="Settings" />
+        <TextBlock Text="{Binding Information.DestinationDescription}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Light" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}" TextWrapping="WrapWithOverflow" Grid.Row="2" Grid.Column="1" />
+        <Button x:Name="Configure" ToolTip="Configure" Style="{DynamicResource MahApps.Styles.Button.Square}" Grid.Row="2" Grid.Column="2" >
+            <iconPacks:PackIconMaterial Kind="Cog" />
         </Button>
     </Grid>
 </toasts:ToastView>

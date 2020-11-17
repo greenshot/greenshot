@@ -1,41 +1,39 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2"
-          xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
-    <!-- Make sure windows Vista and above treat Greenshot as "DPI Aware"
-    See: http://msdn.microsoft.com/en-us/library/ms633543.aspx -->
-    <asmv3:application>
-        <asmv3:windowsSettings>
-            <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
-            <!-- Important for Greenshot, so it can enumerate immersive windows (UWP etc) from the desktop -->
-            <disableWindowFiltering xmlns="https://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
-            <printerDriverIsolation xmlns="https://schemas.microsoft.com/SMI/2011/WindowsSettings">true</printerDriverIsolation>
-            <dpiAwareness xmlns="https://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2,PerMonitor</dpiAwareness>
-            <gdiScaling xmlns="https://schemas.microsoft.com/SMI/2017/WindowsSettings">true</gdiScaling>
-        </asmv3:windowsSettings>
-    </asmv3:application>
-    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
-        <application>
-            <!-- Windows 10 -->
-            <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
-            <maxversiontested Id="10.0.18362.0"/>
-            <!-- Windows 8.1 -->
-            <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />
-            <!--Windows 8 -->
-            <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />
-            <!-- Windows 7 -->
-            <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />
-        </application>
-    </compatibility>
-    <!-- Set UAC level to "asInvoker" and disable registry virtualization -->
-    <asmv2:trustInfo>
-        <asmv2:security>
-            <asmv3:requestedPrivileges>
-                <!--
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+  <!-- Make sure windows Vista and above treat Greenshot as "DPI Aware" See: http://msdn.microsoft.com/en-us/library/ms633543.aspx -->
+  <asmv3:application>
+    <asmv3:windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
+      <!-- Important for Greenshot, so it can enumerate immersive windows (UWP etc) from the desktop -->
+      <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
+      <printerDriverIsolation xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</printerDriverIsolation>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2,PerMonitor</dpiAwareness>
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+      <gdiScaling xmlns="http://schemas.microsoft.com/SMI/2017/WindowsSettings">true</gdiScaling>
+    </asmv3:windowsSettings>
+  </asmv3:application>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+      <maxversiontested Id="10.0.18363.0"/>
+      <!-- Windows 8.1 -->
+      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />
+      <!--Windows 8 -->
+      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />
+      <!-- Windows 7 -->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />
+    </application>
+  </compatibility>
+  <!-- Set UAC level to "asInvoker" and disable registry virtualization -->
+  <asmv2:trustInfo>
+    <asmv2:security>
+      <asmv3:requestedPrivileges>
+        <!--
           The presence of the "requestedExecutionLevel" node will disable
           file and registry virtualization on Vista. See:
           http://msdn.microsoft.com/en-us/library/aa965884%28v=vs.85%29.aspx
-          
+
           Use the "level" attribute to specify the User Account Control level:
             asInvoker            = Never prompt for elevation
             requireAdministrator = Always prompt for elevation
@@ -43,8 +41,8 @@
                                    but do not prompt for administrator password when started by
                                    standard user.
         -->
-                <asmv3:requestedExecutionLevel level="asInvoker" />
-            </asmv3:requestedPrivileges>
-        </asmv2:security>
-    </asmv2:trustInfo>
+        <asmv3:requestedExecutionLevel level="asInvoker" />
+      </asmv3:requestedPrivileges>
+    </asmv2:security>
+  </asmv2:trustInfo>
 </assembly>

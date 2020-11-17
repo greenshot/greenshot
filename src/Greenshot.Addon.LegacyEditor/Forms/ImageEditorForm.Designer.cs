@@ -213,8 +213,8 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// topToolStripContainer
 			// 
-			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			// 
 			// topToolStripContainer.BottomToolStripPanel
 			// 
@@ -1518,12 +1518,12 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.alignRightToolStripMenuItem.LanguageKey = "editor.editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
-			// 
-			// ImageEditorForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(785, 485);
+            // 
+            // ImageEditorForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;
 			this.LanguageKey = "editor.editor_title";

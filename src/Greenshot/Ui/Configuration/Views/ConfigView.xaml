@@ -12,7 +12,7 @@
              d:DataContext="{d:DesignInstance viewModels:ConfigViewModel,IsDesignTimeCreatable=False}"
              ResizeMode="CanResizeWithGrip" SizeToContent="Width" Width="700" MinWidth="700" MaxWidth="1000"  Height="500">
     <behaviors:FrameworkElementIcon.Value>
-        <iconPacks:PackIconMaterial Kind="Settings" Margin="10" Visibility="Visible" />
+        <iconPacks:PackIconMaterial Kind="Cog" Margin="10" Visibility="Visible" />
     </behaviors:FrameworkElementIcon.Value>
     <Grid>
         <Grid.RowDefinitions>

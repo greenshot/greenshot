@@ -7,7 +7,7 @@
   
   <ItemGroup>
     <PackageReference Include="Dapplo.Addons" Version="1.3.3" />
-    <PackageReference Include="Dapplo.Log" Version="1.3.26" />
+    <PackageReference Include="Dapplo.Log" Version="1.4.1" />
     <PackageReference Include="Dapplo.Windows.Dpi" Version="0.11.17" />
     <PackageReference Include="Svg" Version="3.1.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />

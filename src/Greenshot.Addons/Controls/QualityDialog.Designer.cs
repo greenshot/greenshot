@@ -108,19 +108,18 @@ namespace Greenshot.Addons.Controls {
 			// 
 			// checkBox_reduceColors
 			// 
-			this.checkBox_reduceColors.AutoSize = true;
 			this.checkBox_reduceColors.Location = new System.Drawing.Point(12, 11);
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
 			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
 			this.checkBox_reduceColors.TabIndex = 2;
 			this.checkBox_reduceColors.Text = "settings_reducecolors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
-			// 
+            // 
             // QualityDialog
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(299, 184);
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(299, 184);
 			this.ControlBox = false;
 			this.Controls.Add(this.checkBox_reduceColors);
 			this.Controls.Add(this.button_ok);

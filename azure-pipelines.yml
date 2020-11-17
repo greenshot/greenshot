@@ -25,10 +25,10 @@ steps:
 - task: NuGetToolInstaller@1
 
 - task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 5.0.100-rc.2'
+  displayName: 'Use .NET Core sdk 5.0'
   inputs:
     packageType: sdk
-    version: 5.0.100-rc.2.20479.15
+    version: 5.0.100
 
 - task: NuGetCommand@2
   displayName: NuGet restore
