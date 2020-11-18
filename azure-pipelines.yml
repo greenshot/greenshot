@@ -36,7 +36,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
+    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=True /p:RuntimeIdentifier=win-x64'
     zipAfterPublish: false
 
 - task: CmdLine@2
@@ -50,7 +50,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: 'src\Greenshot\Greenshot.csproj'
-    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x86'
+    arguments: '-f $(targetFramework) -c Release /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=True /p:RuntimeIdentifier=win-x86'
     zipAfterPublish: false
 
 - task: CmdLine@2
