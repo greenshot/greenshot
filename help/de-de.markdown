@@ -38,11 +38,13 @@ comments: []
 </ol>
 <li><a href="#settings">Der Einstellungen-Dialog</a></li>
 <ol>
-<li><a href="#settings-general">Allgemeine Einstellungen</a></li>
-<li><a href="#settings-capture">Abfotografieren-Einstellungen</a></li>
-<li><a href="#settings-output">Ausgabeeinstellungen</a></li>
-<li><a href="#settings-printer">Druckereinstellungen</a></li>
-<li><a href="#settings-plugins">Zusatzmodule-Einstellungen</a></li>
+<li><a href="#settings-general">Allgemein</a></li>
+<li><a href="#settings-capture">Abfotografieren</a></li>
+<li><a href="#settings-output">Ausgabe</a></li>
+<li><a href="#settings-destination">Ziele</a></li>
+<li><a href="#settings-printer">Drucker</a></li>
+<li><a href="#settings-plugins">Plugins</a></li>
+<li><a href="#settings-experts">Experten</a></li>
 </ol>
 <li><a href="#help">Wollen Sie Greenshot unterstützen?</a></li>
 <ol>
@@ -107,7 +109,7 @@ Anschließend können Sie Kind-Elemente des Fensters durch Anklicken auswählen.
 <a name="capture-fullscreen"></a>
 <h3>Kompletten Bildschirm abfotografieren <kbd>Strg</kbd> + <kbd>Druck</kbd></h3>
 <p>
-Erstellt einen Screenhot vom gesamten Bildschirm.
+Erstellt einen Screenshot vom gesamten Bildschirm.
 </p>
 
 <a name="capture-ie"></a>
@@ -296,19 +298,19 @@ zu öffnen.
 <h2>Der Einstellungen-Dialog</h2>
 
 <a name="settings-general"></a>
-<h3>Allgemeine Einstellungen</h3>
+<h3>Allgemein</h3>
 <ul>
 <li><em>Sprache</em>: Die Sprache, in der Sie Greenshot verwenden möchten.<br>
-<a target="_blank" href="https://getgreenshot.org/downloads/">Hier</a> können Sie weitere Sprachen für Greenshot herunterladen. </li>
+<a target="_blank" href="https://github.com/greenshot/greenshot/tree/develop/src/Greenshot/Languages">Hier</a> können Sie weitere Sprachen für Greenshot herunterladen. </li>
 <li><em>Greenshot mit Windows starten</em>: Das Programm wird automatisch gestartet, wenn das System hochfährt.</li>
 <li><em>Tastenkombinationen</em>: Konfigurieren Sie die Tastenkombinationen für das Erstellen von Screenshots.</li>
 <li><em>Standard-Proxyserver des Betriebssystems verwenden</em>: Wenn ausgewählt, wird der im Betriebssystem eingetragene Standard-Proxyserver verwendet, um nach Updates zu suchen.</li>
-<li><em>Aktualisierungsprüfung in Tagen</em>: Greenshot kann automatisch nach Updates suchen. Verwenden Sie die Einstellung, um das Intervall zu ändern
+<li><em>Prüfen auf Updates alle x Tage</em>: Greenshot kann automatisch nach Updates suchen. Verwenden Sie die Einstellung, um das Intervall zu ändern
 (in Tagen) oder setzen Sie den Wert auf 0, um die automatische Suche nach Updates zu deaktivieren.</li>
 </ul>
 
 <a name="settings-capture"></a>
-<h3>Abfotografieren Einstellungen</h3>
+<h3>Abfotografieren</h3>
 <ul>
 <li><em>Mauszeiger mitfotografieren</em>: Wenn diese Option aktiviert ist, wird der Mauszeiger mit abfotografiert. Der Zeiger wird im Editor als eigenes Element eingefügt, sodass Sie ihn anschließend noch verschieben oder löschen können.</li>
 <li><em>Kameraton abspielen</em>: Hörbares Feedback beim Erstellen eines Screenshots</li>
@@ -316,15 +318,15 @@ zu öffnen.
 <li><em>Fenster abfotografieren</em>: Anstatt sofort das aktive Fenster abzufotografieren, können Sie im 
 interaktiven Modus ein Fenster auswählen. Es ist auch möglich, Kind-Fenster abzufotografieren, siehe <a href="#capture-window">Fenster abfotografieren</a>.</li>
 <li>
-<em>Aero Design abfotografieren (nur Windows Vista / 7)</em>: Wenn Sie Greenshot auf Windows Vista oder Windows 7 verwenden und Aero-Design Fenster
+<em>Aero Design abfotografieren (nur Windows Vista / 7)</em>: Wenn Sie Greenshot auf Windows Vista oder Windows 7 verwenden und Aero-Design-Fenster
 aktiviert haben, können Sie einstellen, wie mit transparenten Fensterrahmen umgegangen werden soll, wenn ein Screenshot
 im Fenstermodus angefertigt wird. Verwenden Sie diese Einstellung, um zu vermeiden, dass durchscheinende Elemente im Hintergrund mit
 abfotografiert werden.
 <ul>
-<li><em>Auto</em>: Greenshot entscheiden lassen, wie mit Transparenzen umgegangen werden soll.</li>
+<li><em>Automatisch</em>: Greenshot entscheiden lassen, wie mit Transparenzen umgegangen werden soll.</li>
 <li><em>Wie angezeigt</em>: Transparente Rahmen werden abfotografiert, wie sie auf dem Bildschirm angezeigt werden.</li>
 <li><em>Standardfarbe verwenden</em>: Eine einheitliche Hintergrundfarbe wird anstelle von Transparenz verwendet.</li>
-<li><em>Eigene Farbe verwenden</em>: Wählen Sie eine Farbe aus, die anstelle von Transparenz verwendet werden soll.</li>
+<li><em>Benutzerdefinierte Farbe verwenden</em>: Wählen Sie eine Farbe aus, die anstelle von Transparenz verwendet werden soll.</li>
 <li><em>Transparenz erhalten</em>: Die Transparenz der Rahmen wird beim Abfotografieren erhalten, Elemente im Hintergrund werden nicht mit abfotografiert. (Hinweis: 
 	Transparente Bereiche werden im Editor mit einem Schachbrettmuster dargestellt. Das Muster wird nicht mit exportiert, wenn der Screenshot gespeichert wird.
 	Denken Sie daran, den Screenshot als PNG zu speichern, da nur dieses Format die volle Unterstützung für
@@ -332,33 +334,43 @@ abfotografiert werden.
 </ul>
 </li>
 <li><em>Internet Explorer abfotografieren</em>: Komfortables Abfotografieren von Webseiten im Internet Explorer aktivieren.</li>
-<li><em>Editorfenster an Screenshotgröße anpassen</em>: Wenn ausgewählt, wird das Editorfenster automatisch auf die Größe des Screenshots vergrößert oder verkleinert.</li>
+<li><em>Anpassen an Aufnahmebereich</em>: Wenn ausgewählt, wird das Editorfenster automatisch auf die Größe des Screenshots vergrößert oder verkleinert.</li>
 </ul>
 
 <a name="settings-output"></a>
-<h3>Ausgabeeinstellungen</h3>
+<h3>Ausgabe</h3>
 <ul>
-<li><em>Screenshot Ziel</em>: Sie können ein oder mehrere Möglichkeiten wählen, was mit dem Screenshot direkt nach der Erstellung geschehen soll.</li>
 <li><em>Bevorzugte Ausgabedatei-Einstellungen</em>: Verzeichnis und Dateinamen, die verwendet werden sollen, wenn Screenshots direkt gespeichert werden, bzw. die vorgeschlagen werden sollen, wenn mit dem Speichern-unter-Dialog gespeichert wird. Klicken Sie die <em>?</em>-Schaltfläche, um zu erfahren, welche Platzhalter für das Dateinamensmuster verwendet werden können.</li>
-<li><em>JPEG-Einstellungen</em>: Qualitätsstufe für den Export von JPEG-Dateien</li>
+<li><em>JPEG-Qualitätseinstellungen</em>: Qualitätsstufe für den Export von JPEG-Dateien</li>
+</ul>
+
+<a name="settings-destination"></a>
+<h3>Ziele</h3>
+<ul>
+<li><em>Ziele</em>: Sie können ein oder mehrere Ziele für Ihren Screenshot direkt nach der Aufnahme wählen.</li>
 </ul>
 
 <a name="settings-printer"></a>
-<h3>Druckereinstellungen</h3>
+<h3>Drucker</h3>
 <ul>
 <li><em>Ausdruck auf Seitengröße verkleinern</em>: Verkleinert die Grafik, wenn sie zu groß für das Papierformat ist.</li>
 <li><em>Ausdruck auf Seitengröße vergrößern</em>: Vergrößert die Grafik, wenn sie kleiner als das Papierformat ist.</li>
-<li><em>Drehung des Ausdrucks an das Seitenformat anpassen</em>: Dreht eine Querformat-Grafik für den Ausdruck um 90&deg;.</li>
-<li><em>Farben umkehren</em>: Vor dem Druck werden die Farben des Screenshots invertiert, z. B. nützlich, wenn ein Screenshot von weißer Schrift auf schwarzem Grund gedruckt wird (um Toner/Tinte zu sparen).</li>
+<li><em>Ausdruck durch Drehung an das Seitenformat anpassen</em>: Dreht eine Querformat-Grafik für den Ausdruck um 90&deg;.</li>
+<li><em>Farben umkehren</em>: Vor dem Druck werden die Farben des Screenshots invertiert, nützlich z. B. beim Drucken eines Screenshots mit weißem Text auf schwarzem Hintergrund, um Toner bzw. Tinte zu sparen.</li>
 </ul>
 
-
 <a name="settings-plugins"></a>
-<h3>Zusatzmodule-Einstellungen</h3>
+<h3>Plugins</h3>
 <p>
-Zeigt eine Liste der installierten Greenshot-Zusatzmodule an. Wählen Sie einen Eintrag der Liste und klicken Sie
-<em>Konfiguration</em>, um die Einstellungen eines Zusatzmoduls zu konfigurieren.
+Zeigt eine Liste der installierten Greenshot-Plugins an. Wählen Sie einen Eintrag der Liste und klicken Sie
+<em>Konfiguration</em>, um die Einstellungen eines Plugins zu konfigurieren.
 </p>
+
+<a name="settings-experts"></a>
+<h3>Experten</h3>
+<ul>
+<li><em>Zwischenablage-Formate</em>: Sie können ein oder mehrere Zwischenablage-Formate wählen.</li>
+</ul>
 
 
 <a name="help"></a>
@@ -368,20 +380,20 @@ Zeigt eine Liste der installierten Greenshot-Zusatzmodule an. Wählen Sie einen 
 Wir benötigen momentan keine Hilfe bei der Entwicklung von Greenshot. Es gibt aber
 unterschiedliche Möglichkeiten, wenn Sie Greenshot und das Entwickler-Team 
 unterstützen wollen.<br>
-Vielen Dank im Voraus :)
+Vielen Dank im Voraus! :)
 </p>
 
 <a name="help-donate"></a>
 <h3>Spenden</h3>
 <p>
-Wir stecken sehr viel Arbeit in Greenshot oder verbringen einige Zeit damit, ein
+Wir stecken sehr viel Arbeit in Greenshot und verbringen einige Zeit damit, ein
 gutes Programm kostenlos und als Open Source zur Verfügung zu stellen. Wenn Sie
 merken, dass Greenshot Ihnen hilft, produktiver zu sein, wenn es Ihnen (oder 
-Ihrer Firma) viel Zeit und Geld spart, oder wenn Sie einfach Greenshot und die
+Ihrer Firma) viel Zeit und Geld spart oder wenn Sie einfach Greenshot und die
 Open-Source-Idee mögen: Bitte ziehen Sie in Betracht, unserem Aufwand etwas
 Anerkennung durch eine Spende zukommen zu lassen.<br>
 Bitte werfen Sie einen Blick auf unsere Webseite, um zu sehen, wie Sie das 
-Greenshot-Entwicker-Team unterstützen können:
+Greenshot-Entwickler-Team unterstützen können:
 <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
 </p>
 
@@ -399,15 +411,15 @@ Ihrem Blog oder Ihrer eigenen Webseite.
 <p>
 Gibt es Greenshot noch nicht in Ihrer bevorzugten Sprache? Wenn Sie sich in der
 Lage fühlen, ein Programm zu übersetzen, sind Sie herzlich eingeladen.<br>
-Wenn Sie registrierter Nutzer bei sourceforge.net sind, können Sie Übersetzungen
+Wenn Sie registrierter Nutzer bei SourceForge.net sind, können Sie Übersetzungen
 <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a> hochladen.<br>
 Bitte stellen Sie vorher sicher, dass keine Übersetzung für Ihre Sprache auf unserer
-<a target="_blank" href="https://getgreenshot.org/downloads/">Download-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob
+<a target="_blank" href="https://github.com/greenshot/greenshot/tree/develop/src/Greenshot/Languages">Sprachen-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob
 evtl. eine Übersetzung in Arbeit oder in Vorbereitung ist.<br>
 Bitte bedenken Sie, dass wir eine Übersetzung nur auf unserer Download-Seite zur 
-Verfügung stellen werden, wenn Sie über ein sourceforge.net Benutzerkonto bereitgestellt
+Verfügung stellen werden, wenn Sie über ein SourceForge.net-Benutzerkonto bereitgestellt
 wurde. Da wir höchstwahrscheinlich nicht in der Lage sein werden, Ihre Übersetzung
-zu verstehen, ist es gut, wenn andere sourceforge Nutzer Sie kontaktieren können,
+zu verstehen, ist es gut, wenn andere SourceForge-Nutzer Sie kontaktieren können,
 um Verbesserungen vorzuschlagen oder die Übersetzung für eine nachfolgende Greenshot-Version
 zu erweitern.
 </p>
