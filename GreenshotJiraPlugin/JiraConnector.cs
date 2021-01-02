@@ -29,8 +29,8 @@ using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
-using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
+using Dapplo.Jira.SvgWinForms.Converters;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
@@ -241,7 +241,7 @@ namespace GreenshotJiraPlugin {
 		/// <param name="body">text</param>
 		/// <param name="visibility">the visibility role</param>
 		/// <param name="cancellationToken">CancellationToken</param>
-		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default)
+		public async Task AddCommentAsync(string issueKey, string body, Visibility visibility = null, CancellationToken cancellationToken = default)
 		{
 			await CheckCredentialsAsync(cancellationToken);
 			await _jiraClient.Issue.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
