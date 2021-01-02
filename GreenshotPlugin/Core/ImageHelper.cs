@@ -1351,22 +1351,22 @@ namespace GreenshotPlugin.Core {
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 
-                using Graphics graphics = Graphics.FromImage(newImage);
-                if (fromTransparentToNon)
-                {
-                    // Rule 2: Make sure the background color is white
-                    graphics.Clear(Color.White);
-                }
-                // decide fastest copy method
-                if (isAreaEqual)
-                {
-                    graphics.DrawImageUnscaled(sourceImage, 0, 0);
-                }
-                else
-                {
-                    graphics.DrawImage(sourceImage, 0, 0, sourceRect, GraphicsUnit.Pixel);
-                }
-            }
+				using Graphics graphics = Graphics.FromImage(newImage);
+				if (fromTransparentToNon)
+				{
+					// Rule 2: Make sure the background color is white
+					graphics.Clear(Color.White);
+				}
+				// decide fastest copy method
+				if (isAreaEqual)
+				{
+					graphics.DrawImageUnscaled(sourceImage, 0, 0);
+				}
+				else
+				{
+					graphics.DrawImage(sourceImage, 0, 0, sourceRect, GraphicsUnit.Pixel);
+				}
+			}
 			else
 			{
 				// Let GDI+ decide how to convert, need to test what is quicker...
@@ -1374,17 +1374,26 @@ namespace GreenshotPlugin.Core {
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			}
-			// Clone property items (EXIF information etc)
-			foreach (var propertyItem in sourceImage.PropertyItems)
+
+			// In WINE someone getting the PropertyItems doesn't work
+			try
 			{
-				try
+				// Clone property items (EXIF information etc)
+				foreach (var propertyItem in sourceImage.PropertyItems)
 				{
-					newImage.SetPropertyItem(propertyItem);
+					try
+					{
+						newImage.SetPropertyItem(propertyItem);
+					}
+					catch (Exception innerEx)
+					{
+						Log.Warn("Problem cloning a propertyItem.", innerEx);
+					}
 				}
-				catch (Exception ex)
-				{
-					Log.Warn("Problem cloning a propertyItem.", ex);
-				}
+			}
+			catch (Exception ex)
+			{
+				Log.Warn("Problem cloning a propertyItem.", ex);
 			}
 			return newImage;
 		}
