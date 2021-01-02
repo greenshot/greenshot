@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj" />
-	<PackageReference Include="Dapplo.Jira" version="0.9.28" />
+	<PackageReference Include="Dapplo.Jira" version="1.1.21" />
+	<PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.1.21" />
   </ItemGroup>
 </Project>
