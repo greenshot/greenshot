@@ -19,6 +19,6 @@
   </ItemGroup>
   
   <ItemGroup>
-	<PackageReference Include="CliWrap" Version="3.2.3" />
+	<PackageReference Include="CliWrap" Version="3.3.0" />
   </ItemGroup>
 </Project>

@@ -38,12 +38,12 @@
     <PackageReference Include="Dapplo.CaliburnMicro.Dapp" Version="2.1.10" />
     <PackageReference Include="Dapplo.Log.LogFile" Version="1.4.1" />
     <PackageReference Include="Dapplo.Log.Loggers" Version="1.4.1" />
-    <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.11.17" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="0.11.24" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <PackageReference Include="Svg" Version="3.1.1" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="3.4.3" />
-    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="3.4.3" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.1.0" />
     <TrimmerRootAssembly Include="System.Diagnostics.Debug" />
   </ItemGroup>
   

@@ -22,6 +22,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using HashDepot;
 
 namespace Greenshot.Gfx.FastBitmap
 {
@@ -336,8 +337,8 @@ namespace Greenshot.Gfx.FastBitmap
         {
             var offset = (left ?? Left) * BytesPerPixel + y * Stride;
             var length = (right ?? Right) - (left ?? Left) * BytesPerPixel;
-            var hash = new Murmur3(Seed);
-            return hash.CalculateHash(Pointer, offset, length);
+            var values = new ReadOnlySpan<byte>(Pointer + offset, length);
+            return XXHash.Hash32(values, Seed);
         }
 
         /// <summary>

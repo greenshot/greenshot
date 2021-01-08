@@ -206,7 +206,7 @@ namespace Greenshot.Addon.Jira
 		{
 			try
 			{
-				return await _jiraClient.Issue.GetAsync(issueKey, cancellationToken).ConfigureAwait(false);
+				return await _jiraClient.Issue.GetAsync(issueKey, null, null, cancellationToken).ConfigureAwait(false);
 			}
 			catch
 			{
