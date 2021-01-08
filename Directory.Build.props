@@ -8,7 +8,7 @@
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
     <PackageLicenseExpression>GPL</PackageLicenseExpression>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9</LangVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
@@ -56,7 +56,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -102,7 +102,7 @@
     </Tokens>
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
+  <ItemGroup>
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true"/>
   </ItemGroup>
 
