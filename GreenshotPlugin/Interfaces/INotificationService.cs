@@ -32,27 +32,27 @@ namespace GreenshotPlugin.Interfaces
         /// This will show a warning message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowWarningMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null);
+        void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
 
         /// <summary>
         /// This will show an error message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowErrorMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null);
+        void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
 
         /// <summary>
         /// This will show an info message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout">int</param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowInfoMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null);
+        void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
     }
 }

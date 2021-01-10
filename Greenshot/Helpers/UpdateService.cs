@@ -198,7 +198,7 @@ namespace Greenshot.Helpers
         {
             var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>();
             var message = Language.GetFormattedString(LangKey.update_found, newVersion.ToString());
-            notificationService.ShowInfoMessage(message, 10000, () => Process.Start(Downloads.AbsoluteUri));
+            notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () => Process.Start(Downloads.AbsoluteUri));
         }
 
         /// <summary>
