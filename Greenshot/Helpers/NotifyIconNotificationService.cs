@@ -46,10 +46,10 @@ namespace Greenshot.Helpers
         /// This will show a warning message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowWarningMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Warning, onClickAction, onClosedAction);
         }
@@ -58,10 +58,10 @@ namespace Greenshot.Helpers
         /// This will show an error message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowErrorMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Error, onClickAction, onClosedAction);
         }
@@ -70,10 +70,10 @@ namespace Greenshot.Helpers
         /// This will show an info message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout">int</param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowInfoMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Info, onClickAction, onClosedAction);
         }
@@ -82,11 +82,11 @@ namespace Greenshot.Helpers
         /// This will show a message to the user
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout">int</param>
+        /// <param name="timeout">TimeSpan</param>
         /// <param name="level">ToolTipIcon</param>
         /// <param name="onClickAction">Action</param>
         /// <param name="onClosedAction">Action</param>
-        private void ShowMessage(string message, int timeout, ToolTipIcon level, Action onClickAction = null, Action onClosedAction = null) {
+        private void ShowMessage(string message, TimeSpan? timeout = null, ToolTipIcon level = ToolTipIcon.Info, Action onClickAction = null, Action onClosedAction = null) {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
             {
@@ -128,7 +128,7 @@ namespace Greenshot.Helpers
                 _notifyIcon.BalloonTipClicked -= BalloonClickedHandler;
             }
             _notifyIcon.BalloonTipClosed += BalloonClosedHandler;
-            _notifyIcon.ShowBalloonTip(timeout, @"Greenshot", message, level);
+            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int)timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
         }
     }
 }

@@ -21,6 +21,7 @@
 
 using System.Runtime.InteropServices;
 using log4net;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace GreenshotWin10Plugin.Native
 {
@@ -28,7 +29,7 @@ namespace GreenshotWin10Plugin.Native
     /// This implements the NotificationActivator
     /// </summary>
     [ClassInterface(ClassInterfaceType.None)]
-    [ComSourceInterfaces(typeof(INotificationActivationCallback))]
+    [ComSourceInterfaces(typeof(NotificationActivator.INotificationActivationCallback))]
     [Guid("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08"), ComVisible(true)]
     public class GreenshotNotificationActivator : NotificationActivator
     {
