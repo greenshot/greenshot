@@ -451,7 +451,7 @@ namespace Greenshot {
 					case CommandEnum.FirstLaunch:
                             LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
                             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-                            notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), 2000, ShowSetting);
+                            notifyIconClassicMessageHandler.ShowInfoMessage(Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), TimeSpan.FromMinutes(10), ShowSetting);
                         break;
 					case CommandEnum.ReloadConfig:
 						LOG.Info("Reload requested");
@@ -901,7 +901,7 @@ namespace Greenshot {
 		}
 
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
-            if (!(sender is ToolStripMenuItem captureWindowItem)) return;
+            if (sender is not ToolStripMenuItem captureWindowItem) return;
             WindowDetails window = captureWindowItem.Tag as WindowDetails;
             if (_thumbnailForm == null) {
                 _thumbnailForm = new ThumbnailForm();

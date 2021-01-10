@@ -30,6 +30,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotWin10Plugin.Native;
 using log4net;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace GreenshotWin10Plugin
 {
@@ -69,10 +70,10 @@ namespace GreenshotWin10Plugin
         /// This creates the actual toast
         /// </summary>
         /// <param name="message">string</param>
-        /// <param name="timeout">milliseconds until the toast timeouts</param>
+        /// <param name="timeout">TimeSpan until the toast timeouts</param>
         /// <param name="onClickAction">Action called when clicked</param>
         /// <param name="onClosedAction">Action called when the toast is closed</param>
-        private void ShowMessage(string message, int timeout, Action onClickAction, Action onClosedAction)
+        private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
         {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
@@ -118,7 +119,7 @@ namespace GreenshotWin10Plugin
             var toast = new ToastNotification(toastXml)
             {
                 // Windows 10 first with 1903: ExpiresOnReboot = true,
-                ExpirationTime = timeout > 0 ? DateTimeOffset.Now.AddMilliseconds(timeout) : (DateTimeOffset?)null
+                ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null
             };
 
             void ToastActivatedHandler(ToastNotification toastNotification, object sender)
@@ -142,7 +143,11 @@ namespace GreenshotWin10Plugin
 
             void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
             {
-                Log.Debug("Toast closed");
+                Log.Debug($"Toast closed with reason {eventArgs.Reason}");
+                if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
+                {
+                    return;
+                }
                 try
                 {
                     onClosedAction?.Invoke();
@@ -156,6 +161,7 @@ namespace GreenshotWin10Plugin
                 // Remove the other handler too
                 toast.Activated -= ToastActivatedHandler;
                 toast.Failed -= ToastOnFailed;
+
             }
             toast.Dismissed += ToastDismissedHandler;
             toast.Failed += ToastOnFailed;
@@ -175,17 +181,17 @@ namespace GreenshotWin10Plugin
             Log.Debug(sender.Content.GetXml());
         }
 
-        public void ShowWarningMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
 
-        public void ShowErrorMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
 
-        public void ShowInfoMessage(string message, int timeout, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, timeout, onClickAction, onClosedAction);
         }
