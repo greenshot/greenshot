@@ -77,11 +77,14 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.SHADOW, false);
 		}
 
-		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
-			if (sender.Equals(this)) {
-				if (FieldType.SHADOW.Equals(e.Field.FieldType)) {
-					ChangeShadowField();
-				}
+		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
+		{
+			if (!sender.Equals(this))
+			{
+				return;
+			}
+			if (FieldType.SHADOW.Equals(e.Field.FieldType)) {
+				ChangeShadowField();
 			}
 		}
 
@@ -189,12 +192,14 @@ namespace Greenshot.Drawing {
 		/// This checks if a shadow is already generated
 		/// </summary>
 		/// <param name="shadow"></param>
-		private void CheckShadow(bool shadow) {
-			if (shadow && _shadowBitmap == null)
-            {
-                using var matrix = new Matrix();
-                _shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
-            }
+		private void CheckShadow(bool shadow)
+		{
+			if (!shadow || _shadowBitmap != null)
+			{
+				return;
+			}
+			using var matrix = new Matrix();
+			_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
 		}
 
 		/// <summary>
@@ -202,25 +207,28 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (image != null) {
-				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (image == null)
+			{
+				return;
+			}
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			graphics.CompositingQuality = CompositingQuality.HighQuality;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-				if (shadow) {
-					CheckShadow(true);
-					graphics.DrawImage(_shadowBitmap, Bounds);
-				} else {
-					graphics.DrawImage(image, Bounds);
-				}
+			if (shadow) {
+				CheckShadow(true);
+				graphics.DrawImage(_shadowBitmap, Bounds);
+			} else {
+				graphics.DrawImage(image, Bounds);
 			}
 		}
 
 		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize => image.Size;
+		public override Size DefaultSize => image?.Size ?? new Size(32, 32);
 	}
 }

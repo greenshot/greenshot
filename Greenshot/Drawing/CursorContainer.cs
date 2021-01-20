@@ -105,10 +105,6 @@ namespace Greenshot.Drawing {
 			cursor.DrawStretched(graphics, Bounds);
 		}
 
-		public override Size DefaultSize {
-			get {
-				return cursor.Size;
-			}
-		}
+		public override Size DefaultSize => cursor?.Size ?? new Size(16, 16);
 	}
 }

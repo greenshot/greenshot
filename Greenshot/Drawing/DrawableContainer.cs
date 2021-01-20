@@ -562,23 +562,11 @@ namespace Greenshot.Drawing
 			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
 		}
 
-		public virtual bool HasContextMenu {
-			get {
-				return true;
-			}
-		}
+		public virtual bool HasContextMenu => true;
 
-		public virtual bool HasDefaultSize {
-			get {
-				return false;
-			}
-		}
+		public virtual bool HasDefaultSize => false;
 
-		public virtual Size DefaultSize {
-			get {
-				throw new NotSupportedException("Object doesn't have a default size");
-			}
-		}
+		public virtual Size DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
 
 		/// <summary>
 		/// Allows to override the initializing of the fields, so we can actually have our own defaults
