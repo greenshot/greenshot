@@ -174,7 +174,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public void ShowDialog() {
 			// Create the mail message in an STA thread
-			var thread = new Thread(_ShowMail)
+			var thread = new Thread(ShowMail)
 			{
 				IsBackground = true,
 				Name = "Create MAPI mail"
@@ -202,7 +202,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Sends the mail message.
 		/// </summary>
-		private void _ShowMail() {
+		private void ShowMail() {
 			var message = new MapiHelperInterop.MapiMessage();
 
             using var interopRecipients = Recipients.GetInteropRepresentation();
@@ -215,7 +215,7 @@ namespace Greenshot.Helpers {
             // Check if we need to add attachments
             if (Files.Count > 0) {
                 // Add attachments
-                message.Files = _AllocAttachments(out message.FileCount);
+                message.Files = AllocAttachments(out message.FileCount);
             }
 
             // Signal the creating thread (make the remaining code async)
@@ -227,7 +227,7 @@ namespace Greenshot.Helpers {
 
             if (Files.Count > 0) {
                 // Deallocate the files
-                _DeallocFiles(message);
+                DeallocFiles(message);
             }
             MAPI_CODES errorCode = (MAPI_CODES)Enum.ToObject(typeof(MAPI_CODES), error);
 
@@ -245,14 +245,14 @@ namespace Greenshot.Helpers {
                 return;
             }
             Recipients = new RecipientCollection();
-            _ShowMail();
+            ShowMail();
         }
 
 		/// <summary>
 		/// Deallocates the files in a message.
 		/// </summary>
 		/// <param name="message">The message to deallocate the files from.</param>
-		private void _DeallocFiles(MapiHelperInterop.MapiMessage message) {
+		private void DeallocFiles(MapiHelperInterop.MapiMessage message) {
 			if (message.Files != IntPtr.Zero) {
 				Type fileDescType = typeof(MapiFileDescriptor);
 				int fsize = Marshal.SizeOf(fileDescType);
@@ -274,7 +274,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="fileCount"></param>
 		/// <returns></returns>
-		private IntPtr _AllocAttachments(out int fileCount) {
+		private IntPtr AllocAttachments(out int fileCount) {
 			fileCount = 0;
 			if (Files == null) {
 				return IntPtr.Zero;

@@ -20,6 +20,7 @@
  */
 
 using System.IO;
+using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -27,16 +28,16 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class EmailConfigHelper {
 
-		public static string GetMapiClient() => RegistryHelper.ReadLocalMachineSoftwareKey(@"Clients\Mail");
+		public static string GetMapiClient() => Registry.LocalMachine.ReadKey64Or32(@"Clients\Mail");
 		
 		public static bool HasMapi()
 		{
-			var value = RegistryHelper.ReadLocalMachineSoftwareKey(@"Microsoft\Windows Messaging Subsystem", "MAPI", "0");
+			var value = Registry.LocalMachine.ReadKey64Or32(@"Microsoft\Windows Messaging Subsystem", "MAPI", "0");
 			return "1".Equals(value);
 
 		}
 		
-		public static string GetOutlookExePath() => RegistryHelper.ReadLocalMachineSoftwareKey(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
+		public static string GetOutlookExePath() => Registry.LocalMachine.ReadKey64Or32(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
 
 		/// <summary>
 		/// Check if Outlook is installed
