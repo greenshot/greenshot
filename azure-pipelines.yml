@@ -30,16 +30,16 @@ stages:
     steps:
     - task: NuGetToolInstaller@1
 
+    - powershell: |
+        choco install msbuild.communitytasks
+      displayName: 'Installing MSBuild community tasks'
+
     - task: NuGetCommand@2
       displayName: NuGet restore
       inputs:
         command: 'restore'
         restoreSolution: '$(solution)'
         feedsToUse: config
-
-    - powershell: |
-        choco install msbuild.communitytasks
-      displayName: 'Installing MSBuild community tasks'
 
     - task: MSBuild@1
       displayName: Generate templates
