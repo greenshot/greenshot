@@ -37,6 +37,10 @@ stages:
         restoreSolution: '$(solution)'
         feedsToUse: config
 
+    - powershell: |
+        choco install msbuild.communitytasks
+      displayName: 'Installing MSBuild community tasks'
+
     - task: MSBuild@1
       displayName: Generate templates
       inputs:

@@ -210,7 +210,7 @@ namespace GreenshotJiraPlugin {
 			await CheckCredentialsAsync(cancellationToken);
 			try
 			{
-				return await _jiraClient.Issue.GetAsync(issueKey, cancellationToken).ConfigureAwait(false);
+				return await _jiraClient.Issue.GetAsync(issueKey, cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
 			catch
 			{
