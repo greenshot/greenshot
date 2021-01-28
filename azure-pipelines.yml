@@ -30,10 +30,6 @@ stages:
     steps:
     - task: NuGetToolInstaller@1
 
-    - powershell: |
-        choco install msbuild.communitytasks
-      displayName: 'Installing MSBuild community tasks'
-
     - task: NuGetCommand@2
       displayName: NuGet restore
       inputs:

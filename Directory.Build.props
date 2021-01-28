@@ -18,6 +18,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <TargetFramework>net472</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   
   <!-- ILLinker and single file settings -->
@@ -102,25 +103,10 @@
     </Tokens>
   </ItemGroup>
 
-  <!-- Acticate MSBuild.Community.Tasks to use the TemplateFile Task-->
-  <ItemGroup Condition="$(MSBuildProjectName.Contains('Plugin'))">
+  <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
+  <ItemGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
-  <PropertyGroup Condition="Exists('$(PkgTools_MSBuildTasks)MSBuild.Community.Tasks.Targets')">
-    <MSBuildTasksPath>$(PkgTools_MSBuildTasks)</MSBuildTasksPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="Exists('$(userprofile)\.nuget\packages\msbuildtasks\1.5.0.235\tools\MSBuild.Community.Tasks.Targets')">
-    <MSBuildTasksPath>$(userprofile)\.nuget\packages\msbuildtasks\1.5.0.235\tools\</MSBuildTasksPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')">
-    <MSBuildTasksPath>$(MSBuildExtensionsPath)\MSBuildCommunityTasks\</MSBuildTasksPath>
-  </PropertyGroup>
-  <Import Project="$(MSBuildTasksPath)MSBuild.Community.Tasks.Targets" Condition="$(MSBuildProjectName.Contains('Plugin'))"/>
-
-  <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
-    <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
-  </Target>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <Exec Command="

@@ -27,10 +27,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-using Confluence;
-using Page = Confluence.Page;
-
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluenceTreePicker.xaml
 	/// </summary>
@@ -47,10 +44,10 @@ namespace GreenshotConfluencePlugin {
 			InitializeComponent();
 		}
 
-		private void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs) {
+		private void PageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs) {
 			Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
 			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-            if (!(clickedItem?.Tag is Page page)) {
+            if (clickedItem?.Tag is not Page page) {
 				return;
 			}
 			if (clickedItem.HasItems)
@@ -70,20 +67,20 @@ namespace GreenshotConfluencePlugin {
 							Tag = childPage
 						};
 						clickedItem.Items.Add(pageTreeViewItem);
-						pageTreeViewItem.PreviewMouseDoubleClick += pageTreeViewItem_DoubleClick;
-						pageTreeViewItem.PreviewMouseLeftButtonDown += pageTreeViewItem_Click;
+						pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+						pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
 					}
 					ShowBusy.Visibility = Visibility.Collapsed;
 				}));
 			}) { Name = "Loading childpages for confluence page " + page.Title }.Start();
 		}
 
-		private void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs) {
+		private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs) {
 			Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
-            if (!(eventArgs.Source is TreeViewItem clickedItem)) {
+            if (eventArgs.Source is not TreeViewItem clickedItem) {
 				return;
 			}
-			Confluence.Page page = clickedItem.Tag as Confluence.Page;
+			Page page = clickedItem.Tag as Page;
 			_confluenceUpload.SelectedPage = page;
 			if (page != null) {
 				Log.Debug("Page selected: " + page.Title);
@@ -107,14 +104,14 @@ namespace GreenshotConfluencePlugin {
 
 						// Get homepage
 						try {
-							Confluence.Page page = _confluenceConnector.GetSpaceHomepage(space);
+							Page page = _confluenceConnector.GetSpaceHomepage(space);
 							TreeViewItem pageTreeViewItem = new TreeViewItem
 							{
 								Header = page.Title,
 								Tag = page
 							};
-							pageTreeViewItem.PreviewMouseDoubleClick += pageTreeViewItem_DoubleClick;
-							pageTreeViewItem.PreviewMouseLeftButtonDown += pageTreeViewItem_Click;
+							pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+							pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
 							spaceTreeViewItem.Items.Add(pageTreeViewItem);
 							ConfluenceTreeView.Items.Add(spaceTreeViewItem);
 						} catch (Exception ex) {

@@ -25,7 +25,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows;
-using Confluence;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -129,7 +128,7 @@ namespace GreenshotConfluencePlugin {
 			bool openPage = (_page == null) && ConfluenceConfig.OpenPageAfterUpload;
 			string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null) {
-				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
+				Forms.ConfluenceUpload confluenceUpload = new Forms.ConfluenceUpload(filename);
 				bool? dialogResult = confluenceUpload.ShowDialog();
 				if (dialogResult.HasValue && dialogResult.Value) {
 					selectedPage = confluenceUpload.SelectedPage;

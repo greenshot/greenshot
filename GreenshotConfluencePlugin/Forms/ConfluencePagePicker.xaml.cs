@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Confluence;
 using System.Collections.Generic;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml
 	/// </summary>

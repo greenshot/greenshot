@@ -19,14 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Confluence;
 using GreenshotPlugin.Core;
 using System;
 using System.Windows;
+using GreenshotConfluencePlugin.Forms;
+using GreenshotConfluencePlugin.Support;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using TranslationByMarkupExtension;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>

@@ -18,23 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml
 	/// </summary>
 	public partial class ConfluenceUpload : Window {
-		private Page _pickerPage;
-		public Page PickerPage {
+		private System.Windows.Controls.Page _pickerPage;
+		public System.Windows.Controls.Page PickerPage {
 			get {
 				if (_pickerPage == null) {
-					List<Confluence.Page> pages = ConfluenceUtils.GetCurrentPages();
+					List<Page> pages = ConfluenceUtils.GetCurrentPages();
 					if (pages != null && pages.Count > 0) {
 						_pickerPage = new ConfluencePagePicker(this, pages);
 					}
@@ -43,21 +43,19 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		private Page _searchPage;
-		public Page SearchPage {
+		private System.Windows.Controls.Page _searchPage;
+		public System.Windows.Controls.Page SearchPage {
 			get { return _searchPage ??= new ConfluenceSearch(this); }
 		}
 
-		private Page _browsePage;
-		public Page BrowsePage {
+		private System.Windows.Controls.Page _browsePage;
+		public System.Windows.Controls.Page BrowsePage {
 			get { return _browsePage ??= new ConfluenceTreePicker(this); }
 		}
 
-		private Confluence.Page _selectedPage;
-		public Confluence.Page SelectedPage {
-			get {
-				return _selectedPage;
-			}
+		private Page _selectedPage;
+		public Page SelectedPage {
+			get => _selectedPage;
 			set {
 				_selectedPage = value;
 				Upload.IsEnabled = _selectedPage != null;
@@ -75,8 +73,8 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		private static DateTime _lastLoad = DateTime.Now;
-		private static IList<Confluence.Space> _spaces;
-		public IList<Confluence.Space> Spaces {
+		private static IList<Space> _spaces;
+		public IList<Space> Spaces {
 			get {
 				UpdateSpaces();
 				while (_spaces == null) {

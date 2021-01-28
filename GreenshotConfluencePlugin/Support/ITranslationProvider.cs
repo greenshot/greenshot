@@ -1,4 +1,4 @@
-﻿namespace TranslationByMarkupExtension {
+﻿namespace GreenshotConfluencePlugin.Support {
     public interface ITranslationProvider {
         /// <summary>
         /// Translates the specified key.
