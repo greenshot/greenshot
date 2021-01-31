@@ -85,7 +85,7 @@ Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe; DestDi
 Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;JIRA Plugin
 Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\GreenshotJiraPlugin.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\Dapplo.Jira.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\Dapplo.Jira*.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\GreenshotJiraPlugin\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Imgur Plugin
 Source: {#BaseDir}\GreenshotImgurPlugin\{#BinDir}\GreenshotImgurPlugin.dll; DestDir: {app}\Plugins\GreenshotImgurPlugin; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
@@ -133,7 +133,7 @@ DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
-MinVersion=6.1.7600
+MinVersion=6.1sp1
 OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
 OutputDir=..\
 PrivilegesRequired=lowest
