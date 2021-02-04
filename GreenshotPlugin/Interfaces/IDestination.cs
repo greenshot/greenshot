@@ -48,6 +48,11 @@ namespace GreenshotPlugin.Interfaces {
 		public string ErrorMessage { get; set; }
 
 		public string Filepath { get; set; }
+
+		/// <summary>
+		/// Set to true to close the invoking form.
+		/// </summary>
+		public bool CloseForm { get; set; }
 	}
 
 	/// <summary>

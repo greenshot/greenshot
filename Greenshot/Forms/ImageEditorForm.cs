@@ -932,7 +932,11 @@ namespace Greenshot {
 					}
 
 					if (destination.EditorShortcutKeys == keys) {
-						destination.ExportCapture(true, _surface, _surface.CaptureDetails);
+						ExportInformation exportInformation = destination.ExportCapture(true, _surface, _surface.CaptureDetails);
+						if (exportInformation != null && exportInformation.ExportMade) {
+							if (exportInformation.CloseForm)
+								this.Close();
+						}
 						return true;
 					}
 				}
@@ -1273,6 +1277,8 @@ namespace Greenshot {
 			ExportInformation exportInformation = clickedDestination?.ExportCapture(true, _surface, _surface.CaptureDetails);
 			if (exportInformation != null && exportInformation.ExportMade) {
 				_surface.Modified = false;
+				if (exportInformation.CloseForm)
+					this.Close();
 			}
 		}
 
