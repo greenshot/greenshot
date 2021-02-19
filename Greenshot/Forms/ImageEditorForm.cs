@@ -898,13 +898,29 @@ namespace Greenshot {
 				}
 			}
 		}
-
+DateTime zoomStartTime = DateTime.Now;
 		/// <summary>
 		/// This is a "work-around" for the MouseWheel event which doesn't get to the panel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void PanelMouseWheel(object sender, MouseEventArgs e) {
+			if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))
+            {
+				if (zoomStartTime.AddMilliseconds(100) < DateTime.Now) //waiting for next zoom step 100 ms
+                {
+					zoomStartTime = DateTime.Now;
+					if (e.Delta > 0)
+					{
+						ZoomInMenuItemClick(sender, e);
+					}
+					else if (e.Delta < 0)
+					{
+						ZoomOutMenuItemClick(sender, e);
+					}
+				}
+				
+            }
 			panel1.Focus();
 		}
 
