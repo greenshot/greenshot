@@ -66,6 +66,9 @@ namespace Greenshot {
 		// whether part of the editor controls are disabled depending on selected item(s)
 		private bool _controlsDisabledDueToConfirmable;
 
+		// Used for tracking the mouse scrollwheel changes
+		private DateTime _zoomStartTime = DateTime.Now;
+
 		/// <summary>
 		/// All provided zoom values (in percents) in ascending order.
 		/// </summary>
@@ -898,18 +901,24 @@ namespace Greenshot {
 				}
 			}
 		}
-DateTime zoomStartTime = DateTime.Now;
+
 		/// <summary>
 		/// This is a "work-around" for the MouseWheel event which doesn't get to the panel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void PanelMouseWheel(object sender, MouseEventArgs e) {
+		/// <summary>
+		/// This is a "work-around" for the MouseWheel event which doesn't get to the panel
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PanelMouseWheel(object sender, MouseEventArgs e)
+		{
 			if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))
-            {
-				if (zoomStartTime.AddMilliseconds(100) < DateTime.Now) //waiting for next zoom step 100 ms
-                {
-					zoomStartTime = DateTime.Now;
+			{
+				if (_zoomStartTime.AddMilliseconds(100) < DateTime.Now) //waiting for next zoom step 100 ms
+				{
+					_zoomStartTime = DateTime.Now;
 					if (e.Delta > 0)
 					{
 						ZoomInMenuItemClick(sender, e);
@@ -919,12 +928,12 @@ DateTime zoomStartTime = DateTime.Now;
 						ZoomOutMenuItemClick(sender, e);
 					}
 				}
-				
-            }
+
+			}
 			panel1.Focus();
 		}
 
-        protected override bool ProcessKeyPreview(ref Message msg) {
+		protected override bool ProcessKeyPreview(ref Message msg) {
 			// disable default key handling if surface has requested a lock
 			if (!_surface.KeysLocked) {
 				return base.ProcessKeyPreview(ref msg);
