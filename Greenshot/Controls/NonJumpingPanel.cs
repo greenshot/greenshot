@@ -38,16 +38,28 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
 		protected override void OnMouseWheel(MouseEventArgs e)
-		{
-			if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift)
-			{
+		{//Check if Scrollbars available and CTRL key pressed -> Zoom IN OUT
+			if((VScroll || HScroll)&& (ModifierKeys & Keys.Control) == Keys.Control)
+            {
 				VScroll = false;
+				HScroll = false;
 				base.OnMouseWheel(e);
 				VScroll = true;
+				HScroll = true;
 			}
-			else
-			{
-				base.OnMouseWheel(e);
+            else
+            {
+				//Vertical Scoll with SHIFT key pressed
+				if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift  )
+				{
+					VScroll = false;
+					base.OnMouseWheel(e);
+					VScroll = true;
+				}
+				else
+				{
+					base.OnMouseWheel(e);
+				}
 			}
 		}
 	}
