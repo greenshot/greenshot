@@ -329,5 +329,17 @@ namespace Greenshot.Drawing
 		public override bool ClickableAt(int x, int y) {
 			return Contains(x,y);
 		}
+
+		/// <summary>
+		/// Additional to the Transform of the TextContainer the bubble tail coordinates also need to be moved
+		/// </summary>
+		/// <param name="matrix">Matrix</param>
+		public override void Transform(Matrix matrix)
+		{
+			Point[] points = { TargetAdorner.Location };
+			matrix.TransformPoints(points);
+			TargetAdorner.Location = points[0];
+			base.Transform(matrix);
+		}
 	}
 }
