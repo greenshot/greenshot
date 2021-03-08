@@ -64,6 +64,8 @@ namespace Greenshot.Destinations {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			// close the form after copying the image to clipboard
+			exportInformation.CloseForm = true;
 			try {
 				ClipboardHelper.SetClipboardData(surface);
 				exportInformation.ExportMade = true;
