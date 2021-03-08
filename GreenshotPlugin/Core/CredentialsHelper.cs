@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -382,7 +382,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
 		private CredUi.INFO GetInfo(IWin32Window owner) {
 			CredUi.INFO info = new CredUi.INFO();
-			if (owner != null) info.hwndParent = owner.Handle;
+			if (owner != null) info.hWndParent = owner.Handle;
 			info.pszCaptionText = Caption;
 			info.pszMessageText = Message;
 			if (Banner != null) {
@@ -498,7 +498,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public struct INFO {
 			public int cbSize;
-			public IntPtr hwndParent;
+			public IntPtr hWndParent;
 			[MarshalAs(UnmanagedType.LPWStr)] public string pszMessageText;
 			[MarshalAs(UnmanagedType.LPWStr)] public string pszCaptionText;
 			public IntPtr hbmBanner;

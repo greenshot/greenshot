@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -57,12 +57,13 @@ namespace Greenshot.Drawing {
 		/// (we create a transparent brown over the complete picture)
 		/// </summary>
 		public override Rectangle DrawingBounds {
-			get {
-				if (_parent?.Image is Image image) {
+			get
+			{
+				if (_parent?.Image is { } image) {
 					return new Rectangle(0, 0, image.Width, image.Height);
-				} else {
-					return Rectangle.Empty;
 				}
+
+				return Rectangle.Empty;
 			}
 		}
 
@@ -89,11 +90,9 @@ namespace Greenshot.Drawing {
             g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, imageSize.Width, imageSize.Height - (cropRectangle.Top + cropRectangle.Height)));
         }
 		
-		public override bool HasContextMenu {
-			get {
-				// No context menu for the CropContainer
-				return false;
-			}
-		}
+		/// <summary>
+		/// No context menu for the CropContainer
+		/// </summary>
+		public override bool HasContextMenu => false;
 	}
 }

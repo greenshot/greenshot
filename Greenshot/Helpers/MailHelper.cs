@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -76,20 +76,20 @@ namespace Greenshot.Helpers {
 		public static void SendImage(ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
 
-			if (tmpFile != null) {
-				// Store the list of currently active windows, so we can make sure we show the email window later!
-				var windowsBefore = WindowDetails.GetVisibleWindows();
-				//bool isEmailSend = false;
-				//if (EmailConfigHelper.HasOutlook() && (CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
-				//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
-				//}
-				if (/*!isEmailSend &&*/ EmailConfigHelper.HasMapi()) {
-					// Fallback to MAPI
-					// Send the email
-					SendImage(tmpFile, captureDetails.Title);
-				}
-				WindowDetails.ActiveNewerWindows(windowsBefore);
+			if (tmpFile == null) return;
+			
+			// Store the list of currently active windows, so we can make sure we show the email window later!
+			var windowsBefore = WindowDetails.GetVisibleWindows();
+			//bool isEmailSend = false;
+			//if (EmailConfigHelper.HasOutlook() && (CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
+			//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
+			//}
+			if (/*!isEmailSend &&*/ EmailConfigHelper.HasMapi()) {
+				// Fallback to MAPI
+				// Send the email
+				SendImage(tmpFile, captureDetails.Title);
 			}
+			WindowDetails.ActiveNewerWindows(windowsBefore);
 		}
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -199,74 +199,83 @@ namespace Greenshot.Helpers {
 			_manualResetEvent?.Close();
 		}
 
-		/// <summary>
-		/// Sends the mail message.
-		/// </summary>
-		private void ShowMail() {
-			var message = new MapiHelperInterop.MapiMessage();
+        /// <summary>
+        /// Sends the mail message.
+        /// </summary>
+        private void ShowMail()
+        {
+	        while (true)
+	        {
+		        var message = new MapiHelperInterop.MapiMessage();
 
-            using var interopRecipients = Recipients.GetInteropRepresentation();
-            message.Subject = Subject;
-            message.NoteText = Body;
+		        using var interopRecipients = Recipients.GetInteropRepresentation();
+		        message.Subject = Subject;
+		        message.NoteText = Body;
 
-            message.Recipients = interopRecipients.Handle;
-            message.RecipientCount = Recipients.Count;
+		        message.Recipients = interopRecipients.Handle;
+		        message.RecipientCount = Recipients.Count;
 
-            // Check if we need to add attachments
-            if (Files.Count > 0) {
-                // Add attachments
-                message.Files = AllocAttachments(out message.FileCount);
-            }
+		        // Check if we need to add attachments
+		        if (Files.Count > 0)
+		        {
+			        // Add attachments
+			        message.Files = AllocAttachments(out message.FileCount);
+		        }
 
-            // Signal the creating thread (make the remaining code async)
-            _manualResetEvent.Set();
+		        // Signal the creating thread (make the remaining code async)
+		        _manualResetEvent.Set();
 
-            const int MAPI_DIALOG = 0x8;
-            //const int MAPI_LOGON_UI = 0x1;
-            int error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
+		        const int MAPI_DIALOG = 0x8;
+		        //const int MAPI_LOGON_UI = 0x1;
+		        int error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
 
-            if (Files.Count > 0) {
-                // Deallocate the files
-                DeallocFiles(message);
-            }
-            MAPI_CODES errorCode = (MAPI_CODES)Enum.ToObject(typeof(MAPI_CODES), error);
+		        if (Files.Count > 0)
+		        {
+			        // Deallocate the files
+			        DeallocFiles(message);
+		        }
 
-            // Check for error
-            if (errorCode == MAPI_CODES.SUCCESS || errorCode == MAPI_CODES.USER_ABORT)
-            {
-                return;
-            }
-            string errorText = GetMapiError(errorCode);
-            Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
-            MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            // Recover from bad settings, show again
-            if (errorCode != MAPI_CODES.INVALID_RECIPS)
-            {
-                return;
-            }
-            Recipients = new RecipientCollection();
-            ShowMail();
+		        MAPI_CODES errorCode = (MAPI_CODES) Enum.ToObject(typeof(MAPI_CODES), error);
+
+		        // Check for error
+		        if (errorCode == MAPI_CODES.SUCCESS || errorCode == MAPI_CODES.USER_ABORT)
+		        {
+			        return;
+		        }
+
+		        string errorText = GetMapiError(errorCode);
+		        Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+		        MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		        // Recover from bad settings, show again
+		        if (errorCode != MAPI_CODES.INVALID_RECIPS)
+		        {
+			        return;
+		        }
+
+		        Recipients = new RecipientCollection();
+	        }
         }
 
-		/// <summary>
+        /// <summary>
 		/// Deallocates the files in a message.
 		/// </summary>
 		/// <param name="message">The message to deallocate the files from.</param>
-		private void DeallocFiles(MapiHelperInterop.MapiMessage message) {
-			if (message.Files != IntPtr.Zero) {
-				Type fileDescType = typeof(MapiFileDescriptor);
-				int fsize = Marshal.SizeOf(fileDescType);
+		private void DeallocFiles(MapiHelperInterop.MapiMessage message)
+		{
+			if (message.Files == IntPtr.Zero) return;
+			
+			Type fileDescType = typeof(MapiFileDescriptor);
+			int fsize = Marshal.SizeOf(fileDescType);
 
-				// Get the ptr to the files
-				IntPtr runptr = message.Files;
-				// Release each file
-				for (int i = 0; i < message.FileCount; i++) {
-					Marshal.DestroyStructure(runptr, fileDescType);
-					runptr = new IntPtr(runptr.ToInt64() + fsize);
-				}
-				// Release the file
-				Marshal.FreeHGlobal(message.Files);
+			// Get the ptr to the files
+			IntPtr runptr = message.Files;
+			// Release each file
+			for (int i = 0; i < message.FileCount; i++) {
+				Marshal.DestroyStructure(runptr, fileDescType);
+				runptr = new IntPtr(runptr.ToInt64() + fsize);
 			}
+			// Release the file
+			Marshal.FreeHGlobal(message.Files);
 		}
 
 		/// <summary>
@@ -337,93 +346,39 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Logs any Mapi errors.
 		/// </summary>
-		private string GetMapiError(MAPI_CODES errorCode) {
-
-			string error = string.Empty;
-
-			switch (errorCode) {
-				case MAPI_CODES.USER_ABORT:
-					error = "User Aborted.";
-					break;
-				case MAPI_CODES.FAILURE:
-					error = "MAPI Failure.";
-					break;
-				case MAPI_CODES.LOGIN_FAILURE:
-					error = "Login Failure.";
-					break;
-				case MAPI_CODES.DISK_FULL:
-					error = "MAPI Disk full.";
-					break;
-				case MAPI_CODES.INSUFFICIENT_MEMORY:
-					error = "MAPI Insufficient memory.";
-					break;
-				case MAPI_CODES.BLK_TOO_SMALL:
-					error = "MAPI Block too small.";
-					break;
-				case MAPI_CODES.TOO_MANY_SESSIONS:
-					error = "MAPI Too many sessions.";
-					break;
-				case MAPI_CODES.TOO_MANY_FILES:
-					error = "MAPI too many files.";
-					break;
-				case MAPI_CODES.TOO_MANY_RECIPIENTS:
-					error = "MAPI too many recipients.";
-					break;
-				case MAPI_CODES.ATTACHMENT_NOT_FOUND:
-					error = "MAPI Attachment not found.";
-					break;
-				case MAPI_CODES.ATTACHMENT_OPEN_FAILURE:
-					error = "MAPI Attachment open failure.";
-					break;
-				case MAPI_CODES.ATTACHMENT_WRITE_FAILURE:
-					error = "MAPI Attachment Write Failure.";
-					break;
-				case MAPI_CODES.UNKNOWN_RECIPIENT:
-					error = "MAPI Unknown recipient.";
-					break;
-				case MAPI_CODES.BAD_RECIPTYPE:
-					error = "MAPI Bad recipient type.";
-					break;
-				case MAPI_CODES.NO_MESSAGES:
-					error = "MAPI No messages.";
-					break;
-				case MAPI_CODES.INVALID_MESSAGE:
-					error = "MAPI Invalid message.";
-					break;
-				case MAPI_CODES.TEXT_TOO_LARGE:
-					error = "MAPI Text too large.";
-					break;
-				case MAPI_CODES.INVALID_SESSION:
-					error = "MAPI Invalid session.";
-					break;
-				case MAPI_CODES.TYPE_NOT_SUPPORTED:
-					error = "MAPI Type not supported.";
-					break;
-				case MAPI_CODES.AMBIGUOUS_RECIPIENT:
-					error = "MAPI Ambiguous recipient.";
-					break;
-				case MAPI_CODES.MESSAGE_IN_USE:
-					error = "MAPI Message in use.";
-					break;
-				case MAPI_CODES.NETWORK_FAILURE:
-					error = "MAPI Network failure.";
-					break;
-				case MAPI_CODES.INVALID_EDITFIELDS:
-					error = "MAPI Invalid edit fields.";
-					break;
-				case MAPI_CODES.INVALID_RECIPS:
-					error = "MAPI Invalid Recipients.";
-					break;
-				case MAPI_CODES.NOT_SUPPORTED:
-					error = "MAPI Not supported.";
-					break;
-				case MAPI_CODES.NO_LIBRARY:
-					error = "MAPI No Library.";
-					break;
-				case MAPI_CODES.INVALID_PARAMETER:
-					error = "MAPI Invalid parameter.";
-					break;
-			}
+		private string GetMapiError(MAPI_CODES errorCode)
+		{
+			string error = errorCode switch
+			{
+				MAPI_CODES.USER_ABORT => "User Aborted.",
+				MAPI_CODES.FAILURE => "MAPI Failure.",
+				MAPI_CODES.LOGIN_FAILURE => "Login Failure.",
+				MAPI_CODES.DISK_FULL => "MAPI Disk full.",
+				MAPI_CODES.INSUFFICIENT_MEMORY => "MAPI Insufficient memory.",
+				MAPI_CODES.BLK_TOO_SMALL => "MAPI Block too small.",
+				MAPI_CODES.TOO_MANY_SESSIONS => "MAPI Too many sessions.",
+				MAPI_CODES.TOO_MANY_FILES => "MAPI too many files.",
+				MAPI_CODES.TOO_MANY_RECIPIENTS => "MAPI too many recipients.",
+				MAPI_CODES.ATTACHMENT_NOT_FOUND => "MAPI Attachment not found.",
+				MAPI_CODES.ATTACHMENT_OPEN_FAILURE => "MAPI Attachment open failure.",
+				MAPI_CODES.ATTACHMENT_WRITE_FAILURE => "MAPI Attachment Write Failure.",
+				MAPI_CODES.UNKNOWN_RECIPIENT => "MAPI Unknown recipient.",
+				MAPI_CODES.BAD_RECIPTYPE => "MAPI Bad recipient type.",
+				MAPI_CODES.NO_MESSAGES => "MAPI No messages.",
+				MAPI_CODES.INVALID_MESSAGE => "MAPI Invalid message.",
+				MAPI_CODES.TEXT_TOO_LARGE => "MAPI Text too large.",
+				MAPI_CODES.INVALID_SESSION => "MAPI Invalid session.",
+				MAPI_CODES.TYPE_NOT_SUPPORTED => "MAPI Type not supported.",
+				MAPI_CODES.AMBIGUOUS_RECIPIENT => "MAPI Ambiguous recipient.",
+				MAPI_CODES.MESSAGE_IN_USE => "MAPI Message in use.",
+				MAPI_CODES.NETWORK_FAILURE => "MAPI Network failure.",
+				MAPI_CODES.INVALID_EDITFIELDS => "MAPI Invalid edit fields.",
+				MAPI_CODES.INVALID_RECIPS => "MAPI Invalid Recipients.",
+				MAPI_CODES.NOT_SUPPORTED => "MAPI Not supported.",
+				MAPI_CODES.NO_LIBRARY => "MAPI No Library.",
+				MAPI_CODES.INVALID_PARAMETER => "MAPI Invalid parameter.",
+				_ => string.Empty
+			};
 			return error;
 		}
 
@@ -466,7 +421,7 @@ namespace Greenshot.Helpers {
 			}
 
 			[DllImport("MAPI32.DLL", SetLastError = true, CharSet=CharSet.Ansi)]
-			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
+			public static extern int MAPISendMail(IntPtr session, IntPtr hWnd, MapiMessage message, int flg, int rsv);
         }
     }
 
@@ -542,7 +497,7 @@ namespace Greenshot.Helpers {
     }
 
     /// <summary>
-	/// Represents a colleciton of recipients for a mail message.
+	/// Represents a collection of recipients for a mail message.
 	/// </summary>
 	public class RecipientCollection : CollectionBase {
 		/// <summary>
@@ -627,25 +582,26 @@ namespace Greenshot.Helpers {
             /// <summary>
 			/// Disposes of resources.
 			/// </summary>
-			public void Dispose() {
-				if (Handle != IntPtr.Zero) {
-					Type type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
-					int size = Marshal.SizeOf(type);
+			public void Dispose()
+            {
+	            if (Handle == IntPtr.Zero) return;
+	            
+	            Type type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
+	            int size = Marshal.SizeOf(type);
 
-					// destroy all the structures in the memory area
-					IntPtr ptr = Handle;
-					for (int i = 0; i < _count; i++) {
-						Marshal.DestroyStructure(ptr, type);
-						ptr = new IntPtr(ptr.ToInt64() + size);
-					}
+	            // destroy all the structures in the memory area
+	            IntPtr ptr = Handle;
+	            for (int i = 0; i < _count; i++) {
+		            Marshal.DestroyStructure(ptr, type);
+		            ptr = new IntPtr(ptr.ToInt64() + size);
+	            }
 
-					// free the memory
-					Marshal.FreeHGlobal(Handle);
+	            // free the memory
+	            Marshal.FreeHGlobal(Handle);
 
-					Handle = IntPtr.Zero;
-					_count = 0;
-				}
-			}
+	            Handle = IntPtr.Zero;
+	            _count = 0;
+            }
         }
 	}
 }

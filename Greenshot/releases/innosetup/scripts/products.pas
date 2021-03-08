@@ -251,7 +251,7 @@ begin
 			//if SuppressibleMsgBox(FmtMessage(CustomMessage('depdownload_msg'), [FmtMessage(downloadMessage, [''])]), mbConfirmation, MB_YESNO, IDYES) = IDNO then
 			//	Result := false
 			//else if
-			if isxdl_DownloadFiles(StrToInt(ExpandConstant('{wizardhwnd}'))) = 0 then
+			if isxdl_DownloadFiles(StrToInt(ExpandConstant('{wizardhWnd}'))) = 0 then
 				Result := false;
 		end;
 	end;

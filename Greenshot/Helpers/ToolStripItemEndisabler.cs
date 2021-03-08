@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -63,24 +63,26 @@ namespace Greenshot.Helpers {
 			Endisable(tsi, false, PropagationMode.CHILDREN);
 		}
 		
-		private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode){
-			if((mode & PropagationMode.CHILDREN) == PropagationMode.CHILDREN) {
-				foreach(ToolStripItem tsi in ts.Items) {
-					Endisable(tsi, enable, PropagationMode.CHILDREN);
-				}
+		private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode)
+		{
+			if ((mode & PropagationMode.CHILDREN) != PropagationMode.CHILDREN) return;
+			
+			foreach(ToolStripItem tsi in ts.Items) {
+				Endisable(tsi, enable, PropagationMode.CHILDREN);
 			}
 		}
 		
 		private static void Endisable(ToolStripItem tsi, bool enable, PropagationMode mode){
-			if(tsi is ToolStripDropDownItem) {
-				Endisable(tsi as ToolStripDropDownItem, enable, mode);
+			if (tsi is ToolStripDropDownItem item) {
+				Endisable(item, enable, mode);
 			} else {
 				tsi.Enabled = enable;
 			}
-			if((mode & PropagationMode.ANCESTORS) == PropagationMode.ANCESTORS) {
-				if(tsi.OwnerItem != null) Endisable(tsi.OwnerItem, enable, PropagationMode.ANCESTORS);
-			}
+
+			if ((mode & PropagationMode.ANCESTORS) != PropagationMode.ANCESTORS) return;
 			
+			if (tsi.OwnerItem != null) Endisable(tsi.OwnerItem, enable, PropagationMode.ANCESTORS);
+
 		}
 		
 		private static void Endisable(ToolStripDropDownItem tsddi, bool enable, PropagationMode mode) {

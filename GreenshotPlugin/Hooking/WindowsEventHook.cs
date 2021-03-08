@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,12 +39,12 @@ namespace GreenshotPlugin.Hooking
 		/// Used with Register hook
 		/// </summary>
 		/// <param name="eventType"></param>
-		/// <param name="hwnd"></param>
+		/// <param name="hWnd"></param>
 		/// <param name="idObject"></param>
 		/// <param name="idChild"></param>
 		/// <param name="dwEventThread"></param>
 		/// <param name="dwmsEventTime"></param>
-		public delegate void WinEventHandler(WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+		public delegate void WinEventHandler(WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
 		/// <summary>
 		/// Create a WindowsEventHook object
@@ -65,12 +65,12 @@ namespace GreenshotPlugin.Hooking
 		/// </summary>
 		/// <param name="hWinEventHook"></param>
 		/// <param name="eventType"></param>
-		/// <param name="hwnd"></param>
+		/// <param name="hWnd"></param>
 		/// <param name="idObject"></param>
 		/// <param name="idChild"></param>
 		/// <param name="dwEventThread"></param>
 		/// <param name="dwmsEventTime"></param>
-		private delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hwnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+		private delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
 		private readonly IDictionary<IntPtr, WinEventHandler> _winEventHandlers = new Dictionary<IntPtr, WinEventHandler>();
 

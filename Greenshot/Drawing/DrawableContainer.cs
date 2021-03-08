@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -98,8 +98,8 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		private PropertyChangedEventHandler _propertyChanged;
 		public event PropertyChangedEventHandler PropertyChanged {
-			add { _propertyChanged += value; }
-			remove{ _propertyChanged -= value; }
+			add => _propertyChanged += value;
+			remove => _propertyChanged -= value;
 		}
 
 		public IList<IFilter> Filters {
@@ -117,22 +117,18 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		internal Surface _parent;
 		public ISurface Parent {
-			get { return _parent; }
-			set { SwitchParent((Surface)value); }
+			get => _parent;
+			set => SwitchParent((Surface)value);
 		}
 
 		[NonSerialized]
 		private TargetAdorner _targetAdorner;
-		public TargetAdorner TargetAdorner {
-			get {
-				return _targetAdorner;
-			}
-		}
+		public TargetAdorner TargetAdorner => _targetAdorner;
 
 		[NonSerialized]
 		private bool _selected;
 		public bool Selected {
-			get {return _selected;}
+			get => _selected;
 			set {
 				_selected = value;
 				OnPropertyChanged("Selected");
@@ -142,18 +138,14 @@ namespace Greenshot.Drawing
 		[NonSerialized]
 		private EditStatus _status = EditStatus.UNDRAWN;
 		public EditStatus Status {
-			get {
-				return _status;
-			}
-			set {
-				_status = value;
-			}
+			get => _status;
+			set => _status = value;
 		}
 
 
 		private int left;
 		public int Left {
-			get { return left; }
+			get => left;
 			set {
 				if (value == left) {
 					return;
@@ -164,7 +156,7 @@ namespace Greenshot.Drawing
 
 		private int top;
 		public int Top {
-			get { return top; }
+			get => top;
 			set {
 				if (value == top) {
 					return;
@@ -175,7 +167,7 @@ namespace Greenshot.Drawing
 
 		private int width;
 		public int Width {
-			get { return width; }
+			get => width;
 			set {
 				if (value == width) {
 					return;
@@ -186,7 +178,7 @@ namespace Greenshot.Drawing
 
 		private int height;
 		public int Height {
-			get { return height; }
+			get => height;
 			set {
 				if (value == height) {
 					return;
@@ -196,9 +188,7 @@ namespace Greenshot.Drawing
 		}
 
 		public Point Location {
-			get {
-				return new Point(left, top);
-			}
+			get => new Point(left, top);
 			set {
 				left = value.X;
 				top = value.Y;
@@ -330,11 +320,7 @@ namespace Greenshot.Drawing
 			Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
 		}
 
-		public bool hasFilters {
-			get {
-				return Filters.Count > 0;
-			}
-		}
+		public bool hasFilters => Filters.Count > 0;
 
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
 

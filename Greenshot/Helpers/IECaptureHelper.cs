@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -50,14 +50,14 @@ namespace Greenshot.Helpers {
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIeTab(WindowDetails ieWindowDetails, int tabIndex) {
 			WindowDetails directUiWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
-			if(directUiWindowDetails != null) {
-				// Bring window to the front
-				ieWindowDetails.Restore();
-				// Get accessible
-				Accessible ieAccessible = new Accessible(directUiWindowDetails.Handle);
-				// Activate Tab
-				ieAccessible.ActivateIETab(tabIndex);
-			}
+			if (directUiWindowDetails == null) return;
+			
+			// Bring window to the front
+			ieWindowDetails.Restore();
+			// Get accessible
+			Accessible ieAccessible = new Accessible(directUiWindowDetails.Handle);
+			// Activate Tab
+			ieAccessible.ActivateIETab(tabIndex);
 		}
 
 		/// <summary>
@@ -68,14 +68,14 @@ namespace Greenshot.Helpers {
 		/// <returns></returns>
 		public static bool IsMostlyIeWindow(WindowDetails someWindow, int minimumPercentage) {
 			WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
-			if (ieWindow != null) {
-				Rectangle wholeClient = someWindow.ClientRectangle;
-				Rectangle partClient = ieWindow.ClientRectangle;
-				int percentage = (int)(100*(float)(partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
-				Log.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
-				if (percentage > minimumPercentage) {
-					return true;
-				}
+			if (ieWindow == null) return false;
+			
+			Rectangle wholeClient = someWindow.ClientRectangle;
+			Rectangle partClient = ieWindow.ClientRectangle;
+			int percentage = (int)(100*(float)(partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
+			Log.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+			if (percentage > minimumPercentage) {
+				return true;
 			}
 			return false;
 		}
@@ -336,9 +336,8 @@ namespace Greenshot.Helpers {
 		/// <param name="windowToCapture">window to use</param>
 		/// <returns>ICapture with the content (if any)</returns>
 		public static ICapture CaptureIe(ICapture capture, WindowDetails windowToCapture) {
-			if (windowToCapture == null) {
-				windowToCapture = WindowDetails.GetActiveWindow();
-			}
+			windowToCapture ??= WindowDetails.GetActiveWindow();
+			
 			// Show backgroundform after retrieving the active window..
 			BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
 			backgroundForm.Show();
@@ -474,27 +473,28 @@ namespace Greenshot.Helpers {
 							continue;
 						}
 						// check if we need to move
-						if (otherFrame.DestinationRectangle.IntersectsWith(currentFrame.DestinationRectangle) && !otherFrame.SourceRectangle.IntersectsWith(currentFrame.SourceRectangle)) {
-							bool horizalResize = currentFrame.SourceSize.Width < currentFrame.DestinationSize.Width;
-							bool verticalResize = currentFrame.SourceSize.Width < currentFrame.DestinationSize.Width;
-							bool horizalMove = currentFrame.SourceLeft < currentFrame.DestinationLeft;
-							bool verticalMove = currentFrame.SourceTop < currentFrame.DestinationTop;
-							bool leftOf = currentFrame.SourceRight <= otherFrame.SourceLeft;
-							bool belowOf = currentFrame.SourceBottom <= otherFrame.SourceTop;
+						if (!otherFrame.DestinationRectangle.IntersectsWith(currentFrame.DestinationRectangle) ||
+						    otherFrame.SourceRectangle.IntersectsWith(currentFrame.SourceRectangle)) continue;
+						
+						bool horizontalResize = currentFrame.SourceSize.Width < currentFrame.DestinationSize.Width;
+						bool verticalResize = currentFrame.SourceSize.Width < currentFrame.DestinationSize.Width;
+						bool horizontalMove = currentFrame.SourceLeft < currentFrame.DestinationLeft;
+						bool verticalMove = currentFrame.SourceTop < currentFrame.DestinationTop;
+						bool leftOf = currentFrame.SourceRight <= otherFrame.SourceLeft;
+						bool belowOf = currentFrame.SourceBottom <= otherFrame.SourceTop;
 							
-							if ((horizalResize || horizalMove) && leftOf) {
-								// Current frame resized horizontally, so move other horizontally
-								Log.DebugFormat("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
-								otherFrame.DestinationLeft = currentFrame.DestinationRight;
-								movedFrame = true;
-							} else if ((verticalResize || verticalMove) && belowOf){
-								// Current frame resized vertically, so move other vertically
-								Log.DebugFormat("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
-								otherFrame.DestinationTop = currentFrame.DestinationBottom;
-								movedFrame = true;
-							} else {
-								Log.DebugFormat("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
-							}
+						if ((horizontalResize || horizontalMove) && leftOf) {
+							// Current frame resized horizontally, so move other horizontally
+							Log.DebugFormat("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
+							otherFrame.DestinationLeft = currentFrame.DestinationRight;
+							movedFrame = true;
+						} else if ((verticalResize || verticalMove) && belowOf){
+							// Current frame resized vertically, so move other vertically
+							Log.DebugFormat("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
+							otherFrame.DestinationTop = currentFrame.DestinationBottom;
+							movedFrame = true;
+						} else {
+							Log.DebugFormat("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
 						}
 					}
 				}
@@ -504,7 +504,7 @@ namespace Greenshot.Helpers {
 			// Correct cursor location to be inside the window
 			capture.MoveMouseLocation(-documentContainer.ContentWindow.Location.X, -documentContainer.ContentWindow.Location.Y);
 			// See if the page has the correct size, as we capture the full frame content AND might have moved them
-			// the normal pagesize will no longer be enough
+			// the normal pageSize will no longer be enough
 			foreach(DocumentContainer frameData in documentContainer.Frames) {
 				if (!movedMouse && frameData.SourceRectangle.Contains(capture.CursorLocation)) {
 					// Correct mouse cursor location for scrolled position (so it shows on the capture where it really was)

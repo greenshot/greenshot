@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -45,18 +45,19 @@ namespace Greenshot.Memento {
 			Dispose(true);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_matrix != null) {
-					_matrix.Dispose();
-					_matrix = null;
-				}
-				if (_image != null) {
-					_image.Dispose();
-					_image = null;
-				}
-				_surface = null;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+			
+			if (_matrix != null) {
+				_matrix.Dispose();
+				_matrix = null;
 			}
+			if (_image != null) {
+				_image.Dispose();
+				_image = null;
+			}
+			_surface = null;
 		}
 
 		public bool Merge(IMemento otherMemento) {

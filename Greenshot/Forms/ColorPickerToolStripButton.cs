@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,12 +20,12 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System.Diagnostics;
 
-namespace Greenshot
+namespace Greenshot.Forms
 {
 	public delegate void ColorPickerEventHandler(object o, ColorPickerEventArgs e);
 	
@@ -34,12 +34,12 @@ namespace Greenshot
 		private Color _color;
 		public Point Offset = new Point(0,0);
 		public event ColorPickerEventHandler ColorPicked;
-		private readonly Greenshot.ColorDialog _cd;
+		private readonly ColorDialog _cd;
 		
 		
 		public ColorPickerToolStripButton()
 		{
-			_cd = Greenshot.ColorDialog.GetInstance();
+			_cd = ColorDialog.GetInstance();
 			Click += ToolStripButton1Click;
 		}
 		

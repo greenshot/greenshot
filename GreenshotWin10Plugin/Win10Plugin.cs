@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,17 +39,10 @@ namespace GreenshotWin10Plugin
 
         public void Dispose()
 		{
-			Dispose(true);
+			// Nothing to dispose
 		}
 
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-			}
-		}
-
-		public void Configure()
+        public void Configure()
 		{
 			throw new NotImplementedException();
 		}
@@ -81,6 +74,7 @@ namespace GreenshotWin10Plugin
 
 		public void Shutdown()
 		{
+			// Nothing to shutdown
 		}
 	}
 

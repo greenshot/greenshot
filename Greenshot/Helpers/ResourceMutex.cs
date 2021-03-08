@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -106,7 +106,7 @@ namespace Greenshot.Helpers
 			catch (AbandonedMutexException e)
 			{
 				// Another instance didn't cleanup correctly!
-				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
+				// we can ignore the exception, it happened on the "waitOne" but still the mutex belongs to us
 				Log.WarnFormat("{0} didn't cleanup correctly, but we got the mutex {1}.", _resourceName, _mutexId);
 				Log.Warn(e);
 			}
@@ -132,26 +132,25 @@ namespace Greenshot.Helpers
 		///     The real disposing code
 		/// </summary>
 		/// <param name="disposing">true if dispose is called, false when the finalizer is called</param>
-		protected virtual void Dispose(bool disposing)
+		protected void Dispose(bool disposing)
 		{
-			if (!_disposedValue)
+			if (_disposedValue) return;
+			
+			if (_applicationMutex != null)
 			{
-				if (_applicationMutex != null)
+				try
 				{
-					try
-					{
-						_applicationMutex.ReleaseMutex();
-						_applicationMutex = null;
-						Log.InfoFormat("Released Mutex {0} for {1}", _mutexId, _resourceName);
-					}
-					catch (Exception ex)
-					{
-						Log.ErrorFormat("Error releasing Mutex {0} for {1}", _mutexId, _resourceName);
-						Log.Error(ex);
-					}
+					_applicationMutex.ReleaseMutex();
+					_applicationMutex = null;
+					Log.InfoFormat("Released Mutex {0} for {1}", _mutexId, _resourceName);
 				}
-				_disposedValue = true;
+				catch (Exception ex)
+				{
+					Log.ErrorFormat("Error releasing Mutex {0} for {1}", _mutexId, _resourceName);
+					Log.Error(ex);
+				}
 			}
+			_disposedValue = true;
 		}
 
 		/// <summary>
