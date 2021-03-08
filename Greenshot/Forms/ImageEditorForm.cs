@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -31,7 +31,6 @@ using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
-using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
@@ -45,7 +44,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 using log4net;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of ImageEditorForm.
 	/// </summary>

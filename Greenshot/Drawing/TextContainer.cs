@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -67,25 +67,21 @@ namespace Greenshot.Drawing
         // there is a binding on the following property!
         public string Text
         {
-            get { return text; }
-            set
-            {
-                ChangeText(value, true);
-            }
+            get => text;
+            set => ChangeText(value, true);
         }
 
         internal void ChangeText(string newText, bool allowUndoable)
         {
-            if ((text == null && newText != null) || !string.Equals(text, newText))
+            if ((text != null || newText == null) && string.Equals(text, newText)) return;
+            
+            if (makeUndoable && allowUndoable)
             {
-                if (makeUndoable && allowUndoable)
-                {
-                    makeUndoable = false;
-                    _parent.MakeUndoable(new TextChangeMemento(this), false);
-                }
-                text = newText;
-                OnPropertyChanged("Text");
+                makeUndoable = false;
+                _parent.MakeUndoable(new TextChangeMemento(this), false);
             }
+            text = newText;
+            OnPropertyChanged("Text");
         }
 
         public TextContainer(Surface parent) : base(parent)

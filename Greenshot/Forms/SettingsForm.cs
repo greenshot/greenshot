@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,22 +26,20 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using System.Text.RegularExpressions;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
@@ -453,9 +451,9 @@ namespace Greenshot {
 			}
 
 			// retrieve the set clipboard formats
-			List<ClipboardFormat> clipboardFormats = new List<ClipboardFormat>();
+			var clipboardFormats = new List<ClipboardFormat>();
 			foreach (int index in listview_clipboardformats.CheckedIndices) {
-				ListViewItem item = listview_clipboardformats.Items[index];
+				var item = listview_clipboardformats.Items[index];
 				if (item.Checked) {
 					clipboardFormats.Add((ClipboardFormat)item.Tag);
 				}

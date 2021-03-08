@@ -212,3 +212,6 @@ ModelManifest.xml
 
 # Greenshot credentials files
 *.credentials.cs
+
+# Rider files
+.idea

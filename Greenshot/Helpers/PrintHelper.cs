@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -102,7 +102,7 @@ namespace Greenshot.Helpers {
 					returnPrinterSettings = _printDocument.PrinterSettings;
 				}
 			} catch (Exception e) {
-				Log.Error("An error ocurred while trying to print", e);
+				Log.Error("An error occurred while trying to print", e);
 				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
 			}
 			return returnPrinterSettings;
@@ -115,21 +115,20 @@ namespace Greenshot.Helpers {
 		/// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
 		public PrinterSettings PrintWithDialog() {
 			PrinterSettings returnPrinterSettings = null;
-			if (_printDialog.ShowDialog() == DialogResult.OK) {
-				DialogResult? printOptionsResult = ShowPrintOptionsDialog();
-				try {
-					if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
-						if (!IsColorPrint()) {
-							_printDocument.DefaultPageSettings.Color = false;
-						}
-						_printDocument.Print();
-						returnPrinterSettings = _printDialog.PrinterSettings;
-					}
-				} catch (Exception e) {
-					Log.Error("An error ocurred while trying to print", e);
-					MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
-				}
+			if (_printDialog.ShowDialog() != DialogResult.OK) return null;
 
+			DialogResult? printOptionsResult = ShowPrintOptionsDialog();
+			try {
+				if (printOptionsResult == null || printOptionsResult == DialogResult.OK) {
+					if (!IsColorPrint()) {
+						_printDocument.DefaultPageSettings.Color = false;
+					}
+					_printDocument.Print();
+					returnPrinterSettings = _printDialog.PrinterSettings;
+				}
+			} catch (Exception e) {
+				Log.Error("An error occurred while trying to print", e);
+				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
 			}
 			return returnPrinterSettings;
 		}
@@ -153,9 +152,7 @@ namespace Greenshot.Helpers {
 		}
 
 		private void DrawImageForPrint(object sender, PrintPageEventArgs e) {
-			
-
-			// Create the output settins
+			// Create the output settings
 			SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 
 			ApplyEffects(printOutputSettings);
@@ -190,7 +187,7 @@ namespace Greenshot.Helpers {
 				RectangleF imageRect = image.GetBounds(ref gu);
 				// rotate the image if it fits the page better
 				if (CoreConfig.OutputPrintAllowRotate) {
-					if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)) {
+					if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height) {
 						image.RotateFlip(RotateFlipType.Rotate270FlipNone);
 						imageRect = image.GetBounds(ref gu);
 						if (alignment.Equals(ContentAlignment.TopLeft)) {
@@ -203,7 +200,7 @@ namespace Greenshot.Helpers {
 				// scale the image to fit the page better
 				if (CoreConfig.OutputPrintAllowEnlarge || CoreConfig.OutputPrintAllowShrink) {
 					SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
-					if ((CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width) || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width) {
+					if (CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width) {
 						printRect.Size = resizedRect;
 					}
 				}
