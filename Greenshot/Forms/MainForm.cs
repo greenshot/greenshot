@@ -1393,7 +1393,7 @@ namespace Greenshot.Forms {
 			catch (Exception ex)
 			{
 				// Make sure we show what we tried to open in the exception
-				ex.Data.Add("path", path);
+				ex.Data["path"] = path;
 				LOG.Warn("Couldn't open the path to the last exported file", ex);
 				// No reason to create a bug-form, we just display the error.
 				MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
