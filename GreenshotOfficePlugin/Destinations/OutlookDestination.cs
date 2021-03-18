@@ -30,6 +30,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Microsoft.Office.Interop.Outlook;
+using Microsoft.Win32;
 
 namespace GreenshotOfficePlugin.Destinations {
 	/// <summary>
@@ -47,21 +48,38 @@ namespace GreenshotOfficePlugin.Destinations {
 		private const string MapiClient = "Microsoft Outlook";
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
-		private readonly OutlookEmailExporter _outlookEmailExporter = new OutlookEmailExporter();
+		private readonly OutlookEmailExporter _outlookEmailExporter = new();
 
 		static OutlookDestination() {
-			if (EmailConfigHelper.HasOutlook()) {
+			if (HasOutlook()) {
 				IsActiveFlag = true;
 			}
 			ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
 			if (ExePath != null && File.Exists(ExePath)) {
 				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
 			} else {
-				ExePath = null;
+				ExePath = GetOutlookExePath();
 			}
 			if (ExePath == null) {
 				IsActiveFlag = false;
 			}
+		}
+
+
+		private static string GetOutlookExePath() => RegistryHive.LocalMachine.ReadKey64Or32(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
+
+		/// <summary>
+		/// Check if Outlook is installed
+		/// </summary>
+		/// <returns>Returns true if outlook is installed</returns>
+		private static bool HasOutlook()
+		{
+			string outlookPath = GetOutlookExePath();
+			if (outlookPath == null)
+			{
+				return false;
+			}
+			return File.Exists(outlookPath);
 		}
 
 		public OutlookDestination() {

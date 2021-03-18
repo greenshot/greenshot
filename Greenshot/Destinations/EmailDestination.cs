@@ -26,6 +26,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using Microsoft.Win32;
 
 namespace Greenshot.Destinations {
 	/// <summary>
@@ -39,12 +40,9 @@ namespace Greenshot.Destinations {
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
-            if (!EmailConfigHelper.HasMapi()) return;
-
-            _isActiveFlag = false;
-            _mapiClient = EmailConfigHelper.GetMapiClient();
+			_mapiClient = RegistryHive.LocalMachine.ReadKey64Or32(@"Clients\Mail");
             if (!string.IsNullOrEmpty(_mapiClient)) {
-                // Active as we have a mapi client, can be disabled later
+                // Active as we have a MAPI client, can be disabled later
                 _isActiveFlag = true;
             }
         }
@@ -66,11 +64,9 @@ namespace Greenshot.Destinations {
 				if (_isActiveFlag) {
 					// Disable if the office plugin is installed and the client is outlook
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
-					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
-					if (outlookdestination != null) {
-						if (_mapiClient.ToLower().Contains("microsoft outlook")) {
-							_isActiveFlag = false;
-						}
+					var outlookDestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin", false);
+					if (outlookDestination != null && _mapiClient.ToLower().Contains("microsoft outlook")) {
+						_isActiveFlag = false;
 					}
 				}
 				return base.IsActive && _isActiveFlag;

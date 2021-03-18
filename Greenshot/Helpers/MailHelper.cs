@@ -80,15 +80,7 @@ namespace Greenshot.Helpers {
 			
 			// Store the list of currently active windows, so we can make sure we show the email window later!
 			var windowsBefore = WindowDetails.GetVisibleWindows();
-			//bool isEmailSend = false;
-			//if (EmailConfigHelper.HasOutlook() && (CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
-			//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
-			//}
-			if (/*!isEmailSend &&*/ EmailConfigHelper.HasMapi()) {
-				// Fallback to MAPI
-				// Send the email
-				SendImage(tmpFile, captureDetails.Title);
-			}
+			SendImage(tmpFile, captureDetails.Title);
 			WindowDetails.ActiveNewerWindows(windowsBefore);
 		}
 
