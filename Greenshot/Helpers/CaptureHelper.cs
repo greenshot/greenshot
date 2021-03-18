@@ -85,11 +85,23 @@ namespace Greenshot.Helpers {
 				PsAPI.EmptyWorkingSet();
 			}
 		}
+
 		public static void CaptureClipboard()
+		{
+			using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard);
+			captureHelper.MakeCapture();
+		}
+
+		public static void CaptureClipboard(IDestination destination)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard);
+            if (destination != null)
+            {
+	            captureHelper.AddDestination(destination);
+			}
             captureHelper.MakeCapture();
         }
+
 		public static void CaptureRegion(bool captureMouse)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse);
@@ -194,12 +206,8 @@ namespace Greenshot.Helpers {
 		}
 
 		public WindowDetails SelectedCaptureWindow {
-			get {
-				return _selectedCaptureWindow;
-			}
-			set {
-				_selectedCaptureWindow = value;
-			}
+			get => _selectedCaptureWindow;
+			set => _selectedCaptureWindow = value;
 		}
 
 		private void DoCaptureFeedback() {
@@ -244,7 +252,7 @@ namespace Greenshot.Helpers {
 			Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
 			_capture.CaptureDetails.CaptureMode = _captureMode;
 
-			// Get the windows details in a seperate thread, only for those captures that have a Feedback
+			// Get the windows details in a separate thread, only for those captures that have a Feedback
 			// As currently the "elements" aren't used, we don't need them yet
 			switch (_captureMode) {
 				case CaptureMode.Region:
@@ -270,7 +278,7 @@ namespace Greenshot.Helpers {
 				CoreConfig.CaptureDelay = 0;
 			}
 
-			// Capture Mousecursor if we are not loading from file or clipboard, only show when needed
+			// Capture Mouse cursor if we are not loading from file or clipboard, only show when needed
 			if (_captureMode != CaptureMode.File && _captureMode != CaptureMode.Clipboard)
 			{
 				_capture = WindowCapture.CaptureCursor(_capture);

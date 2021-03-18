@@ -608,6 +608,10 @@ namespace Greenshot.Forms {
 			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", _instance.CaptureLastRegion, ignoreFailedRegistration)) {
 				success = false;
 			}
+			if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", _instance.CaptureClipboard, true))
+			{
+				success = false;
+			}
 			if (_conf.IECapture) {
 				if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", _instance.CaptureIE, ignoreFailedRegistration)) {
 					success = false;
@@ -688,7 +692,12 @@ namespace Greenshot.Forms {
 			contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
 			contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
 			contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.IEHotkey);
-		}
+			var clipboardHotkey = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.ClipboardHotkey);
+			if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
+			{
+				contextmenu_captureclipboard.ShortcutKeyDisplayString = clipboardHotkey;
+			}
+        }
 
 
         private void MainFormFormClosing(object sender, FormClosingEventArgs e) {
@@ -726,6 +735,14 @@ namespace Greenshot.Forms {
 
 		private void CaptureLastRegion() {
 			CaptureHelper.CaptureLastRegion(true);
+		}
+
+		/// <summary>
+		/// This is used by the hotkey trigger
+		/// </summary>
+		private void CaptureClipboard()
+        {
+	        CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 		}
 
 		private void CaptureIE() {

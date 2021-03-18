@@ -74,6 +74,9 @@ namespace GreenshotPlugin.Core {
 		public string LastregionHotkey { get; set; }
 		[IniProperty("IEHotkey", Description="Hotkey for starting the IE capture", DefaultValue="Shift + Ctrl + PrintScreen")]
 		public string IEHotkey { get; set; }
+		
+		[IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor")]
+		public string ClipboardHotkey { get; set; }
 
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch { get; set; }

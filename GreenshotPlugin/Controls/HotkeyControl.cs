@@ -463,10 +463,10 @@ namespace GreenshotPlugin.Controls {
 			if (RegisterHotKey(_hotkeyHwnd, _hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
 				KeyHandlers.Add(_hotKeyCounter, handler);
 				return _hotKeyCounter++;
-			} else {
-				Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
-				return -1;
 			}
+
+			Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
+			return -1;
 		}
 
 		public static void UnregisterHotkeys() {
@@ -574,9 +574,9 @@ namespace GreenshotPlugin.Controls {
 					visibleName = visibleName.Substring(0,1) + visibleName.Substring(1).ToLower();
 				}
 				return visibleName;
-			} else {
-				return givenKey.ToString();
 			}
+
+			return givenKey.ToString();
 		}
 	}
 }
