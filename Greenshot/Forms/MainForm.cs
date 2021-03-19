@@ -532,21 +532,26 @@ namespace Greenshot.Forms {
 
 		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration) {
 			IniValue hotkeyValue = _conf.Values[configurationKey];
+			var hotkeyStringValue = hotkeyValue.Value?.ToString();
+			if (string.IsNullOrEmpty(hotkeyStringValue))
+			{
+				return true;
+			}
 			try {
-				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				bool success = RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
 				if (!success && ignoreFailedRegistration) {
-					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
+					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyStringValue);
 					_conf.Values[configurationKey].Value = Keys.None.ToString();
 					_conf.IsDirty = true;
 				}
 				return success;
 			} catch (Exception ex) {
 				LOG.Warn(ex);
-				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
+				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue, hotkeyValue.Attributes.DefaultValue);
 				// when getting an exception the key wasn't found: reset the hotkey value
 				hotkeyValue.UseValueOrDefault(null);
 				hotkeyValue.ContainingIniSection.IsDirty = true;
-				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				return RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
 			}
 		}
 
