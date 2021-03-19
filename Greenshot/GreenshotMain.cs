@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,6 +22,7 @@ using System;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using Greenshot.Forms;
 
 // Remove AppendPrivatePath warning:
 #pragma warning disable 0618
@@ -38,11 +39,11 @@ namespace Greenshot {
 			Assembly ayResult = null;
 			string sShortAssemblyName = args.Name.Split(',')[0];
 			Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (Assembly ayAssembly in ayAssemblies) {
-				if (sShortAssemblyName == ayAssembly.FullName.Split(',')[0]) {
-					ayResult = ayAssembly;
-					break;
-				}
+			foreach (Assembly ayAssembly in ayAssemblies)
+			{
+				if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0]) continue;
+				ayResult = ayAssembly;
+				break;
 			}
 			return ayResult;
 		}

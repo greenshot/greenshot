@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -158,11 +158,12 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Clears up any resources associated with this object.
 		/// </summary>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing && _channels != null) {
-				_channels.Clear();
-				_channels = null;
-			}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing || _channels == null) return;
+			
+			_channels.Clear();
+			_channels = null;
 		}
 
 		/// <summary>
@@ -249,10 +250,10 @@ namespace Greenshot.Helpers {
 				int i = 0;
 				foreach (CopyDataChannel cdc in Dictionary.Values) {
 					i++;
-					if (i == index) {
-						ret = cdc;
-						break;
-					}
+					if (i != index) continue;
+					
+					ret = cdc;
+					break;
 				}
 				return ret;
 			}
@@ -337,14 +338,14 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CopyDataChannel : IDisposable {
         [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr GetProp(IntPtr hwnd, string lpString);
+		private static extern IntPtr GetProp(IntPtr hWnd, string lpString);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);
+		private static extern bool SetProp(IntPtr hWnd, string lpString, IntPtr hData);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr RemoveProp(IntPtr hwnd, string lpString);
+		private static extern IntPtr RemoveProp(IntPtr hWnd, string lpString);
 
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, ref COPYDATASTRUCT lParam);
+		private static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, ref COPYDATASTRUCT lParam);
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct COPYDATASTRUCT {
@@ -460,13 +461,14 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Clears up any resources associated with this channel.
 		/// </summary>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (ChannelName.Length > 0) {
-					RemoveChannel();
-				}
-				ChannelName = string.Empty;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+			
+			if (ChannelName.Length > 0) {
+				RemoveChannel();
 			}
+			ChannelName = string.Empty;
 		}
 
 		/// <summary>

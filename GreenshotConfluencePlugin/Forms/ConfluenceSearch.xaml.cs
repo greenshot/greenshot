@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,15 +25,15 @@ using System.Linq;
 using System.Windows;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin.Forms {
 	public partial class ConfluenceSearch
 	{
 		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private readonly ConfluenceUpload _confluenceUpload;
 		
-		public IEnumerable<Confluence.Space> Spaces => _confluenceUpload.Spaces;
+		public IEnumerable<Space> Spaces => _confluenceUpload.Spaces;
 
-		public ObservableCollection<Confluence.Page> Pages { get; } = new ObservableCollection<Confluence.Page>();
+		public ObservableCollection<Page> Pages { get; } = new ObservableCollection<Page>();
 
 		public ConfluenceSearch(ConfluenceUpload confluenceUpload) {
 			_confluenceUpload = confluenceUpload;
@@ -56,7 +56,7 @@ namespace GreenshotConfluencePlugin {
 
 		private void SelectionChanged() {
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				_confluenceUpload.SelectedPage = (Confluence.Page)PageListView.SelectedItem;
+				_confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
 			} else {
 				_confluenceUpload.SelectedPage = null;
 			}
@@ -86,7 +86,7 @@ namespace GreenshotConfluencePlugin {
 			SelectionChanged();
 		}
 
-		private void searchText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+		private void SearchText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
 			Search.IsEnabled = !string.IsNullOrEmpty(searchText.Text);
 		}
 	}

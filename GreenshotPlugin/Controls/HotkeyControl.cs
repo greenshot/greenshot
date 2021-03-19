@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -463,10 +463,10 @@ namespace GreenshotPlugin.Controls {
 			if (RegisterHotKey(_hotkeyHwnd, _hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
 				KeyHandlers.Add(_hotKeyCounter, handler);
 				return _hotKeyCounter++;
-			} else {
-				Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
-				return -1;
 			}
+
+			Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
+			return -1;
 		}
 
 		public static void UnregisterHotkeys() {
@@ -574,9 +574,9 @@ namespace GreenshotPlugin.Controls {
 					visibleName = visibleName.Substring(0,1) + visibleName.Substring(1).ToLower();
 				}
 				return visibleName;
-			} else {
-				return givenKey.ToString();
 			}
+
+			return givenKey.ToString();
 		}
 	}
 }

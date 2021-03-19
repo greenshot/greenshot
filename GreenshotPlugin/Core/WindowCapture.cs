@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -305,7 +305,7 @@ namespace GreenshotPlugin.Core {
                 }
 
                 // get a .NET image object for it
-                // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0×80004005 error is to re-try...
+                // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0ï¿½80004005 error is to re-try...
                 bool success = false;
                 ExternalException exception = null;
                 for (int i = 0; i < 3; i++) {

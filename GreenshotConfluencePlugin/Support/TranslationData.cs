@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 
-namespace TranslationByMarkupExtension {
+namespace GreenshotConfluencePlugin.Support {
 	public class TranslationData : IWeakEventListener, INotifyPropertyChanged {
         private readonly string _key;
 

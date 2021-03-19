@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -45,13 +45,14 @@ namespace GreenshotBoxPlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInConfig != null) {
-					_itemPlugInConfig.Dispose();
-					_itemPlugInConfig = null;
-				}
-			}
+		protected void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
+			if (_itemPlugInConfig == null) return;
+			
+			_itemPlugInConfig.Dispose();
+			_itemPlugInConfig = null;
 		}
 
 		/// <summary>

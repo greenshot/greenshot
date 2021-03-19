@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls {
 
         public IDictionary<string, string> CallbackParameters { get; private set; }
 
-        public bool IsOk => DialogResult == DialogResult.OK;
+		public bool IsOk => DialogResult == DialogResult.OK;
 
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
 			// Make sure Greenshot uses the correct browser version

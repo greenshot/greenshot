@@ -32,35 +32,56 @@ namespace GreenshotPlugin.Core
         /// <summary>
         /// Retrieve a registry value
         /// </summary>
-        /// <param name="registryKey">RegistryKey like Registry.LocalMachine</param>
+        /// <param name="registryHive">RegistryHive like RegistryHive.LocalMachine</param>
         /// <param name="keyName">string with the name of the key</param>
         /// <param name="value">string with the name of the value below the key, null will retrieve the default</param>
         /// <param name="defaultValue">string with the default value to return</param>
         /// <returns>string with the value</returns>
-        public static string ReadKey64Or32(this RegistryKey registryKey, string keyName, string value = null, string defaultValue = null)
+        public static string ReadKey64Or32(this RegistryHive registryHive, string keyName, string value = null, string defaultValue = null)
         {
             string result = null;
             value ??= string.Empty;
-            if (Environment.Is64BitOperatingSystem)
+
+            using var registryKey32 = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry32);
+            // Logic for 32-bit Windows is just reading the key
+            if (!Environment.Is64BitOperatingSystem)
             {
-                using var key = registryKey.OpenSubKey($@"SOFTWARE\{keyName}", false);
-                
+                using var key = registryKey32.OpenSubKey($@"SOFTWARE\{keyName}", false);
+
                 if (key != null)
                 {
-                    result = (string)key.GetValue(value, defaultValue);
+                    result = (string)key.GetValue(value);
+                }
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = defaultValue;
+                }
+                return result;
+            }
+            using var registryKey64 = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry64);
+            // Logic for 64 bit Windows, is trying the key which is 64 bit
+            using (var key = registryKey64.OpenSubKey($@"SOFTWARE\{keyName}", false))
+            {
+                if (key != null)
+                {
+                    result = (string)key.GetValue(value);
+                }
+                if (!string.IsNullOrEmpty(result)) return result;
+            }
+
+            // if there is no value use the wow6432node key which is 32 bit
+            using (var key = registryKey32.OpenSubKey($@"SOFTWARE\{keyName}", false))
+            {
+                if (key != null)
+                {
+                    result = (string)key.GetValue(value);
                 }
             }
 
             if (string.IsNullOrEmpty(result))
             {
-                using var key = registryKey.OpenSubKey($@"SOFTWARE\wow6432node\{keyName}", false);
-
-                if (key != null)
-                {
-                    result = (string)key.GetValue(value, defaultValue);
-                }
+                result = defaultValue;
             }
-
             return result;
         }
     }

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -31,7 +31,6 @@ using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
-using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
@@ -45,7 +44,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 using log4net;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of ImageEditorForm.
 	/// </summary>
@@ -65,6 +64,9 @@ namespace Greenshot {
 
 		// whether part of the editor controls are disabled depending on selected item(s)
 		private bool _controlsDisabledDueToConfirmable;
+
+		// Used for tracking the mouse scrollwheel changes
+		private DateTime _zoomStartTime = DateTime.Now;
 
 		/// <summary>
 		/// All provided zoom values (in percents) in ascending order.
@@ -904,11 +906,33 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void PanelMouseWheel(object sender, MouseEventArgs e) {
+		/// <summary>
+		/// This is a "work-around" for the MouseWheel event which doesn't get to the panel
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PanelMouseWheel(object sender, MouseEventArgs e)
+		{
+			if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))
+			{
+				if (_zoomStartTime.AddMilliseconds(100) < DateTime.Now) //waiting for next zoom step 100 ms
+				{
+					_zoomStartTime = DateTime.Now;
+					if (e.Delta > 0)
+					{
+						ZoomInMenuItemClick(sender, e);
+					}
+					else if (e.Delta < 0)
+					{
+						ZoomOutMenuItemClick(sender, e);
+					}
+				}
+
+			}
 			panel1.Focus();
 		}
 
-        protected override bool ProcessKeyPreview(ref Message msg) {
+		protected override bool ProcessKeyPreview(ref Message msg) {
 			// disable default key handling if surface has requested a lock
 			if (!_surface.KeysLocked) {
 				return base.ProcessKeyPreview(ref msg);

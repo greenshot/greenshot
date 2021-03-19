@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -40,7 +40,7 @@ namespace GreenshotDropboxPlugin {
 		}
 
 		public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
-        {
+		{
             var oauth2Settings = new OAuth2Settings
             {
                 AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
@@ -54,7 +54,6 @@ namespace GreenshotDropboxPlugin {
                 AccessToken = DropboxConfig.AccessToken,
                 AccessTokenExpires = DropboxConfig.AccessTokenExpires
 			};
-
             try
 			{
                 string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
@@ -87,7 +86,7 @@ namespace GreenshotDropboxPlugin {
                 DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
                 DropboxConfig.IsDirty = true;
                 IniConfig.Save();
-			}
-        }
+            }
+		}
 	}
 }

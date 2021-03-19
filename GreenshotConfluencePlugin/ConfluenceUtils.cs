@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -33,8 +33,8 @@ namespace GreenshotConfluencePlugin {
 	public class ConfluenceUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
 
-		public static List<Confluence.Page> GetCurrentPages() {
-			List<Confluence.Page> pages = new List<Confluence.Page>();
+		public static List<Page> GetCurrentPages() {
+			List<Page> pages = new List<Page>();
 			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
 			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
 			foreach(string browserurl in GetBrowserUrls()) {
@@ -50,7 +50,7 @@ namespace GreenshotConfluencePlugin {
 					long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
 					try {
 						bool pageDouble = false;
-						foreach(Confluence.Page page in pages) {
+						foreach(Page page in pages) {
 							if (page.Id == pageId) {
 								pageDouble = true;
 								LOG.DebugFormat("Skipping double page with ID {0}", pageId);
@@ -58,7 +58,7 @@ namespace GreenshotConfluencePlugin {
 							}
 						}
 						if (!pageDouble) {
-							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
+							Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
 							LOG.DebugFormat("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -82,7 +82,7 @@ namespace GreenshotConfluencePlugin {
 						}
 						try {
 							bool pageDouble = false;
-							foreach(Confluence.Page page in pages) {
+							foreach(Page page in pages) {
 								if (page.Title.Equals(title)) {
 									LOG.DebugFormat("Skipping double page with title {0}", title);
 									pageDouble = true;
@@ -90,7 +90,7 @@ namespace GreenshotConfluencePlugin {
 								}
 							}
 							if (!pageDouble) {
-								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
+								Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
 								LOG.DebugFormat("Adding page {0}", page.Title);
 								pages.Add(page);
 								

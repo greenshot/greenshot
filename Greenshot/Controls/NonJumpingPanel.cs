@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,33 +22,49 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
-	/// <summary>
-	/// See: http://nickstips.wordpress.com/2010/03/03/c-panel-resets-scroll-position-after-focus-is-lost-and-regained/
-	/// </summary>
-	public class NonJumpingPanel : Panel {
-		protected override Point ScrollToControl(Control activeControl) {
-			// Returning the current location prevents the panel from
-			// scrolling to the active control when the panel loses and regains focus
-			return DisplayRectangle.Location;
-		}
+namespace Greenshot.Controls
+{
+    /// <summary>
+    /// See: http://nickstips.wordpress.com/2010/03/03/c-panel-resets-scroll-position-after-focus-is-lost-and-regained/
+    /// </summary>
+    public class NonJumpingPanel : Panel
+    {
+        protected override Point ScrollToControl(Control activeControl)
+        {
+            // Returning the current location prevents the panel from
+            // scrolling to the active control when the panel loses and regains focus
+            return DisplayRectangle.Location;
+        }
 
-		/// <summary>
-		/// Add horizontal scrolling to the panel, when using the wheel and the shift key is pressed
-		/// </summary>
-		/// <param name="e">MouseEventArgs</param>
-		protected override void OnMouseWheel(MouseEventArgs e)
-		{
-			if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift)
-			{
-				VScroll = false;
-				base.OnMouseWheel(e);
-				VScroll = true;
-			}
-			else
-			{
-				base.OnMouseWheel(e);
-			}
-		}
-	}
+        /// <summary>
+        /// Add horizontal scrolling to the panel, when using the wheel and the shift key is pressed
+        /// </summary>
+        /// <param name="e">MouseEventArgs</param>
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            //Check if Scrollbars available and CTRL key pressed -> Zoom IN OUT
+            if ((VScroll || HScroll) && (ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                VScroll = false;
+                HScroll = false;
+                base.OnMouseWheel(e);
+                VScroll = true;
+                HScroll = true;
+            }
+            else
+            {
+                //Vertical Scoll with SHIFT key pressed
+                if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift)
+                {
+                    VScroll = false;
+                    base.OnMouseWheel(e);
+                    VScroll = true;
+                }
+                else
+                {
+                    base.OnMouseWheel(e);
+                }
+            }
+        }
+    }
 }

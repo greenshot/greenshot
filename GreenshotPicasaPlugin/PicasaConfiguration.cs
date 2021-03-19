@@ -20,6 +20,7 @@
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using System;
+using GreenshotPicasaPlugin.Forms;
 using GreenshotPlugin.IniFile;
 
 namespace GreenshotPicasaPlugin {

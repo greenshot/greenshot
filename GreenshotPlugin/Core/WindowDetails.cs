@@ -196,33 +196,33 @@ namespace GreenshotPlugin.Core
         /// <summary>
         /// Get the icon for a hWnd
         /// </summary>
-        /// <param name="hwnd"></param>
+        /// <param name="hWnd"></param>
         /// <returns></returns>
-        private static Icon GetAppIcon(IntPtr hwnd) {
+        private static Icon GetAppIcon(IntPtr hWnd) {
             IntPtr iconSmall = IntPtr.Zero;
             IntPtr iconBig = new IntPtr(1);
             IntPtr iconSmall2 = new IntPtr(2);
 
             IntPtr iconHandle;
             if (Conf.UseLargeIcons) {
-                iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
+                iconHandle = User32.SendMessage(hWnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
                 if (iconHandle == IntPtr.Zero) {
-                    iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+                    iconHandle = User32.GetClassLongWrapper(hWnd, (int)ClassLongIndex.GCL_HICON);
                 }
             } else {
-                iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
+                iconHandle = User32.SendMessage(hWnd, (int)WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
             }
             if (iconHandle == IntPtr.Zero) {
-                iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
+                iconHandle = User32.SendMessage(hWnd, (int)WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
             }
             if (iconHandle == IntPtr.Zero) {
-                iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
+                iconHandle = User32.GetClassLongWrapper(hWnd, (int)ClassLongIndex.GCL_HICONSM);
             }
             if (iconHandle == IntPtr.Zero) {
-                iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
+                iconHandle = User32.SendMessage(hWnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
             }
             if (iconHandle == IntPtr.Zero) {
-                iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+                iconHandle = User32.GetClassLongWrapper(hWnd, (int)ClassLongIndex.GCL_HICON);
             }
 
             if (iconHandle == IntPtr.Zero) {

@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Page x:Class="GreenshotConfluencePlugin.ConfluenceSearch"
+<Page x:Class="GreenshotConfluencePlugin.Forms.ConfluenceSearch"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:l="clr-namespace:TranslationByMarkupExtension" Loaded="Page_Loaded">
+    xmlns:support="clr-namespace:GreenshotConfluencePlugin.Support"
+    Loaded="Page_Loaded">
 	<Grid MaxHeight="500">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="100" />
@@ -16,9 +17,9 @@
 		</Grid.RowDefinitions>
 		<Label Grid.Row="0" Grid.Column="0" Content="Space" />
 		<ComboBox Grid.Row="0" Grid.Column="1" Name="SpaceComboBox" ItemsSource="{Binding Path=Spaces}" DisplayMemberPath="Name" SelectedValuePath="Key"/>
-        <Label Grid.Row="1" Grid.Column="0" Content="{l:Translate search_text}" />
-		<TextBox Grid.Row="1" Grid.Column="1" Name="searchText" Text="" KeyDown="SearchText_KeyDown" TextChanged="searchText_TextChanged"/>
-        <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{l:Translate search}" Click="Search_Click" IsEnabled="False"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="{support:Translate search_text}" />
+		<TextBox Grid.Row="1" Grid.Column="1" Name="searchText" Text="" KeyDown="SearchText_KeyDown" TextChanged="SearchText_TextChanged"/>
+        <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{support:Translate search}" Click="Search_Click" IsEnabled="False"/>
 		<ListView Grid.Row="3" Grid.ColumnSpan="2" Name="PageListView" SelectionMode="Single" ItemsSource="{Binding Path=Pages}" SelectionChanged="PageListView_SelectionChanged">
 			<ListView.ItemTemplate>
 				<DataTemplate>

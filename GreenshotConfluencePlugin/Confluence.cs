@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -18,15 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using GreenshotConfluencePlugin;
 using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace Confluence {
+namespace GreenshotConfluencePlugin {
     public class Page {
 		public Page(RemotePage page) {
 			Id = page.id;

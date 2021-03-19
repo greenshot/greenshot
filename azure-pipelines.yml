@@ -28,22 +28,13 @@ stages:
       vmImage: 'Windows-latest'
 
     steps:
-    - task: NuGetToolInstaller@1
-
-    - task: NuGetCommand@2
-      displayName: NuGet restore
-      inputs:
-        command: 'restore'
-        restoreSolution: '$(solution)'
-        feedsToUse: config
-
     - task: MSBuild@1
-      displayName: Generate templates
+      displayName: Restore nuget packages and generate credential templates
       inputs:
         solution: '$(solution)'
         platform: $(buildPlatform)
         configuration: $(buildConfiguration)
-        msbuildArguments: '/t:PrepareForBuild'
+        msbuildArguments: '/restore /t:PrepareForBuild'
 
     - task: MSBuild@1
       displayName: Build and package

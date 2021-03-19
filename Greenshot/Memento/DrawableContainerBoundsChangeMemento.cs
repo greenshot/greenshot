@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -31,8 +31,8 @@ namespace Greenshot.Memento
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento
 	{
-		private readonly List<Point> _points = new List<Point>();
-		private readonly List<Size> _sizes = new List<Size>();
+		private readonly List<Point> _points = new();
+		private readonly List<Size> _sizes = new();
 		private IDrawableContainerList _listOfdrawableContainer;
 
 		private void StoreBounds()
@@ -76,15 +76,14 @@ namespace Greenshot.Memento
 
 		public bool Merge(IMemento otherMemento)
 		{
-            if (otherMemento is DrawableContainerBoundsChangeMemento other)
-			{
-				if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
-				{
-					// Lists are equal, as we have the state already we can ignore the new memento
-					return true;
-				}
-			}
-			return false;
+			if (otherMemento is not DrawableContainerBoundsChangeMemento other) return false;
+			
+			if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
+            {
+	            // Lists are equal, as we have the state already we can ignore the new memento
+	            return true;
+            }
+            return false;
 		}
 
 		public IMemento Restore()

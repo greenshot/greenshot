@@ -1,6 +1,6 @@
 ﻿using GreenshotPlugin.Core;
 
-namespace TranslationByMarkupExtension {
+namespace GreenshotConfluencePlugin.Support {
 	/// <summary>
 	/// 
 	/// </summary>

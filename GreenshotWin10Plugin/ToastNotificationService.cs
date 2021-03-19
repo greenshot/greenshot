@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,13 +22,12 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using GreenshotWin10Plugin.Native;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
 
@@ -45,10 +44,21 @@ namespace GreenshotWin10Plugin
         private readonly string _imageFilePath;
         public ToastNotificationService()
         {
-            // Register AUMID and COM server (for Desktop Bridge apps, this no-ops)
-            DesktopNotificationManagerCompat.RegisterAumidAndComServer<GreenshotNotificationActivator>("Greenshot");
-            // Register COM server and activator type
-            DesktopNotificationManagerCompat.RegisterActivator<GreenshotNotificationActivator>();
+            if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
+            {
+                Log.Info("Greenshot was activated due to a toast.");
+            }
+            // Listen to notification activation
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
+            {
+                // Obtain the arguments from the notification
+                ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
+
+                // Obtain any user input (text boxes, menu selections) from the notification
+                ValueSet userInput = toastArgs.UserInput;
+
+                Log.Info("Toast activated. Args: " + toastArgs.Argument);
+            };
 
             var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
             if (!Directory.Exists(localAppData))
@@ -81,7 +91,7 @@ namespace GreenshotWin10Plugin
                 return;
             }
             // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
-            var toastNotifier = DesktopNotificationManagerCompat.CreateToastNotifier();
+            var toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
 
             // Here is an interesting article on reading the settings: https://www.rudyhuyn.com/blog/2018/02/10/toastnotifier-and-settings-careful-with-non-uwp-applications/
             try
@@ -97,82 +107,62 @@ namespace GreenshotWin10Plugin
                 Log.Info("Ignoring exception as this means that there was no stored settings.");
             }
 
-            // Get a toast XML template
-            var toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastImageAndText01);
+            // Generate the toast and send it off
+            new ToastContentBuilder()
 
-            // Fill in the text elements
-            var stringElement = toastXml.GetElementsByTagName("text").First();
-            stringElement.AppendChild(toastXml.CreateTextNode(message));
-
-            if (_imageFilePath != null && File.Exists(_imageFilePath))
-            {
-                // Specify the absolute path to an image
-                var imageElement = toastXml.GetElementsByTagName("image").First();
-                var imageSrcNode = imageElement.Attributes.GetNamedItem("src");
-                if (imageSrcNode != null)
+                .AddArgument("ToastID", 100)
+                // Inline image
+                .AddText(message)
+                // Profile (app logo override) image
+                //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
+                .Show(toast =>
                 {
-                    imageSrcNode.NodeValue = _imageFilePath;
-                }
-            }
+                    // Windows 10 first with 1903: ExpiresOnReboot = true
+                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?) null;
+                    void ToastActivatedHandler(ToastNotification toastNotification, object sender)
+                    {
+                        try
+                        {
+                            onClickAction?.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Exception while handling the onclick action: ", ex);
+                        }
 
-            // Create the toast and attach event listeners
-            var toast = new ToastNotification(toastXml)
-            {
-                // Windows 10 first with 1903: ExpiresOnReboot = true,
-                ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null
-            };
+                        toast.Activated -= ToastActivatedHandler;
+                    }
 
-            void ToastActivatedHandler(ToastNotification toastNotification, object sender)
-            {
-                try
-                {
-                    onClickAction?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Exception while handling the onclick action: ", ex);
-                }
+                    if (onClickAction != null)
+                    {
+                        toast.Activated += ToastActivatedHandler;
+                    }
 
-                toast.Activated -= ToastActivatedHandler;
-            }
+                    void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
+                    {
+                        Log.Debug($"Toast closed with reason {eventArgs.Reason}");
+                        if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
+                        {
+                            return;
+                        }
+                        try
+                        {
+                            onClosedAction?.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Exception while handling the onClosed action: ", ex);
+                        }
 
-            if (onClickAction != null)
-            {
-                toast.Activated += ToastActivatedHandler;
-            }
+                        toast.Dismissed -= ToastDismissedHandler;
+                        // Remove the other handler too
+                        toast.Activated -= ToastActivatedHandler;
+                        toast.Failed -= ToastOnFailed;
 
-            void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
-            {
-                Log.Debug($"Toast closed with reason {eventArgs.Reason}");
-                if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
-                {
-                    return;
-                }
-                try
-                {
-                    onClosedAction?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Exception while handling the onClosed action: ", ex);
-                }
-
-                toast.Dismissed -= ToastDismissedHandler;
-                // Remove the other handler too
-                toast.Activated -= ToastActivatedHandler;
-                toast.Failed -= ToastOnFailed;
-
-            }
-            toast.Dismissed += ToastDismissedHandler;
-            toast.Failed += ToastOnFailed;
-            try
-            {
-                toastNotifier.Show(toast);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Couldn't show notification.", ex);
-            }
+                    }
+                    toast.Dismissed += ToastDismissedHandler;
+                    toast.Failed += ToastOnFailed;
+                });
         }
 
         private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
