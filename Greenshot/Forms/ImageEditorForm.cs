@@ -152,6 +152,10 @@ namespace Greenshot.Forms {
 
 			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
 			HideToolstripItems();
+
+			// preselect Freehand Tool
+			_surface.DrawingMode = DrawingModes.Path;
+			RefreshFieldControls();
 		}
 
 		/// <summary>
