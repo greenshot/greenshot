@@ -97,7 +97,7 @@ namespace Greenshot.Forms {
 			this.linkLblLicense.Size = new System.Drawing.Size(369, 23);
 			this.linkLblLicense.TabIndex = 5;
 			this.linkLblLicense.TabStop = true;
-			this.linkLblLicense.Text = "http://www.gnu.org/licenses/gpl.html";
+			this.linkLblLicense.Text = "https://www.gnu.org/licenses/gpl.html";
 			this.linkLblLicense.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// linkLblHost
@@ -117,7 +117,7 @@ namespace Greenshot.Forms {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+			this.linkLblBugs.Text = "https://getgreenshot.org/tickets/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
@@ -135,7 +135,7 @@ namespace Greenshot.Forms {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+			this.linkLblDonations.Text = "https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations
@@ -153,7 +153,7 @@ namespace Greenshot.Forms {
 			this.linkLblIcons.Size = new System.Drawing.Size(279, 23);
 			this.linkLblIcons.TabIndex = 12;
 			this.linkLblIcons.TabStop = true;
-			this.linkLblIcons.Text = "http://p.yusukekamiyamane.com";
+			this.linkLblIcons.Text = "https://p.yusukekamiyamane.com";
 			this.linkLblIcons.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblIcons
@@ -171,7 +171,7 @@ namespace Greenshot.Forms {
 			this.linkLabel1.Size = new System.Drawing.Size(130, 23);
 			this.linkLabel1.TabIndex = 13;
 			this.linkLabel1.TabStop = true;
-			this.linkLabel1.Text = "http://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+			this.linkLabel1.Text = "https://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
 			this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
