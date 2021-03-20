@@ -44,13 +44,12 @@ namespace GreenshotDropboxPlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInConfig != null) {
-					_itemPlugInConfig.Dispose();
-					_itemPlugInConfig = null;
-				}
-			}
+		private void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+			if (_itemPlugInConfig == null) return;
+			_itemPlugInConfig.Dispose();
+			_itemPlugInConfig = null;
 		}
 
 		/// <summary>

@@ -74,9 +74,8 @@ namespace GreenshotBoxPlugin {
 				CloudServiceName = "Box",
 				ClientId = BoxCredentials.ClientId,
 				ClientSecret = BoxCredentials.ClientSecret,
-				RedirectUrl = "https://www.box.com/home/",
-				BrowserSize = new Size(1060, 600),
-				AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
+				RedirectUrl = "https://getgreenshot.org/authorize/box",
+				AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
 				RefreshToken = Config.RefreshToken,
 				AccessToken = Config.AccessToken,
 				AccessTokenExpires = Config.AccessTokenExpires

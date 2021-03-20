@@ -30,17 +30,9 @@ namespace GreenshotBoxPlugin {
 			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Box";
-			}
-		}
+		public override string Designation => "Box";
 
-		public override string Description {
-			get {
-				return Language.GetString("box", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("box", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
