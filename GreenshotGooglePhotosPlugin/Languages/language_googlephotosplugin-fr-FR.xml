@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Communication en cours avec GooglePhotos. Veuillez patientez...</resource>
+		<resource name="Configure">Configurer GooglePhotos</resource>
+		<resource name="label_AfterUpload">Après téléversement</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Copier le lien dans le presse-papier</resource>
+		<resource name="label_upload_format">Format image</resource>
+		<resource name="settings_title">Paramètres GooglePhotos</resource>
+		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers GooglePhotos :</resource>
+		<resource name="upload_menu_item">Téléverser vers GooglePhotos</resource>
+		<resource name="upload_success">Image téléversée avec succès vers GooglePhotos !</resource>
+	</resources>
+</language>

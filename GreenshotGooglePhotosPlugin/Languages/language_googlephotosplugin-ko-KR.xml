@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="korean" ietf="ko-KR" version="1.0.0">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	  클립보드로 연결
+	</resource>
+	<resource name="label_AfterUpload">
+	  얼로드 후
+	</resource>
+	<resource name="Configure">
+	  GooglePhotos 설정
+	</resource>
+	<resource name="upload_menu_item">
+	  GooglePhotos로 업로드
+	</resource>
+	<resource name="settings_title">
+	  GooglePhotos 설정
+	</resource>
+	<resource name="upload_success">
+	  GooglePhotos로 이미지 업로드 성공!
+	</resource>
+	<resource name="upload_failure">
+	  GooglePhotos로 업로드시 오류 발생:
+	</resource>
+	<resource name="label_upload_format">
+	  이미지 형식
+	</resource>
+	<resource name="communication_wait">
+	  GooglePhotos와 연결 중 잠시 기다리세요...
+	</resource>
+  </resources>
+</language>

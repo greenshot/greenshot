@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.1.5">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	  Collegamento agli Appunti
+	</resource>
+	<resource name="label_AfterUpload">
+	  Dopo il caricamento
+	</resource>
+	<resource name="Configure">
+	  Impostazioni GooglePhotos
+	</resource>
+	<resource name="upload_menu_item">
+	  Carica su GooglePhotos
+	</resource>
+	<resource name="settings_title">
+	  Impostazioni GooglePhotos
+	</resource>
+	<resource name="upload_success">
+	  Caricamento immagine su GooglePhotos completato!
+	</resource>
+	<resource name="upload_failure">
+	  Si è verificato un errore durante il caricamento su GooglePhotos:
+	</resource>
+	<resource name="label_upload_format">
+	  Formato immagine
+	</resource>
+	<resource name="communication_wait">
+	  Comunicazione con GooglePhotos...
+	</resource>
+  </resources>
+</language>
