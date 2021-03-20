@@ -103,8 +103,8 @@ Source: {#BaseDir}\GreenshotFlickrPlugin\Languages\language_flickr*.xml; DestDir
 Source: {#BaseDir}\GreenshotPhotobucketPlugin\{#BinDir}\GreenshotPhotobucketPlugin.dll; DestDir: {app}\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\GreenshotPhotobucketPlugin\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\GreenshotPhotobucketPlugin; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Picasa Plugin
-Source: {#BaseDir}\GreenshotPicasaPlugin\{#BinDir}\GreenshotPicasaPlugin.dll; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotPicasaPlugin\Languages\language_picasa*.xml; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
+;Source: {#BaseDir}\GreenshotPicasaPlugin\{#BinDir}\GreenshotPicasaPlugin.dll; DestDir: {app}\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Source: {#BaseDir}\GreenshotPicasaPlugin\Languages\language_picasa*.xml; DestDir: {app}\Languages\Plugins\GreenshotPicasaPlugin; Components: plugins\picasa; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Confluence Plugin
 Source: {#BaseDir}\GreenshotConfluencePlugin\{#BinDir}\GreenshotConfluencePlugin.dll; DestDir: {app}\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\GreenshotConfluencePlugin\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\GreenshotConfluencePlugin; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -511,7 +511,7 @@ Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disable
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\picasa"; Description: {cm:picasa}; Types: full custom; Flags: disablenouninstallwarning
+;Name: "plugins\picasa"; Description: {cm:picasa}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\win10"; Description: {cm:win10}; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer()
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
