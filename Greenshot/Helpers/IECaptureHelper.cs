@@ -321,15 +321,7 @@ namespace Greenshot.Helpers {
 			return returnDocumentContainer;
 		}
 
-		/// <summary>
-		/// Here the logic for capturing the IE Content is located
-		/// </summary>
-		/// <param name="capture">ICapture where the capture needs to be stored</param>
-		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIe(ICapture capture) {
-			return CaptureIe(capture, WindowDetails.GetActiveWindow());
-		}
-		/// <summary>
+        /// <summary>
 		/// Here the logic for capturing the IE Content is located
 		/// </summary>
 		/// <param name="capture">ICapture where the capture needs to be stored</param>

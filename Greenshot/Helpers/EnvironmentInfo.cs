@@ -648,26 +648,6 @@ namespace Greenshot.Helpers
             private readonly byte _wReserved;
 
             /// <summary>
-            ///     The major version number of the operating system.
-            /// </summary>
-            public int MajorVersion => _dwMajorVersion;
-
-            /// <summary>
-            ///     The minor version number of the operating system.
-            /// </summary>
-            public int MinorVersion => _dwMinorVersion;
-
-            /// <summary>
-            ///     The build number of the operating system.
-            /// </summary>
-            public int BuildNumber => _dwBuildNumber;
-
-            /// <summary>
-            ///     The operating system platform. This member can be VER_PLATFORM_WIN32_NT (2).
-            /// </summary>
-            public int PlatformId => _dwPlatformId;
-
-            /// <summary>
             ///     A null-terminated string, such as "Service Pack 3", that indicates the latest Service Pack installed on the system.
             ///     If no Service Pack has been installed, the string is empty.
             /// </summary>
@@ -785,11 +765,6 @@ namespace Greenshot.Helpers
 		}
 
         /// <summary>
-		/// Gets the build version number of the operating system running on this computer.
-		/// </summary>
-		public static int BuildVersion => Environment.OSVersion.Version.Build;
-
-        /// <summary>
 		/// Gets the full version string of the operating system running on this computer.
 		/// </summary>
 		public static string VersionString
@@ -805,50 +780,6 @@ namespace Greenshot.Helpers
                     return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build} revision {Environment.OSVersion.Version.Revision:X}";
 				}
                 return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build}";
-			}
-		}
-
-        /// <summary>
-		/// Gets the full version of the operating system running on this computer.
-		/// </summary>
-		public static Version Version
-		{
-			get
-			{
-				return Environment.OSVersion.Version;
-			}
-		}
-
-        /// <summary>
-		/// Gets the major version number of the operating system running on this computer.
-		/// </summary>
-		public static int MajorVersion
-		{
-			get
-			{
-				return Environment.OSVersion.Version.Major;
-			}
-		}
-
-        /// <summary>
-		/// Gets the minor version number of the operating system running on this computer.
-		/// </summary>
-		public static int MinorVersion
-		{
-			get
-			{
-				return Environment.OSVersion.Version.Minor;
-			}
-		}
-
-        /// <summary>
-		/// Gets the revision version number of the operating system running on this computer.
-		/// </summary>
-		public static int RevisionVersion
-		{
-			get
-			{
-				return Environment.OSVersion.Version.Revision;
 			}
 		}
     }

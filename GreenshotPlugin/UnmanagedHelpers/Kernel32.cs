@@ -51,9 +51,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, uint uuchMax);
-		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-		public static extern IntPtr GetModuleHandle(string lpModuleName);
-		[DllImport("kernel32", SetLastError = true)]
+
+        [DllImport("kernel32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool CloseHandle(IntPtr hObject);
 

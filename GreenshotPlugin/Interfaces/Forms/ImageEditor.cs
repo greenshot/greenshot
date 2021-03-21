@@ -27,14 +27,7 @@ namespace GreenshotPlugin.Interfaces.Forms {
 	/// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
 	/// </summary>
 	public interface IImageEditor {
-		/// <summary>
-		/// Return the IWin32Window, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
-		/// </summary>
-		IWin32Window WindowHandle {
-			get;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Get the current Image from the Editor for Exporting (save/upload etc)
 		/// This is actually a wrapper which calls Surface.GetImageForExport().
 		/// Don't forget to call image.Dispose() when finished!!!

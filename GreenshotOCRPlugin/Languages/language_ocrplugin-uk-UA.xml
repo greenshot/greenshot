@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.0">
-  <resources>
-	<resource name="language">Мова для ОРТ</resource>
-	<resource name="orient_image">Орієнтувати зображення</resource>
-	<resource name="straighten_image">Випрямлення зображення</resource>
-  </resources>
-</language>

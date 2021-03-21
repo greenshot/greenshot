@@ -549,21 +549,7 @@ namespace GreenshotPlugin.Core {
 			return MakeOAuthRequest(method, requestUrl, requestUrl, null, parametersToSign, additionalParameters, postData);
 		}
 
-		/// <summary>
-		/// Submit a web request using oAuth.
-		/// </summary>
-		/// <param name="method">GET or POST</param>
-		/// <param name="requestUrl">The full url, including the querystring for the signing/request</param>
-		/// <param name="headers">Header values</param>
-		/// <param name="parametersToSign">Parameters for the request, which need to be signed</param>
-		/// <param name="additionalParameters">Parameters for the request, which do not need to be signed</param>
-		/// <param name="postData">Data to post (MemoryStream)</param>
-		/// <returns>The web server response.</returns>
-		public string MakeOAuthRequest(HTTPMethod method, string requestUrl, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters, IBinaryContainer postData) {
-			return MakeOAuthRequest(method, requestUrl, requestUrl, headers, parametersToSign, additionalParameters, postData);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Submit a web request using oAuth.
 		/// </summary>
 		/// <param name="method">GET or POST</param>

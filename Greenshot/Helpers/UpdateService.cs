@@ -94,17 +94,6 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Stop the update checks
-        /// </summary>
-        public void Shutdown()
-        {
-            if (!_cancellationTokenSource.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-            }
-        }
-
-        /// <summary>
         /// This runs a periodic task in the background
         /// </summary>
         /// <param name="intervalFactory">Func which returns a TimeSpan</param>

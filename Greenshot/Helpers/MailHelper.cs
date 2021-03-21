@@ -126,14 +126,7 @@ namespace Greenshot.Helpers {
 			_manualResetEvent = new ManualResetEvent(false);
 		}
 
-		/// <summary>
-		/// Creates a new mail message with the specified subject.
-		/// </summary>
-		public MapiMailMessage(string subject) : this() {
-			Subject = subject;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Creates a new mail message with the specified subject and body.
 		/// </summary>
 		public MapiMailMessage(string subject, string body) : this() {
@@ -437,34 +430,10 @@ namespace Greenshot.Helpers {
 		public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
 
         /// <summary>
-		/// Creates a new recipient with the specified address.
-		/// </summary>
-		public Recipient(string address) {
-			Address = address;
-		}
-
-		/// <summary>
-		/// Creates a new recipient with the specified address and display name.
-		/// </summary>
-		public Recipient(string address, string displayName) {
-			Address = address;
-			DisplayName = displayName;
-		}
-
-		/// <summary>
 		/// Creates a new recipient with the specified address and recipient type.
 		/// </summary>
 		public Recipient(string address, MapiMailMessage.RecipientType recipientType) {
 			Address = address;
-			RecipientType = recipientType;
-		}
-
-		/// <summary>
-		/// Creates a new recipient with the specified address, display name and recipient type.
-		/// </summary>
-		public Recipient(string address, string displayName, MapiMailMessage.RecipientType recipientType) {
-			Address = address;
-			DisplayName = displayName;
 			RecipientType = recipientType;
 		}
 
@@ -499,40 +468,7 @@ namespace Greenshot.Helpers {
 			List.Add(value);
 		}
 
-		/// <summary>
-		/// Adds a new recipient with the specified address to this collection.
-		/// </summary>
-		public void Add(string address) {
-			Add(new Recipient(address));
-		}
-
-		/// <summary>
-		/// Adds a new recipient with the specified address and display name to this collection.
-		/// </summary>
-		public void Add(string address, string displayName) {
-			Add(new Recipient(address, displayName));
-		}
-
-		/// <summary>
-		/// Adds a new recipient with the specified address and recipient type to this collection.
-		/// </summary>
-		public void Add(string address, MapiMailMessage.RecipientType recipientType) {
-			Add(new Recipient(address, recipientType));
-		}
-
-		/// <summary>
-		/// Adds a new recipient with the specified address, display name and recipient type to this collection.
-		/// </summary>
-		public void Add(string address, string displayName, MapiMailMessage.RecipientType recipientType) {
-			Add(new Recipient(address, displayName, recipientType));
-		}
-
-		/// <summary>
-		/// Returns the recipient stored in this collection at the specified index.
-		/// </summary>
-		public Recipient this[int index] => (Recipient)List[index];
-
-		internal InteropRecipientCollection GetInteropRepresentation() {
+        internal InteropRecipientCollection GetInteropRepresentation() {
 			return new InteropRecipientCollection(this);
 		}
 

@@ -25,6 +25,7 @@ Source: {#ReleaseDir}\Dapplo.Http*.dll; DestDir: {app}; Components: greenshot; F
 Source: {#ReleaseDir}\Dapplo.Log.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\Fizzler.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -78,11 +79,6 @@ Source: ..\..\Languages\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {ap
 
 ;Office Plugin
 Source: {#BaseDir}\GreenshotOfficePlugin\{#BinDir}\GreenshotOfficePlugin.dll; DestDir: {app}\Plugins\GreenshotOfficePlugin; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-;OCR Plugin
-Source: {#BaseDir}\GreenshotOCRPlugin\{#BinDir}\GreenshotOCRPlugin.dll; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotOCRPlugin\Languages\language_ocr*.xml; DestDir: {app}\Languages\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\GreenshotOCRCommand\{#BinDir}\GreenshotOCRCommand.exe.config; DestDir: {app}\Plugins\GreenshotOCRPlugin; Components: plugins\ocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;JIRA Plugin
 Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\GreenshotJiraPlugin.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\GreenshotJiraPlugin\{#BinDir}\Dapplo.Jira*.dll; DestDir: {app}\Plugins\GreenshotJiraPlugin; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
@@ -260,7 +256,6 @@ en.flickr=Flickr plug-in
 en.imgur=Imgur plug-in (See: http://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
-en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.office=Microsoft Office plug-in
 en.optimize=Optimizing performance, this may take a while.
 en.photobucket=Photobucket plug-in
@@ -278,7 +273,6 @@ de.externalcommand=Externes Kommando Plug-in
 de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
 de.jira=Jira Plug-in
 de.language=Zusätzliche Sprachen
-de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
 de.office=Microsoft Office Plug-in
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
@@ -291,7 +285,6 @@ es.externalcommand=Extensión para abrir con programas externos
 es.imgur=Extensión para Imgur (Ver http://imgur.com)
 es.jira=Extensión para Jira
 es.language=Idiomas adicionales
-es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
@@ -303,7 +296,6 @@ fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
 fi.imgur=Imgur-liitännäinen (Katso: http://imgur.com)
 fi.jira=Jira-liitännäinen
 fi.language=Lisäkielet
-fi.ocr=OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))
 fi.office=Microsoft-Office-liitännäinen
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
@@ -316,7 +308,6 @@ fr.externalcommand=Ouvrir avec le greffon de commande externe
 fr.imgur=Greffon Imgur (Voir: http://imgur.com)
 fr.jira=Greffon Jira
 fr.language=Langues additionnelles
-fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.office=Greffon Microsoft Office
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
@@ -332,7 +323,6 @@ it.flickr=Plugin Flickr
 it.imgur=Plugin Imgur (vedi: http://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
-it.ocr=Plugin OCR (richiede Microsoft Office Document Imaging (MODI))
 it.office=Plugin Microsoft Office
 it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
 it.photobucket=Plugin Photobucket
@@ -386,7 +376,6 @@ lt.externalcommand=Pielāgotu darbību spraudnis
 lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
 lt.jira=Jira spraudnis
 lt.language=Papildus valodas
-lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
 lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
@@ -399,7 +388,6 @@ lt.externalcommand=Pielāgotu darbību spraudnis
 lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
 lt.jira=Jira spraudnis
 lt.language=Papildus valodas
-lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
 lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
@@ -412,7 +400,6 @@ nl.externalcommand=Openen met extern commando plug-in
 nl.imgur=Imgur plug-in (zie: http://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
-nl.ocr=OCR plug-in (vereist Microsoft Office Document Imaging (MODI))
 nl.office=Microsoft Office plug-in
 nl.optimize=Prestaties verbeteren, even geduld.
 nl.startgreenshot={#ExeName} starten
@@ -425,7 +412,6 @@ nn.externalcommand=Tillegg for å opne med ekstern kommando
 nn.imgur=Imgur-tillegg (sjå http://imgur.com)
 nn.jira=Jira-tillegg
 nn.language=Andre språk
-nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
 nn.office=Microsoft Office Tillegg
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
@@ -438,7 +424,6 @@ ru.externalcommand=Открыть с плагином с помощью внеш
 ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
 ru.jira=Плагин Jira
 ru.language=Дополнительные языки
-ru.ocr=Плагин OCR (требуется Microsoft Office Document Imaging (MODI))
 ru.office=Плагин Microsoft Office
 ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
 ru.startgreenshot=Запустить {#ExeName}
@@ -451,7 +436,6 @@ sr.externalcommand=Отвори са прикључком за спољне на
 sr.imgur=Прикључак за Имиџер (http://imgur.com)
 sr.jira=Прикључак за Џиру
 sr.language=Додатни језици
-sr.ocr=OCR прикључак (захтева Microsoft Office Document Imaging (MODI))
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
@@ -462,7 +446,6 @@ sv.externalcommand=Öppna med externt kommando-insticksprogram
 sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
 sv.jira=Jira-insticksprogram
 sv.language=Ytterligare språk
-sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
@@ -474,7 +457,6 @@ uk.externalcommand=Плагін запуску зовнішньої команд
 uk.imgur=Плагін Imgur (див.: http://imgur.com)
 uk.jira=Плагін Jira
 uk.language=Додаткові мови
-uk.ocr=Плагін OCR (потребує Microsoft Office Document Imaging (MODI))
 uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
@@ -486,7 +468,6 @@ cn.externalcommand=使用外部命令打开插件
 cn.imgur=Imgur插件( (请访问： http://imgur.com))
 cn.jira=Jira插件
 cn.language=其它语言
-cn.ocr=OCR插件(需要Microsoft Office Document Imaging (MODI)的支持)
 cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
@@ -508,7 +489,6 @@ Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: defau
 Name: "plugins\flickr"; Description: {cm:flickr}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\picasa"; Description: {cm:picasa}; Types: full custom; Flags: disablenouninstallwarning

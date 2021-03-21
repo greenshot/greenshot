@@ -40,9 +40,8 @@ namespace GreenshotPlugin.Core {
 		GET,
 		POST,
 		PUT,
-		DELETE,
-		HEAD
-	};
+		DELETE
+    };
 
 	/// <summary>
 	/// Description of NetworkHelper.
@@ -61,54 +60,21 @@ namespace GreenshotPlugin.Core {
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("An error has occured while allowing self-signed certificates:", ex);
+				Log.Warn("An error has occurred while allowing self-signed certificates:", ex);
 			}
 		}
 
-		/// <summary>
-		/// Download a uri response as string
-		/// </summary>
-		/// <param name="uri">An Uri to specify the download location</param>
-		/// <returns>string with the file content</returns>
-		public static string GetAsString(Uri uri) {
-			return GetResponseAsString(CreateWebRequest(uri));
-		}
 
-		/// <summary>
-		/// Download the FavIcon as a Bitmap
-		/// </summary>
-		/// <param name="baseUri"></param>
-		/// <returns>Bitmap with the FavIcon</returns>
-		public static Bitmap DownloadFavIcon(Uri baseUri) {
-			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
-			try {
-				HttpWebRequest request = CreateWebRequest(url);
-                using HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                if (request.HaveResponse)
-                {
-                    using Stream responseStream = response.GetResponseStream();
-                    if (responseStream != null)
-                    {
-                        using Image image = ImageHelper.FromStream(responseStream);
-                        return image.Height > 16 && image.Width > 16 ? new Bitmap(image, 16, 16) : new Bitmap(image);
-                    }
-                }
-            } catch (Exception e) {
-				Log.Error("Problem downloading the FavIcon from: " + baseUri, e);
-			}
-			return null;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Download the uri into a memory stream, without catching exceptions
 		/// </summary>
 		/// <param name="url">Of an image</param>
 		/// <returns>MemoryStream which is already seek-ed to 0</returns>
 		public static MemoryStream GetAsMemoryStream(string url) {
-			HttpWebRequest request = CreateWebRequest(url);
-            using HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            MemoryStream memoryStream = new MemoryStream();
-            using (Stream responseStream = response.GetResponseStream()) {
+			var request = CreateWebRequest(url);
+            using var response = (HttpWebResponse)request.GetResponse();
+            var memoryStream = new MemoryStream();
+            using (var responseStream = response.GetResponseStream()) {
                 responseStream?.CopyTo(memoryStream);
                 // Make sure it can be used directly
                 memoryStream.Seek(0, SeekOrigin.Begin);
@@ -123,7 +89,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap</returns>
 		public static Image DownloadImage(string url)
 		{
-			StringBuilder extensions = new StringBuilder();
+			var extensions = new StringBuilder();
 			foreach (var extension in ImageHelper.StreamConverters.Keys)
 			{
 				if (string.IsNullOrEmpty(extension))
@@ -147,7 +113,7 @@ namespace GreenshotPlugin.Core {
                 {
                     // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
                     string content;
-                    using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
+                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
                     {
                         content = streamReader.ReadLine();
                     }
@@ -198,7 +164,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="method">Method to use</param>
 		/// <returns>WebRequest</returns>
 		public static HttpWebRequest CreateWebRequest(Uri uri, HTTPMethod method) {
-			HttpWebRequest webRequest = CreateWebRequest(uri);
+			var webRequest = CreateWebRequest(uri);
 			webRequest.Method = method.ToString();
 			return webRequest;
 		}
@@ -209,7 +175,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="uri">Uri with uri to connect to</param>
 		/// <returns>WebRequest</returns>
 		public static HttpWebRequest CreateWebRequest(Uri uri) {
-			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
+			var webRequest = (HttpWebRequest)WebRequest.Create(uri);
 			webRequest.Proxy = Config.UseProxy ? CreateProxy(uri) : null;
 			// Make sure the default credentials are available
 			webRequest.Credentials = CredentialCache.DefaultCredentials;
@@ -231,28 +197,32 @@ namespace GreenshotPlugin.Core {
 		/// <returns>IWebProxy filled with all the proxy details or null if none is set/wanted</returns>
 		public static IWebProxy CreateProxy(Uri uri) {
 			IWebProxy proxyToUse = null;
-			if (Config.UseProxy) {
-				proxyToUse = WebRequest.DefaultWebProxy;
-				if (proxyToUse != null) {
-					proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-					if (Log.IsDebugEnabled) {
-						// check the proxy for the Uri
-						if (!proxyToUse.IsBypassed(uri)) {
-							Uri proxyUri = proxyToUse.GetProxy(uri);
-							if (proxyUri != null) {
-								Log.Debug("Using proxy: " + proxyUri + " for " + uri);
-							} else {
-								Log.Debug("No proxy found!");
-							}
-						} else {
-							Log.Debug("Proxy bypass for: " + uri);
-						}
-					}
-				} else {
-					Log.Debug("No proxy found!");
-				}
-			}
-			return proxyToUse;
+            if (!Config.UseProxy)
+            {
+                return proxyToUse;
+            }
+            proxyToUse = WebRequest.DefaultWebProxy;
+            if (proxyToUse != null) {
+                proxyToUse.Credentials = CredentialCache.DefaultCredentials;
+                if (!Log.IsDebugEnabled)
+                {
+                    return proxyToUse;
+                }
+                // check the proxy for the Uri
+                if (!proxyToUse.IsBypassed(uri)) {
+                    var proxyUri = proxyToUse.GetProxy(uri);
+                    if (proxyUri != null) {
+                        Log.Debug("Using proxy: " + proxyUri + " for " + uri);
+                    } else {
+                        Log.Debug("No proxy found!");
+                    }
+                } else {
+                    Log.Debug("Proxy bypass for: " + uri);
+                }
+            } else {
+                Log.Debug("No proxy found!");
+            }
+            return proxyToUse;
 		}
 
 		/// <summary>
@@ -263,7 +233,7 @@ namespace GreenshotPlugin.Core {
 		// [Obsolete("Use System.Uri.EscapeDataString instead")]
 		public static string UrlEncode(string text) {
 			if (!string.IsNullOrEmpty(text)) {
-				// Sytem.Uri provides reliable parsing, but doesn't encode spaces.
+				// System.Uri provides reliable parsing, but doesn't encode spaces.
 				return Uri.EscapeDataString(text).Replace("%20", "+");
 			}
 			return null;
@@ -277,7 +247,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>escaped data string</returns>
 		public static string EscapeDataString(string text) {
 			if (!string.IsNullOrEmpty(text)) {
-				StringBuilder result = new StringBuilder();
+				var result = new StringBuilder();
 				int currentLocation = 0;
 				while (currentLocation < text.Length) {
 					string process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
@@ -326,7 +296,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Generate the query paramters
+		/// Generate the query parameters
 		/// </summary>
 		/// <param name="queryParameters">the list of query parameters</param>
 		/// <returns>a string with the query parameters</returns>
@@ -337,7 +307,7 @@ namespace GreenshotPlugin.Core {
 
 			queryParameters = new SortedDictionary<string, object>(queryParameters);
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			foreach(string key in queryParameters.Keys) {
 				sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode($"{queryParameters[key]}"));
 			}
@@ -358,18 +328,8 @@ namespace GreenshotPlugin.Core {
             WriteMultipartFormData(formDataStream, boundary, postParameters);
         }
 
-		/// <summary>
-		/// Write Multipart Form Data to the HttpListenerResponse
-		/// </summary>
-		/// <param name="response">HttpListenerResponse</param>
-		/// <param name="postParameters">Parameters to include in the multipart form data</param>
-		public static void WriteMultipartFormData(HttpListenerResponse response, IDictionary<string, object> postParameters) {
-			string boundary = $"----------{Guid.NewGuid():N}";
-			response.ContentType = "multipart/form-data; boundary=" + boundary;
-			WriteMultipartFormData(response.OutputStream, boundary, postParameters);
-		}
 
-		/// <summary>
+        /// <summary>
 		/// Write Multipart Form Data to a Stream, content-type should be set before this!
 		/// </summary>
 		/// <param name="formDataStream">Stream to write the multipart form data to</param>
@@ -519,27 +479,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return responseData;
 		}
-
-		/// <summary>
-		/// Get LastModified for a URI
-		/// </summary>
-		/// <param name="uri">Uri</param>
-		/// <returns>DateTime</returns>
-		public static DateTime GetLastModified(Uri uri) {
-			try {
-				HttpWebRequest webRequest = CreateWebRequest(uri);
-				webRequest.Method = HTTPMethod.HEAD.ToString();
-                using HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                Log.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
-                return webResponse.LastModified;
-            } catch (Exception wE) {
-				Log.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
-				Log.Warn(wE.Message);
-				// Pretend it is old
-				return DateTime.MinValue;
-			}
-		}
-	}
+    }
 
 	/// <summary>
 	/// This interface can be used to pass binary information around, like byte[] or Image
@@ -555,158 +495,7 @@ namespace GreenshotPlugin.Core {
 		string Filename { get; set; }
 	}
 
-	/// <summary>
-	/// A container to supply files to a Multi-part form data upload
-	/// </summary>
-	public class ByteContainer : IBinaryContainer {
-		private readonly byte[] _file;
-		private readonly string _contentType;
-		private readonly int _fileSize;
-		public ByteContainer(byte[] file) : this(file, null) {
-		}
-		public ByteContainer(byte[] file, string filename) : this(file, filename, null) {
-		}
-		public ByteContainer(byte[] file, string filename, string contenttype) : this(file, filename, contenttype, 0) {
-		}
-		public ByteContainer(byte[] file, string filename, string contenttype, int filesize) {
-			_file = file;
-			Filename = filename;
-			_contentType = contenttype;
-			_fileSize = filesize == 0 ? file.Length : filesize;
-		}
-
-		/// <summary>
-		/// Create a Base64String from the byte[]
-		/// </summary>
-		/// <returns>string</returns>
-		public string ToBase64String(Base64FormattingOptions formattingOptions) {
-			return Convert.ToBase64String(_file, 0, _fileSize, formattingOptions);
-		}
-
-		/// <summary>
-		/// Returns the initial byte-array which was supplied when creating the FileParameter
-		/// </summary>
-		/// <returns>byte[]</returns>
-		public byte[] ToByteArray() {
-			return _file;
-		}
-
-		/// <summary>
-		/// Write Multipart Form Data directly to the HttpWebRequest response stream
-		/// </summary>
-		/// <param name="boundary">Separator</param>
-		/// <param name="name">name</param>
-		/// <param name="formDataStream">Stream to write to</param>
-		public void WriteFormDataToStream(string boundary, string name, Stream formDataStream) {
-			// Add just the first part of this param, since we will write the file data directly to the Stream
-			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {_contentType ?? "application/octet-stream"}\r\n\r\n";
-
-			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-
-			// Write the file data directly to the Stream, rather than serializing it to a string.
-			formDataStream.Write(_file, 0, _fileSize);
-		}
-
-		/// <summary>
-		/// A plain "write data to stream"
-		/// </summary>
-		/// <param name="dataStream">Stream to write to</param>
-		public void WriteToStream(Stream dataStream) {
-			// Write the file data directly to the Stream, rather than serializing it to a string.
-			dataStream.Write(_file, 0, _fileSize);
-		}
-
-		/// <summary>
-		/// Upload the file to the webrequest
-		/// </summary>
-		/// <param name="webRequest"></param>
-		public void Upload(HttpWebRequest webRequest) {
-			webRequest.ContentType = _contentType;
-			webRequest.ContentLength = _fileSize;
-            using var requestStream = webRequest.GetRequestStream();
-            WriteToStream(requestStream);
-        }
-
-		public string ContentType => _contentType;
-		public string Filename { get; set; }
-	}
-
-	/// <summary>
-	/// A container to supply images to a Multi-part form data upload
-	/// </summary>
-	public class BitmapContainer : IBinaryContainer {
-		private readonly Bitmap _bitmap;
-		private readonly SurfaceOutputSettings _outputSettings;
-
-		public BitmapContainer(Bitmap bitmap, SurfaceOutputSettings outputSettings, string filename) {
-			_bitmap = bitmap;
-			_outputSettings = outputSettings;
-			Filename = filename;
-		}
-
-		/// <summary>
-		/// Create a Base64String from the image by saving it to a memory stream and converting it.
-		/// Should be avoided if possible, as this uses a lot of memory.
-		/// </summary>
-		/// <returns>string</returns>
-		public string ToBase64String(Base64FormattingOptions formattingOptions)
-        {
-            using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
-            return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
-        }
-
-		/// <summary>
-		/// Create a byte[] from the image by saving it to a memory stream.
-		/// Should be avoided if possible, as this uses a lot of memory.
-		/// </summary>
-		/// <returns>byte[]</returns>
-		public byte[] ToByteArray()
-        {
-            using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_bitmap, null, stream, _outputSettings);
-            return stream.ToArray();
-        }
-
-		/// <summary>
-		/// Write Multipart Form Data directly to the HttpWebRequest response stream
-		/// </summary>
-		/// <param name="boundary">Separator</param>
-		/// <param name="name">Name of the thing/file</param>
-		/// <param name="formDataStream">Stream to write to</param>
-		public void WriteFormDataToStream(string boundary, string name, Stream formDataStream) {
-			// Add just the first part of this param, since we will write the file data directly to the Stream
-			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
-
-			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-			ImageOutput.SaveToStream(_bitmap, null, formDataStream, _outputSettings);
-		}
-
-		/// <summary>
-		/// A plain "write data to stream"
-		/// </summary>
-		/// <param name="dataStream"></param>
-		public void WriteToStream(Stream dataStream) {
-			// Write the file data directly to the Stream, rather than serializing it to a string.
-			ImageOutput.SaveToStream(_bitmap, null, dataStream, _outputSettings);
-		}
-
-		/// <summary>
-		/// Upload the image to the webrequest
-		/// </summary>
-		/// <param name="webRequest"></param>
-		public void Upload(HttpWebRequest webRequest) {
-			webRequest.ContentType = "image/" + _outputSettings.Format;
-            using var requestStream = webRequest.GetRequestStream();
-            WriteToStream(requestStream);
-        }
-
-		public string ContentType => "image/" + _outputSettings.Format;
-
-		public string Filename { get; set; }
-	}
-
-	/// <summary>
+    /// <summary>
 	/// A container to supply surfaces to a Multi-part form data upload
 	/// </summary>
 	public class SurfaceContainer : IBinaryContainer {

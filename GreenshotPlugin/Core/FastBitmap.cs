@@ -355,16 +355,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Factory for creating a FastBitmap as a destination for the source
-		/// </summary>
-		/// <param name="source">Bitmap to clone</param>
-		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap CreateCloneOf(Image source) {
-			return CreateCloneOf(source, source.PixelFormat, Rectangle.Empty);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Factory for creating a FastBitmap as a destination for the source
 		/// </summary>
 		/// <param name="source">Bitmap to clone</param>

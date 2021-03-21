@@ -33,8 +33,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Desktop Window Manager helper code
 	/// </summary>
 	public static class DWM {
-		public static readonly uint DWM_EC_DISABLECOMPOSITION = 0;
-		public static readonly uint DWM_EC_ENABLECOMPOSITION = 1;
 
 		// DWM
 		[DllImport("dwmapi", SetLastError = true)]
@@ -53,19 +51,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT lpRect, int size);
         [DllImport("dwmapi", SetLastError = true)]
         public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
-		[DllImport("dwmapi", SetLastError = true)] 
-		public static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref DWM_BLURBEHIND blurBehind);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern uint DwmEnableComposition(uint uCompositionAction);
 
-		public static void EnableComposition() {
-			DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
-		}
-		public static void DisableComposition() {
-			DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
-		}
-
-		// Key to ColorizationColor for DWM
+        // Key to ColorizationColor for DWM
 		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
 
 		/// <summary>
