@@ -359,16 +359,6 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
-        /// Retrieve children with a certain title or classname
-        /// </summary>
-        /// <param name="titlePattern">The regexp to look for in the title</param>
-        /// <param name="classnamePattern">The regexp to look for in the classname</param>
-        /// <returns>List WindowDetails with all the found windows, or an empty list</returns>
-        public IEnumerable<WindowDetails> FindChildren(string titlePattern, string classnamePattern) {
-            return FindWindow(Children, titlePattern, classnamePattern);
-        }
-
-        /// <summary>
         /// Gets the window's handle
         /// </summary>
         public IntPtr Handle { get; }

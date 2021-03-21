@@ -27,7 +27,5 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     public enum RegionResult {
         REGION_ERROR = 0,
         REGION_NULLREGION = 1,
-        REGION_SIMPLEREGION = 2,
-        REGION_COMPLEXREGION = 3
     }
 }

@@ -60,27 +60,7 @@ namespace Greenshot.Helpers {
 			ieAccessible.ActivateIETab(tabIndex);
 		}
 
-		/// <summary>
-		/// Return true if the supplied window has a sub-window which covers more than the supplied percentage
-		/// </summary>
-		/// <param name="someWindow">WindowDetails to check</param>
-		/// <param name="minimumPercentage">min percentage</param>
-		/// <returns></returns>
-		public static bool IsMostlyIeWindow(WindowDetails someWindow, int minimumPercentage) {
-			WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
-			if (ieWindow == null) return false;
-			
-			Rectangle wholeClient = someWindow.ClientRectangle;
-			Rectangle partClient = ieWindow.ClientRectangle;
-			int percentage = (int)(100*(float)(partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
-			Log.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
-			if (percentage > minimumPercentage) {
-				return true;
-			}
-			return false;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Does the supplied window have a IE part?
 		/// </summary>
 		/// <param name="someWindow"></param>

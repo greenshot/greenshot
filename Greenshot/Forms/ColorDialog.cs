@@ -59,8 +59,6 @@ namespace Greenshot.Forms {
 			set { PreviewColor(value, this); }
 		}
 
-        public IList<Color> RecentColors => EditorConfig.RecentColors;
-
         private void CreateColorPalette(int x, int y, int w, int h) {
 			CreateColorButtonColumn(255, 0, 0, x, y, w, h, 11);
 			x += w;

@@ -47,12 +47,7 @@ namespace GreenshotPhotobucketPlugin {
 		[IniProperty("Username", Description = "The Photobucket api username", ExcludeIfNull = true)]
 		public string Username { get; set; }
 
-		public int Credits {
-			get;
-			set;
-		}
-
-			/// <summary>
+        /// <summary>
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>

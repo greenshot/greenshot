@@ -20,7 +20,6 @@
  */
 
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace GreenshotPlugin.Interfaces.Forms {
 	/// <summary>
@@ -34,20 +33,8 @@ namespace GreenshotPlugin.Interfaces.Forms {
 		/// </summary>
 		/// <returns>Bitmap</returns>
 		Image GetImageForExport();
-		
-		/// <summary>
-		/// Get the ToolStripMenuItem where plugins can place their Menu entrys
-		/// </summary>
-		/// <returns>ToolStripMenuItem</returns>
-		ToolStripMenuItem GetPluginMenuItem();
 
-		/// <summary>
-		/// Get the File ToolStripMenuItem
-		/// </summary>
-		/// <returns>ToolStripMenuItem</returns>
-		ToolStripMenuItem GetFileMenuItem();
-		
-		/// <summary>
+        /// <summary>
 		/// Make the ICaptureDetails from the current Surface in the EditorForm available.
 		/// </summary>
 		ICaptureDetails CaptureDetails {

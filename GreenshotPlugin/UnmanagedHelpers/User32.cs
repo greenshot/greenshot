@@ -72,11 +72,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
 
-        [DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCommand uCmd);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
 
         [DllImport("user32", SetLastError = true)]
@@ -191,18 +187,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool CloseDesktop(IntPtr hDesktop);
 
-		/// <summary>
-		/// The GetWindowDC function retrieves the device context (DC) for the entire window, including title bar, menus, and scroll bars. A window device context permits painting anywhere in a window, because the origin of the device context is the upper-left corner of the window instead of the client area.
-		/// GetWindowDC assigns default attributes to the window device context each time it retrieves the device context.Previous attributes are lost.
-		/// See <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowdc">GetWindowDC function</a>
-		/// </summary>
-		/// <param name="hWnd">A handle to the window whose DC is to be retrieved. If this value is NULL, GetWindowDC retrieves the DC for the entire screen.</param>
-		/// <returns>If the function succeeds, the return value is a handle to a device context for the specified window.</returns>
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindowDC(IntPtr hWnd);
-
-
-		/// <summary>
+        /// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
 		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup

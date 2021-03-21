@@ -512,14 +512,6 @@ namespace Greenshot.Forms {
 
 		public ICaptureDetails CaptureDetails => _surface.CaptureDetails;
 
-		public ToolStripMenuItem GetPluginMenuItem() {
-			return pluginToolStripMenuItem;
-		}
-
-		public ToolStripMenuItem GetFileMenuItem() {
-			return fileStripMenuItem;
-		}
-
         private void BtnSaveClick(object sender, EventArgs e) {
 			string destinationDesignation = FileDestination.DESIGNATION;
 			if (_surface.LastSaveFullPath == null) {

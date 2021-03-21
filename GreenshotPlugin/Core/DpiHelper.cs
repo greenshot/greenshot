@@ -21,7 +21,6 @@
 
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.UnmanagedHelpers;
-using log4net;
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -36,8 +35,6 @@ namespace GreenshotPlugin.Core
     /// </summary>
     public static class DpiHelper
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(DpiHelper));
-
         /// <summary>
         ///     This is the default DPI for the screen
         /// </summary>

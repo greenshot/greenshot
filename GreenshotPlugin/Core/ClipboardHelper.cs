@@ -564,15 +564,7 @@ EndSelection:<<<<<<<4
 			return null;
 		}
 
-		/// <summary>
-		/// Wrapper for Clipboard.GetText created for Bug #3432313
-		/// </summary>
-		/// <returns>string if there is text on the clipboard</returns>
-		public static string GetText() {
-			return GetText(GetDataObject());
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Get Text from the DataObject
 		/// </summary>
 		/// <returns>string if there is text on the clipboard</returns>

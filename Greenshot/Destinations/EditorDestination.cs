@@ -40,10 +40,7 @@ namespace Greenshot.Destinations {
 		private readonly IImageEditor editor;
 		private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
-		public EditorDestination() {
-		}
-		
-		public EditorDestination(IImageEditor editor) {
+        public EditorDestination(IImageEditor editor) {
 			this.editor = editor;
 		}
 
