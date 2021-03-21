@@ -28,8 +28,6 @@ namespace Greenshot.Controls {
 	/// See: http://blogs.msdn.com/b/rickbrew/archive/2006/01/09/511003.aspx
 	/// </summary>
 	public class MenuStripEx : MenuStrip {
-		private const int WM_MOUSEACTIVATE = 0x21;
-
 		private enum NativeConstants : uint {
 			MA_ACTIVATE = 1,
 			MA_ACTIVATEANDEAT = 2,

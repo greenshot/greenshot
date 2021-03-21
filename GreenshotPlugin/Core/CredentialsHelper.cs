@@ -242,68 +242,14 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>Shows the credentials dialog.</summary>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show() {
-			return Show(null, Name, Password, SaveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified save checkbox status.</summary>
-		/// <param name="saveChecked">True if the save checkbox is checked.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(bool saveChecked) {
-			return Show(null, Name, Password, saveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified name.</summary>
+        /// <summary>Shows the credentials dialog with the specified name.</summary>
 		/// <param name="name">The name for the credentials.</param>
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(string name) {
 			return Show(null, name, Password, SaveChecked);
 		}
 
-		/// <summary>Shows the credentials dialog with the specified name and password.</summary>
-		/// <param name="name">The name for the credentials.</param>
-		/// <param name="password">The password for the credentials.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(string name, string password) {
-			return Show(null, name, password, SaveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified name, password and save checkbox status.</summary>
-		/// <param name="name">The name for the credentials.</param>
-		/// <param name="password">The password for the credentials.</param>
-		/// <param name="saveChecked">True if the save checkbox is checked.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(string name, string password, bool saveChecked) {
-			return Show(null, name, password, saveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified owner.</summary>
-		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(IWin32Window owner) {
-			return Show(owner, Name, Password, SaveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified owner and save checkbox status.</summary>
-		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		/// <param name="saveChecked">True if the save checkbox is checked.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(IWin32Window owner, bool saveChecked) {
-			return Show(owner, Name, Password, saveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified owner, name and password.</summary>
-		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		/// <param name="name">The name for the credentials.</param>
-		/// <param name="password">The password for the credentials.</param>
-		/// <returns>Returns a DialogResult indicating the user action.</returns>
-		public DialogResult Show(IWin32Window owner, string name, string password) {
-			return Show(owner, name, password, SaveChecked);
-		}
-
-		/// <summary>Shows the credentials dialog with the specified owner, name, password and save checkbox status.</summary>
+        /// <summary>Shows the credentials dialog with the specified owner, name, password and save checkbox status.</summary>
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
 		/// <param name="name">The name for the credentials.</param>
 		/// <param name="password">The password for the credentials.</param>
@@ -450,7 +396,6 @@ namespace GreenshotPlugin.Core {
 		public const int MAX_MESSAGE_LENGTH		= 100;
 		public const int MAX_CAPTION_LENGTH		= 100;
 		public const int MAX_GENERIC_TARGET_LENGTH = 100;
-		public const int MAX_DOMAIN_TARGET_LENGTH  = 100;
 		public const int MAX_USERNAME_LENGTH	  = 100;
 		public const int MAX_PASSWORD_LENGTH	  = 100;
 
@@ -463,20 +408,12 @@ namespace GreenshotPlugin.Core {
 		public enum CredFlags {
 			INCORRECT_PASSWORD		  = 0x1,
 			DO_NOT_PERSIST			  = 0x2,
-			REQUEST_ADMINISTRATOR	  = 0x4,
 			EXCLUDE_CERTIFICATES		= 0x8,
-			REQUIRE_CERTIFICATE		= 0x10,
 			SHOW_SAVE_CHECK_BOX		= 0x40,
 			ALWAYS_SHOW_UI			  = 0x80,
-			REQUIRE_SMARTCARD		  = 0x100,
-			PASSWORD_ONLY_OK			= 0x200,
-			VALIDATE_USERNAME		  = 0x400,
-			COMPLETE_USERNAME		  = 0x800,
 			PERSIST					= 0x1000,
-			SERVER_CREDENTIAL		  = 0x4000,
 			EXPECT_CONFIRMATION		= 0x20000,
 			GENERIC_CREDENTIALS		= 0x40000,
-			USERNAME_TARGET_CREDENTIALS = 0x80000,
 			KEEP_USERNAME			  = 0x100000,
 		}
 

@@ -73,12 +73,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private readonly Fraction[] ZOOM_VALUES = new Fraction[] { (1, 4), (1, 2), (2, 3), (3, 4), (1 ,1), (2, 1), (3, 1), (4, 1), (6, 1) };
 
-		/// <summary>
-		/// An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
-		/// </summary>
-		public IWin32Window WindowHandle => this;
-
-		public static List<IImageEditor> Editors {
+        public static List<IImageEditor> Editors {
 			get {
 				try {
 					EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));

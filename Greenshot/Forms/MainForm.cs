@@ -486,12 +486,7 @@ namespace Greenshot.Forms {
 			}
 		}
 
-		/// <summary>
-		/// Main context menu
-		/// </summary>
-		public ContextMenuStrip MainMenu => contextMenu;
-
-		protected override void WndProc(ref Message m) {
+        protected override void WndProc(ref Message m) {
 			if (HotkeyControl.HandleMessages(ref m)) {
 				return;
 			}

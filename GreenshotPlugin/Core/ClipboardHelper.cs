@@ -34,7 +34,9 @@ using System.Runtime.InteropServices;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Interop;
 using log4net;
+using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -45,7 +47,8 @@ namespace GreenshotPlugin.Core {
 		private static readonly object ClipboardLockObject = new object();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
-		private static readonly string FORMAT_PNG = "PNG";
+        private static readonly string FORMAT_HTML = "text/html";
+        private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
 		private static readonly string FORMAT_17 = "Format17";
 		private static readonly string FORMAT_JPG = "JPG";
@@ -207,17 +210,8 @@ EndSelection:<<<<<<<4
 			}
 			return null;
 		}
-		
-		/// <summary>
-		/// Wrapper for Clipboard.ContainsText, Created for Bug #3432313
-		/// </summary>
-		/// <returns>boolean if there is text on the clipboard</returns>
-		public static bool ContainsText() {
-			IDataObject clipboardData = GetDataObject();
-			return ContainsText(clipboardData);
-		}
 
-		/// <summary>
+        /// <summary>
 		/// Test if the IDataObject contains Text
 		/// </summary>
 		/// <param name="dataObject"></param>
@@ -246,40 +240,123 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObject"></param>
 		/// <returns>true if an image is there</returns>
 		public static bool ContainsImage(IDataObject dataObject) {
-			if (dataObject != null) {
-				if (dataObject.GetDataPresent(DataFormats.Bitmap)
-					|| dataObject.GetDataPresent(DataFormats.Dib)
-					|| dataObject.GetDataPresent(DataFormats.Tiff)
-					|| dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
-					|| dataObject.GetDataPresent(FORMAT_PNG)
-					|| dataObject.GetDataPresent(FORMAT_17)
-					|| dataObject.GetDataPresent(FORMAT_JPG)
-                    || dataObject.GetDataPresent(FORMAT_JFIF)
-                    || dataObject.GetDataPresent(FORMAT_JPEG)
-                    || dataObject.GetDataPresent(FORMAT_GIF)) {
-					return true;
-				}
-				var imageFiles = GetImageFilenames(dataObject);
-				if (imageFiles.Any()) {
-					return true;
-				}
-				if (dataObject.GetDataPresent(FORMAT_FILECONTENTS)) {
-					try {
-						MemoryStream imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
-						if (IsValidStream(imageStream)) {
-							using (ImageHelper.FromStream(imageStream))
-							{
-								// If we get here, there is an image
-								return true;
-							}
-						}
-					} catch (Exception) {
-						// Ignore
-					}
-				}
-			}
-			return false;
+            if (dataObject == null) return false;
+
+            if (dataObject.GetDataPresent(DataFormats.Bitmap)
+                || dataObject.GetDataPresent(DataFormats.Dib)
+                || dataObject.GetDataPresent(DataFormats.Tiff)
+                || dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
+                || dataObject.GetDataPresent(FORMAT_PNG)
+                || dataObject.GetDataPresent(FORMAT_17)
+                || dataObject.GetDataPresent(FORMAT_JPG)
+                || dataObject.GetDataPresent(FORMAT_JFIF)
+                || dataObject.GetDataPresent(FORMAT_JPEG)
+                || dataObject.GetDataPresent(FORMAT_GIF)) {
+                return true;
+            }
+
+            var imageFiles = GetImageFilenames(dataObject);
+            if (imageFiles.Any()) {
+                return true;
+            }
+
+            var fileDescriptor = (MemoryStream)dataObject.GetData("FileGroupDescriptorW");
+            var files = FileDescriptorReader.Read(fileDescriptor);
+            var fileIndex = 0;
+            foreach (var fileContentFile in files)
+            {
+                if ((fileContentFile.FileAttributes & FileAttributes.Directory) != 0)
+                {
+                    //Do something with directories?
+                    //Note that directories do not have FileContents
+                    //And will throw if we try to read them
+                    continue;
+                }
+
+                var fileData = FileDescriptorReader.GetFileContents(dataObject, fileIndex);
+                try
+                {
+                    //Do something with the fileContent Stream
+                    if (IsValidStream(fileData))
+                    {
+                        fileData.Position = 0;
+                        using (ImageHelper.FromStream(fileData))
+                        {
+                            // If we get here, there is an image
+                            return true;
+                        }
+                    }
+                }
+                finally
+                {
+                    fileData?.Dispose();
+                }
+                fileIndex++;
+            }
+
+            if (dataObject.GetDataPresent(FORMAT_FILECONTENTS))
+            {
+                try
+                {
+                    var clipboardContent = dataObject.GetData(FORMAT_FILECONTENTS, true);
+                    var imageStream = clipboardContent as MemoryStream;
+                    if (IsValidStream(imageStream))
+                    {
+                        using (ImageHelper.FromStream(imageStream))
+                        {
+                            // If we get here, there is an image
+                            return true;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignore
+                }
+            }
+
+            // Try to get the image from the HTML code
+            var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+            if (textObject != null)
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(textObject);
+                var imgNodes = doc.DocumentNode.SelectNodes("//img");
+                if (imgNodes != null)
+                {
+                    foreach (var imgNode in imgNodes)
+                    {
+                        var srcAttribute = imgNode.Attributes["src"];
+                        var imageUrl = srcAttribute.Value;
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
 		}
+
+        /// <summary>
+        /// Get the specified IDataObject format as a string
+        /// </summary>
+        /// <param name="dataObject">IDataObject</param>
+        /// <param name="format">string</param>
+        /// <param name="encoding">Encoding</param>
+        /// <returns>sting</returns>
+        private static string ContentAsString(IDataObject dataObject, string format, Encoding encoding = null)
+        {
+            encoding ??= Encoding.Unicode;
+            var objectAsFormat = dataObject.GetData(format);
+            return objectAsFormat switch
+            {
+                null => null,
+                string text => text,
+                MemoryStream ms => encoding.GetString(ms.ToArray()),
+                _ => null
+            };
+        }
 
 		/// <summary>
 		/// Simple helper to check the stream
@@ -348,9 +425,9 @@ EndSelection:<<<<<<<4
 				if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib)) {
 					// Outlook ??
 					Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
-					retrieveFormats = new[] { DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
+					retrieveFormats = new[] { DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF, FORMAT_HTML };
 				} else {
-					retrieveFormats = new[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF };
+					retrieveFormats = new[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF, FORMAT_HTML };
 				}
 				foreach (string currentFormat in retrieveFormats) {
 					if (formats != null && formats.Contains(currentFormat)) {
@@ -376,8 +453,32 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObject">IDataObject</param>
 		/// <returns>Image or null</returns>
 		private static Image GetImageForFormat(string format, IDataObject dataObject) {
+            if (format == FORMAT_HTML)
+            {
+                var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+                if (textObject != null)
+                {
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(textObject);
+                    var imgNodes = doc.DocumentNode.SelectNodes("//img");
+                    if (imgNodes != null)
+                    {
+                        foreach (var imgNode in imgNodes)
+                        {
+                            var srcAttribute = imgNode.Attributes["src"];
+                            var imageUrl = srcAttribute.Value;
+                            Log.Debug(imageUrl);
+                            var image = NetworkHelper.DownloadImage(imageUrl);
+                            if (image != null)
+                            {
+                                return image;
+                            }
+                        }
+                    }
+                }
+            }
 			object clipboardObject = GetFromDataObject(dataObject, format);
-			MemoryStream imageStream = clipboardObject as MemoryStream;
+            var imageStream = clipboardObject as MemoryStream;
 			if (!IsValidStream(imageStream)) {
 				// TODO: add "HTML Format" support here...
 				return clipboardObject as Image;
@@ -390,14 +491,14 @@ EndSelection:<<<<<<<4
 						{
 							byte[] dibBuffer = new byte[imageStream.Length];
 							imageStream.Read(dibBuffer, 0, dibBuffer.Length);
-							BITMAPINFOHEADER infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
+							var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
 							if (!infoHeader.IsDibV5) {
 								Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
 								int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
 								uint infoHeaderSize = infoHeader.biSize;
 								int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-								BITMAPFILEHEADER fileHeader = new BITMAPFILEHEADER
+								var fileHeader = new BITMAPFILEHEADER
 								{
 									bfType = BITMAPFILEHEADER.BM,
 									bfSize = fileSize,
@@ -408,7 +509,7 @@ EndSelection:<<<<<<<4
 
 								byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
-                                using MemoryStream bitmapStream = new MemoryStream();
+                                using var bitmapStream = new MemoryStream();
                                 bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
                                 bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
                                 bitmapStream.Seek(0, SeekOrigin.Begin);
@@ -459,6 +560,7 @@ EndSelection:<<<<<<<4
 			} catch (Exception streamImageEx) {
 				Log.Error($"Problem retrieving {format} from clipboard.", streamImageEx);
 			}
+
 			return null;
 		}
 
@@ -706,16 +808,8 @@ EndSelection:<<<<<<<4
 			// Use false to make the object disappear when the application stops.
 			SetDataObject(dataObj, true);
 		}
-		
-		/// <summary>
-		/// Retrieve a list of all formats currently on the clipboard
-		/// </summary>
-		/// <returns>List of strings with the current formats</returns>
-		public static List<string> GetFormats() {
-			return GetFormats(GetDataObject());
-		}
 
-		/// <summary>
+        /// <summary>
 		/// Retrieve a list of all formats currently in the IDataObject
 		/// </summary>
 		/// <returns>List of string with the current formats</returns>
@@ -732,16 +826,7 @@ EndSelection:<<<<<<<4
 			return new List<string>();
 		}
 
-		/// <summary>
-		/// Check if there is currently something in the dataObject which has the supplied format
-		/// </summary>
-		/// <param name="format">string with format</param>
-		/// <returns>true if one the format is found</returns>
-		public static bool ContainsFormat(string format) {
-			return ContainsFormat(GetDataObject(), new[]{format});
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Check if there is currently something on the clipboard which has the supplied format
 		/// </summary>
 		/// <param name="dataObject">IDataObject</param>
@@ -781,17 +866,7 @@ EndSelection:<<<<<<<4
 			return formatFound;
 		}
 
-		/// <summary>
-		/// Get Object of type Type from the clipboard
-		/// </summary>
-		/// <param name="type">Type to get</param>
-		/// <returns>object from clipboard</returns>
-		public static object GetClipboardData(Type type) {
-			string format = type.FullName;
-			return GetClipboardData(format);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Get Object for format from IDataObject
 		/// </summary>
 		/// <param name="dataObj">IDataObject</param>
@@ -837,14 +912,5 @@ EndSelection:<<<<<<<4
 			}
 			return null;
 		}
-
-		/// <summary>
-		/// Get Object for format from the clipboard
-		/// </summary>
-		/// <param name="format">format to get</param>
-		/// <returns>object from clipboard</returns>
-		public static object GetClipboardData(string format) {
-			return GetFromDataObject(GetDataObject(), format);
-		}
-	}
+    }
 }

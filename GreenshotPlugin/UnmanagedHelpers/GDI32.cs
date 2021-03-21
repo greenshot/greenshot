@@ -218,11 +218,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return true;
 		}
 
-		public SafeSelectObjectHandle SelectObject(SafeHandle newHandle) {
-			return new SafeSelectObjectHandle(this, newHandle);
-		}
-
-		public static SafeDeviceContextHandle FromGraphics(Graphics graphics) {
+        public static SafeDeviceContextHandle FromGraphics(Graphics graphics) {
 			return new SafeDeviceContextHandle(graphics, graphics.GetHdc());
 		}
 	}
@@ -233,13 +229,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	public static class GDI32 {
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern bool BitBlt(SafeHandle hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, SafeHandle hdcSrc, int nXSrc, int nYSrc, CopyPixelOperation dwRop);
-		[DllImport("gdi32", SetLastError=true)]
-		private static extern bool StretchBlt(SafeHandle hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, SafeHandle hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, CopyPixelOperation dwRop);
-		[DllImport("gdi32", SetLastError=true)]
+
+        [DllImport("gdi32", SetLastError=true)]
 		public static extern SafeCompatibleDCHandle CreateCompatibleDC(SafeHandle hDC);
-		[DllImport("gdi32", SetLastError=true)]
-		public static extern IntPtr SelectObject(SafeHandle hDC, SafeHandle hObject);
-		[DllImport("gdi32", SetLastError=true)]
+
+        [DllImport("gdi32", SetLastError=true)]
 		public static extern SafeDibSectionHandle CreateDIBSection(SafeHandle hdc, ref BITMAPINFOHEADER bmi, uint Usage, out IntPtr bits, IntPtr hSection, uint dwOffset); 
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern SafeRegionHandle CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
@@ -400,27 +394,5 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				return biSize;
 			}
 		}
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct BITMAPINFO {
-		/// <summary>
-		/// A BITMAPINFOHEADER structure that contains information about the dimensions of color format.
-		/// </summary>
-		public BITMAPINFOHEADER bmiHeader;
-
-		/// <summary>
-		/// An array of RGBQUAD. The elements of the array that make up the color table.
-		/// </summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
-		public RGBQUAD[] bmiColors;
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct RGBQUAD {
-		public byte rgbBlue;
-		public byte rgbGreen;
-		public byte rgbRed;
-		public byte rgbReserved;
 	}
 }

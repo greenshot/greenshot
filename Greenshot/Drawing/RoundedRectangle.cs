@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace Greenshot.Drawing {
@@ -111,25 +110,13 @@ namespace Greenshot.Drawing {
 			p.CloseFigure();
 			return p;
 	    }
-	
-		public static GraphicsPath Create(Rectangle rect, int radius, RectangleCorners corners) { 
-			return Create(rect.X, rect.Y, rect.Width, rect.Height, radius, corners);
-		}
-	
-		public static GraphicsPath Create(int x, int y, int width, int height, int radius) {
+
+        public static GraphicsPath Create(int x, int y, int width, int height, int radius) {
 			return Create(x, y, width, height, radius, RectangleCorners.All);
 		}
-		
-		public static GraphicsPath Create(Rectangle rect, int radius) { 
-			return Create(rect.X, rect.Y, rect.Width, rect.Height, radius);
-		}
-		
-		public static GraphicsPath Create(int x, int y, int width, int height) {
+
+        public static GraphicsPath Create(int x, int y, int width, int height) {
 			return Create(x, y, width, height, 5);
 		}
-		
-		public static GraphicsPath Create(Rectangle rect) {
-			return Create(rect.X, rect.Y, rect.Width, rect.Height);
-		}
-	}
+    }
 }

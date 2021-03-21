@@ -101,34 +101,8 @@ namespace Greenshot.Helpers {
 			}
 			return newRect;
 		}
-		
-		/// <summary>
-		/// calculates the Rectangle an element must be resized an positioned to, in ordder to fit another element, keeping aspect ratio
-		/// </summary>
-		/// <param name="currentRect">the rectangle of the element to be resized/repositioned</param>
-		/// <param name="targetRect">the target size/position of the element</param>
-		/// <param name="crop">in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)</param>
-		/// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
-		/// <returns>a new RectangleF object indicating the width and height the element should be scaled to and the position that should be applied to it for proper alignment</returns>
-		public static RectangleF GetScaledRectangle(RectangleF currentRect, RectangleF targetRect, bool crop, ContentAlignment alignment) {
-			SizeF newSize = GetScaledSize(currentRect.Size, targetRect.Size, crop);
-			RectangleF newRect = new RectangleF(new Point(0,0), newSize);
-			return GetAlignedRectangle(newRect, targetRect, alignment);
-		}
-		
-		public static void RationalScale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords) {
-			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, ScaleOptions.Rational);
-		}
-		
-		public static void CenteredScale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords) {
-			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, ScaleOptions.Centered);
-		}
-		
-		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords) {
-			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, null);
-		}
-		
-		/// <summary>
+
+        /// <summary>
 		/// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
 		/// </summary>
 		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
@@ -139,7 +113,7 @@ namespace Greenshot.Helpers {
 			options ??= GetScaleOptions();
 			
 			if ((options & ScaleOptions.Rational) == ScaleOptions.Rational) {
-				adjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
+				AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
 			}
 
 			if ((options & ScaleOptions.Centered) == ScaleOptions.Centered) {
@@ -147,15 +121,15 @@ namespace Greenshot.Helpers {
 				float rectCenterX = originalRectangle.Left + originalRectangle.Width / 2;
 				float rectCenterY = originalRectangle.Top + originalRectangle.Height / 2;
 				// scale rectangle using handle coordinates
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 				// mirror handle coordinates via rectangle center coordinates
 				resizeHandleCoords.X -= 2 * (resizeHandleCoords.X - rectCenterX);
 				resizeHandleCoords.Y -= 2 * (resizeHandleCoords.Y - rectCenterY);
 				// scale again with opposing handle and mirrored coordinates
 				resizeHandlePosition = (Positions)((((int)resizeHandlePosition) + 4) % 8);
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 			} else {
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 			}
 			
 		}
@@ -166,7 +140,7 @@ namespace Greenshot.Helpers {
 		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
 		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
-		private static void scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords) {
+		private static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords) {
 			switch(resizeHandlePosition) {
 					
 				case Positions.TopLeft:
@@ -223,7 +197,7 @@ namespace Greenshot.Helpers {
 		/// <param name="originalRectangle">bounds of the current rectangle</param>
 		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see Position</param>
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper, adjusted coordinates will be written to this reference</param>
-		private static void adjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords) {
+		private static void AdjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords) {
 			float originalRatio = originalRectangle.Width / originalRectangle.Height;
 			float newWidth, newHeight, newRatio;
 			switch(resizeHandlePosition) {
@@ -273,12 +247,8 @@ namespace Greenshot.Helpers {
 					break;
 			}
 		}
-		
-		public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize) {
-			Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null);
-		}
-		
-		public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize, IDoubleProcessor angleRoundBehavior) {
+
+        public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize, IDoubleProcessor angleRoundBehavior) {
 			
 			Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, ref boundsAfterResize, angleRoundBehavior);
 		}
@@ -343,15 +313,6 @@ namespace Greenshot.Helpers {
 				return Math.Round(angle/15)*15;
 			}
 		}
-		public class FixedAngleRoundBehavior : IDoubleProcessor {
-			private readonly double fixedAngle;
-			public FixedAngleRoundBehavior(double fixedAngle) {
-				this.fixedAngle = fixedAngle;
-			}
-			public double Process(double angle) {
-				return fixedAngle;
-			}
-		}
-	}
+    }
 }
  

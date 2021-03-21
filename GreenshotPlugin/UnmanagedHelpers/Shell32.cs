@@ -21,7 +21,6 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.IO;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
@@ -31,9 +30,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	public static class Shell32 {
 		[DllImport("shell32", CharSet = CharSet.Unicode)]
 		public static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
-		[DllImport("shell32", CharSet = CharSet.Unicode)]
-		internal static extern IntPtr ExtractAssociatedIcon(HandleRef hInst, StringBuilder iconPath, ref int index);
-		[DllImport("shell32", CharSet = CharSet.Unicode)]
+
+        [DllImport("shell32", CharSet = CharSet.Unicode)]
 		private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
 
         [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
@@ -53,10 +51,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private const uint SHGFI_LINKOVERLAY = 0x000008000;     // put a link overlay on icon
 		private const uint SHGFI_LARGEICON = 0x000000000;     // get large icon
 		private const uint SHGFI_SMALLICON = 0x000000001;     // get small icon
-		private const uint SHGFI_OPENICON = 0x000000002;     // get open icon
 		private const uint SHGFI_USEFILEATTRIBUTES = 0x000000010;     // use passed dwFileAttribute
-
-		private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
 		private const uint FILE_ATTRIBUTE_NORMAL = 0x00000080;
 
         /// <summary>
@@ -73,21 +68,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			Small = 1
 		}
 
-		/// <summary>
-		/// Options to specify whether folders should be in the open or closed state.
-		/// </summary>
-		public enum FolderType {
-			/// <summary>
-			/// Specify open folder.
-			/// </summary>
-			Open = 0,
-			/// <summary>
-			/// Specify closed folder.
-			/// </summary>
-			Closed = 1
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Returns an icon for a given file extension - indicated by the name parameter.
 		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb762179(v=vs.85).aspx
 		/// </summary>
@@ -123,73 +104,5 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			}
 			return null;
 		}
-
-		/// <summary>
-		/// Used to access system folder icons.
-		/// </summary>
-		/// <param name="size">Specify large or small icons.</param>
-		/// <param name="folderType">Specify open or closed FolderType.</param>
-		/// <returns>System.Drawing.Icon</returns>
-		public static Icon GetFolderIcon(IconSize size, FolderType folderType) {
-			// Need to add size check, although errors generated at present!
-			uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
-
-			if (FolderType.Open == folderType) {
-				flags += SHGFI_OPENICON;
-			}
-
-			if (IconSize.Small == size) {
-				flags += SHGFI_SMALLICON;
-			} else {
-				flags += SHGFI_LARGEICON;
-			}
-
-			// Get the folder icon
-			SHFILEINFO shfi = new SHFILEINFO();
-			SHGetFileInfo(null, FILE_ATTRIBUTE_DIRECTORY, ref shfi, (uint)Marshal.SizeOf(shfi), flags);
-
-			//Icon.FromHandle(shfi.hIcon);	// Load the icon from an HICON handle
-			// Now clone the icon, so that it can be successfully stored in an ImageList
-			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
-
-			// Cleanup
-			User32.DestroyIcon(shfi.hIcon);
-			return icon;
-		}
-
-		/// <summary>
-		/// Returns an icon representation of an image contained in the specified file.
-		/// This function is identical to System.Drawing.Icon.ExtractAssociatedIcon, xcept this version works.
-		/// See: http://stackoverflow.com/questions/1842226/how-to-get-the-associated-icon-from-a-network-share-file
-		/// </summary>
-		/// <param name="filePath">The path to the file that contains an image.</param>
-		/// <returns>The System.Drawing.Icon representation of the image contained in the specified file.</returns>
-		public static Icon ExtractAssociatedIcon(string filePath) {
-			int index = 0;
-
-			Uri uri;
-			if (filePath == null) {
-				throw new ArgumentException("Null is not valid for filePath", nameof(filePath));
-			}
-			try {
-				uri = new Uri(filePath);
-			} catch (UriFormatException) {
-				filePath = Path.GetFullPath(filePath);
-				uri = new Uri(filePath);
-			}
-
-			if (uri.IsFile) {
-				if (File.Exists(filePath)) {
-					StringBuilder iconPath = new StringBuilder(1024);
-					iconPath.Append(filePath);
-
-					IntPtr handle = ExtractAssociatedIcon(new HandleRef(null, IntPtr.Zero), iconPath, ref index);
-					if (handle != IntPtr.Zero) {
-						return Icon.FromHandle(handle);
-					}
-				}
-			}
-			return null;
-		}
-	}
+    }
 }

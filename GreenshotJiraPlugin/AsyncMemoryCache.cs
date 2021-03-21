@@ -80,39 +80,7 @@ namespace GreenshotJiraPlugin
 			return keyObject.ToString();
 		}
 
-		/// <summary>
-		///     Get an element from the cache, if this is not available call the create function.
-		/// </summary>
-		/// <param name="keyObject">object for the key</param>
-		/// <param name="cancellationToken">CancellationToken</param>
-		/// <returns>TResult</returns>
-		public async Task DeleteAsync(TKey keyObject, CancellationToken cancellationToken = default)
-		{
-			var key = CreateKey(keyObject);
-			await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-			try
-			{
-				_cache.Remove(key);
-			}
-			finally
-			{
-				_semaphoreSlim.Release();
-			}
-		}
-
-		/// <summary>
-		///     Get a task element from the cache, if this is not available return null.
-		///     You probably want to call GetOrCreateAsync
-		/// </summary>
-		/// <param name="keyObject">object for the key</param>
-		/// <returns>Task with TResult, null if no value</returns>
-		public Task<TResult> GetAsync(TKey keyObject)
-		{
-			var key = CreateKey(keyObject);
-			return _cache.Get(key) as Task<TResult> ?? EmptyValueTask;
-		}
-
-		/// <summary>
+        /// <summary>
 		///     Get a task element from the cache, if this is not available call the create function.
 		/// </summary>
 		/// <param name="keyObject">object for the key</param>
@@ -124,20 +92,7 @@ namespace GreenshotJiraPlugin
 			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, null, cancellationToken);
 		}
 
-		/// <summary>
-		///     Get a task element from the cache, if this is not available call the create function.
-		/// </summary>
-		/// <param name="keyObject">object for the key</param>
-		/// <param name="cacheItemPolicy">CacheItemPolicy for when you want more control over the item</param>
-		/// <param name="cancellationToken">CancellationToken</param>
-		/// <returns>Task with TResult</returns>
-		public Task<TResult> GetOrCreateAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy, CancellationToken cancellationToken = default)
-		{
-			var key = CreateKey(keyObject);
-			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, cacheItemPolicy, cancellationToken);
-		}
-
-		/// <summary>
+        /// <summary>
 		///     This takes care of the real async part of the code.
 		/// </summary>
 		/// <param name="keyObject"></param>
@@ -213,7 +168,7 @@ namespace GreenshotJiraPlugin
 		///     Override to know when an item is removed, make sure to configure ActivateUpdateCallback / ActivateRemovedCallback
 		/// </summary>
 		/// <param name="cacheEntryRemovedArguments">CacheEntryRemovedArguments</param>
-		protected virtual void RemovedCallback(CacheEntryRemovedArguments cacheEntryRemovedArguments)
+		protected void RemovedCallback(CacheEntryRemovedArguments cacheEntryRemovedArguments)
 		{
 			_log.Verbose().WriteLine("Item {0} removed due to {1}.", cacheEntryRemovedArguments.CacheItem.Key, cacheEntryRemovedArguments.RemovedReason);
             if (cacheEntryRemovedArguments.CacheItem.Value is IDisposable disposable)
@@ -228,7 +183,7 @@ namespace GreenshotJiraPlugin
 		///     ActivateUpdateCallback / ActivateRemovedCallback
 		/// </summary>
 		/// <param name="cacheEntryUpdateArguments">CacheEntryUpdateArguments</param>
-		protected virtual void UpdateCallback(CacheEntryUpdateArguments cacheEntryUpdateArguments)
+		protected void UpdateCallback(CacheEntryUpdateArguments cacheEntryUpdateArguments)
 		{
 			_log.Verbose().WriteLine("Update request for {0} due to {1}.", cacheEntryUpdateArguments.Key, cacheEntryUpdateArguments.RemovedReason);
 		}

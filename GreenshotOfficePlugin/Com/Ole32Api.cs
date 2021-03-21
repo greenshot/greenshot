@@ -28,21 +28,6 @@ namespace GreenshotOfficePlugin.Com
         }
 
         /// <summary>
-        /// This converts a clsid (Class ID) into a ProgID (program ID)
-        /// </summary>
-        /// <param name="clsId">Guid with the clsid (Class ID)</param>
-        /// <returns>string with the progid</returns>
-        public static string ProgIdFromClassId(Guid clsId)
-        {
-            if (ProgIDFromCLSID(ref clsId, out string progId).Succeeded())
-            {
-                return progId;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// See more <a href="https://docs.microsoft.com/en-us/windows/desktop/api/combaseapi/nf-combaseapi-clsidfromprogid">here</a>
         /// </summary>
         /// <param name="progId">string with the progId</param>
@@ -50,14 +35,5 @@ namespace GreenshotOfficePlugin.Com
         /// <returns>HResult</returns>
         [DllImport("ole32.dll", ExactSpelling = true)]
         private static extern HResult CLSIDFromProgID([In] [MarshalAs(UnmanagedType.LPWStr)] string progId, [Out] out Guid clsId);
-
-        /// <summary>
-        /// See more <a href="https://docs.microsoft.com/en-us/windows/desktop/api/combaseapi/nf-combaseapi-progidfromclsid">here</a>
-        /// </summary>
-        /// <param name="clsId">Guid The CLSID for which the ProgID is to be requested.</param>
-        /// <param name="lplpszProgId">string the ProgID string. The string that represents clsid includes enclosing braces.</param>
-        /// <returns>HResult</returns>
-        [DllImport("ole32.dll")]
-        private static extern HResult ProgIDFromCLSID([In] ref Guid clsId, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
     }
 }

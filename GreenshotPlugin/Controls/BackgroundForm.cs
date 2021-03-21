@@ -20,7 +20,6 @@
  */
 using System;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 
@@ -30,23 +29,8 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public sealed partial class BackgroundForm : Form {
 		private volatile bool _shouldClose;
-				
-		private void BackgroundShowDialog() {
-			ShowDialog();
-		}
 
-		public static BackgroundForm ShowAndWait(string title, string text) {
-			BackgroundForm backgroundForm = new BackgroundForm(title, text);
-			// Show form in background thread
-			Thread backgroundTask = new Thread (backgroundForm.BackgroundShowDialog);
-			backgroundForm.Name = "Background form";
-			backgroundTask.IsBackground = true;
-			backgroundTask.SetApartmentState(ApartmentState.STA);
-			backgroundTask.Start();
-			return backgroundForm;
-		}
-
-		public BackgroundForm(string title, string text){
+        public BackgroundForm(string title, string text){
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

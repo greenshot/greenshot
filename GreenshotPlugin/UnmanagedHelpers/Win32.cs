@@ -35,24 +35,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
             return (Win32Error)Marshal.GetLastWin32Error();
         }
 
-        public static long GetHResult(Win32Error errorCode) {
-            int error = (int)errorCode;
-
-            if ((error & 0x80000000) == 0x80000000) {
-            	return error;
-            }
-
-            return 0x80070000 | (uint)(error & 0xffff);
-        }
-
         public static string GetMessage(Win32Error errorCode) {
-            StringBuilder buffer = new StringBuilder(0x100);
+            var buffer = new StringBuilder(0x100);
 
             if (FormatMessage(0x3200, IntPtr.Zero, (uint)errorCode, 0, buffer, buffer.Capacity, IntPtr.Zero) == 0) {
                 return "Unknown error (0x" + ((int)errorCode).ToString("x") + ")";
             }
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             int i = 0;
 
             while (i < buffer.Length) {

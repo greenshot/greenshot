@@ -298,17 +298,6 @@ namespace GreenshotPlugin.Core
             return null;
         }
 
-        /// <summary>
-        /// Retrieve the children with matching classname
-        /// </summary>
-        public IEnumerable<WindowDetails> GetChilden(string childClassname) {
-            foreach (var child in Children) {
-                if (childClassname.Equals(child.ClassName)) {
-                    yield return child;
-                }
-            }
-        }
-
         public IntPtr ParentHandle {
             get {
                 if (_parentHandle == IntPtr.Zero) {
@@ -380,92 +369,6 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
-        /// Recurse-ing helper method for the FindPath
-        /// </summary>
-        /// <param name="classNames">List string with classNames</param>
-        /// <param name="index">The index in the list to look for</param>
-        /// <returns>WindowDetails if a match was found</returns>
-        private WindowDetails FindPath(IList<string> classNames, int index) {
-            if (index == classNames.Count - 1) {
-                foreach (var foundWindow in FindChildren(null, classNames[index]))
-                {
-                    return foundWindow;
-                }
-            } else {
-                foreach(var foundWindow in FindChildren(null, classNames[index]))
-                {
-                    var resultWindow = foundWindow.FindPath(classNames, index+1);
-                    if (resultWindow != null)
-                    {
-                        return resultWindow;
-                    }
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// This method will find the child window according to a path of classNames.
-        /// Usually used for finding a certain "content" window like for the IE Browser
-        /// </summary>
-        /// <param name="classNames">List of string with classname "path"</param>
-        /// <param name="allowSkip">true allows the search to skip a classname of the path</param>
-        /// <returns>WindowDetails if found</returns>
-        public WindowDetails FindPath(IList<string> classNames, bool allowSkip) {
-            int index = 0;
-            var resultWindow = FindPath(classNames, index++);
-            if (resultWindow == null && allowSkip) {
-                while(resultWindow == null && index < classNames.Count) {
-                    resultWindow = FindPath(classNames, index);
-                }
-            }
-            return resultWindow;
-        }
-
-        /// <summary>
-        /// Deep scan for a certain classname pattern
-        /// </summary>
-        /// <param name="windowDetails">Window to scan into</param>
-        /// <param name="classnamePattern">Classname regexp pattern</param>
-        /// <returns>The first WindowDetails found</returns>
-        public static WindowDetails DeepScan(WindowDetails windowDetails, Regex classnamePattern) {
-            if (classnamePattern.IsMatch(windowDetails.ClassName)) {
-                return windowDetails;
-            }
-            // First loop through this level
-            foreach(var child in windowDetails.Children) {
-                if (classnamePattern.IsMatch(child.ClassName)) {
-                    return child;
-                }
-            }
-            // Go into all children
-            foreach(var child in windowDetails.Children) {
-                var deepWindow = DeepScan(child, classnamePattern);
-                if (deepWindow != null) {
-                    return deepWindow;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// GetWindow
-        /// </summary>
-        /// <param name="gwCommand">The GetWindowCommand to use</param>
-        /// <returns>null if nothing found, otherwise the WindowDetails instance of the "child"</returns>
-        public WindowDetails GetWindow(GetWindowCommand gwCommand) {
-            var tmphWnd = User32.GetWindow(Handle, gwCommand);
-            if (IntPtr.Zero == tmphWnd) {
-                return null;
-            }
-            var windowDetails = new WindowDetails(tmphWnd)
-            {
-                _parent = this
-            };
-            return windowDetails;
-        }
-
-        /// <summary>
         /// Gets the window's handle
         /// </summary>
         public IntPtr Handle { get; }
@@ -512,7 +415,7 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
-        /// Gets/Sets whether the window is maximised or not.
+        /// Gets/Sets whether the window is maximized or not.
         /// </summary>
         public bool Maximised {
             get {
@@ -539,13 +442,6 @@ namespace GreenshotPlugin.Core
                     User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
                 }
             }
-        }
-
-        /// <summary>
-        /// This doesn't work as good as is should, but does move the App out of the way...
-        /// </summary>
-        public void HideApp() {
-            User32.ShowWindow(Handle, ShowWindowCommand.Hide);
         }
 
         /// <summary>
@@ -625,13 +521,6 @@ namespace GreenshotPlugin.Core
                 }
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Make sure the next call of a cached value is guaranteed the real value
-        /// </summary>
-        public void Reset() {
-            _previousWindowRectangle = Rectangle.Empty;
         }
 
         private Rectangle _previousWindowRectangle = Rectangle.Empty;
@@ -1352,24 +1241,6 @@ namespace GreenshotPlugin.Core
                 return activeWindow;
             }
             return null;
-        }
-
-        /// <summary>
-        /// Check if this window is Greenshot
-        /// </summary>
-        public bool IsGreenshot {
-            get {
-                try {
-                    if (!IsMetroApp)
-                    {
-                        using Process thisWindowProcess = Process;
-                        return "Greenshot".Equals(thisWindowProcess.MainModule.FileVersionInfo.ProductName);
-                    }
-                } catch (Exception ex) {
-                    Log.Warn(ex);
-                }
-                return false;
-            }
         }
 
         /// <summary>
