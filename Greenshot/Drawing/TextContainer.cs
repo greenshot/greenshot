@@ -598,9 +598,15 @@ namespace Greenshot.Drawing
             DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
         }
 
+        /// <summary>
+        /// Convert the StringFormat information into a TextFormatFlags
+        /// This is important for the rending to work, have it aligned to the correct place
+        /// </summary>
+        /// <param name="stringFormat">StringFormat</param>
+        /// <returns>TextFormatFlags</returns>
         private static TextFormatFlags ConvertStringFormat(StringFormat stringFormat)
         {
-            TextFormatFlags flags = TextFormatFlags.Default;
+            var flags = TextFormatFlags.TextBoxControl | TextFormatFlags.WordBreak;
             if (stringFormat == null)
             {
                 return flags;
@@ -683,14 +689,7 @@ namespace Greenshot.Drawing
                 drawingRectange.Inflate(-textOffset, -textOffset);
             }
 
-            if (stringFormat != null)
-            {
-                TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor, ConvertStringFormat(stringFormat));
-            }
-            else
-            {
-                TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor);
-            }
+            TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor, ConvertStringFormat(stringFormat));
         }
 
         public override bool ClickableAt(int x, int y)
