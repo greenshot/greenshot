@@ -267,33 +267,6 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
-        /// Retrieve all windows with a certain title or classname
-        /// </summary>
-        /// <param name="windows">IEnumerable</param>
-        /// <param name="titlePattern">The regexp to look for in the title</param>
-        /// <param name="classnamePattern">The regexp to look for in the classname</param>
-        /// <returns>IEnumerable WindowDetails with all the found windows</returns>
-        private static IEnumerable<WindowDetails> FindWindow(IEnumerable<WindowDetails> windows, string titlePattern, string classnamePattern) {
-            Regex titleRegexp = null;
-            Regex classnameRegexp = null;
-
-            if (titlePattern != null && titlePattern.Trim().Length > 0) {
-                titleRegexp = new Regex(titlePattern);
-            }
-            if (classnamePattern != null && classnamePattern.Trim().Length > 0) {
-                classnameRegexp = new Regex(classnamePattern);
-            }
-
-            foreach(WindowDetails window in windows) {
-                if (titleRegexp != null && titleRegexp.IsMatch(window.Text)) {
-                    yield return window;
-                } else if (classnameRegexp != null && classnameRegexp.IsMatch(window.ClassName)) {
-                    yield return window;
-                }
-            }
-        }
-
-        /// <summary>
         /// Retrieve the child with matching classname
         /// </summary>
         public WindowDetails GetChild(string childClassname) {

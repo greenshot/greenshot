@@ -1,30 +1,32 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.IO;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Newtonsoft.Json;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
@@ -37,49 +39,54 @@ namespace GreenshotDropboxPlugin {
 		private DropboxUtils() {
 		}
 
-		public static string UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string filename) {
-			var oAuth = new OAuthSession(DropBoxCredentials.CONSUMER_KEY, DropBoxCredentials.CONSUMER_SECRET)
-			{
-				BrowserSize = new Size(1080, 650),
-				CheckVerifier = false,
-				AccessTokenUrl = "https://api.dropbox.com/1/oauth/access_token",
-				AuthorizeUrl = "https://api.dropbox.com/1/oauth/authorize",
-				RequestTokenUrl = "https://api.dropbox.com/1/oauth/request_token",
-				LoginTitle = "Dropbox authorization",
-				Token = DropboxConfig.DropboxToken,
-				TokenSecret = DropboxConfig.DropboxTokenSecret
+		public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
+		{
+            var oauth2Settings = new OAuth2Settings
+            {
+                AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
+                TokenUrl = "https://api.dropbox.com/oauth2/token",
+                RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
+                CloudServiceName = "Dropbox",
+                ClientId = DropBoxCredentials.CONSUMER_KEY,
+                ClientSecret = DropBoxCredentials.CONSUMER_SECRET,
+                AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
+				RefreshToken = DropboxConfig.RefreshToken,
+                AccessToken = DropboxConfig.AccessToken,
+                AccessTokenExpires = DropboxConfig.AccessTokenExpires
 			};
+            try
+			{
+                string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
+                SurfaceContainer image = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-			try {
-				SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-				string uploadResponse = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, imageToUpload);
-				Log.DebugFormat("Upload response: {0}", uploadResponse);
-			} catch (Exception ex) {
+                IDictionary<string, object> arguments = new Dictionary<string, object>
+                {
+                    { "autorename", true },
+                    { "mute", true },
+                    { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')}
+                };
+                IDictionary<string, object> headers = new Dictionary<string, object>
+                {
+                    { "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)}
+                };
+                var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);
+
+                NetworkHelper.Post(webRequest, headers, image);
+                var responseString = NetworkHelper.GetResponseAsString(webRequest);
+                Log.DebugFormat("Upload response: {0}", responseString);
+                var response = JsonConvert.DeserializeObject<IDictionary<string, string>>(responseString);
+                return response.ContainsKey("id");
+            }
+            catch (Exception ex) {
 				Log.Error("Upload error: ", ex);
 				throw;
 			} finally {
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					DropboxConfig.DropboxToken = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					DropboxConfig.DropboxTokenSecret = oAuth.TokenSecret;
-				}
-			}
-
-			// Try to get a URL to the uploaded image
-			try {
-				string responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
-				if (responseString != null) {
-					Log.DebugFormat("Parsing output: {0}", responseString);
-					IDictionary<string, object> returnValues = JSONHelper.JsonDecode(responseString);
-					if (returnValues.ContainsKey("url")) {
-						return returnValues["url"] as string;
-					}
-				}
-			} catch (Exception ex) {
-				Log.Error("Can't parse response.", ex);
-			}
-			return null;
+                DropboxConfig.RefreshToken = oauth2Settings.RefreshToken;
+                DropboxConfig.AccessToken = oauth2Settings.AccessToken;
+                DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
+                DropboxConfig.IsDirty = true;
+                IniConfig.Save();
+            }
 		}
 	}
 }

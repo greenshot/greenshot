@@ -62,7 +62,7 @@ namespace Greenshot.Drawing {
 				Width = value.Width;
 				Height = value.Height;
 			}
-			get { return icon; }
+			get => icon;
 		}
 
 		/**
@@ -78,27 +78,32 @@ namespace Greenshot.Drawing {
 			base.Dispose(disposing);
 		}
 
-		public void Load(string filename) {
-			if (File.Exists(filename))
-            {
-                using Icon fileIcon = new Icon(filename);
-                Icon = fileIcon;
-                Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-            }
+		public void Load(string filename)
+		{
+			if (!File.Exists(filename))
+			{
+				return;
+			}
+			using Icon fileIcon = new Icon(filename);
+			Icon = fileIcon;
+			Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 		}
 		
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (icon != null) {
-				graphics.SmoothingMode = SmoothingMode.HighQuality;
-				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-				graphics.CompositingQuality = CompositingQuality.Default;
-				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				graphics.DrawIcon(icon, Bounds);
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (icon == null)
+			{
+				return;
 			}
+			graphics.SmoothingMode = SmoothingMode.HighQuality;
+			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+			graphics.CompositingQuality = CompositingQuality.Default;
+			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			graphics.DrawIcon(icon, Bounds);
 		}
 
 		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize => icon.Size;
+		public override Size DefaultSize => icon?.Size ?? new Size(16,16);
 	}
 }

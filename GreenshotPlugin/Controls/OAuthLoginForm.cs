@@ -1,20 +1,20 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,9 +32,8 @@ namespace GreenshotPlugin.Controls {
 	public sealed partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
 		private readonly string _callbackUrl;
-		private IDictionary<string, string> _callbackParameters;
-		
-		public IDictionary<string, string> CallbackParameters => _callbackParameters;
+
+        public IDictionary<string, string> CallbackParameters { get; private set; }
 
 		public bool IsOk => DialogResult == DialogResult.OK;
 
@@ -94,7 +93,7 @@ namespace GreenshotPlugin.Controls {
 				if (queryParams.Length > 0) {
 					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret
-					_callbackParameters = NetworkHelper.ParseQueryString(queryParams);
+					CallbackParameters = NetworkHelper.ParseQueryString(queryParams);
 				}
 				DialogResult = DialogResult.OK;
 			}
@@ -102,7 +101,7 @@ namespace GreenshotPlugin.Controls {
 
 		private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e) {
 			//Cancel the key press so the user can't enter a new url
-			e.Handled = true; 
+			e.Handled = true;
 		}
 	}
 }
