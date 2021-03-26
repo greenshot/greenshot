@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,11 +27,11 @@ namespace GreenshotPlugin.Core
     ///
     /// Provides details about a Window returned by the  enumeration
     /// </summary>
-    public class WindowDetails : IEquatable<WindowDetails>{
-        private const string MetroWindowsClass = "Windows.UI.Core.CoreWindow"; //Used for Windows 8(.1)
-        private const string FramedAppClass = "ApplicationFrameWindow"; // Windows 10 uses ApplicationFrameWindow
-        private const string MetroApplauncherClass = "ImmersiveLauncher";
-        private const string MetroGutterClass = "ImmersiveGutter";
+    public class WindowDetails : IEquatable<WindowDetails> {
+        private const string AppWindowClass = "Windows.UI.Core.CoreWindow"; //Used for Windows 8(.1)
+        private const string AppFrameWindowClass = "ApplicationFrameWindow"; // Windows 10 uses ApplicationFrameWindow
+        private const string ApplauncherClass = "ImmersiveLauncher";
+        private const string GutterClass = "ImmersiveGutter";
         private static readonly IList<string> IgnoreClasses = new List<string>(new[] { "Progman", "Button", "Dwm" }); //"MS-SDIa"
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
@@ -72,23 +74,28 @@ namespace GreenshotPlugin.Core
         /// This checks if the window is a Windows 8 App
         /// For Windows 10 most normal code works, as it's hosted inside "ApplicationFrameWindow"
         /// </summary>
-        public bool IsApp => MetroWindowsClass.Equals(ClassName);
+        public bool IsApp => AppWindowClass.Equals(ClassName);
 
         /// <summary>
         /// This checks if the window is a Windows 10 App
         /// For Windows 10 apps are hosted inside "ApplicationFrameWindow"
         /// </summary>
-        public bool IsWin10App => FramedAppClass.Equals(ClassName);
+        public bool IsWin10App => AppFrameWindowClass.Equals(ClassName);
 
+        /// <summary>
+        /// Check if this window belongs to a background app
+        /// </summary>
+        public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) && !Children.Any(window => string.Equals(window.ClassName, AppWindowClass));
+    
         /// <summary>
         /// Check if the window is the metro gutter (sizeable separator)
         /// </summary>
-        public bool IsGutter => MetroGutterClass.Equals(ClassName);
+        public bool IsGutter => GutterClass.Equals(ClassName);
 
         /// <summary>
         /// Test if this window is for the App-Launcher
         /// </summary>
-        public bool IsAppLauncher => MetroApplauncherClass.Equals(ClassName);
+        public bool IsAppLauncher => ApplauncherClass.Equals(ClassName);
 
         /// <summary>
         /// Check if this window is the window of a metro app
@@ -447,7 +454,7 @@ namespace GreenshotPlugin.Core
         /// </summary>
         public bool Visible {
             get {
-                // Tip from Raymond Chen
+                // Tip from Raymond Chen https://devblogs.microsoft.com/oldnewthing/20200302-00/?p=103507
                 if (IsCloaked)
                 {
                     return false;
@@ -1337,7 +1344,7 @@ namespace GreenshotPlugin.Core
         /// <returns>List WindowDetails with all the visible top level windows</returns>
         public static IEnumerable<WindowDetails> GetVisibleWindows() {
             Rectangle screenBounds = WindowCapture.GetScreenBounds();
-            foreach(var window in GetMetroApps()) {
+            foreach(var window in GetAppWindows()) {
                 if (IsVisible(window, screenBounds))
                 {
                     yield return window;
@@ -1357,37 +1364,24 @@ namespace GreenshotPlugin.Core
         /// These are all Windows with Classname "Windows.UI.Core.CoreWindow"
         /// </summary>
         /// <returns>List WindowDetails with visible metro apps</returns>
-        public static IEnumerable<WindowDetails> GetMetroApps() {
+        public static IEnumerable<WindowDetails> GetAppWindows() {
             // if the appVisibility != null we have Windows 8.
             if (AppVisibility == null)
             {
                 yield break;
             }
-            //string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
-            //List<WindowDetails> specials = new List<WindowDetails>();
-            //foreach(string wc in wcs) {
-            //	IntPtr wcHandle = User32.FindWindow(null, null);
-            //	while (wcHandle != IntPtr.Zero) {
-            //		WindowDetails special = new WindowDetails(wcHandle);
-            //		if (special.WindowRectangle.Left >= 1920 && special.WindowRectangle.Size != Size.Empty) {
-            //			specials.Add(special);
-            //			LOG.DebugFormat("Found special {0} : {1} at {2} visible: {3} {4} {5}", special.ClassName, special.Text, special.WindowRectangle, special.Visible, special.ExtendedWindowStyle, special.WindowStyle);
-            //		}
-            //		wcHandle = User32.FindWindowEx(IntPtr.Zero, wcHandle, null, null);
-            //	};
-            //}
-            IntPtr nextHandle = User32.FindWindow(MetroWindowsClass, null);
+            var nextHandle = User32.FindWindow(AppWindowClass, null);
             while (nextHandle != IntPtr.Zero) {
                 var metroApp = new WindowDetails(nextHandle);
                 yield return metroApp;
                 // Check if we have a gutter!
                 if (metroApp.Visible && !metroApp.Maximised) {
-                    var gutterHandle = User32.FindWindow(MetroGutterClass, null);
+                    var gutterHandle = User32.FindWindow(GutterClass, null);
                     if (gutterHandle != IntPtr.Zero) {
                         yield return new WindowDetails(gutterHandle);
                     }
                 }
-                nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, MetroWindowsClass, null);
+                nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, AppWindowClass, null);
             }
         }
 
@@ -1398,18 +1392,7 @@ namespace GreenshotPlugin.Core
         /// <returns>bool</returns>
         private static bool IsTopLevel(WindowDetails window)
         {
-            // Window is not on this desktop
             if (window.IsCloaked)
-            {
-                return false;
-            }
-
-            // Ignore windows without title
-            if (window.Text.Length == 0)
-            {
-                return false;
-            }
-            if (IgnoreClasses.Contains(window.ClassName))
             {
                 return false;
             }
@@ -1437,7 +1420,21 @@ namespace GreenshotPlugin.Core
             {
                 return false;
             }
-            return window.Visible || window.Iconic;
+            // Ignore windows without title
+            if (window.Text.Length == 0)
+            {
+                return false;
+            }
+            if (IgnoreClasses.Contains(window.ClassName))
+            {
+                return false;
+            }
+            if (!(window.Visible || window.Iconic))
+            {
+                return false;
+            }
+
+            return !window.IsBackgroundWin10App;
         }
 
         /// <summary>
@@ -1445,7 +1442,7 @@ namespace GreenshotPlugin.Core
         /// </summary>
         /// <returns>List WindowDetails with all the top level windows</returns>
         public static IEnumerable<WindowDetails> GetTopLevelWindows() {
-            foreach (var possibleTopLevel in GetMetroApps())
+            foreach (var possibleTopLevel in GetAppWindows())
             {
                 if (IsTopLevel(possibleTopLevel))
                 {
@@ -1523,7 +1520,7 @@ namespace GreenshotPlugin.Core
             if (AppVisibility == null) {
                 return null;
             }
-            IntPtr appLauncher = User32.FindWindow(MetroApplauncherClass, null);
+            IntPtr appLauncher = User32.FindWindow(ApplauncherClass, null);
             if (appLauncher != IntPtr.Zero) {
                 return new WindowDetails (appLauncher);
             }
@@ -1541,6 +1538,33 @@ namespace GreenshotPlugin.Core
                 }
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Make a string representation of the window details
+        /// </summary>
+        /// <returns>string</returns>
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.AppendLine($"Text: {Text}");
+            result.AppendLine($"ClassName: {ClassName}");
+            result.AppendLine($"ExtendedWindowStyle: {ExtendedWindowStyle}");
+            result.AppendLine($"WindowStyle: {WindowStyle}");
+            result.AppendLine($"Size: {WindowRectangle.Size}");
+            result.AppendLine($"HasParent: {HasParent}");
+            result.AppendLine($"IsWin10App: {IsWin10App}");
+            result.AppendLine($"IsApp: {IsApp}");
+            result.AppendLine($"Visible: {Visible}");
+            result.AppendLine($"IsWindowVisible: {User32.IsWindowVisible(Handle)}");
+            result.AppendLine($"IsCloaked: {IsCloaked}");
+            result.AppendLine($"Iconic: {Iconic}");
+            result.AppendLine($"IsBackgroundWin10App: {IsBackgroundWin10App}");
+            if (HasChildren)
+            {
+                result.AppendLine($"Children classes: {string.Join(",", Children.Select(c => c.ClassName))}");
+            }
+            return result.ToString();
         }
     }
 }

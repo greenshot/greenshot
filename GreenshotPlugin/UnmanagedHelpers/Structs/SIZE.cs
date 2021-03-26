@@ -40,5 +40,7 @@ namespace GreenshotPlugin.UnmanagedHelpers.Structs {
 		public Size ToSize() {
 			return new Size(Width, Height);
 		}
+
+		public bool IsEmpty => Width * Height == 0;
 	}
 }
