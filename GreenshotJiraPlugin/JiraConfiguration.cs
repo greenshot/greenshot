@@ -34,10 +34,7 @@ namespace GreenshotJiraPlugin {
 		[IniProperty("Url", Description="Base url to Jira system, without anything else", DefaultValue=DefaultUrl)]
 		public string Url { get; set; }
 
-		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
-		public int Timeout { get; set; }
-
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
+        [IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]

@@ -1,4 +1,24 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+using System.Diagnostics.CodeAnalysis;
 
 namespace GreenshotPlugin.UnmanagedHelpers.Enums
 {
@@ -8,47 +28,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WinEvent : uint {
-        EVENT_OBJECT_ACCELERATORCHANGE = 32786,
         EVENT_OBJECT_CREATE = 32768,
         EVENT_OBJECT_DESTROY = 32769,
-        EVENT_OBJECT_DEFACTIONCHANGE = 32785,
-        EVENT_OBJECT_DESCRIPTIONCHANGE = 32781,
-        EVENT_OBJECT_FOCUS = 32773,
-        EVENT_OBJECT_HELPCHANGE = 32784,
-        EVENT_OBJECT_SHOW = 32770,
-        EVENT_OBJECT_HIDE = 32771,
-        EVENT_OBJECT_LOCATIONCHANGE = 32779,
         EVENT_OBJECT_NAMECHANGE = 32780,
-        EVENT_OBJECT_PARENTCHANGE = 32783,
-        EVENT_OBJECT_REORDER = 32772,
-        EVENT_OBJECT_SELECTION = 32774,
-        EVENT_OBJECT_SELECTIONADD = 32775,
-        EVENT_OBJECT_SELECTIONREMOVE = 32776,
-        EVENT_OBJECT_SELECTIONWITHIN = 32777,
-        EVENT_OBJECT_STATECHANGE = 32778,
-        EVENT_OBJECT_VALUECHANGE = 32782,
-        EVENT_SYSTEM_ALERT = 2,
-        EVENT_SYSTEM_CAPTUREEND = 9,
-        EVENT_SYSTEM_CAPTURESTART = 8,
-        EVENT_SYSTEM_CONTEXTHELPEND = 13,
-        EVENT_SYSTEM_CONTEXTHELPSTART = 12,
-        EVENT_SYSTEM_DIALOGEND = 17,
-        EVENT_SYSTEM_DIALOGSTART = 16,
-        EVENT_SYSTEM_DRAGDROPEND = 15,
-        EVENT_SYSTEM_DRAGDROPSTART = 14,
-        EVENT_SYSTEM_FOREGROUND = 3,
-        EVENT_SYSTEM_MENUEND = 5,
-        EVENT_SYSTEM_MENUPOPUPEND = 7,
-        EVENT_SYSTEM_MENUPOPUPSTART = 6,
-        EVENT_SYSTEM_MENUSTART = 4,
-        EVENT_SYSTEM_MINIMIZEEND = 23,
-        EVENT_SYSTEM_MINIMIZESTART = 22,
-        EVENT_SYSTEM_MOVESIZEEND = 11,
-        EVENT_SYSTEM_MOVESIZESTART = 10,
-        EVENT_SYSTEM_SCROLLINGEND = 19,
-        EVENT_SYSTEM_SCROLLINGSTART = 18,
-        EVENT_SYSTEM_SOUND = 1,
-        EVENT_SYSTEM_SWITCHEND = 21,
-        EVENT_SYSTEM_SWITCHSTART = 20
     }
 }

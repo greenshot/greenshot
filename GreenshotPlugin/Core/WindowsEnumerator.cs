@@ -34,25 +34,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public IList<WindowDetails> Items { get; private set; }
 
-		/// <summary>
-		/// Gets all top level windows on the system.
-		/// </summary>
-		public WindowsEnumerator GetWindows() {
-			GetWindows(IntPtr.Zero, null);
-			return this;
-		}
-
-		/// <summary>
-		/// Gets all child windows of the specified window
-		/// </summary>
-		/// <param name="parent">Window Handle to get children for</param>
-		public WindowsEnumerator GetWindows(WindowDetails parent)
-		{
-			GetWindows(parent?.Handle ?? IntPtr.Zero, null);
-			return this;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Gets all child windows of the specified window
 		/// </summary>
 		/// <param name="hWndParent">Window Handle to get children for</param>
@@ -69,7 +51,7 @@ namespace GreenshotPlugin.Core {
 				parentText = title.ToString();
 			}
 
-            List<WindowDetails> windows = new List<WindowDetails>();
+            var windows = new List<WindowDetails>();
 			foreach (var window in Items) {
 				if (hasParent) {
 					window.Text = parentText;

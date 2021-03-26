@@ -476,32 +476,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Check if a resource with prefix.key exists
-		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="key"></param>
-		/// <returns>true if available</returns>
-		public static bool HasKey(string prefix, Enum key) {
-			if (key == null) {
-				return false;
-			}
-			return HasKey(prefix + "." + key);
-		}
-
-		/// <summary>
-		/// Check if a resource with key exists
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns>true if available</returns>
-		public static bool HasKey(Enum key) {
-			if (key == null) {
-				return false;
-			}
-			return HasKey(key.ToString());
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Check if a resource with prefix.key exists
 		/// </summary>
 		/// <param name="prefix"></param>

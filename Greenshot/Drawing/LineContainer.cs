@@ -34,9 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable()]
 	public class LineContainer : DrawableContainer {
-		public static readonly int MAX_CLICK_DISTANCE_TOLERANCE = 10;
-
-		public LineContainer(Surface parent) : base(parent) {
+        public LineContainer(Surface parent) : base(parent) {
 			Init();
 		}
 

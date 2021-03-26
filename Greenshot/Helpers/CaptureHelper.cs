@@ -970,7 +970,7 @@ namespace Greenshot.Helpers {
             // The following, to be precise the HideApp, causes the app to close as described in BUG-1620
 			// Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
 
-			//foreach(WindowDetails app in WindowDetails.GetMetroApps()) {
+			//foreach(WindowDetails app in WindowDetails.GetAppWindows()) {
 			//	if (app.Maximised) {
 			//		app.HideApp();
 			//	}

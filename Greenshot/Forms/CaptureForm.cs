@@ -905,7 +905,7 @@ namespace Greenshot.Forms {
 					// horizontal ruler
 					if (fixedRect.Width > hSpace + 3)
                     {
-                        using GraphicsPath p = RoundedRectangle.Create2(
+                        using GraphicsPath p = CreateRoundedRectangle(
                             fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3,
                             fixedRect.Y - dist - 7,
                             measureWidth.Width - 3,
@@ -923,7 +923,7 @@ namespace Greenshot.Forms {
 					// vertical ruler
 					if (fixedRect.Height > vSpace + 3)
                     {
-                        using GraphicsPath p = RoundedRectangle.Create2(
+                        using GraphicsPath p = CreateRoundedRectangle(
                             fixedRect.X - measureHeight.Width + 1,
                             fixedRect.Y + (fixedRect.Height / 2 - vSpace / 2) + 2,
                             measureHeight.Width - 3,
@@ -990,7 +990,7 @@ namespace Greenshot.Forms {
 					string xy = _cursorPos.X + " x " + _cursorPos.Y;
                     using Font f = new Font(FontFamily.GenericSansSerif, 8);
                     Size xySize = TextRenderer.MeasureText(xy, f);
-                    using GraphicsPath gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3);
+                    using GraphicsPath gp = CreateRoundedRectangle(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3);
                     using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
                         graphics.FillPath(bgBrush, gp);
                     }
@@ -1014,5 +1014,21 @@ namespace Greenshot.Forms {
 				DrawZoom(graphics, sourceRectangle, destinationRectangle);
 			}
 		}
+
+        private static GraphicsPath CreateRoundedRectangle(int x, int y, int width, int height, int radius)
+        {
+            var gp = new GraphicsPath();
+            gp.AddLine(x + radius, y, x + width - radius * 2, y); // Line
+            gp.AddArc(x + width - radius * 2, y, radius * 2, radius * 2, 270, 90); // Corner
+            gp.AddLine(x + width, y + radius, x + width, y + height - radius * 2); // Line
+            gp.AddArc(x + width - radius * 2, y + height - radius * 2, radius * 2, radius * 2, 0, 90); // Corner
+            gp.AddLine(x + width - radius * 2, y + height, x + radius, y + height); // Line
+            gp.AddArc(x, y + height - radius * 2, radius * 2, radius * 2, 90, 90); // Corner
+            gp.AddLine(x, y + height - radius * 2, x, y + radius); // Line
+            gp.AddArc(x, y, radius * 2, radius * 2, 180, 90); // Corner
+            gp.CloseFigure();
+
+            return gp;
+        }
     }
 }

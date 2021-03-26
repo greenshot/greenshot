@@ -29,12 +29,7 @@ namespace GreenshotConfluencePlugin.Support {
 
 		public ITranslationProvider TranslationProvider { get; set; }
 
-		private void OnLanguageChanged()
-		{
-			LanguageChanged?.Invoke(this, EventArgs.Empty);
-		}
-
-		public object Translate(string key) {
+        public object Translate(string key) {
 			object translatedValue = TranslationProvider?.Translate(key);
 			if( translatedValue != null) {
 				return translatedValue;

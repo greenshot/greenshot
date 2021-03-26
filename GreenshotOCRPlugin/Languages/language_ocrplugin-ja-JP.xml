@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
-		<resource name="language">OCRの言語</resource>
-		<resource name="orient_image">画像の向きを揃える</resource>
-		<resource name="straighten_image">画像の傾きを補正する</resource>
-	</resources>
-</language>

@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
@@ -207,16 +206,6 @@ namespace GreenshotPlugin.Interfaces.Drawing
 	public interface IIconContainer : IDrawableContainer
 	{
 		Icon Icon
-		{
-			get;
-			set;
-		}
-		void Load(string filename);
-	}
-
-	public interface IMetafileContainer : IDrawableContainer
-	{
-		Metafile Metafile
 		{
 			get;
 			set;

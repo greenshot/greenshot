@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.UnmanagedHelpers.Enums;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 using Microsoft.Win32;
@@ -33,8 +34,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Desktop Window Manager helper code
 	/// </summary>
 	public static class DWM {
-		public static readonly uint DWM_EC_DISABLECOMPOSITION = 0;
-		public static readonly uint DWM_EC_ENABLECOMPOSITION = 1;
 
 		// DWM
 		[DllImport("dwmapi", SetLastError = true)]
@@ -42,9 +41,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmUnregisterThumbnail(IntPtr thumb);
 		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
+		public static extern HResult DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
 		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
+		public static extern HResult DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
 
 		// Deprecated as of Windows 8 Release Preview
 		[DllImport("dwmapi", SetLastError = true)]
@@ -53,19 +52,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT lpRect, int size);
         [DllImport("dwmapi", SetLastError = true)]
         public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
-		[DllImport("dwmapi", SetLastError = true)] 
-		public static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref DWM_BLURBEHIND blurBehind);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern uint DwmEnableComposition(uint uCompositionAction);
 
-		public static void EnableComposition() {
-			DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
-		}
-		public static void DisableComposition() {
-			DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
-		}
-
-		// Key to ColorizationColor for DWM
+        // Key to ColorizationColor for DWM
 		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
 
 		/// <summary>

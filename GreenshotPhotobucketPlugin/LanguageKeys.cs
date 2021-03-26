@@ -22,13 +22,8 @@
 namespace GreenshotPhotobucketPlugin {
 	public enum LangKey {
 		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		label_clear,
-		upload_success,
 		upload_failure,
 		communication_wait,
-		use_page_link,
 		configure
 	}
 }

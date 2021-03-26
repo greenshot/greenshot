@@ -54,16 +54,8 @@ namespace Greenshot.Helpers {
 		public static void Enable(ToolStripItem tsi) {
 			Endisable(tsi, true, PropagationMode.CHILDREN | PropagationMode.ANCESTORS);
 		}
-		
-		/// <summary>
-		/// Disables the ToolStripItem, including children (ToolStripDropDownItem), 
-		/// but NOT the ancestor (OwnerItem)
-		/// </summary>
-		public static void Disable(ToolStripItem tsi) {
-			Endisable(tsi, false, PropagationMode.CHILDREN);
-		}
-		
-		private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode)
+
+        private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode)
 		{
 			if ((mode & PropagationMode.CHILDREN) != PropagationMode.CHILDREN) return;
 			

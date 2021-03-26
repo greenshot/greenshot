@@ -33,15 +33,8 @@ namespace GreenshotConfluencePlugin {
 		private Type _type;
 		private IDictionary _displayValues;
 		private IDictionary _reverseValues;
-		
-		public EnumDisplayer() {
-		}
-	
-		public EnumDisplayer(Type type) {
-			Type = type;
-		}
-	
-		public Type Type {
+
+        public Type Type {
 			get { return _type; }
 			set {
 				if (!value.IsEnum) {

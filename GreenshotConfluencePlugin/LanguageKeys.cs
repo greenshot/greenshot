@@ -22,14 +22,7 @@
 namespace GreenshotConfluencePlugin {
 	public enum LangKey {
 		login_error,
-		login_title,
-		label_url,
-		label_upload_format,
-		OK,
-		CANCEL,
 		upload_menu_item,
-		upload_success,
-		upload_failure,
 		communication_wait
 	}
 }
