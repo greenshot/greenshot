@@ -109,6 +109,8 @@ Source: {#BaseDir}\GreenshotExternalCommandPlugin\{#BinDir}\GreenshotExternalCom
 Source: {#BaseDir}\GreenshotExternalCommandPlugin\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Win 10 Plugin
 Source: {#BaseDir}\GreenshotWin10Plugin\{#BinDir}\GreenshotWin10Plugin.dll; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#BaseDir}\GreenshotWin10Plugin\{#BinDir}\Microsoft.Toolkit.Uwp.Notifications; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
