@@ -426,11 +426,7 @@ namespace GreenshotPlugin.Controls {
 			_hotkeyHwnd = hWnd;
 		}
 
-		public static int RegisterHotKey(string hotkey, HotKeyHandler handler) {
-			return RegisterHotKey(HotkeyModifiersFromString(hotkey), HotkeyFromString(hotkey),handler);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Register a hotkey
 		/// </summary>
 		/// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
@@ -477,21 +473,7 @@ namespace GreenshotPlugin.Controls {
 			KeyHandlers.Clear();
 		}
 
-		public static void UnregisterHotkey(int hotkey) {
-			bool removeHotkey = false;
-			foreach(int availableHotkey in KeyHandlers.Keys) {
-				if (availableHotkey == hotkey) {
-					UnregisterHotKey(_hotkeyHwnd, hotkey);
-					removeHotkey = true;
-				}
-			}
-			if (removeHotkey) {
-				// Remove key handler
-				KeyHandlers.Remove(hotkey);
-			}
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Handle WndProc messages for the hotkey
 		/// </summary>
 		/// <param name="m"></param>

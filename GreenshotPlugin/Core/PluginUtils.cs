@@ -29,7 +29,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces.Forms;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -52,7 +51,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="e"></param>
 		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
             if (e.PropertyName != "IconSize") return;
-            List<Image> cachedImages = new List<Image>();
+            var cachedImages = new List<Image>();
             lock (ExeIconCache) {
                 foreach (string key in ExeIconCache.Keys) {
                     cachedImages.Add(ExeIconCache[key]);
@@ -71,7 +70,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="exeName">e.g. cmd.exe</param>
 		/// <returns>Path to file</returns>
 		public static string GetExePath(string exeName) {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false)) {
+			using (var key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false)) {
 				if (key != null) {
 					// "" is the default key, which should point to the requested location
 					return (string)key.GetValue(string.Empty);
@@ -147,69 +146,7 @@ namespace GreenshotPlugin.Core {
 			return null;
 		}
 
-		/// <summary>
-		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
-		/// </summary>
-		/// <param name="imageEditor"></param>
-		/// <param name="image">Image to display in the menu</param>
-		/// <param name="text">Text to display in the menu</param>
-		/// <param name="tag">The TAG value</param>
-		/// <param name="shortcutKeys">Keys which can be used as shortcut</param>
-		/// <param name="handler">The onclick handler</param>
-		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler) {
-			var item = new ToolStripMenuItem
-			{
-				Image = image,
-				Text = text,
-				Tag = tag
-			};
-			if (shortcutKeys.HasValue) {
-				item.ShortcutKeys = shortcutKeys.Value;
-			}
-			item.Click += handler;
-			AddToFileMenu(imageEditor, item);
-		}
-
-		/// <summary>
-		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
-		/// </summary>
-		/// <param name="imageEditor"></param>
-		/// <param name="item"></param>
-		public static void AddToFileMenu(IImageEditor imageEditor, ToolStripMenuItem item) {
-			ToolStripMenuItem toolStripMenuItem = imageEditor.GetFileMenuItem();
-			bool added = false;
-			for(int i = 0; i< toolStripMenuItem.DropDownItems.Count; i++) {
-				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripSeparator)) {
-					toolStripMenuItem.DropDownItems.Insert(i, item);
-					added = true;
-					break;
-				}
-			}
-			if (!added) {
-				toolStripMenuItem.DropDownItems.Add(item);
-			}
-		}
-		
-		/// <summary>
-		/// Helper method to add a MenuItem to the Plugin MenuItem of an ImageEditor
-		/// </summary>
-		/// <param name="imageEditor"></param>
-		/// <param name="item"></param>
-		public static void AddToPluginMenu(IImageEditor imageEditor, ToolStripMenuItem item) {
-			ToolStripMenuItem toolStripMenuItem = imageEditor.GetPluginMenuItem();
-			bool added = false;
-			for(int i = 0; i< toolStripMenuItem.DropDownItems.Count; i++) {
-				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripSeparator)) {
-					toolStripMenuItem.DropDownItems.Insert(i, item);
-					added = true;
-					break;
-				}
-			}
-			if (!added) {
-				toolStripMenuItem.DropDownItems.Add(item);
-			}
-		}
-		/// <summary>
+        /// <summary>
 		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
 		/// <param name="item">ToolStripMenuItem</param>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
+	<resources>
+		<resource name="communication_wait">Обмен данными с GooglePhotos. Подождите...</resource>
+		<resource name="Configure">Настройка GooglePhotos</resource>
+		<resource name="label_AfterUpload">После загрузки</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Ссылки в буфер обмена</resource>
+		<resource name="label_upload_format">Формат изображения</resource>
+		<resource name="settings_title">Настройки GooglePhotos</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на GooglePhotos:</resource>
+		<resource name="upload_menu_item">Загрузить на GooglePhotos</resource>
+		<resource name="upload_success">Изображение успешно загружено на GooglePhotos!</resource>
+	</resources>
+</language>

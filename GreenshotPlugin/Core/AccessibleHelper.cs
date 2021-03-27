@@ -91,35 +91,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public void ActivateIETab(string tabCaptionToActivate) {
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tab.Name == tabCaptionToActivate) {
-							tab.Activate();
-							return;
-						}
-					}
-				}
-			}
-		}
-
-		public void CloseIETab(string tabCaptionToClose) {
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tab.Name == tabCaptionToClose) {
-							foreach (var  CloseTab in tab.Children) {
-								CloseTab.Activate();
-							}
-							return;
-						}
-					}
-				}
-			}
-		}
-		
-		public void ActivateIETab(int tabIndexToActivate) {
+        public void ActivateIETab(int tabIndexToActivate) {
 			var index = 0;
 			foreach (Accessible accessor in Children) {
 				foreach (var child in accessor.Children) {
@@ -138,50 +110,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public string IEActiveTabUrl {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
-	
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
-								var description = tab.accessible.get_accDescription(CHILDID_SELF);
-	
-								if (!string.IsNullOrEmpty(description)) {
-									if (description.Contains(Environment.NewLine)) {
-										var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-										return url;
-									}
-								}
-							}
-						}
-					}
-				}
-				return string.Empty;
-			}
-		}
-
-		public int IEActiveTabIndex {
-			get {
-				var index = 0;
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(0);
-	
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
-								return index;
-							}
-							index++;				  
-						}
-					}
-				}
-				return -1;
-			}
-		}
-
-		public string IEActiveTabCaption {
+        public string IEActiveTabCaption {
 			get {
 				foreach (Accessible accessor in Children) {
 					foreach (var child in accessor.Children) {
@@ -238,21 +167,8 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
-		public int IETabCount {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							return child.ChildCount - 1;
-						}
-					}
-				}
-				return 0;
-			}
-		}
 
-		private Accessible(IAccessible acc) {
+        private Accessible(IAccessible acc) {
             accessible = acc ?? throw new Exception();
 		}
 

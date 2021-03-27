@@ -29,22 +29,6 @@ namespace GreenshotWin10Plugin.Internal
     /// </summary>
 	internal sealed class MemoryRandomAccessStream : MemoryStream, IRandomAccessStream
 	{
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-		public MemoryRandomAccessStream()
-		{
-		}
-
-        /// <summary>
-        /// Constructor where also bytes are already passed
-        /// </summary>
-        /// <param name="bytes">byte array</param>
-		public MemoryRandomAccessStream(byte[] bytes)
-		{
-			Write(bytes, 0, bytes.Length);
-		}
-
         /// <inheritdoc />
         public IInputStream GetInputStreamAt(ulong position)
 		{

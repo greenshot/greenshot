@@ -65,17 +65,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Tokens Include="Box_ClientId">
-      <ReplacementValue>$(Box_ClientId)</ReplacementValue>
+    <Tokens Include="Box13_ClientId">
+      <ReplacementValue>$(Box13_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Box_ClientSecret">
-      <ReplacementValue>$(Box_ClientSecret)</ReplacementValue>
+    <Tokens Include="Box13_ClientSecret">
+      <ReplacementValue>$(Box13_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="DropBox_ClientId">
-      <ReplacementValue>$(DropBox_ClientId)</ReplacementValue>
+    <Tokens Include="DropBox13_ClientId">
+      <ReplacementValue>$(DropBox13_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="DropBox_ClientSecret">
-      <ReplacementValue>$(DropBox_ClientSecret)</ReplacementValue>
+    <Tokens Include="DropBox13_ClientSecret">
+      <ReplacementValue>$(DropBox13_ClientSecret)</ReplacementValue>
     </Tokens>
     <Tokens Include="Flickr_ClientId">
       <ReplacementValue>$(Flickr_ClientId)</ReplacementValue>
@@ -83,11 +83,11 @@
     <Tokens Include="Flickr_ClientSecret">
       <ReplacementValue>$(Flickr_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Imgur_ClientId">
-      <ReplacementValue>$(Imgur_ClientId)</ReplacementValue>
+    <Tokens Include="Imgur13_ClientId">
+      <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Imgur_ClientSecret">
-      <ReplacementValue>$(Imgur_ClientSecret)</ReplacementValue>
+    <Tokens Include="Imgur13_ClientSecret">
+      <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
     </Tokens>
     <Tokens Include="Photobucket_ClientId">
       <ReplacementValue>$(Photobucket_ClientId)</ReplacementValue>

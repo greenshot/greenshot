@@ -22,7 +22,6 @@
 using GreenshotPlugin.Core;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
@@ -57,77 +56,8 @@ namespace Greenshot.Forms {
 			Image = _defaultImage;
 		}
 		public ToolStripMenuSelectList() : this(null,false) {}
-		public ToolStripMenuSelectList(object identifier) : this(identifier,false) {}
 
-		/// <summary>
-		/// gets or sets the currently checked item
-		/// </summary>
-		public ToolStripMenuSelectListItem CheckedItem {
-
-			get {
-				IEnumerator items = DropDownItems.GetEnumerator();
-				while (items.MoveNext()) {
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (tsmi != null && tsmi.Checked) {
-						return tsmi;
-					}
-				}
-				return null;
-			}
-			set {
-				IEnumerator items = DropDownItems.GetEnumerator();
-				while (items.MoveNext()) {
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (tsmi != null && !_multiCheckAllowed && !tsmi.Equals(value)) {
-						tsmi.Checked = false;
-					} else if (tsmi != null && tsmi.Equals(value)) {
-						tsmi.Checked = true;
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// gets or sets the currently checked items
-		/// </summary>
-		public ToolStripMenuSelectListItem[] CheckedItems {
-			get {
-				List<ToolStripMenuSelectListItem> sel = new List<ToolStripMenuSelectListItem>();
-				IEnumerator items = DropDownItems.GetEnumerator();
-				while(items.MoveNext()) {
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (tsmi != null && tsmi.Checked) {
-						sel.Add(tsmi);
-					}
-				}
-				return sel.ToArray();
-			}
-			set {
-				if (!_multiCheckAllowed) {
-					throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
-				}
-				IEnumerator items = DropDownItems.GetEnumerator();
-				IEnumerator sel = value.GetEnumerator();
-				while (items.MoveNext()) {
-					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)items.Current;
-					if (toolStripMenuSelectListItem == null)
-					{
-						continue;
-					}
-					while (sel.MoveNext())
-					{
-						toolStripMenuSelectListItem.Checked = toolStripMenuSelectListItem.Equals(sel.Current);
-						if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(sel.Current)) {
-							toolStripMenuSelectListItem.Checked = false;
-						} else if (toolStripMenuSelectListItem.Equals(value)) {
-							toolStripMenuSelectListItem.Checked = true;
-						}
-					}
-				}
-			}
-		}
-
-		private void ItemCheckStateChanged(object sender, EventArgs e) {
+        private void ItemCheckStateChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
@@ -172,44 +102,8 @@ namespace Greenshot.Forms {
 			DropDownItems.Add(toolStripMenuSelectListItem);
 		}
 
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="image">the icon to be displayed</param>
-		public void AddItem(string label, Image image) {
-			AddItem(label, image, null, false);
-		}
 
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="data">the data to be returned when an item is queried</param>
-		public void AddItem(string label, object data) {
-			AddItem(label, null, data, false);
-		}
-
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		public void AddItem(string label) {
-			AddItem(label, null, null, false);
-		}
-
-
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="image">the icon to be displayed</param>
-		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Image image, bool isChecked) {
-			AddItem(label, image, null, isChecked);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
@@ -219,16 +113,7 @@ namespace Greenshot.Forms {
 			AddItem(label, null, data, isChecked);
 		}
 
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, bool isChecked) {
-			AddItem(label, null, null, isChecked);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// unchecks all items of the list
 		/// </summary>
 		public void UncheckAll() {

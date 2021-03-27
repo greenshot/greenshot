@@ -486,12 +486,7 @@ namespace Greenshot.Forms {
 			}
 		}
 
-		/// <summary>
-		/// Main context menu
-		/// </summary>
-		public ContextMenuStrip MainMenu => contextMenu;
-
-		protected override void WndProc(ref Message m) {
+        protected override void WndProc(ref Message m) {
 			if (HotkeyControl.HandleMessages(ref m)) {
 				return;
 			}
@@ -923,7 +918,7 @@ namespace Greenshot.Forms {
 
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
             if (sender is not ToolStripMenuItem captureWindowItem) return;
-            WindowDetails window = captureWindowItem.Tag as WindowDetails;
+            var window = captureWindowItem.Tag as WindowDetails;
             if (_thumbnailForm == null) {
                 _thumbnailForm = new ThumbnailForm();
             }
@@ -944,29 +939,39 @@ namespace Greenshot.Forms {
 			_thumbnailForm = null;
 		}
 
+        /// <summary>
+        /// Create the "capture window from list" list
+        /// </summary>
+        /// <param name="menuItem">ToolStripMenuItem</param>
+        /// <param name="eventHandler">EventHandler</param>
 		public void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler) {
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
 			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled;
 
-			foreach(WindowDetails window in WindowDetails.GetTopLevelWindows()) {
-
+			foreach(var window in WindowDetails.GetTopLevelWindows()) {
+                if (LOG.IsDebugEnabled)
+                {
+                    LOG.Debug(window.ToString());
+                }
 				string title = window.Text;
-				if (title != null) {
-					if (title.Length > _conf.MaxMenuItemLength) {
-						title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
-					}
-					ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
-					captureWindowItem.Tag = window;
-					captureWindowItem.Image = window.DisplayIcon;
-					captureWindowItem.Click += eventHandler;
-					// Only show preview when enabled
-					if (thumbnailPreview) {
-						captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
-						captureWindowItem.MouseLeave += HideThumbnailOnLeave;
-					}
-				}
-			}
+                if (string.IsNullOrEmpty(title))
+                {
+                    continue;
+                }
+                if (title.Length > _conf.MaxMenuItemLength) {
+                    title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
+                }
+                ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
+                captureWindowItem.Tag = window;
+                captureWindowItem.Image = window.DisplayIcon;
+                captureWindowItem.Click += eventHandler;
+                // Only show preview when enabled
+                if (thumbnailPreview) {
+                    captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
+                    captureWindowItem.MouseLeave += HideThumbnailOnLeave;
+                }
+            }
 		}
 
 		private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e) {

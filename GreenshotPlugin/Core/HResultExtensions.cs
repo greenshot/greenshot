@@ -19,7 +19,6 @@
 
 using GreenshotPlugin.Core.Enums;
 using System.Diagnostics.Contracts;
-using System.Runtime.InteropServices;
 
 namespace GreenshotPlugin.Core
 {
@@ -29,7 +28,7 @@ namespace GreenshotPlugin.Core
     public static class HResultExtensions
     {
         /// <summary>
-        ///     Test if the HResult respresents a fail
+        ///     Test if the HResult represents a fail
         /// </summary>
         /// <param name="hResult">HResult</param>
         /// <returns>bool</returns>
@@ -40,7 +39,7 @@ namespace GreenshotPlugin.Core
         }
 
         /// <summary>
-        ///     Test if the HResult respresents a success
+        ///     Test if the HResult represents a success
         /// </summary>
         /// <param name="hResult">HResult</param>
         /// <returns>bool</returns>
@@ -48,18 +47,6 @@ namespace GreenshotPlugin.Core
         public static bool Succeeded(this HResult hResult)
         {
             return hResult >= HResult.S_OK;
-        }
-
-        /// <summary>
-        ///     Throw an exception on Failure
-        /// </summary>
-        /// <param name="hResult">HResult</param>
-        public static void ThrowOnFailure(this HResult hResult)
-        {
-            if (hResult.Failed())
-            {
-                throw Marshal.GetExceptionForHR((int)hResult);
-            }
         }
     }
 }

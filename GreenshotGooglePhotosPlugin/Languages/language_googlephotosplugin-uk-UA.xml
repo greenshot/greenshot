@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
+	<resource name="label_AfterUpload">Після вивантаження</resource>
+	<resource name="Configure">Налаштувати GooglePhotos</resource>
+	<resource name="upload_menu_item">Вивантажити на GooglePhotos</resource>
+	<resource name="settings_title">Параметри GooglePhotos</resource>
+	<resource name="upload_success">Зображення вдало вивантажено на GooglePhotos!</resource>
+	<resource name="upload_failure">Відбулась помилка під час вивантаження на GooglePhotos:</resource>
+	<resource name="label_upload_format">Формат зображення</resource>
+	<resource name="communication_wait">З’єднання з GooglePhotos. Будь ласка, зачекайте...</resource>
+  </resources>
+</language>

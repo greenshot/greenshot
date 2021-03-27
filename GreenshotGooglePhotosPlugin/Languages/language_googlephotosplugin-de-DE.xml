@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	  Link in der Zwischenablage
+	</resource>
+	<resource name="label_AfterUpload">
+	  Anschliessend
+	</resource>
+	<resource name="Configure">
+	  GooglePhotos konfigurieren
+	</resource>
+	<resource name="upload_menu_item">
+	  Hochladen zu GooglePhotos
+	</resource>
+	<resource name="settings_title">
+	  GooglePhotos Einstellungen
+	</resource>
+	<resource name="upload_success">
+	  Hochladen zu GooglePhotos war erfolgreich !
+	</resource>
+	<resource name="upload_failure">
+	 Fehler beim Hochladen zu GooglePhotos:
+	</resource>
+	<resource name="label_upload_format">
+	  Grafikformat
+	</resource>
+	<resource name="communication_wait">
+	 Übermittle Daten zu GooglePhotos. Bitte warten...
+	</resource>
+  </resources>
+</language>

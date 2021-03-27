@@ -39,16 +39,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(User32));
 		private static bool _CanCallGetPhysicalCursorPos = true;
 		public const int SC_RESTORE = 0xF120;
-		public const int SC_CLOSE = 0xF060;
 		public const int SC_MAXIMIZE = 0xF030;
 		public const int SC_MINIMIZE = 0xF020;
 
-		public const int PW_DEFAULT = 0x00;
-		public const int PW_CLIENTONLY = 0x01;
-
-		// For MonitorFromWindow
+        // For MonitorFromWindow
 		public const int MONITOR_DEFAULTTONULL = 0;
-		public const int MONITOR_DEFAULTTOPRIMARY = 1;
 		public const int MONITOR_DEFAULTTONEAREST = 2;
 		public const int CURSOR_SHOWING = 0x00000001;
 
@@ -76,19 +71,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCommand uCmd);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+
+        [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public static extern int GetWindowTextLength(IntPtr hWnd);
-		[DllImport("user32", SetLastError = true)]
-		public static extern uint GetSysColor(int nIndex);
-		[DllImport("user32", SetLastError = true)]
+
+        [DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool BringWindowToTop(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
@@ -121,9 +108,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool PrintWindow(IntPtr hWnd, IntPtr hDc, uint nFlags);
 		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError=true)]
 		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
+
+        [DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
 		public static extern int GetWindowLong(IntPtr hWnd, int index);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
 		public static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
@@ -138,46 +124,20 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowInfo(IntPtr hWnd, ref WindowInfo pwi);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-		[DllImport("user32", SetLastError = true)]
+
+        [DllImport("user32", SetLastError = true)]
 		public static extern int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
-		[DllImport("user32", SetLastError = true)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool GetScrollInfo(IntPtr hWnd, int fnBar, ref SCROLLINFO lpsi);
-		[DllImport("user32", SetLastError = true)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool ShowScrollBar(IntPtr hWnd, ScrollBarDirection scrollBar, [MarshalAs(UnmanagedType.Bool)] bool show);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
-		[DllImport("user32", SetLastError = true)]
+
+        [DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, WindowPos uFlags);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetTopWindow(IntPtr hWnd);
+		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, WindowPos uFlags);
 
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetDC(IntPtr hWnd);
-
-		[DllImport("user32", SetLastError = true)]
-		public static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
-
-		[DllImport("user32", SetLastError = true)]
+        [DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetClipboardOwner();
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
-		[DllImport("user32", SetLastError = true)]
-		public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
 
-		// Added for WinEventHook logic, Greenshot 1.2
-		[DllImport("user32", SetLastError = true)]
-		public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread, WinEventHookFlags dwFlags);
-
-		// Added for finding Metro apps, Greenshot 1.1
+        // Added for finding Metro apps, Greenshot 1.1
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -198,12 +158,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool GetPhysicalCursorPos(out POINT cursorLocation);
-		[DllImport("user32", SetLastError=true)]
-		public static extern int MapWindowPoints(IntPtr hWndFrom, IntPtr hWndTo, ref POINT lpPoints, [MarshalAs(UnmanagedType.U4)] int cPoints);
-		[DllImport("user32", SetLastError = true)]
-		public static extern int GetSystemMetrics(SystemMetric index);
 
-		/// <summary>
+        /// <summary>
 		/// The following is used for Icon handling
 		/// </summary>
 		/// <param name="hIcon"></param>
@@ -231,18 +187,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool CloseDesktop(IntPtr hDesktop);
 
-		/// <summary>
-		/// The GetWindowDC function retrieves the device context (DC) for the entire window, including title bar, menus, and scroll bars. A window device context permits painting anywhere in a window, because the origin of the device context is the upper-left corner of the window instead of the client area.
-		/// GetWindowDC assigns default attributes to the window device context each time it retrieves the device context.Previous attributes are lost.
-		/// See <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowdc">GetWindowDC function</a>
-		/// </summary>
-		/// <param name="hWnd">A handle to the window whose DC is to be retrieved. If this value is NULL, GetWindowDC retrieves the DC for the entire screen.</param>
-		/// <returns>If the function succeeds, the return value is a handle to a device context for the specified window.</returns>
-		[DllImport("user32", SetLastError = true)]
-		public static extern IntPtr GetWindowDC(IntPtr hWnd);
-
-
-		/// <summary>
+        /// <summary>
 		/// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7.
 		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup
@@ -308,13 +253,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		public static uint GetGuiResourcesGDICount()
         {
-            using Process currentProcess = Process.GetCurrentProcess();
+            using var currentProcess = Process.GetCurrentProcess();
             return GetGuiResources(currentProcess.Handle, 0);
         }
 
 		public static uint GetGuiResourcesUserCount()
         {
-            using Process currentProcess = Process.GetCurrentProcess();
+            using var currentProcess = Process.GetCurrentProcess();
             return GetGuiResources(currentProcess.Handle, 1);
         }
 
@@ -324,7 +269,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="method">string with current method</param>
 		/// <returns>Exception</returns>
 		public static Exception CreateWin32Exception(string method) {
-			Win32Exception exceptionToThrow = new Win32Exception();
+			var exceptionToThrow = new Win32Exception();
 			exceptionToThrow.Data.Add("Method", method);
 			return exceptionToThrow;
 		}

@@ -21,18 +21,18 @@
 
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 
 namespace GreenshotBoxPlugin {
 
-	/// <summary>
-	/// Description of ImgurUtils.
-	/// </summary>
-	public static class BoxUtils {
+    /// <summary>
+    /// Description of BoxUtils.
+    /// </summary>
+    public static class BoxUtils {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(BoxUtils));
 		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
 		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
@@ -73,9 +73,8 @@ namespace GreenshotBoxPlugin {
 				CloudServiceName = "Box",
 				ClientId = BoxCredentials.ClientId,
 				ClientSecret = BoxCredentials.ClientSecret,
-				RedirectUrl = "https://www.box.com/home/",
-				BrowserSize = new Size(1060, 600),
-				AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
+				RedirectUrl = "https://getgreenshot.org/authorize/box",
+				AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
 				RefreshToken = Config.RefreshToken,
 				AccessToken = Config.AccessToken,
 				AccessTokenExpires = Config.AccessTokenExpires
@@ -121,19 +120,7 @@ namespace GreenshotBoxPlugin {
 	/// A simple helper class for the DataContractJsonSerializer
 	/// </summary>
 	internal static class JsonSerializer {
-		/// <summary>
-		/// Helper method to serialize object to JSON
-		/// </summary>
-		/// <param name="jsonObject">JSON object</param>
-		/// <returns>string</returns>
-		public static string Serialize(object jsonObject) {
-			var serializer = new DataContractJsonSerializer(jsonObject.GetType());
-            using MemoryStream stream = new MemoryStream();
-            serializer.WriteObject(stream, jsonObject);
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
-
-		/// <summary>
+        /// <summary>
 		/// Helper method to parse JSON to object
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
@@ -141,7 +128,7 @@ namespace GreenshotBoxPlugin {
 		/// <returns></returns>
 		public static T Deserialize<T>(string jsonString) {
 			var deserializer = new DataContractJsonSerializer(typeof(T));
-            using MemoryStream stream = new MemoryStream();
+            using var stream = new MemoryStream();
             byte[] content = Encoding.UTF8.GetBytes(jsonString);
             stream.Write(content, 0, content.Length);
             stream.Seek(0, SeekOrigin.Begin);

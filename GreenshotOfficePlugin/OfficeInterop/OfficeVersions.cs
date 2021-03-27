@@ -29,14 +29,6 @@ namespace GreenshotOfficePlugin.OfficeInterop
         /// </summary>
 		Office97 = 8,
         /// <summary>
-        /// Office 2000
-        /// </summary>
-		Office2000 = 9,
-        /// <summary>
-        /// Office 2002
-        /// </summary>
-		Office2002 = 10,
-        /// <summary>
         /// Office 2003
         /// </summary>
 		Office2003 = 11,

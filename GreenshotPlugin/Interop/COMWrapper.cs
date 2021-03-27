@@ -35,8 +35,6 @@ namespace GreenshotPlugin.Interop {
 	/// </summary>
 	public sealed class COMWrapper : RealProxy, IDisposable, IRemotingTypeInfo {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(COMWrapper));
-		private const int MK_E_UNAVAILABLE = -2147221021;
-		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
 		public const int RPC_E_FAIL = unchecked((int)0x80004005);
 
@@ -60,84 +58,7 @@ namespace GreenshotPlugin.Interop {
 		/// </summary>
 		private readonly string _targetName;
 
-        [DllImport("ole32.dll")]
-		private static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
-		// Converts failure HRESULTs to exceptions:
-		[DllImport("oleaut32", PreserveSig=false)]
-		private static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
-
         /// <summary>
-		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
-		/// </summary>
-		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
-		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		/// <remarks>T must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
-		public static T GetInstance<T>() {
-			Type type = typeof(T);
-			if (null == type) {
-				throw new ArgumentNullException(nameof(T));
-			}
-			if (!type.IsInterface) {
-				throw new ArgumentException("The specified type must be an interface.", nameof(T));
-			}
-
-			var progIdAttribute = ComProgIdAttribute.GetAttribute(type);
-			if (string.IsNullOrEmpty(progIdAttribute?.Value)) {
-				throw new ArgumentException("The specified type must define a ComProgId attribute.", nameof(T));
-			}
-			string progId = progIdAttribute.Value;
-
-			object comObject = null;
-
-			// Convert from clsid to Prog ID, if needed
-			if (progId.StartsWith("clsid:")) {
-				Guid guid = new Guid(progId.Substring(6));
-				int result = ProgIDFromCLSID(ref guid, out progId);
-				if (result != 0) {
-					// Restore progId, as it's overwritten
-					progId = progIdAttribute.Value;
-
-					try {
-						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
-					} catch (Exception) {
-						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
-					}
-					if (comObject == null) {
-						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
-					}
-				} else {
-					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
-				}
-			}
-
-			if (comObject == null) {
-				try {
-					comObject = Marshal.GetActiveObject(progId);
-				} catch (COMException comE) {
-					if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-						Log.DebugFormat("No current instance of {0} object available.", progId);
-					} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-						Log.WarnFormat("Unknown progId {0}", progId);
-					} else {
-						Log.Warn("Error getting active object for " + progIdAttribute.Value, comE);
-					}
-				} catch (Exception e) {
-					Log.Warn("Error getting active object for " + progIdAttribute.Value, e);
-				}
-			}
-
-			if (comObject != null) {
-				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type, progIdAttribute.Value);
-					return (T)wrapper.GetTransparentProxy();
-				} else {
-					return (T)comObject;
-				}
-			}
-			return default;
-		}
-		
-		/// <summary>
 		/// A simple create instance, doesn't create a wrapper!!
 		/// </summary>
 		/// <returns>T</returns>
@@ -188,125 +109,7 @@ namespace GreenshotPlugin.Interop {
 			return default;
 		}
 
-		/// <summary>
-		/// Gets or creates a COM object and returns the transparent proxy which intercepts all calls to the object
-		/// The ComProgId can be a normal ComProgId or a GUID prefixed with "clsid:"
-		/// </summary>
-		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
-		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		/// <remarks>T must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
-		public static T GetOrCreateInstance<T>() {
-			Type type = typeof(T);
-			if (null == type) {
-				throw new ArgumentNullException(nameof(T));
-			}
-			if (!type.IsInterface) {
-				throw new ArgumentException("The specified type must be an interface.", nameof(T));
-			}
-
-			var progIdAttribute = ComProgIdAttribute.GetAttribute(type);
-			if (string.IsNullOrEmpty(progIdAttribute?.Value)) {
-				throw new ArgumentException("The specified type must define a ComProgId attribute.", nameof(T));
-			}
-
-			object comObject = null;
-			Type comType = null;
-			string progId = progIdAttribute.Value;
-			Guid guid = Guid.Empty;
-
-			// Convert from clsid to Prog ID, if needed
-			if (progId.StartsWith("clsid:")) {
-				guid = new Guid(progId.Substring(6));
-				int result = ProgIDFromCLSID(ref guid, out progId);
-				if (result != 0) {
-					// Restore progId, as it's overwritten
-					progId = progIdAttribute.Value;
-					try {
-						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
-					} catch (Exception) {
-						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
-					}
-					if (comObject == null) {
-						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
-					}
-				} else {
-					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
-				}
-			}
-
-			if (comObject == null) {
-				if (!progId.StartsWith("clsid:")) {
-					try {
-						comObject = Marshal.GetActiveObject(progId);
-					} catch (COMException comE) {
-						if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-							Log.DebugFormat("No current instance of {0} object available.", progId);
-						} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-							Log.WarnFormat("Unknown progId {0} (application not installed)", progId);
-							return default;
-						} else {
-							Log.Warn("Error getting active object for " + progId, comE);
-						}
-					} catch (Exception e) {
-						Log.Warn("Error getting active object for " + progId, e);
-					}
-				}
-			}
-
-			// Did we get the current instance? If not, try to create a new
-			if (comObject == null) {
-				try {
-					comType = Type.GetTypeFromProgID(progId, true);
-				} catch (Exception ex) {
-					if (Guid.Empty != guid) {
-						comType = Type.GetTypeFromCLSID(guid);
-					} else {
-						Log.Warn("Error type for " + progId, ex);
-					}
-				}
-				
-				if (comType != null) {
-					try {
-						comObject = Activator.CreateInstance(comType);
-						if (comObject != null) {
-							Log.DebugFormat("Created new instance of {0} object.", progId);
-						}
-					} catch (Exception e) {
-						Log.Warn("Error creating object for " + progId, e);
-					}
-				}
-			}
-			if (comObject != null) {
-				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type, progIdAttribute.Value);
-					return (T)wrapper.GetTransparentProxy();
-				} else {
-					return (T)comObject;
-				}
-			}
-			return default;
-		}
-
-		/// <summary>
-		/// Wrap a com object as COMWrapper
-		/// </summary>
-		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
-		/// <param name="comObject">An object to intercept</param>
-		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		public static T Wrap<T>(object comObject) {
-			Type type = typeof (T);
-			if (null == comObject) {
-				throw new ArgumentNullException(nameof(comObject));
-			}
-			if (null == type) {
-				throw new ArgumentNullException(nameof(T));
-			}
-
-			COMWrapper wrapper = new COMWrapper(comObject, type, type.FullName);
-			return (T)wrapper.GetTransparentProxy();
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Wrap an object and return the transparent proxy which intercepts all calls to the object
 		/// </summary>
 		/// <param name="comObject">An object to intercept</param>

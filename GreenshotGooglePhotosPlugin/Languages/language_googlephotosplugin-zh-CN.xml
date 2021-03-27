@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+	<resources>
+		<resource name="communication_wait">正在连接到GooglePhotos。请稍后...</resource>
+		<resource name="Configure">配置 GooglePhotos</resource>
+		<resource name="label_AfterUpload">上传之后</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">复制链接到剪贴板</resource>
+		<resource name="label_upload_format">图片格式</resource>
+		<resource name="settings_title">GooglePhotos设置</resource>
+		<resource name="upload_failure">上传到GooglePhotos时发生错误：</resource>
+		<resource name="upload_menu_item">上传到GooglePhotos</resource>
+		<resource name="upload_success">图片已成功上传到了GooglePhotos！</resource>
+	</resources>
+</language>

@@ -30,17 +30,13 @@ namespace Greenshot.Drawing {
 	/// <summary>
 	/// empty container for filter-only elements
 	/// </summary>
-	[Serializable()] 
+	[Serializable] 
 	public abstract class FilterContainer : DrawableContainer {
 		
 		public enum PreparedFilterMode {OBFUSCATE, HIGHLIGHT};
 		public enum PreparedFilter {BLUR, PIXELIZE, TEXT_HIGHTLIGHT, AREA_HIGHLIGHT, GRAYSCALE, MAGNIFICATION};
-		
-		public PreparedFilter Filter {
-			get {  return (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT); }
-		}
-		
-		public FilterContainer(Surface parent) : base(parent) {
+
+        public FilterContainer(Surface parent) : base(parent) {
 			Init();
 		}
 

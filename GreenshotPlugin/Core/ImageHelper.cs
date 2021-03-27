@@ -467,17 +467,7 @@ namespace GreenshotPlugin.Core {
 			return returnIcon;
 		}
 
-		/// <summary>
-		/// Get the number of icon in the file
-		/// </summary>
-		/// <param name="location">Location of the EXE or DLL</param>
-		/// <returns></returns>
-		public static int CountAssociatedIcons(string location)
-		{
-            return Shell32.ExtractIconEx(location, -1, out _, out _, 0);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Apply the effect to the bitmap
 		/// </summary>
 		/// <param name="sourceImage">Bitmap</param>
@@ -1063,17 +1053,7 @@ namespace GreenshotPlugin.Core {
             ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
         }
 
-		/// <summary>
-		/// Apply image attributes to the image
-		/// </summary>
-		/// <param name="source">Image to apply matrix to</param>
-		/// <param name="imageAttributes">ImageAttributes to apply</param>
-		public static void ApplyColorMatrix(Bitmap source, ImageAttributes imageAttributes)
-		{
-			ApplyImageAttributes(source, Rectangle.Empty, source, Rectangle.Empty, imageAttributes);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Apply a color matrix by copying from the source to the destination
 		/// </summary>
 		/// <param name="source">Image to copy from</param>
@@ -1242,17 +1222,7 @@ namespace GreenshotPlugin.Core {
 			return clone;
 		}
 
-		/// <summary>
-		/// Checks if the supplied Bitmap has a PixelFormat we support
-		/// </summary>
-		/// <param name="image">bitmap to check</param>
-		/// <returns>bool if we support it</returns>
-		public static bool SupportsPixelFormat(Image image)
-		{
-			return SupportsPixelFormat(image.PixelFormat);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Checks if we support the pixel format
 		/// </summary>
 		/// <param name="pixelformat">PixelFormat to check</param>
@@ -1462,31 +1432,7 @@ namespace GreenshotPlugin.Core {
 			return newImage;
 		}
 
-		/// <summary>
-		/// Get a scaled version of the sourceBitmap
-		/// </summary>
-		/// <param name="sourceBitmap"></param>
-		/// <param name="percent">1-99 to make smaller, use 101 and more to make the picture bigger</param>
-		/// <returns></returns>
-		public static Bitmap ScaleByPercent(Bitmap sourceBitmap, int percent)
-		{
-			float nPercent = (float)percent / 100;
-
-			int sourceWidth = sourceBitmap.Width;
-			int sourceHeight = sourceBitmap.Height;
-			int destWidth = (int)(sourceWidth * nPercent);
-			int destHeight = (int)(sourceHeight * nPercent);
-
-			Bitmap scaledBitmap = CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
-			using (Graphics graphics = Graphics.FromImage(scaledBitmap))
-			{
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.DrawImage(sourceBitmap, new Rectangle(0, 0, destWidth, destHeight), new Rectangle(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
-			}
-			return scaledBitmap;
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Resize canvas with pixel to the left, right, top and bottom
 		/// </summary>
 		/// <param name="sourceImage"></param>

@@ -53,11 +53,7 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public SaveImageFileDialog() {
-			Init();
-		}
-
-		public SaveImageFileDialog(ICaptureDetails captureDetails) {
+        public SaveImageFileDialog(ICaptureDetails captureDetails) {
 			_captureDetails = captureDetails;
 			Init();
 		}

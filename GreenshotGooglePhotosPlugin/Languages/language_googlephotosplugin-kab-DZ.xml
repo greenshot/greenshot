@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="communication_wait">S tidett tebɣiḍ ad tekkseḍ amazray adigan n GooglePhotos ?...</resource>
+		<resource name="Configure">Swel GooglePhotos</resource>
+		<resource name="label_AfterUpload">Ticki yemmed usali</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Nɣel aseɣwen ɣef afus</resource>
+		<resource name="label_upload_format">Amsal n tugna</resource>
+		<resource name="settings_title">Iɣewwaṛen GooglePhotos</resource>
+		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ɣer GooglePhotos :</resource>
+		<resource name="upload_menu_item">Sali ɣer GooglePhotos</resource>
+		<resource name="upload_success">Tugna tuli ɣer GooglePhotos !</resource>
+	</resources>
+</language>

@@ -20,11 +20,11 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -37,10 +37,8 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurUtils));
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}";
-		private const string TokenUrl = "https://api.imgur.com/oauth2/token";
 
-		/// <summary>
+        /// <summary>
 		/// Check if we need to load the history
 		/// </summary>
 		/// <returns></returns>
@@ -162,20 +160,20 @@ namespace GreenshotImgurPlugin {
                         responseString = reader.ReadToEnd();
                     }
                 } catch (Exception ex) {
-					Log.Error("Upload to imgur gave an exeption: ", ex);
+					Log.Error("Upload to imgur gave an exception: ", ex);
 					throw;
 				}
 			} else {
 
 				var oauth2Settings = new OAuth2Settings
 				{
-					AuthUrlPattern = AuthUrlPattern,
-					TokenUrl = TokenUrl,
-					RedirectUrl = "https://getgreenshot.org/oauth/imgur",
+					AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}",
+					TokenUrl = "https://api.imgur.com/oauth2/token",
+					RedirectUrl = "https://getgreenshot.org/authorize/imgur",
 					CloudServiceName = "Imgur",
 					ClientId = ImgurCredentials.CONSUMER_KEY,
 					ClientSecret = ImgurCredentials.CONSUMER_SECRET,
-					AuthorizeMode = OAuth2AuthorizeMode.OutOfBoundAuto,
+					AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
 					RefreshToken = Config.RefreshToken,
 					AccessToken = Config.AccessToken,
 					AccessTokenExpires = Config.AccessTokenExpires
@@ -221,7 +219,7 @@ namespace GreenshotImgurPlugin {
 			Log.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, imgurInfo.Hash), HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
-			// Not for getting the thumbnail, in anonymous modus
+			// Not for getting the thumbnail, in anonymous mode
 			//SetClientId(webRequest);
             using WebResponse response = webRequest.GetResponse();
             LogRateLimitInfo(response);
@@ -304,7 +302,7 @@ namespace GreenshotImgurPlugin {
 					}
 				}
 			}
-			// Make sure we remove it from the history, if no error occured
+			// Make sure we remove it from the history, if no error occurred
 			Config.runtimeImgurHistory.Remove(imgurInfo.Hash);
 			Config.ImgurUploadHistory.Remove(imgurInfo.Hash);
 			imgurInfo.Image = null;

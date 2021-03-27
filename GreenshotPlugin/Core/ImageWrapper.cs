@@ -12,16 +12,6 @@ namespace GreenshotPlugin.Core
 		private readonly Image _image;
 		private Image _imageClone;
 
-		/// <summary>
-		/// Factory method
-		/// </summary>
-		/// <param name="image">Image</param>
-		/// <returns>IImage</returns>
-		public static IImage FromImage(Image image)
-		{
-			return image == null ? null : new ImageWrapper(image);
-		}
-
 		public ImageWrapper(Image image)
 		{
 			// Make sure the orientation is set correctly so Greenshot can process the image correctly
