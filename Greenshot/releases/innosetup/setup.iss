@@ -266,8 +266,8 @@ en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
-en.ShowLicense=Show licenze
-en.ShowReadme=how Readme
+en.ShowLicense=Show license
+en.ShowReadme=Show Readme
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
