@@ -207,28 +207,28 @@ namespace Greenshot.Helpers {
 					
 				case Positions.TopLeft:
 					selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, originalRectangle.Bottom - resizeHandleCoords.Y);
-					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
 					resizeHandleCoords.X = originalRectangle.Right - newSize.Width;
 					resizeHandleCoords.Y = originalRectangle.Bottom - newSize.Height;
 					break;
 					
 				case Positions.TopRight:
 					selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Bottom - resizeHandleCoords.Y);
-					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
 					resizeHandleCoords.X = originalRectangle.Left + newSize.Width;
 					resizeHandleCoords.Y = originalRectangle.Bottom - newSize.Height;
                     break;
 					
 				case Positions.BottomLeft:
 					selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top);
-					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
 					resizeHandleCoords.X = originalRectangle.Right - newSize.Width;
 					resizeHandleCoords.Y = originalRectangle.Top + newSize.Height;
                     break;
 					
 				case Positions.BottomRight:
 					selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top);
-					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
 					resizeHandleCoords.X = originalRectangle.Left + newSize.Width;
 					resizeHandleCoords.Y = originalRectangle.Top + newSize.Height;
                     break;
@@ -243,7 +243,7 @@ namespace Greenshot.Helpers {
 		/// <param name="originalSize">size to be considered for keeping aspect ratio</param>
 		/// <param name="selectedSize">selection size (i.e. the size we'd produce if we wouldn't keep aspect ratio)</param>
 		/// <returns></returns>
-		private static SizeF getNewSizeForRationalScale(SizeF originalSize, SizeF selectedSize)
+		private static SizeF GetNewSizeForRationalScale(SizeF originalSize, SizeF selectedSize)
 		{
 			SizeF newSize = selectedSize;
 			float originalRatio = originalSize.Width / originalSize.Height;
