@@ -227,92 +227,70 @@ namespace Greenshot.Helpers {
 		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see Position</param>
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper, adjusted coordinates will be written to this reference</param>
 		private static void adjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords) {
-            float originalRatio = originalRectangle.Width / originalRectangle.Height;
-			float newWidth, newHeight, newRatio;
-            int flippedRatioSign;
+			SizeF selectedRectangle, newSize;
+
 			switch(resizeHandlePosition) {
 					
 				case Positions.TopLeft:
-					newWidth = originalRectangle.Right - resizeHandleCoords.X;
-					newHeight = originalRectangle.Bottom - resizeHandleCoords.Y;
-					newRatio = newWidth / newHeight;
-                    flippedRatioSign = Math.Sign(newRatio) * Math.Sign(originalRatio);
-                    if (Math.Abs(newRatio) > Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be wider than original
-                        // keep height and tweak width to maintain aspect ratio
-                        float tweakedWidth = newHeight * originalRatio * flippedRatioSign;
-                        resizeHandleCoords.X = originalRectangle.Right - tweakedWidth;
-					} else if(Math.Abs(newRatio) < Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be taller than original
-                        // keep width and tweak height to maintain aspect ratio
-                        float tweakedHeight = newWidth / originalRatio * flippedRatioSign;
-                        resizeHandleCoords.Y = originalRectangle.Bottom - tweakedHeight;
-					}
+					selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, originalRectangle.Bottom - resizeHandleCoords.Y);
+					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					resizeHandleCoords.X = originalRectangle.Right - newSize.Width;
+					resizeHandleCoords.Y = originalRectangle.Bottom - newSize.Height;
 					break;
 					
 				case Positions.TopRight:
-					newWidth = resizeHandleCoords.X - originalRectangle.Left;
-					newHeight = originalRectangle.Bottom - resizeHandleCoords.Y;
-					newRatio = newWidth / newHeight; 
-                    flippedRatioSign = Math.Sign(newRatio) * Math.Sign(originalRatio);
-
-                    if (Math.Abs(newRatio) > Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be wider than original
-                        // keep height and tweak width to maintain aspect ratio
-                        float tweakedWidth = newHeight * originalRatio * flippedRatioSign;
-                        resizeHandleCoords.X = originalRectangle.Left + tweakedWidth;
-                    }
-                    else if (Math.Abs(newRatio) < Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be taller than original
-                        // keep width and tweak height to maintain aspect ratio
-                        float tweakedHeight = newWidth / originalRatio * flippedRatioSign;
-                        resizeHandleCoords.Y = originalRectangle.Bottom - tweakedHeight;
-                    }
+					selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Bottom - resizeHandleCoords.Y);
+					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					resizeHandleCoords.X = originalRectangle.Left + newSize.Width;
+					resizeHandleCoords.Y = originalRectangle.Bottom - newSize.Height;
                     break;
 					
 				case Positions.BottomLeft:
-					newWidth = originalRectangle.Right - resizeHandleCoords.X;
-					newHeight = resizeHandleCoords.Y - originalRectangle.Top;
-					newRatio = newWidth / newHeight;
-                    flippedRatioSign = Math.Sign(newRatio) * Math.Sign(originalRatio);
-
-                    if (Math.Abs(newRatio) > Math.Abs(originalRatio))  {
-                        // scaled rectangle (ratio) would be wider than original
-                        // keep height and tweak width to maintain aspect ratio
-                        float tweakedWidth = newHeight * originalRatio * flippedRatioSign;
-                        resizeHandleCoords.X = originalRectangle.Right - tweakedWidth;
-                    }
-                    else if (Math.Abs(newRatio) < Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be taller than original
-                        // keep width and tweak height to maintain aspect ratio
-                        float tweakedHeight = newWidth / originalRatio * flippedRatioSign;
-                        resizeHandleCoords.Y = originalRectangle.Top + tweakedHeight;
-                    }
+					selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top);
+					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					resizeHandleCoords.X = originalRectangle.Right - newSize.Width;
+					resizeHandleCoords.Y = originalRectangle.Top + newSize.Height;
                     break;
 					
 				case Positions.BottomRight:
-					newWidth = resizeHandleCoords.X - originalRectangle.Left;
-					newHeight = resizeHandleCoords.Y - originalRectangle.Top;
-					newRatio = newWidth / newHeight;
-                    flippedRatioSign = Math.Sign(newRatio) * Math.Sign(originalRatio);
-
-                    if (Math.Abs(newRatio) > Math.Abs(originalRatio)) {
-                        // scaled rectangle (ratio) would be wider than original
-                        // keep height and tweak width to maintain aspect ratio
-                        float tweakedWidth = newHeight * originalRatio * flippedRatioSign;
-                        resizeHandleCoords.X = originalRectangle.Left + tweakedWidth;
-                    }
-                    else if (Math.Abs(newRatio) < Math.Abs(originalRatio)) {
-                        // TODO this is the same code as else if for topleft!
-                        // scaled rectangle (ratio) would be taller than original
-                        // keep width and tweak height to maintain aspect ratio
-                        float tweakedHeight = newWidth / originalRatio * flippedRatioSign;
-                        resizeHandleCoords.Y = originalRectangle.Top + tweakedHeight;
-                    }
+					selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top);
+					newSize = getNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
+					resizeHandleCoords.X = originalRectangle.Left + newSize.Width;
+					resizeHandleCoords.Y = originalRectangle.Top + newSize.Height;
                     break;
 			}
 		}
-		
+
+		/// <summary>
+		/// For an original size, and a selected size, returns the the largest possible size that
+		/// * has the same aspect ratio as the original
+		/// * fits into selected size
+		/// </summary>
+		/// <param name="originalSize">size to be considered for keeping aspect ratio</param>
+		/// <param name="selectedSize">selection size (i.e. the size we'd produce if we wouldn't keep aspect ratio)</param>
+		/// <returns></returns>
+		private static SizeF getNewSizeForRationalScale(SizeF originalSize, SizeF selectedSize)
+		{
+			SizeF newSize = selectedSize;
+			float originalRatio = originalSize.Width / originalSize.Height;
+			float selectedRatio = selectedSize.Width / selectedSize.Height;
+			// will fix orientation if the scaling causes size to be flipped in any direction
+			int flippedRatioSign = Math.Sign(selectedRatio) * Math.Sign(originalRatio);
+			if (Math.Abs(selectedRatio) > Math.Abs(originalRatio))
+			{
+				// scaled rectangle (ratio) would be wider than original
+				// keep height and tweak width to maintain aspect ratio
+				newSize.Width = selectedSize.Height * originalRatio * flippedRatioSign;
+			}
+			else if (Math.Abs(selectedRatio) < Math.Abs(originalRatio))
+			{
+				// scaled rectangle (ratio) would be taller than original
+				// keep width and tweak height to maintain aspect ratio
+				newSize.Height = selectedSize.Width / originalRatio * flippedRatioSign;
+			}
+			return newSize;
+		}
+
 		public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize) {
 			Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null);
 		}
