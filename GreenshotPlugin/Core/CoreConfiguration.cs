@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -74,6 +74,9 @@ namespace GreenshotPlugin.Core {
 		public string LastregionHotkey { get; set; }
 		[IniProperty("IEHotkey", Description="Hotkey for starting the IE capture", DefaultValue="Shift + Ctrl + PrintScreen")]
 		public string IEHotkey { get; set; }
+		
+		[IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor")]
+		public string ClipboardHotkey { get; set; }
 
 		[IniProperty("IsFirstLaunch", Description="Is this the first time launch?", DefaultValue="true")]
 		public bool IsFirstLaunch { get; set; }

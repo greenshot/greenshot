@@ -5,12 +5,12 @@
         <resource name="about_donations">Se ti piace Greenshot, supportaci su:</resource>
         <resource name="about_host">Greenshot è disponibile nel repository GitHub</resource>
         <resource name="about_icons">Libreria icone del set icone Fugue di Yusuke Kamiyamane (Creative Commons Attribution 3.0 license)</resource>
-        <resource name="about_license">Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+        <resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene fornito SENZA ALCUNA GARANZIA.
-Questo software è garuitio", e potete ri-distribuirlo secondo certe condizioni.
+Questo software è gratuito", e potete ri-distribuirlo secondo certe condizioni.
 Dettagli della General Public License GNU:</resource>
         <resource name="about_title">Info su Greenshot</resource>
-        <resource name="about_translation">Traduzione italiana (v. 16.08.2020) di bovirus e tonytogna</resource>
+        <resource name="about_translation">Traduzione italiana (v. 29.01.2021) di bovirus e tonytogna</resource>
         <resource name="application_title">Greenshot - Uno straordinario strumento per copiare immagini dallo schermo</resource>
         <resource name="bugreport_cancel">Chiudi</resource>
         <resource name="bugreport_info">Si è verificato un errore inaspettato.
@@ -133,7 +133,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_match_capture_size">Adatta a dimensioni di cattura</resource>
         <resource name="editor_obfuscate">Offusca (O)</resource>
         <resource name="editor_obfuscate_blur">Sfuma</resource>
-        <resource name="editor_obfuscate_mode">Modalità di offuscamento</resource>
+        <resource name="editor_obfuscate_mode">Modalità offuscamento</resource>
         <resource name="editor_obfuscate_pixelize">Offusca/pixelizza</resource>
         <resource name="editor_object">Oggetti</resource>
         <resource name="editor_opendirinexplorer">Apri cartella su Windows Explorer</resource>
@@ -185,7 +185,7 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="expertsettings_optimizeforrdp">Esegui ottimizzazioni per uso con desktop remoto</resource>
         <resource name="expertsettings_reuseeditorifpossible">Riutilizza se possibile la gestione immagini</resource>
         <resource name="expertsettings_suppresssavedialogatclose">Evita avviso di salvataggio in chiusura della gestione immagini</resource>
-        <resource name="expertsettings_thumbnailpreview">Visualizza anteprima finestra nel menù di contesto (Vista e Windows 7)</resource>
+        <resource name="expertsettings_thumbnailpreview">Visualizza anteprima finestra nel menù contestuale (Vista e Windows 7)</resource>
         <resource name="exported_to">Esportato in: {0}</resource>
         <resource name="exported_to_error">Si è verificato un errore durante l'esportazione in {0}:</resource>
         <resource name="help_title">Guida in linea Greenshot</resource>
@@ -207,7 +207,7 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="printoptions_timestamp">Aggiungi data/ora nel piè di pagina</resource>
         <resource name="printoptions_title">Opzioni di stampa di Greenshot</resource>
         <resource name="qualitydialog_dontaskagain">Salva come qualità predefinita e non chiedere più</resource>
-        <resource name="qualitydialog_title">Qualità di Greenshot</resource>
+        <resource name="qualitydialog_title">Qualità Greenshot</resource>
         <resource name="quicksettings_destination_file">Salva direttamente (usando le impostazioni preferite file destinazione)</resource>
         <resource name="settings_alwaysshowprintoptionsdialog">Visualizza scelta opzioni di stampa ogni volta che stampi un'immagine</resource>
         <resource name="settings_alwaysshowqualitydialog">Visualizza scelta qualità ogni volta che si salva un'immagine</resource>

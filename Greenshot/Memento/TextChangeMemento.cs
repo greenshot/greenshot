@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,12 +27,12 @@ namespace Greenshot.Memento {
 	/// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
 	/// </summary>
 	public class TextChangeMemento : IMemento  {
-		private TextContainer textContainer;
-		private readonly string oldText;
+		private TextContainer _textContainer;
+		private readonly string _oldText;
 		
 		public TextChangeMemento(TextContainer textContainer) {
-			this.textContainer = textContainer;
-			oldText = textContainer.Text;
+			_textContainer = textContainer;
+			_oldText = textContainer.Text;
 		}
 
 		public void Dispose() {
@@ -41,27 +41,23 @@ namespace Greenshot.Memento {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				textContainer = null;
+				_textContainer = null;
 			}
 		}
 
 		public bool Merge(IMemento otherMemento) {
-            if (otherMemento is TextChangeMemento other) {
-				if (other.textContainer.Equals(textContainer)) {
-					// Match, do not store anything as the initial state is what we want.
-					return true;
-				}
-			}
-			return false;
+			if (otherMemento is not TextChangeMemento other) return false;
+			
+			return other._textContainer.Equals(_textContainer);
 		}
 
 		public IMemento Restore() {
 			// Before
-			textContainer.Invalidate();
-			TextChangeMemento oldState = new TextChangeMemento(textContainer);
-			textContainer.ChangeText(oldText, false);
+			_textContainer.Invalidate();
+			TextChangeMemento oldState = new TextChangeMemento(_textContainer);
+			_textContainer.ChangeText(_oldText, false);
 			// After
-			textContainer.Invalidate();
+			_textContainer.Invalidate();
 			return oldState;
 		}
 	}

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -226,9 +226,9 @@ namespace Greenshot.Helpers {
 		}
 
 		/// <summary>
-		/// Test if there is a link in the Statup folder
+		/// Test if there is a link in the Startup folder
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>bool</returns>
 		public static bool IsInStartupFolder() {
 			try {
 				string lnkName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk";

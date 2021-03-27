@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,7 +21,7 @@
 
 using Greenshot.Controls;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	partial class ImageEditorForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -56,7 +56,7 @@ namespace Greenshot {
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.panel1 = new GreenshotPlugin.Controls.NonJumpingPanel();
+			this.panel1 = new NonJumpingPanel();
 			this.toolsToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.btnCursor = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -1977,7 +1977,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnRect;
 		private System.Windows.Forms.ToolStripContainer topToolStripContainer;
 		private Greenshot.Controls.ToolStripEx destinationsToolStrip;
-		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
+		private NonJumpingPanel panel1;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
 		private Greenshot.Controls.ToolStripColorButton btnLineColor;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem autoCropToolStripMenuItem;

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -209,18 +209,18 @@ namespace Greenshot.Helpers
 					}
 				}
 			}
-			if (ex is ExternalException)
+			if (ex is ExternalException externalException)
 			{
 				// e.g. COMException
-				report.AppendLine().AppendLine("ErrorCode: 0x" + (ex as ExternalException).ErrorCode.ToString("X"));
+				report.AppendLine().AppendLine("ErrorCode: 0x" + externalException.ErrorCode.ToString("X"));
 			}
 
 			report.AppendLine().AppendLine("Stack:").AppendLine(ex.StackTrace);
 
-			if (ex is ReflectionTypeLoadException)
+			if (ex is ReflectionTypeLoadException reflectionTypeLoadException)
 			{
 				report.AppendLine().AppendLine("LoaderExceptions: ");
-				foreach (Exception cbE in (ex as ReflectionTypeLoadException).LoaderExceptions)
+				foreach (Exception cbE in reflectionTypeLoadException.LoaderExceptions)
 				{
 					report.AppendLine(cbE.Message);
 				}

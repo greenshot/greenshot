@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -115,7 +115,7 @@ namespace GreenshotWin10Plugin
         /// </summary>
         /// <param name="ocrResult">OcrResult</param>
         /// <returns>OcrInformation</returns>
-        private OcrInformation CreateOcrInformation(OcrResult ocrResult)
+        private static OcrInformation CreateOcrInformation(OcrResult ocrResult)
         {
             var result = new OcrInformation();
 

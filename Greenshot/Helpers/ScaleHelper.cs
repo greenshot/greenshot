@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -64,7 +64,7 @@ namespace Greenshot.Helpers {
 		/// calculates the position of an element depending on the desired alignment within a RectangleF
 		/// </summary>
 		/// <param name="currentRect">the bounds of the element to be aligned</param>
-		/// <param name="targetRect">the rectangle reference for aligment of the element</param>
+		/// <param name="targetRect">the rectangle reference for alignment of the element</param>
 		/// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
 		/// <returns>a new RectangleF object with Location aligned aligned to targetRect</returns>
 		public static RectangleF GetAlignedRectangle(RectangleF currentRect, RectangleF targetRect, ContentAlignment alignment) {
@@ -136,15 +136,13 @@ namespace Greenshot.Helpers {
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
 		/// <param name="options">ScaleOptions to use when scaling</param>
 		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords, ScaleOptions? options) {
-			if(options == null) {
-				options = GetScaleOptions();
-			}
+			options ??= GetScaleOptions();
 			
-			if((options & ScaleOptions.Rational) == ScaleOptions.Rational) {
+			if ((options & ScaleOptions.Rational) == ScaleOptions.Rational) {
 				adjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
 			}
 
-			if((options & ScaleOptions.Centered) == ScaleOptions.Centered) {
+			if ((options & ScaleOptions.Centered) == ScaleOptions.Centered) {
 				// store center coordinates of rectangle
 				float rectCenterX = originalRectangle.Left + originalRectangle.Width / 2;
 				float rectCenterY = originalRectangle.Top + originalRectangle.Height / 2;
@@ -371,14 +369,14 @@ namespace Greenshot.Helpers {
 		}
 		
 		public class ShapeAngleRoundBehavior : IDoubleProcessor {
-			public static ShapeAngleRoundBehavior Instance = new ShapeAngleRoundBehavior();
+			public static ShapeAngleRoundBehavior Instance = new();
 			private ShapeAngleRoundBehavior() {}
 			public double Process(double angle) {
 				return Math.Round((angle+45)/90)*90 - 45;
 			}
 		}
 		public class LineAngleRoundBehavior : IDoubleProcessor {
-			public static LineAngleRoundBehavior Instance = new LineAngleRoundBehavior();
+			public static LineAngleRoundBehavior Instance = new();
 			private LineAngleRoundBehavior() {}
 			public double Process(double angle) {
 				return Math.Round(angle/15)*15;
@@ -393,21 +391,6 @@ namespace Greenshot.Helpers {
 				return fixedAngle;
 			}
 		}
-		
-		
-		
-		
-		
-		/*public static int FindGripperPostition(float anchorX, float anchorY, float gripperX, float gripperY) {
-			if(gripperY > anchorY) {
-				if(gripperX > anchorY) return Gripper.POSITION_BOTTOM_RIGHT;
-				else return Gripper.POSITION_BOTTOM_LEFT;
-			} else {
-				if(gripperX > anchorY) return Gripper.POSITION_TOP_RIGHT;
-				else return Gripper.POSITION_TOP_LEFT;
-			}
-		}*/
-
 	}
 }
  

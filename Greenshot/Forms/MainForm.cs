@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,25 +29,24 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Greenshot.Configuration;
-using Greenshot.Forms;
-using Greenshot.Help;
-using Greenshot.Helpers;
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
-using log4net;
-using Timer = System.Timers.Timer;
-using System.Threading.Tasks;
+using Greenshot.Help;
+using Greenshot.Helpers;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.UnmanagedHelpers;
+using log4net;
+using Timer = System.Timers.Timer;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of MainForm.
 	/// </summary>
@@ -533,21 +532,26 @@ namespace Greenshot {
 
 		private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration) {
 			IniValue hotkeyValue = _conf.Values[configurationKey];
+			var hotkeyStringValue = hotkeyValue.Value?.ToString();
+			if (string.IsNullOrEmpty(hotkeyStringValue))
+			{
+				return true;
+			}
 			try {
-				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				bool success = RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
 				if (!success && ignoreFailedRegistration) {
-					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
+					LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyStringValue);
 					_conf.Values[configurationKey].Value = Keys.None.ToString();
 					_conf.IsDirty = true;
 				}
 				return success;
 			} catch (Exception ex) {
 				LOG.Warn(ex);
-				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.Attributes.DefaultValue);
+				LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue, hotkeyValue.Attributes.DefaultValue);
 				// when getting an exception the key wasn't found: reset the hotkey value
 				hotkeyValue.UseValueOrDefault(null);
 				hotkeyValue.ContainingIniSection.IsDirty = true;
-				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
+				return RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
 			}
 		}
 
@@ -607,6 +611,10 @@ namespace Greenshot {
 				success = false;
 			}
 			if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", _instance.CaptureLastRegion, ignoreFailedRegistration)) {
+				success = false;
+			}
+			if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", _instance.CaptureClipboard, true))
+			{
 				success = false;
 			}
 			if (_conf.IECapture) {
@@ -689,7 +697,12 @@ namespace Greenshot {
 			contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
 			contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
 			contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.IEHotkey);
-		}
+			var clipboardHotkey = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.ClipboardHotkey);
+			if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
+			{
+				contextmenu_captureclipboard.ShortcutKeyDisplayString = clipboardHotkey;
+			}
+        }
 
 
         private void MainFormFormClosing(object sender, FormClosingEventArgs e) {
@@ -727,6 +740,14 @@ namespace Greenshot {
 
 		private void CaptureLastRegion() {
 			CaptureHelper.CaptureLastRegion(true);
+		}
+
+		/// <summary>
+		/// This is used by the hotkey trigger
+		/// </summary>
+		private void CaptureClipboard()
+        {
+	        CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 		}
 
 		private void CaptureIE() {
@@ -1394,7 +1415,7 @@ namespace Greenshot {
 			catch (Exception ex)
 			{
 				// Make sure we show what we tried to open in the exception
-				ex.Data.Add("path", path);
+				ex.Data["path"] = path;
 				LOG.Warn("Couldn't open the path to the last exported file", ex);
 				// No reason to create a bug-form, we just display the error.
 				MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);

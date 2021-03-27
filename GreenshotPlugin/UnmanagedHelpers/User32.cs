@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -109,7 +109,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool IsIconic(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool IsZoomed(IntPtr hwnd);
+		public static extern bool IsZoomed(IntPtr hWnd);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 		[DllImport("user32", SetLastError = true)]
@@ -118,7 +118,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDc, uint nFlags);
+		public static extern bool PrintWindow(IntPtr hWnd, IntPtr hDc, uint nFlags);
 		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError=true)]
 		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
@@ -181,7 +181,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
-		public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+		public static extern IntPtr FindWindowEx(IntPtr hWndParent, IntPtr hWndChildAfter, string lpszClass, string lpszWindow);
 
 		/// uiFlags: 0 - Count of GDI objects
 		/// uiFlags: 1 - Count of USER objects
@@ -199,7 +199,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool GetPhysicalCursorPos(out POINT cursorLocation);
 		[DllImport("user32", SetLastError=true)]
-		public static extern int MapWindowPoints(IntPtr hwndFrom, IntPtr hwndTo, ref POINT lpPoints, [MarshalAs(UnmanagedType.U4)] int cPoints);
+		public static extern int MapWindowPoints(IntPtr hWndFrom, IntPtr hWndTo, ref POINT lpPoints, [MarshalAs(UnmanagedType.U4)] int cPoints);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int GetSystemMetrics(SystemMetric index);
 
@@ -281,28 +281,28 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <summary>
 		/// Wrapper for the GetWindowLong which decides if the system is 64-bit or not and calls the right one.
 		/// </summary>
-		/// <param name="hwnd"></param>
+		/// <param name="hWnd"></param>
 		/// <param name="nIndex"></param>
 		/// <returns></returns>
-		public static long GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
+		public static long GetWindowLongWrapper(IntPtr hWnd, int nIndex) {
 			if (IntPtr.Size == 8) {
-				return GetWindowLongPtr(hwnd, nIndex).ToInt64();
+				return GetWindowLongPtr(hWnd, nIndex).ToInt64();
 			} else {
-				return GetWindowLong(hwnd, nIndex);
+				return GetWindowLong(hWnd, nIndex);
 			}
 		}
 
 		/// <summary>
 		/// Wrapper for the SetWindowLong which decides if the system is 64-bit or not and calls the right one.
 		/// </summary>
-		/// <param name="hwnd"></param>
+		/// <param name="hWnd"></param>
 		/// <param name="nIndex"></param>
 		/// <param name="styleFlags"></param>
-		public static void SetWindowLongWrapper(IntPtr hwnd, int nIndex, IntPtr styleFlags) {
+		public static void SetWindowLongWrapper(IntPtr hWnd, int nIndex, IntPtr styleFlags) {
 			if (IntPtr.Size == 8) {
-				SetWindowLongPtr(hwnd, nIndex, styleFlags);
+				SetWindowLongPtr(hWnd, nIndex, styleFlags);
 			} else {
-				SetWindowLong(hwnd, nIndex, styleFlags.ToInt32());
+				SetWindowLong(hWnd, nIndex, styleFlags.ToInt32());
 			}
 		}
 

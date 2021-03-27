@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -59,7 +59,7 @@ namespace Greenshot.Memento
 
 		public IMemento Restore()
 		{
-			AddElementsMemento oldState = new AddElementsMemento(_surface, _containerList);
+			var oldState = new AddElementsMemento(_surface, _containerList);
 			_surface.AddElements(_containerList, false);
 			// After
 			_surface.Invalidate();

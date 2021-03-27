@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,13 +26,13 @@ namespace GreenshotOCRPlugin {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : OcrForm {
-		private readonly OCRConfiguration config;
+		private readonly OCRConfiguration _config;
 
 		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
-			this.config = config;
+			this._config = config;
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
@@ -58,7 +58,7 @@ namespace GreenshotOCRPlugin {
 		private void ButtonOKClick(object sender, EventArgs e) {
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null) {
-				config.Language = selectedString.ToUpper();
+				_config.Language = selectedString.ToUpper();
 			}
 		}
 	}

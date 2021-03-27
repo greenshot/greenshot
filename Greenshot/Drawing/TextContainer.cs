@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -67,25 +67,21 @@ namespace Greenshot.Drawing
         // there is a binding on the following property!
         public string Text
         {
-            get { return text; }
-            set
-            {
-                ChangeText(value, true);
-            }
+            get => text;
+            set => ChangeText(value, true);
         }
 
         internal void ChangeText(string newText, bool allowUndoable)
         {
-            if ((text == null && newText != null) || !string.Equals(text, newText))
+            if ((text != null || newText == null) && string.Equals(text, newText)) return;
+            
+            if (makeUndoable && allowUndoable)
             {
-                if (makeUndoable && allowUndoable)
-                {
-                    makeUndoable = false;
-                    _parent.MakeUndoable(new TextChangeMemento(this), false);
-                }
-                text = newText;
-                OnPropertyChanged("Text");
+                makeUndoable = false;
+                _parent.MakeUndoable(new TextChangeMemento(this), false);
             }
+            text = newText;
+            OnPropertyChanged("Text");
         }
 
         public TextContainer(Surface parent) : base(parent)
@@ -602,6 +598,41 @@ namespace Greenshot.Drawing
             DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
         }
 
+        private static TextFormatFlags ConvertStringFormat(StringFormat stringFormat)
+        {
+            TextFormatFlags flags = TextFormatFlags.Default;
+            if (stringFormat == null)
+            {
+                return flags;
+            }
+            switch (stringFormat.LineAlignment)
+            {
+                case StringAlignment.Center:
+                    flags |= TextFormatFlags.VerticalCenter;
+                    break;
+                case StringAlignment.Far:
+                    flags |= TextFormatFlags.Bottom;
+                    break;
+                case StringAlignment.Near:
+                    flags |= TextFormatFlags.Top;
+                    break;
+            }
+            switch (stringFormat.Alignment)
+            {
+                case StringAlignment.Center:
+                    flags |= TextFormatFlags.HorizontalCenter;
+                    break;
+                case StringAlignment.Far:
+                    flags |= TextFormatFlags.Right;
+                    break;
+                case StringAlignment.Near:
+                    flags |= TextFormatFlags.Left;
+                    break;
+            }
+
+            return flags;
+        }
+
         /// <summary>
         /// This method can be used from other containers
         /// </summary>
@@ -640,8 +671,8 @@ namespace Greenshot.Drawing
                         shadowRect.Inflate(-textOffset, -textOffset);
                     }
 
-                    using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
-                    graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
+                    TextRenderer.DrawText(graphics, text, font, shadowRect, Color.FromArgb(alpha, 100, 100, 100), ConvertStringFormat(stringFormat));
+
                     currentStep++;
                     alpha -= basealpha / steps;
                 }
@@ -651,16 +682,14 @@ namespace Greenshot.Drawing
             {
                 drawingRectange.Inflate(-textOffset, -textOffset);
             }
-            using (Brush fontBrush = new SolidBrush(fontColor))
+
+            if (stringFormat != null)
             {
-                if (stringFormat != null)
-                {
-                    graphics.DrawString(text, font, fontBrush, drawingRectange, stringFormat);
-                }
-                else
-                {
-                    graphics.DrawString(text, font, fontBrush, drawingRectange);
-                }
+                TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor, ConvertStringFormat(stringFormat));
+            }
+            else
+            {
+                TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor);
             }
         }
 
