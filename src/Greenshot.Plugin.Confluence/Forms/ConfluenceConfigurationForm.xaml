@@ -1,0 +1,33 @@
+﻿<Window x:Class="Greenshot.Plugin.Confluence.Forms.ConfluenceConfigurationForm"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:gsc="clr-namespace:Greenshot.Base.Core;assembly=Greenshot.Base"
+	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
+	xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence"
+	Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	<Window.Resources>
+        <confluence:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
+	</Window.Resources>
+
+	<StackPanel>
+        <CheckBox IsChecked="{Binding IncludePersonSpaces}" Content="{support:Translate include_person_spaces}"/>
+        <CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{support:Translate open_page_after_upload}"/>
+		<CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{support:Translate copy_wikimarkup}"/>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{support:Translate label_url}" />
+			<TextBox Text="{Binding Url}"/>
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{support:Translate label_timeout}" />
+			<TextBox Text="{Binding Timeout}"/>
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label Content="{support:Translate upload_format}" />
+			<ComboBox ItemsSource="{Binding Source={StaticResource outputFormats},Path=DisplayNames}" SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button IsDefault="True" Content="{support:Translate OK}" Click="Button_OK_Click"/>
+            <Button IsCancel="True" Content="{support:Translate CANCEL}"/>
+        </StackPanel>
+	</StackPanel>
+</Window>
