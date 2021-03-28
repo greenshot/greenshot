@@ -20,27 +20,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Gree
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotPlugin", "GreenshotPlugin\GreenshotPlugin.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotExternalCommandPlugin", "GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.csproj", "{47F23C86-604E-4CC3-8767-B3D4088F30BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.ExternalCommand", "Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj", "{47F23C86-604E-4CC3-8767-B3D4088F30BB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotConfluencePlugin", "GreenshotConfluencePlugin\GreenshotConfluencePlugin.csproj", "{C3052651-598A-44E2-AAB3-2E41311D50F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Confluence", "Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.csproj", "{C3052651-598A-44E2-AAB3-2E41311D50F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotImgurPlugin", "GreenshotImgurPlugin\GreenshotImgurPlugin.csproj", "{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Imgur", "Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.csproj", "{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotJiraPlugin", "GreenshotJiraPlugin\GreenshotJiraPlugin.csproj", "{19FEEF09-313F-43C7-819D-F1BCA782B08B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Jira", "Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj", "{19FEEF09-313F-43C7-819D-F1BCA782B08B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotBoxPlugin", "GreenshotBoxPlugin\GreenshotBoxPlugin.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Box", "Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj", "{697CF066-9077-4F22-99D9-D989CCE7282B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotDropboxPlugin", "GreenshotDropboxPlugin\GreenshotDropboxPlugin.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Dropbox", "Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotFlickrPlugin", "GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Flickr", "Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotGooglePhotosPlugin", "GreenshotGooglePhotosPlugin\GreenshotGooglePhotosPlugin.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.GooglePhotos", "Greenshot.Plugin.GooglePhotos\Greenshot.Plugin.GooglePhotos.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotOfficePlugin", "GreenshotOfficePlugin\GreenshotOfficePlugin.csproj", "{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Office", "Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj", "{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotPhotobucketPlugin", "GreenshotPhotobucketPlugin\GreenshotPhotobucketPlugin.csproj", "{9C0ECC4C-7807-4111-916A-4F57BB29788A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Photobucket", "Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.csproj", "{9C0ECC4C-7807-4111-916A-4F57BB29788A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotWin10Plugin", "GreenshotWin10Plugin\GreenshotWin10Plugin.csproj", "{9801F62C-540F-4BFE-9211-6405DEDE563B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Win10", "Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.csproj", "{9801F62C-540F-4BFE-9211-6405DEDE563B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82987F1E-D7E6-4C44-B934-981D366E4672}"
 	ProjectSection(SolutionItems) = preProject
