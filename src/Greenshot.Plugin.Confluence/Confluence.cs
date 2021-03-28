@@ -26,7 +26,7 @@ using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotConfluencePlugin {
+namespace Greenshot.Plugin.Confluence {
     public class Page {
 		public Page(RemotePage page) {
 			Id = page.id;

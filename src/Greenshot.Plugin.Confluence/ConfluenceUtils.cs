@@ -18,15 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
-
 using GreenshotPlugin.Core;
 
-namespace GreenshotConfluencePlugin {
+namespace Greenshot.Plugin.Confluence {
 	/// <summary>
 	/// Description of ConfluenceUtils.
 	/// </summary>

@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Dapplo and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-namespace GreenshotOfficePlugin.Com
+namespace Greenshot.Plugin.Office.Com
 {
     /// <summary>
     ///     A factory for IDisposableCom

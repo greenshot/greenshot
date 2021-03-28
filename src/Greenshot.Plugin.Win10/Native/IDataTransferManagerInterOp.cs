@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using GreenshotPlugin.Core.Enums;
 using System;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
+using GreenshotPlugin.Core.Enums;
 
-namespace GreenshotWin10Plugin.Native
+namespace Greenshot.Plugin.Win10.Native
 {
     /// <summary>
     /// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.

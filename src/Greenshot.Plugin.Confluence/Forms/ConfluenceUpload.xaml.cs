@@ -25,7 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 
-namespace GreenshotConfluencePlugin.Forms {
+namespace Greenshot.Plugin.Confluence.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml
 	/// </summary>

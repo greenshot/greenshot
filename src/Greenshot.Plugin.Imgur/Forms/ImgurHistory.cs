@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotImgurPlugin.Forms {
+namespace Greenshot.Plugin.Imgur.Forms {
 	/// <summary>
 	/// Imgur history form
 	/// </summary>

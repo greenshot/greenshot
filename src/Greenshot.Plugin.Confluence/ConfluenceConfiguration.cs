@@ -18,11 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotConfluencePlugin {
+namespace Greenshot.Plugin.Confluence {
 	/// <summary>
 	/// Description of ConfluenceConfiguration.
 	/// </summary>

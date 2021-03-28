@@ -23,12 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotOfficePlugin.OfficeExport.Entities;
+using Greenshot.Plugin.Office.OfficeExport;
+using Greenshot.Plugin.Office.OfficeExport.Entities;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace GreenshotOfficePlugin.Destinations {
+namespace Greenshot.Plugin.Office.Destinations {
 	public class OneNoteDestination : AbstractDestination {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;

@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using GreenshotOfficePlugin.OfficeExport;
+using Greenshot.Plugin.Office.OfficeExport;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -32,7 +32,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 using Microsoft.Office.Interop.Outlook;
 using Microsoft.Win32;
 
-namespace GreenshotOfficePlugin.Destinations {
+namespace Greenshot.Plugin.Office.Destinations {
 	/// <summary>
 	/// Description of OutlookDestination.
 	/// </summary>

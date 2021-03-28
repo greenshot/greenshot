@@ -20,14 +20,14 @@
  */
 
 using System;
+using Greenshot.Plugin.Win10.Destinations;
+using Greenshot.Plugin.Win10.Processors;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotWin10Plugin.Destinations;
-using GreenshotWin10Plugin.Processors;
 
-namespace GreenshotWin10Plugin
+namespace Greenshot.Plugin.Win10
 {
 	/// <summary>
 	/// This is the Win10Plugin

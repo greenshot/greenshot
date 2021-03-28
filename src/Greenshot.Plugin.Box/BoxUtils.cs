@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotBoxPlugin {
+namespace Greenshot.Plugin.Box {
 
     /// <summary>
     /// Description of BoxUtils.

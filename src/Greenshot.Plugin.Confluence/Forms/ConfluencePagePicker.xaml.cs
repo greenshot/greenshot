@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 
-namespace GreenshotConfluencePlugin.Forms {
+namespace Greenshot.Plugin.Confluence.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml
 	/// </summary>

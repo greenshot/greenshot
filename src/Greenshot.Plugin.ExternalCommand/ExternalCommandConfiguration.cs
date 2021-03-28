@@ -25,7 +25,7 @@ using System.IO;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotExternalCommandPlugin {
+namespace Greenshot.Plugin.ExternalCommand {
 	/// <summary>
 	/// Description of FlickrConfiguration.
 	/// </summary>

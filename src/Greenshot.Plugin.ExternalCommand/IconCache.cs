@@ -25,7 +25,7 @@ using System.IO;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotExternalCommandPlugin {
+namespace Greenshot.Plugin.ExternalCommand {
 	public static class IconCache {
 		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));

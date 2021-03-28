@@ -18,9 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using GreenshotPlugin.Controls;
 
-namespace GreenshotBoxPlugin.Forms {
+namespace Greenshot.Plugin.Box.Forms {
 	public class BoxForm : GreenshotForm {
 	}
 }

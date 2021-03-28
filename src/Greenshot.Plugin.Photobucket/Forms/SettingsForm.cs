@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPhotobucketPlugin.Forms {
+namespace Greenshot.Plugin.Photobucket.Forms {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>

@@ -25,8 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Log;
 
-
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 	/// <summary>
 	///     This abstract class builds a base for a simple async memory cache.

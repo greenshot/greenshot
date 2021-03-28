@@ -29,7 +29,7 @@ using Dapplo.Jira;
 using Dapplo.Log;
 using GreenshotPlugin.Hooking;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 
     /// <summary>

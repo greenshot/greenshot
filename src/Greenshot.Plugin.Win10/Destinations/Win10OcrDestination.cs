@@ -27,7 +27,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 
-namespace GreenshotWin10Plugin.Destinations
+namespace Greenshot.Plugin.Win10.Destinations
 {
 	/// <summary>
 	/// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.

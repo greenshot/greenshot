@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotBoxPlugin {
+namespace Greenshot.Plugin.Box {
 	public enum LangKey {
 		upload_menu_item,
 		upload_failure,

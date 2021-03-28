@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace GreenshotFlickrPlugin {
+namespace Greenshot.Plugin.Flickr {
 	public class FlickrDestination : AbstractDestination {
 		private readonly FlickrPlugin _plugin;
 		public FlickrDestination(FlickrPlugin plugin) {

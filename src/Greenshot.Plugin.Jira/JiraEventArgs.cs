@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 	public class JiraEventArgs : EventArgs
 	{

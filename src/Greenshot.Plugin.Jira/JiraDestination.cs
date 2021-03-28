@@ -27,14 +27,14 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
-using GreenshotJiraPlugin.Forms;
+using Greenshot.Plugin.Jira.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotJiraPlugin {
+namespace Greenshot.Plugin.Jira {
 	/// <summary>
 	/// Description of JiraDestination.
 	/// </summary>

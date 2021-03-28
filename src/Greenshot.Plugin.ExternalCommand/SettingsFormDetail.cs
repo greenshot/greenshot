@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotExternalCommandPlugin {
+namespace Greenshot.Plugin.ExternalCommand {
 	/// <summary>
 	/// Description of SettingsFormDetail.
 	/// </summary>

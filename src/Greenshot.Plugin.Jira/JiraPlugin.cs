@@ -19,18 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Dapplo.Log;
-using GreenshotJiraPlugin.Forms;
+using Greenshot.Plugin.Jira.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
-namespace GreenshotJiraPlugin {
+namespace Greenshot.Plugin.Jira {
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>

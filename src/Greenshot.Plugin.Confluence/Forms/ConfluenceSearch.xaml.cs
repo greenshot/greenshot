@@ -25,7 +25,7 @@ using System.Linq;
 using System.Windows;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotConfluencePlugin.Forms {
+namespace Greenshot.Plugin.Confluence.Forms {
 	public partial class ConfluenceSearch
 	{
 		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();

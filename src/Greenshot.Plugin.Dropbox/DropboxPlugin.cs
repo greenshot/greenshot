@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -28,7 +29,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotDropboxPlugin {
+namespace Greenshot.Plugin.Dropbox {
 	/// <summary>
 	/// This is the Dropbox base code
 	/// </summary>

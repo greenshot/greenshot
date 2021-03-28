@@ -19,14 +19,14 @@
 
 using System;
 using System.Collections.Generic;
-using GreenshotOfficePlugin.Com;
-using GreenshotOfficePlugin.OfficeInterop;
+using Greenshot.Plugin.Office.Com;
+using Greenshot.Plugin.Office.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;
 using Version = System.Version;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Plugin.Office.OfficeExport
 {
     /// <summary>
     /// This makes it possible to export to word

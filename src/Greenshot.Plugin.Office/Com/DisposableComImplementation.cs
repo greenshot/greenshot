@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotOfficePlugin.Com
+namespace Greenshot.Plugin.Office.Com
 {
     /// <summary>
     ///     Implementation of the IDisposableCom, this is internal to prevent other code to use it directly

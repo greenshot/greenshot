@@ -29,7 +29,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Plugin.ExternalCommand
 {
     /// <summary>
     /// An Plugin to run commands after an image was written

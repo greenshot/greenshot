@@ -21,8 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using GreenshotOfficePlugin.Com;
-using GreenshotOfficePlugin.OfficeInterop;
+using Greenshot.Plugin.Office.Com;
+using Greenshot.Plugin.Office.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Interop.Word;
@@ -32,7 +32,7 @@ using Application = Microsoft.Office.Interop.Outlook.Application;
 using Exception = System.Exception;
 using Version = System.Version;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Plugin.Office.OfficeExport
 {
     /// <summary>
     ///     Outlook exporter has all the functionality to export to outlook

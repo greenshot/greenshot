@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Windows.Forms;
-using GreenshotPhotobucketPlugin.Forms;
+using Greenshot.Plugin.Photobucket.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotPhotobucketPlugin {
+namespace Greenshot.Plugin.Photobucket {
 	/// <summary>
 	/// Description of PhotobucketConfiguration.
 	/// </summary>

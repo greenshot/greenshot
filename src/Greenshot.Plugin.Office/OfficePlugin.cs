@@ -18,14 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using GreenshotOfficePlugin.Destinations;
+using Greenshot.Plugin.Office.Destinations;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotOfficePlugin {
+namespace Greenshot.Plugin.Office {
 	/// <summary>
 	/// This is the OfficePlugin base code
 	/// </summary>

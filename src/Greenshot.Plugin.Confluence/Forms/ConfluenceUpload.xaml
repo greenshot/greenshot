@@ -1,7 +1,7 @@
-﻿<Window x:Class="GreenshotConfluencePlugin.Forms.ConfluenceUpload"
+﻿<Window x:Class="Greenshot.Plugin.Confluence.Forms.ConfluenceUpload"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:support="clr-namespace:GreenshotConfluencePlugin.Support"
+	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
 	Title="{support:Translate upload_menu_item}" Height="640" Width="500" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<StackPanel>
 		<TabControl>

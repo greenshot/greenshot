@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 
-namespace GreenshotOfficePlugin.Com
+namespace Greenshot.Plugin.Office.Com
 {
     /// <summary>
     /// This provides an API for OLE32

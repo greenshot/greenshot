@@ -22,7 +22,7 @@
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotJiraPlugin {
+namespace Greenshot.Plugin.Jira {
 	/// <summary>
 	/// Description of JiraConfiguration.
 	/// </summary>

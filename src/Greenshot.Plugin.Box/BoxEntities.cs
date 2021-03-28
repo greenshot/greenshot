@@ -18,10 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GreenshotBoxPlugin {
+namespace Greenshot.Plugin.Box {
 	[DataContract]
 	public class Authorization {
 		[DataMember(Name = "access_token")]

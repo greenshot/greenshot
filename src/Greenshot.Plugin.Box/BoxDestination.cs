@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace GreenshotBoxPlugin {
+namespace Greenshot.Plugin.Box {
 	public class BoxDestination : AbstractDestination {
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {

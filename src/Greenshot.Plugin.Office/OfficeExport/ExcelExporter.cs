@@ -20,14 +20,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using GreenshotOfficePlugin.Com;
-using GreenshotOfficePlugin.OfficeInterop;
+using Greenshot.Plugin.Office.Com;
+using Greenshot.Plugin.Office.OfficeInterop;
 using GreenshotPlugin.UnmanagedHelpers;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
 using Version = System.Version;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Plugin.Office.OfficeExport
 {
     /// <summary>
     ///     Excel exporter

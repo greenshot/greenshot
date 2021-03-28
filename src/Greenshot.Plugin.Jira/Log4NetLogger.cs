@@ -22,7 +22,7 @@
 using Dapplo.Log;
 using log4net;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 	/// <summary>
 	/// Used to make Dapplo.Log, used in Dapplo.Jira, write to Log4net

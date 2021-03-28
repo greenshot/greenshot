@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
+
 using System;
-using GreenshotGooglePhotosPlugin.Forms;
+using System.Windows.Forms;
+using Greenshot.Plugin.GooglePhotos.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotGooglePhotosPlugin {
+namespace Greenshot.Plugin.GooglePhotos {
 	/// <summary>
 	/// Description of GooglePhotosConfiguration.
 	/// </summary>

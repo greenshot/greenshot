@@ -31,7 +31,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotExternalCommandPlugin {
+namespace Greenshot.Plugin.ExternalCommand {
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>

@@ -34,7 +34,7 @@ using Dapplo.Jira.SvgWinForms.Converters;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotJiraPlugin {
+namespace Greenshot.Plugin.Jira {
 	/// <summary>
 	/// This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
 	/// </summary>

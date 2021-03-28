@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotGooglePhotosPlugin.Forms {
+namespace Greenshot.Plugin.GooglePhotos.Forms {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>

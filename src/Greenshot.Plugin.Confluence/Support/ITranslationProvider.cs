@@ -1,4 +1,4 @@
-﻿namespace GreenshotConfluencePlugin.Support {
+﻿namespace Greenshot.Plugin.Confluence.Support {
     public interface ITranslationProvider {
         /// <summary>
         /// Translates the specified key.

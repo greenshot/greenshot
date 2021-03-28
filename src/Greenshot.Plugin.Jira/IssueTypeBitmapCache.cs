@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 	/// <summary>
 	/// This is the bach for the IssueType bitmaps

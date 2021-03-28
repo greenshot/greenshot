@@ -22,7 +22,7 @@
 using System;
 using Dapplo.Jira.Entities;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Plugin.Jira
 {
 	public class JiraDetails : IComparable<JiraDetails>
 	{

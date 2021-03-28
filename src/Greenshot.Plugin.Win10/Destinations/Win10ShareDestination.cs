@@ -29,15 +29,15 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Greenshot.Plugin.Win10.Internal;
+using Greenshot.Plugin.Win10.Native;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Hooking;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotWin10Plugin.Internal;
-using GreenshotWin10Plugin.Native;
 using Color = Windows.UI.Color;
 
-namespace GreenshotWin10Plugin.Destinations
+namespace Greenshot.Plugin.Win10.Destinations
 {
     /// <summary>
     /// This uses the Share from Windows 10 to make the capture available to apps.

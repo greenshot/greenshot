@@ -31,7 +31,7 @@ using GreenshotPlugin.Interfaces;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
 
-namespace GreenshotWin10Plugin
+namespace Greenshot.Plugin.Win10
 {
     /// <summary>
     /// This service provides a way to inform (notify) the user.

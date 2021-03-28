@@ -21,7 +21,7 @@
 
 using System.Windows;
 
-namespace GreenshotConfluencePlugin.Forms {
+namespace Greenshot.Plugin.Confluence.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>

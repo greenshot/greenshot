@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<EmbeddedResource Include="GooglePhotos.png" />
+	  <EmbeddedResource Include="GooglePhotos.png" />
   </ItemGroup>
 
   <ItemGroup>

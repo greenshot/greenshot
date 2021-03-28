@@ -1,6 +1,6 @@
 ﻿using GreenshotPlugin.Core;
 
-namespace GreenshotConfluencePlugin.Support {
+namespace Greenshot.Plugin.Confluence.Support {
 	/// <summary>
 	/// 
 	/// </summary>

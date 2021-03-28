@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotImgurPlugin {
+namespace Greenshot.Plugin.Imgur {
 	public enum LangKey {
 		upload_menu_item,
 		upload_failure,

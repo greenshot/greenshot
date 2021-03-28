@@ -18,15 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
 using System.Xml;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.OAuth;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotGooglePhotosPlugin {
+namespace Greenshot.Plugin.GooglePhotos {
 	/// <summary>
 	/// Description of GooglePhotosUtils.
 	/// </summary>

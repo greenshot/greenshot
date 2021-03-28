@@ -22,11 +22,11 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using GreenshotImgurPlugin.Forms;
+using Greenshot.Plugin.Imgur.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotImgurPlugin {
+namespace Greenshot.Plugin.Imgur {
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>

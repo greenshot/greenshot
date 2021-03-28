@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotOfficePlugin.OfficeInterop;
+using Greenshot.Plugin.Office.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using Microsoft.Office.Interop.PowerPoint;
 
-namespace GreenshotOfficePlugin {
+namespace Greenshot.Plugin.Office {
 
 	/// <summary>
 	/// Description of CoreConfiguration.

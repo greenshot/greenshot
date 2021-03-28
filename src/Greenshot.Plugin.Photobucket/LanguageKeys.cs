@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPhotobucketPlugin {
+namespace Greenshot.Plugin.Photobucket {
 	public enum LangKey {
 		upload_menu_item,
 		upload_failure,

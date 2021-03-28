@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,10 +26,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-
 using GreenshotPlugin.Core;
 
-namespace GreenshotConfluencePlugin {
+namespace Greenshot.Plugin.Confluence {
 	public class EnumDisplayer : IValueConverter {
 		private Type _type;
 		private IDictionary _displayValues;

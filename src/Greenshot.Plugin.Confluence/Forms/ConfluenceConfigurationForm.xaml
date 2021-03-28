@@ -1,12 +1,13 @@
-﻿<Window x:Class="GreenshotConfluencePlugin.Forms.ConfluenceConfigurationForm"
+﻿<Window x:Class="Greenshot.Plugin.Confluence.Forms.ConfluenceConfigurationForm"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
 	xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
-	xmlns:support="clr-namespace:GreenshotConfluencePlugin.Support"
+	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
+	xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence"
 	Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<Window.Resources>
-        <gscp:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
+        <confluence:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
 	</Window.Resources>
 
 	<StackPanel>

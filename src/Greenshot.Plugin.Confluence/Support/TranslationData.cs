@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 
-namespace GreenshotConfluencePlugin.Support {
+namespace Greenshot.Plugin.Confluence.Support {
 	public class TranslationData : IWeakEventListener, INotifyPropertyChanged {
         private readonly string _key;
 

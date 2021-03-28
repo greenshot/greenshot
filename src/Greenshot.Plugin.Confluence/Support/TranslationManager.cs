@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GreenshotConfluencePlugin.Support {
+namespace Greenshot.Plugin.Confluence.Support {
 	public class TranslationManager {
 		private static TranslationManager _translationManager;
 

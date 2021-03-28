@@ -17,12 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace GreenshotGooglePhotosPlugin {
+namespace Greenshot.Plugin.GooglePhotos {
 	public class GooglePhotosDestination : AbstractDestination {
 		private readonly GooglePhotosPlugin _plugin;
 		public GooglePhotosDestination(GooglePhotosPlugin plugin) {

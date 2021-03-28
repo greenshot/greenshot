@@ -23,7 +23,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace GreenshotWin10Plugin.Internal
+namespace Greenshot.Plugin.Win10.Internal
 {
     internal class ShareInfo
     {

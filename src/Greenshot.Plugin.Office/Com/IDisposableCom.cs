@@ -3,7 +3,7 @@
 
 using System;
 
-namespace GreenshotOfficePlugin.Com
+namespace Greenshot.Plugin.Office.Com
 {
     /// <summary>
     ///     A simple com wrapper which helps with "using"

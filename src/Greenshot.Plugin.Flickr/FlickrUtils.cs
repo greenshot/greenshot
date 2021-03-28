@@ -30,7 +30,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
-namespace GreenshotFlickrPlugin {
+namespace Greenshot.Plugin.Flickr {
 	/// <summary>
 	/// Description of FlickrUtils.
 	/// </summary>

@@ -19,16 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
 using System.Windows;
-using GreenshotConfluencePlugin.Forms;
-using GreenshotConfluencePlugin.Support;
+using Greenshot.Plugin.Confluence.Forms;
+using Greenshot.Plugin.Confluence.Support;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotConfluencePlugin {
+namespace Greenshot.Plugin.Confluence {
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>

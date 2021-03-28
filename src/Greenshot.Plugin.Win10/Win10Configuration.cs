@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotWin10Plugin
+namespace Greenshot.Plugin.Win10
 {
 	/// <summary>
 	/// Description of Win10Configuration.

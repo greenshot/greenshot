@@ -20,17 +20,17 @@
  */
 
 using System;
-using System.Windows.Forms;
-using Dapplo.Jira.Entities;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Dapplo.Jira.Entities;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotJiraPlugin.Forms {
+namespace Greenshot.Plugin.Jira.Forms {
 	public partial class JiraForm : Form {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
 		private readonly JiraConnector _jiraConnector;

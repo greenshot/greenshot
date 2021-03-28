@@ -18,12 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Windows.Forms;
-using GreenshotFlickrPlugin.Forms;
+using Greenshot.Plugin.Flickr.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace GreenshotFlickrPlugin {
+namespace Greenshot.Plugin.Flickr {
 	public enum SafetyLevel {
 		Safe = 1,
 		Moderate = 2,

@@ -21,12 +21,11 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotDropboxPlugin.Forms;
+using Greenshot.Plugin.Dropbox.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-
-namespace GreenshotDropboxPlugin {
+namespace Greenshot.Plugin.Dropbox {
 	/// <summary>
 	/// Description of ImgurConfiguration.
 	/// </summary>

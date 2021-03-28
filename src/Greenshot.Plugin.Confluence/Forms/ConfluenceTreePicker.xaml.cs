@@ -27,7 +27,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace GreenshotConfluencePlugin.Forms {
+namespace Greenshot.Plugin.Confluence.Forms {
 	/// <summary>
 	/// Interaction logic for ConfluenceTreePicker.xaml
 	/// </summary>

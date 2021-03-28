@@ -27,7 +27,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 
-namespace GreenshotPlugin.Interop
+namespace GreenshotPlugin
 {
 
     /// <summary>
