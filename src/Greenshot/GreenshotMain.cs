@@ -24,8 +24,6 @@ using System.Net;
 using System.Reflection;
 using Greenshot.Forms;
 
-// Remove AppendPrivatePath warning:
-#pragma warning disable 0618
 namespace Greenshot {
 	/// <summary>
 	/// Description of Main.
@@ -41,7 +39,10 @@ namespace Greenshot {
 			Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 			foreach (Assembly ayAssembly in ayAssemblies)
 			{
-				if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0]) continue;
+                if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0])
+                {
+                    continue;
+                }
 				ayResult = ayAssembly;
 				break;
 			}

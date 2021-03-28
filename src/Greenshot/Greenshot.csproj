@@ -80,7 +80,7 @@
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="AssemblyInformationalVersion" Value="$(AssemblyInformationalVersion)" />
-    <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\greenshot\releases\innosetup\setup.iss" />
+    <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\..\installer\innosetup\setup.iss" />
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PostBuildEvent>
