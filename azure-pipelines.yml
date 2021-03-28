@@ -18,7 +18,7 @@ stages:
     variables:
     - group: 'Plug-in Credentials'
     - name: solution
-      value: 'Greenshot.sln'
+      value: 'src/Greenshot.sln'
     - name: buildPlatform
       value: 'Any CPU'
     - name: buildConfiguration
@@ -59,7 +59,7 @@ stages:
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
       inputs:
-        SourceFolder: '$(Build.SourcesDirectory)\Greenshot\releases'
+        SourceFolder: '$(Build.SourcesDirectory)\installer'
         Contents: Greenshot-INSTALLER-*.exe
         TargetFolder: '$(build.artifactstagingdirectory)'
         flattenFolders: true
