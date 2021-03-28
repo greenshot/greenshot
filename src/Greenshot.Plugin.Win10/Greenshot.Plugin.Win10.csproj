@@ -9,6 +9,6 @@
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
 </Project>
