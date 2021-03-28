@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.Jira.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -46,12 +49,12 @@ namespace Greenshot.Plugin.Jira.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.label_url = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxUrl = new GreenshotPlugin.Controls.GreenshotTextBox();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.label_url = new GreenshotLabel();
+			this.textBoxUrl = new GreenshotTextBox();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -136,11 +139,11 @@ namespace Greenshot.Plugin.Jira.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUrl;
-		private GreenshotPlugin.Controls.GreenshotLabel label_url;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotTextBox textBoxUrl;
+		private GreenshotLabel label_url;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
 	}
 }

@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Imgur.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Plugin.Imgur
 {

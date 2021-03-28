@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {

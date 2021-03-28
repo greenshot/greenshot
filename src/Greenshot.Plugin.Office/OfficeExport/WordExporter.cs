@@ -19,9 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
-using GreenshotPlugin.IniFile;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;
 using Version = System.Version;

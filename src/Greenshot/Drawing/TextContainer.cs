@@ -22,8 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -32,6 +30,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Forms {
 	partial class MainForm {
 		/// <summary>
@@ -50,22 +53,22 @@ namespace Greenshot.Forms {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.contextmenu_capturearea = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_capturelastregion = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_capturewindow = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_capturefullscreen = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_captureie = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_capturewindowfromlist = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_captureiefromlist = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_captureclipboard = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_openfile = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_openrecentcapture = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_quicksettings = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_settings = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_help = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_donate = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-			this.contextmenu_about = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
-            this.contextmenu_exit = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+            this.contextmenu_capturearea = new GreenshotToolStripMenuItem();
+			this.contextmenu_capturelastregion = new GreenshotToolStripMenuItem();
+			this.contextmenu_capturewindow = new GreenshotToolStripMenuItem();
+			this.contextmenu_capturefullscreen = new GreenshotToolStripMenuItem();
+			this.contextmenu_captureie = new GreenshotToolStripMenuItem();
+			this.contextmenu_capturewindowfromlist = new GreenshotToolStripMenuItem();
+			this.contextmenu_captureiefromlist = new GreenshotToolStripMenuItem();
+			this.contextmenu_captureclipboard = new GreenshotToolStripMenuItem();
+			this.contextmenu_openfile = new GreenshotToolStripMenuItem();
+			this.contextmenu_openrecentcapture = new GreenshotToolStripMenuItem();
+			this.contextmenu_quicksettings = new GreenshotToolStripMenuItem();
+			this.contextmenu_settings = new GreenshotToolStripMenuItem();
+			this.contextmenu_help = new GreenshotToolStripMenuItem();
+			this.contextmenu_donate = new GreenshotToolStripMenuItem();
+			this.contextmenu_about = new GreenshotToolStripMenuItem();
+            this.contextmenu_exit = new GreenshotToolStripMenuItem();
             this.toolStripListCaptureSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripOtherSourcesSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripOpenFolderSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -270,29 +273,29 @@ namespace Greenshot.Forms {
 			this.contextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureiefromlist;
+		private GreenshotToolStripMenuItem contextmenu_captureiefromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripOtherSourcesSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;
+		private GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripListCaptureSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_openrecentcapture;
-        private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureie;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_donate;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_openfile;
+		private GreenshotToolStripMenuItem contextmenu_openrecentcapture;
+        private GreenshotToolStripMenuItem contextmenu_captureie;
+		private GreenshotToolStripMenuItem contextmenu_donate;
+		private GreenshotToolStripMenuItem contextmenu_openfile;
 		private System.Windows.Forms.ToolStripSeparator toolStripPluginSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_captureclipboard;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_quicksettings;
+		private GreenshotToolStripMenuItem contextmenu_captureclipboard;
+		private GreenshotToolStripMenuItem contextmenu_quicksettings;
 		private System.Windows.Forms.ToolStripSeparator toolStripMiscSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_help;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturewindow;
+		private GreenshotToolStripMenuItem contextmenu_help;
+		private GreenshotToolStripMenuItem contextmenu_capturewindow;
 		private System.Windows.Forms.ToolStripSeparator toolStripOpenFolderSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_about;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturefullscreen;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturelastregion;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_capturearea;
+		private GreenshotToolStripMenuItem contextmenu_about;
+		private GreenshotToolStripMenuItem contextmenu_capturefullscreen;
+		private GreenshotToolStripMenuItem contextmenu_capturelastregion;
+		private GreenshotToolStripMenuItem contextmenu_capturearea;
 		private System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.ToolStripSeparator toolStripCloseSeparator;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_exit;
+		private GreenshotToolStripMenuItem contextmenu_exit;
 		private System.Windows.Forms.ContextMenuStrip contextMenu;
-		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem contextmenu_settings;
+		private GreenshotToolStripMenuItem contextmenu_settings;
 	}
 }

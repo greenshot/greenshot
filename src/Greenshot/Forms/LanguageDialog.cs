@@ -22,7 +22,7 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
+using Greenshot.Base.Core;
 using log4net;
 
 namespace Greenshot.Forms

@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System.Diagnostics;
 using System.Net;
+using Greenshot.Base.Core;
 using log4net;
 
 namespace Greenshot.Help

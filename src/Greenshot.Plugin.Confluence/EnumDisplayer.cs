@@ -26,7 +26,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-using GreenshotPlugin.Core;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Confluence
 {

@@ -29,12 +29,12 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Greenshot.Base.Core;
+using Greenshot.Base.Hooking;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Win10.Internal;
 using Greenshot.Plugin.Win10.Native;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Hooking;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Color = Windows.UI.Color;
 
 namespace Greenshot.Plugin.Win10.Destinations

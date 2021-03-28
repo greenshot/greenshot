@@ -23,13 +23,13 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Destinations

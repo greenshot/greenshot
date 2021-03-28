@@ -23,11 +23,11 @@ using System;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Core;
 using System.IO;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Base.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot.Helpers

@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Confluence.Forms
 {

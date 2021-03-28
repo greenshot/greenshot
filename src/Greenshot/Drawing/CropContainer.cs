@@ -21,9 +21,9 @@
 
 using System.Drawing;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

@@ -23,7 +23,7 @@ using Greenshot.Helpers;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Adorners
 {

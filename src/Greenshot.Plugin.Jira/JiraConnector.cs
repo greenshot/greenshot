@@ -31,8 +31,8 @@ using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira
 {

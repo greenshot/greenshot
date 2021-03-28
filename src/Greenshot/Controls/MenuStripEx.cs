@@ -21,7 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
+using Greenshot.Base.UnmanagedHelpers.Enums;
 
 namespace Greenshot.Controls
 {

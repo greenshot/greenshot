@@ -23,9 +23,6 @@ using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -36,10 +33,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using GreenshotPlugin.Effects;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing
 {

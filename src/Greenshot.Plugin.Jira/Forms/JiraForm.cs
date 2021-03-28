@@ -26,9 +26,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira.Forms
 {

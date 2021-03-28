@@ -24,11 +24,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers

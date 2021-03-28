@@ -22,10 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters
 {

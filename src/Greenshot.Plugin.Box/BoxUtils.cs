@@ -23,9 +23,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.OAuth;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.OAuth;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Box
 {

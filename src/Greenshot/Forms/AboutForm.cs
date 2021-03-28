@@ -28,10 +28,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace Greenshot.Forms

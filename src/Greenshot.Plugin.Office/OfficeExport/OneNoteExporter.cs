@@ -22,11 +22,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Microsoft.Office.Interop.OneNote;
 
 namespace Greenshot.Plugin.Office.OfficeExport

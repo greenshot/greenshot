@@ -23,10 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Plugin.Office.Destinations
 {

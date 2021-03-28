@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.Photobucket.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -46,11 +49,11 @@ namespace Greenshot.Plugin.Photobucket.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.checkbox_usepagelink = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
+			this.checkbox_usepagelink = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -124,10 +127,10 @@ namespace Greenshot.Plugin.Photobucket.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_usepagelink;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+		private GreenshotCheckBox checkbox_usepagelink;
 	}
 }

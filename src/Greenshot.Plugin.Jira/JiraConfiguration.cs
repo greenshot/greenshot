@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira
 {

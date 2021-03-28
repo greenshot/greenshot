@@ -21,10 +21,10 @@
 
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {

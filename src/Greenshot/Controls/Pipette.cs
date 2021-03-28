@@ -23,9 +23,9 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Base.UnmanagedHelpers.Enums;
 using Greenshot.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
 using ColorDialog = Greenshot.Forms.ColorDialog;
 
 namespace Greenshot.Controls

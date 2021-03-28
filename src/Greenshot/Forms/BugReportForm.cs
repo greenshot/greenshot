@@ -22,8 +22,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms
 {

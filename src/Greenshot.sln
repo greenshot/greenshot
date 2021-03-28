@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Gree
 		{1893A2E4-A78A-4713-A8E7-E70058DABEE0} = {1893A2E4-A78A-4713-A8E7-E70058DABEE0}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenshotPlugin", "GreenshotPlugin\GreenshotPlugin.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Base", "Greenshot.Base\Greenshot.Base.csproj", "{5B924697-4DCD-4F98-85F1-105CB84B7341}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.ExternalCommand", "Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj", "{47F23C86-604E-4CC3-8767-B3D4088F30BB}"
 EndProject

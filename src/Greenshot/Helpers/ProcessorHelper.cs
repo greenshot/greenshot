@@ -20,8 +20,8 @@
  */
 
 using System;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers

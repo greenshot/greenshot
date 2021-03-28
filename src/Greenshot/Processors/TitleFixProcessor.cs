@@ -21,9 +21,9 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
 using log4net;
 
 namespace Greenshot.Processors

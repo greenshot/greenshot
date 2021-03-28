@@ -5,7 +5,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj" />
+    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Base.csproj" />
   </ItemGroup>
   <Target Name="EmbeddingOutlook" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
     <PropertyGroup>

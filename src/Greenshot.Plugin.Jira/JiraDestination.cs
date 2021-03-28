@@ -27,12 +27,12 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Jira.Forms;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Jira
 {

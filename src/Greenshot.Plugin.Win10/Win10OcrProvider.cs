@@ -26,10 +26,10 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Ocr;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Win10
 {

@@ -25,16 +25,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IEInterop;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interop;
+using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Base.UnmanagedHelpers.Enums;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IEInterop;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interop;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot.Helpers

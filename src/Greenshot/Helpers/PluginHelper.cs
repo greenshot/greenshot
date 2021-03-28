@@ -27,10 +27,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Helpers
@@ -186,9 +186,7 @@ namespace Greenshot.Helpers
             if (!Directory.Exists(path)) return pluginFiles;
             try
             {
-                pluginFiles = Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories)
-                    // Skip the GreenshotPlugin.dll itself
-                    .Where(p => CultureInfo.CurrentCulture.CompareInfo.IndexOf(p, "GreenshotPlugin.dll", CompareOptions.IgnoreCase) < 0);
+                pluginFiles = Directory.GetFiles(path, "Greenshot.Plugin.*.dll", SearchOption.AllDirectories);
             }
             catch (Exception ex)
             {
@@ -203,7 +201,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public void LoadPlugins()
         {
-            List<string> pluginFiles = new List<string>();
+            var pluginFiles = new List<string>();
 
             if (IniConfig.IsPortable)
             {
@@ -220,11 +218,11 @@ namespace Greenshot.Helpers
             {
                 try
                 {
-                    Assembly assembly = Assembly.LoadFrom(pluginFile);
+                    var assembly = Assembly.LoadFrom(pluginFile);
 
                     var assemblyName = assembly.GetName().Name;
 
-                    var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot", string.Empty)}";
+                    var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
                     var pluginAttribute = pluginEntryType.GetCustomAttribute<PluginAttribute>();
 
@@ -235,7 +233,7 @@ namespace Greenshot.Helpers
                         continue;
                     }
 
-                    IGreenshotPlugin plugin = (IGreenshotPlugin) Activator.CreateInstance(pluginEntryType);
+                    var plugin = (IGreenshotPlugin) Activator.CreateInstance(pluginEntryType);
                     if (plugin != null)
                     {
                         if (plugin.Initialize())

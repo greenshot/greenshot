@@ -23,9 +23,9 @@ using System;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Imgur.Forms
 {

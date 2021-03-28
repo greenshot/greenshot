@@ -21,12 +21,12 @@
 
 using System;
 using System.Windows;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Forms;
 using Greenshot.Plugin.Confluence.Support;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Confluence
 {

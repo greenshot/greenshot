@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.Dropbox.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -45,12 +48,12 @@ namespace Greenshot.Plugin.Dropbox.Forms {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_AfterUpload = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.checkboxAfterUploadLinkToClipBoard = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
+			this.label_AfterUpload = new GreenshotLabel();
+			this.checkboxAfterUploadLinkToClipBoard = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -135,11 +138,11 @@ namespace Greenshot.Plugin.Dropbox.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotLabel label_AfterUpload;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+		private GreenshotLabel label_AfterUpload;
+		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
 }

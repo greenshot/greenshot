@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
-using GreenshotPlugin.IniFile;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.PowerPoint;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;

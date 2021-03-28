@@ -22,10 +22,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 using Microsoft.Win32;
 
 namespace Greenshot.Destinations

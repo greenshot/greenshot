@@ -23,8 +23,6 @@ using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,9 +33,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.UnmanagedHelpers;
 
 namespace Greenshot.Helpers
 {

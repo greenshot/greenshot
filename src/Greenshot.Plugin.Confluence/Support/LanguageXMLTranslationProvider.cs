@@ -1,4 +1,4 @@
-﻿using GreenshotPlugin.Core;
+﻿using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Confluence.Support
 {

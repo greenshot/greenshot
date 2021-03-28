@@ -24,10 +24,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Configuration;
-using GreenshotPlugin.IniFile;
 using log4net;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields
 {

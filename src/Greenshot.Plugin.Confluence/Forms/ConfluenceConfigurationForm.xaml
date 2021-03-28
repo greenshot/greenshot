@@ -1,8 +1,7 @@
 ﻿<Window x:Class="Greenshot.Plugin.Confluence.Forms.ConfluenceConfigurationForm"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
-	xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
+	xmlns:gsc="clr-namespace:Greenshot.Base.Core;assembly=Greenshot.Base"
 	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
 	xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence"
 	Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">

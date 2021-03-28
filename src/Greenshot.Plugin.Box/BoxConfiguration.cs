@@ -21,9 +21,9 @@
 
 using System;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Box.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Plugin.Box
 {

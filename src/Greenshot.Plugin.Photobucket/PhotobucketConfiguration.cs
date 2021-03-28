@@ -20,10 +20,10 @@
  */
 
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Photobucket.Forms;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Plugin.Photobucket
 {

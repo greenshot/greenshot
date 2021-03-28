@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
-using GreenshotPlugin.Core;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Confluence
 {

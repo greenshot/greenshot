@@ -22,9 +22,9 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing.Adorners
 {

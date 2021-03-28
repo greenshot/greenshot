@@ -20,9 +20,9 @@
  */
 
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Flickr.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Plugin.Flickr
 {

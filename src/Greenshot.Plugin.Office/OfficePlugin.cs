@@ -21,10 +21,10 @@
 
 using System;
 using System.Collections.Generic;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.Destinations;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Office
 {

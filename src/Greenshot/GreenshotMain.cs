@@ -18,46 +18,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
 using Greenshot.Forms;
 
-namespace Greenshot {
-	/// <summary>
-	/// Description of Main.
-	/// </summary>
-	public class GreenshotMain {
-		static GreenshotMain() {
-			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-		}
+namespace Greenshot
+{
+    /// <summary>
+    /// Description of Main.
+    /// </summary>
+    public class GreenshotMain
+    {
+        static GreenshotMain()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        }
 
-		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
-			Assembly ayResult = null;
-			string sShortAssemblyName = args.Name.Split(',')[0];
-			Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (Assembly ayAssembly in ayAssemblies)
-			{
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            Assembly ayResult = null;
+            string sShortAssemblyName = args.Name.Split(',')[0];
+            Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly ayAssembly in ayAssemblies)
+            {
                 if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0])
                 {
                     continue;
                 }
-				ayResult = ayAssembly;
-				break;
-			}
-			return ayResult;
-		}
 
-		[STAThread]
-		public static void Main(string[] args)
-		{
-			// Enable TLS 1.2 support
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                ayResult = ayAssembly;
+                break;
+            }
 
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-			CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-			MainForm.Start(args);
-		}
-	}
+            return ayResult;
+        }
+
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            // Enable TLS 1.2 support
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+            MainForm.Start(args);
+        }
+    }
 }

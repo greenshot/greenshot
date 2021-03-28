@@ -20,7 +20,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
-using GreenshotPlugin.Core.Enums;
+using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.Win10.Native
 {

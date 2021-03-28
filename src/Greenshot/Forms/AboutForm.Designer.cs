@@ -20,8 +20,9 @@
  */
 
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	partial class AboutForm {
@@ -50,19 +51,19 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent() {
 			this.lblTitle = new System.Windows.Forms.Label();
-			this.lblLicense = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.lblHost = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.lblLicense = new GreenshotLabel();
+			this.lblHost = new GreenshotLabel();
 			this.linkLblLicense = new System.Windows.Forms.LinkLabel();
 			this.linkLblHost = new System.Windows.Forms.LinkLabel();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
-			this.lblBugs = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.lblBugs = new GreenshotLabel();
 			this.linkLblDonations = new System.Windows.Forms.LinkLabel();
-			this.lblDonations = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.lblDonations = new GreenshotLabel();
 			this.linkLblIcons = new System.Windows.Forms.LinkLabel();
-			this.lblIcons = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.lblIcons = new GreenshotLabel();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			this.lblTranslation = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.lblTranslation = new GreenshotLabel();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -236,11 +237,11 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.LinkLabel linkLblIcons;
 		private System.Windows.Forms.Label lblTitle;
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private GreenshotPlugin.Controls.GreenshotLabel lblTranslation;
-		private GreenshotPlugin.Controls.GreenshotLabel lblHost;
-		private GreenshotPlugin.Controls.GreenshotLabel lblDonations;
-		private GreenshotPlugin.Controls.GreenshotLabel lblBugs;
-		private GreenshotPlugin.Controls.GreenshotLabel lblIcons;
-		private GreenshotPlugin.Controls.GreenshotLabel lblLicense;
+		private GreenshotLabel lblTranslation;
+		private GreenshotLabel lblHost;
+		private GreenshotLabel lblDonations;
+		private GreenshotLabel lblBugs;
+		private GreenshotLabel lblIcons;
+		private GreenshotLabel lblLicense;
 	}
 }

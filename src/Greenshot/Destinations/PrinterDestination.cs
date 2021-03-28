@@ -24,10 +24,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 using Greenshot.Helpers;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {

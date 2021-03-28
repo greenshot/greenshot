@@ -22,12 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Forms;
 using log4net;
 
 namespace Greenshot.Destinations

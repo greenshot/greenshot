@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using log4net;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

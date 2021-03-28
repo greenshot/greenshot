@@ -20,12 +20,12 @@
  */
 
 using System;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Win10.Destinations;
 using Greenshot.Plugin.Win10.Processors;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Ocr;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Win10
 {

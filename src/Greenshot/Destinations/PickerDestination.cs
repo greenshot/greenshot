@@ -20,9 +20,9 @@
  */
 
 using System.Collections.Generic;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {

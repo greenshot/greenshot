@@ -22,8 +22,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

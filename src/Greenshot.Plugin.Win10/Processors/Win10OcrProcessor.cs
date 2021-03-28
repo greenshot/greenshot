@@ -20,10 +20,10 @@
  */
 
 using System.Threading.Tasks;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Ocr;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 
 namespace Greenshot.Plugin.Win10.Processors
 {

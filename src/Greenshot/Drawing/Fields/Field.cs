@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields
 {

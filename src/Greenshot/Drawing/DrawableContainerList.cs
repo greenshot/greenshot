@@ -21,8 +21,6 @@
 
 using Greenshot.Configuration;
 using Greenshot.Memento;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,8 +28,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Forms;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Drawing
 {

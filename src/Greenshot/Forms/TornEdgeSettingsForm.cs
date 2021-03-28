@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Effects;
+using Greenshot.Base.Effects;
 
 namespace Greenshot.Forms
 {

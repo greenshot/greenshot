@@ -25,9 +25,9 @@ using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Base.IniFile;
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Forms
 {

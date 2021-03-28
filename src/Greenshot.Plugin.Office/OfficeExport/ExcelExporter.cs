@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
-using GreenshotPlugin.UnmanagedHelpers;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
 using Version = System.Version;

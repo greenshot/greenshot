@@ -20,10 +20,10 @@
  */
 
 using Greenshot.Drawing;
-using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {

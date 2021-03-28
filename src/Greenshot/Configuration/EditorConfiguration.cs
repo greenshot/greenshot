@@ -22,12 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.Effects;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.UnmanagedHelpers.Enums;
+using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Effects;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.UnmanagedHelpers.Enums;
-using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace Greenshot.Configuration
 {

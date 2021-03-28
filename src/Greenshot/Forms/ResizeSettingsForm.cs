@@ -22,8 +22,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Effects;
+using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
 
 namespace Greenshot.Forms
 {

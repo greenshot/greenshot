@@ -27,7 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
-using GreenshotPlugin.Hooking;
+using Greenshot.Base.Hooking;
 
 namespace Greenshot.Plugin.Jira
 {

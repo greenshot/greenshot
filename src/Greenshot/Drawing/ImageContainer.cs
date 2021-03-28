@@ -23,12 +23,12 @@ using System;
 using System.Drawing;
 using System.IO;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using log4net;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Effects;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

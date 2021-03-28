@@ -21,12 +21,12 @@
 
 using System;
 using Greenshot.Configuration;
-using GreenshotPlugin.Interfaces.Drawing;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields
 {

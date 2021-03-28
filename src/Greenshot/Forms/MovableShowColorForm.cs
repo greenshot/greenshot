@@ -22,7 +22,7 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using GreenshotPlugin.UnmanagedHelpers;
+using Greenshot.Base.UnmanagedHelpers;
 
 namespace Greenshot.Forms
 {

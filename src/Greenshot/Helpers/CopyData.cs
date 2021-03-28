@@ -26,7 +26,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Helpers
 {

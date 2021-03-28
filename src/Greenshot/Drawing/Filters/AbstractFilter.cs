@@ -22,8 +22,8 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters
 {

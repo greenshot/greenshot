@@ -24,11 +24,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.OAuth;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.OAuth;
+using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Photobucket
 {

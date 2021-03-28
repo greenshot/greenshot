@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.Imgur.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -46,13 +49,13 @@ namespace Greenshot.Plugin.Imgur.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.historyButton = new GreenshotPlugin.Controls.GreenshotButton();
-			this.checkbox_anonymous_access = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkbox_usepagelink = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
+			this.historyButton = new GreenshotButton();
+			this.checkbox_anonymous_access = new GreenshotCheckBox();
+			this.checkbox_usepagelink = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -150,12 +153,12 @@ namespace Greenshot.Plugin.Imgur.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotButton historyButton;
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_anonymous_access;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_usepagelink;
+		private GreenshotButton historyButton;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+		private GreenshotCheckBox checkbox_anonymous_access;
+		private GreenshotCheckBox checkbox_usepagelink;
 	}
 }

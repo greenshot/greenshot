@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.ExternalCommand {
 	partial class SettingsFormDetail {
 		/// <summary>
@@ -46,16 +49,16 @@ namespace Greenshot.Plugin.ExternalCommand {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.groupBox1 = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.label4 = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonOk = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.groupBox1 = new GreenshotGroupBox();
+			this.label4 = new GreenshotLabel();
 			this.buttonPathSelect = new System.Windows.Forms.Button();
-			this.label3 = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label3 = new GreenshotLabel();
 			this.textBox_name = new System.Windows.Forms.TextBox();
-			this.label2 = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label2 = new GreenshotLabel();
 			this.textBox_arguments = new System.Windows.Forms.TextBox();
-			this.label1 = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label1 = new GreenshotLabel();
 			this.textBox_commandline = new System.Windows.Forms.TextBox();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
@@ -184,13 +187,13 @@ namespace Greenshot.Plugin.ExternalCommand {
 			this.ResumeLayout(false);
 
 		}
-		private GreenshotPlugin.Controls.GreenshotLabel label1;
-		private GreenshotPlugin.Controls.GreenshotLabel label2;
-		private GreenshotPlugin.Controls.GreenshotLabel label3;
-		private GreenshotPlugin.Controls.GreenshotLabel label4;
-		private GreenshotPlugin.Controls.GreenshotGroupBox groupBox1;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOk;
+		private GreenshotLabel label1;
+		private GreenshotLabel label2;
+		private GreenshotLabel label3;
+		private GreenshotLabel label4;
+		private GreenshotGroupBox groupBox1;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOk;
 		private System.Windows.Forms.TextBox textBox_commandline;
 		private System.Windows.Forms.TextBox textBox_arguments;
 		private System.Windows.Forms.TextBox textBox_name;

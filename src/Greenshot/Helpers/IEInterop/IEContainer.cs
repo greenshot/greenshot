@@ -24,10 +24,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.IEInterop;
+using Greenshot.Base.Core;
+using Greenshot.Base.IEInterop;
 using log4net;
-using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
+using IServiceProvider = Greenshot.Base.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop
 {

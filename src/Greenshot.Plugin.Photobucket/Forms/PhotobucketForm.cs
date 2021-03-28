@@ -19,12 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Controls;
+
 namespace Greenshot.Plugin.Photobucket.Forms
 {
     /// <summary>
     /// This class is needed for design-time resolving of the language files
     /// </summary>
-    public class PhotobucketForm : GreenshotPlugin.Controls.GreenshotForm
+    public class PhotobucketForm : GreenshotForm
     {
     }
 }

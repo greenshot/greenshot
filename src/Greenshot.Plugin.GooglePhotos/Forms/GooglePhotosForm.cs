@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Plugin.GooglePhotos.Forms
 {
