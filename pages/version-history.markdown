@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: page 
 title: Version history
 permalink: /version-history/
 categories: []
