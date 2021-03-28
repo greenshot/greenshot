@@ -91,7 +91,7 @@ namespace Greenshot.Forms {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 9;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/";
+			this.linkLblBugs.Text = "https://getgreenshot.org/tickets/";
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLblBugsLinkClicked);
 			// 
 			// BugReportForm
