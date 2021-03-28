@@ -38,6 +38,7 @@ namespace Greenshot.Plugin.Office.Com
             {
                 return;
             }
+
             // Do not catch an exception from this.
             // You may want to remove these guards depending on
             // what you think the semantics should be.
@@ -45,6 +46,7 @@ namespace Greenshot.Plugin.Office.Com
             {
                 Marshal.ReleaseComObject(ComObject);
             }
+
             ComObject = default;
         }
     }

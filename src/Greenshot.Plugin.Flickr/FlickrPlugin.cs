@@ -33,99 +33,122 @@ using log4net;
 
 namespace Greenshot.Plugin.Flickr
 {
-	/// <summary>
-	/// This is the Flickr base code
-	/// </summary>
+    /// <summary>
+    /// This is the Flickr base code
+    /// </summary>
     [Plugin("Flickr", true)]
-	public class FlickrPlugin : IGreenshotPlugin {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
-		private static FlickrConfiguration _config;
-		private ComponentResourceManager _resources;
-		private ToolStripMenuItem _itemPlugInConfig;
+    public class FlickrPlugin : IGreenshotPlugin
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
+        private static FlickrConfiguration _config;
+        private ComponentResourceManager _resources;
+        private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected void Dispose(bool disposing) {
-			if (!disposing) {
-				return;
-			}
-			if (_itemPlugInConfig == null) {
-				return;
-			}
-			_itemPlugInConfig.Dispose();
-			_itemPlugInConfig = null;
-		}
+        protected void Dispose(bool disposing)
+        {
+            if (!disposing)
+            {
+                return;
+            }
 
-		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
-		/// </summary>
-		public bool Initialize() {
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<FlickrConfiguration>();
-			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
+            if (_itemPlugInConfig == null)
+            {
+                return;
+            }
 
-			_itemPlugInConfig = new ToolStripMenuItem
-			{
-				Text = Language.GetString("flickr", LangKey.Configure),
-				Image = (Image) _resources.GetObject("flickr")
-			};
-			_itemPlugInConfig.Click += ConfigMenuClick;
+            _itemPlugInConfig.Dispose();
+            _itemPlugInConfig = null;
+        }
+
+        /// <summary>
+        /// Implementation of the IGreenshotPlugin.Initialize
+        /// </summary>
+        public bool Initialize()
+        {
+            // Register configuration (don't need the configuration itself)
+            _config = IniConfig.GetIniSection<FlickrConfiguration>();
+            _resources = new ComponentResourceManager(typeof(FlickrPlugin));
+
+            _itemPlugInConfig = new ToolStripMenuItem
+            {
+                Text = Language.GetString("flickr", LangKey.Configure),
+                Image = (Image) _resources.GetObject("flickr")
+            };
+            _itemPlugInConfig.Click += ConfigMenuClick;
             SimpleServiceProvider.Current.AddService<IDestination>(new FlickrDestination(this));
-			PluginUtils.AddToContextMenu(_itemPlugInConfig);
-			Language.LanguageChanged += OnLanguageChanged;
-			return true;
-		}
+            PluginUtils.AddToContextMenu(_itemPlugInConfig);
+            Language.LanguageChanged += OnLanguageChanged;
+            return true;
+        }
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (_itemPlugInConfig != null) {
-				_itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
-			}
-		}
+        public void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
+            }
+        }
 
-		public void Shutdown() {
-			Log.Debug("Flickr Plugin shutdown.");
-		}
+        public void Shutdown()
+        {
+            Log.Debug("Flickr Plugin shutdown.");
+        }
 
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure() {
-			_config.ShowConfigDialog();
-		}
+        /// <summary>
+        /// Implementation of the IPlugin.Configure
+        /// </summary>
+        public void Configure()
+        {
+            _config.ShowConfigDialog();
+        }
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			_config.ShowConfigDialog();
-		}
+        public void ConfigMenuClick(object sender, EventArgs eventArgs)
+        {
+            _config.ShowConfigDialog();
+        }
 
-		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-			uploadUrl = null;
-			try {
-				string flickrUrl = null;
-				new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait), 
-					delegate {
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-						flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
-					}
-				);
-					
-				if (flickrUrl == null) {
-					return false;
-				}
-				uploadUrl = flickrUrl;
+        public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
+        {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            uploadUrl = null;
+            try
+            {
+                string flickrUrl = null;
+                new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait),
+                    delegate
+                    {
+                        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+                        flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
+                    }
+                );
 
-				if (_config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(flickrUrl);
-				}
-				return true;
-			} catch (Exception e) {
-				Log.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
-			}
-			return false;
-		}
-	}
+                if (flickrUrl == null)
+                {
+                    return false;
+                }
+
+                uploadUrl = flickrUrl;
+
+                if (_config.AfterUploadLinkToClipBoard)
+                {
+                    ClipboardHelper.SetClipboardData(flickrUrl);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error uploading.", e);
+                MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
+            }
+
+            return false;
+        }
+    }
 }

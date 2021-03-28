@@ -70,7 +70,7 @@ namespace GreenshotPlugin.Interfaces.Ocr
             foreach (var word in Words)
             {
                 var location = word.Bounds;
-                location.Offset(x,y);
+                location.Offset(x, y);
                 word.Bounds = location;
             }
 

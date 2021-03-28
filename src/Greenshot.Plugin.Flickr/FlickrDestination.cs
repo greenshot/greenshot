@@ -24,33 +24,42 @@ using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.Flickr {
-	public class FlickrDestination : AbstractDestination {
-		private readonly FlickrPlugin _plugin;
-		public FlickrDestination(FlickrPlugin plugin) {
-			_plugin = plugin;
-		}
+namespace Greenshot.Plugin.Flickr
+{
+    public class FlickrDestination : AbstractDestination
+    {
+        private readonly FlickrPlugin _plugin;
 
-		public override string Designation => "Flickr";
+        public FlickrDestination(FlickrPlugin plugin)
+        {
+            _plugin = plugin;
+        }
 
-		public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
+        public override string Designation => "Flickr";
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(FlickrPlugin));
-				return (Image)resources.GetObject("flickr");
-			}
-		}
+        public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+        public override Image DisplayIcon
+        {
+            get
+            {
+                ComponentResourceManager resources = new ComponentResourceManager(typeof(FlickrPlugin));
+                return (Image) resources.GetObject("flickr");
+            }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+            if (uploaded)
+            {
+                exportInformation.ExportMade = true;
+                exportInformation.Uri = uploadUrl;
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

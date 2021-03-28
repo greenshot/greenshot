@@ -25,10 +25,6 @@ namespace GreenshotPlugin.Interfaces
 {
     public class SurfaceDrawingModeEventArgs : EventArgs
     {
-        public DrawingModes DrawingMode
-        {
-            get;
-            set;
-        }
+        public DrawingModes DrawingMode { get; set; }
     }
 }

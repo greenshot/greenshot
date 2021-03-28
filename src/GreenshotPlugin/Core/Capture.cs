@@ -32,63 +32,85 @@ namespace GreenshotPlugin.Core
     /// This class is used to pass an instance of the "Capture" around
     /// Having the Bitmap, eventually the Windows Title and cursor all together.
     /// </summary>
-    public class Capture : ICapture {
+    public class Capture : ICapture
+    {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Capture));
 
         private Rectangle _screenBounds;
+
         /// <summary>
         /// Get/Set the screen bounds
         /// </summary>
-        public Rectangle ScreenBounds {
-            get {
-                if (_screenBounds == Rectangle.Empty) {
+        public Rectangle ScreenBounds
+        {
+            get
+            {
+                if (_screenBounds == Rectangle.Empty)
+                {
                     _screenBounds = WindowCapture.GetScreenBounds();
                 }
+
                 return _screenBounds;
             }
             set => _screenBounds = value;
         }
 
         private Image _image;
+
         /// <summary>
         /// Get/Set the Image
         /// </summary>
-        public Image Image {
+        public Image Image
+        {
             get => _image;
-            set {
+            set
+            {
                 _image?.Dispose();
                 _image = value;
-                if (value != null) {
-                    if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format4bppIndexed)) {
+                if (value != null)
+                {
+                    if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) ||
+                        value.PixelFormat.Equals(PixelFormat.Format4bppIndexed))
+                    {
                         Log.Debug("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
-                        try {
+                        try
+                        {
                             // Default Bitmap PixelFormat is Format32bppArgb
                             _image = new Bitmap(value);
-                        } finally {
+                        }
+                        finally
+                        {
                             // Always dispose, even when a exception occured
                             value.Dispose();
                         }
                     }
+
                     Log.DebugFormat("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
-                } else {
+                }
+                else
+                {
                     Log.Debug("Image is removed.");
                 }
             }
         }
 
-        public void NullImage() {
+        public void NullImage()
+        {
             _image = null;
         }
 
         private Icon _cursor;
+
         /// <summary>
         /// Get/Set the image for the Cursor
         /// </summary>
-        public Icon Cursor {
+        public Icon Cursor
+        {
             get => _cursor;
-            set {
+            set
+            {
                 _cursor?.Dispose();
-                _cursor = (Icon)value.Clone();
+                _cursor = (Icon) value.Clone();
             }
         }
 
@@ -103,36 +125,43 @@ namespace GreenshotPlugin.Core
         public bool CursorVisible { get; set; }
 
         private Point _cursorLocation = Point.Empty;
+
         /// <summary>
         /// Get/Set the CursorLocation
         /// </summary>
-        public Point CursorLocation {
+        public Point CursorLocation
+        {
             get => _cursorLocation;
             set => _cursorLocation = value;
         }
 
         private Point _location = Point.Empty;
+
         /// <summary>
         /// Get/set the Location
         /// </summary>
-        public Point Location {
+        public Point Location
+        {
             get => _location;
             set => _location = value;
         }
 
         private CaptureDetails _captureDetails;
+
         /// <summary>
         /// Get/set the CaptureDetails
         /// </summary>
-        public ICaptureDetails CaptureDetails {
+        public ICaptureDetails CaptureDetails
+        {
             get => _captureDetails;
-            set => _captureDetails = (CaptureDetails)value;
+            set => _captureDetails = (CaptureDetails) value;
         }
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public Capture() {
+        public Capture()
+        {
             _screenBounds = WindowCapture.GetScreenBounds();
             _captureDetails = new CaptureDetails();
         }
@@ -142,14 +171,16 @@ namespace GreenshotPlugin.Core
         /// Note: the supplied bitmap can be disposed immediately or when constructor is called.
         /// </summary>
         /// <param name="newImage">Image</param>
-        public Capture(Image newImage) : this() {
+        public Capture(Image newImage) : this()
+        {
             Image = newImage;
         }
 
         /// <summary>
         /// Destructor
         /// </summary>
-        ~Capture() {
+        ~Capture()
+        {
             Dispose(false);
         }
 
@@ -157,7 +188,8 @@ namespace GreenshotPlugin.Core
         /// The public accessible Dispose
         /// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
         /// </summary>
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -167,11 +199,14 @@ namespace GreenshotPlugin.Core
         /// When disposing==true all non-managed resources should be freed too!
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 _image?.Dispose();
                 _cursor?.Dispose();
             }
+
             _image = null;
             _cursor = null;
         }
@@ -180,12 +215,14 @@ namespace GreenshotPlugin.Core
         /// Crops the capture to the specified rectangle (with Bitmap coordinates!)
         /// </summary>
         /// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-        public bool Crop(Rectangle cropRectangle) {
+        public bool Crop(Rectangle cropRectangle)
+        {
             Log.Debug("Cropping to: " + cropRectangle);
             if (!ImageHelper.Crop(ref _image, ref cropRectangle))
             {
                 return false;
             }
+
             _location = cropRectangle.Location;
             // Change mouse location according to the cropRectangle (including screenbounds) offset
             MoveMouseLocation(-cropRectangle.Location.X, -cropRectangle.Location.Y);
@@ -206,7 +243,8 @@ namespace GreenshotPlugin.Core
         /// </summary>
         /// <param name="x">x coordinates to move the mouse</param>
         /// <param name="y">y coordinates to move the mouse</param>
-        public void MoveMouseLocation(int x, int y) {
+        public void MoveMouseLocation(int x, int y)
+        {
             _cursorLocation.Offset(x, y);
         }
 
@@ -257,6 +295,5 @@ namespace GreenshotPlugin.Core
         //        elements = value;
         //    }
         //}
-
     }
 }

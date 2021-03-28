@@ -24,35 +24,42 @@ using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.Imgur  {
-	/// <summary>
-	/// Description of ImgurDestination.
-	/// </summary>
-	public class ImgurDestination : AbstractDestination {
-		private readonly ImgurPlugin _plugin;
+namespace Greenshot.Plugin.Imgur
+{
+    /// <summary>
+    /// Description of ImgurDestination.
+    /// </summary>
+    public class ImgurDestination : AbstractDestination
+    {
+        private readonly ImgurPlugin _plugin;
 
-		public ImgurDestination(ImgurPlugin plugin) {
-			_plugin = plugin;
-		}
-		
-		public override string Designation => "Imgur";
+        public ImgurDestination(ImgurPlugin plugin)
+        {
+            _plugin = plugin;
+        }
 
-		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
+        public override string Designation => "Imgur";
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(ImgurPlugin));
-				return (Image)resources.GetObject("Imgur");
-			}
-		}
+        public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
+        public override Image DisplayIcon
+        {
+            get
+            {
+                ComponentResourceManager resources = new ComponentResourceManager(typeof(ImgurPlugin));
+                return (Image) resources.GetObject("Imgur");
+            }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
             ExportInformation exportInformation = new ExportInformation(Designation, Description)
             {
-                ExportMade = _plugin.Upload(captureDetails, surface, out var uploadUrl), Uri = uploadUrl
+                ExportMade = _plugin.Upload(captureDetails, surface, out var uploadUrl),
+                Uri = uploadUrl
             };
             ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+            return exportInformation;
+        }
+    }
 }

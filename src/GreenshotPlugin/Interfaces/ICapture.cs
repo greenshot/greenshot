@@ -27,22 +27,17 @@ namespace GreenshotPlugin.Interfaces
     /// <summary>
     /// The interface to the Capture object, so Plugins can use it.
     /// </summary>
-    public interface ICapture : IDisposable {
+    public interface ICapture : IDisposable
+    {
         /// <summary>
         /// The Capture Details
         /// </summary>
-        ICaptureDetails CaptureDetails {
-            get;
-            set;
-        }
+        ICaptureDetails CaptureDetails { get; set; }
 
         /// <summary>
         /// The captured Image
         /// </summary>
-        Image Image {
-            get;
-            set;
-        }
+        Image Image { get; set; }
 
         /// <summary>
         /// Null the image
@@ -52,42 +47,27 @@ namespace GreenshotPlugin.Interfaces
         /// <summary>
         /// Bounds on the screen from which the capture comes
         /// </summary>
-        Rectangle ScreenBounds {
-            get;
-            set;
-        }
+        Rectangle ScreenBounds { get; set; }
 
         /// <summary>
         /// The cursor
         /// </summary>
-        Icon Cursor {
-            get;
-            set;
-        }
+        Icon Cursor { get; set; }
 
         /// <summary>
         /// Boolean to specify if the cursor is available
         /// </summary>
-        bool CursorVisible {
-            get;
-            set;
-        }
+        bool CursorVisible { get; set; }
 
         /// <summary>
         /// Location of the cursor
         /// </summary>
-        Point CursorLocation {
-            get;
-            set;
-        }
+        Point CursorLocation { get; set; }
 
         /// <summary>
         /// Location of the capture
         /// </summary>
-        Point Location {
-            get;
-            set;
-        }
+        Point Location { get; set; }
 
         /// <summary>
         /// Crops the capture to the specified rectangle (with Bitmap coordinates!)

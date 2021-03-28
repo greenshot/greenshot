@@ -22,13 +22,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace GreenshotPlugin.UnmanagedHelpers.Enums {
-	/// <summary>
-	/// Window Style Flags
-	/// </summary>
-	[Flags]
-	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	public enum WindowStyleFlags : long {
-		WS_VISIBLE          = 0x10000000,
-	}
+namespace GreenshotPlugin.UnmanagedHelpers.Enums
+{
+    /// <summary>
+    /// Window Style Flags
+    /// </summary>
+    [Flags]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public enum WindowStyleFlags : long
+    {
+        WS_VISIBLE = 0x10000000,
+    }
 }

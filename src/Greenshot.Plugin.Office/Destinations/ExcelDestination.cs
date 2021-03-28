@@ -28,70 +28,89 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Office.Destinations {
-	/// <summary>
-	/// Description of PowerpointDestination.
-	/// </summary>
-	public class ExcelDestination : AbstractDestination {
-		private const int IconApplication = 0;
-		private const int IconWorkbook = 1;
-		private static readonly string ExePath;
-		private readonly string _workbookName;
+namespace Greenshot.Plugin.Office.Destinations
+{
+    /// <summary>
+    /// Description of PowerpointDestination.
+    /// </summary>
+    public class ExcelDestination : AbstractDestination
+    {
+        private const int IconApplication = 0;
+        private const int IconWorkbook = 1;
+        private static readonly string ExePath;
+        private readonly string _workbookName;
 
-		static ExcelDestination() {
-			ExePath = PluginUtils.GetExePath("EXCEL.EXE");
-			if (ExePath != null && File.Exists(ExePath)) {
-				WindowDetails.AddProcessToExcludeFromFreeze("excel");
-			} else {
-				ExePath = null;
-			}
-		}
+        static ExcelDestination()
+        {
+            ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+            if (ExePath != null && File.Exists(ExePath))
+            {
+                WindowDetails.AddProcessToExcludeFromFreeze("excel");
+            }
+            else
+            {
+                ExePath = null;
+            }
+        }
 
-		public ExcelDestination() {
-		}
+        public ExcelDestination()
+        {
+        }
 
-		public ExcelDestination(string workbookName) {
-			_workbookName = workbookName;
-		}
+        public ExcelDestination(string workbookName)
+        {
+            _workbookName = workbookName;
+        }
 
-		public override string Designation => "Excel";
+        public override string Designation => "Excel";
 
-		public override string Description => _workbookName ?? "Microsoft Excel";
+        public override string Description => _workbookName ?? "Microsoft Excel";
 
-		public override int Priority => 5;
+        public override int Priority => 5;
 
-		public override bool IsDynamic => true;
+        public override bool IsDynamic => true;
 
-		public override bool IsActive => base.IsActive && ExePath != null;
+        public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
+        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string workbookName in ExcelExporter.GetWorkbooks()) {
-				yield return new ExcelDestination(workbookName);
-			}
-		}
+        public override IEnumerable<IDestination> DynamicDestinations()
+        {
+            foreach (string workbookName in ExcelExporter.GetWorkbooks())
+            {
+                yield return new ExcelDestination(workbookName);
+            }
+        }
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			bool createdFile = false;
-			string imageFile = captureDetails.Filename;
-			if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
-				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-				createdFile = true;
-			}
-			if (_workbookName != null) {
-				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
-			} else {
-				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
-			}
-			exportInformation.ExportMade = true;
-			ProcessExport(exportInformation, surface);
-			// Cleanup imageFile if we created it here, so less tmp-files are generated and left
-			if (createdFile) {
-				ImageOutput.DeleteNamedTmpFile(imageFile);
-			}
-			return exportInformation;
-		}
-	}
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            bool createdFile = false;
+            string imageFile = captureDetails.Filename;
+            if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+            {
+                imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                createdFile = true;
+            }
+
+            if (_workbookName != null)
+            {
+                ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
+            }
+            else
+            {
+                ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
+            }
+
+            exportInformation.ExportMade = true;
+            ProcessExport(exportInformation, surface);
+            // Cleanup imageFile if we created it here, so less tmp-files are generated and left
+            if (createdFile)
+            {
+                ImageOutput.DeleteNamedTmpFile(imageFile);
+            }
+
+            return exportInformation;
+        }
+    }
 }

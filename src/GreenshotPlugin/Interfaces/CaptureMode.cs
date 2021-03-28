@@ -36,6 +36,7 @@ namespace GreenshotPlugin.Interfaces
         File,
         IE,
         Import,
+
         Text
         // Video
     };

@@ -24,21 +24,9 @@ using System;
 namespace GreenshotPlugin.Interfaces
 {
     public class SurfaceMessageEventArgs : EventArgs
-	{
-		public SurfaceMessageTyp MessageType
-		{
-			get;
-			set;
-		}
-		public string Message
-		{
-			get;
-			set;
-		}
-		public ISurface Surface
-		{
-			get;
-			set;
-		}
-	}
+    {
+        public SurfaceMessageTyp MessageType { get; set; }
+        public string Message { get; set; }
+        public ISurface Surface { get; set; }
+    }
 }

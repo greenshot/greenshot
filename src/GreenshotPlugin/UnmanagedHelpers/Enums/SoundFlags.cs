@@ -31,9 +31,9 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum SoundFlags
     {
-        SND_ASYNC = 0x0001,			// play asynchronously
-        SND_MEMORY = 0x0004,		// pszSound points to a memory file
-        SND_NOSTOP = 0x0010,		// don't stop any currently playing sound
-        SND_NOWAIT = 0x00002000,	// don't wait if the driver is busy
+        SND_ASYNC = 0x0001, // play asynchronously
+        SND_MEMORY = 0x0004, // pszSound points to a memory file
+        SND_NOSTOP = 0x0010, // don't stop any currently playing sound
+        SND_NOWAIT = 0x00002000, // don't wait if the driver is busy
     }
 }

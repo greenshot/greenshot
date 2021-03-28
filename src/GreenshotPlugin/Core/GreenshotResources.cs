@@ -18,26 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Drawing;
 
-namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// Centralized storage of the icons & bitmaps
-	/// </summary>
-	public static class GreenshotResources {
-		private static readonly ComponentResourceManager GreenshotResourceManager = new ComponentResourceManager(typeof(GreenshotResources));
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// Centralized storage of the icons & bitmaps
+    /// </summary>
+    public static class GreenshotResources
+    {
+        private static readonly ComponentResourceManager GreenshotResourceManager = new ComponentResourceManager(typeof(GreenshotResources));
 
-		public static Image GetImage(string imageName) {
-			return (Image)GreenshotResourceManager.GetObject(imageName);
-		}
-		public static Icon GetIcon(string imageName) {
-			return (Icon)GreenshotResourceManager.GetObject(imageName);
-		}
+        public static Image GetImage(string imageName)
+        {
+            return (Image) GreenshotResourceManager.GetObject(imageName);
+        }
 
-        public static Icon GetGreenshotIcon() {
-			return GetIcon("Greenshot.Icon");
-		}
+        public static Icon GetIcon(string imageName)
+        {
+            return (Icon) GreenshotResourceManager.GetObject(imageName);
+        }
 
-	}
+        public static Icon GetGreenshotIcon()
+        {
+            return GetIcon("Greenshot.Icon");
+        }
+    }
 }

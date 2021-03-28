@@ -22,12 +22,11 @@
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Controls {
-	public class GreenshotToolStripLabel : ToolStripLabel, IGreenshotLanguageBindable {
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
-			get;
-			set;
-		}
-	}
+namespace GreenshotPlugin.Controls
+{
+    public class GreenshotToolStripLabel : ToolStripLabel, IGreenshotLanguageBindable
+    {
+        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+        public string LanguageKey { get; set; }
+    }
 }

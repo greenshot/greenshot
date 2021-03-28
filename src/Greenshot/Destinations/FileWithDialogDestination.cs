@@ -21,62 +21,61 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Destinations {
-	/// <summary>
-	/// Description of FileWithDialog.
-	/// </summary>
-	public class FileWithDialogDestination : AbstractDestination {
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		public const string DESIGNATION = "FileDialog";
+namespace Greenshot.Destinations
+{
+    /// <summary>
+    /// Description of FileWithDialog.
+    /// </summary>
+    public class FileWithDialogDestination : AbstractDestination
+    {
+        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        public const string DESIGNATION = "FileDialog";
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+        public override string Designation
+        {
+            get { return DESIGNATION; }
+        }
 
-		public override string Description {
-			get {
-				return Language.GetString(LangKey.settings_destination_fileas);
-			}
-		}
+        public override string Description
+        {
+            get { return Language.GetString(LangKey.settings_destination_fileas); }
+        }
 
-		public override int Priority {
-			get {
-				return 0;
-			}
-		}
-		
-		public override Keys EditorShortcutKeys {
-			get {
-				return Keys.Control | Keys.Shift | Keys.S;
-			}
-		}
+        public override int Priority
+        {
+            get { return 0; }
+        }
 
-		public override Image DisplayIcon {
-			get {
-				return GreenshotResources.GetImage("Save.Image");
-			}
-		}
+        public override Keys EditorShortcutKeys
+        {
+            get { return Keys.Control | Keys.Shift | Keys.S; }
+        }
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
-			var savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
-			if (savedTo != null) {
-				exportInformation.ExportMade = true;
-				exportInformation.Filepath = savedTo;
-				captureDetails.Filename = savedTo;
-				conf.OutputFileAsFullpath = savedTo;
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+        public override Image DisplayIcon
+        {
+            get { return GreenshotResources.GetImage("Save.Image"); }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            // Bug #2918756 don't overwrite path if SaveWithDialog returns null!
+            var savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
+            if (savedTo != null)
+            {
+                exportInformation.ExportMade = true;
+                exportInformation.Filepath = savedTo;
+                captureDetails.Filename = savedTo;
+                conf.OutputFileAsFullpath = savedTo;
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

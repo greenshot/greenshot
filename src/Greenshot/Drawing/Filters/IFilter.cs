@@ -25,10 +25,11 @@ using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters
 {
-	public interface IFilter : INotifyPropertyChanged, IFieldHolder {
-		DrawableContainer Parent {get; set; }
-		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
-		DrawableContainer GetParent();
-		bool Invert {get; set;}
-	}
+    public interface IFilter : INotifyPropertyChanged, IFieldHolder
+    {
+        DrawableContainer Parent { get; set; }
+        void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
+        DrawableContainer GetParent();
+        bool Invert { get; set; }
+    }
 }

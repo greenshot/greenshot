@@ -26,7 +26,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
 {
     [Flags]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum ProcessAccessFlags : uint {
+    public enum ProcessAccessFlags : uint
+    {
         VMRead = 0x00000010,
         QueryInformation = 0x00000400,
     }

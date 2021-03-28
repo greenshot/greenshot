@@ -21,47 +21,61 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComImport, Guid("3050f3db-98b5-11cf-bb82-00aa00bdce0b"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-    public interface IHTMLCurrentStyle {
+namespace GreenshotPlugin.IEInterop
+{
+    [ComImport, Guid("3050f3db-98b5-11cf-bb82-00aa00bdce0b"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLCurrentStyle
+    {
         /// <summary><para><c>styleFloat</c> property of <c>IHTMLStyle</c> interface.</para></summary>
-        string styleFloat {
+        string styleFloat
+        {
             [DispId(-2147413042)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
         }
-        
-        string left {
-        	[DispId(-2147418112 + 3)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string left
+        {
+            [DispId(-2147418112 + 3)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string top {
-        	[DispId(-2147418112 + 4)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string top
+        {
+            [DispId(-2147418112 + 4)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string width {
-        	[DispId(-2147418112 + 5)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string width
+        {
+            [DispId(-2147418112 + 5)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string height {
-        	[DispId(-2147418112 + 6)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string height
+        {
+            [DispId(-2147418112 + 6)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string right {
-        	[DispId(-2147418112 + 0x4d)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string right
+        {
+            [DispId(-2147418112 + 0x4d)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string bottom {
-        	[DispId(-2147418112 + 0x4e)]
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string bottom
+        {
+            [DispId(-2147418112 + 0x4e)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-	}
+    }
 }

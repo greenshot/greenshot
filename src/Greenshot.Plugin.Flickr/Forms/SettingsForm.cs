@@ -19,19 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Flickr.Forms {
-	/// <summary>
-	/// Description of PasswordRequestForm.
-	/// </summary>
-	public partial class SettingsForm : FlickrForm {
-		public SettingsForm() {
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			CancelButton = buttonCancel;
-			AcceptButton = buttonOK;
-		}
-			
-	}
+namespace Greenshot.Plugin.Flickr.Forms
+{
+    /// <summary>
+    /// Description of PasswordRequestForm.
+    /// </summary>
+    public partial class SettingsForm : FlickrForm
+    {
+        public SettingsForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            CancelButton = buttonCancel;
+            AcceptButton = buttonOK;
+        }
+    }
 }

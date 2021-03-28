@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -26,65 +27,73 @@ using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using ColorDialog = Greenshot.Forms.ColorDialog;
 
-namespace Greenshot.Controls {
-	/// <summary>
-	/// Description of ColorButton.
-	/// </summary>
-	public class ColorButton : Button, IGreenshotLanguageBindable {
-		public event PropertyChangedEventHandler PropertyChanged;
-		private Color _selectedColor = Color.White;
+namespace Greenshot.Controls
+{
+    /// <summary>
+    /// Description of ColorButton.
+    /// </summary>
+    public class ColorButton : Button, IGreenshotLanguageBindable
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private Color _selectedColor = Color.White;
 
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
-			get;
-			set;
-		}
+        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+        public string LanguageKey { get; set; }
 
-		public ColorButton() {
-			Click += ColorButtonClick;
-		}
+        public ColorButton()
+        {
+            Click += ColorButtonClick;
+        }
 
-		public Color SelectedColor {
-			get {return _selectedColor;}
-			set {
-				_selectedColor = value;
+        public Color SelectedColor
+        {
+            get { return _selectedColor; }
+            set
+            {
+                _selectedColor = value;
 
-				Brush brush;
-				if(value != Color.Transparent) {
-					brush = new SolidBrush(value);
-				} else {
-					brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
-				}
-
-				if (Image != null)
+                Brush brush;
+                if (value != Color.Transparent)
                 {
-                    using Graphics graphics = Graphics.FromImage(Image);
-                    graphics.FillRectangle(brush, new Rectangle(4,17,16,3));
+                    brush = new SolidBrush(value);
+                }
+                else
+                {
+                    brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
                 }
 
-				// cleanup GDI Object
-				brush.Dispose();
-				Invalidate();
-			}
-		}
+                if (Image != null)
+                {
+                    using Graphics graphics = Graphics.FromImage(Image);
+                    graphics.FillRectangle(brush, new Rectangle(4, 17, 16, 3));
+                }
 
-		private void ColorButtonClick(object sender, EventArgs e) {
-			var colorDialog = new ColorDialog
-			{
-				Color = SelectedColor
-			};
-			// Using the parent to make sure the dialog doesn't show on another window
-			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult == DialogResult.Cancel)
-			{
-				return;
-			}
-			if (colorDialog.Color.Equals(SelectedColor))
-			{
-				return;
-			}
-			SelectedColor = colorDialog.Color;
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
-		}
-	}
+                // cleanup GDI Object
+                brush.Dispose();
+                Invalidate();
+            }
+        }
+
+        private void ColorButtonClick(object sender, EventArgs e)
+        {
+            var colorDialog = new ColorDialog
+            {
+                Color = SelectedColor
+            };
+            // Using the parent to make sure the dialog doesn't show on another window
+            colorDialog.ShowDialog(Parent.Parent);
+            if (colorDialog.DialogResult == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            if (colorDialog.Color.Equals(SelectedColor))
+            {
+                return;
+            }
+
+            SelectedColor = colorDialog.Color;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
+        }
+    }
 }

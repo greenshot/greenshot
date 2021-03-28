@@ -21,11 +21,13 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
+namespace GreenshotPlugin.IEInterop
+{
     [ComVisible(true), Guid("3050f69a-98b5-11cf-bb82-00aa00bdce0b"),
      InterfaceType(ComInterfaceType.InterfaceIsIDispatch),
      TypeLibType(TypeLibTypeFlags.FDual)]
-    public interface IHTMLDocument4 {
+    public interface IHTMLDocument4
+    {
         [DispId(1090)]
         [return: MarshalAs(UnmanagedType.VariantBool)]
         bool hasFocus();

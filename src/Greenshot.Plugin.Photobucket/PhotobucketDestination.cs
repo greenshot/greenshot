@@ -25,78 +25,95 @@ using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.Photobucket  {
-	/// <summary>
-	/// Description of PhotobucketDestination.
-	/// </summary>
-	public class PhotobucketDestination : AbstractDestination {
-		private readonly PhotobucketPlugin _plugin;
-		private readonly string _albumPath;
+namespace Greenshot.Plugin.Photobucket
+{
+    /// <summary>
+    /// Description of PhotobucketDestination.
+    /// </summary>
+    public class PhotobucketDestination : AbstractDestination
+    {
+        private readonly PhotobucketPlugin _plugin;
+        private readonly string _albumPath;
 
-		/// <summary>
-		/// Create a Photobucket destination, which also has the path to the album in it
-		/// </summary>
-		/// <param name="plugin"></param>
-		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath = null) {
-			_plugin = plugin;
-			_albumPath = albumPath;
-		}
-		
-		public override string Designation => "Photobucket";
+        /// <summary>
+        /// Create a Photobucket destination, which also has the path to the album in it
+        /// </summary>
+        /// <param name="plugin"></param>
+        /// <param name="albumPath">path to the album, null for default</param>
+        public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath = null)
+        {
+            _plugin = plugin;
+            _albumPath = albumPath;
+        }
 
-		public override string Description {
-			get {
-				if (_albumPath != null) {
-					return _albumPath;
-				}
-				return Language.GetString("photobucket", LangKey.upload_menu_item);
-			}
-		}
+        public override string Designation => "Photobucket";
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-				return (Image)resources.GetObject("Photobucket");
-			}
-		}
-		
-		public override bool IsDynamic => true;
+        public override string Description
+        {
+            get
+            {
+                if (_albumPath != null)
+                {
+                    return _albumPath;
+                }
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			IList<string> albums = null;
-			try {
-				albums = PhotobucketUtils.RetrievePhotobucketAlbums();
-			}
-			catch
-			{
-				// ignored
-			}
+                return Language.GetString("photobucket", LangKey.upload_menu_item);
+            }
+        }
 
-			if (albums == null || albums.Count == 0) {
-				yield break;
-			}
-			foreach (string album in albums) {
-				yield return new PhotobucketDestination(_plugin, album);
-			}
-		}
+        public override Image DisplayIcon
+        {
+            get
+            {
+                ComponentResourceManager resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
+                return (Image) resources.GetObject("Photobucket");
+            }
+        }
 
-		/// <summary>
-		/// Export the capture to Photobucket
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns></returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+        public override bool IsDynamic => true;
+
+        public override IEnumerable<IDestination> DynamicDestinations()
+        {
+            IList<string> albums = null;
+            try
+            {
+                albums = PhotobucketUtils.RetrievePhotobucketAlbums();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            if (albums == null || albums.Count == 0)
+            {
+                yield break;
+            }
+
+            foreach (string album in albums)
+            {
+                yield return new PhotobucketDestination(_plugin, album);
+            }
+        }
+
+        /// <summary>
+        /// Export the capture to Photobucket
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        /// <returns></returns>
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out var uploadUrl);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+            if (uploaded)
+            {
+                exportInformation.ExportMade = true;
+                exportInformation.Uri = uploadUrl;
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

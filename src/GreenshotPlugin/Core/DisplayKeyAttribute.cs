@@ -18,18 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace GreenshotPlugin.Core {
-	[AttributeUsage(AttributeTargets.Field)]
-	public sealed class DisplayKeyAttribute : Attribute {
-		public string Value { get; }
+namespace GreenshotPlugin.Core
+{
+    [AttributeUsage(AttributeTargets.Field)]
+    public sealed class DisplayKeyAttribute : Attribute
+    {
+        public string Value { get; }
 
-		public DisplayKeyAttribute(string v) {
-		  Value = v;
-		}
-		
-		public DisplayKeyAttribute() {
-		}
-	}
+        public DisplayKeyAttribute(string v)
+        {
+            Value = v;
+        }
+
+        public DisplayKeyAttribute()
+        {
+        }
+    }
 }

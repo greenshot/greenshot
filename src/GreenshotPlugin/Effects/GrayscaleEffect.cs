@@ -25,15 +25,19 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// GrayscaleEffect
-	/// </summary>
-	public class GrayscaleEffect : IEffect {
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.CreateGrayscale(sourceImage);
-		}
-		public void Reset() {
-			// No settings to reset
-		}
-	}
+    /// <summary>
+    /// GrayscaleEffect
+    /// </summary>
+    public class GrayscaleEffect : IEffect
+    {
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.CreateGrayscale(sourceImage);
+        }
+
+        public void Reset()
+        {
+            // No settings to reset
+        }
+    }
 }

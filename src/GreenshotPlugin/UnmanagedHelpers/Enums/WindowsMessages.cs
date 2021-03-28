@@ -13,7 +13,7 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
         WM_INPUTLANGCHANGEREQUEST = 0x0050,
         WM_INPUTLANGCHANGE = 0x0051,
 
-        
+
         /// <summary>
         /// Sent to a window to retrieve a handle to the large or small icon associated with a window. The system displays the large icon in the ALT+TAB dialog, and the small icon in the window caption.
         /// A window receives this message through its WindowProc function.

@@ -28,55 +28,61 @@ using GreenshotPlugin.UnmanagedHelpers.Enums;
 using GreenshotPlugin.UnmanagedHelpers.Structs;
 using Microsoft.Win32;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
+    /// <summary>
+    /// Desktop Window Manager helper code
+    /// </summary>
+    public static class DWM
+    {
+        // DWM
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern int DwmRegisterThumbnail(IntPtr dest, IntPtr src, out IntPtr thumb);
 
-	/// <summary>
-	/// Desktop Window Manager helper code
-	/// </summary>
-	public static class DWM {
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern int DwmUnregisterThumbnail(IntPtr thumb);
 
-		// DWM
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmRegisterThumbnail(IntPtr dest, IntPtr src, out IntPtr thumb);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmUnregisterThumbnail(IntPtr thumb);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern HResult DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern HResult DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern HResult DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
 
-		// Deprecated as of Windows 8 Release Preview
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmIsCompositionEnabled(out bool enabled);
-		[DllImport("dwmapi", SetLastError = true)]
-		public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT lpRect, int size);
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern HResult DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
+
+        // Deprecated as of Windows 8 Release Preview
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern int DwmIsCompositionEnabled(out bool enabled);
+
+        [DllImport("dwmapi", SetLastError = true)]
+        public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT lpRect, int size);
+
         [DllImport("dwmapi", SetLastError = true)]
         public static extern int DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
 
         // Key to ColorizationColor for DWM
-		private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
+        private const string COLORIZATION_COLOR_KEY = @"SOFTWARE\Microsoft\Windows\DWM";
 
-		/// <summary>
-		/// Checks if the window is cloaked, this should solve some issues with the window selection code
-		/// </summary>
-		/// <param name="hWnd">IntPtr as hWmd</param>
-		/// <returns>bool</returns>
-		public static bool IsWindowCloaked(IntPtr hWnd)
+        /// <summary>
+        /// Checks if the window is cloaked, this should solve some issues with the window selection code
+        /// </summary>
+        /// <param name="hWnd">IntPtr as hWmd</param>
+        /// <returns>bool</returns>
+        public static bool IsWindowCloaked(IntPtr hWnd)
         {
-			if (!WindowsVersion.IsWindows8OrLater)
+            if (!WindowsVersion.IsWindows8OrLater)
             {
                 return false;
             }
 
             DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out bool isCloaked, Marshal.SizeOf(typeof(bool)));
-			return isCloaked;
+            return isCloaked;
         }
 
         /// <summary>
-		/// Helper method for an easy DWM check
-		/// </summary>
-		/// <returns>bool true if DWM is available AND active</returns>
-		public static bool IsDwmEnabled {
+        /// Helper method for an easy DWM check
+        /// </summary>
+        /// <returns>bool true if DWM is available AND active</returns>
+        public static bool IsDwmEnabled
+        {
             get
             {
                 // According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
@@ -86,25 +92,32 @@ namespace GreenshotPlugin.UnmanagedHelpers {
                 {
                     return true;
                 }
+
                 if (WindowsVersion.IsWindowsVistaOrLater)
                 {
                     DwmIsCompositionEnabled(out var dwmEnabled);
                     return dwmEnabled;
                 }
-                return false;
-			}
-		}
 
-		public static Color ColorizationColor {
-			get {
-				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false)) {
-					object dwordValue = key?.GetValue("ColorizationColor");
-					if (dwordValue != null) {
-						return Color.FromArgb((int)dwordValue);
-					}
-				}
-				return Color.White;
-			}
-		}
-	}
+                return false;
+            }
+        }
+
+        public static Color ColorizationColor
+        {
+            get
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false))
+                {
+                    object dwordValue = key?.GetValue("ColorizationColor");
+                    if (dwordValue != null)
+                    {
+                        return Color.FromArgb((int) dwordValue);
+                    }
+                }
+
+                return Color.White;
+            }
+        }
+    }
 }

@@ -18,107 +18,126 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 using System.Threading;
 using GreenshotPlugin.Core;
 using log4net;
 
-namespace GreenshotPlugin.Controls {
-	/// <summary>
-	/// Description of PleaseWaitForm.
-	/// </summary>
-	public partial class PleaseWaitForm : Form {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
-		private Thread _waitFor;
-		private string _title;
-		public PleaseWaitForm() {
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			Icon = GreenshotResources.GetGreenshotIcon();
-		}
-		
-		/// <summary>
-		/// Prevent the close-window button showing
-		/// </summary>
-		private const int CP_NOCLOSE_BUTTON = 0x200;
-		protected override CreateParams CreateParams {
-			get {
-				CreateParams createParams = base.CreateParams;
-				createParams.ClassStyle |= CP_NOCLOSE_BUTTON ;
-				return createParams;
-			}
-		} 
-		
-		/// <summary>
-		/// Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
-		/// The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
-		/// </summary>
-		/// <param name="title">The title of the form (and Thread)</param>
-		/// <param name="text">The text in the form</param>
-		/// <param name="waitDelegate">delegate { with your code }</param>
-		public void ShowAndWait(string title, string text, ThreadStart waitDelegate) {
-			_title = title;
-			Text = title;
-			label_pleasewait.Text = text;
-			cancelButton.Text = Language.GetString("CANCEL");
+namespace GreenshotPlugin.Controls
+{
+    /// <summary>
+    /// Description of PleaseWaitForm.
+    /// </summary>
+    public partial class PleaseWaitForm : Form
+    {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
+        private Thread _waitFor;
+        private string _title;
 
-			// Make sure the form is shown.
-			Show();
-			
-			// Variable to store the exception, if one is generated, from inside the thread.
-			Exception threadException = null;
-			try {
-				// Wrap the passed delegate in a try/catch which makes it possible to save the exception
-				_waitFor = new Thread(new ThreadStart(
-						delegate
-						{
-							try
-							{
-								waitDelegate.Invoke();
-							}
-							catch (Exception ex)
-							{
-								LOG.Error("invoke error:", ex);
-								threadException = ex;
-							}
-						})
-				)
-				{
-					Name = title,
-					IsBackground = true
-				};
-				_waitFor.SetApartmentState(ApartmentState.STA);
-				_waitFor.Start();
-	
-				// Wait until finished
-				while (!_waitFor.Join(TimeSpan.FromMilliseconds(100))) {
-					Application.DoEvents();
-				}
-				LOG.DebugFormat("Finished {0}", title);
-			} catch (Exception ex) {
-				LOG.Error(ex);
-				throw;
-			} finally {
-				Close();
-			}
-			// Check if an exception occured, if so throw it
-			if (threadException != null) {
-				throw threadException;
-			}
-		}
-		
-		/// <summary>
-		/// Called if the cancel button is clicked, will use Thread.Abort()
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void CancelButtonClick(object sender, EventArgs e) {
-			LOG.DebugFormat("Cancel clicked on {0}", _title);
-			cancelButton.Enabled = false;
-			_waitFor.Abort();
-		}
-	}
+        public PleaseWaitForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            Icon = GreenshotResources.GetGreenshotIcon();
+        }
+
+        /// <summary>
+        /// Prevent the close-window button showing
+        /// </summary>
+        private const int CP_NOCLOSE_BUTTON = 0x200;
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams createParams = base.CreateParams;
+                createParams.ClassStyle |= CP_NOCLOSE_BUTTON;
+                return createParams;
+            }
+        }
+
+        /// <summary>
+        /// Show the "please wait" form, execute the code from the delegate and wait until execution finishes.
+        /// The supplied delegate will be wrapped with a try/catch so this method can return any exception that was thrown.
+        /// </summary>
+        /// <param name="title">The title of the form (and Thread)</param>
+        /// <param name="text">The text in the form</param>
+        /// <param name="waitDelegate">delegate { with your code }</param>
+        public void ShowAndWait(string title, string text, ThreadStart waitDelegate)
+        {
+            _title = title;
+            Text = title;
+            label_pleasewait.Text = text;
+            cancelButton.Text = Language.GetString("CANCEL");
+
+            // Make sure the form is shown.
+            Show();
+
+            // Variable to store the exception, if one is generated, from inside the thread.
+            Exception threadException = null;
+            try
+            {
+                // Wrap the passed delegate in a try/catch which makes it possible to save the exception
+                _waitFor = new Thread(new ThreadStart(
+                    delegate
+                    {
+                        try
+                        {
+                            waitDelegate.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            LOG.Error("invoke error:", ex);
+                            threadException = ex;
+                        }
+                    })
+                )
+                {
+                    Name = title,
+                    IsBackground = true
+                };
+                _waitFor.SetApartmentState(ApartmentState.STA);
+                _waitFor.Start();
+
+                // Wait until finished
+                while (!_waitFor.Join(TimeSpan.FromMilliseconds(100)))
+                {
+                    Application.DoEvents();
+                }
+
+                LOG.DebugFormat("Finished {0}", title);
+            }
+            catch (Exception ex)
+            {
+                LOG.Error(ex);
+                throw;
+            }
+            finally
+            {
+                Close();
+            }
+
+            // Check if an exception occured, if so throw it
+            if (threadException != null)
+            {
+                throw threadException;
+            }
+        }
+
+        /// <summary>
+        /// Called if the cancel button is clicked, will use Thread.Abort()
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CancelButtonClick(object sender, EventArgs e)
+        {
+            LOG.DebugFormat("Cancel clicked on {0}", _title);
+            cancelButton.Enabled = false;
+            _waitFor.Abort();
+        }
+    }
 }

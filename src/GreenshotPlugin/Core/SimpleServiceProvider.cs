@@ -21,6 +21,7 @@ namespace GreenshotPlugin.Core
             {
                 yield break;
             }
+
             foreach (TService result in results)
             {
                 yield return result;
@@ -47,6 +48,7 @@ namespace GreenshotPlugin.Core
                 {
                     continue;
                 }
+
                 currentServices.Add(service);
             }
         }

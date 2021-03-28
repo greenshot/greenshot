@@ -21,7 +21,9 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Plugin.Dropbox.Forms {
-	public class DropboxForm : GreenshotForm {
-	}
+namespace Greenshot.Plugin.Dropbox.Forms
+{
+    public class DropboxForm : GreenshotForm
+    {
+    }
 }

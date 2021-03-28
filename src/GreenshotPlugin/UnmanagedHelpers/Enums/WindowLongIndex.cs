@@ -26,7 +26,7 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WindowLongIndex
     {
-        GWL_EXSTYLE = -20,	// Sets a new extended window style.
-        GWL_STYLE = -16,	// Sets a new window style.
+        GWL_EXSTYLE = -20, // Sets a new extended window style.
+        GWL_STYLE = -16, // Sets a new window style.
     }
 }

@@ -27,53 +27,49 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// TornEdgeEffect extends on DropShadowEffect
-	/// </summary>
-	[TypeConverter(typeof(EffectConverter))]
-	public sealed class TornEdgeEffect : DropShadowEffect {
-		public TornEdgeEffect()
-		{
-			Reset();
-		}
-		public int ToothHeight {
-			get;
-			set;
-		}
-		public int HorizontalToothRange {
-			get;
-			set;
-		}
-		public int VerticalToothRange {
-			get;
-			set;
-		}
-		public bool[] Edges {
-			get;
-			set;
-		}
-		public bool GenerateShadow {
-			get;
-			set;
-		}
+    /// <summary>
+    /// TornEdgeEffect extends on DropShadowEffect
+    /// </summary>
+    [TypeConverter(typeof(EffectConverter))]
+    public sealed class TornEdgeEffect : DropShadowEffect
+    {
+        public TornEdgeEffect()
+        {
+            Reset();
+        }
 
-		public override void Reset() {
-			base.Reset();
-			ShadowSize = 7;
-			ToothHeight = 12;
-			HorizontalToothRange = 20;
-			VerticalToothRange = 20;
-			Edges = new[] { true, true, true, true };
-			GenerateShadow = true;
-		}
-		public override Image Apply(Image sourceImage, Matrix matrix) {
-			Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
-			if (GenerateShadow) {
-				using (tmpTornImage) {
-					return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
-				}
-			}
-			return tmpTornImage;
-		}
-	}
+        public int ToothHeight { get; set; }
+        public int HorizontalToothRange { get; set; }
+        public int VerticalToothRange { get; set; }
+        public bool[] Edges { get; set; }
+        public bool GenerateShadow { get; set; }
+
+        public override void Reset()
+        {
+            base.Reset();
+            ShadowSize = 7;
+            ToothHeight = 12;
+            HorizontalToothRange = 20;
+            VerticalToothRange = 20;
+            Edges = new[]
+            {
+                true, true, true, true
+            };
+            GenerateShadow = true;
+        }
+
+        public override Image Apply(Image sourceImage, Matrix matrix)
+        {
+            Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
+            if (GenerateShadow)
+            {
+                using (tmpTornImage)
+                {
+                    return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
+                }
+            }
+
+            return tmpTornImage;
+        }
+    }
 }

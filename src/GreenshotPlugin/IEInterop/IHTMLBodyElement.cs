@@ -21,15 +21,18 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComImport, Guid("3050F1D8-98B5-11CF-BB82-00AA00BDCE0B"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLBodyElement {
-		string scroll {
-			set;
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
-	}
+namespace GreenshotPlugin.IEInterop
+{
+    [ComImport, Guid("3050F1D8-98B5-11CF-BB82-00AA00BDCE0B"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLBodyElement
+    {
+        string scroll
+        {
+            set;
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+    }
 }

@@ -29,31 +29,32 @@ using Microsoft.Win32;
 
 namespace GreenshotPlugin.Core
 {
-	/// <summary>
-	/// Description of EnvironmentInfo.
-	/// </summary>
-	public static class EnvironmentInfo
-	{
-		private static bool? _isWindows;
+    /// <summary>
+    /// Description of EnvironmentInfo.
+    /// </summary>
+    public static class EnvironmentInfo
+    {
+        private static bool? _isWindows;
 
-		public static bool IsWindows
-		{
-			get
-			{
-				if (_isWindows.HasValue)
-				{
-					return _isWindows.Value;
-				}
-				_isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Win");
-				return _isWindows.Value;
-			}
-		}
+        public static bool IsWindows
+        {
+            get
+            {
+                if (_isWindows.HasValue)
+                {
+                    return _isWindows.Value;
+                }
 
-		public static bool IsNet45OrNewer()
-		{
-			// Class "ReflectionContext" exists from .NET 4.5 onwards.
-			return Type.GetType("System.Reflection.ReflectionContext", false) != null;
-		}
+                _isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Win");
+                return _isWindows.Value;
+            }
+        }
+
+        public static bool IsNet45OrNewer()
+        {
+            // Class "ReflectionContext" exists from .NET 4.5 onwards.
+            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
+        }
 
         public static string GetGreenshotVersion(bool shortVersion = false)
         {
@@ -66,8 +67,8 @@ namespace GreenshotPlugin.Core
             var assemblyFileVersionAttribute = executingAssembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
             if (!string.IsNullOrEmpty(assemblyFileVersionAttribute?.Version))
             {
-				var assemblyFileVersion = new Version(assemblyFileVersionAttribute.Version);
-				greenshotVersion = assemblyFileVersion.ToString(3);
+                var assemblyFileVersion = new Version(assemblyFileVersionAttribute.Version);
+                greenshotVersion = assemblyFileVersion.ToString(3);
             }
 
             if (!shortVersion)
@@ -78,171 +79,181 @@ namespace GreenshotPlugin.Core
                 {
                     greenshotVersion = informationalVersionAttribute.InformationalVersion;
                 }
-			}
+            }
 
-			return greenshotVersion.Replace("+", " - ");
-		}
+            return greenshotVersion.Replace("+", " - ");
+        }
 
-		public static string EnvironmentToString(bool newline)
-		{
-			StringBuilder environment = new StringBuilder();
-			environment.Append("Software version: " + GetGreenshotVersion());
-			if (IniConfig.IsPortable) {
-					environment.Append(" Portable");
-			}
-			environment.Append(" (" + OsInfo.Bits + " bit)");
+        public static string EnvironmentToString(bool newline)
+        {
+            StringBuilder environment = new StringBuilder();
+            environment.Append("Software version: " + GetGreenshotVersion());
+            if (IniConfig.IsPortable)
+            {
+                environment.Append(" Portable");
+            }
 
-			if (newline)
-			{
-				environment.AppendLine();
-			}
-			else
-			{
-				environment.Append(", ");
-			}
-			environment.Append(".NET runtime version: " + Environment.Version);
-			if (IsNet45OrNewer())
-			{
-				environment.Append("+");
+            environment.Append(" (" + OsInfo.Bits + " bit)");
 
-			}
-			if (newline)
-			{
-				environment.AppendLine();
-			}
-			else
-			{
-				environment.Append(", ");
-			}
-			environment.Append("Time: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+            if (newline)
+            {
+                environment.AppendLine();
+            }
+            else
+            {
+                environment.Append(", ");
+            }
 
-			if (IsWindows)
-			{
-				if (newline)
-				{
-					environment.AppendLine();
-				}
-				else
-				{
-					environment.Append(", ");
-				}
+            environment.Append(".NET runtime version: " + Environment.Version);
+            if (IsNet45OrNewer())
+            {
+                environment.Append("+");
+            }
+
+            if (newline)
+            {
+                environment.AppendLine();
+            }
+            else
+            {
+                environment.Append(", ");
+            }
+
+            environment.Append("Time: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+
+            if (IsWindows)
+            {
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
 
                 environment.Append($"OS: {OsInfo.Name}");
                 if (!string.IsNullOrEmpty(OsInfo.Edition))
                 {
                     environment.Append($" {OsInfo.Edition}");
+                }
 
-				}
                 if (!string.IsNullOrEmpty(OsInfo.ServicePack))
                 {
                     environment.Append($" {OsInfo.ServicePack}");
-
                 }
+
                 environment.Append($" x{OsInfo.Bits}");
                 environment.Append($" {OsInfo.VersionString}");
-				if (newline)
-				{
-					environment.AppendLine();
-				}
-				else
-				{
-					environment.Append(", ");
-				}
-				// Get some important information for fixing GDI related Problems
-				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGDICount());
-				if (newline)
-				{
-					environment.AppendLine();
-				}
-				else
-				{
-					environment.Append(", ");
-				}
-				environment.AppendFormat("User object count: {0}", User32.GetGuiResourcesUserCount());
-			}
-			else
-			{
-				if (newline)
-				{
-					environment.AppendLine();
-				}
-				else
-				{
-					environment.Append(", ");
-				}
-				environment.AppendFormat("OS: {0}", Environment.OSVersion.Platform);
-			}
-			if (newline)
-			{
-				environment.AppendLine();
-			}
-			else
-			{
-				environment.Append(", ");
-			}
-			// TODO: Is this needed?
-			// environment.AppendFormat("Surface count: {0}", Surface.Count);
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
 
-			return environment.ToString();
-		}
+                // Get some important information for fixing GDI related Problems
+                environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGDICount());
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
 
-		public static string ExceptionToString(Exception ex)
-		{
-			if (ex == null)
-				return "null\r\n";
+                environment.AppendFormat("User object count: {0}", User32.GetGuiResourcesUserCount());
+            }
+            else
+            {
+                if (newline)
+                {
+                    environment.AppendLine();
+                }
+                else
+                {
+                    environment.Append(", ");
+                }
 
-			StringBuilder report = new StringBuilder();
+                environment.AppendFormat("OS: {0}", Environment.OSVersion.Platform);
+            }
 
-			report.AppendLine("Exception: " + ex.GetType());
-			report.AppendLine("Message: " + ex.Message);
-			if (ex.Data.Count > 0)
-			{
-				report.AppendLine();
-				report.AppendLine("Additional Information:");
-				foreach (object key in ex.Data.Keys)
-				{
-					object data = ex.Data[key];
-					if (data != null)
-					{
-						report.AppendLine(key + " : " + data);
-					}
-				}
-			}
-			if (ex is ExternalException externalException)
-			{
-				// e.g. COMException
-				report.AppendLine().AppendLine("ErrorCode: 0x" + externalException.ErrorCode.ToString("X"));
-			}
+            if (newline)
+            {
+                environment.AppendLine();
+            }
+            else
+            {
+                environment.Append(", ");
+            }
+            // TODO: Is this needed?
+            // environment.AppendFormat("Surface count: {0}", Surface.Count);
 
-			report.AppendLine().AppendLine("Stack:").AppendLine(ex.StackTrace);
+            return environment.ToString();
+        }
 
-			if (ex is ReflectionTypeLoadException reflectionTypeLoadException)
-			{
-				report.AppendLine().AppendLine("LoaderExceptions: ");
-				foreach (Exception cbE in reflectionTypeLoadException.LoaderExceptions)
-				{
-					report.AppendLine(cbE.Message);
-				}
-			}
+        public static string ExceptionToString(Exception ex)
+        {
+            if (ex == null)
+                return "null\r\n";
 
-			if (ex.InnerException != null)
-			{
-				report.AppendLine("--- InnerException: ---");
-				report.AppendLine(ExceptionToString(ex.InnerException));
-			}
-			return report.ToString();
-		}
+            StringBuilder report = new StringBuilder();
 
-		public static string BuildReport(Exception exception)
-		{
-			StringBuilder exceptionText = new StringBuilder();
-			exceptionText.AppendLine(EnvironmentToString(true));
-			exceptionText.AppendLine(ExceptionToString(exception));
-			exceptionText.AppendLine("Configuration dump:");
+            report.AppendLine("Exception: " + ex.GetType());
+            report.AppendLine("Message: " + ex.Message);
+            if (ex.Data.Count > 0)
+            {
+                report.AppendLine();
+                report.AppendLine("Additional Information:");
+                foreach (object key in ex.Data.Keys)
+                {
+                    object data = ex.Data[key];
+                    if (data != null)
+                    {
+                        report.AppendLine(key + " : " + data);
+                    }
+                }
+            }
 
-			return exceptionText.ToString();
-		}
-	}
+            if (ex is ExternalException externalException)
+            {
+                // e.g. COMException
+                report.AppendLine().AppendLine("ErrorCode: 0x" + externalException.ErrorCode.ToString("X"));
+            }
+
+            report.AppendLine().AppendLine("Stack:").AppendLine(ex.StackTrace);
+
+            if (ex is ReflectionTypeLoadException reflectionTypeLoadException)
+            {
+                report.AppendLine().AppendLine("LoaderExceptions: ");
+                foreach (Exception cbE in reflectionTypeLoadException.LoaderExceptions)
+                {
+                    report.AppendLine(cbE.Message);
+                }
+            }
+
+            if (ex.InnerException != null)
+            {
+                report.AppendLine("--- InnerException: ---");
+                report.AppendLine(ExceptionToString(ex.InnerException));
+            }
+
+            return report.ToString();
+        }
+
+        public static string BuildReport(Exception exception)
+        {
+            StringBuilder exceptionText = new StringBuilder();
+            exceptionText.AppendLine(EnvironmentToString(true));
+            exceptionText.AppendLine(ExceptionToString(exception));
+            exceptionText.AppendLine("Configuration dump:");
+
+            return exceptionText.ToString();
+        }
+    }
 
     /// <summary>
     /// Provides detailed information about the host operating system.
@@ -664,7 +675,6 @@ namespace GreenshotPlugin.Core
                     {
                         return new string(servicePackVersion);
                     }
-
                 }
             }
 

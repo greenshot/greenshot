@@ -24,7 +24,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     /// <summary>
     /// A Win32 error code.
     /// </summary>
-    public enum Win32Error : uint {
+    public enum Win32Error : uint
+    {
         Success = 0x0,
         InvalidFunction = 0x1,
         FileNotFound = 0x2,

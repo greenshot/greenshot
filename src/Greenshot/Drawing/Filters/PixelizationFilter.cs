@@ -18,58 +18,78 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
-	[Serializable()] 
-	public class PixelizationFilter : AbstractFilter {
-				
-		public PixelizationFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.PIXEL_SIZE, 5);
-		}
-		
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-			ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-			if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
-				// Nothing to do
-				return;
-			}
-			if (rect.Width < pixelSize) {
-				pixelSize = rect.Width;
-			}
-			if (rect.Height < pixelSize) {
-				pixelSize = rect.Height;
-			}
+namespace Greenshot.Drawing.Filters
+{
+    [Serializable()]
+    public class PixelizationFilter : AbstractFilter
+    {
+        public PixelizationFilter(DrawableContainer parent) : base(parent)
+        {
+            AddField(GetType(), FieldType.PIXEL_SIZE, 5);
+        }
+
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        {
+            int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
+            ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0)
+            {
+                // Nothing to do
+                return;
+            }
+
+            if (rect.Width < pixelSize)
+            {
+                pixelSize = rect.Width;
+            }
+
+            if (rect.Height < pixelSize)
+            {
+                pixelSize = rect.Height;
+            }
 
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect);
-            using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect)) {
+            using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect))
+            {
                 List<Color> colors = new List<Color>();
                 int halbPixelSize = pixelSize / 2;
-                for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y += pixelSize) {
-                    for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x += pixelSize) {
+                for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y += pixelSize)
+                {
+                    for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x += pixelSize)
+                    {
                         colors.Clear();
-                        for (int yy = y; yy < y + pixelSize; yy++) {
-                            if (yy >= src.Top && yy < src.Bottom) {
-                                for (int xx = x; xx < x + pixelSize; xx++) {
-                                    if (xx >= src.Left && xx < src.Right) {
+                        for (int yy = y; yy < y + pixelSize; yy++)
+                        {
+                            if (yy >= src.Top && yy < src.Bottom)
+                            {
+                                for (int xx = x; xx < x + pixelSize; xx++)
+                                {
+                                    if (xx >= src.Left && xx < src.Right)
+                                    {
                                         colors.Add(src.GetColorAt(xx, yy));
                                     }
                                 }
                             }
                         }
+
                         Color currentAvgColor = Colors.Mix(colors);
-                        for (int yy = y; yy <= y + pixelSize; yy++) {
-                            if (yy >= src.Top && yy < src.Bottom) {
-                                for (int xx = x; xx <= x + pixelSize; xx++) {
-                                    if (xx >= src.Left && xx < src.Right) {
+                        for (int yy = y; yy <= y + pixelSize; yy++)
+                        {
+                            if (yy >= src.Top && yy < src.Bottom)
+                            {
+                                for (int xx = x; xx <= x + pixelSize; xx++)
+                                {
+                                    if (xx >= src.Left && xx < src.Right)
+                                    {
                                         dest.SetColorAt(xx, yy, currentAvgColor);
                                     }
                                 }
@@ -78,7 +98,8 @@ namespace Greenshot.Drawing.Filters {
                     }
                 }
             }
+
             dest.DrawTo(graphics, rect.Location);
         }
-	}
+    }
 }

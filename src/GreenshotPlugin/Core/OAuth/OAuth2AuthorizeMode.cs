@@ -24,10 +24,11 @@ namespace GreenshotPlugin.Core.OAuth
     /// <summary>
     /// Specify the authorize mode that is used to get the token from the cloud service.
     /// </summary>
-    public enum OAuth2AuthorizeMode {
-        Unknown,		 // Will give an exception, caller needs to specify another value
-        LocalServer,	 // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
-        JsonReceiver,	 // Will start a local HttpListener and wait for a Json post
+    public enum OAuth2AuthorizeMode
+    {
+        Unknown, // Will give an exception, caller needs to specify another value
+        LocalServer, // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
+        JsonReceiver, // Will start a local HttpListener and wait for a Json post
         EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
     }
 }

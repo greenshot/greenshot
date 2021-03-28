@@ -53,6 +53,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
             }
+
             selection.ComObject.InsertAfter("\r\n");
             selection.ComObject.MoveDown(WdUnits.wdLine, 1, Type.Missing);
             return shape;
@@ -69,6 +70,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 wordApplication = DisposableCom.Create(new Application());
             }
+
             InitializeVariables(wordApplication);
             return wordApplication;
         }
@@ -89,10 +91,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Ignore, probably no word running
                 return null;
             }
+
             if ((wordApplication != null) && (wordApplication.ComObject != null))
             {
                 InitializeVariables(wordApplication);
             }
+
             return wordApplication;
         }
 
@@ -116,6 +120,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     continue;
                 }
+
                 if (IsAfter2003())
                 {
                     if (document.ComObject.Final)
@@ -139,10 +144,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return;
             }
+
             if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
             {
                 LOG.Warn("Assuming Word version 1997.");
-                _wordVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+                _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -164,7 +170,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
                 for (int i = 1; i <= documents.ComObject.Count; i++)
                 {
-                    using var wordDocument = DisposableCom.Create((_Document)documents.ComObject[i]);
+                    using var wordDocument = DisposableCom.Create((_Document) documents.ComObject[i]);
                     using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
                     if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
                     {
@@ -172,6 +178,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return false;
         }
 
@@ -184,7 +191,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="address">string</param>
         /// <param name="tooltip">string with the tooltip of the image</param>
         /// <returns>bool</returns>
-        internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address, string tooltip)
+        internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile, string address,
+            string tooltip)
         {
             // Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
             // Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
@@ -204,6 +212,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 LOG.InfoFormat("No selection to insert {0} into found.", tmpFile);
                 return false;
             }
+
             // Add Picture
             using (var shape = AddPictureToSelection(selection, tmpFile))
             {
@@ -214,6 +223,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         screentip = tooltip;
                     }
+
                     try
                     {
                         using var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks);
@@ -225,6 +235,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             try
             {
                 // When called for Outlook, the follow error is created: This object model command is not available in e-mail
@@ -245,6 +256,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.Message);
                 }
             }
+
             try
             {
                 wordApplication.ComObject.Activate();
@@ -254,6 +266,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Warn("Error activating word application", ex);
             }
+
             try
             {
                 wordDocument.ComObject.Activate();
@@ -263,6 +276,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Warn("Error activating word document", ex);
             }
+
             return true;
         }
 
@@ -279,6 +293,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return;
             }
+
             wordApplication.ComObject.Visible = true;
             wordApplication.ComObject.Activate();
             // Create new Document
@@ -299,6 +314,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         screentip = tooltip;
                     }
+
                     try
                     {
                         using var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks);
@@ -313,6 +329,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             try
             {
                 wordDocument.ComObject.Activate();
@@ -322,6 +339,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Warn("Error activating word document", ex);
             }
+
             try
             {
                 using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
@@ -340,7 +358,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <returns></returns>
         private bool IsAfter2003()
         {
-            return _wordVersion.Major > (int)OfficeVersions.Office2003;
+            return _wordVersion.Major > (int) OfficeVersions.Office2003;
         }
     }
 }

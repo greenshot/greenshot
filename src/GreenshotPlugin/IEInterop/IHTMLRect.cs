@@ -21,29 +21,19 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComImport, Guid("3050F4A3-98B5-11CF-BB82-00AA00BDCE0B"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-    public interface IHTMLRect {
-        int bottom {
-            [DispId(1004)]
-            get;
-        }
+namespace GreenshotPlugin.IEInterop
+{
+    [ComImport, Guid("3050F4A3-98B5-11CF-BB82-00AA00BDCE0B"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLRect
+    {
+        int bottom { [DispId(1004)] get; }
 
-        int left {
-            [DispId(1001)]
-            get;
-        }
+        int left { [DispId(1001)] get; }
 
-        int right {
-            [DispId(1003)]
-            get;
-        }
+        int right { [DispId(1003)] get; }
 
-        int top {
-            [DispId(1002)]
-            get;
-        }
+        int top { [DispId(1002)] get; }
     }
 }

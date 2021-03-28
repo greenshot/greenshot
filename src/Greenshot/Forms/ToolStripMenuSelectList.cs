@@ -26,131 +26,149 @@ using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
 
-namespace Greenshot.Forms {
-	/// <summary>
-	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
-	/// </summary>
-	public sealed class ToolStripMenuSelectList : ToolStripMenuItem {
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private readonly bool _multiCheckAllowed;
-		private bool _updateInProgress;
-		private static Image _defaultImage;
+namespace Greenshot.Forms
+{
+    /// <summary>
+    /// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
+    /// </summary>
+    public sealed class ToolStripMenuSelectList : ToolStripMenuItem
+    {
+        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private readonly bool _multiCheckAllowed;
+        private bool _updateInProgress;
+        private static Image _defaultImage;
 
-		/// <summary>
-		/// Occurs when one of the list's child element's Checked state changes.
-		/// </summary>
-		public new event EventHandler CheckedChanged;
-		public object Identifier {
-			get;
-			private set;
-		}
+        /// <summary>
+        /// Occurs when one of the list's child element's Checked state changes.
+        /// </summary>
+        public new event EventHandler CheckedChanged;
 
-		public ToolStripMenuSelectList(object identifier, bool allowMultiCheck) {
-			Identifier = identifier;
-			CheckOnClick = false;
-			_multiCheckAllowed = allowMultiCheck;
-			if (_defaultImage == null || _defaultImage.Size != CoreConfig.ScaledIconSize) {
-				_defaultImage?.Dispose();
-				_defaultImage = ImageHelper.CreateEmpty(CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
-			}
-			Image = _defaultImage;
-		}
-		public ToolStripMenuSelectList() : this(null,false) {}
+        public object Identifier { get; private set; }
 
-        private void ItemCheckStateChanged(object sender, EventArgs e) {
-			if (_updateInProgress) {
-				return;
-			}
-			var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)sender;
-			_updateInProgress = true;
-			if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed) {
-				UncheckAll();
-				toolStripMenuSelectListItem.Checked = true;
-			}
-			_updateInProgress = false;
-			CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
-		}
+        public ToolStripMenuSelectList(object identifier, bool allowMultiCheck)
+        {
+            Identifier = identifier;
+            CheckOnClick = false;
+            _multiCheckAllowed = allowMultiCheck;
+            if (_defaultImage == null || _defaultImage.Size != CoreConfig.ScaledIconSize)
+            {
+                _defaultImage?.Dispose();
+                _defaultImage = ImageHelper.CreateEmpty(CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                    Color.Transparent, 96f, 96f);
+            }
 
-		/// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="image">the icon to be displayed</param>
-		/// <param name="data">the data to be returned when an item is queried</param>
-		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Image image, object data, bool isChecked) {
-			var toolStripMenuSelectListItem = new ToolStripMenuSelectListItem
-			{
-				Text = label
-			};
-			if (image == null) {
-				image = _defaultImage;
-			}
-			toolStripMenuSelectListItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			toolStripMenuSelectListItem.Image = image;
-			toolStripMenuSelectListItem.CheckOnClick = true;
-			toolStripMenuSelectListItem.CheckStateChanged += ItemCheckStateChanged;
-			toolStripMenuSelectListItem.Data = data;
-			if (isChecked) {
-				if (!_multiCheckAllowed) {
-					_updateInProgress = true;
-					UncheckAll();
-					_updateInProgress = false;
-				}
-				toolStripMenuSelectListItem.Checked = true;
-			}
-			DropDownItems.Add(toolStripMenuSelectListItem);
-		}
+            Image = _defaultImage;
+        }
+
+        public ToolStripMenuSelectList() : this(null, false)
+        {
+        }
+
+        private void ItemCheckStateChanged(object sender, EventArgs e)
+        {
+            if (_updateInProgress)
+            {
+                return;
+            }
+
+            var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) sender;
+            _updateInProgress = true;
+            if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed)
+            {
+                UncheckAll();
+                toolStripMenuSelectListItem.Checked = true;
+            }
+
+            _updateInProgress = false;
+            CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
+        }
+
+        /// <summary>
+        /// adds an item to the select list
+        /// </summary>
+        /// <param name="label">the label to be displayed</param>
+        /// <param name="image">the icon to be displayed</param>
+        /// <param name="data">the data to be returned when an item is queried</param>
+        /// <param name="isChecked">whether the item is initially checked</param>
+        public void AddItem(string label, Image image, object data, bool isChecked)
+        {
+            var toolStripMenuSelectListItem = new ToolStripMenuSelectListItem
+            {
+                Text = label
+            };
+            if (image == null)
+            {
+                image = _defaultImage;
+            }
+
+            toolStripMenuSelectListItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripMenuSelectListItem.Image = image;
+            toolStripMenuSelectListItem.CheckOnClick = true;
+            toolStripMenuSelectListItem.CheckStateChanged += ItemCheckStateChanged;
+            toolStripMenuSelectListItem.Data = data;
+            if (isChecked)
+            {
+                if (!_multiCheckAllowed)
+                {
+                    _updateInProgress = true;
+                    UncheckAll();
+                    _updateInProgress = false;
+                }
+
+                toolStripMenuSelectListItem.Checked = true;
+            }
+
+            DropDownItems.Add(toolStripMenuSelectListItem);
+        }
 
 
         /// <summary>
-		/// adds an item to the select list
-		/// </summary>
-		/// <param name="label">the label to be displayed</param>
-		/// <param name="data">the data to be returned when an item is queried</param>
-		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, object data, bool isChecked) {
-			AddItem(label, null, data, isChecked);
-		}
+        /// adds an item to the select list
+        /// </summary>
+        /// <param name="label">the label to be displayed</param>
+        /// <param name="data">the data to be returned when an item is queried</param>
+        /// <param name="isChecked">whether the item is initially checked</param>
+        public void AddItem(string label, object data, bool isChecked)
+        {
+            AddItem(label, null, data, isChecked);
+        }
 
         /// <summary>
-		/// unchecks all items of the list
-		/// </summary>
-		public void UncheckAll() {
-			IEnumerator items = DropDownItems.GetEnumerator();
-			while (items.MoveNext())
-			{
-				var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)items.Current;
-				if (toolStripMenuSelectListItem != null)
-				{
-					toolStripMenuSelectListItem.Checked = false;
-				}
-			}
-		}
-	}
+        /// unchecks all items of the list
+        /// </summary>
+        public void UncheckAll()
+        {
+            IEnumerator items = DropDownItems.GetEnumerator();
+            while (items.MoveNext())
+            {
+                var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+                if (toolStripMenuSelectListItem != null)
+                {
+                    toolStripMenuSelectListItem.Checked = false;
+                }
+            }
+        }
+    }
 
-	/// <summary>
-	/// Event class for the CheckedChanged event in the ToolStripMenuSelectList
-	/// </summary>
-	public class ItemCheckedChangedEventArgs : EventArgs {
-		public ToolStripMenuSelectListItem Item {
-			get;
-			set;
-		}
-		public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item) {
-			Item = item;
-		}
-	}
+    /// <summary>
+    /// Event class for the CheckedChanged event in the ToolStripMenuSelectList
+    /// </summary>
+    public class ItemCheckedChangedEventArgs : EventArgs
+    {
+        public ToolStripMenuSelectListItem Item { get; set; }
 
-	/// <summary>
-	/// Wrapper around the ToolStripMenuItem, which can contain an object
-	/// Also the Checked property hides the normal checked property so we can render our own check
-	/// </summary>
-	public class ToolStripMenuSelectListItem : ToolStripMenuItem {
-		public object Data {
-			get;
-			set;
-		}
+        public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item)
+        {
+            Item = item;
+        }
+    }
 
-	}
+    /// <summary>
+    /// Wrapper around the ToolStripMenuItem, which can contain an object
+    /// Also the Checked property hides the normal checked property so we can render our own check
+    /// </summary>
+    public class ToolStripMenuSelectListItem : ToolStripMenuItem
+    {
+        public object Data { get; set; }
+    }
 }

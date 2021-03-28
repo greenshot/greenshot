@@ -23,33 +23,42 @@ using System.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.GooglePhotos {
-	public class GooglePhotosDestination : AbstractDestination {
-		private readonly GooglePhotosPlugin _plugin;
-		public GooglePhotosDestination(GooglePhotosPlugin plugin) {
-			_plugin = plugin;
-		}
-		
-		public override string Designation => "GooglePhotos";
+namespace Greenshot.Plugin.GooglePhotos
+{
+    public class GooglePhotosDestination : AbstractDestination
+    {
+        private readonly GooglePhotosPlugin _plugin;
 
-		public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
+        public GooglePhotosDestination(GooglePhotosPlugin plugin)
+        {
+            _plugin = plugin;
+        }
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
-				return (Image)resources.GetObject("GooglePhotos");
-			}
-		}
+        public override string Designation => "GooglePhotos";
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+        public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
+
+        public override Image DisplayIcon
+        {
+            get
+            {
+                ComponentResourceManager resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
+                return (Image) resources.GetObject("GooglePhotos");
+            }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
-			if (uploaded) {
-				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadUrl;
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+            if (uploaded)
+            {
+                exportInformation.ExportMade = true;
+                exportInformation.Uri = uploadUrl;
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

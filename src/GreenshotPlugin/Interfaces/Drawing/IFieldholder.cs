@@ -23,17 +23,17 @@ using System.Collections.Generic;
 
 namespace GreenshotPlugin.Interfaces.Drawing
 {
-	/// <summary>
-	/// Any element holding Fields must provide access to it.
-	/// AbstractFieldHolder is the basic implementation.
-	/// If you need the fieldHolder to have child fieldHolders,
-	/// you should consider using IFieldHolderWithChildren.
-	/// </summary>
-	public interface IFieldHolder
-	{
-		event FieldChangedEventHandler FieldChanged;
-		IList<IField> GetFields();
-		IField GetField(IFieldType fieldType);
-		bool HasField(IFieldType fieldType);
-	}
+    /// <summary>
+    /// Any element holding Fields must provide access to it.
+    /// AbstractFieldHolder is the basic implementation.
+    /// If you need the fieldHolder to have child fieldHolders,
+    /// you should consider using IFieldHolderWithChildren.
+    /// </summary>
+    public interface IFieldHolder
+    {
+        event FieldChangedEventHandler FieldChanged;
+        IList<IField> GetFields();
+        IField GetField(IFieldType fieldType);
+        bool HasField(IFieldType fieldType);
+    }
 }

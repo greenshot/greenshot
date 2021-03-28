@@ -34,6 +34,7 @@ namespace Greenshot.Plugin.Office.OfficeExport.Entities
                 {
                     return string.Format("{0} / {1}", Parent.Name, Name);
                 }
+
                 return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
             }
         }

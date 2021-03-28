@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.IO;
@@ -26,84 +27,94 @@ using log4net;
 using System.Runtime.Serialization;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing {
-	/// <summary>
-	/// Description of IconContainer.
-	/// </summary>
-	[Serializable] 
-	public class IconContainer : DrawableContainer, IIconContainer {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
+namespace Greenshot.Drawing
+{
+    /// <summary>
+    /// Description of IconContainer.
+    /// </summary>
+    [Serializable]
+    public class IconContainer : DrawableContainer, IIconContainer
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
 
-		protected Icon icon;
+        protected Icon icon;
 
-		public IconContainer(Surface parent) : base(parent) {
-			Init();
-		}
+        public IconContainer(Surface parent) : base(parent)
+        {
+            Init();
+        }
 
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
+        protected override void OnDeserialized(StreamingContext streamingContext)
+        {
+            base.OnDeserialized(streamingContext);
+            Init();
+        }
 
-		private void Init()
-		{
-			CreateDefaultAdorners();
-		}
+        private void Init()
+        {
+            CreateDefaultAdorners();
+        }
 
-		public IconContainer(Surface parent, string filename) : base(parent) {
-			Load(filename);
-		}
+        public IconContainer(Surface parent, string filename) : base(parent)
+        {
+            Load(filename);
+        }
 
-		public Icon Icon {
-			set {
-				icon?.Dispose();
-				icon = (Icon)value.Clone();
-				Width = value.Width;
-				Height = value.Height;
-			}
-			get => icon;
-		}
+        public Icon Icon
+        {
+            set
+            {
+                icon?.Dispose();
+                icon = (Icon) value.Clone();
+                Width = value.Width;
+                Height = value.Height;
+            }
+            get => icon;
+        }
 
-		/**
+        /**
 		 * This Dispose is called from the Dispose and the Destructor.
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
-		protected override void Dispose(bool disposing) {
-			if (disposing)
-			{
-				icon?.Dispose();
-			}
-			icon = null;
-			base.Dispose(disposing);
-		}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                icon?.Dispose();
+            }
 
-		public void Load(string filename)
-		{
-			if (!File.Exists(filename))
-			{
-				return;
-			}
-			using Icon fileIcon = new Icon(filename);
-			Icon = fileIcon;
-			Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-		}
-		
-		public override void Draw(Graphics graphics, RenderMode rm)
-		{
-			if (icon == null)
-			{
-				return;
-			}
-			graphics.SmoothingMode = SmoothingMode.HighQuality;
-			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-			graphics.CompositingQuality = CompositingQuality.Default;
-			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-			graphics.DrawIcon(icon, Bounds);
-		}
+            icon = null;
+            base.Dispose(disposing);
+        }
 
-		public override bool HasDefaultSize => true;
+        public void Load(string filename)
+        {
+            if (!File.Exists(filename))
+            {
+                return;
+            }
 
-		public override Size DefaultSize => icon?.Size ?? new Size(16,16);
-	}
+            using Icon fileIcon = new Icon(filename);
+            Icon = fileIcon;
+            Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+        }
+
+        public override void Draw(Graphics graphics, RenderMode rm)
+        {
+            if (icon == null)
+            {
+                return;
+            }
+
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            graphics.CompositingQuality = CompositingQuality.Default;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.DrawIcon(icon, Bounds);
+        }
+
+        public override bool HasDefaultSize => true;
+
+        public override Size DefaultSize => icon?.Size ?? new Size(16, 16);
+    }
 }

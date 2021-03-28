@@ -25,42 +25,34 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// ResizeCanvasEffect
-	/// </summary>
-	public class ResizeCanvasEffect : IEffect {
-		public ResizeCanvasEffect(int left, int right, int top, int bottom) {
-			Left = left;
-			Right = right;
-			Top = top;
-			Bottom = bottom;
-			BackgroundColor = Color.Empty;	// Uses the default background color depending on the format
-		}
-		public int Left {
-			get;
-			set;
-		}
-		public int Right {
-			get;
-			set;
-		}
-		public int Top {
-			get;
-			set;
-		}
-		public int Bottom {
-			get;
-			set;
-		}
-		public Color BackgroundColor {
-			get;
-			set;
-		}
-		public void Reset() {
-			// values don't have a default value
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom, matrix);
-		}
-	}
+    /// <summary>
+    /// ResizeCanvasEffect
+    /// </summary>
+    public class ResizeCanvasEffect : IEffect
+    {
+        public ResizeCanvasEffect(int left, int right, int top, int bottom)
+        {
+            Left = left;
+            Right = right;
+            Top = top;
+            Bottom = bottom;
+            BackgroundColor = Color.Empty; // Uses the default background color depending on the format
+        }
+
+        public int Left { get; set; }
+        public int Right { get; set; }
+        public int Top { get; set; }
+        public int Bottom { get; set; }
+        public Color BackgroundColor { get; set; }
+
+        public void Reset()
+        {
+            // values don't have a default value
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom, matrix);
+        }
+    }
 }

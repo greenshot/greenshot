@@ -18,37 +18,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 
-namespace Greenshot.Forms {
-	public partial class BugReportForm : BaseForm {
-		private BugReportForm() {
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			ToFront = true;
-		}
+namespace Greenshot.Forms
+{
+    public partial class BugReportForm : BaseForm
+    {
+        private BugReportForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            ToFront = true;
+        }
 
-		public BugReportForm(string bugText) : this() {
-			textBoxDescription.Text = bugText;
-		}
+        public BugReportForm(string bugText) : this()
+        {
+            textBoxDescription.Text = bugText;
+        }
 
-		private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			openLink((LinkLabel)sender);
-		}
+        private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            openLink((LinkLabel) sender);
+        }
 
-		private void openLink(LinkLabel link) {
-			try {
-				link.LinkVisited = true;
-				Process.Start(link.Text);
-			} catch (Exception) {
-				MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
-			}
-		}
-	}
+        private void openLink(LinkLabel link)
+        {
+            try
+            {
+                link.LinkVisited = true;
+                Process.Start(link.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link.Text), Language.GetString(LangKey.error));
+            }
+        }
+    }
 }

@@ -29,7 +29,6 @@ using GreenshotPlugin.UnmanagedHelpers.Structs;
 
 namespace GreenshotPlugin
 {
-
     /// <summary>
     /// Specifies which fields are valid in a FileDescriptor Structure
     /// </summary>    
@@ -113,6 +112,7 @@ namespace GreenshotPlugin
             {
                 yield break;
             }
+
             var reader = new BinaryReader(fileDescriptorStream);
             var count = reader.ReadUInt32();
             while (count > 0)
@@ -128,7 +128,7 @@ namespace GreenshotPlugin
         internal static MemoryStream GetFileContents(System.Windows.Forms.IDataObject dataObject, int index)
         {
             //cast the default IDataObject to a com IDataObject
-            var comDataObject = (IDataObject)dataObject;
+            var comDataObject = (IDataObject) dataObject;
 
             var format = System.Windows.DataFormats.GetDataFormat("FileContents");
             if (format == null)
@@ -143,7 +143,7 @@ namespace GreenshotPlugin
             {
                 var formatetc = new FORMATETC
                 {
-                    cfFormat = (short)format.Id,
+                    cfFormat = (short) format.Id,
                     dwAspect = DVASPECT.DVASPECT_CONTENT,
                     lindex = index,
                     tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_HGLOBAL
@@ -152,7 +152,7 @@ namespace GreenshotPlugin
                 //using the com IDataObject interface get the data using the defined FORMATETC
                 comDataObject.GetData(ref formatetc, out medium);
             }
-            
+
             return medium.tymed switch
             {
                 TYMED.TYMED_ISTREAM => GetIStream(medium),
@@ -163,13 +163,13 @@ namespace GreenshotPlugin
         private static MemoryStream GetIStream(STGMEDIUM medium)
         {
             //marshal the returned pointer to a IStream object
-            IStream iStream = (IStream)Marshal.GetObjectForIUnknown(medium.unionmember);
+            IStream iStream = (IStream) Marshal.GetObjectForIUnknown(medium.unionmember);
             Marshal.Release(medium.unionmember);
 
             //get the STATSTG of the IStream to determine how many bytes are in it
             var iStreamStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
             iStream.Stat(out iStreamStat, 0);
-            int iStreamSize = (int)iStreamStat.cbSize;
+            int iStreamSize = (int) iStreamStat.cbSize;
 
             //read the data from the IStream into a managed byte array
             byte[] iStreamContent = new byte[iStreamSize];

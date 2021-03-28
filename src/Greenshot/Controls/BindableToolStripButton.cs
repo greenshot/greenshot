@@ -18,32 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Controls {
-	/// <summary>
-	/// Description of BindableToolStripButton.
-	/// </summary>
-	public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
-		public event PropertyChangedEventHandler PropertyChanged;
+namespace Greenshot.Controls
+{
+    /// <summary>
+    /// Description of BindableToolStripButton.
+    /// </summary>
+    public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
 
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
-			get;
-			set;
-		}
+        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+        public string LanguageKey { get; set; }
 
-		public BindableToolStripButton()
-		{
-			CheckedChanged += BindableToolStripButton_CheckedChanged;
-		}
+        public BindableToolStripButton()
+        {
+            CheckedChanged += BindableToolStripButton_CheckedChanged;
+        }
 
-		private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Checked"));
-		}
-	}
+        private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Checked"));
+        }
+    }
 }

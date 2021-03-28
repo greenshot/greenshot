@@ -26,91 +26,123 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Office {
-	/// <summary>
-	/// This is the OfficePlugin base code
-	/// </summary>
+namespace Greenshot.Plugin.Office
+{
+    /// <summary>
+    /// This is the OfficePlugin base code
+    /// </summary>
     [Plugin("Office", false)]
     public class OfficePlugin : IGreenshotPlugin
     {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
+        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected void Dispose(bool disposing) {
-			// Do nothing
-		}
+        protected void Dispose(bool disposing)
+        {
+            // Do nothing
+        }
 
-		private IEnumerable<IDestination> Destinations() {
-			IDestination destination;
-			try {
-				destination = new ExcelDestination();
-			} catch {
-				destination = null;
-			}
-			if (destination != null) {
-				yield return destination;
-			}
+        private IEnumerable<IDestination> Destinations()
+        {
+            IDestination destination;
+            try
+            {
+                destination = new ExcelDestination();
+            }
+            catch
+            {
+                destination = null;
+            }
 
-			try {
-				destination = new PowerpointDestination();
-			} catch {
-				destination = null;
-			}
-			if (destination != null) {
-				yield return destination;
-			}
+            if (destination != null)
+            {
+                yield return destination;
+            }
 
-			try {
-				destination = new WordDestination();
-			} catch {
-				destination = null;
-			}
-			if (destination != null) {
-				yield return destination;
-			}
+            try
+            {
+                destination = new PowerpointDestination();
+            }
+            catch
+            {
+                destination = null;
+            }
 
-			try {
-				destination = new OutlookDestination();
-			} catch {
-				destination = null;
-			}
-			if (destination != null) {
-				yield return destination;
-			}
+            if (destination != null)
+            {
+                yield return destination;
+            }
 
-			try {
-				destination = new OneNoteDestination();
-			} catch {
-				destination = null;
-			}
-			if (destination != null) {
-				yield return destination;
-			}
-		}
+            try
+            {
+                destination = new WordDestination();
+            }
+            catch
+            {
+                destination = null;
+            }
+
+            if (destination != null)
+            {
+                yield return destination;
+            }
+
+            try
+            {
+                destination = new OutlookDestination();
+            }
+            catch
+            {
+                destination = null;
+            }
+
+            if (destination != null)
+            {
+                yield return destination;
+            }
+
+            try
+            {
+                destination = new OneNoteDestination();
+            }
+            catch
+            {
+                destination = null;
+            }
+
+            if (destination != null)
+            {
+                yield return destination;
+            }
+        }
 
 
-		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
-		/// </summary>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize() {
+        /// <summary>
+        /// Implementation of the IGreenshotPlugin.Initialize
+        /// </summary>
+        /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
+        public bool Initialize()
+        {
             SimpleServiceProvider.Current.AddService(Destinations());
-			return true;
-		}
-		
-		public void Shutdown() {
-			LOG.Debug("Office Plugin shutdown.");
-		}
+            return true;
+        }
 
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure() {
+        public void Shutdown()
+        {
+            LOG.Debug("Office Plugin shutdown.");
+        }
+
+        /// <summary>
+        /// Implementation of the IPlugin.Configure
+        /// </summary>
+        public void Configure()
+        {
             throw new NotImplementedException();
-		}
-	}
+        }
+    }
 }

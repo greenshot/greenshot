@@ -27,34 +27,44 @@ using log4net;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// ReduceColorsEffect
-	/// </summary>
-	public class ReduceColorsEffect : IEffect {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ReduceColorsEffect));
-		public ReduceColorsEffect()
-		{
-			Reset();
-		}
-		public int Colors {
-			get;
-			set;
-		}
-		public void Reset() {
-			Colors = 256;
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			using (WuQuantizer quantizer = new WuQuantizer((Bitmap)sourceImage)) {
-				int colorCount = quantizer.GetColorCount();
-				if (colorCount > Colors) {
-					try {
-						return quantizer.GetQuantizedImage(Colors);
-					} catch (Exception e) {
-						Log.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
-					}
-				}
-			}
-			return null;
-		}
-	}
+    /// <summary>
+    /// ReduceColorsEffect
+    /// </summary>
+    public class ReduceColorsEffect : IEffect
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ReduceColorsEffect));
+
+        public ReduceColorsEffect()
+        {
+            Reset();
+        }
+
+        public int Colors { get; set; }
+
+        public void Reset()
+        {
+            Colors = 256;
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            using (WuQuantizer quantizer = new WuQuantizer((Bitmap) sourceImage))
+            {
+                int colorCount = quantizer.GetColorCount();
+                if (colorCount > Colors)
+                {
+                    try
+                    {
+                        return quantizer.GetQuantizedImage(Colors);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
 }

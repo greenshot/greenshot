@@ -25,44 +25,44 @@ using System.Drawing.Imaging;
 
 namespace GreenshotPlugin.Core
 {
-	/// <summary>
-	/// The image interface, this abstracts an image
-	/// </summary>
-	public interface IImage : IDisposable
-	{
-		/// <summary>
-		/// Height of the image, can be set to change
-		/// </summary>
-		int Height { get; set; }
+    /// <summary>
+    /// The image interface, this abstracts an image
+    /// </summary>
+    public interface IImage : IDisposable
+    {
+        /// <summary>
+        /// Height of the image, can be set to change
+        /// </summary>
+        int Height { get; set; }
 
-		/// <summary>
-		/// Width of the image, can be set to change.
-		/// </summary>
-		int Width { get; set; }
+        /// <summary>
+        /// Width of the image, can be set to change.
+        /// </summary>
+        int Width { get; set; }
 
-		/// <summary>
-		/// Size of the image
-		/// </summary>
-		Size Size { get; }
+        /// <summary>
+        /// Size of the image
+        /// </summary>
+        Size Size { get; }
 
-		/// <summary>
-		/// Pixelformat of the underlying image
-		/// </summary>
-		PixelFormat PixelFormat { get; }
+        /// <summary>
+        /// Pixelformat of the underlying image
+        /// </summary>
+        PixelFormat PixelFormat { get; }
 
-		/// <summary>
-		/// Vertical resolution of the underlying image
-		/// </summary>
-		float VerticalResolution { get; }
+        /// <summary>
+        /// Vertical resolution of the underlying image
+        /// </summary>
+        float VerticalResolution { get; }
 
-		/// <summary>
-		/// Horizontal resolution of the underlying image
-		/// </summary>
-		float HorizontalResolution { get; }
+        /// <summary>
+        /// Horizontal resolution of the underlying image
+        /// </summary>
+        float HorizontalResolution { get; }
 
-		/// <summary>
-		/// Unterlying image, or an on demand rendered version with different attributes as the original
-		/// </summary>
-		Image Image { get; }
-	}
+        /// <summary>
+        /// Unterlying image, or an on demand rendered version with different attributes as the original
+        /// </summary>
+        Image Image { get; }
+    }
 }

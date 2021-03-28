@@ -18,85 +18,98 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
 
-namespace Greenshot.Forms {
-	public partial class TornEdgeSettingsForm : BaseForm {
-		private readonly TornEdgeEffect _effect;
-		public TornEdgeSettingsForm(TornEdgeEffect effect) {
-			_effect = effect;
-			InitializeComponent();
-			ShowSettings();
-		}
+namespace Greenshot.Forms
+{
+    public partial class TornEdgeSettingsForm : BaseForm
+    {
+        private readonly TornEdgeEffect _effect;
 
-		private void ShowSettings() {
-			shadowCheckbox.Checked = _effect.GenerateShadow;
-			// Fix to prevent BUG-1753
-			shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int)(_effect.Darkness * shadowDarkness.Maximum)));
-			offsetX.Value = _effect.ShadowOffset.X;
-			offsetY.Value = _effect.ShadowOffset.Y;
-			toothsize.Value = _effect.ToothHeight;
-			verticaltoothrange.Value = _effect.VerticalToothRange;
-			horizontaltoothrange.Value = _effect.HorizontalToothRange;
-			top.Checked = _effect.Edges[0];
-			right.Checked = _effect.Edges[1];
-			bottom.Checked = _effect.Edges[2];
-			left.Checked = _effect.Edges[3];
-		}
+        public TornEdgeSettingsForm(TornEdgeEffect effect)
+        {
+            _effect = effect;
+            InitializeComponent();
+            ShowSettings();
+        }
 
-		private void ButtonOK_Click(object sender, EventArgs e) {
-			_effect.Darkness = shadowDarkness.Value / (float)40;
-			_effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
-			_effect.ShadowSize = (int)thickness.Value;
-			_effect.ToothHeight = (int)toothsize.Value;
-			_effect.VerticalToothRange = (int)verticaltoothrange.Value;
-			_effect.HorizontalToothRange = (int)horizontaltoothrange.Value;
-			_effect.Edges = new[] { top.Checked, right.Checked, bottom.Checked, left.Checked };
-			_effect.GenerateShadow = shadowCheckbox.Checked;
-			DialogResult = DialogResult.OK;
-		}
+        private void ShowSettings()
+        {
+            shadowCheckbox.Checked = _effect.GenerateShadow;
+            // Fix to prevent BUG-1753
+            shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int) (_effect.Darkness * shadowDarkness.Maximum)));
+            offsetX.Value = _effect.ShadowOffset.X;
+            offsetY.Value = _effect.ShadowOffset.Y;
+            toothsize.Value = _effect.ToothHeight;
+            verticaltoothrange.Value = _effect.VerticalToothRange;
+            horizontaltoothrange.Value = _effect.HorizontalToothRange;
+            top.Checked = _effect.Edges[0];
+            right.Checked = _effect.Edges[1];
+            bottom.Checked = _effect.Edges[2];
+            left.Checked = _effect.Edges[3];
+        }
 
-		private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e) {
-			thickness.Enabled = shadowCheckbox.Checked;
-			offsetX.Enabled = shadowCheckbox.Checked;
-			offsetY.Enabled = shadowCheckbox.Checked;
-			shadowDarkness.Enabled = shadowCheckbox.Checked;
-		}
+        private void ButtonOK_Click(object sender, EventArgs e)
+        {
+            _effect.Darkness = shadowDarkness.Value / (float) 40;
+            _effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+            _effect.ShadowSize = (int) thickness.Value;
+            _effect.ToothHeight = (int) toothsize.Value;
+            _effect.VerticalToothRange = (int) verticaltoothrange.Value;
+            _effect.HorizontalToothRange = (int) horizontaltoothrange.Value;
+            _effect.Edges = new[]
+            {
+                top.Checked, right.Checked, bottom.Checked, left.Checked
+            };
+            _effect.GenerateShadow = shadowCheckbox.Checked;
+            DialogResult = DialogResult.OK;
+        }
 
-		
+        private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            thickness.Enabled = shadowCheckbox.Checked;
+            offsetX.Enabled = shadowCheckbox.Checked;
+            offsetY.Enabled = shadowCheckbox.Checked;
+            shadowDarkness.Enabled = shadowCheckbox.Checked;
+        }
 
-		private void all_CheckedChanged(object sender, EventArgs e) {
-			AnySideChangeChecked(top, all.Checked);
-			AnySideChangeChecked(right, all.Checked);
-			AnySideChangeChecked(bottom, all.Checked);
-			AnySideChangeChecked(left, all.Checked);
-		}
 
-		private void AnySideCheckedChanged(object sender, EventArgs e) {
-			all.CheckedChanged -= all_CheckedChanged;
-			all.Checked = top.Checked && right.Checked && bottom.Checked && left.Checked;
-			all.CheckedChanged += all_CheckedChanged;
-		}
+        private void all_CheckedChanged(object sender, EventArgs e)
+        {
+            AnySideChangeChecked(top, all.Checked);
+            AnySideChangeChecked(right, all.Checked);
+            AnySideChangeChecked(bottom, all.Checked);
+            AnySideChangeChecked(left, all.Checked);
+        }
 
-		/// <summary>
-		/// changes the Checked property of top/right/bottom/left checkboxes without triggering AnySideCheckedChange
-		/// </summary>
-		/// <param name="cb">Checkbox to change Checked</param>
-		/// <param name="status">true to check</param>
-		private void AnySideChangeChecked(CheckBox cb, bool status) {
-			if (status != cb.Checked) {
-				cb.CheckedChanged -= AnySideCheckedChanged;
-				cb.Checked = status;
-				cb.CheckedChanged += AnySideCheckedChanged;
-			}
-		}
+        private void AnySideCheckedChanged(object sender, EventArgs e)
+        {
+            all.CheckedChanged -= all_CheckedChanged;
+            all.Checked = top.Checked && right.Checked && bottom.Checked && left.Checked;
+            all.CheckedChanged += all_CheckedChanged;
+        }
 
-		private void TornEdgeSettingsForm_Load(object sender, EventArgs e)
-		{
+        /// <summary>
+        /// changes the Checked property of top/right/bottom/left checkboxes without triggering AnySideCheckedChange
+        /// </summary>
+        /// <param name="cb">Checkbox to change Checked</param>
+        /// <param name="status">true to check</param>
+        private void AnySideChangeChecked(CheckBox cb, bool status)
+        {
+            if (status != cb.Checked)
+            {
+                cb.CheckedChanged -= AnySideCheckedChanged;
+                cb.Checked = status;
+                cb.CheckedChanged += AnySideCheckedChanged;
+            }
+        }
 
-		}
-	}
+        private void TornEdgeSettingsForm_Load(object sender, EventArgs e)
+        {
+        }
+    }
 }

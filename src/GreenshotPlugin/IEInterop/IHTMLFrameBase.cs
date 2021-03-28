@@ -21,11 +21,13 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComVisible(true), ComImport(), Guid("3050f311-98b5-11cf-bb82-00aa00bdce0b"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-    public interface IHTMLFrameBase {
+namespace GreenshotPlugin.IEInterop
+{
+    [ComVisible(true), ComImport(), Guid("3050f311-98b5-11cf-bb82-00aa00bdce0b"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLFrameBase
+    {
 //dispinterface IHTMLFrameBase {
 //    properties:
 //    methods:
@@ -67,38 +69,40 @@ namespace GreenshotPlugin.IEInterop {
 //        BSTR scrolling();
 //};
 //        [DispId(HTMLDispIDs.DISPID_IHTMLFRAMEBASE_SRC)]
-        string src {
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+        string src
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string name {
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string name
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        object border {
-        	get;
+
+        object border { get; }
+
+        string frameBorder
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
-        string frameBorder {
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        object frameSpacing { get; }
+        object marginWidth { get; }
+        object marginHeight { get; }
+
+        bool noResize
+        {
+            [return: MarshalAs(UnmanagedType.VariantBool)]
+            get;
         }
-        object frameSpacing {
-        	get;
-        }
-        object marginWidth {
-        	get;
-        }
-        object marginHeight {
-        	get;
-        }
-        bool noResize {
-        	[return: MarshalAs(UnmanagedType.VariantBool)]
-        	get;
-        }
-        string scrolling {
-        	[return: MarshalAs(UnmanagedType.BStr)]
-        	get;
+
+        string scrolling
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
         }
     }
-
 }

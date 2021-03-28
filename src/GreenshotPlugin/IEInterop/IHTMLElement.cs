@@ -21,97 +21,93 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComImport, Guid("3050F1FF-98B5-11CF-BB82-00AA00BDCE0B"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLElement {
-		[DispId(-2147417611)]
-		void setAttribute([MarshalAs(UnmanagedType.BStr)] string strAttributeName, object AttributeValue, int lFlags);
+namespace GreenshotPlugin.IEInterop
+{
+    [ComImport, Guid("3050F1FF-98B5-11CF-BB82-00AA00BDCE0B"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLElement
+    {
+        [DispId(-2147417611)]
+        void setAttribute([MarshalAs(UnmanagedType.BStr)] string strAttributeName, object AttributeValue, int lFlags);
 
-		[DispId(-2147417610)]
-		object getAttribute([MarshalAs(UnmanagedType.BStr)] string strAttributeName, int lFlags);
-		
-		long offsetLeft {
-			[DispId(-2147417104)]
-			get;
-		}
+        [DispId(-2147417610)]
+        object getAttribute([MarshalAs(UnmanagedType.BStr)] string strAttributeName, int lFlags);
 
-		long offsetTop {
-			[DispId(-2147417103)]
-			get;
-		}
+        long offsetLeft { [DispId(-2147417104)] get; }
 
-		long offsetWidth {
-			[DispId(-2147417102)]
-			get;
-		}
+        long offsetTop { [DispId(-2147417103)] get; }
 
-		long offsetHeight {
-			[DispId(-2147417101)]
-			get;
-		}
+        long offsetWidth { [DispId(-2147417102)] get; }
 
-		IHTMLElement offsetParent {
-			[DispId(-2147417100)]
-			get;
-		}
-	
-		string className {
-			[DispId(-2147417111)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
+        long offsetHeight { [DispId(-2147417101)] get; }
 
-		IHTMLDocument2 document {
-			[DispId(-2147417094)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
+        IHTMLElement offsetParent { [DispId(-2147417100)] get; }
 
-		string id {
-			[DispId(-2147417110)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
+        string className
+        {
+            [DispId(-2147417111)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
 
-		string innerHTML {
-			[DispId(-2147417086)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
+        IHTMLDocument2 document
+        {
+            [DispId(-2147417094)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
 
-		string innerText {
-			[DispId(-2147417085)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
+        string id
+        {
+            [DispId(-2147417110)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
 
-		IHTMLStyle style {
-			[DispId(-2147418038)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
+        string innerHTML
+        {
+            [DispId(-2147417086)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
 
-		string tagName {
-			[DispId(-2147417108)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
+        string innerText
+        {
+            [DispId(-2147417085)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
 
-		string title {
-			[DispId(-2147418043)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
-		
-		[DispId(-2147417093)]
-		void scrollIntoView(bool varargStart);
-		
-		IHTMLElementCollection children {
-			[DispId(-2147417075)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
-	}
+        IHTMLStyle style
+        {
+            [DispId(-2147418038)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
+
+        string tagName
+        {
+            [DispId(-2147417108)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+
+        string title
+        {
+            [DispId(-2147418043)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+
+        [DispId(-2147417093)]
+        void scrollIntoView(bool varargStart);
+
+        IHTMLElementCollection children
+        {
+            [DispId(-2147417075)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
+    }
 }

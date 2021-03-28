@@ -50,22 +50,26 @@ namespace GreenshotPlugin.Core
 
                 if (key != null)
                 {
-                    result = (string)key.GetValue(value);
+                    result = (string) key.GetValue(value);
                 }
+
                 if (string.IsNullOrEmpty(result))
                 {
                     result = defaultValue;
                 }
+
                 return result;
             }
+
             using var registryKey64 = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry64);
             // Logic for 64 bit Windows, is trying the key which is 64 bit
             using (var key = registryKey64.OpenSubKey($@"SOFTWARE\{keyName}", false))
             {
                 if (key != null)
                 {
-                    result = (string)key.GetValue(value);
+                    result = (string) key.GetValue(value);
                 }
+
                 if (!string.IsNullOrEmpty(result)) return result;
             }
 
@@ -74,7 +78,7 @@ namespace GreenshotPlugin.Core
             {
                 if (key != null)
                 {
-                    result = (string)key.GetValue(value);
+                    result = (string) key.GetValue(value);
                 }
             }
 
@@ -82,6 +86,7 @@ namespace GreenshotPlugin.Core
             {
                 result = defaultValue;
             }
+
             return result;
         }
     }

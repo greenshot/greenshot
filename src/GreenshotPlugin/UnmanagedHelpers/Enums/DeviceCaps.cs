@@ -28,8 +28,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     /// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd144877%28v=vs.85%29.aspx
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum DeviceCaps {
- 
+    public enum DeviceCaps
+    {
         /// <summary>
         /// Logical pixels inch in X
         /// </summary>

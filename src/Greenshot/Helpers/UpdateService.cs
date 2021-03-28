@@ -139,7 +139,6 @@ namespace Greenshot.Helpers
                     {
                         Log.Error("Error occured await for the next update check.", ex);
                     }
-
                 }
             }, cancellationToken).ConfigureAwait(false);
         }
@@ -169,13 +168,13 @@ namespace Greenshot.Helpers
                 {
                     LastUpdateShown = DateTimeOffset.Now;
                     ShowUpdate(LatestBetaVersion);
-                } else if (IsUpdateAvailable)
+                }
+                else if (IsUpdateAvailable)
                 {
                     LastUpdateShown = DateTimeOffset.Now;
                     ShowUpdate(LatestReleaseVersion);
                 }
             }
-
         }
 
 
@@ -201,6 +200,7 @@ namespace Greenshot.Helpers
             {
                 LatestReleaseVersion = latestReleaseVersion;
             }
+
             var latestBetaString = Regex.Replace(updateFeed.CurrentBetaVersion, "[a-zA-Z\\-]*", "");
             if (Version.TryParse(latestBetaString, out var latestBetaVersion))
             {

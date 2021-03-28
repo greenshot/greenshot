@@ -30,37 +30,22 @@ namespace GreenshotPlugin.Core
     /// This Class is used to pass details about the capture around.
     /// The time the Capture was taken and the Title of the window (or a region of) that is captured
     /// </summary>
-    public class CaptureDetails : ICaptureDetails {
+    public class CaptureDetails : ICaptureDetails
+    {
+        /// <inheritdoc />
+        public string Title { get; set; }
 
         /// <inheritdoc />
-        public string Title {
-            get;
-            set;
-        }
+        public string Filename { get; set; }
 
         /// <inheritdoc />
-        public string Filename {
-            get;
-            set;
-        }
+        public DateTime DateTime { get; set; }
 
         /// <inheritdoc />
-        public DateTime DateTime {
-            get;
-            set;
-        }
+        public float DpiX { get; set; }
 
         /// <inheritdoc />
-        public float DpiX {
-            get;
-            set;
-        }
-
-        /// <inheritdoc />
-        public float DpiY {
-            get;
-            set;
-        }
+        public float DpiY { get; set; }
 
         /// <inheritdoc />
         public OcrInformation OcrInformation { get; set; }
@@ -69,53 +54,64 @@ namespace GreenshotPlugin.Core
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
 
         /// <inheritdoc />
-        public void AddMetaData(string key, string value) {
-            if (MetaData.ContainsKey(key)) {
+        public void AddMetaData(string key, string value)
+        {
+            if (MetaData.ContainsKey(key))
+            {
                 MetaData[key] = value;
-            } else {
+            }
+            else
+            {
                 MetaData.Add(key, value);
             }
         }
 
         /// <inheritdoc />
-        public CaptureMode CaptureMode {
-            get;
-            set;
-        }
+        public CaptureMode CaptureMode { get; set; }
 
         /// <inheritdoc />
         public List<IDestination> CaptureDestinations { get; set; } = new List<IDestination>();
 
         /// <inheritdoc />
-        public void ClearDestinations() {
+        public void ClearDestinations()
+        {
             CaptureDestinations.Clear();
         }
 
         /// <inheritdoc />
-        public void RemoveDestination(IDestination destination) {
-            if (CaptureDestinations.Contains(destination)) {
+        public void RemoveDestination(IDestination destination)
+        {
+            if (CaptureDestinations.Contains(destination))
+            {
                 CaptureDestinations.Remove(destination);
             }
         }
 
         /// <inheritdoc />
-        public void AddDestination(IDestination captureDestination) {
-            if (!CaptureDestinations.Contains(captureDestination)) {
+        public void AddDestination(IDestination captureDestination)
+        {
+            if (!CaptureDestinations.Contains(captureDestination))
+            {
                 CaptureDestinations.Add(captureDestination);
             }
         }
 
         /// <inheritdoc />
-        public bool HasDestination(string designation) {
-            foreach(IDestination destination in CaptureDestinations) {
-                if (designation.Equals(destination.Designation)) {
+        public bool HasDestination(string designation)
+        {
+            foreach (IDestination destination in CaptureDestinations)
+            {
+                if (designation.Equals(destination.Designation))
+                {
                     return true;
                 }
             }
+
             return false;
         }
 
-        public CaptureDetails() {
+        public CaptureDetails()
+        {
             DateTime = DateTime.Now;
         }
     }

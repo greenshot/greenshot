@@ -38,7 +38,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
     public class OneNoteExporter
     {
         private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
-        private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+
+        private const string XmlOutline =
+            "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+
         private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
 
@@ -107,6 +110,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Warn("Unable to navigate to the target page", ex);
             }
+
             return true;
         }
 
@@ -126,6 +130,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Ignore, probably no OneNote running
                 return null;
             }
+
             return oneNoteApplication;
         }
 
@@ -140,6 +145,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 oneNoteApplication = DisposableCom.Create(new Application());
             }
+
             return oneNoteApplication;
         }
 
@@ -183,6 +189,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         };
                                     }
                                 }
+
                                 if ("one:Section".Equals(xmlReader.Name))
                                 {
                                     string id = xmlReader.GetAttribute("ID");
@@ -196,6 +203,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         };
                                     }
                                 }
+
                                 if ("one:Page".Equals(xmlReader.Name))
                                 {
                                     // Skip deleted items
@@ -214,6 +222,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                     {
                                         continue;
                                     }
+
                                     page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
                                     pages.Add(page);
                                 }
@@ -231,22 +240,26 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
             catch (COMException cEx)
             {
-                if (cEx.ErrorCode == unchecked((int)0x8002801D))
+                if (cEx.ErrorCode == unchecked((int) 0x8002801D))
                 {
-                    LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+                    LOG.Warn(
+                        "Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
                 }
+
                 LOG.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
             }
             catch (Exception ex)
             {
                 LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
             }
+
             pages.Sort((page1, page2) =>
             {
                 if (page1.IsCurrentlyViewed || page2.IsCurrentlyViewed)
                 {
                     return page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed);
                 }
+
                 return string.Compare(page1.DisplayName, page2.DisplayName, StringComparison.Ordinal);
             });
             return pages;
@@ -264,6 +277,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return null;
             }
+
             // ReSharper disable once RedundantAssignment
             string unfiledNotesPath = "";
             oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
@@ -285,6 +299,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         {
                             continue;
                         }
+
                         string id = xmlReader.GetAttribute("ID");
                         string path = xmlReader.GetAttribute("path");
                         if (unfiledNotesPath.Equals(path))
@@ -301,6 +316,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return null;
         }
     }

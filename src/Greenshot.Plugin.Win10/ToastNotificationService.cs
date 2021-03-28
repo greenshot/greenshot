@@ -42,12 +42,14 @@ namespace Greenshot.Plugin.Win10
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private readonly string _imageFilePath;
+
         public ToastNotificationService()
         {
             if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
             {
                 Log.Info("Greenshot was activated due to a toast.");
             }
+
             // Listen to notification activation
             ToastNotificationManagerCompat.OnActivated += toastArgs =>
             {
@@ -65,6 +67,7 @@ namespace Greenshot.Plugin.Win10
             {
                 Directory.CreateDirectory(localAppData);
             }
+
             _imageFilePath = Path.Combine(localAppData, "greenshot.png");
 
             if (File.Exists(_imageFilePath))
@@ -90,6 +93,7 @@ namespace Greenshot.Plugin.Win10
             {
                 return;
             }
+
             // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
             var toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
 
@@ -109,7 +113,6 @@ namespace Greenshot.Plugin.Win10
 
             // Generate the toast and send it off
             new ToastContentBuilder()
-
                 .AddArgument("ToastID", 100)
                 // Inline image
                 .AddText(message)
@@ -119,6 +122,7 @@ namespace Greenshot.Plugin.Win10
                 {
                     // Windows 10 first with 1903: ExpiresOnReboot = true
                     toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?) null;
+
                     void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                     {
                         try
@@ -145,6 +149,7 @@ namespace Greenshot.Plugin.Win10
                         {
                             return;
                         }
+
                         try
                         {
                             onClosedAction?.Invoke();
@@ -158,8 +163,8 @@ namespace Greenshot.Plugin.Win10
                         // Remove the other handler too
                         toast.Activated -= ToastActivatedHandler;
                         toast.Failed -= ToastOnFailed;
-
                     }
+
                     toast.Dismissed += ToastDismissedHandler;
                     toast.Failed += ToastOnFailed;
                 });
@@ -196,6 +201,7 @@ namespace Greenshot.Plugin.Win10
             {
                 return new ToastNotificationService();
             }
+
             Log.Warn("ToastNotificationActionTrigger not available.");
 
             return null;

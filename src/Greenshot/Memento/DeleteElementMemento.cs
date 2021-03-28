@@ -18,56 +18,65 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using Greenshot.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Memento {
-	/// <summary>
-	/// The DeleteElementMemento makes it possible to undo deleting an element
-	/// </summary>
-	public class DeleteElementMemento : IMemento  {
-		private IDrawableContainer _drawableContainer;
-		private readonly Surface _surface;
+namespace Greenshot.Memento
+{
+    /// <summary>
+    /// The DeleteElementMemento makes it possible to undo deleting an element
+    /// </summary>
+    public class DeleteElementMemento : IMemento
+    {
+        private IDrawableContainer _drawableContainer;
+        private readonly Surface _surface;
 
-		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
-			_surface = surface;
-			_drawableContainer = drawableContainer;
-		}
+        public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer)
+        {
+            _surface = surface;
+            _drawableContainer = drawableContainer;
+        }
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-			
-			if (_drawableContainer != null) {
-				_drawableContainer.Dispose();
-				_drawableContainer = null;
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
 
-		public bool Merge(IMemento otherMemento) {
-			return false;
-		}
+            if (_drawableContainer != null)
+            {
+                _drawableContainer.Dispose();
+                _drawableContainer = null;
+            }
+        }
 
-		public IMemento Restore() {
-			// Before
-			_drawableContainer.Invalidate();
+        public bool Merge(IMemento otherMemento)
+        {
+            return false;
+        }
 
-			var oldState = new AddElementMemento(_surface, _drawableContainer);
-			_surface.AddElement(_drawableContainer, false);
-			// The container has a selected flag which represents the state at the moment it was deleted.
-			if (_drawableContainer.Selected) {
-				_surface.SelectElement(_drawableContainer);
-			}
+        public IMemento Restore()
+        {
+            // Before
+            _drawableContainer.Invalidate();
 
-			// After
-			_drawableContainer.Invalidate();
-			return oldState;
-		}
-	}
+            var oldState = new AddElementMemento(_surface, _drawableContainer);
+            _surface.AddElement(_drawableContainer, false);
+            // The container has a selected flag which represents the state at the moment it was deleted.
+            if (_drawableContainer.Selected)
+            {
+                _surface.SelectElement(_drawableContainer);
+            }
+
+            // After
+            _drawableContainer.Invalidate();
+            return oldState;
+        }
+    }
 }

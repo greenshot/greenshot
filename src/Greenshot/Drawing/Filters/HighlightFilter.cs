@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
@@ -25,44 +26,57 @@ using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
-	[Serializable()] 
-	public class HighlightFilter : AbstractFilter {
-		public HighlightFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
-		}
+namespace Greenshot.Drawing.Filters
+{
+    [Serializable()]
+    public class HighlightFilter : AbstractFilter
+    {
+        public HighlightFilter(DrawableContainer parent) : base(parent)
+        {
+            AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
+        }
 
-		/// <summary>
-		/// Implements the Apply code for the Brightness Filet
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="applyBitmap"></param>
-		/// <param name="rect"></param>
-		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+        /// <summary>
+        /// Implements the Apply code for the Brightness Filet
+        /// </summary>
+        /// <param name="graphics"></param>
+        /// <param name="applyBitmap"></param>
+        /// <param name="rect"></param>
+        /// <param name="renderMode"></param>
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        {
+            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
-				// nothing to do
-				return;
-			}
-			GraphicsState state = graphics.Save();
-			if (Invert) {
-				graphics.SetClip(applyRect);
-				graphics.ExcludeClip(rect);
-			}
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++) {
-					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++) {
-						Color color = fastBitmap.GetColorAt(x, y);
-						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-						fastBitmap.SetColorAt(x, y, color);
-					}
-				}
-				fastBitmap.DrawTo(graphics, applyRect.Location);
-			}
-			graphics.Restore(state);
-		}
-	}
+            if (applyRect.Width == 0 || applyRect.Height == 0)
+            {
+                // nothing to do
+                return;
+            }
+
+            GraphicsState state = graphics.Save();
+            if (Invert)
+            {
+                graphics.SetClip(applyRect);
+                graphics.ExcludeClip(rect);
+            }
+
+            using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+            {
+                Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+                for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++)
+                {
+                    for (int x = fastBitmap.Left; x < fastBitmap.Right; x++)
+                    {
+                        Color color = fastBitmap.GetColorAt(x, y);
+                        color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
+                        fastBitmap.SetColorAt(x, y, color);
+                    }
+                }
+
+                fastBitmap.DrawTo(graphics, applyRect.Location);
+            }
+
+            graphics.Restore(state);
+        }
+    }
 }

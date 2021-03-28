@@ -21,24 +21,26 @@
 
 using System;
 
-namespace GreenshotPlugin.Interfaces.Drawing {
-	/// <summary>
-	/// Description of IMemento.
-	/// </summary>
-	public interface IMemento : IDisposable {
-	    /// <summary>
-	    /// Restores target to the state memorized by this memento.
-		/// </summary>
-		/// <returns>
-		/// A memento of the state before restoring
-		/// </returns>
-		IMemento Restore();
-		
-		/// <summary>
-		/// Try to merge the current memento with another, preventing loads of items on the stack
-		/// </summary>
-		/// <param name="other">The memento to try to merge with</param>
-		/// <returns></returns>
-		bool Merge(IMemento other);
-	}
+namespace GreenshotPlugin.Interfaces.Drawing
+{
+    /// <summary>
+    /// Description of IMemento.
+    /// </summary>
+    public interface IMemento : IDisposable
+    {
+        /// <summary>
+        /// Restores target to the state memorized by this memento.
+        /// </summary>
+        /// <returns>
+        /// A memento of the state before restoring
+        /// </returns>
+        IMemento Restore();
+
+        /// <summary>
+        /// Try to merge the current memento with another, preventing loads of items on the stack
+        /// </summary>
+        /// <param name="other">The memento to try to merge with</param>
+        /// <returns></returns>
+        bool Merge(IMemento other);
+    }
 }

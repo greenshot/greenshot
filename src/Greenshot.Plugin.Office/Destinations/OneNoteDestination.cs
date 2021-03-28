@@ -28,97 +28,117 @@ using Greenshot.Plugin.Office.OfficeExport.Entities;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.Office.Destinations {
-	public class OneNoteDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
-		private const int ICON_APPLICATION = 0;
-		public const string DESIGNATION = "OneNote";
-		private static readonly string exePath;
-		private readonly OneNotePage page;
-		private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
+namespace Greenshot.Plugin.Office.Destinations
+{
+    public class OneNoteDestination : AbstractDestination
+    {
+        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+        private const int ICON_APPLICATION = 0;
+        public const string DESIGNATION = "OneNote";
+        private static readonly string exePath;
+        private readonly OneNotePage page;
+        private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
 
-		static OneNoteDestination() {
-			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
-			if (exePath != null && File.Exists(exePath)) {
-				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
-			} else {
-				exePath = null;
-			}
-		}
+        static OneNoteDestination()
+        {
+            exePath = PluginUtils.GetExePath("ONENOTE.EXE");
+            if (exePath != null && File.Exists(exePath))
+            {
+                WindowDetails.AddProcessToExcludeFromFreeze("onenote");
+            }
+            else
+            {
+                exePath = null;
+            }
+        }
 
-		public OneNoteDestination() {
+        public OneNoteDestination()
+        {
+        }
 
-		}
+        public OneNoteDestination(OneNotePage page)
+        {
+            this.page = page;
+        }
 
-		public OneNoteDestination(OneNotePage page) {
-			this.page = page;
-		}
+        public override string Designation
+        {
+            get { return DESIGNATION; }
+        }
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+        public override string Description
+        {
+            get
+            {
+                if (page == null)
+                {
+                    return "Microsoft OneNote";
+                }
+                else
+                {
+                    return page.DisplayName;
+                }
+            }
+        }
 
-		public override string Description {
-			get {
-				if (page == null) {
-					return "Microsoft OneNote";
-				} else {
-					return page.DisplayName;
-				}
-			}
-		}
+        public override int Priority
+        {
+            get { return 4; }
+        }
 
-		public override int Priority {
-			get {
-				return 4;
-			}
-		}
+        public override bool IsDynamic
+        {
+            get { return true; }
+        }
 
-		public override bool IsDynamic {
-			get {
-				return true;
-			}
-		}
+        public override bool IsActive
+        {
+            get { return base.IsActive && exePath != null; }
+        }
 
-		public override bool IsActive {
-			get {
-				return base.IsActive && exePath != null;
-			}
-		}
+        public override Image DisplayIcon
+        {
+            get { return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION); }
+        }
 
-		public override Image DisplayIcon {
-			get {
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-			}
-		}
+        public override IEnumerable<IDestination> DynamicDestinations()
+        {
+            foreach (OneNotePage page in _oneNoteExporter.GetPages())
+            {
+                yield return new OneNoteDestination(page);
+            }
+        }
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (OneNotePage page in _oneNoteExporter.GetPages()) {
-				yield return new OneNoteDestination(page);
-			}
-		}
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            if (page == null)
+            {
+                try
+                {
+                    exportInformation.ExportMade = _oneNoteExporter.ExportToNewPage(surface);
+                }
+                catch (Exception ex)
+                {
+                    exportInformation.ErrorMessage = ex.Message;
+                    LOG.Error(ex);
+                }
+            }
+            else
+            {
+                try
+                {
+                    exportInformation.ExportMade = _oneNoteExporter.ExportToPage(surface, page);
+                }
+                catch (Exception ex)
+                {
+                    exportInformation.ErrorMessage = ex.Message;
+                    LOG.Error(ex);
+                }
+            }
 
-			if (page == null) {
-				try {
-					exportInformation.ExportMade = _oneNoteExporter.ExportToNewPage(surface);
-				} catch(Exception ex) {
-					exportInformation.ErrorMessage = ex.Message;
-					LOG.Error(ex);
-				}
-			} else {
-				try {
-					exportInformation.ExportMade = _oneNoteExporter.ExportToPage(surface, page);
-				} catch(Exception ex) {
-					exportInformation.ErrorMessage = ex.Message;
-					LOG.Error(ex);
-				}
-			}
-			return exportInformation;
-		}
-	}
+            return exportInformation;
+        }
+    }
 }

@@ -26,8 +26,11 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
 {
     [Flags]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum ExtendedWindowStyleFlags : uint {
-        WS_EX_TOOLWINDOW       = 0x00000080,
-        WS_EX_NOREDIRECTIONBITMAP = 0x00200000, //The window does not render to a redirection surface. This is for windows that do not have visible content or that use mechanisms other than surfaces to provide their visual.
+    public enum ExtendedWindowStyleFlags : uint
+    {
+        WS_EX_TOOLWINDOW = 0x00000080,
+
+        WS_EX_NOREDIRECTIONBITMAP =
+            0x00200000, //The window does not render to a redirection surface. This is for windows that do not have visible content or that use mechanisms other than surfaces to provide their visual.
     }
 }

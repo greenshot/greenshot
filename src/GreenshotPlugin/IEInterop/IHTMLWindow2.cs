@@ -21,26 +21,32 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComVisible(true), ComImport(), Guid("332c4427-26cb-11d0-b483-00c04fd90119"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLWindow2 {
-		[DispId(1156)]
-		IHTMLScreen screen {
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
-
-		[DispId(1151)]
-		IHTMLDocument2 document {
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
-		
-		[DispId(11)]
-		string name {
-        	[return: MarshalAs(UnmanagedType.BStr)] get;
+namespace GreenshotPlugin.IEInterop
+{
+    [ComVisible(true), ComImport(), Guid("332c4427-26cb-11d0-b483-00c04fd90119"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLWindow2
+    {
+        [DispId(1156)]
+        IHTMLScreen screen
+        {
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
         }
-	}
+
+        [DispId(1151)]
+        IHTMLDocument2 document
+        {
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
+
+        [DispId(11)]
+        string name
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+    }
 }

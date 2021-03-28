@@ -21,9 +21,9 @@
 
 namespace Greenshot.Plugin.Jira
 {
-	public enum JiraEventTypes
-	{
-		OrderChanged,
-		DetectedNewJiraIssue
-	}
+    public enum JiraEventTypes
+    {
+        OrderChanged,
+        DetectedNewJiraIssue
+    }
 }

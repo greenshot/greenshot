@@ -21,20 +21,29 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	// See: http://msdn.microsoft.com/en-us/library/aa768849%28v=vs.85%29.aspx
-	[ComImport, Guid("3050f25A-98b5-11cf-bb82-00aa00bdce0b"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLSelectionObject {
-		[return: MarshalAs(UnmanagedType.IDispatch)]
-		[DispId(1001)]
-		IHTMLTxtRange createRange();
-		[DispId(1002)]
-		void empty();
-		[DispId(1003)]
-		void clear();
-		[DispId(1004)]
-		string EventType { [return: MarshalAs(UnmanagedType.BStr)] get;}
-	}
+namespace GreenshotPlugin.IEInterop
+{
+    // See: http://msdn.microsoft.com/en-us/library/aa768849%28v=vs.85%29.aspx
+    [ComImport, Guid("3050f25A-98b5-11cf-bb82-00aa00bdce0b"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLSelectionObject
+    {
+        [return: MarshalAs(UnmanagedType.IDispatch)]
+        [DispId(1001)]
+        IHTMLTxtRange createRange();
+
+        [DispId(1002)]
+        void empty();
+
+        [DispId(1003)]
+        void clear();
+
+        [DispId(1004)]
+        string EventType
+        {
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+    }
 }

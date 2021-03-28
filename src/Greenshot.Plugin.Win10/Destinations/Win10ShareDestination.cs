@@ -61,7 +61,7 @@ namespace Greenshot.Plugin.Win10.Destinations
         /// <param name="surface">ISurface</param>
         /// <param name="captureDetails">ICaptureDetails</param>
         /// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             var exportInformation = new ExportInformation(Designation, Description);
             try
@@ -88,13 +88,13 @@ namespace Greenshot.Plugin.Win10.Destinations
                 // Wait for the focus to return, and depending on the state close the window!
                 focusMonitor.WindowOpenCloseChangeEvent += e =>
                 {
-
                     if (e.IsOpen)
                     {
                         if ("Windows Shell Experience Host" == e.Title)
                         {
                             shareInfo.SharingHwnd = e.HWnd;
                         }
+
                         return;
                     }
 
@@ -104,6 +104,7 @@ namespace Greenshot.Plugin.Win10.Destinations
                         {
                             return;
                         }
+
                         shareInfo.ShareTask.TrySetResult(false);
                     }
                 };
@@ -130,8 +131,8 @@ namespace Greenshot.Plugin.Win10.Destinations
 
             ProcessExport(exportInformation, surface);
             return exportInformation;
-
         }
+
         /// <summary>
         /// Share the surface by using the Share-UI of Windows 10
         /// </summary>
@@ -191,8 +192,8 @@ namespace Greenshot.Plugin.Win10.Destinations
             var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
             {
                 shareInfo.IsDeferredFileCreated = true;
-                    // Information on the "how" was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
-                    Log.DebugFormat("Creating deferred file {0}", filename);
+                // Information on the "how" was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
+                Log.DebugFormat("Creating deferred file {0}", filename);
                 try
                 {
                     using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
@@ -200,6 +201,7 @@ namespace Greenshot.Plugin.Win10.Destinations
                         await imageStream.CopyToAsync(deferredStream).ConfigureAwait(false);
                         await imageStream.FlushAsync().ConfigureAwait(false);
                     }
+
                     // Signal that the stream is ready
                     streamedFileDataRequest.Dispose();
                     // Signal that the action is ready, bitmap was exported
@@ -245,7 +247,10 @@ namespace Greenshot.Plugin.Win10.Destinations
                     dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
                     dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
                     dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
-                    dataPackage.SetStorageItems(new[] { storageFile });
+                    dataPackage.SetStorageItems(new[]
+                    {
+                        storageFile
+                    });
                     dataPackage.SetBitmap(imageRandomAccessStreamReference);
                 }
                 finally

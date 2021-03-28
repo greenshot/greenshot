@@ -18,50 +18,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotPlugin.Controls {
-	/// <summary>
-	/// Description of JpegQualityDialog.
-	/// </summary>
-	public partial class QualityDialog : GreenshotForm {
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		public SurfaceOutputSettings Settings {
-			get;
-			set;
-		}
+namespace GreenshotPlugin.Controls
+{
+    /// <summary>
+    /// Description of JpegQualityDialog.
+    /// </summary>
+    public partial class QualityDialog : GreenshotForm
+    {
+        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        public SurfaceOutputSettings Settings { get; set; }
 
-		public QualityDialog(SurfaceOutputSettings outputSettings) {
-			Settings = outputSettings;
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
+        public QualityDialog(SurfaceOutputSettings outputSettings)
+        {
+            Settings = outputSettings;
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
 
-			checkBox_reduceColors.Checked = Settings.ReduceColors;
-			trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
-			trackBarJpegQuality.Value = Settings.JPGQuality;
-			textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
-			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
-			ToFront = true;
-		}
+            checkBox_reduceColors.Checked = Settings.ReduceColors;
+            trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            trackBarJpegQuality.Value = Settings.JPGQuality;
+            textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
+            ToFront = true;
+        }
 
-		private void Button_okClick(object sender, EventArgs e) {
-			Settings.JPGQuality = trackBarJpegQuality.Value;
-			Settings.ReduceColors = checkBox_reduceColors.Checked;
-			if (checkbox_dontaskagain.Checked) {
-				conf.OutputFileJpegQuality = Settings.JPGQuality;
-				conf.OutputFilePromptQuality = false;
-				conf.OutputFileReduceColors = Settings.ReduceColors;
-				IniConfig.Save();
-			}
-		}
+        private void Button_okClick(object sender, EventArgs e)
+        {
+            Settings.JPGQuality = trackBarJpegQuality.Value;
+            Settings.ReduceColors = checkBox_reduceColors.Checked;
+            if (checkbox_dontaskagain.Checked)
+            {
+                conf.OutputFileJpegQuality = Settings.JPGQuality;
+                conf.OutputFilePromptQuality = false;
+                conf.OutputFileReduceColors = Settings.ReduceColors;
+                IniConfig.Save();
+            }
+        }
 
-		private void TrackBarJpegQualityScroll(object sender, EventArgs e) {
-			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
-		}
-	}
+        private void TrackBarJpegQualityScroll(object sender, EventArgs e)
+        {
+            textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
+        }
+    }
 }

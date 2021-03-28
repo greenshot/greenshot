@@ -21,29 +21,19 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComImport, Guid("3050F84A-98B5-11CF-BB82-00AA00BDCE0B"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLScreen2 {
-    	int logicalXDPI {
-            [DispId(1009)]
-            get;
-        }
+namespace GreenshotPlugin.IEInterop
+{
+    [ComImport, Guid("3050F84A-98B5-11CF-BB82-00AA00BDCE0B"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLScreen2
+    {
+        int logicalXDPI { [DispId(1009)] get; }
 
-        int logicalYDPI {
-            [DispId(1010)]
-            get;
-        }
+        int logicalYDPI { [DispId(1010)] get; }
 
-        int deviceXDPI {
-        	[DispId(1011)]
-            get;
-        }
+        int deviceXDPI { [DispId(1011)] get; }
 
-        int deviceYDPI {
-            [DispId(1012)]
-            get;
-        }
+        int deviceYDPI { [DispId(1012)] get; }
     };
 }

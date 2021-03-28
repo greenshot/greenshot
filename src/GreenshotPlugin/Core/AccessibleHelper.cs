@@ -18,175 +18,220 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
 using Accessibility;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// See: http://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
+    /// This should really be cleaned up, there is little OO behind this class!
+    /// Maybe move the basic Accessible functions to WindowDetails!?
+    /// </summary>
+    public class Accessible
+    {
+        private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
+        {
+            var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
+            object obj = null;
+            int num = AccessibleObjectFromWindow(hWnd, (uint) idObject, ref guid, ref obj);
+            acc = (IAccessible) obj;
+            return num;
+        }
 
-	/// <summary>
-	/// See: http://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
-	/// This should really be cleaned up, there is little OO behind this class!
-	/// Maybe move the basic Accessible functions to WindowDetails!?
-	/// </summary>
-	public class Accessible {
-        private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {
-			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
-			object obj = null;
-			int num = AccessibleObjectFromWindow(hWnd, (uint)idObject, ref guid, ref obj);
-			acc = (IAccessible)obj;
-			return num;
-		}
-		[DllImport("oleacc.dll")]
-		private static extern int AccessibleObjectFromWindow(IntPtr hWnd, uint id, ref Guid iid, [In, Out, MarshalAs(UnmanagedType.IUnknown)] ref object ppvObject);
-		[DllImport("oleacc.dll")]
-		private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] object[] rgvarChildren, out int pcObtained);
-		
-		[DllImport("oleacc.dll", PreserveSig=false)]
-		[return: MarshalAs(UnmanagedType.Interface)]
-		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleObjectFromWindow(IntPtr hWnd, uint id, ref Guid iid, [In, Out, MarshalAs(UnmanagedType.IUnknown)]
+            ref object ppvObject);
 
-        private enum OBJID : uint {
-			OBJID_WINDOW = 0x00000000,
-		}
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            object[] rgvarChildren, out int pcObtained);
 
-		private const int IE_ACTIVE_TAB = 2097154;
-		private const int CHILDID_SELF = 0;
-		private readonly IAccessible accessible;
-		private Accessible[] Children {
-			get {
+        [DllImport("oleacc.dll", PreserveSig = false)]
+        [return: MarshalAs(UnmanagedType.Interface)]
+        public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
+
+        private enum OBJID : uint
+        {
+            OBJID_WINDOW = 0x00000000,
+        }
+
+        private const int IE_ACTIVE_TAB = 2097154;
+        private const int CHILDID_SELF = 0;
+        private readonly IAccessible accessible;
+
+        private Accessible[] Children
+        {
+            get
+            {
                 object[] res = GetAccessibleChildren(accessible, out var num);
-				if (res == null) {
-					return new Accessible[0];
-				}
+                if (res == null)
+                {
+                    return new Accessible[0];
+                }
 
-				List<Accessible> list = new List<Accessible>(res.Length);
-				foreach (object obj in res) {
-                    if (obj is IAccessible acc) {
-						list.Add(new Accessible(acc));
-					}
-				}
-				return list.ToArray();
-			}
-		}
+                List<Accessible> list = new List<Accessible>(res.Length);
+                foreach (object obj in res)
+                {
+                    if (obj is IAccessible acc)
+                    {
+                        list.Add(new Accessible(acc));
+                    }
+                }
 
-		private string Name {
-			get {
-				return accessible.get_accName(CHILDID_SELF);
-			}
-		}
+                return list.ToArray();
+            }
+        }
 
-		private int ChildCount {
-			get {
-				return accessible.accChildCount;
-			}
-		}
+        private string Name
+        {
+            get { return accessible.get_accName(CHILDID_SELF); }
+        }
 
-		public Accessible(IntPtr hWnd) {
-			AccessibleObjectFromWindow(hWnd, OBJID.OBJID_WINDOW, ref accessible);
-			if (accessible == null) {
-				throw new Exception();
-			}
-		}
+        private int ChildCount
+        {
+            get { return accessible.accChildCount; }
+        }
 
-        public void ActivateIETab(int tabIndexToActivate) {
-			var index = 0;
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tabIndexToActivate >= child.ChildCount -1) {
-							return;
-						}
+        public Accessible(IntPtr hWnd)
+        {
+            AccessibleObjectFromWindow(hWnd, OBJID.OBJID_WINDOW, ref accessible);
+            if (accessible == null)
+            {
+                throw new Exception();
+            }
+        }
 
-						if (index == tabIndexToActivate) {
-							tab.Activate();
-							return;
-						}
-						index++;
-					}
-				}
-			}
-		}
+        public void ActivateIETab(int tabIndexToActivate)
+        {
+            var index = 0;
+            foreach (Accessible accessor in Children)
+            {
+                foreach (var child in accessor.Children)
+                {
+                    foreach (var tab in child.Children)
+                    {
+                        if (tabIndexToActivate >= child.ChildCount - 1)
+                        {
+                            return;
+                        }
 
-        public string IEActiveTabCaption {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(0);
-	 
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
-								return tab.Name;
-							}
-						}
-					}
-				}
-				return string.Empty;
-			}
-		}
+                        if (index == tabIndexToActivate)
+                        {
+                            tab.Activate();
+                            return;
+                        }
 
-		public List<string> IETabCaptions {
-			get {
-				var captionList = new List<string>();
-	
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							captionList.Add(tab.Name);
-						}
-					}
-				}
-	
-				// TODO: Why again?
-				if (captionList.Count > 0) {
-					captionList.RemoveAt(captionList.Count - 1);
-				}
-	
-				return captionList;
-			}
-		}
-	
-		
-		public IEnumerable<string> IETabUrls {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
-							var description = tab.accessible.get_accDescription(CHILDID_SELF);
-							if (!string.IsNullOrEmpty(description)) {
-								if (description.Contains(Environment.NewLine)) {
-									var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-									yield return url;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+                        index++;
+                    }
+                }
+            }
+        }
 
-        private Accessible(IAccessible acc) {
+        public string IEActiveTabCaption
+        {
+            get
+            {
+                foreach (Accessible accessor in Children)
+                {
+                    foreach (var child in accessor.Children)
+                    {
+                        foreach (var tab in child.Children)
+                        {
+                            object tabIndex = tab.accessible.get_accState(0);
+
+                            if ((int) tabIndex == IE_ACTIVE_TAB)
+                            {
+                                return tab.Name;
+                            }
+                        }
+                    }
+                }
+
+                return string.Empty;
+            }
+        }
+
+        public List<string> IETabCaptions
+        {
+            get
+            {
+                var captionList = new List<string>();
+
+                foreach (Accessible accessor in Children)
+                {
+                    foreach (var child in accessor.Children)
+                    {
+                        foreach (var tab in child.Children)
+                        {
+                            captionList.Add(tab.Name);
+                        }
+                    }
+                }
+
+                // TODO: Why again?
+                if (captionList.Count > 0)
+                {
+                    captionList.RemoveAt(captionList.Count - 1);
+                }
+
+                return captionList;
+            }
+        }
+
+
+        public IEnumerable<string> IETabUrls
+        {
+            get
+            {
+                foreach (Accessible accessor in Children)
+                {
+                    foreach (var child in accessor.Children)
+                    {
+                        foreach (var tab in child.Children)
+                        {
+                            object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
+                            var description = tab.accessible.get_accDescription(CHILDID_SELF);
+                            if (!string.IsNullOrEmpty(description))
+                            {
+                                if (description.Contains(Environment.NewLine))
+                                {
+                                    var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
+                                    yield return url;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private Accessible(IAccessible acc)
+        {
             accessible = acc ?? throw new Exception();
-		}
+        }
 
-		private void Activate() {
-			accessible.accDoDefaultAction(CHILDID_SELF);
-		}
+        private void Activate()
+        {
+            accessible.accDoDefaultAction(CHILDID_SELF);
+        }
 
-		private static object[] GetAccessibleChildren(IAccessible ao, out int childs) {
-			childs = 0;
-			object[] ret = null;
-			int count = ao.accChildCount;
+        private static object[] GetAccessibleChildren(IAccessible ao, out int childs)
+        {
+            childs = 0;
+            object[] ret = null;
+            int count = ao.accChildCount;
 
-			if (count > 0) {
-				ret = new object[count];
-				AccessibleChildren(ao, 0, count, ret, out childs);
-			}
-			return ret;
-		}
-	}
+            if (count > 0)
+            {
+                ret = new object[count];
+                AccessibleChildren(ao, 0, count, ret, out childs);
+            }
+
+            return ret;
+        }
+    }
 }
-

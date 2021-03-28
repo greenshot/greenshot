@@ -26,17 +26,21 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;
 
-namespace Greenshot.Processors  {
-	/// <summary>
-	/// Description of TitleFixProcessor.
-	/// </summary>
-	public class TitleFixProcessor : AbstractProcessor {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
-		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+namespace Greenshot.Processors
+{
+    /// <summary>
+    /// Description of TitleFixProcessor.
+    /// </summary>
+    public class TitleFixProcessor : AbstractProcessor
+    {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
+        private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 
-        public TitleFixProcessor() {
-			List<string> corruptKeys = new List<string>();
-			foreach(string key in config.ActiveTitleFixes) {
+        public TitleFixProcessor()
+        {
+            List<string> corruptKeys = new List<string>();
+            foreach (string key in config.ActiveTitleFixes)
+            {
                 if (config.TitleFixMatcher.ContainsKey(key)) continue;
 
                 LOG.WarnFormat("Key {0} not found, configuration is broken! Disabling this key!", key);
@@ -46,12 +50,14 @@ namespace Greenshot.Processors  {
             // Fix configuration if needed
             if (corruptKeys.Count <= 0) return;
 
-            foreach(string corruptKey in corruptKeys) {
+            foreach (string corruptKey in corruptKeys)
+            {
                 // Removing any reference to the key
                 config.ActiveTitleFixes.Remove(corruptKey);
                 config.TitleFixMatcher.Remove(corruptKey);
                 config.TitleFixReplacer.Remove(corruptKey);
             }
+
             config.IsDirty = true;
         }
 
@@ -59,14 +65,17 @@ namespace Greenshot.Processors  {
 
         public override string Description => Designation;
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails) {
-			bool changed = false;
-			string title = captureDetails.Title;
-			if (!string.IsNullOrEmpty(title)) {
-				title = title.Trim();
-				foreach(string titleIdentifier in config.ActiveTitleFixes) {
-					string regexpString = config.TitleFixMatcher[titleIdentifier];
-					string replaceString = config.TitleFixReplacer[titleIdentifier] ?? string.Empty;
+        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        {
+            bool changed = false;
+            string title = captureDetails.Title;
+            if (!string.IsNullOrEmpty(title))
+            {
+                title = title.Trim();
+                foreach (string titleIdentifier in config.ActiveTitleFixes)
+                {
+                    string regexpString = config.TitleFixMatcher[titleIdentifier];
+                    string replaceString = config.TitleFixReplacer[titleIdentifier] ?? string.Empty;
 
                     if (string.IsNullOrEmpty(regexpString)) continue;
 
@@ -74,9 +83,10 @@ namespace Greenshot.Processors  {
                     title = regex.Replace(title, replaceString);
                     changed = true;
                 }
-			}
-			captureDetails.Title = title;
-			return changed;
-		}
-	}
+            }
+
+            captureDetails.Title = title;
+            return changed;
+        }
+    }
 }

@@ -5,7 +5,8 @@ namespace GreenshotPlugin.Interfaces.Plugin
     /// <summary>
     /// This defines the plugin
     /// </summary>
-    public interface IGreenshotPlugin : IDisposable {
+    public interface IGreenshotPlugin : IDisposable
+    {
         /// <summary>
         /// Is called after the plugin is instantiated, the Plugin should keep a copy of the host and pluginAttribute.
         /// </summary>

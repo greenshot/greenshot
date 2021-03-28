@@ -25,32 +25,30 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// ResizeEffect
-	/// </summary>
-	public class ResizeEffect : IEffect {
-		public ResizeEffect(int width, int height, bool maintainAspectRatio) {
-			Width = width;
-			Height = height;
-			MaintainAspectRatio = maintainAspectRatio;
-		}
-		public int Width {
-			get;
-			set;
-		}
-		public int Height {
-			get;
-			set;
-		}
-		public bool MaintainAspectRatio {
-			get;
-			set;
-		}
-		public void Reset() {
-			// values don't have a default value
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height, matrix);
-		}
-	}
+    /// <summary>
+    /// ResizeEffect
+    /// </summary>
+    public class ResizeEffect : IEffect
+    {
+        public ResizeEffect(int width, int height, bool maintainAspectRatio)
+        {
+            Width = width;
+            Height = height;
+            MaintainAspectRatio = maintainAspectRatio;
+        }
+
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public bool MaintainAspectRatio { get; set; }
+
+        public void Reset()
+        {
+            // values don't have a default value
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height, matrix);
+        }
+    }
 }

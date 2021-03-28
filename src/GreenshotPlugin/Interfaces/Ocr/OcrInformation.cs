@@ -13,7 +13,7 @@ namespace GreenshotPlugin.Interfaces.Ocr
         /// Check if there is any content
         /// </summary>
         public bool HasContent => Lines.Any();
-        
+
         /// <summary>
         /// The complete text
         /// </summary>
@@ -27,6 +27,7 @@ namespace GreenshotPlugin.Interfaces.Ocr
                 {
                     text.AppendLine(line.Text);
                 }
+
                 return text.ToString();
             }
         }
@@ -45,7 +46,7 @@ namespace GreenshotPlugin.Interfaces.Ocr
         {
             foreach (var line in Lines)
             {
-                line.Offset(x,y);
+                line.Offset(x, y);
             }
         }
     }

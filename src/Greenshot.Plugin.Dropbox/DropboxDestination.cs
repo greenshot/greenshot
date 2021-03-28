@@ -25,38 +25,48 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Plugin.Dropbox {
-	internal class DropboxDestination : AbstractDestination {
-		private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+namespace Greenshot.Plugin.Dropbox
+{
+    internal class DropboxDestination : AbstractDestination
+    {
+        private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private readonly DropboxPlugin _plugin;
-		public DropboxDestination(DropboxPlugin plugin) {
-			_plugin = plugin;
-		}
+        private readonly DropboxPlugin _plugin;
 
-		public override string Designation => "Dropbox";
+        public DropboxDestination(DropboxPlugin plugin)
+        {
+            _plugin = plugin;
+        }
 
-		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
+        public override string Designation => "Dropbox";
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(DropboxPlugin));
-				return (Image)resources.GetObject("Dropbox");
-			}
-		}
+        public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
 
-		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
-			if (uploaded) {
-				exportInformation.Uri = uploadUrl;
-				exportInformation.ExportMade = true;
-				if (DropboxConfig.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadUrl);
-				}
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+        public override Image DisplayIcon
+        {
+            get
+            {
+                ComponentResourceManager resources = new ComponentResourceManager(typeof(DropboxPlugin));
+                return (Image) resources.GetObject("Dropbox");
+            }
+        }
+
+        public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
+            if (uploaded)
+            {
+                exportInformation.Uri = uploadUrl;
+                exportInformation.ExportMade = true;
+                if (DropboxConfig.AfterUploadLinkToClipBoard)
+                {
+                    ClipboardHelper.SetClipboardData(uploadUrl);
+                }
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

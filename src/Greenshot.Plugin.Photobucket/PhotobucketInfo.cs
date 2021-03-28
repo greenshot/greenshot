@@ -24,45 +24,56 @@ using System.Xml;
 
 namespace Greenshot.Plugin.Photobucket
 {
-	/// <summary>
-	/// Description of PhotobucketInfo.
-	/// </summary>
-	public class PhotobucketInfo {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
+    /// <summary>
+    /// Description of PhotobucketInfo.
+    /// </summary>
+    public class PhotobucketInfo
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
 
-		public string Original { get; set; }
+        public string Original { get; set; }
 
-		public string Page { get; set; }
+        public string Page { get; set; }
 
-		public string Thumbnail { get; set; }
+        public string Thumbnail { get; set; }
 
-		/// <summary>
-		/// Parse the upload response
-		/// </summary>
-		/// <param name="response">XML</param>
-		/// <returns>PhotobucketInfo object</returns>
-		public static PhotobucketInfo FromUploadResponse(string response) {
-			Log.Debug(response);
-			PhotobucketInfo photobucketInfo = new PhotobucketInfo();
-			try {
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(response);
-				var nodes = doc.GetElementsByTagName("url");
-				if(nodes.Count > 0) {
-					photobucketInfo.Original = nodes.Item(0)?.InnerText;
-				}
-				nodes = doc.GetElementsByTagName("browseurl");
-				if(nodes.Count > 0) {
-					photobucketInfo.Page = nodes.Item(0)?.InnerText;
-				}
-				nodes = doc.GetElementsByTagName("thumb");
-				if(nodes.Count > 0) {
-					photobucketInfo.Thumbnail = nodes.Item(0)?.InnerText;
-				}
-			} catch(Exception e) {
-				Log.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
-			}
-			return photobucketInfo;
-		}
-	}
+        /// <summary>
+        /// Parse the upload response
+        /// </summary>
+        /// <param name="response">XML</param>
+        /// <returns>PhotobucketInfo object</returns>
+        public static PhotobucketInfo FromUploadResponse(string response)
+        {
+            Log.Debug(response);
+            PhotobucketInfo photobucketInfo = new PhotobucketInfo();
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(response);
+                var nodes = doc.GetElementsByTagName("url");
+                if (nodes.Count > 0)
+                {
+                    photobucketInfo.Original = nodes.Item(0)?.InnerText;
+                }
+
+                nodes = doc.GetElementsByTagName("browseurl");
+                if (nodes.Count > 0)
+                {
+                    photobucketInfo.Page = nodes.Item(0)?.InnerText;
+                }
+
+                nodes = doc.GetElementsByTagName("thumb");
+                if (nodes.Count > 0)
+                {
+                    photobucketInfo.Thumbnail = nodes.Item(0)?.InnerText;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
+            }
+
+            return photobucketInfo;
+        }
+    }
 }

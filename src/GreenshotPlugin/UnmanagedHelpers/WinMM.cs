@@ -18,18 +18,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
-	/// <summary>
-	/// Windows Media 
-	/// </summary>
-	public class WinMM {
-	    [DllImport("winmm.dll", SetLastError = true)]
-	    public static extern bool PlaySound(byte[] ptrToSound, UIntPtr hmod, uint fdwSound);
-	
-	    [DllImport("winmm.dll", SetLastError = true)]
-	    public static extern bool PlaySound(IntPtr ptrToSound, UIntPtr hmod, uint fdwSound);
-	}
+namespace GreenshotPlugin.UnmanagedHelpers
+{
+    /// <summary>
+    /// Windows Media 
+    /// </summary>
+    public class WinMM
+    {
+        [DllImport("winmm.dll", SetLastError = true)]
+        public static extern bool PlaySound(byte[] ptrToSound, UIntPtr hmod, uint fdwSound);
+
+        [DllImport("winmm.dll", SetLastError = true)]
+        public static extern bool PlaySound(IntPtr ptrToSound, UIntPtr hmod, uint fdwSound);
+    }
 }

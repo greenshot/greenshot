@@ -19,18 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Controls {
-	/// <summary>
-	/// This interface describes the designer fields that need to be implemented for Greenshot controls
-	/// </summary>
-	public interface IGreenshotLanguageBindable {
-		/// <summary>
-		/// Language key to use to fill the Text value with
-		/// </summary>
-		string LanguageKey {
-			get;
-			set;
-		}
-
-	}
+namespace GreenshotPlugin.Controls
+{
+    /// <summary>
+    /// This interface describes the designer fields that need to be implemented for Greenshot controls
+    /// </summary>
+    public interface IGreenshotLanguageBindable
+    {
+        /// <summary>
+        /// Language key to use to fill the Text value with
+        /// </summary>
+        string LanguageKey { get; set; }
+    }
 }

@@ -25,7 +25,7 @@ namespace Greenshot.Plugin.Confluence.Support
         public string Key
         {
             get { return _key; }
-            set { _key = value;}
+            set { _key = value; }
         }
 
         /// <summary>
@@ -34,9 +34,9 @@ namespace Greenshot.Plugin.Confluence.Support
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             var binding = new Binding("Value")
-                  {
-                      Source = new TranslationData(_key)
-                  };
+            {
+                Source = new TranslationData(_key)
+            };
             return binding.ProvideValue(serviceProvider);
         }
     }

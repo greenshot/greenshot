@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Interfaces.Ocr
         /// <returns>OcrInformation</returns>
         Task<OcrInformation> DoOcrAsync(Image image);
 
-            /// <summary>
+        /// <summary>
         /// Start the actual OCR
         /// </summary>
         /// <param name="surface">ISurface</param>

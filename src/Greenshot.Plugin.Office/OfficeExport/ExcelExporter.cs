@@ -53,10 +53,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Ignore, probably no excel running
                 return null;
             }
+
             if (excelApplication?.ComObject != null)
             {
                 InitializeVariables(excelApplication);
             }
+
             return excelApplication;
         }
 
@@ -71,6 +73,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 excelApplication = DisposableCom.Create(new Application());
             }
+
             InitializeVariables(excelApplication);
             return excelApplication;
         }
@@ -108,10 +111,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return;
             }
+
             if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
             {
                 LOG.Warn("Assuming Excel version 1997.");
-                _excelVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+                _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -132,7 +136,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]);
+                using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject[i]);
                 if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
                 {
                     InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
@@ -191,9 +195,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             excelApplication.ComObject.Visible = true;
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
-            using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add());
+            using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject.Add());
             InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
         }
     }
-
 }

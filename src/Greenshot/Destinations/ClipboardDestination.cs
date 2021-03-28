@@ -18,61 +18,64 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Destinations {
-	/// <summary>
-	/// Description of ClipboardDestination.
-	/// </summary>
-	public class ClipboardDestination : AbstractDestination {
-		public const string DESIGNATION = "Clipboard";
+namespace Greenshot.Destinations
+{
+    /// <summary>
+    /// Description of ClipboardDestination.
+    /// </summary>
+    public class ClipboardDestination : AbstractDestination
+    {
+        public const string DESIGNATION = "Clipboard";
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+        public override string Designation
+        {
+            get { return DESIGNATION; }
+        }
 
-		public override string Description {
-			get {
-				return Language.GetString(LangKey.settings_destination_clipboard);
-			}
-		}
-		public override int Priority {
-			get {
-				return 2;
-			}
-		}
-		
-		public override Keys EditorShortcutKeys {
-			get {
-				return Keys.Control | Keys.Shift | Keys.C;
-			}
-		}
+        public override string Description
+        {
+            get { return Language.GetString(LangKey.settings_destination_clipboard); }
+        }
 
-		public override Image DisplayIcon {
-			get {
-				return GreenshotResources.GetImage("Clipboard.Image");
-			}
-		}
+        public override int Priority
+        {
+            get { return 2; }
+        }
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			try {
-				ClipboardHelper.SetClipboardData(surface);
-				exportInformation.ExportMade = true;
-			} catch (Exception) {
-				// TODO: Change to general logic in ProcessExport
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+        public override Keys EditorShortcutKeys
+        {
+            get { return Keys.Control | Keys.Shift | Keys.C; }
+        }
+
+        public override Image DisplayIcon
+        {
+            get { return GreenshotResources.GetImage("Clipboard.Image"); }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            try
+            {
+                ClipboardHelper.SetClipboardData(surface);
+                exportInformation.ExportMade = true;
+            }
+            catch (Exception)
+            {
+                // TODO: Change to general logic in ProcessExport
+                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

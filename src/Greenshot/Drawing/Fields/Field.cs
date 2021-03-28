@@ -25,106 +25,104 @@ using System.ComponentModel;
 
 namespace Greenshot.Drawing.Fields
 {
-	/// <summary>
-	/// Represents a single field of a drawable element, i.e. 
-	/// line thickness of a rectangle.
-	/// </summary>
-	[Serializable]
-	public class Field : IField
-	{
-		[field: NonSerialized]
-		public event PropertyChangedEventHandler PropertyChanged;
+    /// <summary>
+    /// Represents a single field of a drawable element, i.e. 
+    /// line thickness of a rectangle.
+    /// </summary>
+    [Serializable]
+    public class Field : IField
+    {
+        [field: NonSerialized] public event PropertyChangedEventHandler PropertyChanged;
 
-		private object _myValue;
-		public object Value
-		{
-			get
-			{
-				return _myValue;
-			}
-			set
-			{
-				if (!Equals(_myValue, value))
-				{
-					_myValue = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
-				}
-			}
-		}
-		public IFieldType FieldType
-		{
-			get;
-			set;
-		}
-		public string Scope
-		{
-			get;
-			set;
-		}
+        private object _myValue;
 
-		/// <summary>
-		/// Constructs a new Field instance, usually you should be using FieldFactory
-		/// to create Fields.
-		/// </summary>
-		/// <param name="fieldType">FieldType of the Field to be created</param>
-		/// <param name="scope">The scope to which the value of this Field is relevant.
-		/// Depending on the scope the Field's value may be shared for other elements
-		/// containing the same FieldType for defaulting to the last used value.
-		/// When scope is set to a Type (e.g. typeof(RectangleContainer)), its value
-		/// should not be reused for FieldHolders of another Type (e.g. typeof(EllipseContainer))
-		/// </param>
-		public Field(IFieldType fieldType, Type scope)
-		{
-			FieldType = fieldType;
-			Scope = scope.Name;
-		}
-		public Field(IFieldType fieldType, string scope)
-		{
-			FieldType = fieldType;
-			Scope = scope;
-		}
-		public Field(IFieldType fieldType)
-		{
-			FieldType = fieldType;
-		}
-		/// <summary>
-		/// Returns true if this field holds a value other than null.
-		/// </summary>
-		public bool HasValue => Value != null;
+        public object Value
+        {
+            get { return _myValue; }
+            set
+            {
+                if (!Equals(_myValue, value))
+                {
+                    _myValue = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
+                }
+            }
+        }
 
-		/// <summary>
-		/// Creates a flat clone of this Field. The fields value itself is not cloned.
-		/// </summary>
-		/// <returns></returns>
-		public Field Clone()
-		{
-			return new Field(FieldType, Scope) {Value = Value};
-		}
+        public IFieldType FieldType { get; set; }
+        public string Scope { get; set; }
 
-		public override int GetHashCode()
-		{
-			int hashCode = 0;
-			unchecked
-			{
-				hashCode += 1000000009 * FieldType.GetHashCode();
-				if (Scope != null)
-					hashCode += 1000000021 * Scope.GetHashCode();
-			}
-			return hashCode;
-		}
+        /// <summary>
+        /// Constructs a new Field instance, usually you should be using FieldFactory
+        /// to create Fields.
+        /// </summary>
+        /// <param name="fieldType">FieldType of the Field to be created</param>
+        /// <param name="scope">The scope to which the value of this Field is relevant.
+        /// Depending on the scope the Field's value may be shared for other elements
+        /// containing the same FieldType for defaulting to the last used value.
+        /// When scope is set to a Type (e.g. typeof(RectangleContainer)), its value
+        /// should not be reused for FieldHolders of another Type (e.g. typeof(EllipseContainer))
+        /// </param>
+        public Field(IFieldType fieldType, Type scope)
+        {
+            FieldType = fieldType;
+            Scope = scope.Name;
+        }
 
-		public override bool Equals(object obj)
-		{
+        public Field(IFieldType fieldType, string scope)
+        {
+            FieldType = fieldType;
+            Scope = scope;
+        }
+
+        public Field(IFieldType fieldType)
+        {
+            FieldType = fieldType;
+        }
+
+        /// <summary>
+        /// Returns true if this field holds a value other than null.
+        /// </summary>
+        public bool HasValue => Value != null;
+
+        /// <summary>
+        /// Creates a flat clone of this Field. The fields value itself is not cloned.
+        /// </summary>
+        /// <returns></returns>
+        public Field Clone()
+        {
+            return new Field(FieldType, Scope)
+            {
+                Value = Value
+            };
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 0;
+            unchecked
+            {
+                hashCode += 1000000009 * FieldType.GetHashCode();
+                if (Scope != null)
+                    hashCode += 1000000021 * Scope.GetHashCode();
+            }
+
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
             if (!(obj is Field other))
-			{
-				return false;
-			}
-			return FieldType == other.FieldType && Equals(Scope, other.Scope);
-		}
+            {
+                return false;
+            }
 
-		public override string ToString()
-		{
-			return string.Format("[Field FieldType={1} Value={0} Scope={2}]", _myValue, FieldType, Scope);
-		}
-	}
+            return FieldType == other.FieldType && Equals(Scope, other.Scope);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[Field FieldType={1} Value={0} Scope={2}]", _myValue, FieldType, Scope);
+        }
+    }
 }

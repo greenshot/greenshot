@@ -21,7 +21,9 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Plugin.Box.Forms {
-	public class BoxForm : GreenshotForm {
-	}
+namespace Greenshot.Plugin.Box.Forms
+{
+    public class BoxForm : GreenshotForm
+    {
+    }
 }

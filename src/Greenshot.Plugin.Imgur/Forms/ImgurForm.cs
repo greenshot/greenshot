@@ -21,10 +21,12 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Plugin.Imgur.Forms {
-	/// <summary>
-	/// This class is needed for design-time resolving of the language files
-	/// </summary>
-	public class ImgurForm : GreenshotForm {
-	}
+namespace Greenshot.Plugin.Imgur.Forms
+{
+    /// <summary>
+    /// This class is needed for design-time resolving of the language files
+    /// </summary>
+    public class ImgurForm : GreenshotForm
+    {
+    }
 }

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
@@ -26,54 +27,73 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing {
-	/// <summary>
-	/// empty container for filter-only elements
-	/// </summary>
-	[Serializable] 
-	public abstract class FilterContainer : DrawableContainer {
-		
-		public enum PreparedFilterMode {OBFUSCATE, HIGHLIGHT};
-		public enum PreparedFilter {BLUR, PIXELIZE, TEXT_HIGHTLIGHT, AREA_HIGHLIGHT, GRAYSCALE, MAGNIFICATION};
+namespace Greenshot.Drawing
+{
+    /// <summary>
+    /// empty container for filter-only elements
+    /// </summary>
+    [Serializable]
+    public abstract class FilterContainer : DrawableContainer
+    {
+        public enum PreparedFilterMode
+        {
+            OBFUSCATE,
+            HIGHLIGHT
+        };
 
-        public FilterContainer(Surface parent) : base(parent) {
-			Init();
-		}
+        public enum PreparedFilter
+        {
+            BLUR,
+            PIXELIZE,
+            TEXT_HIGHTLIGHT,
+            AREA_HIGHLIGHT,
+            GRAYSCALE,
+            MAGNIFICATION
+        };
 
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
+        public FilterContainer(Surface parent) : base(parent)
+        {
+            Init();
+        }
 
-		private void Init()
-		{
-			CreateDefaultAdorners();
-		}
+        protected override void OnDeserialized(StreamingContext streamingContext)
+        {
+            base.OnDeserialized(streamingContext);
+            Init();
+        }
 
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
-			AddField(GetType(), FieldType.SHADOW, false);
-		}
-		
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-			if (lineVisible) {
-				graphics.SmoothingMode = SmoothingMode.HighSpeed;
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.CompositingQuality = CompositingQuality.HighQuality;
-				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				//draw shadow first
-				if (shadow) {
-					int basealpha = 100;
-					int alpha = basealpha;
-					int steps = 5;
-					int currentStep = lineVisible ? 1 : 0;
-					while (currentStep <= steps)
+        private void Init()
+        {
+            CreateDefaultAdorners();
+        }
+
+        protected override void InitializeFields()
+        {
+            AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+            AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
+            AddField(GetType(), FieldType.SHADOW, false);
+        }
+
+        public override void Draw(Graphics graphics, RenderMode rm)
+        {
+            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+            bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
+            if (lineVisible)
+            {
+                graphics.SmoothingMode = SmoothingMode.HighSpeed;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.None;
+                //draw shadow first
+                if (shadow)
+                {
+                    int basealpha = 100;
+                    int alpha = basealpha;
+                    int steps = 5;
+                    int currentStep = lineVisible ? 1 : 0;
+                    while (currentStep <= steps)
                     {
                         using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
                         Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
@@ -81,14 +101,15 @@ namespace Greenshot.Drawing {
                         currentStep++;
                         alpha -= basealpha / steps;
                     }
-				}
-				Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-				if (lineThickness > 0)
+                }
+
+                Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+                if (lineThickness > 0)
                 {
                     using Pen pen = new Pen(lineColor, lineThickness);
                     graphics.DrawRectangle(pen, rect);
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 }

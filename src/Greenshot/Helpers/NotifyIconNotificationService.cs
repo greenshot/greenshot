@@ -86,7 +86,8 @@ namespace Greenshot.Helpers
         /// <param name="level">ToolTipIcon</param>
         /// <param name="onClickAction">Action</param>
         /// <param name="onClosedAction">Action</param>
-        private void ShowMessage(string message, TimeSpan? timeout = null, ToolTipIcon level = ToolTipIcon.Info, Action onClickAction = null, Action onClosedAction = null) {
+        private void ShowMessage(string message, TimeSpan? timeout = null, ToolTipIcon level = ToolTipIcon.Info, Action onClickAction = null, Action onClosedAction = null)
+        {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
             {
@@ -127,8 +128,9 @@ namespace Greenshot.Helpers
                 // Remove the other handler too
                 _notifyIcon.BalloonTipClicked -= BalloonClickedHandler;
             }
+
             _notifyIcon.BalloonTipClosed += BalloonClosedHandler;
-            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int)timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
+            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
         }
     }
 }

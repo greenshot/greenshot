@@ -74,7 +74,7 @@ namespace GreenshotPlugin.Core
         public static MemoryStream GetAsMemoryStream(string url)
         {
             var request = CreateWebRequest(url);
-            using var response = (HttpWebResponse)request.GetResponse();
+            using var response = (HttpWebResponse) request.GetResponse();
             var memoryStream = new MemoryStream();
             using (var responseStream = response.GetResponseStream())
             {
@@ -188,7 +188,7 @@ namespace GreenshotPlugin.Core
         /// <returns>WebRequest</returns>
         public static HttpWebRequest CreateWebRequest(Uri uri)
         {
-            var webRequest = (HttpWebRequest)WebRequest.Create(uri);
+            var webRequest = (HttpWebRequest) WebRequest.Create(uri);
             webRequest.Proxy = Config.UseProxy ? CreateProxy(uri) : null;
             // Make sure the default credentials are available
             webRequest.Credentials = CredentialCache.DefaultCredentials;
@@ -436,6 +436,7 @@ namespace GreenshotPlugin.Core
                         break;
                 }
             }
+
             if (!headers.ContainsKey("Content-Type"))
             {
                 webRequest.ContentType = "application/octet-stream";
@@ -473,6 +474,7 @@ namespace GreenshotPlugin.Core
                             break;
                     }
                 }
+
                 if (!headers.ContainsKey("Content-Type"))
                 {
                     webRequest.ContentType = "application/json";
@@ -574,9 +576,9 @@ namespace GreenshotPlugin.Core
             bool isHttpError = false;
             try
             {
-                response = (HttpWebResponse)webRequest.GetResponse();
+                response = (HttpWebResponse) webRequest.GetResponse();
                 Log.InfoFormat("Response status: {0}", response.StatusCode);
-                isHttpError = (int)response.StatusCode >= 300;
+                isHttpError = (int) response.StatusCode >= 300;
                 if (isHttpError)
                 {
                     Log.ErrorFormat("HTTP error {0}", response.StatusCode);
@@ -591,7 +593,7 @@ namespace GreenshotPlugin.Core
             }
             catch (WebException e)
             {
-                response = (HttpWebResponse)e.Response;
+                response = (HttpWebResponse) e.Response;
                 HttpStatusCode statusCode = HttpStatusCode.Unused;
                 if (response != null)
                 {
@@ -629,8 +631,8 @@ namespace GreenshotPlugin.Core
 
             return responseData;
         }
-
     }
+
     /// <summary>
     /// This interface can be used to pass binary information around, like byte[] or Image
     /// </summary>
@@ -669,7 +671,7 @@ namespace GreenshotPlugin.Core
         {
             using MemoryStream stream = new MemoryStream();
             ImageOutput.SaveToStream(_surface, stream, _outputSettings);
-            return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
+            return Convert.ToBase64String(stream.GetBuffer(), 0, (int) stream.Length, formattingOptions);
         }
 
         /// <summary>

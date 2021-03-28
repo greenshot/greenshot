@@ -35,12 +35,12 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
         DWMWA_FORCE_ICONIC_REPRESENTATION,
         DWMWA_FLIP3D_POLICY,
         DWMWA_EXTENDED_FRAME_BOUNDS, // This is the one we need for retrieving the Window size since Windows Vista
-        DWMWA_HAS_ICONIC_BITMAP,        // Since Windows 7
-        DWMWA_DISALLOW_PEEK,            // Since Windows 7
-        DWMWA_EXCLUDED_FROM_PEEK,       // Since Windows 7
-        DWMWA_CLOAK,                    // Since Windows 8
-        DWMWA_CLOAKED,                  // Since Windows 8
-        DWMWA_FREEZE_REPRESENTATION,    // Since Windows 8
+        DWMWA_HAS_ICONIC_BITMAP, // Since Windows 7
+        DWMWA_DISALLOW_PEEK, // Since Windows 7
+        DWMWA_EXCLUDED_FROM_PEEK, // Since Windows 7
+        DWMWA_CLOAK, // Since Windows 8
+        DWMWA_CLOAKED, // Since Windows 8
+        DWMWA_FREEZE_REPRESENTATION, // Since Windows 8
         DWMWA_LAST
     }
 }

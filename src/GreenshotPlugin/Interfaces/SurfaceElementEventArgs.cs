@@ -26,10 +26,6 @@ namespace GreenshotPlugin.Interfaces
 {
     public class SurfaceElementEventArgs : EventArgs
     {
-        public IDrawableContainerList Elements
-        {
-            get;
-            set;
-        }
+        public IDrawableContainerList Elements { get; set; }
     }
 }

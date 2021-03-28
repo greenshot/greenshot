@@ -25,39 +25,35 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using GreenshotPlugin.Core;
 
-namespace GreenshotPlugin.Effects {
-	/// <summary>
-	/// DropShadowEffect
-	/// </summary>
-	[TypeConverter(typeof(EffectConverter))]
-	public class DropShadowEffect : IEffect {
-		public DropShadowEffect() {
-			Reset();
-		}
+namespace GreenshotPlugin.Effects
+{
+    /// <summary>
+    /// DropShadowEffect
+    /// </summary>
+    [TypeConverter(typeof(EffectConverter))]
+    public class DropShadowEffect : IEffect
+    {
+        public DropShadowEffect()
+        {
+            Reset();
+        }
 
-		public float Darkness {
-			get;
-			set;
-		}
+        public float Darkness { get; set; }
 
-		public int ShadowSize {
-			get;
-			set;
-		}
+        public int ShadowSize { get; set; }
 
-		public Point ShadowOffset {
-			get;
-			set;
-		}
+        public Point ShadowOffset { get; set; }
 
-		public virtual void Reset() {
-			Darkness = 0.6f;
-			ShadowSize = 7;
-			ShadowOffset = new Point(-1, -1);
-		}
+        public virtual void Reset()
+        {
+            Darkness = 0.6f;
+            ShadowSize = 7;
+            ShadowOffset = new Point(-1, -1);
+        }
 
-		public virtual Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
-		}
-	}
+        public virtual Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
+        }
+    }
 }

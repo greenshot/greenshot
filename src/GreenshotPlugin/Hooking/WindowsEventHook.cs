@@ -26,124 +26,126 @@ using GreenshotPlugin.UnmanagedHelpers.Enums;
 
 namespace GreenshotPlugin.Hooking
 {
-	/// <summary>
-	/// The WinEventHook can register handlers to become important windows events
-	/// This makes it possible to know a.o. when a window is created, moved, updated and closed.
-	/// </summary>
-	public class WindowsEventHook : IDisposable
-	{
-		private readonly WinEventDelegate _winEventHandler;
-		private GCHandle _gcHandle;
+    /// <summary>
+    /// The WinEventHook can register handlers to become important windows events
+    /// This makes it possible to know a.o. when a window is created, moved, updated and closed.
+    /// </summary>
+    public class WindowsEventHook : IDisposable
+    {
+        private readonly WinEventDelegate _winEventHandler;
+        private GCHandle _gcHandle;
 
-		/// <summary>
-		/// Used with Register hook
-		/// </summary>
-		/// <param name="eventType"></param>
-		/// <param name="hWnd"></param>
-		/// <param name="idObject"></param>
-		/// <param name="idChild"></param>
-		/// <param name="dwEventThread"></param>
-		/// <param name="dwmsEventTime"></param>
-		public delegate void WinEventHandler(WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+        /// <summary>
+        /// Used with Register hook
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="hWnd"></param>
+        /// <param name="idObject"></param>
+        /// <param name="idChild"></param>
+        /// <param name="dwEventThread"></param>
+        /// <param name="dwmsEventTime"></param>
+        public delegate void WinEventHandler(WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
-		/// <summary>
-		/// Create a WindowsEventHook object
-		/// </summary>
-		public WindowsEventHook()
-		{
-			_winEventHandler = WinEventDelegateHandler;
-			_gcHandle = GCHandle.Alloc(_winEventHandler);
-		}
+        /// <summary>
+        /// Create a WindowsEventHook object
+        /// </summary>
+        public WindowsEventHook()
+        {
+            _winEventHandler = WinEventDelegateHandler;
+            _gcHandle = GCHandle.Alloc(_winEventHandler);
+        }
 
-		[DllImport("user32", SetLastError = true)]
-		private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-		[DllImport("user32", SetLastError = true)]
-		private static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread, WinEventHookFlags dwFlags);
+        [DllImport("user32", SetLastError = true)]
+        private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
-		/// <summary>
-		/// Used with SetWinEventHook
-		/// </summary>
-		/// <param name="hWinEventHook"></param>
-		/// <param name="eventType"></param>
-		/// <param name="hWnd"></param>
-		/// <param name="idObject"></param>
-		/// <param name="idChild"></param>
-		/// <param name="dwEventThread"></param>
-		/// <param name="dwmsEventTime"></param>
-		private delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+        [DllImport("user32", SetLastError = true)]
+        private static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread,
+            WinEventHookFlags dwFlags);
 
-		private readonly IDictionary<IntPtr, WinEventHandler> _winEventHandlers = new Dictionary<IntPtr, WinEventHandler>();
+        /// <summary>
+        /// Used with SetWinEventHook
+        /// </summary>
+        /// <param name="hWinEventHook"></param>
+        /// <param name="eventType"></param>
+        /// <param name="hWnd"></param>
+        /// <param name="idObject"></param>
+        /// <param name="idChild"></param>
+        /// <param name="dwEventThread"></param>
+        /// <param name="dwmsEventTime"></param>
+        private delegate void WinEventDelegate(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
-		/// <summary>
-		/// Are hooks active?
-		/// </summary>
-		public bool IsHooked => _winEventHandlers.Count > 0;
+        private readonly IDictionary<IntPtr, WinEventHandler> _winEventHandlers = new Dictionary<IntPtr, WinEventHandler>();
 
-		/// <summary>
-		/// Hook a WinEvent
-		/// </summary>
-		/// <param name="winEvent"></param>
-		/// <param name="winEventHandler"></param>
-		/// <returns>true if success</returns>
-		public void Hook(WinEvent winEvent, WinEventHandler winEventHandler)
-		{
-			Hook(winEvent, winEvent, winEventHandler);
-		}
+        /// <summary>
+        /// Are hooks active?
+        /// </summary>
+        public bool IsHooked => _winEventHandlers.Count > 0;
 
-		/// <summary>
-		/// Hook a WinEvent
-		/// </summary>
-		/// <param name="winEventStart"></param>
-		/// <param name="winEventEnd"></param>
-		/// <param name="winEventHandler"></param>
-		public void Hook(WinEvent winEventStart, WinEvent winEventEnd, WinEventHandler winEventHandler)
-		{
-			var hookPtr = SetWinEventHook(winEventStart, winEventEnd, IntPtr.Zero, _winEventHandler, 0, 0, WinEventHookFlags.WINEVENT_SKIPOWNPROCESS | WinEventHookFlags.WINEVENT_OUTOFCONTEXT);
-			_winEventHandlers.Add(hookPtr, winEventHandler);
-		}
+        /// <summary>
+        /// Hook a WinEvent
+        /// </summary>
+        /// <param name="winEvent"></param>
+        /// <param name="winEventHandler"></param>
+        /// <returns>true if success</returns>
+        public void Hook(WinEvent winEvent, WinEventHandler winEventHandler)
+        {
+            Hook(winEvent, winEvent, winEventHandler);
+        }
 
-		/// <summary>
-		/// Remove all hooks
-		/// </summary>
-		private void Unhook()
-		{
-			foreach (var hookPtr in _winEventHandlers.Keys)
-			{
-				if (hookPtr != IntPtr.Zero)
-				{
-					UnhookWinEvent(hookPtr);
-				}
-			}
-			_winEventHandlers.Clear();
-			_gcHandle.Free();
-		}
+        /// <summary>
+        /// Hook a WinEvent
+        /// </summary>
+        /// <param name="winEventStart"></param>
+        /// <param name="winEventEnd"></param>
+        /// <param name="winEventHandler"></param>
+        public void Hook(WinEvent winEventStart, WinEvent winEventEnd, WinEventHandler winEventHandler)
+        {
+            var hookPtr = SetWinEventHook(winEventStart, winEventEnd, IntPtr.Zero, _winEventHandler, 0, 0,
+                WinEventHookFlags.WINEVENT_SKIPOWNPROCESS | WinEventHookFlags.WINEVENT_OUTOFCONTEXT);
+            _winEventHandlers.Add(hookPtr, winEventHandler);
+        }
 
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		public void Dispose()
-		{
-			Unhook();
-		}
+        /// <summary>
+        /// Remove all hooks
+        /// </summary>
+        private void Unhook()
+        {
+            foreach (var hookPtr in _winEventHandlers.Keys)
+            {
+                if (hookPtr != IntPtr.Zero)
+                {
+                    UnhookWinEvent(hookPtr);
+                }
+            }
 
-		/// <summary>
-		/// Call the WinEventHandler for this event
-		/// </summary>
-		/// <param name="hWinEventHook"></param>
-		/// <param name="eventType"></param>
-		/// <param name="hWnd"></param>
-		/// <param name="idObject"></param>
-		/// <param name="idChild"></param>
-		/// <param name="dwEventThread"></param>
-		/// <param name="dwmsEventTime"></param>
-		private void WinEventDelegateHandler(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
-		{
-			if (_winEventHandlers.TryGetValue(hWinEventHook, out var handler))
-			{
-				handler(eventType, hWnd, idObject, idChild, dwEventThread, dwmsEventTime);
-			}
-		}
+            _winEventHandlers.Clear();
+            _gcHandle.Free();
+        }
 
-	}
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Unhook();
+        }
 
+        /// <summary>
+        /// Call the WinEventHandler for this event
+        /// </summary>
+        /// <param name="hWinEventHook"></param>
+        /// <param name="eventType"></param>
+        /// <param name="hWnd"></param>
+        /// <param name="idObject"></param>
+        /// <param name="idChild"></param>
+        /// <param name="dwEventThread"></param>
+        /// <param name="dwmsEventTime"></param>
+        private void WinEventDelegateHandler(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        {
+            if (_winEventHandlers.TryGetValue(hWinEventHook, out var handler))
+            {
+                handler(eventType, hWnd, idObject, idChild, dwEventThread, dwmsEventTime);
+            }
+        }
+    }
 }

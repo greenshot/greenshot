@@ -22,15 +22,14 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
-	public class GreenshotTextBox : TextBox, IGreenshotConfigBindable {
-		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName { get; set; } = "Core";
+namespace GreenshotPlugin.Controls
+{
+    public class GreenshotTextBox : TextBox, IGreenshotConfigBindable
+    {
+        [Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
+        public string SectionName { get; set; } = "Core";
 
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
-		public string PropertyName {
-			get;
-			set;
-		}
-	}
+        [Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
+        public string PropertyName { get; set; }
+    }
 }

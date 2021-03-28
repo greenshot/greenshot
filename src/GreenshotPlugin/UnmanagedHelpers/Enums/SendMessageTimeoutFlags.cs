@@ -29,7 +29,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     /// </summary>
     [Flags]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum SendMessageTimeoutFlags : uint {
-        SMTO_NORMAL				= 0x0
+    public enum SendMessageTimeoutFlags : uint
+    {
+        SMTO_NORMAL = 0x0
     }
 }

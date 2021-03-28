@@ -19,18 +19,19 @@
 
 namespace Greenshot.Plugin.Office.OfficeInterop
 {
-	/// <summary>
-	///     Specifies which EmailFormat the email needs to use
-	/// </summary>
-	public enum EmailFormat
-	{
+    /// <summary>
+    ///     Specifies which EmailFormat the email needs to use
+    /// </summary>
+    public enum EmailFormat
+    {
         /// <summary>
         /// Use the plain text format
         /// </summary>
-		Text,
+        Text,
+
         /// <summary>
         /// Use HTML format
         /// </summary>
-		Html
-	}
+        Html
+    }
 }

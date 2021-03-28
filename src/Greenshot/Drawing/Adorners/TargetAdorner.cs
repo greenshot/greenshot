@@ -26,94 +26,100 @@ using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Adorners
 {
-	/// <summary>
-	/// This implements the special "gripper" for the Speech-Bubble tail
-	/// </summary>
-	public class TargetAdorner : AbstractAdorner
-	{
+    /// <summary>
+    /// This implements the special "gripper" for the Speech-Bubble tail
+    /// </summary>
+    public class TargetAdorner : AbstractAdorner
+    {
+        public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
+        {
+            Location = location;
+        }
 
-		public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
-		{
-			Location = location;
-		}
+        /// <summary>
+        /// Handle the mouse down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="mouseEventArgs"></param>
+        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
+        {
+            EditStatus = EditStatus.MOVING;
+        }
 
-		/// <summary>
-		/// Handle the mouse down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
-		{
-			EditStatus = EditStatus.MOVING;
-		}
+        /// <summary>
+        /// Handle the mouse move
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="mouseEventArgs"></param>
+        public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
+        {
+            if (EditStatus != EditStatus.MOVING)
+            {
+                return;
+            }
 
-		/// <summary>
-		/// Handle the mouse move
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
-		{
-			if (EditStatus != EditStatus.MOVING)
-			{
-				return;
-			}
+            Owner.Invalidate();
+            Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
+            Rectangle imageBounds = new Rectangle(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
+            // Check if gripper inside the parent (surface), if not we need to move it inside
+            // This was made for BUG-1682
+            if (!imageBounds.Contains(newGripperLocation))
+            {
+                if (newGripperLocation.X > imageBounds.Right)
+                {
+                    newGripperLocation.X = imageBounds.Right - 5;
+                }
 
-			Owner.Invalidate();
-			Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-			Rectangle imageBounds = new Rectangle(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
-			// Check if gripper inside the parent (surface), if not we need to move it inside
-			// This was made for BUG-1682
-			if (!imageBounds.Contains(newGripperLocation))
-			{
-				if (newGripperLocation.X > imageBounds.Right)
-				{
-					newGripperLocation.X = imageBounds.Right - 5;
-				}
-				if (newGripperLocation.X < imageBounds.Left)
-				{
-					newGripperLocation.X = imageBounds.Left;
-				}
-				if (newGripperLocation.Y > imageBounds.Bottom)
-				{
-					newGripperLocation.Y = imageBounds.Bottom - 5;
-				}
-				if (newGripperLocation.Y < imageBounds.Top)
-				{
-					newGripperLocation.Y = imageBounds.Top;
-				}
-			}
+                if (newGripperLocation.X < imageBounds.Left)
+                {
+                    newGripperLocation.X = imageBounds.Left;
+                }
 
-			Location = newGripperLocation;
-			Owner.Invalidate();
-		}
+                if (newGripperLocation.Y > imageBounds.Bottom)
+                {
+                    newGripperLocation.Y = imageBounds.Bottom - 5;
+                }
 
-		/// <summary>
-		/// Draw the adorner
-		/// </summary>
-		/// <param name="paintEventArgs">PaintEventArgs</param>
-		public override void Paint(PaintEventArgs paintEventArgs)
-		{
-			Graphics targetGraphics = paintEventArgs.Graphics;
+                if (newGripperLocation.Y < imageBounds.Top)
+                {
+                    newGripperLocation.Y = imageBounds.Top;
+                }
+            }
 
-			var bounds = BoundsOnSurface;
+            Location = newGripperLocation;
+            Owner.Invalidate();
+        }
+
+        /// <summary>
+        /// Draw the adorner
+        /// </summary>
+        /// <param name="paintEventArgs">PaintEventArgs</param>
+        public override void Paint(PaintEventArgs paintEventArgs)
+        {
+            Graphics targetGraphics = paintEventArgs.Graphics;
+
+            var bounds = BoundsOnSurface;
             targetGraphics.FillRectangle(Brushes.Green, bounds);
-			targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
-		}
+            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
+        }
 
-		/// <summary>
-		/// Made sure this adorner is transformed
-		/// </summary>
-		/// <param name="matrix">Matrix</param>
-		public override void Transform(Matrix matrix)
-		{
-			if (matrix == null)
-			{
-				return;
-			}
-			Point[] points = new[] { Location };
-			matrix.TransformPoints(points);
-			Location = points[0];
-		}
-	}
+        /// <summary>
+        /// Made sure this adorner is transformed
+        /// </summary>
+        /// <param name="matrix">Matrix</param>
+        public override void Transform(Matrix matrix)
+        {
+            if (matrix == null)
+            {
+                return;
+            }
+
+            Point[] points = new[]
+            {
+                Location
+            };
+            matrix.TransformPoints(points);
+            Location = points[0];
+        }
+    }
 }

@@ -47,7 +47,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
         private const string ProfilesKey = @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\";
         private const string AccountKey = "9375CFF0413111d3B88A00104B2A6676";
         private const string NewSignatureValue = "New Signature";
+
         private const string DefaultProfileValue = "DefaultProfile";
+
         // Schema definitions for the MAPI properties, see: http://msdn.microsoft.com/en-us/library/aa454438.aspx and: http://msdn.microsoft.com/en-us/library/bb446117.aspx
         private const string AttachmentContentId = @"http://schemas.microsoft.com/mapi/proptag/0x3712001E";
 
@@ -73,10 +75,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 }
 
                 // The activeexplorer inline response only works with >= 2013, Microsoft Outlook 15.0 Object Library
-                if (_outlookVersion.Major >= (int)OfficeVersions.Office2013)
+                if (_outlookVersion.Major >= (int) OfficeVersions.Office2013)
                 {
                     // Check inline "panel" for Outlook 2013
-                    using var activeExplorer = DisposableCom.Create((_Explorer)outlookApplication.ComObject.ActiveExplorer());
+                    using var activeExplorer = DisposableCom.Create((_Explorer) outlookApplication.ComObject.ActiveExplorer());
                     // Only if we have one and if the capture is the one we selected
                     if ((activeExplorer != null) && activeExplorer.ComObject.Caption.StartsWith(inspectorCaption))
                     {
@@ -90,15 +92,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                     {
                                         return ExportToInspector(null, activeExplorer, mailItem.Class, mailItem, tmpFile, attachmentName);
                                     }
+
                                     break;
                                 case AppointmentItem appointmentItem:
-                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                    if ((_outlookVersion.Major >= (int) OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                     {
                                         if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                         {
                                             return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
                                         }
                                     }
+
                                     break;
                             }
                         }
@@ -110,10 +114,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     return false;
                 }
+
                 LOG.DebugFormat("Got {0} inspectors to check", inspectors.ComObject.Count);
                 for (int i = 1; i <= inspectors.ComObject.Count; i++)
                 {
-                    using var inspector = DisposableCom.Create((_Inspector)inspectors.ComObject[i]);
+                    using var inspector = DisposableCom.Create((_Inspector) inspectors.ComObject[i]);
                     string currentCaption = inspector.ComObject.Caption;
                     if (!currentCaption.StartsWith(inspectorCaption))
                     {
@@ -130,6 +135,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                 {
                                     continue;
                                 }
+
                                 try
                                 {
                                     return ExportToInspector(inspector, null, mailItem.Class, mailItem, tmpFile, attachmentName);
@@ -138,9 +144,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                 {
                                     LOG.Error($"Export to {currentCaption} failed.", exExport);
                                 }
+
                                 break;
                             case AppointmentItem appointmentItem:
-                                if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                if ((_outlookVersion.Major >= (int) OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                 {
                                     if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                     {
@@ -153,6 +160,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                     // skip, can't export to olAppointment
                                     continue;
                                 }
+
                                 try
                                 {
                                     return ExportToInspector(inspector, null, appointmentItem.Class, null, tmpFile, attachmentName);
@@ -161,6 +169,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                 {
                                     LOG.Error($"Export to {currentCaption} failed.", exExport);
                                 }
+
                                 break;
                             default:
                                 continue;
@@ -168,6 +177,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return false;
         }
 
@@ -181,7 +191,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="explorer"></param>
         /// <param name="itemClass"></param>
         /// <returns></returns>
-        private bool ExportToInspector(IDisposableCom<_Inspector> inspector, IDisposableCom<_Explorer> explorer, OlObjectClass itemClass, MailItem mailItem, string tmpFile, string attachmentName)
+        private bool ExportToInspector(IDisposableCom<_Inspector> inspector, IDisposableCom<_Explorer> explorer, OlObjectClass itemClass, MailItem mailItem, string tmpFile,
+            string attachmentName)
         {
             bool isMail = OlObjectClass.olMail.Equals(itemClass);
             bool isAppointment = OlObjectClass.olAppointment.Equals(itemClass);
@@ -190,6 +201,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 LOG.Warn("Item is no mail or appointment.");
                 return false;
             }
+
             try
             {
                 // Make sure the inspector is activated, only this way the word editor is active!
@@ -200,25 +212,27 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     isTextFormat = OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
                 }
+
                 if (isAppointment || !isTextFormat)
                 {
                     // Check for wordmail, if so use the wordexporter
                     // http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
                     // Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
                     IDisposableCom<_Document> wordDocument = null;
-                    if ((explorer != null) && (_outlookVersion.Major >= (int)OfficeVersions.Office2013))
+                    if ((explorer != null) && (_outlookVersion.Major >= (int) OfficeVersions.Office2013))
                     {
                         // TODO: Needs to have the Microsoft Outlook 15.0 Object Library installed
-                        wordDocument = DisposableCom.Create((_Document)explorer.ComObject.ActiveInlineResponseWordEditor);
+                        wordDocument = DisposableCom.Create((_Document) explorer.ComObject.ActiveInlineResponseWordEditor);
                     }
                     else if (inspector != null)
                     {
                         if (inspector.ComObject.IsWordMail() && (inspector.ComObject.EditorType == OlEditorType.olEditorWord))
                         {
-                            var tmpWordDocument = (_Document)inspector.ComObject.WordEditor;
+                            var tmpWordDocument = (_Document) inspector.ComObject.WordEditor;
                             wordDocument = DisposableCom.Create(tmpWordDocument);
                         }
                     }
+
                     if (wordDocument != null)
                     {
                         using (wordDocument)
@@ -248,6 +262,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         LOG.Info("Trying export for outlook < 2007.");
                     }
                 }
+
                 // Only use mailitem as it should be filled!!
                 if (mailItem != null)
                 {
@@ -255,7 +270,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 }
 
                 string contentId;
-                if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
+                if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
                 {
                     contentId = Guid.NewGuid().ToString();
                 }
@@ -283,7 +298,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                             var selection = document2.selection;
                             if (selection != null)
                             {
-                                var range = (IHTMLTxtRange)selection.createRange();
+                                var range = (IHTMLTxtRange) selection.createRange();
                                 if (range != null)
                                 {
                                     // First paste, than attach (otherwise the range is wrong!)
@@ -315,7 +330,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Create the attachment (if inlined the attachment isn't visible as attachment!)
                 using var attachments = DisposableCom.Create(mailItem.Attachments);
                 using var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName));
-                if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
+                if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
                 {
                     // Add the content id to the attachment, this only works for Outlook >= 2007
                     try
@@ -341,9 +356,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     caption = explorer.ComObject.Caption;
                 }
+
                 LOG.Warn($"Problem while trying to add attachment to Item '{caption}'", ex);
                 return false;
             }
+
             try
             {
                 if (inspector != null)
@@ -360,6 +377,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 LOG.Warn("Problem activating inspector/explorer: ", ex);
                 return false;
             }
+
             LOG.Debug("Finished!");
             return true;
         }
@@ -376,27 +394,32 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="cc"></param>
         /// <param name="bcc"></param>
         /// <param name="url"></param>
-        private void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
+        private void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to,
+            string cc, string bcc, string url)
         {
-            using var newItem = DisposableCom.Create((MailItem)outlookApplication.ComObject.CreateItem(OlItemType.olMailItem));
+            using var newItem = DisposableCom.Create((MailItem) outlookApplication.ComObject.CreateItem(OlItemType.olMailItem));
             if (newItem == null)
             {
                 return;
             }
+
             var newMail = newItem.ComObject;
             newMail.Subject = subject;
             if (!string.IsNullOrEmpty(to))
             {
                 newMail.To = to;
             }
+
             if (!string.IsNullOrEmpty(cc))
             {
                 newMail.CC = cc;
             }
+
             if (!string.IsNullOrEmpty(bcc))
             {
                 newMail.BCC = bcc;
             }
+
             newMail.BodyFormat = OlBodyFormat.olFormatHTML;
             string bodyString = null;
             // Read the default signature, if nothing found use empty email
@@ -408,6 +431,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Error("Problem reading signature!", e);
             }
+
             switch (format)
             {
                 case EmailFormat.Text:
@@ -421,9 +445,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                             {
                                 bodyString = "";
                             }
+
                             newMail.Body = bodyString;
                         }
                     }
+
                     break;
                 default:
                     string contentId = Path.GetFileName(tmpFile);
@@ -432,7 +458,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         using var attachment = DisposableCom.Create(attachments.ComObject.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName));
                         // add content ID to the attachment
-                        if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
+                        if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
                         {
                             try
                             {
@@ -456,6 +482,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         href = $"<A HREF=\"{url}\">";
                         hrefEnd = "</A>";
                     }
+
                     string htmlImgEmbedded = $"<BR/>{href}<IMG border=0 hspace=0 alt=\"{attachmentName}\" align=baseline src=\"cid:{contentId}\">{hrefEnd}<BR/>";
                     string fallbackBody = $"<HTML><BODY>{htmlImgEmbedded}</BODY></HTML>";
                     if (bodyString == null)
@@ -482,13 +509,15 @@ namespace Greenshot.Plugin.Office.OfficeExport
                             bodyString = fallbackBody;
                         }
                     }
+
                     newMail.HTMLBody = bodyString;
                     break;
             }
+
             // So not save, otherwise the email is always stored in Draft folder.. (newMail.Save();)
             newMail.Display(false);
 
-            using var inspector = DisposableCom.Create((_Inspector)newMail.GetInspector);
+            using var inspector = DisposableCom.Create((_Inspector) newMail.GetInspector);
             if (inspector != null)
             {
                 try
@@ -528,12 +557,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         exported = true;
                     }
                 }
+
                 return exported;
             }
             catch (Exception e)
             {
                 LOG.Error("Error while creating an outlook mail item: ", e);
             }
+
             return exported;
         }
 
@@ -548,6 +579,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 outlookApplication = DisposableCom.Create(new Application());
             }
+
             InitializeVariables(outlookApplication);
             return outlookApplication;
         }
@@ -568,10 +600,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Ignore, probably no outlook running
                 return null;
             }
+
             if ((outlookApplication != null) && (outlookApplication.ComObject != null))
             {
                 InitializeVariables(outlookApplication);
             }
+
             return outlookApplication;
         }
 
@@ -587,7 +621,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     return null;
                 }
-                string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
+
+                string defaultProfile = (string) profilesKey.GetValue(DefaultProfileValue);
                 LOG.DebugFormat("defaultProfile={0}", defaultProfile);
                 using var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false);
                 if (profileKey != null)
@@ -599,19 +634,21 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         using var numberKey = profileKey.OpenSubKey(number, false);
                         if (numberKey != null)
                         {
-                            byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
+                            byte[] val = (byte[]) numberKey.GetValue(NewSignatureValue);
                             if (val == null)
                             {
                                 continue;
                             }
+
                             string signatureName = "";
                             foreach (byte b in val)
                             {
                                 if (b != 0)
                                 {
-                                    signatureName += (char)b;
+                                    signatureName += (char) b;
                                 }
                             }
+
                             LOG.DebugFormat("Found email signature: {0}", signatureName);
                             var extension = format switch
                             {
@@ -628,6 +665,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return null;
         }
 
@@ -642,13 +680,15 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return;
             }
+
             if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion))
             {
                 LOG.Warn("Assuming outlook version 1997.");
-                _outlookVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+                _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
+
             // Preventing retrieval of currentUser if Outlook is older than 2007
-            if (_outlookVersion.Major >= (int)OfficeVersions.Office2007)
+            if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
             {
                 try
                 {
@@ -657,6 +697,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         using var currentUser = DisposableCom.Create(mapiNamespace.ComObject.CurrentUser);
                         _currentUser = currentUser.ComObject.Name;
                     }
+
                     LOG.InfoFormat("Current user: {0}", _currentUser);
                 }
                 catch (Exception exNs)
@@ -682,7 +723,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 }
 
                 // The activeexplorer inline response only works with >= 2013, Microsoft Outlook 15.0 Object Library
-                if (_outlookVersion.Major >= (int)OfficeVersions.Office2013)
+                if (_outlookVersion.Major >= (int) OfficeVersions.Office2013)
                 {
                     // Check inline "panel" for Outlook 2013
                     using var activeExplorer = DisposableCom.Create(outlookApplication.ComObject.ActiveExplorer());
@@ -701,15 +742,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         {
                                             inspectorCaptions.Add(caption, mailItem.Class);
                                         }
+
                                         break;
                                     case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                        if ((_outlookVersion.Major >= (int) OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                         {
                                             if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                             {
                                                 inspectorCaptions.Add(caption, appointmentItem.Class);
                                             }
                                         }
+
                                         break;
                                 }
                             }
@@ -740,10 +783,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                     {
                                         continue;
                                     }
+
                                     inspectorCaptions.Add(caption, mailItem.Class);
                                     break;
                                 case AppointmentItem appointmentItem:
-                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                    if ((_outlookVersion.Major >= (int) OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
                                     {
                                         if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                         {
@@ -756,6 +800,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         // skip, can't export to olAppointment
                                         continue;
                                     }
+
                                     inspectorCaptions.Add(caption, appointmentItem.Class);
                                     break;
                                 default:
@@ -769,6 +814,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
             }
+
             return inspectorCaptions;
         }
     }

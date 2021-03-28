@@ -21,36 +21,44 @@
 
 using System.Collections.Generic;
 
-namespace Greenshot.Plugin.Confluence.Forms {
-	/// <summary>
-	/// Interaction logic for ConfluencePagePicker.xaml
-	/// </summary>
-	public partial class ConfluencePagePicker
-	{
-		private readonly ConfluenceUpload _confluenceUpload;
+namespace Greenshot.Plugin.Confluence.Forms
+{
+    /// <summary>
+    /// Interaction logic for ConfluencePagePicker.xaml
+    /// </summary>
+    public partial class ConfluencePagePicker
+    {
+        private readonly ConfluenceUpload _confluenceUpload;
 
-		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick) {
-			_confluenceUpload = confluenceUpload;
-			DataContext = pagesToPick;
-			InitializeComponent();
-		}
+        public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick)
+        {
+            _confluenceUpload = confluenceUpload;
+            DataContext = pagesToPick;
+            InitializeComponent();
+        }
 
-		private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
-			SelectionChanged();
-		}
+        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            SelectionChanged();
+        }
 
-		private void SelectionChanged() {
-			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				_confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
-				// Make sure the uploader knows we selected an already opened page
-				_confluenceUpload.IsOpenPageSelected = true;
-			} else {
-				_confluenceUpload.SelectedPage = null;
-			}
-		}
+        private void SelectionChanged()
+        {
+            if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
+            {
+                _confluenceUpload.SelectedPage = (Page) PageListView.SelectedItem;
+                // Make sure the uploader knows we selected an already opened page
+                _confluenceUpload.IsOpenPageSelected = true;
+            }
+            else
+            {
+                _confluenceUpload.SelectedPage = null;
+            }
+        }
 
-		private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e) {
-			SelectionChanged();
-		}
-	}
+        private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            SelectionChanged();
+        }
+    }
 }

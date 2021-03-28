@@ -22,46 +22,63 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Controls {
-	/// <summary>
-	/// Prevent having a gradient background in the toolstrip, and the overflow button
-	/// See: http://stackoverflow.com/a/16926979
-	/// </summary>
-	internal class CustomProfessionalColorTable : ProfessionalColorTable {
-		public override Color ToolStripGradientBegin {
-			get { return SystemColors.Control; }
-		}
-		public override Color ToolStripGradientMiddle {
-			get { return SystemColors.Control; }
-		}
-		public override Color ToolStripGradientEnd {
-			get { return SystemColors.Control; }
-		}
-		public override Color OverflowButtonGradientBegin {
-			get { return SystemColors.Control; }
-		}
-		public override Color OverflowButtonGradientMiddle {
-			get { return SystemColors.Control; }
-		}
-		public override Color OverflowButtonGradientEnd {
-			get { return SystemColors.Control; }
-		}
-	}
+namespace Greenshot.Controls
+{
+    /// <summary>
+    /// Prevent having a gradient background in the toolstrip, and the overflow button
+    /// See: http://stackoverflow.com/a/16926979
+    /// </summary>
+    internal class CustomProfessionalColorTable : ProfessionalColorTable
+    {
+        public override Color ToolStripGradientBegin
+        {
+            get { return SystemColors.Control; }
+        }
 
-	/// <summary>
-	/// ToolStripProfessionalRenderer without having a visual artifact
-	/// See: http://stackoverflow.com/a/16926979 and http://stackoverflow.com/a/13418840
-	/// </summary>
-	public class CustomToolStripProfessionalRenderer : ToolStripProfessionalRenderer {
-		public CustomToolStripProfessionalRenderer() : base(new CustomProfessionalColorTable()) {
-			RoundedEdges = false;
-		}
-		/// <summary>
-		/// By overriding the OnRenderToolStripBorder we can make the ToolStrip without border
-		/// </summary>
-		/// <param name="e"></param>
-		protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e) {
-			// Don't draw a border
-		}
-	}
+        public override Color ToolStripGradientMiddle
+        {
+            get { return SystemColors.Control; }
+        }
+
+        public override Color ToolStripGradientEnd
+        {
+            get { return SystemColors.Control; }
+        }
+
+        public override Color OverflowButtonGradientBegin
+        {
+            get { return SystemColors.Control; }
+        }
+
+        public override Color OverflowButtonGradientMiddle
+        {
+            get { return SystemColors.Control; }
+        }
+
+        public override Color OverflowButtonGradientEnd
+        {
+            get { return SystemColors.Control; }
+        }
+    }
+
+    /// <summary>
+    /// ToolStripProfessionalRenderer without having a visual artifact
+    /// See: http://stackoverflow.com/a/16926979 and http://stackoverflow.com/a/13418840
+    /// </summary>
+    public class CustomToolStripProfessionalRenderer : ToolStripProfessionalRenderer
+    {
+        public CustomToolStripProfessionalRenderer() : base(new CustomProfessionalColorTable())
+        {
+            RoundedEdges = false;
+        }
+
+        /// <summary>
+        /// By overriding the OnRenderToolStripBorder we can make the ToolStrip without border
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
+        {
+            // Don't draw a border
+        }
+    }
 }

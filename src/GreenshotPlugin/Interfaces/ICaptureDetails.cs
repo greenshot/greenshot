@@ -23,77 +23,55 @@ using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Interfaces.Ocr;
 
-namespace GreenshotPlugin.Interfaces {
+namespace GreenshotPlugin.Interfaces
+{
     /// <summary>
-	/// Details for the capture, like the window title and date/time etc.
-	/// </summary>
-	public interface ICaptureDetails {
+    /// Details for the capture, like the window title and date/time etc.
+    /// </summary>
+    public interface ICaptureDetails
+    {
+        /// <summary>
+        /// If the capture comes from a file, this contains the filename
+        /// </summary>
+        string Filename { get; set; }
 
-		/// <summary>
-		/// If the capture comes from a file, this contains the filename
-		/// </summary>
-		string Filename {
-			get;
-			set;
-		}
+        /// <summary>
+        /// The title of the capture
+        /// </summary>
+        string Title { get; set; }
 
-		/// <summary>
-		/// The title of the capture
-		/// </summary>
-		string Title {
-			get;
-			set;
-		}
+        /// <summary>
+        /// When was the capture taken (or loaded)
+        /// </summary>
+        DateTime DateTime { get; set; }
 
-		/// <summary>
-		/// When was the capture taken (or loaded)
-		/// </summary>
-		DateTime DateTime {
-			get;
-			set;
-		}
+        /// <summary>
+        /// Destinations to where this capture goes or went
+        /// </summary>
+        List<IDestination> CaptureDestinations { get; set; }
 
-		/// <summary>
-		/// Destinations to where this capture goes or went
-		/// </summary>
-		List<IDestination> CaptureDestinations {
-			get;
-			set;
-		}
+        /// <summary>
+        /// The meta data of the capture
+        /// </summary>
+        Dictionary<string, string> MetaData { get; }
 
-		/// <summary>
-		/// The meta data of the capture
-		/// </summary>
-		Dictionary<string, string> MetaData {
-			get;
-		}
+        /// <summary>
+        /// Helper method to prevent complex code which needs to check every key
+        /// </summary>
+        /// <param name="key">The key for the meta-data</param>
+        /// <param name="value">The value for the meta-data</param>
+        void AddMetaData(string key, string value);
 
-		/// <summary>
-		/// Helper method to prevent complex code which needs to check every key
-		/// </summary>
-		/// <param name="key">The key for the meta-data</param>
-		/// <param name="value">The value for the meta-data</param>
-		void AddMetaData(string key, string value);
+        void ClearDestinations();
+        void RemoveDestination(IDestination captureDestination);
+        void AddDestination(IDestination captureDestination);
+        bool HasDestination(string designation);
 
-		void ClearDestinations();
-		void RemoveDestination(IDestination captureDestination);
-		void AddDestination(IDestination captureDestination);
-		bool HasDestination(string designation);
+        CaptureMode CaptureMode { get; set; }
 
-		CaptureMode CaptureMode {
-			get;
-			set;
-		}
+        float DpiX { get; set; }
 
-		float DpiX {
-			get;
-			set;
-		}
-
-		float DpiY {
-			get;
-			set;
-		}
+        float DpiY { get; set; }
 
         /// <summary>
         /// Store the OCR information for this capture

@@ -30,102 +30,134 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Office.Destinations {
-	/// <summary>
-	/// Description of EmailDestination.
-	/// </summary>
-	public class WordDestination : AbstractDestination {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordDestination));
-		private const int IconApplication = 0;
-		private const int IconDocument = 1;
-		private static readonly string ExePath;
-		private readonly string _documentCaption;
+namespace Greenshot.Plugin.Office.Destinations
+{
+    /// <summary>
+    /// Description of EmailDestination.
+    /// </summary>
+    public class WordDestination : AbstractDestination
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordDestination));
+        private const int IconApplication = 0;
+        private const int IconDocument = 1;
+        private static readonly string ExePath;
+        private readonly string _documentCaption;
         private readonly WordExporter _wordExporter = new WordExporter();
-		static WordDestination() {
-			ExePath = PluginUtils.GetExePath("WINWORD.EXE");
-			if (ExePath != null && !File.Exists(ExePath)) {
-				ExePath = null;
-			}
-		}
-		
-		public WordDestination() {
-			
-		}
 
-		public WordDestination(string wordCaption) {
-			_documentCaption = wordCaption;
-		}
+        static WordDestination()
+        {
+            ExePath = PluginUtils.GetExePath("WINWORD.EXE");
+            if (ExePath != null && !File.Exists(ExePath))
+            {
+                ExePath = null;
+            }
+        }
 
-		public override string Designation => "Word";
+        public WordDestination()
+        {
+        }
 
-		public override string Description => _documentCaption ?? "Microsoft Word";
+        public WordDestination(string wordCaption)
+        {
+            _documentCaption = wordCaption;
+        }
 
-		public override int Priority => 4;
+        public override string Designation => "Word";
 
-		public override bool IsDynamic => true;
+        public override string Description => _documentCaption ?? "Microsoft Word";
 
-		public override bool IsActive => base.IsActive && ExePath != null;
+        public override int Priority => 4;
 
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
+        public override bool IsDynamic => true;
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string wordCaption in _wordExporter.GetWordDocuments()) {
-				yield return new WordDestination(wordCaption);
-			}
-		}
+        public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-			}
-			if (_documentCaption != null) {
-				try {
+        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
+
+        public override IEnumerable<IDestination> DynamicDestinations()
+        {
+            foreach (string wordCaption in _wordExporter.GetWordDocuments())
+            {
+                yield return new WordDestination(wordCaption);
+            }
+        }
+
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            string tmpFile = captureDetails.Filename;
+            if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+            {
+                tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+            }
+
+            if (_documentCaption != null)
+            {
+                try
+                {
                     _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
-					exportInformation.ExportMade = true;
-				} catch (Exception) {
-					try {
+                    exportInformation.ExportMade = true;
+                }
+                catch (Exception)
+                {
+                    try
+                    {
                         _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
-						exportInformation.ExportMade = true;
-					} catch (Exception ex) {
-						Log.Error(ex);
-						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-					}
-				}
-			} else {
-				if (!manuallyInitiated) {
-					var documents = _wordExporter.GetWordDocuments().ToList();
-					if (documents != null && documents.Count > 0) {
-						var destinations = new List<IDestination>
-						{
-							new WordDestination()
-						};
-						foreach (string document in documents) {
-							destinations.Add(new WordDestination(document));
-						}
-						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return ShowPickerMenu(false, surface, captureDetails, destinations);
-					}
-				}
-				try {
+                        exportInformation.ExportMade = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                        // TODO: Change to general logic in ProcessExport
+                        surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+                    }
+                }
+            }
+            else
+            {
+                if (!manuallyInitiated)
+                {
+                    var documents = _wordExporter.GetWordDocuments().ToList();
+                    if (documents != null && documents.Count > 0)
+                    {
+                        var destinations = new List<IDestination>
+                        {
+                            new WordDestination()
+                        };
+                        foreach (string document in documents)
+                        {
+                            destinations.Add(new WordDestination(document));
+                        }
+
+                        // Return the ExportInformation from the picker without processing, as this indirectly comes from us self
+                        return ShowPickerMenu(false, surface, captureDetails, destinations);
+                    }
+                }
+
+                try
+                {
                     _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
-					exportInformation.ExportMade = true;
-				} catch(Exception) {
-					// Retry once, just in case
-					try {
+                    exportInformation.ExportMade = true;
+                }
+                catch (Exception)
+                {
+                    // Retry once, just in case
+                    try
+                    {
                         _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
-						exportInformation.ExportMade = true;
-					} catch (Exception ex) {
-						Log.Error(ex);
-						// TODO: Change to general logic in ProcessExport
-						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-					}
-				}
-			}
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+                        exportInformation.ExportMade = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex);
+                        // TODO: Change to general logic in ProcessExport
+                        surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
+                    }
+                }
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

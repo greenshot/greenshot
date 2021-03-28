@@ -21,31 +21,30 @@
 
 using System;
 
-namespace GreenshotPlugin.Interfaces.Plugin {
-	[Serializable]
-	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-	public sealed class PluginAttribute : Attribute, IComparable {
-		public string Name {
-			get;
-			set;
-		}
+namespace GreenshotPlugin.Interfaces.Plugin
+{
+    [Serializable]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public sealed class PluginAttribute : Attribute, IComparable
+    {
+        public string Name { get; set; }
 
-        public bool Configurable {
-			get;
-			private set;
-		}
+        public bool Configurable { get; private set; }
 
-		public PluginAttribute(string name, bool configurable)
+        public PluginAttribute(string name, bool configurable)
         {
             Name = name;
-			Configurable = configurable;
-		}
-		
-		public int CompareTo(object obj) {
-            if (obj is PluginAttribute other) {
-				return string.Compare(Name, other.Name, StringComparison.Ordinal);
-			}
-			throw new ArgumentException("object is not a PluginAttribute");
-		}
-	}
+            Configurable = configurable;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is PluginAttribute other)
+            {
+                return string.Compare(Name, other.Name, StringComparison.Ordinal);
+            }
+
+            throw new ArgumentException("object is not a PluginAttribute");
+        }
+    }
 }

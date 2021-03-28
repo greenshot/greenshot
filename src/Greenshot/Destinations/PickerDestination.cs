@@ -24,42 +24,50 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Destinations {
-	/// <summary>
-	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
-	/// </summary>
-	public class PickerDestination : AbstractDestination {
-		public const string DESIGNATION = "Picker";
+namespace Greenshot.Destinations
+{
+    /// <summary>
+    /// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
+    /// </summary>
+    public class PickerDestination : AbstractDestination
+    {
+        public const string DESIGNATION = "Picker";
 
-		public override string Designation => DESIGNATION;
+        public override string Designation => DESIGNATION;
 
-		public override string Description => Language.GetString(LangKey.settings_destination_picker);
+        public override string Description => Language.GetString(LangKey.settings_destination_picker);
 
-		public override int Priority => 1;
+        public override int Priority => 1;
 
 
-		/// <summary>
-		/// Export the capture with the destination picker
-		/// </summary>
-		/// <param name="manuallyInitiated">Did the user select this destination?</param>
-		/// <param name="surface">Surface to export</param>
-		/// <param name="captureDetails">Details of the capture</param>
-		/// <returns>true if export was made</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			List<IDestination> destinations = new List<IDestination>();
+        /// <summary>
+        /// Export the capture with the destination picker
+        /// </summary>
+        /// <param name="manuallyInitiated">Did the user select this destination?</param>
+        /// <param name="surface">Surface to export</param>
+        /// <param name="captureDetails">Details of the capture</param>
+        /// <returns>true if export was made</returns>
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            List<IDestination> destinations = new List<IDestination>();
 
-			foreach(var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>()) {
-				if ("Picker".Equals(destination.Designation)) {
-					continue;
-				}
-				if (!destination.IsActive) {
-					continue;
-				}
-				destinations.Add(destination);
-			}
+            foreach (var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>())
+            {
+                if ("Picker".Equals(destination.Designation))
+                {
+                    continue;
+                }
 
-			// No Processing, this is done in the selected destination (if anything was selected)
-			return ShowPickerMenu(true, surface, captureDetails, destinations);
-		}
-	}
+                if (!destination.IsActive)
+                {
+                    continue;
+                }
+
+                destinations.Add(destination);
+            }
+
+            // No Processing, this is done in the selected destination (if anything was selected)
+            return ShowPickerMenu(true, surface, captureDetails, destinations);
+        }
+    }
 }

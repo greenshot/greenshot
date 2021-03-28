@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.Diagnostics.CodeAnalysis;
 
 namespace GreenshotPlugin.UnmanagedHelpers.Enums
@@ -27,7 +28,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     /// See MSDN: http://msdn.microsoft.com/en-us/library/windows/desktop/dd318066%28v=vs.85%29.aspx
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum WinEvent : uint {
+    public enum WinEvent : uint
+    {
         EVENT_OBJECT_CREATE = 32768,
         EVENT_OBJECT_DESTROY = 32769,
         EVENT_OBJECT_NAMECHANGE = 32780,

@@ -21,21 +21,25 @@
 
 using System.Windows;
 
-namespace Greenshot.Plugin.Confluence.Forms {
-	/// <summary>
-	/// Interaction logic for ConfluenceConfigurationForm.xaml
-	/// </summary>
-	public partial class ConfluenceConfigurationForm : Window {
-		public ConfluenceConfiguration Config { get; }
+namespace Greenshot.Plugin.Confluence.Forms
+{
+    /// <summary>
+    /// Interaction logic for ConfluenceConfigurationForm.xaml
+    /// </summary>
+    public partial class ConfluenceConfigurationForm : Window
+    {
+        public ConfluenceConfiguration Config { get; }
 
-		public ConfluenceConfigurationForm(ConfluenceConfiguration config) {
-			DataContext = config;
-			Config = config;
-			InitializeComponent();
-		}
+        public ConfluenceConfigurationForm(ConfluenceConfiguration config)
+        {
+            DataContext = config;
+            Config = config;
+            InitializeComponent();
+        }
 
-		private void Button_OK_Click(object sender, RoutedEventArgs e) {
-			DialogResult = true;
-		}
-	}
+        private void Button_OK_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
+    }
 }

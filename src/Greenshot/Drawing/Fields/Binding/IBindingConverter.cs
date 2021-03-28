@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Drawing.Fields.Binding {
-	
-	/// <summary>
-	/// Interface for a bidirectional converter, for use with BidirectionalBinding.
-	/// convert(object) implementation must deal with both directions.
-	/// see DecimalIntConverter
-	/// </summary>
-	public interface IBindingConverter {
-		object convert(object o);
-	}
-	
+namespace Greenshot.Drawing.Fields.Binding
+{
+    /// <summary>
+    /// Interface for a bidirectional converter, for use with BidirectionalBinding.
+    /// convert(object) implementation must deal with both directions.
+    /// see DecimalIntConverter
+    /// </summary>
+    public interface IBindingConverter
+    {
+        object convert(object o);
+    }
 }

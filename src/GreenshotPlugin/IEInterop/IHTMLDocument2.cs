@@ -21,57 +21,65 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	/// <summary><para><c>IHTMLDocument2</c> interface.</para></summary>
-	[Guid("332C4425-26CB-11D0-B483-00C04FD90119")]
-	[ComImport]
-	[TypeLibType(TypeLibTypeFlags.FDual)]
-	[InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLDocument2 {
-		IHTMLElement body {
-			[DispId(1004)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
-		string title {
-			[DispId(1012)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
-		object frames {
-			[DispId(1019)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
-		string url {
-			[DispId(1025)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-		}
-	
-		IHTMLWindow2 parentWindow {
-			[DispId(1034)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
+namespace GreenshotPlugin.IEInterop
+{
+    /// <summary><para><c>IHTMLDocument2</c> interface.</para></summary>
+    [Guid("332C4425-26CB-11D0-B483-00C04FD90119")]
+    [ComImport]
+    [TypeLibType(TypeLibTypeFlags.FDual)]
+    [InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLDocument2
+    {
+        IHTMLElement body
+        {
+            [DispId(1004)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
 
-		object bgColor {
-			[DispId(-501)]
-			get;
-		}
+        string title
+        {
+            [DispId(1012)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
 
-		IHTMLSelectionObject selection {
-			[DispId(1017)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
+        object frames
+        {
+            [DispId(1019)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
 
-		string designMode {
-			[DispId(1014)]
-			[return: MarshalAs(UnmanagedType.BStr)]
-			get;
-			[DispId(1014)]
-			set;
-		}
-	}
+        string url
+        {
+            [DispId(1025)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+        }
+
+        IHTMLWindow2 parentWindow
+        {
+            [DispId(1034)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
+
+        object bgColor { [DispId(-501)] get; }
+
+        IHTMLSelectionObject selection
+        {
+            [DispId(1017)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
+
+        string designMode
+        {
+            [DispId(1014)]
+            [return: MarshalAs(UnmanagedType.BStr)]
+            get;
+            [DispId(1014)] set;
+        }
+    }
 }

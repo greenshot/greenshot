@@ -19,10 +19,12 @@ namespace GreenshotPlugin.Core
             {
                 throw new ArgumentException("Can't divide by zero.", nameof(denominator));
             }
+
             if (numerator == 0)
             {
                 throw new ArgumentException("Zero is not supported by this implementation.", nameof(numerator));
             }
+
             var gcd = GreatestCommonDivisor(numerator, denominator);
             Numerator = numerator / gcd;
             Denominator = denominator / gcd;
@@ -34,6 +36,7 @@ namespace GreenshotPlugin.Core
         #region Parse
 
         private static readonly Regex PARSE_REGEX = new Regex(@"^([1-9][0-9]*)\/([1-9][0-9]*)$", RegexOptions.Compiled);
+
         public static bool TryParse(string str, out Fraction result)
         {
             var match = PARSE_REGEX.Match(str);
@@ -42,6 +45,7 @@ namespace GreenshotPlugin.Core
                 result = Identity;
                 return false;
             }
+
             var numerator = uint.Parse(match.Groups[1].Value);
             var denominator = uint.Parse(match.Groups[2].Value);
             result = new Fraction(numerator, denominator);
@@ -78,7 +82,7 @@ namespace GreenshotPlugin.Core
         }
 
         public int CompareTo(Fraction other)
-            => (int)(Numerator * other.Denominator) - (int)(other.Numerator * Denominator);
+            => (int) (Numerator * other.Denominator) - (int) (other.Numerator * Denominator);
 
         #endregion
 

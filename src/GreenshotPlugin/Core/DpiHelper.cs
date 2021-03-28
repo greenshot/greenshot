@@ -56,7 +56,8 @@ namespace GreenshotPlugin.Core
             {
                 dpi = Dpi;
             }
-            return (float)dpi / DefaultScreenDpi;
+
+            return (float) dpi / DefaultScreenDpi;
         }
 
         /// <summary>
@@ -73,6 +74,7 @@ namespace GreenshotPlugin.Core
             {
                 dpiScaleFactor = scaleModifier(dpiScaleFactor);
             }
+
             return dpiScaleFactor * someNumber;
         }
 
@@ -90,7 +92,8 @@ namespace GreenshotPlugin.Core
             {
                 dpiScaleFactor = scaleModifier(dpiScaleFactor);
             }
-            return new Size((int)(dpiScaleFactor * size.Width), (int)(dpiScaleFactor * size.Height));
+
+            return new Size((int) (dpiScaleFactor * size.Width), (int) (dpiScaleFactor * size.Height));
         }
 
         /// <summary>
@@ -111,13 +114,14 @@ namespace GreenshotPlugin.Core
         /// <returns>uint</returns>
         public static uint GetDpi(POINT location)
         {
-            RECT rect = new RECT(location.X, location.Y, 1,1);
+            RECT rect = new RECT(location.X, location.Y, 1, 1);
             IntPtr hMonitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONEAREST);
             var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
             if (result.Succeeded())
             {
                 return dpiX;
             }
+
             return DefaultScreenDpi;
         }
 
@@ -158,7 +162,8 @@ namespace GreenshotPlugin.Core
             {
                 return DefaultScreenDpi;
             }
-            return (uint)GDI32.GetDeviceCaps(hdc, DeviceCaps.LOGPIXELSX);
+
+            return (uint) GDI32.GetDeviceCaps(hdc, DeviceCaps.LOGPIXELSX);
         }
 
         /// <summary>

@@ -19,15 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Imgur {
-	public enum LangKey {
-		upload_menu_item,
-		upload_failure,
-		communication_wait,
-		delete_question,
-		clear_question,
-		delete_title,
-		history,
-		configure
-	}
+namespace Greenshot.Plugin.Imgur
+{
+    public enum LangKey
+    {
+        upload_menu_item,
+        upload_failure,
+        communication_wait,
+        delete_question,
+        clear_question,
+        delete_title,
+        history,
+        configure
+    }
 }

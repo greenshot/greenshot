@@ -9,9 +9,11 @@ namespace GreenshotPlugin.UnmanagedHelpers
     /// <summary>
     /// A WindowDC SafeHandle implementation
     /// </summary>
-    public class SafeWindowDcHandle : SafeHandleZeroOrMinusOneIsInvalid {
+    public class SafeWindowDcHandle : SafeHandleZeroOrMinusOneIsInvalid
+    {
         [DllImport("user32", SetLastError = true)]
         private static extern IntPtr GetWindowDC(IntPtr hWnd);
+
         [DllImport("user32", SetLastError = true)]
         private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
@@ -25,13 +27,15 @@ namespace GreenshotPlugin.UnmanagedHelpers
         }
 
         [SecurityCritical]
-        public SafeWindowDcHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
+        public SafeWindowDcHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true)
+        {
             _hWnd = hWnd;
             SetHandle(preexistingHandle);
         }
 
-        [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode=true)]
-        protected override bool ReleaseHandle() {
+        [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+        protected override bool ReleaseHandle()
+        {
             bool returnValue = ReleaseDC(_hWnd, handle);
             return returnValue;
         }
@@ -47,11 +51,13 @@ namespace GreenshotPlugin.UnmanagedHelpers
             {
                 return null;
             }
+
             var hDcDesktop = GetWindowDC(hWnd);
             return new SafeWindowDcHandle(hWnd, hDcDesktop);
         }
 
-        public static SafeWindowDcHandle FromDesktop() {
+        public static SafeWindowDcHandle FromDesktop()
+        {
             IntPtr hWndDesktop = User32.GetDesktopWindow();
             IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
             return new SafeWindowDcHandle(hWndDesktop, hDCDesktop);

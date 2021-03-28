@@ -30,23 +30,26 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Photobucket {
-	/// <summary>
-	/// This is the GreenshotPhotobucketPlugin base code
-	/// </summary>
-	[Plugin("Photobucket", true)]
-	public class PhotobucketPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
-		private static PhotobucketConfiguration _config;
-		private ComponentResourceManager _resources;
-		private ToolStripMenuItem _itemPlugInConfig;
+namespace Greenshot.Plugin.Photobucket
+{
+    /// <summary>
+    /// This is the GreenshotPhotobucketPlugin base code
+    /// </summary>
+    [Plugin("Photobucket", true)]
+    public class PhotobucketPlugin : IGreenshotPlugin
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
+        private static PhotobucketConfiguration _config;
+        private ComponentResourceManager _resources;
+        private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposing) return;
             if (_itemPlugInConfig == null) return;
@@ -54,89 +57,102 @@ namespace Greenshot.Plugin.Photobucket {
             _itemPlugInConfig = null;
         }
 
-		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
-		/// </summary>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize() {
+        /// <summary>
+        /// Implementation of the IGreenshotPlugin.Initialize
+        /// </summary>
+        /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
+        public bool Initialize()
+        {
             SimpleServiceProvider.Current.AddService<IDestination>(new PhotobucketDestination(this));
 
-			// Get configuration
-			_config = IniConfig.GetIniSection<PhotobucketConfiguration>();
-			_resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
+            // Get configuration
+            _config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+            _resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 
-			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure))
-			{
-				Image = (Image)_resources.GetObject("Photobucket")
-			};
-			_itemPlugInConfig.Click += delegate {
-				_config.ShowConfigDialog();
-			};
+            _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure))
+            {
+                Image = (Image) _resources.GetObject("Photobucket")
+            };
+            _itemPlugInConfig.Click += delegate { _config.ShowConfigDialog(); };
 
-			PluginUtils.AddToContextMenu(_itemPlugInConfig);
-			Language.LanguageChanged += OnLanguageChanged;
-			return true;
-		}
+            PluginUtils.AddToContextMenu(_itemPlugInConfig);
+            Language.LanguageChanged += OnLanguageChanged;
+            return true;
+        }
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (_itemPlugInConfig != null) {
-				_itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
-			}
-		}
+        public void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
+            }
+        }
 
-		public void Shutdown() {
-			Log.Debug("Photobucket Plugin shutdown.");
-			Language.LanguageChanged -= OnLanguageChanged;
-		}
+        public void Shutdown()
+        {
+            Log.Debug("Photobucket Plugin shutdown.");
+            Language.LanguageChanged -= OnLanguageChanged;
+        }
 
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure() {
-			_config.ShowConfigDialog();
-		}
+        /// <summary>
+        /// Implementation of the IPlugin.Configure
+        /// </summary>
+        public void Configure()
+        {
+            _config.ShowConfigDialog();
+        }
 
-		/// <summary>
-		/// Upload the capture to Photobucket
-		/// </summary>
-		/// <param name="captureDetails"></param>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="albumPath">Path to the album</param>
-		/// <param name="uploadUrl">out string for the url</param>
-		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
-			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-				PhotobucketInfo photobucketInfo = null;
-			
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait), 
-					delegate {
-						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename);
-					}
-				);
-				// This causes an exeption if the upload failed :)
-				Log.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
-				uploadUrl = null;
-				try {
-					if (_config.UsePageLink) {
-						uploadUrl = photobucketInfo.Page;
-						Clipboard.SetText(photobucketInfo.Page);
-					} else {
-						uploadUrl = photobucketInfo.Original;
-						Clipboard.SetText(photobucketInfo.Original);
-					}
-				} catch (Exception ex) {
-					Log.Error("Can't write to clipboard: ", ex);
-				}
-				return true;
-			} catch (Exception e) {
-				Log.Error(e);
-				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
-		}
-	}
+        /// <summary>
+        /// Upload the capture to Photobucket
+        /// </summary>
+        /// <param name="captureDetails"></param>
+        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="albumPath">Path to the album</param>
+        /// <param name="uploadUrl">out string for the url</param>
+        /// <returns>true if the upload succeeded</returns>
+        public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl)
+        {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
+            try
+            {
+                string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+                PhotobucketInfo photobucketInfo = null;
+
+                // Run upload in the background
+                new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait),
+                    delegate { photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename); }
+                );
+                // This causes an exeption if the upload failed :)
+                Log.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
+                uploadUrl = null;
+                try
+                {
+                    if (_config.UsePageLink)
+                    {
+                        uploadUrl = photobucketInfo.Page;
+                        Clipboard.SetText(photobucketInfo.Page);
+                    }
+                    else
+                    {
+                        uploadUrl = photobucketInfo.Original;
+                        Clipboard.SetText(photobucketInfo.Original);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Can't write to clipboard: ", ex);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+                MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
+            }
+
+            uploadUrl = null;
+            return false;
+        }
+    }
 }

@@ -18,30 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Drawing.Fields.Binding {
-	/// <summary>
-	/// Converts decimal to float and vice versa.
-	/// </summary>
-	public class DecimalFloatConverter : AbstractBindingConverter<float, decimal>
-	{
-		private static DecimalFloatConverter _uniqueInstance;
-		
-		private DecimalFloatConverter() {}
-		
-		protected override decimal convert(float o) {
-			return Convert.ToDecimal(o);
-		}
-		
-		protected override float convert(decimal o) {
-			return Convert.ToSingle(o);
-		}
-		
-		public static DecimalFloatConverter GetInstance()
-		{
-			return _uniqueInstance ??= new DecimalFloatConverter();
-		}
-		
-	}
+namespace Greenshot.Drawing.Fields.Binding
+{
+    /// <summary>
+    /// Converts decimal to float and vice versa.
+    /// </summary>
+    public class DecimalFloatConverter : AbstractBindingConverter<float, decimal>
+    {
+        private static DecimalFloatConverter _uniqueInstance;
+
+        private DecimalFloatConverter()
+        {
+        }
+
+        protected override decimal convert(float o)
+        {
+            return Convert.ToDecimal(o);
+        }
+
+        protected override float convert(decimal o)
+        {
+            return Convert.ToSingle(o);
+        }
+
+        public static DecimalFloatConverter GetInstance()
+        {
+            return _uniqueInstance ??= new DecimalFloatConverter();
+        }
+    }
 }

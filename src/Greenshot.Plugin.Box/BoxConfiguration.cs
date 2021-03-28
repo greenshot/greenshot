@@ -25,56 +25,55 @@ using Greenshot.Plugin.Box.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace Greenshot.Plugin.Box {
-	/// <summary>
-	/// Description of ImgurConfiguration.
-	/// </summary>
-	[IniSection("Box", Description = "Greenshot Box Plugin configuration")]
-	public class BoxConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+namespace Greenshot.Plugin.Box
+{
+    /// <summary>
+    /// Description of ImgurConfiguration.
+    /// </summary>
+    [IniSection("Box", Description = "Greenshot Box Plugin configuration")]
+    public class BoxConfiguration : IniSection
+    {
+        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+        public OutputFormat UploadFormat { get; set; }
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality { get; set; }
+        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+        public int UploadJpegQuality { get; set; }
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Box link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard { get; set; }
+        [IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Box link to clipboard.", DefaultValue = "true")]
+        public bool AfterUploadLinkToClipBoard { get; set; }
 
-		[IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
-		public bool UseSharedLink { get; set; }
-		[IniProperty("FolderId", Description = "Folder ID to upload to, only change if you know what you are doing!", DefaultValue = "0")]
-		public string FolderId { get; set; }
+        [IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
+        public bool UseSharedLink { get; set; }
 
-		[IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
-		public string RefreshToken { get; set; }
+        [IniProperty("FolderId", Description = "Folder ID to upload to, only change if you know what you are doing!", DefaultValue = "0")]
+        public string FolderId { get; set; }
 
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		public string AccessToken {
-			get;
-			set;
-		}
+        [IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
+        public string RefreshToken { get; set; }
 
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		public DateTimeOffset AccessTokenExpires {
-			get;
-			set;
-		}
+        /// <summary>
+        /// Not stored
+        /// </summary>
+        public string AccessToken { get; set; }
 
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
+        /// <summary>
+        /// Not stored
+        /// </summary>
+        public DateTimeOffset AccessTokenExpires { get; set; }
 
-	}
+        /// <summary>
+        /// A form for token
+        /// </summary>
+        /// <returns>bool true if OK was pressed, false if cancel</returns>
+        public bool ShowConfigDialog()
+        {
+            DialogResult result = new SettingsForm().ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

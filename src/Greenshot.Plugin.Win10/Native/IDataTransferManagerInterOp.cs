@@ -30,27 +30,26 @@ namespace Greenshot.Plugin.Win10.Native
     /// window using a window handle. Useful for Win32 apps.
     /// </summary>
     [ComImport, Guid("3A3DCD6C-3EAB-43DC-BCDE-45671CE800C8")]
-	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IDataTransferManagerInterOp
-	{
-		/// <summary>
-		/// Get an instance of Windows.ApplicationModel.DataTransfer.DataTransferManager
-		/// for the window identified by a window handle
-		/// </summary>
-		/// <param name="appWindow">The window handle</param>
-		/// <param name="riid">ID of the DataTransferManager interface</param>
-		/// <param name="pDataTransferManager">The DataTransferManager instance for this window handle</param>
-		/// <returns>HRESULT</returns>
-		[PreserveSig]
-		HResult GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, [Out] out DataTransferManager pDataTransferManager);
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    public interface IDataTransferManagerInterOp
+    {
+        /// <summary>
+        /// Get an instance of Windows.ApplicationModel.DataTransfer.DataTransferManager
+        /// for the window identified by a window handle
+        /// </summary>
+        /// <param name="appWindow">The window handle</param>
+        /// <param name="riid">ID of the DataTransferManager interface</param>
+        /// <param name="pDataTransferManager">The DataTransferManager instance for this window handle</param>
+        /// <returns>HRESULT</returns>
+        [PreserveSig]
+        HResult GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, [Out] out DataTransferManager pDataTransferManager);
 
-		/// <summary>
-		/// Show the share flyout for the window identified by a window handle
-		/// </summary>
-		/// <param name="appWindow">The window handle</param>
-		/// <returns>HRESULT</returns>
-		[PreserveSig]
-		HResult ShowShareUIForWindow(IntPtr appWindow);
-	}
-
+        /// <summary>
+        /// Show the share flyout for the window identified by a window handle
+        /// </summary>
+        /// <param name="appWindow">The window handle</param>
+        /// <returns>HRESULT</returns>
+        [PreserveSig]
+        HResult ShowShareUIForWindow(IntPtr appWindow);
+    }
 }

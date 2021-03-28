@@ -29,7 +29,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Structs
     /// Contains information about the placement of a window on the screen.
     /// </summary>
     [StructLayout(LayoutKind.Sequential), Serializable()]
-    public struct WindowPlacement {
+    public struct WindowPlacement
+    {
         /// <summary>
         /// The length of the structure, in bytes. Before calling the GetWindowPlacement or SetWindowPlacement functions, set this member to sizeof(WINDOWPLACEMENT).
         /// <para>
@@ -66,8 +67,10 @@ namespace GreenshotPlugin.UnmanagedHelpers.Structs
         /// <summary>
         /// Gets the default (empty) value.
         /// </summary>
-        public static WindowPlacement Default {
-            get {
+        public static WindowPlacement Default
+        {
+            get
+            {
                 WindowPlacement result = new WindowPlacement();
                 result.Length = Marshal.SizeOf(result);
                 return result;

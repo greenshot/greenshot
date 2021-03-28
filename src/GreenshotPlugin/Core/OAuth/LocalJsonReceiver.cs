@@ -49,15 +49,19 @@ namespace GreenshotPlugin.Core.OAuth
         public string ListeningUrlFormat { get; set; } = "http://localhost:{0}/authorize/";
 
         private string _listeningUri;
+
         /// <summary>
         /// The URL where the server is listening
         /// </summary>
-        public string ListeningUri {
-            get {
+        public string ListeningUri
+        {
+            get
+            {
                 if (string.IsNullOrEmpty(_listeningUri))
                 {
                     _listeningUri = string.Format(ListeningUrlFormat, GetRandomUnusedPort());
                 }
+
                 return _listeningUri;
             }
             set => _listeningUri = value;
@@ -66,11 +70,7 @@ namespace GreenshotPlugin.Core.OAuth
         /// <summary>
         /// This action is called when the URI must be opened, default is just to run Process.Start
         /// </summary>
-        public Action<string> OpenUriAction
-        {
-            set;
-            get;
-        } = authorizationUrl =>
+        public Action<string> OpenUriAction { set; get; } = authorizationUrl =>
         {
             Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
             using var process = Process.Start(authorizationUrl);
@@ -86,23 +86,29 @@ namespace GreenshotPlugin.Core.OAuth
         /// </summary>
         /// <param name="oauth2Settings">OAuth2Settings</param>
         /// <returns>Dictionary with values</returns>
-        public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings) {
+        public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings)
+        {
             using var listener = new HttpListener();
             // Make sure the port is stored in the state, so the website can process this.
             oauth2Settings.State = new Uri(ListeningUri).Port.ToString();
             listener.Prefixes.Add(ListeningUri);
-            try {
+            try
+            {
                 listener.Start();
                 _ready.Reset();
 
                 listener.BeginGetContext(ListenerCallback, listener);
                 OpenUriAction(oauth2Settings.FormattedAuthUrl);
                 _ready.WaitOne(Timeout, true);
-            } catch (Exception) {
+            }
+            catch (Exception)
+            {
                 // Make sure we can clean up, also if the thead is aborted
                 _ready.Set();
                 throw;
-            } finally {
+            }
+            finally
+            {
                 listener.Close();
             }
 
@@ -113,11 +119,13 @@ namespace GreenshotPlugin.Core.OAuth
         /// Handle a connection async, this allows us to break the waiting
         /// </summary>
         /// <param name="result">IAsyncResult</param>
-        private void ListenerCallback(IAsyncResult result) {
-            HttpListener listener = (HttpListener)result.AsyncState;
+        private void ListenerCallback(IAsyncResult result)
+        {
+            HttpListener listener = (HttpListener) result.AsyncState;
 
             //If not listening return immediately as this method is called one last time after Close()
-            if (!listener.IsListening) {
+            if (!listener.IsListening)
+            {
                 return;
             }
 
@@ -178,12 +186,16 @@ namespace GreenshotPlugin.Core.OAuth
         /// Returns a random, unused port.
         /// </summary>
         /// <returns>port to use</returns>
-        private static int GetRandomUnusedPort() {
+        private static int GetRandomUnusedPort()
+        {
             var listener = new TcpListener(IPAddress.Loopback, 0);
-            try {
+            try
+            {
                 listener.Start();
-                return ((IPEndPoint)listener.LocalEndpoint).Port;
-            } finally {
+                return ((IPEndPoint) listener.LocalEndpoint).Port;
+            }
+            finally
+            {
                 listener.Stop();
             }
         }

@@ -6,7 +6,8 @@ namespace GreenshotPlugin.Interfaces.Plugin
     /// This interface is the GreenshotPluginHost, that which "Hosts" the plugin.
     /// For Greenshot this is implemented in the PluginHelper
     /// </summary>
-    public interface IGreenshotHost {
+    public interface IGreenshotHost
+    {
         /// <summary>
         /// Create a Thumbnail
         /// </summary>

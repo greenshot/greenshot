@@ -18,48 +18,66 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using log4net;
 
-namespace Greenshot.Helpers {
-	/// <summary>
-	/// Description of ProcessorHelper.
-	/// </summary>
-	public static class ProcessorHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
+namespace Greenshot.Helpers
+{
+    /// <summary>
+    /// Description of ProcessorHelper.
+    /// </summary>
+    public static class ProcessorHelper
+    {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
 
-		/// <summary>
-		/// Register the internal processors
-		/// </summary>
-		public static void RegisterInternalProcessors() {
-			foreach(Type processorType in InterfaceUtils.GetSubclassesOf(typeof(IProcessor),true)) {
-				// Only take our own
-				if (!"Greenshot.Processors".Equals(processorType.Namespace)) {
-					continue;
-				}
-				try {
-					if (!processorType.IsAbstract) {
-						IProcessor processor;
-						try {
-							processor = (IProcessor)Activator.CreateInstance(processorType);
-						} catch (Exception e) {
-							LOG.ErrorFormat("Can't create instance of {0}", processorType);
-							LOG.Error(e);
-							continue;
-						}
-						if (processor.isActive) {
-							LOG.DebugFormat("Found Processor {0} with designation {1}", processorType.Name, processor.Designation);
-							SimpleServiceProvider.Current.AddService(processor);
-						} else {
-							LOG.DebugFormat("Ignoring Processor {0} with designation {1}", processorType.Name, processor.Designation);
-						}
-					}
-				} catch (Exception ex) {
-					LOG.ErrorFormat("Error loading processor {0}, message: ", processorType.FullName, ex.Message);
-				}
-			}
-		}
-	}
+        /// <summary>
+        /// Register the internal processors
+        /// </summary>
+        public static void RegisterInternalProcessors()
+        {
+            foreach (Type processorType in InterfaceUtils.GetSubclassesOf(typeof(IProcessor), true))
+            {
+                // Only take our own
+                if (!"Greenshot.Processors".Equals(processorType.Namespace))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    if (!processorType.IsAbstract)
+                    {
+                        IProcessor processor;
+                        try
+                        {
+                            processor = (IProcessor) Activator.CreateInstance(processorType);
+                        }
+                        catch (Exception e)
+                        {
+                            LOG.ErrorFormat("Can't create instance of {0}", processorType);
+                            LOG.Error(e);
+                            continue;
+                        }
+
+                        if (processor.isActive)
+                        {
+                            LOG.DebugFormat("Found Processor {0} with designation {1}", processorType.Name, processor.Designation);
+                            SimpleServiceProvider.Current.AddService(processor);
+                        }
+                        else
+                        {
+                            LOG.DebugFormat("Ignoring Processor {0} with designation {1}", processorType.Name, processor.Designation);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LOG.ErrorFormat("Error loading processor {0}, message: ", processorType.FullName, ex.Message);
+                }
+            }
+        }
+    }
 }

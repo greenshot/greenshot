@@ -25,27 +25,28 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// BorderEffect
-	/// </summary>
-	public class BorderEffect : IEffect {
-		public BorderEffect() {
-			Reset();
-		}
-		public Color Color {
-			get;
-			set;
-		}
-		public int Width {
-			get;
-			set;
-		}
-		public void Reset() {
-			Width = 2;
-			Color = Color.Black;
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, matrix);
-		}
-	}
+    /// <summary>
+    /// BorderEffect
+    /// </summary>
+    public class BorderEffect : IEffect
+    {
+        public BorderEffect()
+        {
+            Reset();
+        }
+
+        public Color Color { get; set; }
+        public int Width { get; set; }
+
+        public void Reset()
+        {
+            Width = 2;
+            Color = Color.Black;
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, matrix);
+        }
+    }
 }

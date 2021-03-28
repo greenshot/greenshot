@@ -28,8 +28,9 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WindowPos
     {
-        SWP_NOACTIVATE = 0x0010,	// Does not activate the window. If this flag is not set, the window is activated and moved to the top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter parameter).
-        SWP_NOMOVE = 0x0002,	//Retains the current position (ignores X and Y parameters).
-        SWP_NOSIZE = 0x0001,	// Retains the current size (ignores the cx and cy parameters).
+        SWP_NOACTIVATE =
+            0x0010, // Does not activate the window. If this flag is not set, the window is activated and moved to the top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter parameter).
+        SWP_NOMOVE = 0x0002, //Retains the current position (ignores X and Y parameters).
+        SWP_NOSIZE = 0x0001, // Retains the current size (ignores the cx and cy parameters).
     }
 }

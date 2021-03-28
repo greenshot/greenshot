@@ -60,6 +60,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         left = pageSetup.ComObject.SlideWidth / 2 - imageSize.Width / 2f;
                         top = pageSetup.ComObject.SlideHeight / 2 - imageSize.Height / 2f;
                     }
+
                     float width = imageSize.Width;
                     float height = imageSize.Height;
                     IDisposableCom<Shape> shapeForCaption = null;
@@ -86,6 +87,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         {
                             shapeForLocation.ComObject.Left = left;
                         }
+
                         shapeForLocation.ComObject.Width = imageSize.Width;
 
                         if (height > shapeForLocation.ComObject.Height)
@@ -98,6 +100,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         {
                             top = shapeForLocation.ComObject.Top + shapeForLocation.ComObject.Height / 2 - imageSize.Height / 2f;
                         }
+
                         shapeForLocation.ComObject.Height = imageSize.Height;
                     }
                     catch (Exception e)
@@ -106,6 +109,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         using var slides = DisposableCom.Create(presentation.ComObject.Slides);
                         slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
                     }
+
                     using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
                     {
                         using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height));
@@ -117,20 +121,24 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         {
                             shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
                         }
+
                         shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
                         shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
                         if (hasScaledWidth)
                         {
                             shape.ComObject.Width = width;
                         }
+
                         if (hasScaledHeight)
                         {
                             shape.ComObject.Height = height;
                         }
+
                         shape.ComObject.Left = left;
                         shape.ComObject.Top = top;
                         shape.ComObject.AlternativeText = title;
                     }
+
                     if (shapeForCaption != null)
                     {
                         try
@@ -148,6 +156,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                             LOG.Warn("Problem setting the title to a text-range", ex);
                         }
                     }
+
                     // Activate/Goto the slide
                     try
                     {
@@ -194,10 +203,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         continue;
                     }
+
                     if (!presentation.ComObject.Name.StartsWith(presentationName))
                     {
                         continue;
                     }
+
                     try
                     {
                         AddPictureToPresentation(presentation, tmpFile, imageSize, title);
@@ -209,6 +220,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return false;
         }
 
@@ -223,6 +235,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 powerPointApplication = DisposableCom.Create(new Application());
             }
+
             InitializeVariables(powerPointApplication);
             return powerPointApplication;
         }
@@ -243,10 +256,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Ignore, probably no PowerPoint running
                 return null;
             }
+
             if (powerPointApplication?.ComObject != null)
             {
                 InitializeVariables(powerPointApplication);
             }
+
             return powerPointApplication;
         }
 
@@ -271,10 +286,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     continue;
                 }
+
                 if (presentation.ComObject.ReadOnly == MsoTriState.msoTrue)
                 {
                     continue;
                 }
+
                 if (IsAfter2003())
                 {
                     if (presentation.ComObject.Final)
@@ -282,6 +299,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         continue;
                     }
                 }
+
                 yield return presentation.ComObject.Name;
             }
         }
@@ -296,10 +314,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 return;
             }
+
             if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
             {
                 LOG.Warn("Assuming Powerpoint version 1997.");
-                _powerpointVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
+                _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -332,13 +351,13 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                 }
             }
+
             return isPictureAdded;
         }
 
         private bool IsAfter2003()
         {
-            return _powerpointVersion.Major > (int)OfficeVersions.Office2003;
+            return _powerpointVersion.Major > (int) OfficeVersions.Office2003;
         }
     }
-
 }

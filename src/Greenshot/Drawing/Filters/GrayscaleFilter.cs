@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using GreenshotPlugin.Core;
@@ -25,40 +26,65 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
-	/// <summary>
-	/// Description of GrayscaleFilter.
-	/// </summary>
-	[Serializable()] 
-	public class GrayscaleFilter : AbstractFilter {
-		public GrayscaleFilter(DrawableContainer parent) : base(parent) {
-		}
+namespace Greenshot.Drawing.Filters
+{
+    /// <summary>
+    /// Description of GrayscaleFilter.
+    /// </summary>
+    [Serializable()]
+    public class GrayscaleFilter : AbstractFilter
+    {
+        public GrayscaleFilter(DrawableContainer parent) : base(parent)
+        {
+        }
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        {
+            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
-				// nothing to do
-				return;
-			}
-			GraphicsState state = graphics.Save();
-			if (Invert) {
-				graphics.SetClip(applyRect);
-				graphics.ExcludeClip(rect);
-			}
-			ColorMatrix grayscaleMatrix = new ColorMatrix(new[] {
-				new[] {.3f, .3f, .3f, 0, 0},
-				new[] {.59f, .59f, .59f, 0, 0},
-				new[] {.11f, .11f, .11f, 0, 0},
-				new float[] {0, 0, 0, 1, 0},
-				new float[] {0, 0, 0, 0, 1}
-			});
-			using (ImageAttributes ia = new ImageAttributes()) {
-				ia.SetColorMatrix(grayscaleMatrix);
-				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
-			}
-			graphics.Restore(state);
+            if (applyRect.Width == 0 || applyRect.Height == 0)
+            {
+                // nothing to do
+                return;
+            }
 
-		}
-	}
+            GraphicsState state = graphics.Save();
+            if (Invert)
+            {
+                graphics.SetClip(applyRect);
+                graphics.ExcludeClip(rect);
+            }
+
+            ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
+            {
+                new[]
+                {
+                    .3f, .3f, .3f, 0, 0
+                },
+                new[]
+                {
+                    .59f, .59f, .59f, 0, 0
+                },
+                new[]
+                {
+                    .11f, .11f, .11f, 0, 0
+                },
+                new float[]
+                {
+                    0, 0, 0, 1, 0
+                },
+                new float[]
+                {
+                    0, 0, 0, 0, 1
+                }
+            });
+            using (ImageAttributes ia = new ImageAttributes())
+            {
+                ia.SetColorMatrix(grayscaleMatrix);
+                graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+            }
+
+            graphics.Restore(state);
+        }
+    }
 }

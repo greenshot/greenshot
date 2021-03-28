@@ -23,54 +23,55 @@ using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {
-	/// <summary>
-	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
-	/// </summary>
-	public class ChangeFieldHolderMemento : IMemento
-	{
-		private IDrawableContainer _drawableContainer;
-		private readonly IField _fieldToBeChanged;
-		private readonly object _oldValue;
+    /// <summary>
+    /// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
+    /// </summary>
+    public class ChangeFieldHolderMemento : IMemento
+    {
+        private IDrawableContainer _drawableContainer;
+        private readonly IField _fieldToBeChanged;
+        private readonly object _oldValue;
 
-		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, IField fieldToBeChanged)
-		{
-			_drawableContainer = drawableContainer;
-			_fieldToBeChanged = fieldToBeChanged;
-			_oldValue = fieldToBeChanged.Value;
-		}
+        public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, IField fieldToBeChanged)
+        {
+            _drawableContainer = drawableContainer;
+            _fieldToBeChanged = fieldToBeChanged;
+            _oldValue = fieldToBeChanged.Value;
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_drawableContainer?.Dispose();
-			}
-			_drawableContainer = null;
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _drawableContainer?.Dispose();
+            }
 
-		public bool Merge(IMemento otherMemento)
-		{
-			if (otherMemento is not ChangeFieldHolderMemento other) return false;
+            _drawableContainer = null;
+        }
 
-			if (!other._drawableContainer.Equals(_drawableContainer)) return false;
-			
-			return other._fieldToBeChanged.Equals(_fieldToBeChanged);
-		}
+        public bool Merge(IMemento otherMemento)
+        {
+            if (otherMemento is not ChangeFieldHolderMemento other) return false;
 
-		public IMemento Restore()
-		{
-			// Before
-			_drawableContainer.Invalidate();
-			ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
-			_fieldToBeChanged.Value = _oldValue;
-			// After
-			_drawableContainer.Invalidate();
-			return oldState;
-		}
-	}
+            if (!other._drawableContainer.Equals(_drawableContainer)) return false;
+
+            return other._fieldToBeChanged.Equals(_fieldToBeChanged);
+        }
+
+        public IMemento Restore()
+        {
+            // Before
+            _drawableContainer.Invalidate();
+            ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
+            _fieldToBeChanged.Value = _oldValue;
+            // After
+            _drawableContainer.Invalidate();
+            return oldState;
+        }
+    }
 }

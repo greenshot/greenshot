@@ -19,38 +19,44 @@
 
 namespace Greenshot.Plugin.Office.OfficeInterop
 {
-	/// <summary>
-	///     A mapping between the version and a usable name
-	/// </summary>
-	public enum OfficeVersions
-	{
+    /// <summary>
+    ///     A mapping between the version and a usable name
+    /// </summary>
+    public enum OfficeVersions
+    {
         /// <summary>
         /// Office 97
         /// </summary>
-		Office97 = 8,
+        Office97 = 8,
+
         /// <summary>
         /// Office 2003
         /// </summary>
-		Office2003 = 11,
+        Office2003 = 11,
+
         /// <summary>
         /// Office 2007
         /// </summary>
-		Office2007 = 12,
+        Office2007 = 12,
+
         /// <summary>
         /// Office 2010
         /// </summary>
-		Office2010 = 14,
+        Office2010 = 14,
+
         /// <summary>
         /// Office 2013
         /// </summary>
-		Office2013 = 15,
+        Office2013 = 15,
+
         /// <summary>
         /// Office 2016
         /// </summary>
         Office2016 = 16,
+
         /// <summary>
         /// Office 2019
         /// </summary>
         Office2019 = 17
-	}
+    }
 }

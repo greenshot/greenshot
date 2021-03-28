@@ -21,7 +21,9 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Plugin.Flickr.Forms {
-	public class FlickrForm : GreenshotForm {
-	}
+namespace Greenshot.Plugin.Flickr.Forms
+{
+    public class FlickrForm : GreenshotForm
+    {
+    }
 }

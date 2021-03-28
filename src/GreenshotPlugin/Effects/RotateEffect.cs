@@ -26,34 +26,44 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// RotateEffect
-	/// </summary>
-	public class RotateEffect : IEffect {
-		public RotateEffect(int angle) {
-			Angle = angle;
-		}
-		public int Angle {
-			get;
-			set;
-		}
-		public void Reset() {
-			// Angle doesn't have a default value
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			RotateFlipType flipType;
-			if (Angle == 90) {
-				matrix.Rotate(90, MatrixOrder.Append);
-				matrix.Translate(sourceImage.Height, 0, MatrixOrder.Append);
-				flipType = RotateFlipType.Rotate90FlipNone;
-			} else if (Angle == -90 || Angle == 270) {
-				flipType = RotateFlipType.Rotate270FlipNone;
-				matrix.Rotate(-90, MatrixOrder.Append);
-				matrix.Translate(0, sourceImage.Width, MatrixOrder.Append);
-			} else {
-				throw new NotSupportedException("Currently only an angle of 90 or -90 (270) is supported.");
-			}
-			return ImageHelper.RotateFlip(sourceImage, flipType);
-		}
-	}
+    /// <summary>
+    /// RotateEffect
+    /// </summary>
+    public class RotateEffect : IEffect
+    {
+        public RotateEffect(int angle)
+        {
+            Angle = angle;
+        }
+
+        public int Angle { get; set; }
+
+        public void Reset()
+        {
+            // Angle doesn't have a default value
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            RotateFlipType flipType;
+            if (Angle == 90)
+            {
+                matrix.Rotate(90, MatrixOrder.Append);
+                matrix.Translate(sourceImage.Height, 0, MatrixOrder.Append);
+                flipType = RotateFlipType.Rotate90FlipNone;
+            }
+            else if (Angle == -90 || Angle == 270)
+            {
+                flipType = RotateFlipType.Rotate270FlipNone;
+                matrix.Rotate(-90, MatrixOrder.Append);
+                matrix.Translate(0, sourceImage.Width, MatrixOrder.Append);
+            }
+            else
+            {
+                throw new NotSupportedException("Currently only an angle of 90 or -90 (270) is supported.");
+            }
+
+            return ImageHelper.RotateFlip(sourceImage, flipType);
+        }
+    }
 }

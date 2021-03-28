@@ -22,39 +22,35 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Greenshot.Plugin.Box {
-	[DataContract]
-	public class Authorization {
-		[DataMember(Name = "access_token")]
-		public string AccessToken { get; set; }
-		[DataMember(Name = "expires_in")]
-		public int ExpiresIn { get; set; }
-		[DataMember(Name = "refresh_token")]
-		public string RefreshToken { get; set; }
-		[DataMember(Name = "token_type")]
-		public string TokenType { get; set; }
-	}
-	[DataContract]
-	public class SharedLink {
-		[DataMember(Name = "url")]
-		public string Url { get; set; }
-		[DataMember(Name = "download_url")]
-		public string DownloadUrl { get; set; }
-	}
+namespace Greenshot.Plugin.Box
+{
+    [DataContract]
+    public class Authorization
+    {
+        [DataMember(Name = "access_token")] public string AccessToken { get; set; }
+        [DataMember(Name = "expires_in")] public int ExpiresIn { get; set; }
+        [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; }
+        [DataMember(Name = "token_type")] public string TokenType { get; set; }
+    }
 
-	[DataContract]
-	public class FileEntry {
-		[DataMember(Name = "id")]
-		public string Id { get; set; }
-		[DataMember(Name = "name")]
-		public string Name { get; set; }
-		[DataMember(Name = "shared_link")]
-		public SharedLink SharedLink { get; set; }
-	}
+    [DataContract]
+    public class SharedLink
+    {
+        [DataMember(Name = "url")] public string Url { get; set; }
+        [DataMember(Name = "download_url")] public string DownloadUrl { get; set; }
+    }
 
-	[DataContract]
-	public class Upload {
-		[DataMember(Name = "entries")]
-		public List<FileEntry> Entries { get; set; }
-	}
+    [DataContract]
+    public class FileEntry
+    {
+        [DataMember(Name = "id")] public string Id { get; set; }
+        [DataMember(Name = "name")] public string Name { get; set; }
+        [DataMember(Name = "shared_link")] public SharedLink SharedLink { get; set; }
+    }
+
+    [DataContract]
+    public class Upload
+    {
+        [DataMember(Name = "entries")] public List<FileEntry> Entries { get; set; }
+    }
 }

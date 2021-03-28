@@ -26,7 +26,8 @@ namespace GreenshotPlugin.UnmanagedHelpers.Enums
 {
     [Flags]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum DesktopAccessRight : uint {
+    public enum DesktopAccessRight : uint
+    {
         DESKTOP_READOBJECTS = 0x00000001,
         DESKTOP_CREATEWINDOW = 0x00000002,
         DESKTOP_CREATEMENU = 0x00000004,

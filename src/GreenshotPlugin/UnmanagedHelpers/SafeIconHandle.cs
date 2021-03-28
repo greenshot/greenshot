@@ -8,8 +8,8 @@ namespace GreenshotPlugin.UnmanagedHelpers
     /// <summary>
     /// A SafeHandle class implementation for the hIcon
     /// </summary>
-    public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
-
+    public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid
+    {
         /// <summary>
         /// Needed for marshalling return values
         /// </summary>
@@ -19,12 +19,14 @@ namespace GreenshotPlugin.UnmanagedHelpers
         }
 
 
-        public SafeIconHandle(IntPtr hIcon) : base(true) {
+        public SafeIconHandle(IntPtr hIcon) : base(true)
+        {
             SetHandle(hIcon);
         }
 
         [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-        protected override bool ReleaseHandle() {
+        protected override bool ReleaseHandle()
+        {
             return User32.DestroyIcon(handle);
         }
     }

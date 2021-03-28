@@ -21,15 +21,18 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	[ComVisible(true), ComImport(), Guid("3050f6cf-98b5-11cf-bb82-00aa00bdce0b"),
-	 TypeLibType(TypeLibTypeFlags.FDual),
-	 InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLWindow4 {
+namespace GreenshotPlugin.IEInterop
+{
+    [ComVisible(true), ComImport(), Guid("3050f6cf-98b5-11cf-bb82-00aa00bdce0b"),
+     TypeLibType(TypeLibTypeFlags.FDual),
+     InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLWindow4
+    {
         [DispId(1181)]
-        IHTMLFrameBase frameElement {
-        	[return: MarshalAs(UnmanagedType.IDispatch)]
-        	get;
+        IHTMLFrameBase frameElement
+        {
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
         }
     }
 }

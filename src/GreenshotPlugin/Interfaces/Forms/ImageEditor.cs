@@ -21,29 +21,26 @@
 
 using System.Drawing;
 
-namespace GreenshotPlugin.Interfaces.Forms {
-	/// <summary>
-	/// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
-	/// </summary>
-	public interface IImageEditor {
+namespace GreenshotPlugin.Interfaces.Forms
+{
+    /// <summary>
+    /// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
+    /// </summary>
+    public interface IImageEditor
+    {
         /// <summary>
-		/// Get the current Image from the Editor for Exporting (save/upload etc)
-		/// This is actually a wrapper which calls Surface.GetImageForExport().
-		/// Don't forget to call image.Dispose() when finished!!!
-		/// </summary>
-		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
+        /// Get the current Image from the Editor for Exporting (save/upload etc)
+        /// This is actually a wrapper which calls Surface.GetImageForExport().
+        /// Don't forget to call image.Dispose() when finished!!!
+        /// </summary>
+        /// <returns>Bitmap</returns>
+        Image GetImageForExport();
 
         /// <summary>
-		/// Make the ICaptureDetails from the current Surface in the EditorForm available.
-		/// </summary>
-		ICaptureDetails CaptureDetails {
-			get;
-		}
+        /// Make the ICaptureDetails from the current Surface in the EditorForm available.
+        /// </summary>
+        ICaptureDetails CaptureDetails { get; }
 
-		ISurface Surface {
-			get;
-			set;
-		}
-	}
+        ISurface Surface { get; set; }
+    }
 }

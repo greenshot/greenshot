@@ -24,51 +24,61 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Memento {
-	/// <summary>
-	/// The SurfaceCropMemento makes it possible to undo-redo an surface crop
-	/// </summary>
-	public class SurfaceBackgroundChangeMemento : IMemento {
-		private Image _image;
-		private Surface _surface;
-		private Matrix _matrix;
-		
-		public SurfaceBackgroundChangeMemento(Surface surface, Matrix matrix) {
-			_surface = surface;
-			_image = surface.Image;
-			_matrix = matrix.Clone();
-			// Make sure the reverse is applied
-			_matrix.Invert();
-		}
-		
-		public void Dispose() {
-			Dispose(true);
-		}
+namespace Greenshot.Memento
+{
+    /// <summary>
+    /// The SurfaceCropMemento makes it possible to undo-redo an surface crop
+    /// </summary>
+    public class SurfaceBackgroundChangeMemento : IMemento
+    {
+        private Image _image;
+        private Surface _surface;
+        private Matrix _matrix;
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-			
-			if (_matrix != null) {
-				_matrix.Dispose();
-				_matrix = null;
-			}
-			if (_image != null) {
-				_image.Dispose();
-				_image = null;
-			}
-			_surface = null;
-		}
+        public SurfaceBackgroundChangeMemento(Surface surface, Matrix matrix)
+        {
+            _surface = surface;
+            _image = surface.Image;
+            _matrix = matrix.Clone();
+            // Make sure the reverse is applied
+            _matrix.Invert();
+        }
 
-		public bool Merge(IMemento otherMemento) {
-			return false;
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
-		public IMemento Restore() {
-			SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(_surface, _matrix);
-			_surface.UndoBackgroundChange(_image, _matrix);
-			_surface.Invalidate();
-			return oldState;
-		}
-	}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+
+            if (_matrix != null)
+            {
+                _matrix.Dispose();
+                _matrix = null;
+            }
+
+            if (_image != null)
+            {
+                _image.Dispose();
+                _image = null;
+            }
+
+            _surface = null;
+        }
+
+        public bool Merge(IMemento otherMemento)
+        {
+            return false;
+        }
+
+        public IMemento Restore()
+        {
+            SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(_surface, _matrix);
+            _surface.UndoBackgroundChange(_image, _matrix);
+            _surface.Invalidate();
+            return oldState;
+        }
+    }
 }

@@ -5,27 +5,32 @@ using GreenshotPlugin.IniFile;
 
 namespace GreenshotPlugin.Interfaces.Plugin
 {
-    public class SurfaceOutputSettings {
+    public class SurfaceOutputSettings
+    {
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private bool _reduceColors;
         private bool _disableReduceColors;
 
-        public SurfaceOutputSettings() {
+        public SurfaceOutputSettings()
+        {
             _disableReduceColors = false;
             Format = CoreConfig.OutputFileFormat;
             JPGQuality = CoreConfig.OutputFileJpegQuality;
             ReduceColors = CoreConfig.OutputFileReduceColors;
         }
 
-        public SurfaceOutputSettings(OutputFormat format) : this() {
+        public SurfaceOutputSettings(OutputFormat format) : this()
+        {
             Format = format;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format) {
+        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
+        {
             JPGQuality = quality;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality) {
+        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality)
+        {
             ReduceColors = reduceColors;
         }
 
@@ -40,49 +45,44 @@ namespace GreenshotPlugin.Interfaces.Plugin
             {
                 Format = OutputFormat.png;
             }
+
             return this;
         }
 
-        public OutputFormat Format {
-            get;
-            set;
-        }
+        public OutputFormat Format { get; set; }
 
-        public int JPGQuality {
-            get;
-            set;
-        }
+        public int JPGQuality { get; set; }
 
-        public bool SaveBackgroundOnly {
-            get;
-            set;
-        }
+        public bool SaveBackgroundOnly { get; set; }
 
         public List<IEffect> Effects { get; } = new List<IEffect>();
 
-        public bool ReduceColors {
-            get {
+        public bool ReduceColors
+        {
+            get
+            {
                 // Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-                if (OutputFormat.gif.Equals(Format)) {
+                if (OutputFormat.gif.Equals(Format))
+                {
                     return true;
                 }
+
                 return _reduceColors;
             }
-            set {
-                _reduceColors = value;
-            }
+            set { _reduceColors = value; }
         }
 
         /// <summary>
         /// Disable the reduce colors option, this overrules the enabling
         /// </summary>
-        public bool DisableReduceColors {
-            get {
-                return _disableReduceColors;
-            }
-            set {
+        public bool DisableReduceColors
+        {
+            get { return _disableReduceColors; }
+            set
+            {
                 // Quantizing os needed when output format is gif as this has only 256 colors!
-                if (!OutputFormat.gif.Equals(Format)) {
+                if (!OutputFormat.gif.Equals(Format))
+                {
                     _disableReduceColors = value;
                 }
             }

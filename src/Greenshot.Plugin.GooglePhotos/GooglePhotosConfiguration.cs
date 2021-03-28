@@ -24,71 +24,58 @@ using Greenshot.Plugin.GooglePhotos.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace Greenshot.Plugin.GooglePhotos {
-	/// <summary>
-	/// Description of GooglePhotosConfiguration.
-	/// </summary>
-	[IniSection("GooglePhotos", Description = "Greenshot GooglePhotos Plugin configuration")]
-	public class GooglePhotosConfiguration : IniSection {
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+namespace Greenshot.Plugin.GooglePhotos
+{
+    /// <summary>
+    /// Description of GooglePhotosConfiguration.
+    /// </summary>
+    [IniSection("GooglePhotos", Description = "Greenshot GooglePhotos Plugin configuration")]
+    public class GooglePhotosConfiguration : IniSection
+    {
+        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+        public OutputFormat UploadFormat { get; set; }
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality { get; set; }
+        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+        public int UploadJpegQuality { get; set; }
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send GooglePhotos link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard { get; set; }
-		[IniProperty("AddFilename", Description = "Is the filename passed on to GooglePhotos", DefaultValue = "False")]
-		public bool AddFilename {
-			get;
-			set;
-		}
+        [IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send GooglePhotos link to clipboard.", DefaultValue = "true")]
+        public bool AfterUploadLinkToClipBoard { get; set; }
 
-		[IniProperty("UploadUser", Description = "The GooglePhotos user to upload to", DefaultValue = "default")]
-		public string UploadUser {
-			get;
-			set;
-		}
+        [IniProperty("AddFilename", Description = "Is the filename passed on to GooglePhotos", DefaultValue = "False")]
+        public bool AddFilename { get; set; }
 
-		[IniProperty("UploadAlbum", Description = "The GooglePhotos album to upload to", DefaultValue = "default")]
-		public string UploadAlbum {
-			get;
-			set;
-		}
+        [IniProperty("UploadUser", Description = "The GooglePhotos user to upload to", DefaultValue = "default")]
+        public string UploadUser { get; set; }
 
-		[IniProperty("RefreshToken", Description = "GooglePhotos authorization refresh Token", Encrypted = true)]
-		public string RefreshToken {
-			get;
-			set;
-		}
+        [IniProperty("UploadAlbum", Description = "The GooglePhotos album to upload to", DefaultValue = "default")]
+        public string UploadAlbum { get; set; }
 
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		public string AccessToken {
-			get;
-			set;
-		}
+        [IniProperty("RefreshToken", Description = "GooglePhotos authorization refresh Token", Encrypted = true)]
+        public string RefreshToken { get; set; }
 
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		public DateTimeOffset AccessTokenExpires {
-			get;
-			set;
-		}
+        /// <summary>
+        /// Not stored
+        /// </summary>
+        public string AccessToken { get; set; }
 
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
+        /// <summary>
+        /// Not stored
+        /// </summary>
+        public DateTimeOffset AccessTokenExpires { get; set; }
 
-	}
+        /// <summary>
+        /// A form for token
+        /// </summary>
+        /// <returns>bool true if OK was pressed, false if cancel</returns>
+        public bool ShowConfigDialog()
+        {
+            DialogResult result = new SettingsForm().ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

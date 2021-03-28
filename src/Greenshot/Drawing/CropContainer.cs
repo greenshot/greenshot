@@ -25,53 +25,62 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing {
-	/// <summary>
-	/// Description of CropContainer.
-	/// </summary>
-	public class CropContainer : DrawableContainer {
-		public CropContainer(Surface parent) : base(parent) {
-			Init();
-		}
+namespace Greenshot.Drawing
+{
+    /// <summary>
+    /// Description of CropContainer.
+    /// </summary>
+    public class CropContainer : DrawableContainer
+    {
+        public CropContainer(Surface parent) : base(parent)
+        {
+            Init();
+        }
 
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
+        protected override void OnDeserialized(StreamingContext streamingContext)
+        {
+            base.OnDeserialized(streamingContext);
+            Init();
+        }
 
-		private void Init()
-		{
-			CreateDefaultAdorners();
-		}
-		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
-		}
+        private void Init()
+        {
+            CreateDefaultAdorners();
+        }
 
-		public override void Invalidate() {
-			_parent?.Invalidate();
-		}
+        protected override void InitializeFields()
+        {
+            AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
+        }
 
-		/// <summary>
-		/// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
-		/// (we create a transparent brown over the complete picture)
-		/// </summary>
-		public override Rectangle DrawingBounds {
-			get
-			{
-				if (_parent?.Image is { } image) {
-					return new Rectangle(0, 0, image.Width, image.Height);
-				}
+        public override void Invalidate()
+        {
+            _parent?.Invalidate();
+        }
 
-				return Rectangle.Empty;
-			}
-		}
+        /// <summary>
+        /// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
+        /// (we create a transparent brown over the complete picture)
+        /// </summary>
+        public override Rectangle DrawingBounds
+        {
+            get
+            {
+                if (_parent?.Image is { } image)
+                {
+                    return new Rectangle(0, 0, image.Width, image.Height);
+                }
 
-		public override void Draw(Graphics g, RenderMode rm) {
-			if (_parent == null)
-			{
-				return;
-			}
+                return Rectangle.Empty;
+            }
+        }
+
+        public override void Draw(Graphics g, RenderMode rm)
+        {
+            if (_parent == null)
+            {
+                return;
+            }
 
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
             Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
@@ -79,20 +88,21 @@ namespace Greenshot.Drawing {
             Size imageSize = _parent.Image.Size;
 
             DrawSelectionBorder(g, selectionRect);
-				
+
             // top
             g.FillRectangle(cropBrush, new Rectangle(0, 0, imageSize.Width, cropRectangle.Top));
             // left
             g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
             // right
-            g.FillRectangle(cropBrush, new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, imageSize.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
+            g.FillRectangle(cropBrush,
+                new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, imageSize.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
             // bottom
             g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, imageSize.Width, imageSize.Height - (cropRectangle.Top + cropRectangle.Height)));
         }
-		
-		/// <summary>
-		/// No context menu for the CropContainer
-		/// </summary>
-		public override bool HasContextMenu => false;
-	}
+
+        /// <summary>
+        /// No context menu for the CropContainer
+        /// </summary>
+        public override bool HasContextMenu => false;
+    }
 }

@@ -24,38 +24,46 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces;
 
-namespace Greenshot.Destinations {
-	/// <summary>
-	/// Description of PrinterDestination.
-	/// </summary>
-	public class PrinterDestination : AbstractDestination {
-		public const string DESIGNATION = "Printer";
+namespace Greenshot.Destinations
+{
+    /// <summary>
+    /// Description of PrinterDestination.
+    /// </summary>
+    public class PrinterDestination : AbstractDestination
+    {
+        public const string DESIGNATION = "Printer";
         private readonly string _printerName;
 
-		public PrinterDestination() {
-		}
+        public PrinterDestination()
+        {
+        }
 
-		public PrinterDestination(string printerName) {
-			_printerName = printerName;
-		}
-		public override string Designation => DESIGNATION;
+        public PrinterDestination(string printerName)
+        {
+            _printerName = printerName;
+        }
 
-        public override string Description {
-			get {
-				if (_printerName != null) {
-					return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
-				}
-				return Language.GetString(LangKey.settings_destination_printer);
-			}
-		}
+        public override string Designation => DESIGNATION;
 
-		public override int Priority => 2;
+        public override string Description
+        {
+            get
+            {
+                if (_printerName != null)
+                {
+                    return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
+                }
+
+                return Language.GetString(LangKey.settings_destination_printer);
+            }
+        }
+
+        public override int Priority => 2;
 
         public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 
@@ -64,60 +72,75 @@ namespace Greenshot.Destinations {
         public override bool IsDynamic => true;
 
         /// <summary>
-		/// Create destinations for all the installed printers
-		/// </summary>
-		/// <returns>IEnumerable of IDestination</returns>
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			PrinterSettings settings = new PrinterSettings();
-			string defaultPrinter = settings.PrinterName;
-			List<string> printers = new List<string>();
+        /// Create destinations for all the installed printers
+        /// </summary>
+        /// <returns>IEnumerable of IDestination</returns>
+        public override IEnumerable<IDestination> DynamicDestinations()
+        {
+            PrinterSettings settings = new PrinterSettings();
+            string defaultPrinter = settings.PrinterName;
+            List<string> printers = new List<string>();
 
-			foreach (string printer in PrinterSettings.InstalledPrinters) {
-				printers.Add(printer);
-			}
-			printers.Sort(delegate(string p1, string p2) {
-				if(defaultPrinter.Equals(p1)) {
-					return -1;
-				}
-				if(defaultPrinter.Equals(p2)) {
-					return 1;
-				}
-				return string.Compare(p1, p2, StringComparison.Ordinal);
-			});
-			foreach(string printer in printers) {
-				yield return new PrinterDestination(printer);
-			}
-		}
+            foreach (string printer in PrinterSettings.InstalledPrinters)
+            {
+                printers.Add(printer);
+            }
 
-		/// <summary>
-		/// Export the capture to the printer
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>ExportInformation</returns>
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			PrinterSettings printerSettings;
-			if (!string.IsNullOrEmpty(_printerName))
+            printers.Sort(delegate(string p1, string p2)
+            {
+                if (defaultPrinter.Equals(p1))
+                {
+                    return -1;
+                }
+
+                if (defaultPrinter.Equals(p2))
+                {
+                    return 1;
+                }
+
+                return string.Compare(p1, p2, StringComparison.Ordinal);
+            });
+            foreach (string printer in printers)
+            {
+                yield return new PrinterDestination(printer);
+            }
+        }
+
+        /// <summary>
+        /// Export the capture to the printer
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        /// <returns>ExportInformation</returns>
+        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            PrinterSettings printerSettings;
+            if (!string.IsNullOrEmpty(_printerName))
             {
                 using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
                 printerSettings = printHelper.PrintTo(_printerName);
-            } else if (!manuallyInitiated) {
-				PrinterSettings settings = new PrinterSettings();
+            }
+            else if (!manuallyInitiated)
+            {
+                PrinterSettings settings = new PrinterSettings();
                 using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
                 printerSettings = printHelper.PrintTo(settings.PrinterName);
-            } else
+            }
+            else
             {
                 using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
                 printerSettings = printHelper.PrintWithDialog();
             }
-			if (printerSettings != null) {
-				exportInformation.ExportMade = true;
-			}
 
-			ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
-	}
+            if (printerSettings != null)
+            {
+                exportInformation.ExportMade = true;
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+    }
 }

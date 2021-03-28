@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
@@ -25,37 +26,45 @@ using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
-	[Serializable] 
-	public class MagnifierFilter : AbstractFilter {
-		public MagnifierFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.MAGNIFICATION_FACTOR, 2);
-		}
+namespace Greenshot.Drawing.Filters
+{
+    [Serializable]
+    public class MagnifierFilter : AbstractFilter
+    {
+        public MagnifierFilter(DrawableContainer parent) : base(parent)
+        {
+            AddField(GetType(), FieldType.MAGNIFICATION_FACTOR, 2);
+        }
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        {
+            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
-				// nothing to do
-				return;
-			}
-			int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
-			GraphicsState state =  graphics.Save();
-			if (Invert) {
-				graphics.SetClip(applyRect);
-				graphics.ExcludeClip(rect);
-			}
-			graphics.SmoothingMode = SmoothingMode.None;
-			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-			graphics.CompositingQuality = CompositingQuality.HighQuality;
-			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			int halfWidth = rect.Width / 2;
-			int halfHeight = rect.Height / 2;
-			int newWidth = rect.Width / magnificationFactor;
-			int newHeight = rect.Height / magnificationFactor;
-			Rectangle source = new Rectangle(rect.X + halfWidth - newWidth / 2, rect.Y + halfHeight - newHeight / 2, newWidth, newHeight);
-			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
-			graphics.Restore(state);
-		}
-	}
+            if (applyRect.Width == 0 || applyRect.Height == 0)
+            {
+                // nothing to do
+                return;
+            }
+
+            int magnificationFactor = GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR);
+            GraphicsState state = graphics.Save();
+            if (Invert)
+            {
+                graphics.SetClip(applyRect);
+                graphics.ExcludeClip(rect);
+            }
+
+            graphics.SmoothingMode = SmoothingMode.None;
+            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.None;
+            int halfWidth = rect.Width / 2;
+            int halfHeight = rect.Height / 2;
+            int newWidth = rect.Width / magnificationFactor;
+            int newHeight = rect.Height / magnificationFactor;
+            Rectangle source = new Rectangle(rect.X + halfWidth - newWidth / 2, rect.Y + halfHeight - newHeight / 2, newWidth, newHeight);
+            graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
+            graphics.Restore(state);
+        }
+    }
 }

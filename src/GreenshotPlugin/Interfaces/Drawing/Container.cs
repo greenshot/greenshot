@@ -29,187 +29,121 @@ using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 namespace GreenshotPlugin.Interfaces.Drawing
 {
-	public enum RenderMode { EDIT, EXPORT };
-	public enum EditStatus { UNDRAWN, DRAWING, MOVING, RESIZING, IDLE };
+    public enum RenderMode
+    {
+        EDIT,
+        EXPORT
+    };
 
-	public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
-	{
-		ISurface Parent
-		{
-			get;
-			set;
-		}
-		bool Selected
-		{
-			get;
-			set;
-		}
+    public enum EditStatus
+    {
+        UNDRAWN,
+        DRAWING,
+        MOVING,
+        RESIZING,
+        IDLE
+    };
 
-		int Left
-		{
-			get;
-			set;
-		}
+    public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
+    {
+        ISurface Parent { get; set; }
+        bool Selected { get; set; }
 
-		int Top
-		{
-			get;
-			set;
-		}
+        int Left { get; set; }
 
-		int Width
-		{
-			get;
-			set;
-		}
+        int Top { get; set; }
 
-		int Height
-		{
-			get;
-			set;
-		}
+        int Width { get; set; }
 
-		Point Location
-		{
-			get;
-		}
+        int Height { get; set; }
 
-		Size Size
-		{
-			get;
-		}
+        Point Location { get; }
 
-		Rectangle Bounds
-		{
-			get;
-		}
+        Size Size { get; }
 
-		Rectangle DrawingBounds
-		{
-			get;
-		}
+        Rectangle Bounds { get; }
 
-		void ApplyBounds(RectangleF newBounds);
+        Rectangle DrawingBounds { get; }
 
-		bool hasFilters
-		{
-			get;
-		}
+        void ApplyBounds(RectangleF newBounds);
 
-		EditStatus Status
-		{
-			get;
-			set;
-		}
-		void Invalidate();
-		bool ClickableAt(int x, int y);
-		void MoveBy(int x, int y);
-		void Transform(Matrix matrix);
-		bool HandleMouseDown(int x, int y);
-		void HandleMouseUp(int x, int y);
-		bool HandleMouseMove(int x, int y);
-		bool InitContent();
-		void MakeBoundsChangeUndoable(bool allowMerge);
-		EditStatus DefaultEditMode
-		{
-			get;
-		}
+        bool hasFilters { get; }
 
-		/// <summary>
-		/// Available adorners for the DrawableContainer
-		/// </summary>
-		IList<IAdorner> Adorners { get; }
+        EditStatus Status { get; set; }
+        void Invalidate();
+        bool ClickableAt(int x, int y);
+        void MoveBy(int x, int y);
+        void Transform(Matrix matrix);
+        bool HandleMouseDown(int x, int y);
+        void HandleMouseUp(int x, int y);
+        bool HandleMouseMove(int x, int y);
+        bool InitContent();
+        void MakeBoundsChangeUndoable(bool allowMerge);
+        EditStatus DefaultEditMode { get; }
 
-		/// <summary>
-		/// Adjust UI elements to the supplied DPI settings
-		/// </summary>
-		/// <param name="dpi">uint</param>
-		void AdjustToDpi(uint dpi);
-	}
+        /// <summary>
+        /// Available adorners for the DrawableContainer
+        /// </summary>
+        IList<IAdorner> Adorners { get; }
 
-	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
-	{
-		Guid ParentID
-		{
-			get;
-		}
+        /// <summary>
+        /// Adjust UI elements to the supplied DPI settings
+        /// </summary>
+        /// <param name="dpi">uint</param>
+        void AdjustToDpi(uint dpi);
+    }
 
-		bool Selected
-		{
-			get;
-			set;
-		}
+    public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
+    {
+        Guid ParentID { get; }
 
-		ISurface Parent
-		{
-			get;
-			set;
-		}
-		EditStatus Status
-		{
-			get;
-			set;
-		}
-		Rectangle DrawingBounds
-		{
-			get;
-		}
-		void MakeBoundsChangeUndoable(bool allowMerge);
-		void Transform(Matrix matrix);
-		void MoveBy(int dx, int dy);
-		bool ClickableAt(int x, int y);
-		IDrawableContainer ClickableElementAt(int x, int y);
-		void OnDoubleClick();
-		bool HasIntersectingFilters(Rectangle clipRectangle);
-		bool IntersectsWith(Rectangle clipRectangle);
-		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
-		void Invalidate();
-		void PullElementsToTop(IDrawableContainerList elements);
-		bool CanPushDown(IDrawableContainerList elements);
-		void PullElementsUp(IDrawableContainerList elements);
-		bool CanPullUp(IDrawableContainerList elements);
-		void PushElementsDown(IDrawableContainerList elements);
-		void PushElementsToBottom(IDrawableContainerList elements);
-		void ShowContextMenu(MouseEventArgs e, ISurface surface);
-		void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
-		void AdjustToDpi(uint dpi);
-	}
+        bool Selected { get; set; }
 
-	public interface ITextContainer : IDrawableContainer
-	{
-		string Text
-		{
-			get;
-			set;
-		}
-		void FitToText();
-	}
+        ISurface Parent { get; set; }
+        EditStatus Status { get; set; }
+        Rectangle DrawingBounds { get; }
+        void MakeBoundsChangeUndoable(bool allowMerge);
+        void Transform(Matrix matrix);
+        void MoveBy(int dx, int dy);
+        bool ClickableAt(int x, int y);
+        IDrawableContainer ClickableElementAt(int x, int y);
+        void OnDoubleClick();
+        bool HasIntersectingFilters(Rectangle clipRectangle);
+        bool IntersectsWith(Rectangle clipRectangle);
+        void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+        void Invalidate();
+        void PullElementsToTop(IDrawableContainerList elements);
+        bool CanPushDown(IDrawableContainerList elements);
+        void PullElementsUp(IDrawableContainerList elements);
+        bool CanPullUp(IDrawableContainerList elements);
+        void PushElementsDown(IDrawableContainerList elements);
+        void PushElementsToBottom(IDrawableContainerList elements);
+        void ShowContextMenu(MouseEventArgs e, ISurface surface);
+        void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
+        void AdjustToDpi(uint dpi);
+    }
 
-	public interface IImageContainer : IDrawableContainer
-	{
-		Image Image
-		{
-			get;
-			set;
-		}
-		void Load(string filename);
-	}
-	public interface ICursorContainer : IDrawableContainer
-	{
-		Cursor Cursor
-		{
-			get;
-			set;
-		}
-		void Load(string filename);
-	}
-	public interface IIconContainer : IDrawableContainer
-	{
-		Icon Icon
-		{
-			get;
-			set;
-		}
-		void Load(string filename);
-	}
+    public interface ITextContainer : IDrawableContainer
+    {
+        string Text { get; set; }
+        void FitToText();
+    }
+
+    public interface IImageContainer : IDrawableContainer
+    {
+        Image Image { get; set; }
+        void Load(string filename);
+    }
+
+    public interface ICursorContainer : IDrawableContainer
+    {
+        Cursor Cursor { get; set; }
+        void Load(string filename);
+    }
+
+    public interface IIconContainer : IDrawableContainer
+    {
+        Icon Icon { get; set; }
+        void Load(string filename);
+    }
 }

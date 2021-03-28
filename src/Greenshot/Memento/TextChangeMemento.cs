@@ -22,43 +22,51 @@
 using Greenshot.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Memento {
-	/// <summary>
-	/// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
-	/// </summary>
-	public class TextChangeMemento : IMemento  {
-		private TextContainer _textContainer;
-		private readonly string _oldText;
-		
-		public TextChangeMemento(TextContainer textContainer) {
-			_textContainer = textContainer;
-			_oldText = textContainer.Text;
-		}
+namespace Greenshot.Memento
+{
+    /// <summary>
+    /// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
+    /// </summary>
+    public class TextChangeMemento : IMemento
+    {
+        private TextContainer _textContainer;
+        private readonly string _oldText;
 
-		public void Dispose() {
-			Dispose(true);
-		}
+        public TextChangeMemento(TextContainer textContainer)
+        {
+            _textContainer = textContainer;
+            _oldText = textContainer.Text;
+        }
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				_textContainer = null;
-			}
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
-		public bool Merge(IMemento otherMemento) {
-			if (otherMemento is not TextChangeMemento other) return false;
-			
-			return other._textContainer.Equals(_textContainer);
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _textContainer = null;
+            }
+        }
 
-		public IMemento Restore() {
-			// Before
-			_textContainer.Invalidate();
-			TextChangeMemento oldState = new TextChangeMemento(_textContainer);
-			_textContainer.ChangeText(_oldText, false);
-			// After
-			_textContainer.Invalidate();
-			return oldState;
-		}
-	}
+        public bool Merge(IMemento otherMemento)
+        {
+            if (otherMemento is not TextChangeMemento other) return false;
+
+            return other._textContainer.Equals(_textContainer);
+        }
+
+        public IMemento Restore()
+        {
+            // Before
+            _textContainer.Invalidate();
+            TextChangeMemento oldState = new TextChangeMemento(_textContainer);
+            _textContainer.ChangeText(_oldText, false);
+            // After
+            _textContainer.Invalidate();
+            return oldState;
+        }
+    }
 }

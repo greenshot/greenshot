@@ -18,29 +18,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Drawing.Fields.Binding {
-	/// <summary>
-	/// Basic IBindingConverter implementation
-	/// </summary>
-	public abstract class AbstractBindingConverter<T1,T2> : IBindingConverter
-	{
-		public object convert(object o) {
-			if(o == null) {
-				return null;
-			}
-			if(o is T1) {
-				return convert((T1)o);
-			}
-			if(o is T2) {
-				return convert((T2)o);
-			}
-			throw new ArgumentException("Cannot handle argument of type "+o.GetType());
-		}
+namespace Greenshot.Drawing.Fields.Binding
+{
+    /// <summary>
+    /// Basic IBindingConverter implementation
+    /// </summary>
+    public abstract class AbstractBindingConverter<T1, T2> : IBindingConverter
+    {
+        public object convert(object o)
+        {
+            if (o == null)
+            {
+                return null;
+            }
 
-		protected abstract T2 convert(T1 o);
-		protected abstract T1 convert(T2 o);
-		
-	}
+            if (o is T1)
+            {
+                return convert((T1) o);
+            }
+
+            if (o is T2)
+            {
+                return convert((T2) o);
+            }
+
+            throw new ArgumentException("Cannot handle argument of type " + o.GetType());
+        }
+
+        protected abstract T2 convert(T1 o);
+        protected abstract T1 convert(T2 o);
+    }
 }

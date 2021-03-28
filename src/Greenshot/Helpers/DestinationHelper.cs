@@ -27,85 +27,106 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;
 
-namespace Greenshot.Helpers {
-	/// <summary>
-	/// Description of DestinationHelper.
-	/// </summary>
-	public static class DestinationHelper {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+namespace Greenshot.Helpers
+{
+    /// <summary>
+    /// Description of DestinationHelper.
+    /// </summary>
+    public static class DestinationHelper
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
+        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
-		/// <summary>
-		/// Initialize the internal destinations
-		/// </summary>
-		public static void RegisterInternalDestinations() {
-			foreach(Type destinationType in InterfaceUtils.GetSubclassesOf(typeof(IDestination),true)) {
-				// Only take our own
-				if (!"Greenshot.Destinations".Equals(destinationType.Namespace)) {
-					continue;
-				}
+        /// <summary>
+        /// Initialize the internal destinations
+        /// </summary>
+        public static void RegisterInternalDestinations()
+        {
+            foreach (Type destinationType in InterfaceUtils.GetSubclassesOf(typeof(IDestination), true))
+            {
+                // Only take our own
+                if (!"Greenshot.Destinations".Equals(destinationType.Namespace))
+                {
+                    continue;
+                }
 
                 if (destinationType.IsAbstract) continue;
 
                 IDestination destination;
-                try {
-                    destination = (IDestination)Activator.CreateInstance(destinationType);
-                } catch (Exception e) {
+                try
+                {
+                    destination = (IDestination) Activator.CreateInstance(destinationType);
+                }
+                catch (Exception e)
+                {
                     Log.ErrorFormat("Can't create instance of {0}", destinationType);
                     Log.Error(e);
                     continue;
                 }
-                if (destination.IsActive) {
+
+                if (destination.IsActive)
+                {
                     Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
                     SimpleServiceProvider.Current.AddService(destination);
-                } else {
+                }
+                else
+                {
                     Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
                 }
             }
-		}
+        }
 
-		/// <summary>
-		/// Method to get all the destinations from the plugins
-		/// </summary>
-		/// <returns>List of IDestination</returns>
-		public static IEnumerable<IDestination> GetAllDestinations()
+        /// <summary>
+        /// Method to get all the destinations from the plugins
+        /// </summary>
+        /// <returns>List of IDestination</returns>
+        public static IEnumerable<IDestination> GetAllDestinations()
         {
             return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
                 .Where(destination => destination.IsActive)
                 .Where(destination => CoreConfig.ExcludeDestinations == null ||
                                       !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
-		}
+        }
 
-		/// <summary>
-		/// Get a destination by a designation
-		/// </summary>
-		/// <param name="designation">Designation of the destination</param>
-		/// <returns>IDestination or null</returns>
-		public static IDestination GetDestination(string designation) {
-			if (designation == null) {
-				return null;
-			}
-			foreach (IDestination destination in GetAllDestinations()) {
-				if (designation.Equals(destination.Designation)) {
-					return destination;
-				}
-			}
-			return null;
-		}
+        /// <summary>
+        /// Get a destination by a designation
+        /// </summary>
+        /// <param name="designation">Designation of the destination</param>
+        /// <returns>IDestination or null</returns>
+        public static IDestination GetDestination(string designation)
+        {
+            if (designation == null)
+            {
+                return null;
+            }
 
-		/// <summary>
-		/// A simple helper method which will call ExportCapture for the destination with the specified designation
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="designation"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
-			IDestination destination = GetDestination(designation);
-			if (destination != null && destination.IsActive) {
-				return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
-			}
-			return null;
-		}
-	}
+            foreach (IDestination destination in GetAllDestinations())
+            {
+                if (designation.Equals(destination.Designation))
+                {
+                    return destination;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// A simple helper method which will call ExportCapture for the destination with the specified designation
+        /// </summary>
+        /// <param name="manuallyInitiated"></param>
+        /// <param name="designation"></param>
+        /// <param name="surface"></param>
+        /// <param name="captureDetails"></param>
+        public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
+        {
+            IDestination destination = GetDestination(designation);
+            if (destination != null && destination.IsActive)
+            {
+                return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
+            }
+
+            return null;
+        }
+    }
 }

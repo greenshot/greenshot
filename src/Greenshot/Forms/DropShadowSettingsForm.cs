@@ -18,36 +18,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
 
-namespace Greenshot.Forms {
-	public partial class DropShadowSettingsForm : BaseForm {
-		private readonly DropShadowEffect _effect;
+namespace Greenshot.Forms
+{
+    public partial class DropShadowSettingsForm : BaseForm
+    {
+        private readonly DropShadowEffect _effect;
 
-		public DropShadowSettingsForm(DropShadowEffect effect) {
-			_effect = effect;
-			InitializeComponent();
-			ShowSettings();
-		}
+        public DropShadowSettingsForm(DropShadowEffect effect)
+        {
+            _effect = effect;
+            InitializeComponent();
+            ShowSettings();
+        }
 
-		/// <summary>
-		/// Apply the settings from the effect to the view
-		/// </summary>
-		private void ShowSettings() {
-			trackBar1.Value = (int)(_effect.Darkness * 40);
-			offsetX.Value = _effect.ShadowOffset.X;
-			offsetY.Value = _effect.ShadowOffset.Y;
-			thickness.Value = _effect.ShadowSize;
-		}
+        /// <summary>
+        /// Apply the settings from the effect to the view
+        /// </summary>
+        private void ShowSettings()
+        {
+            trackBar1.Value = (int) (_effect.Darkness * 40);
+            offsetX.Value = _effect.ShadowOffset.X;
+            offsetY.Value = _effect.ShadowOffset.Y;
+            thickness.Value = _effect.ShadowSize;
+        }
 
-		private void ButtonOK_Click(object sender, EventArgs e) {
-			_effect.Darkness = trackBar1.Value / (float)40;
-			_effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
-			_effect.ShadowSize = (int)thickness.Value;
-			DialogResult = DialogResult.OK;
-		}
-	}
+        private void ButtonOK_Click(object sender, EventArgs e)
+        {
+            _effect.Darkness = trackBar1.Value / (float) 40;
+            _effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+            _effect.ShadowSize = (int) thickness.Value;
+            DialogResult = DialogResult.OK;
+        }
+    }
 }

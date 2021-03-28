@@ -18,32 +18,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using log4net;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
-	/// <summary>
-	/// Description of PsAPI.
-	/// </summary>
-	public class PsAPI {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PsAPI));
-		[DllImport("psapi", SetLastError = true, CharSet = CharSet.Unicode)]
-		public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpFilename, uint nSize);
-		[DllImport("psapi", SetLastError = true, CharSet = CharSet.Unicode)]
-		public static extern uint GetProcessImageFileName(IntPtr hProcess, StringBuilder lpImageFileName, uint nSize);
-		[DllImport("psapi")]
-		private static extern int EmptyWorkingSet(IntPtr hwProc);
+namespace GreenshotPlugin.UnmanagedHelpers
+{
+    /// <summary>
+    /// Description of PsAPI.
+    /// </summary>
+    public class PsAPI
+    {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(PsAPI));
 
-		/// <summary>
-		/// Make the process use less memory by emptying the working set
-		/// </summary>
-		public static void EmptyWorkingSet() {
-			LOG.Info("Calling EmptyWorkingSet");
+        [DllImport("psapi", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpFilename, uint nSize);
+
+        [DllImport("psapi", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern uint GetProcessImageFileName(IntPtr hProcess, StringBuilder lpImageFileName, uint nSize);
+
+        [DllImport("psapi")]
+        private static extern int EmptyWorkingSet(IntPtr hwProc);
+
+        /// <summary>
+        /// Make the process use less memory by emptying the working set
+        /// </summary>
+        public static void EmptyWorkingSet()
+        {
+            LOG.Info("Calling EmptyWorkingSet");
             using Process currentProcess = Process.GetCurrentProcess();
             EmptyWorkingSet(currentProcess.Handle);
         }
-	}
+    }
 }

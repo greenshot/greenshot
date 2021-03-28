@@ -18,30 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Drawing.Fields.Binding {
-	/// <summary>
-	/// Converts decimal to double (%) and vice versa, e.g. 95f to 0.95d
-	/// </summary>
-	public class DecimalDoublePercentageConverter : AbstractBindingConverter<double, decimal>
-	{
-		private static DecimalDoublePercentageConverter _uniqueInstance;
-		
-		private DecimalDoublePercentageConverter() {}
-		
-		protected override decimal convert(double o) {
-			return Convert.ToDecimal(o)*100;
-		}
-		
-		protected override double convert(decimal o) {
-			return Convert.ToDouble(o)/100;
-		}
-		
-		public static DecimalDoublePercentageConverter GetInstance()
+namespace Greenshot.Drawing.Fields.Binding
+{
+    /// <summary>
+    /// Converts decimal to double (%) and vice versa, e.g. 95f to 0.95d
+    /// </summary>
+    public class DecimalDoublePercentageConverter : AbstractBindingConverter<double, decimal>
+    {
+        private static DecimalDoublePercentageConverter _uniqueInstance;
+
+        private DecimalDoublePercentageConverter()
+        {
+        }
+
+        protected override decimal convert(double o)
+        {
+            return Convert.ToDecimal(o) * 100;
+        }
+
+        protected override double convert(decimal o)
+        {
+            return Convert.ToDouble(o) / 100;
+        }
+
+        public static DecimalDoublePercentageConverter GetInstance()
         {
             return _uniqueInstance ??= new DecimalDoublePercentageConverter();
         }
-		
-	}
+    }
 }

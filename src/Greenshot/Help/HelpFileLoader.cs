@@ -26,61 +26,76 @@ using log4net;
 
 namespace Greenshot.Help
 {
-	/// <summary>
-	/// Description of HelpFileLoader.
-	/// </summary>
-	public static class HelpFileLoader
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(HelpFileLoader));
-		
-		private const string ExtHelpUrl = @"http://getgreenshot.org/help/";
+    /// <summary>
+    /// Description of HelpFileLoader.
+    /// </summary>
+    public static class HelpFileLoader
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(HelpFileLoader));
 
-		public static void LoadHelp() {
-			string uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
-			Process.Start(uri);			
-		}
-		
-		/// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
-		private static string FindOnlineHelpUrl(string currentIETF) {
-			string ret = null;
-			
-			string extHelpUrlForCurrrentIETF = ExtHelpUrl;
-			
-			if(!currentIETF.Equals("en-US")) {
-				extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
-			}
-			
-			HttpStatusCode? httpStatusCode = GetHttpStatus(extHelpUrlForCurrrentIETF);
-			if(httpStatusCode == HttpStatusCode.OK) {
-				ret = extHelpUrlForCurrrentIETF;
-			} else if(httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(ExtHelpUrl)) {
-				Log.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
-				httpStatusCode = GetHttpStatus(ExtHelpUrl);
-				if(httpStatusCode == HttpStatusCode.OK) {
-					ret = ExtHelpUrl;
-				} else {
-					Log.WarnFormat("{0} returned status {1}", ExtHelpUrl, httpStatusCode);
-				}
-			} else if(httpStatusCode == null){
-				Log.Info("Internet connection does not seem to be available, will load help from file system.");
-			}
-			
-			return ret;
-		}
-		
-		/// <summary>
-		/// Retrieves HTTP status for a given url.
-		/// </summary>
-		/// <param name="url">URL for which the HTTP status is to be checked</param>
-		/// <returns>An HTTP status code, or null if there is none (probably indicating that there is no internet connection available</returns>
-		private static HttpStatusCode? GetHttpStatus(string url) {
-			try {
-				HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
-                using HttpWebResponse res = (HttpWebResponse)req.GetResponse();
+        private const string ExtHelpUrl = @"http://getgreenshot.org/help/";
+
+        public static void LoadHelp()
+        {
+            string uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
+            Process.Start(uri);
+        }
+
+        /// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
+        private static string FindOnlineHelpUrl(string currentIETF)
+        {
+            string ret = null;
+
+            string extHelpUrlForCurrrentIETF = ExtHelpUrl;
+
+            if (!currentIETF.Equals("en-US"))
+            {
+                extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
+            }
+
+            HttpStatusCode? httpStatusCode = GetHttpStatus(extHelpUrlForCurrrentIETF);
+            if (httpStatusCode == HttpStatusCode.OK)
+            {
+                ret = extHelpUrlForCurrrentIETF;
+            }
+            else if (httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(ExtHelpUrl))
+            {
+                Log.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
+                httpStatusCode = GetHttpStatus(ExtHelpUrl);
+                if (httpStatusCode == HttpStatusCode.OK)
+                {
+                    ret = ExtHelpUrl;
+                }
+                else
+                {
+                    Log.WarnFormat("{0} returned status {1}", ExtHelpUrl, httpStatusCode);
+                }
+            }
+            else if (httpStatusCode == null)
+            {
+                Log.Info("Internet connection does not seem to be available, will load help from file system.");
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Retrieves HTTP status for a given url.
+        /// </summary>
+        /// <param name="url">URL for which the HTTP status is to be checked</param>
+        /// <returns>An HTTP status code, or null if there is none (probably indicating that there is no internet connection available</returns>
+        private static HttpStatusCode? GetHttpStatus(string url)
+        {
+            try
+            {
+                HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
+                using HttpWebResponse res = (HttpWebResponse) req.GetResponse();
                 return res.StatusCode;
-            } catch (WebException e) {
-				return ((HttpWebResponse) e.Response)?.StatusCode;
-			}
-		}
-	}
+            }
+            catch (WebException e)
+            {
+                return ((HttpWebResponse) e.Response)?.StatusCode;
+            }
+        }
+    }
 }

@@ -24,59 +24,67 @@ using Greenshot.Plugin.Flickr.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 
-namespace Greenshot.Plugin.Flickr {
-	public enum SafetyLevel {
-		Safe = 1,
-		Moderate = 2,
-		Restricted = 3
-	}
-	/// <summary>
-	/// Description of FlickrConfiguration.
-	/// </summary>
-	[IniSection("Flickr", Description = "Greenshot Flickr Plugin configuration")]
-	public class FlickrConfiguration : IniSection {
-		[IniProperty("flickrIsPublic", Description = "IsPublic.", DefaultValue = "true")]
-		public bool IsPublic { get; set; }
+namespace Greenshot.Plugin.Flickr
+{
+    public enum SafetyLevel
+    {
+        Safe = 1,
+        Moderate = 2,
+        Restricted = 3
+    }
 
-		[IniProperty("flickrIsFamily", Description = "IsFamily.", DefaultValue = "true")]
-		public bool IsFamily { get; set; }
+    /// <summary>
+    /// Description of FlickrConfiguration.
+    /// </summary>
+    [IniSection("Flickr", Description = "Greenshot Flickr Plugin configuration")]
+    public class FlickrConfiguration : IniSection
+    {
+        [IniProperty("flickrIsPublic", Description = "IsPublic.", DefaultValue = "true")]
+        public bool IsPublic { get; set; }
 
-		[IniProperty("flickrIsFriend", Description = "IsFriend.", DefaultValue = "true")]
-		public bool IsFriend { get; set; }
+        [IniProperty("flickrIsFamily", Description = "IsFamily.", DefaultValue = "true")]
+        public bool IsFamily { get; set; }
 
-		[IniProperty("SafetyLevel", Description = "Safety level", DefaultValue = "Safe")]
-		public SafetyLevel SafetyLevel { get; set; }
+        [IniProperty("flickrIsFriend", Description = "IsFriend.", DefaultValue = "true")]
+        public bool IsFriend { get; set; }
 
-		[IniProperty("HiddenFromSearch", Description = "Hidden from search", DefaultValue = "false")]
-		public bool HiddenFromSearch { get; set; }
+        [IniProperty("SafetyLevel", Description = "Safety level", DefaultValue = "Safe")]
+        public SafetyLevel SafetyLevel { get; set; }
 
-		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+        [IniProperty("HiddenFromSearch", Description = "Hidden from search", DefaultValue = "false")]
+        public bool HiddenFromSearch { get; set; }
 
-		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality { get; set; }
+        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+        public OutputFormat UploadFormat { get; set; }
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send flickr link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard { get; set; }
+        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+        public int UploadJpegQuality { get; set; }
 
-		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-		public bool UsePageLink { get; set; }
+        [IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send flickr link to clipboard.", DefaultValue = "true")]
+        public bool AfterUploadLinkToClipBoard { get; set; }
 
-		[IniProperty("FlickrToken", Description = "The Flickr token", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrToken { get; set; }
-		[IniProperty("FlickrTokenSecret", Description = "The Flickr token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrTokenSecret { get; set; }
+        [IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
+        public bool UsePageLink { get; set; }
 
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
-	}
+        [IniProperty("FlickrToken", Description = "The Flickr token", Encrypted = true, ExcludeIfNull = true)]
+        public string FlickrToken { get; set; }
+
+        [IniProperty("FlickrTokenSecret", Description = "The Flickr token secret", Encrypted = true, ExcludeIfNull = true)]
+        public string FlickrTokenSecret { get; set; }
+
+        /// <summary>
+        /// A form for token
+        /// </summary>
+        /// <returns>bool true if OK was pressed, false if cancel</returns>
+        public bool ShowConfigDialog()
+        {
+            DialogResult result = new SettingsForm().ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

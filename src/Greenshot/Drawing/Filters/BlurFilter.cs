@@ -27,40 +27,57 @@ using GreenshotPlugin.UnmanagedHelpers;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
-	[Serializable] 
-	public class BlurFilter : AbstractFilter {
-		public double previewQuality;
-		public double PreviewQuality {
-			get { return previewQuality; }
-			set { previewQuality = value; OnPropertyChanged("PreviewQuality"); }
-		}
-		
-		public BlurFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.BLUR_RADIUS, 3);
-			AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
-		}
+namespace Greenshot.Drawing.Filters
+{
+    [Serializable]
+    public class BlurFilter : AbstractFilter
+    {
+        public double previewQuality;
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
-			int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
-			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
-				return;
-			}
-			GraphicsState state = graphics.Save();
-			if (Invert) {
-				graphics.SetClip(applyRect);
-				graphics.ExcludeClip(rect);
-			}
-			if (GDIplus.IsBlurPossible(blurRadius)) {
-				GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
-			} else
+        public double PreviewQuality
+        {
+            get { return previewQuality; }
+            set
+            {
+                previewQuality = value;
+                OnPropertyChanged("PreviewQuality");
+            }
+        }
+
+        public BlurFilter(DrawableContainer parent) : base(parent)
+        {
+            AddField(GetType(), FieldType.BLUR_RADIUS, 3);
+            AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
+        }
+
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        {
+            int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            if (applyRect.Width == 0 || applyRect.Height == 0)
+            {
+                return;
+            }
+
+            GraphicsState state = graphics.Save();
+            if (Invert)
+            {
+                graphics.SetClip(applyRect);
+                graphics.ExcludeClip(rect);
+            }
+
+            if (GDIplus.IsBlurPossible(blurRadius))
+            {
+                GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
+            }
+            else
             {
                 using IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
                 ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
                 fastBitmap.DrawTo(graphics, applyRect);
             }
-			graphics.Restore(state);
-		}
-	}
+
+            graphics.Restore(state);
+        }
+    }
 }

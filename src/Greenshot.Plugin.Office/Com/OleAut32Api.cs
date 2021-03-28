@@ -23,7 +23,7 @@ namespace Greenshot.Plugin.Office.Com
         {
             if (GetActiveObject(ref clsId, IntPtr.Zero, out object comObject).Succeeded())
             {
-                return DisposableCom.Create((T)comObject);
+                return DisposableCom.Create((T) comObject);
             }
 
             return null;

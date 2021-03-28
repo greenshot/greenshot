@@ -18,59 +18,72 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing {
-	/// <summary>
-	/// Description of ObfuscateContainer.
-	/// </summary>
-	[Serializable] 
-	public class ObfuscateContainer : FilterContainer {
-		public ObfuscateContainer(Surface parent) : base(parent) {
-			Init();
-		}
+namespace Greenshot.Drawing
+{
+    /// <summary>
+    /// Description of ObfuscateContainer.
+    /// </summary>
+    [Serializable]
+    public class ObfuscateContainer : FilterContainer
+    {
+        public ObfuscateContainer(Surface parent) : base(parent)
+        {
+            Init();
+        }
 
-		protected override void InitializeFields() {
-			base.InitializeFields();
-			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
-		}
+        protected override void InitializeFields()
+        {
+            base.InitializeFields();
+            AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
+        }
 
-		protected override void OnDeserialized(StreamingContext context)
-		{
-			Init();
-		}
-		
-		private void Init() {
-			FieldChanged += ObfuscateContainer_OnFieldChanged;
-			ConfigurePreparedFilters();
-			CreateDefaultAdorners();
-		}	
-		
-		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
-			if(sender.Equals(this)) {
-				if(Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE)) {
-					ConfigurePreparedFilters();
-				}
-			}
-		}
-		
-		private void ConfigurePreparedFilters() {
-			PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
-			while(Filters.Count>0) {
-				Remove(Filters[0]);
-			}
-			switch(preset) {
-				case PreparedFilter.BLUR:
-					Add(new BlurFilter(this));
-					break;
-				case PreparedFilter.PIXELIZE:
-					Add(new PixelizationFilter(this));
-					break;
-			}
-		}
-	}
+        protected override void OnDeserialized(StreamingContext context)
+        {
+            Init();
+        }
+
+        private void Init()
+        {
+            FieldChanged += ObfuscateContainer_OnFieldChanged;
+            ConfigurePreparedFilters();
+            CreateDefaultAdorners();
+        }
+
+        protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
+        {
+            if (sender.Equals(this))
+            {
+                if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE))
+                {
+                    ConfigurePreparedFilters();
+                }
+            }
+        }
+
+        private void ConfigurePreparedFilters()
+        {
+            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            while (Filters.Count > 0)
+            {
+                Remove(Filters[0]);
+            }
+
+            switch (preset)
+            {
+                case PreparedFilter.BLUR:
+                    Add(new BlurFilter(this));
+                    break;
+                case PreparedFilter.PIXELIZE:
+                    Add(new PixelizationFilter(this));
+                    break;
+            }
+        }
+    }
 }

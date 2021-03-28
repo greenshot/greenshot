@@ -29,97 +29,113 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.GooglePhotos {
-	/// <summary>
-	/// This is the GooglePhotos base code
-	/// </summary>
-	[Plugin("GooglePhotos", true)]
-	public class GooglePhotosPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(GooglePhotosPlugin));
-		private static GooglePhotosConfiguration _config;
-		private ComponentResourceManager _resources;
-		private ToolStripMenuItem _itemPlugInRoot;
+namespace Greenshot.Plugin.GooglePhotos
+{
+    /// <summary>
+    /// This is the GooglePhotos base code
+    /// </summary>
+    [Plugin("GooglePhotos", true)]
+    public class GooglePhotosPlugin : IGreenshotPlugin
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(GooglePhotosPlugin));
+        private static GooglePhotosConfiguration _config;
+        private ComponentResourceManager _resources;
+        private ToolStripMenuItem _itemPlugInRoot;
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		private void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-			if (_itemPlugInRoot == null) return;
-			_itemPlugInRoot.Dispose();
-			_itemPlugInRoot = null;
-		}
+        private void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            if (_itemPlugInRoot == null) return;
+            _itemPlugInRoot.Dispose();
+            _itemPlugInRoot = null;
+        }
 
-		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
-		/// </summary>
-		public bool Initialize() {
-			SimpleServiceProvider.Current.AddService<IDestination>(new GooglePhotosDestination(this));
+        /// <summary>
+        /// Implementation of the IGreenshotPlugin.Initialize
+        /// </summary>
+        public bool Initialize()
+        {
+            SimpleServiceProvider.Current.AddService<IDestination>(new GooglePhotosDestination(this));
 
-			// Get configuration
-			_config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
-			_resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
+            // Get configuration
+            _config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
+            _resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
 
-			_itemPlugInRoot = new ToolStripMenuItem
-			{
-				Text = Language.GetString("googlephotos", LangKey.Configure),
-				Image = (Image) _resources.GetObject("GooglePhotos")
-			};
-			_itemPlugInRoot.Click += ConfigMenuClick;
-			PluginUtils.AddToContextMenu(_itemPlugInRoot);
-			Language.LanguageChanged += OnLanguageChanged;
-			return true;
-		}
+            _itemPlugInRoot = new ToolStripMenuItem
+            {
+                Text = Language.GetString("googlephotos", LangKey.Configure),
+                Image = (Image) _resources.GetObject("GooglePhotos")
+            };
+            _itemPlugInRoot.Click += ConfigMenuClick;
+            PluginUtils.AddToContextMenu(_itemPlugInRoot);
+            Language.LanguageChanged += OnLanguageChanged;
+            return true;
+        }
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (_itemPlugInRoot != null) {
-				_itemPlugInRoot.Text = Language.GetString("googlephotos", LangKey.Configure);
-			}
-		}
+        public void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (_itemPlugInRoot != null)
+            {
+                _itemPlugInRoot.Text = Language.GetString("googlephotos", LangKey.Configure);
+            }
+        }
 
-		public void Shutdown() {
-			Log.Debug("GooglePhotos Plugin shutdown.");
-			Language.LanguageChanged -= OnLanguageChanged;
-			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
-		}
+        public void Shutdown()
+        {
+            Log.Debug("GooglePhotos Plugin shutdown.");
+            Language.LanguageChanged -= OnLanguageChanged;
+            //host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
+        }
 
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure() {
-			_config.ShowConfigDialog();
-		}
+        /// <summary>
+        /// Implementation of the IPlugin.Configure
+        /// </summary>
+        public void Configure()
+        {
+            _config.ShowConfigDialog();
+        }
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			Configure();
-		}
+        public void ConfigMenuClick(object sender, EventArgs eventArgs)
+        {
+            Configure();
+        }
 
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
-			try {
-				string url = null;
-				new PleaseWaitForm().ShowAndWait("GooglePhotos", Language.GetString("googlephotos", LangKey.communication_wait), 
-					delegate
-					{
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-						url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-					}
-				);
-				uploadUrl = url;
+        public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+        {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
+            try
+            {
+                string url = null;
+                new PleaseWaitForm().ShowAndWait("GooglePhotos", Language.GetString("googlephotos", LangKey.communication_wait),
+                    delegate
+                    {
+                        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+                        url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
+                    }
+                );
+                uploadUrl = url;
 
-				if (uploadUrl != null && _config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadUrl);
-				}
-				return true;
-			} catch (Exception e) {
-				Log.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
-		}
-	}
+                if (uploadUrl != null && _config.AfterUploadLinkToClipBoard)
+                {
+                    ClipboardHelper.SetClipboardData(uploadUrl);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error uploading.", e);
+                MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
+            }
+
+            uploadUrl = null;
+            return false;
+        }
+    }
 }

@@ -22,15 +22,17 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Interop {
-	[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("00000000-0000-0000-C000-000000000046")]
-	public interface IUnknown {
-		IntPtr QueryInterface(ref Guid riid);
+namespace GreenshotPlugin.Interop
+{
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("00000000-0000-0000-C000-000000000046")]
+    public interface IUnknown
+    {
+        IntPtr QueryInterface(ref Guid riid);
 
-		[PreserveSig]
-		uint AddRef();
+        [PreserveSig]
+        uint AddRef();
 
-		[PreserveSig]
-		uint Release();
-	}
+        [PreserveSig]
+        uint Release();
+    }
 }

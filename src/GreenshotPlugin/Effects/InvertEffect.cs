@@ -25,15 +25,19 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// InvertEffect
-	/// </summary>
-	public class InvertEffect : IEffect {
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.CreateNegative(sourceImage);
-		}
-		public void Reset() {
-			// No settings to reset
-		}
-	}
+    /// <summary>
+    /// InvertEffect
+    /// </summary>
+    public class InvertEffect : IEffect
+    {
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.CreateNegative(sourceImage);
+        }
+
+        public void Reset()
+        {
+            // No settings to reset
+        }
+    }
 }

@@ -18,46 +18,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using GreenshotPlugin.Interfaces;
 
-namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// Description of AbstractProcessor.
-	/// </summary>
-	public abstract class AbstractProcessor : IProcessor {
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// Description of AbstractProcessor.
+    /// </summary>
+    public abstract class AbstractProcessor : IProcessor
+    {
+        public virtual int CompareTo(object obj)
+        {
+            if (!(obj is IProcessor other))
+            {
+                return 1;
+            }
 
-        public virtual int CompareTo(object obj) {
-            if (!(obj is IProcessor other)) {
-				return 1;
-			}
-			if (Priority == other.Priority) {
-				return string.Compare(Description, other.Description, StringComparison.Ordinal);
-			}
-			return Priority - other.Priority;
-		}
+            if (Priority == other.Priority)
+            {
+                return string.Compare(Description, other.Description, StringComparison.Ordinal);
+            }
 
-		public abstract string Designation {
-			get;
-		}
+            return Priority - other.Priority;
+        }
 
-		public abstract string Description {
-			get;
-		}
+        public abstract string Designation { get; }
 
-		public virtual int Priority => 10;
+        public abstract string Description { get; }
 
-        public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public virtual int Priority => 10;
 
-		protected virtual void Dispose(bool disposing) {
-			//if (disposing) {}
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		public virtual bool isActive => true;
+        protected virtual void Dispose(bool disposing)
+        {
+            //if (disposing) {}
+        }
+
+        public virtual bool isActive => true;
 
         public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
-	}
+    }
 }

@@ -24,6 +24,7 @@ namespace Greenshot.Plugin.Office.Com
             {
                 return clsId;
             }
+
             return clsId;
         }
 

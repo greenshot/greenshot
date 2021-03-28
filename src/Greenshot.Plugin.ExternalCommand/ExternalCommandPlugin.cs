@@ -55,6 +55,7 @@ namespace Greenshot.Plugin.ExternalCommand
             _itemPlugInRoot.Dispose();
             _itemPlugInRoot = null;
         }
+
         private IEnumerable<IDestination> Destinations()
         {
             foreach (string command in ExternalCommandConfig.Commands)
@@ -77,17 +78,20 @@ namespace Greenshot.Plugin.ExternalCommand
                 // Fix it
                 ExternalCommandConfig.RunInbackground.Add(command, true);
             }
+
             if (!ExternalCommandConfig.Argument.ContainsKey(command))
             {
                 Log.WarnFormat("Found missing argument for {0}", command);
                 // Fix it
                 ExternalCommandConfig.Argument.Add(command, "{0}");
             }
+
             if (!ExternalCommandConfig.Commandline.ContainsKey(command))
             {
                 Log.WarnFormat("Found missing commandline for {0}", command);
                 return false;
             }
+
             string commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
             commandline = FilenameHelper.FillCmdVariables(commandline, true);
 
@@ -96,8 +100,10 @@ namespace Greenshot.Plugin.ExternalCommand
                 Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
                 return false;
             }
+
             return true;
         }
+
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize
         /// </summary>
@@ -114,11 +120,13 @@ namespace Greenshot.Plugin.ExternalCommand
                     commandsToDelete.Add(command);
                 }
             }
+
             // cleanup
             foreach (string command in commandsToDelete)
             {
                 ExternalCommandConfig.Delete(command);
             }
+
             SimpleServiceProvider.Current.AddService(Destinations());
 
             _itemPlugInRoot = new ToolStripMenuItem();

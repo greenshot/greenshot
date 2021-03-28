@@ -18,41 +18,56 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using log4net;
 
-namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// Description of InterfaceUtils.
-	/// </summary>
-	public static class InterfaceUtils {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// Description of InterfaceUtils.
+    /// </summary>
+    public static class InterfaceUtils
+    {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
-		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes) {
-			var list = new List<Type>();
-			foreach(var currentAssembly in Thread.GetDomain().GetAssemblies()) {
-				try {
-					Type[] types = currentAssembly.GetTypes();
+        public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes)
+        {
+            var list = new List<Type>();
+            foreach (var currentAssembly in Thread.GetDomain().GetAssemblies())
+            {
+                try
+                {
+                    Type[] types = currentAssembly.GetTypes();
                     if (excludeSystemTypes && (!excludeSystemTypes || currentAssembly.FullName.StartsWith("System.")))
                     {
                         continue;
                     }
-                    foreach(var currentType in types) {
-                        if (type.IsInterface) {
-                            if (currentType.GetInterface(type.FullName) != null) {
+
+                    foreach (var currentType in types)
+                    {
+                        if (type.IsInterface)
+                        {
+                            if (currentType.GetInterface(type.FullName) != null)
+                            {
                                 list.Add(currentType);
                             }
-                        } else if (currentType.IsSubclassOf(type)) {
+                        }
+                        else if (currentType.IsSubclassOf(type))
+                        {
                             list.Add(currentType);
                         }
                     }
-                } catch (Exception ex) {
-					LOG.WarnFormat("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
-				}
-			}
-			return list;
-		}
+                }
+                catch (Exception ex)
+                {
+                    LOG.WarnFormat("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
+                }
+            }
+
+            return list;
+        }
     }
 }

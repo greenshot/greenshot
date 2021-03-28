@@ -18,21 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.GooglePhotos.Forms {
-	/// <summary>
-	/// Description of PasswordRequestForm.
-	/// </summary>
-	public partial class SettingsForm : GooglePhotosForm {
-
-		public SettingsForm()
-		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			CancelButton = buttonCancel;
-			AcceptButton = buttonOK;
-		}
-
-	}
+namespace Greenshot.Plugin.GooglePhotos.Forms
+{
+    /// <summary>
+    /// Description of PasswordRequestForm.
+    /// </summary>
+    public partial class SettingsForm : GooglePhotosForm
+    {
+        public SettingsForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            CancelButton = buttonCancel;
+            AcceptButton = buttonOK;
+        }
+    }
 }

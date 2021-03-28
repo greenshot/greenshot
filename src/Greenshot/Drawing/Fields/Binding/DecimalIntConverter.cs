@@ -18,30 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Drawing.Fields.Binding {
-	/// <summary>
-	/// Converts decimal to int and vice versa.
-	/// </summary>
-	public class DecimalIntConverter : AbstractBindingConverter<int, decimal>
-	{
-		private static DecimalIntConverter _uniqueInstance;
-		
-		private DecimalIntConverter() {}
-		
-		protected override decimal convert(int o) {
-			return Convert.ToDecimal(o);
-		}
-		
-		protected override int convert(decimal o) {
-			return Convert.ToInt32(o);
-		}
-		
-		public static DecimalIntConverter GetInstance()
-		{
-			return _uniqueInstance ??= new DecimalIntConverter();
-		}
-		
-	}
+namespace Greenshot.Drawing.Fields.Binding
+{
+    /// <summary>
+    /// Converts decimal to int and vice versa.
+    /// </summary>
+    public class DecimalIntConverter : AbstractBindingConverter<int, decimal>
+    {
+        private static DecimalIntConverter _uniqueInstance;
+
+        private DecimalIntConverter()
+        {
+        }
+
+        protected override decimal convert(int o)
+        {
+            return Convert.ToDecimal(o);
+        }
+
+        protected override int convert(decimal o)
+        {
+            return Convert.ToInt32(o);
+        }
+
+        public static DecimalIntConverter GetInstance()
+        {
+            return _uniqueInstance ??= new DecimalIntConverter();
+        }
+    }
 }

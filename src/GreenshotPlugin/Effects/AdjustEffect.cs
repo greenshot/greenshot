@@ -25,33 +25,30 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Effects
 {
-	/// <summary>
-	/// AdjustEffect
-	/// </summary>
-	public class AdjustEffect : IEffect {
-		public AdjustEffect()
-		{
-			Reset();
-		}
-		public float Contrast {
-			get;
-			set;
-		}
-		public float Brightness {
-			get;
-			set;
-		}
-		public float Gamma {
-			get;
-			set;
-		}
-		public void Reset() {
-			Contrast = 1f;
-			Brightness = 1f;
-			Gamma = 1f;
-		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
-		}
-	}
+    /// <summary>
+    /// AdjustEffect
+    /// </summary>
+    public class AdjustEffect : IEffect
+    {
+        public AdjustEffect()
+        {
+            Reset();
+        }
+
+        public float Contrast { get; set; }
+        public float Brightness { get; set; }
+        public float Gamma { get; set; }
+
+        public void Reset()
+        {
+            Contrast = 1f;
+            Brightness = 1f;
+            Gamma = 1f;
+        }
+
+        public Image Apply(Image sourceImage, Matrix matrix)
+        {
+            return ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
+        }
+    }
 }

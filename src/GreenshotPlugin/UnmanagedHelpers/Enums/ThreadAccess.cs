@@ -24,7 +24,8 @@ using System;
 namespace GreenshotPlugin.UnmanagedHelpers.Enums
 {
     [Flags]
-    public enum ThreadAccess : int {
+    public enum ThreadAccess : int
+    {
         SUSPEND_RESUME = (0x0002),
     }
 }

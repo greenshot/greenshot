@@ -18,54 +18,56 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using Greenshot.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {
-	/// <summary>
-	/// The AddElementMemento makes it possible to undo adding an element
-	/// </summary>
-	public class AddElementsMemento : IMemento
-	{
-		private IDrawableContainerList _containerList;
-		private Surface _surface;
+    /// <summary>
+    /// The AddElementMemento makes it possible to undo adding an element
+    /// </summary>
+    public class AddElementsMemento : IMemento
+    {
+        private IDrawableContainerList _containerList;
+        private Surface _surface;
 
-		public AddElementsMemento(Surface surface, IDrawableContainerList containerList)
-		{
-			_surface = surface;
-			_containerList = containerList;
-		}
+        public AddElementsMemento(Surface surface, IDrawableContainerList containerList)
+        {
+            _surface = surface;
+            _containerList = containerList;
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_containerList?.Dispose();
-			}
-			_containerList = null;
-			_surface = null;
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _containerList?.Dispose();
+            }
 
-		public bool Merge(IMemento otherMemento)
-		{
-			return false;
-		}
+            _containerList = null;
+            _surface = null;
+        }
 
-		public IMemento Restore()
-		{
-			var oldState = new DeleteElementsMemento(_surface, _containerList);
+        public bool Merge(IMemento otherMemento)
+        {
+            return false;
+        }
 
-			_surface.RemoveElements(_containerList, false);
+        public IMemento Restore()
+        {
+            var oldState = new DeleteElementsMemento(_surface, _containerList);
 
-			// After, so everything is gone
-			_surface.Invalidate();
-			return oldState;
-		}
-	}
+            _surface.RemoveElements(_containerList, false);
+
+            // After, so everything is gone
+            _surface.Invalidate();
+            return oldState;
+        }
+    }
 }

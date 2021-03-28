@@ -20,7 +20,9 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Plugin.GooglePhotos.Forms {
-	public class GooglePhotosForm : GreenshotForm {
-	}
+namespace Greenshot.Plugin.GooglePhotos.Forms
+{
+    public class GooglePhotosForm : GreenshotForm
+    {
+    }
 }

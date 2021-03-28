@@ -27,156 +27,160 @@ using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Adorners
 {
-	/// <summary>
-	/// This is the default "legacy" gripper adorner, not the one used for the tail in the speech-bubble
-	/// </summary>
-	public class ResizeAdorner : AbstractAdorner
-	{
-		private Rectangle _boundsBeforeResize = Rectangle.Empty;
-		private RectangleF _boundsAfterResize = RectangleF.Empty;
+    /// <summary>
+    /// This is the default "legacy" gripper adorner, not the one used for the tail in the speech-bubble
+    /// </summary>
+    public class ResizeAdorner : AbstractAdorner
+    {
+        private Rectangle _boundsBeforeResize = Rectangle.Empty;
+        private RectangleF _boundsAfterResize = RectangleF.Empty;
 
-		public Positions Position { get; private set; }
+        public Positions Position { get; private set; }
 
-		public ResizeAdorner(IDrawableContainer owner, Positions position) : base(owner)
-		{
-			Position = position;
-		}
+        public ResizeAdorner(IDrawableContainer owner, Positions position) : base(owner)
+        {
+            Position = position;
+        }
 
-		/// <summary>
-		/// Returns the cursor for when the mouse is over the adorner
-		/// </summary>
-		public override Cursor Cursor
-		{
-			get
-			{
-				bool isNotSwitched = Owner.Width >= 0;
-				if (Owner.Height < 0)
-				{
-					isNotSwitched = !isNotSwitched;
-				}
-				switch (Position)
-				{
-					case Positions.TopLeft:
-					case Positions.BottomRight:
-						return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
-					case Positions.TopRight:
-					case Positions.BottomLeft:
-						return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
-					case Positions.MiddleLeft:
-					case Positions.MiddleRight:
-						return Cursors.SizeWE;
-					case Positions.TopCenter:
-					case Positions.BottomCenter:
-						return Cursors.SizeNS;
-					default:
-						return Cursors.SizeAll;
-				}
-			}
-		}
+        /// <summary>
+        /// Returns the cursor for when the mouse is over the adorner
+        /// </summary>
+        public override Cursor Cursor
+        {
+            get
+            {
+                bool isNotSwitched = Owner.Width >= 0;
+                if (Owner.Height < 0)
+                {
+                    isNotSwitched = !isNotSwitched;
+                }
 
-		/// <summary>
-		/// Handle the mouse down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
-		{
-			EditStatus = EditStatus.RESIZING;
-			_boundsBeforeResize = new Rectangle(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
-			_boundsAfterResize = _boundsBeforeResize;
-		}
+                switch (Position)
+                {
+                    case Positions.TopLeft:
+                    case Positions.BottomRight:
+                        return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
+                    case Positions.TopRight:
+                    case Positions.BottomLeft:
+                        return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
+                    case Positions.MiddleLeft:
+                    case Positions.MiddleRight:
+                        return Cursors.SizeWE;
+                    case Positions.TopCenter:
+                    case Positions.BottomCenter:
+                        return Cursors.SizeNS;
+                    default:
+                        return Cursors.SizeAll;
+                }
+            }
+        }
 
-		/// <summary>
-		/// Handle the mouse move
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
-		{
-			if (EditStatus != EditStatus.RESIZING)
-			{
-				return;
-			}
-			Owner.Invalidate();
-			Owner.MakeBoundsChangeUndoable(false);
+        /// <summary>
+        /// Handle the mouse down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="mouseEventArgs"></param>
+        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
+        {
+            EditStatus = EditStatus.RESIZING;
+            _boundsBeforeResize = new Rectangle(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
+            _boundsAfterResize = _boundsBeforeResize;
+        }
 
-			// reset "workbench" rectangle to current bounds
-			_boundsAfterResize.X = _boundsBeforeResize.X;
-			_boundsAfterResize.Y = _boundsBeforeResize.Y;
-			_boundsAfterResize.Width = _boundsBeforeResize.Width;
-			_boundsAfterResize.Height = _boundsBeforeResize.Height;
+        /// <summary>
+        /// Handle the mouse move
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="mouseEventArgs"></param>
+        public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
+        {
+            if (EditStatus != EditStatus.RESIZING)
+            {
+                return;
+            }
 
-			// calculate scaled rectangle
-			ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
+            Owner.Invalidate();
+            Owner.MakeBoundsChangeUndoable(false);
 
-			// apply scaled bounds to this DrawableContainer
-			Owner.ApplyBounds(_boundsAfterResize);
+            // reset "workbench" rectangle to current bounds
+            _boundsAfterResize.X = _boundsBeforeResize.X;
+            _boundsAfterResize.Y = _boundsBeforeResize.Y;
+            _boundsAfterResize.Width = _boundsBeforeResize.Width;
+            _boundsAfterResize.Height = _boundsBeforeResize.Height;
 
-			Owner.Invalidate();
-		}
+            // calculate scaled rectangle
+            ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
 
-		/// <summary>
-		/// Return the location of the adorner
-		/// </summary>
-		public override Point Location {
-			get
-			{
-				int x = 0,y = 0;
-				switch (Position)
-				{
-					case Positions.TopLeft:
-						x = Owner.Left;
-						y = Owner.Top;
-						break;
-					case Positions.BottomLeft:
-						x = Owner.Left;
-						y = Owner.Top + Owner.Height;
-						break;
-					case Positions.MiddleLeft:
-						x = Owner.Left;
-						y = Owner.Top + (Owner.Height / 2);
-						break;
-					case Positions.TopCenter:
-						x = Owner.Left + (Owner.Width / 2);
-						y = Owner.Top;
-						break;
-					case Positions.BottomCenter:
-						x = Owner.Left + (Owner.Width / 2);
-						y = Owner.Top + Owner.Height;
-						break;
-					case Positions.TopRight:
-						x = Owner.Left + Owner.Width;
-						y = Owner.Top;
-						break;
-					case Positions.BottomRight:
-						x = Owner.Left + Owner.Width;
-						y = Owner.Top + Owner.Height;
-						break;
-					case Positions.MiddleRight:
-						x = Owner.Left + Owner.Width;
-						y = Owner.Top + (Owner.Height / 2);
-						break;
-				}
-				return new Point(x, y);
-			}
-		}
+            // apply scaled bounds to this DrawableContainer
+            Owner.ApplyBounds(_boundsAfterResize);
 
-		/// <summary>
-		/// Draw the adorner
-		/// </summary>
-		/// <param name="paintEventArgs">PaintEventArgs</param>
-		public override void Paint(PaintEventArgs paintEventArgs)
-		{
-			Graphics targetGraphics = paintEventArgs.Graphics;
+            Owner.Invalidate();
+        }
 
-			var bounds = BoundsOnSurface;
-			GraphicsState state = targetGraphics.Save();
+        /// <summary>
+        /// Return the location of the adorner
+        /// </summary>
+        public override Point Location
+        {
+            get
+            {
+                int x = 0, y = 0;
+                switch (Position)
+                {
+                    case Positions.TopLeft:
+                        x = Owner.Left;
+                        y = Owner.Top;
+                        break;
+                    case Positions.BottomLeft:
+                        x = Owner.Left;
+                        y = Owner.Top + Owner.Height;
+                        break;
+                    case Positions.MiddleLeft:
+                        x = Owner.Left;
+                        y = Owner.Top + (Owner.Height / 2);
+                        break;
+                    case Positions.TopCenter:
+                        x = Owner.Left + (Owner.Width / 2);
+                        y = Owner.Top;
+                        break;
+                    case Positions.BottomCenter:
+                        x = Owner.Left + (Owner.Width / 2);
+                        y = Owner.Top + Owner.Height;
+                        break;
+                    case Positions.TopRight:
+                        x = Owner.Left + Owner.Width;
+                        y = Owner.Top;
+                        break;
+                    case Positions.BottomRight:
+                        x = Owner.Left + Owner.Width;
+                        y = Owner.Top + Owner.Height;
+                        break;
+                    case Positions.MiddleRight:
+                        x = Owner.Left + Owner.Width;
+                        y = Owner.Top + (Owner.Height / 2);
+                        break;
+                }
 
-			targetGraphics.CompositingMode = CompositingMode.SourceCopy;
+                return new Point(x, y);
+            }
+        }
 
-			targetGraphics.FillRectangle(Brushes.Black, bounds);
-			targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
-			targetGraphics.Restore(state);
-		}
-	}
+        /// <summary>
+        /// Draw the adorner
+        /// </summary>
+        /// <param name="paintEventArgs">PaintEventArgs</param>
+        public override void Paint(PaintEventArgs paintEventArgs)
+        {
+            Graphics targetGraphics = paintEventArgs.Graphics;
+
+            var bounds = BoundsOnSurface;
+            GraphicsState state = targetGraphics.Save();
+
+            targetGraphics.CompositingMode = CompositingMode.SourceCopy;
+
+            targetGraphics.FillRectangle(Brushes.Black, bounds);
+            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
+            targetGraphics.Restore(state);
+        }
+    }
 }

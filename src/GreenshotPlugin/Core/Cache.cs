@@ -18,197 +18,242 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Timers;
 using log4net;
 
-namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// Cache class 
-	/// </summary>
-	/// <typeparam name="TK">Type of key</typeparam>
-	/// <typeparam name="TV">Type of value</typeparam>
-	public class Cache<TK, TV> {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
-		private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
-		private readonly object _lockObject = new object();
-		private readonly int _secondsToExpire = 10;
-		private readonly CacheObjectExpired _expiredCallback;
-		public delegate void CacheObjectExpired(TK key, TV cacheValue);
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// Cache class 
+    /// </summary>
+    /// <typeparam name="TK">Type of key</typeparam>
+    /// <typeparam name="TV">Type of value</typeparam>
+    public class Cache<TK, TV>
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
+        private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
+        private readonly object _lockObject = new object();
+        private readonly int _secondsToExpire = 10;
+        private readonly CacheObjectExpired _expiredCallback;
 
-		/// <summary>
-		/// Initialize the cache
-		/// </summary>
-		public Cache() {
-		}
-		/// <summary>
-		/// Initialize the cache
-		/// </summary>
-		/// <param name="expiredCallback"></param>
-		public Cache(CacheObjectExpired expiredCallback) : this() {
-			_expiredCallback = expiredCallback;
-		}
+        public delegate void CacheObjectExpired(TK key, TV cacheValue);
 
-		/// <summary>
-		/// Initialize the cache with a expire setting
-		/// </summary>
-		/// <param name="secondsToExpire"></param>
-		public Cache(int secondsToExpire) : this() {
-			_secondsToExpire = secondsToExpire;
-		}
+        /// <summary>
+        /// Initialize the cache
+        /// </summary>
+        public Cache()
+        {
+        }
 
-		/// <summary>
-		/// Initialize the cache with a expire setting
-		/// </summary>
-		/// <param name="secondsToExpire"></param>
-		/// <param name="expiredCallback"></param>
-		public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback) {
-			_secondsToExpire = secondsToExpire;
-		}
+        /// <summary>
+        /// Initialize the cache
+        /// </summary>
+        /// <param name="expiredCallback"></param>
+        public Cache(CacheObjectExpired expiredCallback) : this()
+        {
+            _expiredCallback = expiredCallback;
+        }
 
-		/// <summary>
-		/// Enumerable for the values in the cache
-		/// </summary>
-		public IEnumerable<TV> Elements {
-			get {
-				List<TV> elements = new List<TV>();
+        /// <summary>
+        /// Initialize the cache with a expire setting
+        /// </summary>
+        /// <param name="secondsToExpire"></param>
+        public Cache(int secondsToExpire) : this()
+        {
+            _secondsToExpire = secondsToExpire;
+        }
 
-				lock (_lockObject)
-				{
-					foreach (TV element in _internalCache.Values) {
-						elements.Add(element);
-					}
-				}
-				foreach (TV element in elements) {
-					yield return element;
-				}
-			}
-		}
+        /// <summary>
+        /// Initialize the cache with a expire setting
+        /// </summary>
+        /// <param name="secondsToExpire"></param>
+        /// <param name="expiredCallback"></param>
+        public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback)
+        {
+            _secondsToExpire = secondsToExpire;
+        }
 
-		/// <summary>
-		/// Get the value by key from the cache
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		public TV this[TK key] {
-			get {
-				TV result = default;
-				lock (_lockObject) {
-					if (_internalCache.ContainsKey(key)) {
-						result = _internalCache[key];
-					}
-				}
-				return result;
-			}
-		}
+        /// <summary>
+        /// Enumerable for the values in the cache
+        /// </summary>
+        public IEnumerable<TV> Elements
+        {
+            get
+            {
+                List<TV> elements = new List<TV>();
 
-		/// <summary>
-		/// Contains
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns>true if the cache contains the key</returns>
-		public bool Contains(TK key)
-		{
-			lock (_lockObject)
-			{
-				return _internalCache.ContainsKey(key);
-			}
-		}
+                lock (_lockObject)
+                {
+                    foreach (TV element in _internalCache.Values)
+                    {
+                        elements.Add(element);
+                    }
+                }
 
-		/// <summary>
-		/// Add a value to the cache
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="value"></param>
-		public void Add(TK key, TV value) {
-			Add(key, value, null);
-		}
+                foreach (TV element in elements)
+                {
+                    yield return element;
+                }
+            }
+        }
 
-		/// <summary>
-		/// Add a value to the cache
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="value"></param>
-		/// <param name="secondsToExpire">optional value for the seconds to expire</param>
-		public void Add(TK key, TV value, int? secondsToExpire) {
-			lock (_lockObject) {
-				var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
-				cachedItem.Expired += delegate(TK cacheKey, TV cacheValue) {
-					if (_internalCache.ContainsKey(cacheKey)) {
-						Log.DebugFormat("Expiring object with Key: {0}", cacheKey);
-						_expiredCallback?.Invoke(cacheKey, cacheValue);
-						Remove(cacheKey);
-					} else {
-						Log.DebugFormat("Expired old object with Key: {0}", cacheKey);
-					}
-				};
+        /// <summary>
+        /// Get the value by key from the cache
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public TV this[TK key]
+        {
+            get
+            {
+                TV result = default;
+                lock (_lockObject)
+                {
+                    if (_internalCache.ContainsKey(key))
+                    {
+                        result = _internalCache[key];
+                    }
+                }
 
-				if (_internalCache.ContainsKey(key)) {
-					_internalCache[key] = value;
-					Log.DebugFormat("Updated item with Key: {0}", key);
-				} else {
-					_internalCache.Add(key, cachedItem);
-					Log.DebugFormat("Added item with Key: {0}", key);
-				}
-			}
-		}
+                return result;
+            }
+        }
 
-		/// <summary>
-		/// Remove item from cache
-		/// </summary>
-		/// <param name="key"></param>
-		public void Remove(TK key) {
-			lock (_lockObject) {
-				if (!_internalCache.ContainsKey(key)) {
-					throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
-				}
-				_internalCache.Remove(key);
-				Log.DebugFormat("Removed item with Key: {0}", key);
-			}
-		}
+        /// <summary>
+        /// Contains
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>true if the cache contains the key</returns>
+        public bool Contains(TK key)
+        {
+            lock (_lockObject)
+            {
+                return _internalCache.ContainsKey(key);
+            }
+        }
 
-		/// <summary>
-		/// A cache item
-		/// </summary>
-		private class CachedItem {
-			public event CacheObjectExpired Expired;
-			private readonly int _secondsToExpire;
-			private readonly Timer _timerEvent;
+        /// <summary>
+        /// Add a value to the cache
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void Add(TK key, TV value)
+        {
+            Add(key, value, null);
+        }
 
-			public CachedItem(TK key, TV item, int secondsToExpire) {
-				if (key == null) {
-					throw new ArgumentNullException(nameof(key));
-				}
-				Key = key;
-				Item = item;
-				_secondsToExpire = secondsToExpire;
-				if (secondsToExpire <= 0)
-				{
-					return;
-				}
-				_timerEvent = new Timer(secondsToExpire * 1000) { AutoReset = false };
-				_timerEvent.Elapsed += timerEvent_Elapsed;
-				_timerEvent.Start();
-			}
+        /// <summary>
+        /// Add a value to the cache
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="secondsToExpire">optional value for the seconds to expire</param>
+        public void Add(TK key, TV value, int? secondsToExpire)
+        {
+            lock (_lockObject)
+            {
+                var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
+                cachedItem.Expired += delegate(TK cacheKey, TV cacheValue)
+                {
+                    if (_internalCache.ContainsKey(cacheKey))
+                    {
+                        Log.DebugFormat("Expiring object with Key: {0}", cacheKey);
+                        _expiredCallback?.Invoke(cacheKey, cacheValue);
+                        Remove(cacheKey);
+                    }
+                    else
+                    {
+                        Log.DebugFormat("Expired old object with Key: {0}", cacheKey);
+                    }
+                };
 
-			private void ExpireNow() {
-				_timerEvent.Stop();
-				if (_secondsToExpire > 0) {
-					Expired?.Invoke(Key, Item);
-				}
-			}
+                if (_internalCache.ContainsKey(key))
+                {
+                    _internalCache[key] = value;
+                    Log.DebugFormat("Updated item with Key: {0}", key);
+                }
+                else
+                {
+                    _internalCache.Add(key, cachedItem);
+                    Log.DebugFormat("Added item with Key: {0}", key);
+                }
+            }
+        }
 
-			private void timerEvent_Elapsed(object sender, ElapsedEventArgs e) {
-				ExpireNow();
-			}
+        /// <summary>
+        /// Remove item from cache
+        /// </summary>
+        /// <param name="key"></param>
+        public void Remove(TK key)
+        {
+            lock (_lockObject)
+            {
+                if (!_internalCache.ContainsKey(key))
+                {
+                    throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
+                }
 
-			public TK Key { get; private set; }
-			public TV Item { get; private set; }
+                _internalCache.Remove(key);
+                Log.DebugFormat("Removed item with Key: {0}", key);
+            }
+        }
 
-			public static implicit operator TV(CachedItem a) {
-				return a.Item;
-			}
-		}
-	}
+        /// <summary>
+        /// A cache item
+        /// </summary>
+        private class CachedItem
+        {
+            public event CacheObjectExpired Expired;
+            private readonly int _secondsToExpire;
+            private readonly Timer _timerEvent;
+
+            public CachedItem(TK key, TV item, int secondsToExpire)
+            {
+                if (key == null)
+                {
+                    throw new ArgumentNullException(nameof(key));
+                }
+
+                Key = key;
+                Item = item;
+                _secondsToExpire = secondsToExpire;
+                if (secondsToExpire <= 0)
+                {
+                    return;
+                }
+
+                _timerEvent = new Timer(secondsToExpire * 1000)
+                {
+                    AutoReset = false
+                };
+                _timerEvent.Elapsed += timerEvent_Elapsed;
+                _timerEvent.Start();
+            }
+
+            private void ExpireNow()
+            {
+                _timerEvent.Stop();
+                if (_secondsToExpire > 0)
+                {
+                    Expired?.Invoke(Key, Item);
+                }
+            }
+
+            private void timerEvent_Elapsed(object sender, ElapsedEventArgs e)
+            {
+                ExpireNow();
+            }
+
+            public TK Key { get; private set; }
+            public TV Item { get; private set; }
+
+            public static implicit operator TV(CachedItem a)
+            {
+                return a.Item;
+            }
+        }
+    }
 }

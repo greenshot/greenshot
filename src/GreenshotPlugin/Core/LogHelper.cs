@@ -30,77 +30,95 @@ using System;
 using GreenshotPlugin.IniFile;
 using log4net.Util;
 
-namespace GreenshotPlugin.Core {
-	/// <summary>
-	/// Initialize the logger
-	/// </summary>
-	public class LogHelper {
-		private static bool _isLog4NetConfigured;
-		private const string InitMessage = "Greenshot initialization of log system failed";
+namespace GreenshotPlugin.Core
+{
+    /// <summary>
+    /// Initialize the logger
+    /// </summary>
+    public class LogHelper
+    {
+        private static bool _isLog4NetConfigured;
+        private const string InitMessage = "Greenshot initialization of log system failed";
 
-		public static bool IsInitialized => _isLog4NetConfigured;
+        public static bool IsInitialized => _isLog4NetConfigured;
 
-		// Initialize Log4J
-		public static string InitializeLog4Net() {
-			// Setup log4j, currently the file is called log4net.xml
-			foreach (var logName in new[] { "log4net.xml" , @"App\Greenshot\log4net-portable.xml"})
-			{
-				string log4NetFilename = Path.Combine(Application.StartupPath, logName);
-				if (File.Exists(log4NetFilename))
-				{
-					try
-					{
-						XmlConfigurator.Configure(new FileInfo(log4NetFilename));
-						_isLog4NetConfigured = true;
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-					}
-				}
-			}
-			// Fallback
-			if (!_isLog4NetConfigured) {
-				try {
-					Assembly assembly = typeof(LogHelper).Assembly;
+        // Initialize Log4J
+        public static string InitializeLog4Net()
+        {
+            // Setup log4j, currently the file is called log4net.xml
+            foreach (var logName in new[]
+            {
+                "log4net.xml", @"App\Greenshot\log4net-portable.xml"
+            })
+            {
+                string log4NetFilename = Path.Combine(Application.StartupPath, logName);
+                if (File.Exists(log4NetFilename))
+                {
+                    try
+                    {
+                        XmlConfigurator.Configure(new FileInfo(log4NetFilename));
+                        _isLog4NetConfigured = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+
+            // Fallback
+            if (!_isLog4NetConfigured)
+            {
+                try
+                {
+                    Assembly assembly = typeof(LogHelper).Assembly;
                     using Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml");
                     XmlConfigurator.Configure(stream);
                     _isLog4NetConfigured = true;
                     IniConfig.ForceIniInStartupPath();
-                } catch (Exception ex){
-					MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				}
-			}
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
 
-			if (_isLog4NetConfigured) {
-				// Get the logfile name
-				try {
-					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
-						foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders)
-						{
-							var fileAppender = appender as FileAppender;
-							if (fileAppender != null) {
-								return fileAppender.File;
-							}
-						}
-					}
-				}
-				catch
-				{
-					// ignored
-				}
-			}
-			return null;
-		}
-	}
+            if (_isLog4NetConfigured)
+            {
+                // Get the logfile name
+                try
+                {
+                    if (((Hierarchy) LogManager.GetRepository()).Root.Appenders.Count > 0)
+                    {
+                        foreach (IAppender appender in ((Hierarchy) LogManager.GetRepository()).Root.Appenders)
+                        {
+                            var fileAppender = appender as FileAppender;
+                            if (fileAppender != null)
+                            {
+                                return fileAppender.File;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
 
-	/// <summary>
-	/// A simple helper class to support the logging to the AppData location
-	/// </summary>
-	public class SpecialFolderPatternConverter : PatternConverter {
-		protected override void Convert(TextWriter writer, object state) {
-			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
-			writer.Write(Environment.GetFolderPath(specialFolder));
-		}
-	}
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// A simple helper class to support the logging to the AppData location
+    /// </summary>
+    public class SpecialFolderPatternConverter : PatternConverter
+    {
+        protected override void Convert(TextWriter writer, object state)
+        {
+            Environment.SpecialFolder specialFolder = (Environment.SpecialFolder) Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
+            writer.Write(Environment.GetFolderPath(specialFolder));
+        }
+    }
 }

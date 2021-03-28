@@ -29,19 +29,22 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Newtonsoft.Json;
 
-namespace Greenshot.Plugin.Dropbox {
-	/// <summary>
-	/// Description of DropboxUtils.
-	/// </summary>
-	public class DropboxUtils {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-		private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+namespace Greenshot.Plugin.Dropbox
+{
+    /// <summary>
+    /// Description of DropboxUtils.
+    /// </summary>
+    public class DropboxUtils
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
+        private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private DropboxUtils() {
-		}
+        private DropboxUtils()
+        {
+        }
 
-		public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
-		{
+        public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
+        {
             var oauth2Settings = new OAuth2Settings
             {
                 AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
@@ -51,24 +54,32 @@ namespace Greenshot.Plugin.Dropbox {
                 ClientId = DropBoxCredentials.CONSUMER_KEY,
                 ClientSecret = DropBoxCredentials.CONSUMER_SECRET,
                 AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
-				RefreshToken = DropboxConfig.RefreshToken,
+                RefreshToken = DropboxConfig.RefreshToken,
                 AccessToken = DropboxConfig.AccessToken,
                 AccessTokenExpires = DropboxConfig.AccessTokenExpires
-			};
+            };
             try
-			{
+            {
                 string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
                 SurfaceContainer image = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
                 IDictionary<string, object> arguments = new Dictionary<string, object>
                 {
-                    { "autorename", true },
-                    { "mute", true },
-                    { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')}
+                    {
+                        "autorename", true
+                    },
+                    {
+                        "mute", true
+                    },
+                    {
+                        "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')
+                    }
                 };
                 IDictionary<string, object> headers = new Dictionary<string, object>
                 {
-                    { "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)}
+                    {
+                        "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)
+                    }
                 };
                 var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);
 
@@ -78,16 +89,19 @@ namespace Greenshot.Plugin.Dropbox {
                 var response = JsonConvert.DeserializeObject<IDictionary<string, string>>(responseString);
                 return response.ContainsKey("id");
             }
-            catch (Exception ex) {
-				Log.Error("Upload error: ", ex);
-				throw;
-			} finally {
+            catch (Exception ex)
+            {
+                Log.Error("Upload error: ", ex);
+                throw;
+            }
+            finally
+            {
                 DropboxConfig.RefreshToken = oauth2Settings.RefreshToken;
                 DropboxConfig.AccessToken = oauth2Settings.AccessToken;
                 DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
                 DropboxConfig.IsDirty = true;
                 IniConfig.Save();
             }
-		}
-	}
+        }
+    }
 }

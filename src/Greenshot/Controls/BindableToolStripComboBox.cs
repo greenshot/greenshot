@@ -18,32 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Controls {
-	/// <summary>
-	/// A simple ToolStripComboBox implementing INotifyPropertyChanged for data binding
-	/// </summary>
-	public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged, IGreenshotLanguageBindable {
-		public event PropertyChangedEventHandler PropertyChanged;
+namespace Greenshot.Controls
+{
+    /// <summary>
+    /// A simple ToolStripComboBox implementing INotifyPropertyChanged for data binding
+    /// </summary>
+    public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged, IGreenshotLanguageBindable
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
 
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
-			get;
-			set;
-		}
+        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+        public string LanguageKey { get; set; }
 
-		public BindableToolStripComboBox()
-		{
-			SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
-		}
+        public BindableToolStripComboBox()
+        {
+            SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
+        }
 
-		private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
-		}
-	}
+        private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
+        }
+    }
 }

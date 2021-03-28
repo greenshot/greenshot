@@ -23,24 +23,29 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.UnmanagedHelpers.Structs {
-	[StructLayout(LayoutKind.Sequential), Serializable()]
-	public struct SIZE {
-		public int Width;
-		public int Height;
-		public SIZE(Size size) : this(size.Width, size.Height) {
-			
-		}
+namespace GreenshotPlugin.UnmanagedHelpers.Structs
+{
+    [StructLayout(LayoutKind.Sequential), Serializable()]
+    public struct SIZE
+    {
+        public int Width;
+        public int Height;
 
-		public SIZE(int width, int height) {
-			Width = width;
-			Height = height;
-		}
+        public SIZE(Size size) : this(size.Width, size.Height)
+        {
+        }
 
-		public Size ToSize() {
-			return new Size(Width, Height);
-		}
+        public SIZE(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
 
-		public bool IsEmpty => Width * Height == 0;
-	}
+        public Size ToSize()
+        {
+            return new Size(Width, Height);
+        }
+
+        public bool IsEmpty => Width * Height == 0;
+    }
 }

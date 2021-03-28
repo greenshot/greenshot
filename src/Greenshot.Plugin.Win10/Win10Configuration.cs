@@ -23,12 +23,13 @@ using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Plugin.Win10
 {
-	/// <summary>
-	/// Description of Win10Configuration.
-	/// </summary>
-	[IniSection("Win10", Description = "Greenshot Win10 Plugin configuration")]
-	public class Win10Configuration : IniSection {
-		[IniProperty("AlwaysRunOCROnCapture", Description="Determines if OCR is run automatically on every capture", DefaultValue="False")]
-		public bool AlwaysRunOCROnCapture { get; set; }
-	}
+    /// <summary>
+    /// Description of Win10Configuration.
+    /// </summary>
+    [IniSection("Win10", Description = "Greenshot Win10 Plugin configuration")]
+    public class Win10Configuration : IniSection
+    {
+        [IniProperty("AlwaysRunOCROnCapture", Description = "Determines if OCR is run automatically on every capture", DefaultValue = "False")]
+        public bool AlwaysRunOCROnCapture { get; set; }
+    }
 }

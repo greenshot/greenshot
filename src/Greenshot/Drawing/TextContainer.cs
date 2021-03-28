@@ -46,24 +46,22 @@ namespace Greenshot.Drawing
         // Although the name is wrong, we can't change it due to file serialization
         // ReSharper disable once InconsistentNaming
         private bool makeUndoable;
-        [NonSerialized]
-        private Font _font;
+        [NonSerialized] private Font _font;
         public Font Font => _font;
 
-        [NonSerialized]
-        private TextBox _textBox;
+        [NonSerialized] private TextBox _textBox;
 
         /// <summary>
         /// The StringFormat object is not serializable!!
         /// </summary>
-        [NonSerialized]
-        private StringFormat _stringFormat = new StringFormat();
+        [NonSerialized] private StringFormat _stringFormat = new StringFormat();
 
         public StringFormat StringFormat => _stringFormat;
 
         // Although the name is wrong, we can't change it due to file serialization
         // ReSharper disable once InconsistentNaming
         private string text;
+
         // there is a binding on the following property!
         public string Text
         {
@@ -74,12 +72,13 @@ namespace Greenshot.Drawing
         internal void ChangeText(string newText, bool allowUndoable)
         {
             if ((text != null || newText == null) && string.Equals(text, newText)) return;
-            
+
             if (makeUndoable && allowUndoable)
             {
                 makeUndoable = false;
                 _parent.MakeUndoable(new TextChangeMemento(this), false);
             }
+
             text = newText;
             OnPropertyChanged("Text");
         }
@@ -122,17 +121,20 @@ namespace Greenshot.Drawing
                     _font.Dispose();
                     _font = null;
                 }
+
                 if (_stringFormat != null)
                 {
                     _stringFormat.Dispose();
                     _stringFormat = null;
                 }
+
                 if (_textBox != null)
                 {
                     _textBox.Dispose();
                     _textBox = null;
                 }
             }
+
             base.Dispose(disposing);
         }
 
@@ -158,6 +160,7 @@ namespace Greenshot.Drawing
             {
                 _parent.SizeChanged -= Parent_SizeChanged;
             }
+
             base.SwitchParent(newParent);
             if (_parent != null)
             {
@@ -224,6 +227,7 @@ namespace Greenshot.Drawing
                     _parent.KeysLocked = true;
                 }
             }
+
             if (_textBox.Visible)
             {
                 _textBox.Invalidate();
@@ -236,10 +240,12 @@ namespace Greenshot.Drawing
             {
                 return;
             }
+
             if (_textBox.Visible)
             {
                 _textBox.Invalidate();
             }
+
             // Only dispose the font, and re-create it, when a font field has changed.
             if (e.Field.FieldType.Name.StartsWith("FONT"))
             {
@@ -248,12 +254,14 @@ namespace Greenshot.Drawing
                     _font.Dispose();
                     _font = null;
                 }
+
                 UpdateFormat();
             }
             else
             {
                 UpdateAlignment();
             }
+
             UpdateTextBoxFormat();
 
             if (_textBox.Visible)
@@ -292,6 +300,7 @@ namespace Greenshot.Drawing
                 _parent.KeysLocked = true;
                 _parent.Controls.Add(_textBox);
             }
+
             EnsureTextBoxContrast();
             if (_textBox != null)
             {
@@ -309,6 +318,7 @@ namespace Greenshot.Drawing
             {
                 return;
             }
+
             Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
             if (lc.R > 203 && lc.G > 203 && lc.B > 203)
             {
@@ -328,6 +338,7 @@ namespace Greenshot.Drawing
             {
                 return;
             }
+
             _parent.KeysLocked = false;
             _parent.Controls.Remove(_textBox);
         }
@@ -346,7 +357,7 @@ namespace Greenshot.Drawing
             rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
             int pixelsAfter = rect.Width * rect.Height;
-            float factor = pixelsAfter / (float)pixelsBefore;
+            float factor = pixelsAfter / (float) pixelsBefore;
 
             float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
             fontSize *= factor;
@@ -393,6 +404,7 @@ namespace Greenshot.Drawing
                     }
                 }
             }
+
             return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
         }
 
@@ -405,6 +417,7 @@ namespace Greenshot.Drawing
             {
                 return;
             }
+
             string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
             bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
             bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
@@ -444,8 +457,8 @@ namespace Greenshot.Drawing
 
         private void UpdateAlignment()
         {
-            _stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-            _stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+            _stringFormat.Alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+            _stringFormat.LineAlignment = (StringAlignment) GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
         }
 
         /// <summary>
@@ -465,7 +478,7 @@ namespace Greenshot.Drawing
                 _font.Size * textBoxFontScale,
                 _font.Style,
                 GraphicsUnit.Pixel
-                );
+            );
             _textBox.Font.Dispose();
             _textBox.Font = newFont;
         }
@@ -480,15 +493,17 @@ namespace Greenshot.Drawing
             {
                 return;
             }
+
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
-            int lineWidth = (int)Math.Floor(lineThickness / 2d);
+            int lineWidth = (int) Math.Floor(lineThickness / 2d);
             int correction = (lineThickness + 1) % 2;
             if (lineThickness <= 1)
             {
                 lineWidth = 1;
                 correction = -1;
             }
+
             Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             Rectangle displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _textBox.Left = displayRectangle.X + lineWidth;
@@ -497,6 +512,7 @@ namespace Greenshot.Drawing
             {
                 lineWidth = 0;
             }
+
             _textBox.Width = displayRectangle.Width - 2 * lineWidth + correction;
             _textBox.Height = displayRectangle.Height - 2 * lineWidth + correction;
         }
@@ -510,7 +526,8 @@ namespace Greenshot.Drawing
             {
                 return;
             }
-            var alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+
+            var alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
             switch (alignment)
             {
                 case StringAlignment.Near:
@@ -541,6 +558,7 @@ namespace Greenshot.Drawing
             {
                 _textBox.SelectAll();
             }
+
             // Added for FEATURE-1064
             if (e.KeyCode == Keys.Back && e.Control)
             {
@@ -550,11 +568,13 @@ namespace Greenshot.Drawing
                 {
                     selStart--;
                 }
+
                 int prevSpacePos = -1;
                 if (selStart != 0)
                 {
                     prevSpacePos = _textBox.Text.LastIndexOf(' ', selStart - 1);
                 }
+
                 _textBox.Select(prevSpacePos + 1, _textBox.SelectionStart - prevSpacePos - 1);
                 _textBox.SelectedText = string.Empty;
             }
@@ -611,6 +631,7 @@ namespace Greenshot.Drawing
             {
                 return flags;
             }
+
             switch (stringFormat.LineAlignment)
             {
                 case StringAlignment.Center:
@@ -623,6 +644,7 @@ namespace Greenshot.Drawing
                     flags |= TextFormatFlags.Top;
                     break;
             }
+
             switch (stringFormat.Alignment)
             {
                 case StringAlignment.Center:
@@ -650,7 +672,8 @@ namespace Greenshot.Drawing
         /// <param name="stringFormat"></param>
         /// <param name="text"></param>
         /// <param name="font"></param>
-        public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font)
+        public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
+            Font font)
         {
 #if DEBUG
             Debug.Assert(font != null);
@@ -660,7 +683,7 @@ namespace Greenshot.Drawing
                 return;
             }
 #endif
-            int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
+            int textOffset = lineThickness > 0 ? (int) Math.Ceiling(lineThickness / 2d) : 0;
             // draw shadow before anything else
             if (drawShadow)
             {

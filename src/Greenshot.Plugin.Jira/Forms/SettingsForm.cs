@@ -19,19 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Jira.Forms {
-	/// <summary>
-	/// Description of PasswordRequestForm.
-	/// </summary>
-	public partial class SettingsForm : JiraFormBase {
-		public SettingsForm()
-		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			AcceptButton = buttonOK;
-			CancelButton = buttonCancel;
-		}
-	}
+namespace Greenshot.Plugin.Jira.Forms
+{
+    /// <summary>
+    /// Description of PasswordRequestForm.
+    /// </summary>
+    public partial class SettingsForm : JiraFormBase
+    {
+        public SettingsForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            AcceptButton = buttonOK;
+            CancelButton = buttonCancel;
+        }
+    }
 }

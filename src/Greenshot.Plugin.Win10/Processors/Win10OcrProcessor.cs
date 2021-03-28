@@ -25,11 +25,13 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Ocr;
 
-namespace Greenshot.Plugin.Win10.Processors  {
-	/// <summary>
-	/// This processor processes a capture to see if there is text on it
-	/// </summary>
-	public class Win10OcrProcessor : AbstractProcessor {
+namespace Greenshot.Plugin.Win10.Processors
+{
+    /// <summary>
+    /// This processor processes a capture to see if there is text on it
+    /// </summary>
+    public class Win10OcrProcessor : AbstractProcessor
+    {
         private static readonly Win10Configuration Win10Configuration = IniConfig.GetIniSection<Win10Configuration>();
         public override string Designation => "Windows10OcrProcessor";
 
@@ -46,10 +48,12 @@ namespace Greenshot.Plugin.Win10.Processors  {
             {
                 return false;
             }
+
             if (captureDetails == null || captureDetails.OcrInformation != null)
             {
                 return false;
             }
+
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
 
             if (ocrProvider == null)
@@ -68,5 +72,5 @@ namespace Greenshot.Plugin.Win10.Processors  {
 
             return true;
         }
-	}
+    }
 }

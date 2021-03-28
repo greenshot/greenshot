@@ -21,25 +21,28 @@
 
 using System;
 
-namespace Greenshot.Plugin.Imgur.Forms {
-	/// <summary>
-	/// Description of PasswordRequestForm.
-	/// </summary>
-	public partial class SettingsForm : ImgurForm {
-		public SettingsForm()
-		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			CancelButton = buttonCancel;
-			AcceptButton = buttonOK;
-			
-			historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
-		}
+namespace Greenshot.Plugin.Imgur.Forms
+{
+    /// <summary>
+    /// Description of PasswordRequestForm.
+    /// </summary>
+    public partial class SettingsForm : ImgurForm
+    {
+        public SettingsForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+            CancelButton = buttonCancel;
+            AcceptButton = buttonOK;
 
-		private void ButtonHistoryClick(object sender, EventArgs e) {
-			ImgurHistory.ShowHistory();
-		}
-	}
+            historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
+        }
+
+        private void ButtonHistoryClick(object sender, EventArgs e)
+        {
+            ImgurHistory.ShowHistory();
+        }
+    }
 }

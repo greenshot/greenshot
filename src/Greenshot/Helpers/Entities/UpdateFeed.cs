@@ -26,10 +26,8 @@ namespace Greenshot.Helpers.Entities
     [JsonObject]
     public class UpdateFeed
     {
-        [JsonProperty("release")]
-        public string CurrentReleaseVersion { get; set; }
+        [JsonProperty("release")] public string CurrentReleaseVersion { get; set; }
 
-        [JsonProperty("beta")]
-        public string CurrentBetaVersion { get; set; }
+        [JsonProperty("beta")] public string CurrentBetaVersion { get; set; }
     }
 }

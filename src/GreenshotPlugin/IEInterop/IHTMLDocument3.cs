@@ -21,27 +21,30 @@
 
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.IEInterop {
-	/// <summary><para><c>IHTMLDocument3</c> interface.</para></summary>
-	[Guid("3050F485-98B5-11CF-BB82-00AA00BDCE0B")]
-	[ComImport]
-	[TypeLibType(TypeLibTypeFlags.FDual)]
-	[InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-	public interface IHTMLDocument3 {
-		IHTMLElement documentElement {
-			[DispId(1075)]
-			[return: MarshalAs(UnmanagedType.IDispatch)]
-			get;
-		}
+namespace GreenshotPlugin.IEInterop
+{
+    /// <summary><para><c>IHTMLDocument3</c> interface.</para></summary>
+    [Guid("3050F485-98B5-11CF-BB82-00AA00BDCE0B")]
+    [ComImport]
+    [TypeLibType(TypeLibTypeFlags.FDual)]
+    [InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IHTMLDocument3
+    {
+        IHTMLElement documentElement
+        {
+            [DispId(1075)]
+            [return: MarshalAs(UnmanagedType.IDispatch)]
+            get;
+        }
 
-		[DispId(1086)]
-		[return: MarshalAs(UnmanagedType.IDispatch)]
-		IHTMLElementCollection getElementsByName([MarshalAs(UnmanagedType.BStr)] string v);
+        [DispId(1086)]
+        [return: MarshalAs(UnmanagedType.IDispatch)]
+        IHTMLElementCollection getElementsByName([MarshalAs(UnmanagedType.BStr)] string v);
 
-		[DispId(1088)]
-		IHTMLElement getElementById([MarshalAs(UnmanagedType.BStr)] string v);
+        [DispId(1088)]
+        IHTMLElement getElementById([MarshalAs(UnmanagedType.BStr)] string v);
 
-		[DispId(1087)]
-		IHTMLElementCollection getElementsByTagName([MarshalAs(UnmanagedType.BStr)] string v);
-	}
+        [DispId(1087)]
+        IHTMLElementCollection getElementsByTagName([MarshalAs(UnmanagedType.BStr)] string v);
+    }
 }
