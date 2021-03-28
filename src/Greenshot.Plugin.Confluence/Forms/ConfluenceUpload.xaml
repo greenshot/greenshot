@@ -1,0 +1,34 @@
+﻿<Window x:Class="Greenshot.Plugin.Confluence.Forms.ConfluenceUpload"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
+	Title="{support:Translate upload_menu_item}" Height="640" Width="500" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	<StackPanel>
+		<TabControl>
+            <TabItem Header="{support:Translate open_pages}" Name="PickerTab">
+				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=PickerPage}" Height="500"/>
+			</TabItem>
+            <TabItem Header="{support:Translate search_pages}" Name="SearchTab">
+				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=SearchPage}" Height="500"/>
+			</TabItem>
+            <TabItem Header="{support:Translate browse_pages}">
+				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=BrowsePage}" Height="500"/>
+			</TabItem>
+		</TabControl>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="100" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Label Grid.Row="0" Grid.Column="0" Content="{support:Translate filename}" />
+			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Filename}" />
+		</Grid>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Name="Upload" Content="{support:Translate upload}" IsDefault="True" IsEnabled="False" Click="Upload_Click" />
+            <Button Name="Cancel" Content="{support:Translate CANCEL}" IsCancel="True" />
+		</StackPanel>
+	</StackPanel>
+</Window>

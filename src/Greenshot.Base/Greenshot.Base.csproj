@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.8" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.31" />
+    <PackageReference Include="log4net" version="2.0.12" />
+    <PackageReference Include="Svg" Version="3.2.3" />
+    <Reference Include="Accessibility" />
+    <Reference Include="CustomMarshalers" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="log4net-embedded.xml" />
+  </ItemGroup>
+</Project>

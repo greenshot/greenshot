@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <ItemGroup>
+    <None Include="Languages\language*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Images\Confluence.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Confluence.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+    <WebReferenceUrl Include="http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl">
+      <UrlBehavior>Static</UrlBehavior>
+      <UpdateFromURL>http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl</UpdateFromURL>
+      <RelPath>Web References\confluence</RelPath>
+      <Namespace>Confluence</Namespace>
+    </WebReferenceUrl>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web.Services" />
+  </ItemGroup>
+</Project>
