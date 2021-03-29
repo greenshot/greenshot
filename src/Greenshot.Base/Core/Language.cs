@@ -546,10 +546,10 @@ namespace Greenshot.Base.Core
                             switch (xmlReader.Name)
                             {
                                 case "ietf":
-                                    languageFile.Description = xmlReader.Value;
+                                    languageFile.Ietf = xmlReader.Value;
                                     break;
                                 case "description":
-                                    languageFile.Ietf = xmlReader.Value;
+                                    languageFile.Description = xmlReader.Value;
                                     break;
                                 case "prefix":
                                     languageFile.Prefix = xmlReader.Value.ToLower();

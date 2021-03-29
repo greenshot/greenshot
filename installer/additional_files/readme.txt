@@ -7,10 +7,95 @@ CHANGE LOG:
 
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
-Greenshot 1.3.xx RELEASE
+# Release notes for Greenshot 1.3
 
-Bugs fixed:
-* [BUG-xxxx] - xxxx
+Greenshot 1.3 is the first Greenshot which targets .NET 4.7.2 which just by doing to solves some general issues in the area of Internet Explorer capturing, TLS communication and some other minor issues.
+
+We've also added some new Windows 10 functions, like notifications, OCR and sharing with Windows 10 apps.
+
+## Supported platforms:
+As always Greenshot comes "as-is" with no guarantee whatsoever, we are not paid enough to make this possible.
+Due to the amount of work involved in testing Greenshot on different platforms, and needing hardware to do so, we cannot support all of them. What does this mean?
+
+* Windows 10 "current" - We develop & test Greenshot on the latest available version of Windows 10, which means you can pretty much assume it works on there and if not we can work on it.
+* Windows 10 "previous" - We don't have the hardware to have all supported Windows versions side-by-side, we try to keep the compatibility high. If there are very Windows specific bugs, we can look at it. In general we add new Windows features with a check for the version, preventing issues with older versions.
+* Windows 10 insiders - If someone is on an insider, and wants to use Greenshot, there is no guarantee. But please do report issues, and make sure you mention the build you are on. As insiders are the next "current", we will try to look at this.
+* Windows 7 - this is no longer supported by Microsoft, and we will not buy extended support licenses for older Windows, we rather motivate people to upgrade to a normal supported version. It should still work on Windows 7, but we can't guarantee this and functionality will be degraded compared to that on Windows 10.
+* Windows 8 - Greenshot 1.2 mostly worked on it, thus we assume 1.3 will do so too, but we cannot support this.
+* Windows Server version XYZ- We do not have the hardware nor licenses to test on this, do so at your own risk. You can report issues, but we cannot support specific Windows Server issues, unless someone wants to pay for the time, hardware & licenses.
+* Linux via Wine or CrossOver - Although we made some small changes to Greenshot to get basics working, it's not supported and to be honest it's a lot of work to get it running, and the result is very disappointed.
+* MacOS - We have a version of Greenshot for MacOS in the appstore [here](https://apps.apple.com/us/app/greenshot/id1103915944).
+
+## Support for other software?
+We have many request, mainly from companies in form of "we use an eMail client from this company, and have a tool which does this cool thing, can you support this?" This depends, if it's something which benefits the masses, we can look at it. An example is PowerToys, where we [interact with the maintainers](https://github.com/microsoft/PowerToys/wiki/Application-Compatibility) to see how we can make Greenshot work together and not have PowerToys break us. We can't support all, and we cannot buy licenses & install every product.
+
+## Let us see the changes:
+
+### New features
+* The editor now has a zoom, completely build by our awesome community member @KillyMXI PR #201 
+* Windows 10 has out of the box OCR support, this can now be used from Greenshot. We added functionality which is on par with that we provided via an old Microsoft component called "MODI". To reduce our maintenance, we removed the old functionality. This is the first step with Windows 10 OCR, we have some great plans with this.
+* Greenshot can now use the Windows 10 app sharing, share screenshots with app which support bitmaps.
+* Greenshot now can use the Windows 10 notifications system, which looks better. We will add more user friendly functionality for this later.
+* [FEATURE-1110](https://greenshot.atlassian.net/browse/FEATURE-1110): Making it possible to use a hotkey to open the clipboard, for details look at the issue.
+
+### General improvements:
+* Improved the about and error details with better version information, and OS name.
+* Upgraded the .NET Framework dependency to 4.7.2, any lower version would cause a lot of additional work and make the installer even bigger.
+* Used more recent versions of software components, which make it easier to find bugs.
+* DPI improvements, so people can use Greenshot with high DPI screens.
+* Made the selection boxes (grippers) bigger and reize with the DPI settings
+* Update check should have less impact with us and for the user
+* Added Italian to the installer, a lof of PR's from @bovirus e.g. PR #224, #230
+* Added support to generate random characters in the filename PR #216
+* Changed the cloud services Box, DropBox and Imgur to use the default browser in combination with getgreenshot.org instead of the embedded, solving incompatibility issues.
+
+### Bug fixes
+
+#### Functionality fixes:
+* [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2743](https://greenshot.atlassian.net/browse/BUG-2743): Greenshot doesn't recoginize a MAPI client
+* [BUG-2535](https://greenshot.atlassian.net/browse/BUG-2535): Greenshot selects invisible windows fix was suggested by Raymond Chen [here](https://devblogs.microsoft.com/oldnewthing/20200302-00/?p=103507)
+* [BUG-2544](https://greenshot.atlassian.net/browse/BUG-2544): Enabled TLS1.1 & 1.2 to fix jira connectivity and do not use the JIRA session support as this was deprecated.
+* [BUG-2529](https://greenshot.atlassian.net/browse/BUG-2529): This should most likely fix the excessive update checks.
+* [BUG-1919](https://greenshot.atlassian.net/browse/BUG-1919): Screenshot works once on Internet Explorer
+* [BUG-1943](https://greenshot.atlassian.net/browse/BUG-1943): Picassa no longer supported by Google - Picassa plugin update to Google Photos
+* [BUG-2127](https://greenshot.atlassian.net/browse/BUG-2127): Incorrect link image to picasa
+* [BUG-2170](https://greenshot.atlassian.net/browse/BUG-2170): Editor buttons are too small on high-resolution PC
+* [BUG-2300](https://greenshot.atlassian.net/browse/BUG-2300): User need to do a lot of CTRL + Z to undo the ellipse/rectangle modification
+* [BUG-2736](https://greenshot.atlassian.net/browse/BUG-2736): Cropping a capture where a speech bubble is shown doesn't move the bubble tail
+* PR #157 -- Fixing textbox issue with polish letter "ą"
+* Bug #124, some minor issues with the EmailDestination
+* Bug #149: If using a full screen capture of the current monitor, not the default, the mouse cursor is not visible.
+* Bug #279 External commands where duplicated in the editor and dynamic destination picker
+* Bug #283 Fixed an issue with drawing Unicode icons in the editor
+
+#### Stability fixes:
+* [BUG-2644](https://greenshot.atlassian.net/browse/BUG-2644): Fixed a NPRE when exporting to Powerpoint when it's not running yet.
+* [BUG-2542](https://greenshot.atlassian.net/browse/BUG-2542): Fix for shutdown issue (ImgurPlugin)
+* [BUG-2249](https://greenshot.atlassian.net/browse/BUG-2249): Error after switching between colors
+* [BUG-2303](https://greenshot.atlassian.net/browse/BUG-2303): Greenshot 1.2.10 Build 6 (64 bit) - Dotnet 4.0 framework crash.
+* [BUG-2307](https://greenshot.atlassian.net/browse/BUG-2307): Using the pencil tool, changing colors, undo, pencil tool again, produces error dump.
+* [BUG-2309](https://greenshot.atlassian.net/browse/BUG-2309): Exception while editing screen shot
+* [BUG-2403](https://greenshot.atlassian.net/browse/BUG-2403): error message came up immediately after a restart of Windows.
+* [BUG-2435](https://greenshot.atlassian.net/browse/BUG-2435): Crash
+* [BUG-2463](https://greenshot.atlassian.net/browse/BUG-2463): Crash on moving freehand drawing
+* [BUG-2484](https://greenshot.atlassian.net/browse/BUG-2484): Unexpected error pop-up after DRIVER VERIFIER IOMANAGER VIOLATION Blue Screen of Death
+* [BUG-2486](https://greenshot.atlassian.net/browse/BUG-2486): program window goes white with red x through it
+* [BUG-2552](https://greenshot.atlassian.net/browse/BUG-2552): Crashed when drawing new colored line after a ctrl+z undo.
+* [BUG-2557](https://greenshot.atlassian.net/browse/BUG-2557): sudden shut down due to error , Error
+* [BUG-2567](https://greenshot.atlassian.net/browse/BUG-2567): Automatic error, tells me to report a bug
+* [BUG-2577](https://greenshot.atlassian.net/browse/BUG-2577): Erreur inattendue
+* [BUG-2592](https://greenshot.atlassian.net/browse/BUG-2592): Crash when copying to clipboard
+* [BUG-2615](https://greenshot.atlassian.net/browse/BUG-2615): Greenshot crashed while changing line color
+* [BUG-2642](https://greenshot.atlassian.net/browse/BUG-2642): Greenshot Image Editor crashed when I clicked "undo"
+* [BUG-2654](https://greenshot.atlassian.net/browse/BUG-2654): GS crashing when logging off from a Windows account right after logging-on
+* [BUG-2669](https://greenshot.atlassian.net/browse/BUG-2669): Exception on startup of Greenshot
+* [BUG-2684](https://greenshot.atlassian.net/browse/BUG-2684): Freehand tool causes crash after color change & undo
+* [BUG-2698](https://greenshot.atlassian.net/browse/BUG-2698): Imgur: Object reference not set to an instance of an object.
+* [BUG-2699](https://greenshot.atlassian.net/browse/BUG-2699): Crash on deleting a line path
+* [BUG-2700](https://greenshot.atlassian.net/browse/BUG-2700): Imgur: Continued Error
+* [BUG-2703](https://greenshot.atlassian.net/browse/BUG-2703): Crash dump: "Message: The notification platform is unavailable."
+* [BUG-2707](https://greenshot.atlassian.net/browse/BUG-2707): Moving or editing object (usually cursor object) occasionally crashes Greenshot
+* #246,[BUG-2448](https://greenshot.atlassian.net/browse/BUG-2448), [BUG-2593](https://greenshot.atlassian.net/browse/BUG-2593), [BUG-2427](https://greenshot.atlassian.net/browse/BUG-2427), [BUG-2444](https://greenshot.atlassian.net/browse/BUG-2444), [BUG-2272](https://greenshot.atlassian.net/browse/BUG-2272): Inconsistent scale behavior when scaling objects with shift modifier
 
 
 Greenshot 1.2.10 RELEASE

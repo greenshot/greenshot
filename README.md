@@ -21,4 +21,4 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 About this repository
 ---------------------
-This repository is for Greenshot 1.3
+This repository is for Greenshot 1.3, currently in development, but is the next planed release
