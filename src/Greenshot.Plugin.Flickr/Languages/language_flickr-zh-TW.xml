@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="communication_wait">正在與 Flickr 通訊，請稍候...</resource>
+		<resource name="Configure">組態 Flickr</resource>
+		<resource name="family">家庭</resource>
+		<resource name="friend">尋找</resource>
+		<resource name="label_AfterUpload">上傳後</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">連結到剪貼簿</resource>
+		<resource name="label_HiddenFromSearch">從搜尋隱藏</resource>
+		<resource name="label_SafetyLevel">安全性等級</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="public">公開</resource>
+		<resource name="settings_title">Flickr 設定</resource>
+		<resource name="upload_failure">上傳到 Flickr 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到 Flickr</resource>
+		<resource name="upload_success">上傳圖片到 Flickr 成功!</resource>
+	</resources>
+</language>

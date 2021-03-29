@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -40,7 +40,7 @@ namespace Greenshot.Plugin.Win10.Destinations
         public override string Description { get; } = "Windows 10 OCR";
 
         /// <summary>
-        /// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
+        /// Icon for the OCR function, the icon was found via: https://help4windows.com/windows_8_imageres_dll.shtml
         /// </summary>
         public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
 

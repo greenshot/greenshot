@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="communication_wait">正在與 Box 通訊，請稍候...</resource>
+		<resource name="Configure">組態 Box</resource>
+		<resource name="label_AfterUpload">上傳後</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">連結到剪貼簿</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="settings_title">Box 設定</resource>
+		<resource name="upload_failure">上傳到 Box 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到 Box</resource>
+		<resource name="upload_success">上傳圖片到 Box 成功!</resource>
+	</resources>
+</language>

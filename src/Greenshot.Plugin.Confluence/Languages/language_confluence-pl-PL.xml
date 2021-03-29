@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="browse_pages">Przeglądaj strony</resource>
+		<resource name="CANCEL">Anuluj</resource>
+		<resource name="communication_wait">Trwa komunikacja z Confluence. Proszę czekać...</resource>
+		<resource name="copy_wikimarkup">Kopiuj Wikimarkup do schowka</resource>
+		<resource name="filename">Nazwa pliku</resource>
+		<resource name="include_person_spaces">Dołącz własne spacje przy wyszukiwaniu i przeglądaniu</resource>
+		<resource name="label_password">Hasło</resource>
+		<resource name="label_timeout">Czas</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="label_user">Użytkownik</resource>
+		<resource name="loading">Informacje z Confluence są wczytywane, proszę czekać...</resource>
+		<resource name="login_error">Wystąpił problem podczas logowania: {0}</resource>
+		<resource name="login_title">Wprowadź swoje dane logowania</resource>
+		<resource name="OK">OK</resource>
+		<resource name="open_page_after_upload">Otwórz stronę po wysłaniu</resource>
+		<resource name="open_pages">Otwórz strony</resource>
+		<resource name="plugin_settings">Ustawienia Confluence</resource>
+		<resource name="search">Szukaj</resource>
+		<resource name="search_pages">Szukaj strony</resource>
+		<resource name="search_text">Szukaj tekst</resource>
+		<resource name="upload">Wyślij</resource>
+		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu do Confluence:</resource>
+		<resource name="upload_format">Format wysyłania</resource>
+		<resource name="upload_menu_item">Wyślij do Confluence</resource>
+		<resource name="upload_success">Wysyłanie obrazu do Confluence powiodło się!</resource>
+	</resources>
+</language>

@@ -8,7 +8,7 @@
 		<resource name="confluence">Confluence spraudnis</resource>
 		<resource name="externalcommand">Pielāgotu darbību spraudnis</resource>
 		<resource name="ocr">OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))</resource>
-		<resource name="imgur">Imgur spraudnis (Vairāk šeit: http://imgur.com)</resource>
+		<resource name="imgur">Imgur spraudnis (Vairāk šeit: https://imgur.com)</resource>
 		<resource name="language">Papildus valodas</resource>
 		<resource name="optimize">Uzlaboju veikstpēju, tas prasīs kādu laiciņu.</resource>
 	</resources>

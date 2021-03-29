@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -24,8 +24,10 @@ using System.Runtime.InteropServices;
 
 namespace Greenshot.Base.Interop
 {
-    // This is used for Windows 8 to see if the App Launcher is active
-    // See http://msdn.microsoft.com/en-us/library/windows/desktop/jj554119%28v=vs.85%29.aspx
+    /// <summary>
+    /// This is used for Windows 8 to see if the App Launcher is active
+    /// See <a href="https://docs.microsoft.com/en-gb/windows/win32/api/shobjidl_core/nn-shobjidl_core-iappvisibility">IAppVisibility</a>
+    /// </summary>
     [ComProgId("clsid:7E5FE3D9-985F-4908-91F9-EE19F9FD1514")]
     [ComImport, Guid("2246EA2D-CAEA-4444-A3C4-6DE827E44313"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     public interface IAppVisibility

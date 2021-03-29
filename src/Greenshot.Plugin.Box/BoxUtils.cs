@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System.Collections.Generic;
@@ -61,7 +61,7 @@ namespace Greenshot.Plugin.Box
 
         /// <summary>
         /// Do the actual upload to Box
-        /// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
+        /// For more details on the available parameters, see: https://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
         /// </summary>
         /// <param name="image">Image for box upload</param>
         /// <param name="title">Title of box upload</param>
@@ -116,7 +116,7 @@ namespace Greenshot.Plugin.Box
                     return file.SharedLink.Url;
                 }
 
-                return $"http://www.box.com/files/0/f/0/1/f_{upload.Entries[0].Id}";
+                return $"https://www.box.com/files/0/f/0/1/f_{upload.Entries[0].Id}";
             }
             finally
             {

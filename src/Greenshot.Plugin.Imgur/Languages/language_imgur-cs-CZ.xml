@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
+	<resources>
+		<resource name="anonymous_access">Použít anonymní přístup</resource>
+		<resource name="CANCEL">Zrušit</resource>
+		<resource name="clear_question">Jste si jisti, že chcete smazat místní historii Imgur?</resource>
+		<resource name="communication_wait">Komunikace s Imgur. Prosím čekejte ...</resource>
+		<resource name="configure">Nastavení</resource>
+		<resource name="delete_question">Jste si jisti, že chcete smazat obrázek {0} z Imgur?</resource>
+		<resource name="delete_title">Odstranit Imgur {0}</resource>
+		<resource name="history">Historie</resource>
+		<resource name="label_upload_format">Formát obrázku</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Nastavení Imgur</resource>
+		<resource name="upload_failure">Došlo k chybě při nahrávání na Imgur:</resource>
+		<resource name="upload_menu_item">Nahrát na Imgur</resource>
+		<resource name="upload_success">Obrázek byl úspěšně odeslán na Imgur!</resource>
+		<resource name="use_page_link">Použijte odkaz na stránku namísto odkaz na obrázek do schránky</resource>
+	</resources>
+</language>

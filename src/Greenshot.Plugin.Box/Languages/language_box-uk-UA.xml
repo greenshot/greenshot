@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" version="1.0.0" ietf="uk-UA">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
+		<resource name="label_AfterUpload">Після вивантаження</resource>
+		<resource name="Configure">Налаштувати Box</resource>
+		<resource name="upload_menu_item">Вивантажити на Box</resource>
+	<resource name="settings_title">Параметри Box</resource>
+		<resource name="upload_success">Зображення вдало вивантажено на Box!</resource>
+		<resource name="upload_failure">Відбулась помилка під час вивантаження на Box:</resource>
+		<resource name="label_upload_format">Формат зображення</resource>
+		<resource name="communication_wait">З’єднання з Box. Будь ласка, зачекайте...</resource>
+	</resources>
+</language>

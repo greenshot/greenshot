@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
+	<resources>
+		<resource name="browse_pages">Обзор страниц</resource>
+		<resource name="CANCEL">Отмена</resource>
+		<resource name="communication_wait">Передача данных на Confluence, пожалуйста, подождите...</resource>
+		<resource name="copy_wikimarkup">Скопировать Wikimarkup в буфер обмена</resource>
+		<resource name="filename">Имя файла</resource>
+		<resource name="include_person_spaces">Включите личное пространство в поиске и просмотре</resource>
+		<resource name="label_password">Пароль</resource>
+		<resource name="label_timeout">Время ожидания</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="label_user">Пользователь</resource>
+		<resource name="loading">Confluence данные загружаются, пожалуйста, подождите...</resource>
+		<resource name="login_error">Произошла ошибка во время входа: {0}</resource>
+		<resource name="login_title">Пожалуйста, введите ваши данные входа на Confluence</resource>
+		<resource name="OK">OK</resource>
+		<resource name="open_page_after_upload">Открыть страницу после загрузки</resource>
+		<resource name="open_pages">Открыть страницы</resource>
+		<resource name="plugin_settings">Параметры Confluence</resource>
+		<resource name="search">Искать</resource>
+		<resource name="search_pages">Поиск страниц</resource>
+		<resource name="search_text">Поиск текста</resource>
+		<resource name="upload">Загрузить</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на Confluence:</resource>
+		<resource name="upload_format">Формат загрузки</resource>
+		<resource name="upload_menu_item">Загрузка на Confluence</resource>
+		<resource name="upload_success">Изображение успешно загружено на Confluence!</resource>
+	</resources>
+</language>

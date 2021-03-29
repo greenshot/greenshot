@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions targetNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
-	xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://confluence/rpc/soap-axis/confluenceservice-v1"
-	xmlns:intf="http://confluence/rpc/soap-axis/confluenceservice-v1"
+<wsdl:definitions targetNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
+	xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="https://confluence/rpc/soap-axis/confluenceservice-v1"
+	xmlns:intf="https://confluence/rpc/soap-axis/confluenceservice-v1"
 	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://rpc.confluence.atlassian.com"
 	xmlns:tns2="http://beans.soap.rpc.confluence.atlassian.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<!--WSDL created by Apache Axis version: 1.2.1 Built on Jun 14, 2005 (09:15:57 
 		EDT) -->
 	<wsdl:types>
-		<schema targetNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+		<schema targetNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 			xmlns="http://www.w3.org/2001/XMLSchema">
 			<import namespace="http://beans.soap.rpc.confluence.atlassian.com" />
 			<import namespace="http://rpc.confluence.atlassian.com" />
@@ -145,7 +145,7 @@
 			xmlns="http://www.w3.org/2001/XMLSchema">
 			<import namespace="http://beans.soap.rpc.confluence.atlassian.com" />
 			<import namespace="http://xml.apache.org/xml-soap" />
-			<import namespace="http://confluence/rpc/soap-axis/confluenceservice-v1" />
+			<import namespace="https://confluence/rpc/soap-axis/confluenceservice-v1" />
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
 			<complexType name="RemoteException">
 				<sequence />
@@ -190,7 +190,7 @@
 			xmlns="http://www.w3.org/2001/XMLSchema">
 			<import namespace="http://rpc.confluence.atlassian.com" />
 			<import namespace="http://xml.apache.org/xml-soap" />
-			<import namespace="http://confluence/rpc/soap-axis/confluenceservice-v1" />
+			<import namespace="https://confluence/rpc/soap-axis/confluenceservice-v1" />
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
 			<complexType name="RemoteSearchResult">
 				<sequence>
@@ -291,7 +291,7 @@
 		<schema targetNamespace="http://xml.apache.org/xml-soap" xmlns="http://www.w3.org/2001/XMLSchema">
 			<import namespace="http://beans.soap.rpc.confluence.atlassian.com" />
 			<import namespace="http://rpc.confluence.atlassian.com" />
-			<import namespace="http://confluence/rpc/soap-axis/confluenceservice-v1" />
+			<import namespace="https://confluence/rpc/soap-axis/confluenceservice-v1" />
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
 			<complexType name="mapItem">
 				<sequence>
@@ -500,17 +500,17 @@
 			</wsdl:input>
 			<wsdl:output name="searchResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -522,12 +522,12 @@
 			</wsdl:input>
 			<wsdl:output name="searchResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -539,17 +539,17 @@
 			</wsdl:input>
 			<wsdl:output name="getSpaceResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -561,17 +561,17 @@
 			</wsdl:input>
 			<wsdl:output name="getChildrenResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -583,17 +583,17 @@
 			</wsdl:input>
 			<wsdl:output name="loginResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="AuthenticationFailedException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="AuthenticationFailedException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="AuthenticationFailedException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -605,17 +605,17 @@
 			</wsdl:input>
 			<wsdl:output name="getPageResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -627,17 +627,17 @@
 			</wsdl:input>
 			<wsdl:output name="getPageResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -649,12 +649,12 @@
 			</wsdl:input>
 			<wsdl:output name="logoutResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -666,12 +666,12 @@
 			</wsdl:input>
 			<wsdl:output name="addAttachmentResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -683,12 +683,12 @@
 			</wsdl:input>
 			<wsdl:output name="addAttachmentResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -700,17 +700,17 @@
 			</wsdl:input>
 			<wsdl:output name="getSpacesResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -722,17 +722,17 @@
 			</wsdl:input>
 			<wsdl:output name="getPagesResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:output>
 			<wsdl:fault name="InvalidSessionException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="InvalidSessionException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="InvalidSessionException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 			<wsdl:fault name="RemoteException">
 				<wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					name="RemoteException" namespace="http://confluence/rpc/soap-axis/confluenceservice-v1"
+					name="RemoteException" namespace="https://confluence/rpc/soap-axis/confluenceservice-v1"
 					use="encoded" />
 			</wsdl:fault>
 		</wsdl:operation>
@@ -741,7 +741,7 @@
 		<wsdl:port binding="impl:confluenceservice-v1SoapBinding"
 			name="confluenceservice-v1">
 			<wsdlsoap:address
-				location="http://confluence/rpc/soap-axis/confluenceservice-v1" />
+				location="https://confluence/rpc/soap-axis/confluenceservice-v1" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

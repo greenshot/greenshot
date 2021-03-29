@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.4.2622" languagegroup="5">
+	<resources>
+		<resource name="CANCEL">Отмена</resource>
+		<resource name="column_assignee">Представитель</resource>
+		<resource name="column_created">Создан</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">Корреспондент</resource>
+		<resource name="column_summary">Резюме</resource>
+		<resource name="communication_wait">Передача данных в JIRA, подождите, пожалуйста!...</resource>
+		<resource name="label_comment">Комментарий</resource>
+		<resource name="label_filename">Имя файла</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">Фильтр JIRA</resource>
+		<resource name="label_upload_format">Формат изображения</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="login_error">Произошла ошибка во время входа: {0}</resource>
+		<resource name="login_title">Пожалуйста, введите ваши регистрационные данные Jira</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">JIRA параметры</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на Jira:</resource>
+		<resource name="upload_menu_item">Загрузить на Jira</resource>
+		<resource name="upload_success">Изображение успешно загружено на Jira!</resource>
+	</resources>
+</language>

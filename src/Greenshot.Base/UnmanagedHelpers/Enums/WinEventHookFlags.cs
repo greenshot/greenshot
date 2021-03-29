@@ -5,7 +5,7 @@ namespace Greenshot.Base.UnmanagedHelpers.Enums
 {
     /// <summary>
     /// Used for User32.SetWinEventHook
-    /// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
+    /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming"), Flags]
     public enum WinEventHookFlags

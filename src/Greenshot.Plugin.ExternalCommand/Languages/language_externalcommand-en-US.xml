@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Configure external commands
+  </resource>
+  <resource name="settings_title">
+  		External command settings
+	</resource>
+	<resource name="settings_detail_title">
+  		Configure command
+	</resource>
+	<resource name="settings_new">
+  		New
+	</resource>
+	<resource name="settings_delete">
+  		Delete
+	</resource>
+	<resource name="settings_edit">
+  		Edit
+	</resource>
+    <resource name="label_name">
+      Name
+    </resource>
+    <resource name="label_command">
+      Command
+    </resource>
+    <resource name="label_argument">
+      Arguments
+    </resource>
+    <resource name="label_information">
+      {0} is the filename of your screenshot
+    </resource>
+  </resources>
+</language>

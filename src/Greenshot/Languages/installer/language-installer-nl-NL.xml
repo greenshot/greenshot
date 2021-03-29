@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="optimize">Prestaties verbeteren, kan even duren.</resource>
 		<resource name="language">Extra talen</resource>
-		<resource name="imgur">Imgur plug-in (Zie: http://imgur.com)</resource>
+		<resource name="imgur">Imgur plug-in (Zie: https://imgur.com)</resource>
 		<resource name="ocr">OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)</resource>
 		<resource name="externalcommand">Open met externes commando plug-in</resource>
 		<resource name="confluence">Confluence plug-in</resource>

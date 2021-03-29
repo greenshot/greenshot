@@ -7,7 +7,7 @@
 		<resource name="confluence">Confluence-liitännäinen</resource>
 		<resource name="externalcommand">Avaa Ulkoinen komento-liitännäisellä</resource>
 		<resource name="ocr">OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))</resource>
-		<resource name="imgur">Imgur-liitännäinen (Katso: http://imgur.com)</resource>
+		<resource name="imgur">Imgur-liitännäinen (Katso: https://imgur.com)</resource>
 		<resource name="language">Lisäkielet</resource>
 		<resource name="optimize">Optimoidaan suorituskykyä, tämä voi kestää hetken.</resource>
 	</resources>

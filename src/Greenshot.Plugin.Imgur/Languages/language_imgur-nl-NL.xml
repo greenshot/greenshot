@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Nederlands" ietf="nl-NL" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Naar Imgur uploaden
+	</resource>
+	<resource name="settings_title">
+		Imgur instellingen
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Afbreken
+	</resource>
+	<resource name="upload_success">
+		Het uploaden naar Imgur is geslaagt!
+	</resource>
+	<resource name="upload_failure">
+		Tijdens het uploaden naar Imgur is een fout opgetreden:
+	</resource>
+	<resource name="label_upload_format">
+		Beeld formaat
+	</resource>
+	<resource name="communication_wait">
+		Data overdraging naar Imgur, wachten AUB...
+	</resource>
+	<resource name="delete_question">
+		Weet U zeker dat U het beeld {0} van Imgur verwijderen wilt?
+	</resource>
+	<resource name="clear_question">
+		Weet U zeker dat U de locale Imgur historie verwijderen wilt?
+	</resource>
+	<resource name="delete_title">
+		Imgur {0} verwijderen
+	</resource>
+	<resource name="use_page_link">
+		Kopieer de pagina link in plaats van de beeld link in het klembord
+	</resource>
+	<resource name="history">
+		Verloop
+	</resource>
+	<resource name="configure">
+		Instellingen
+	</resource>
+  </resources>
+</language>

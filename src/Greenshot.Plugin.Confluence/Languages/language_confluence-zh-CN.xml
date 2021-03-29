@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+	<resources>
+		<resource name="browse_pages">浏览器页面</resource>
+		<resource name="CANCEL">取消</resource>
+		<resource name="communication_wait">正在传送数据到Confluence，请稍后...</resource>
+		<resource name="copy_wikimarkup">把Wikimarkup复制到剪贴板</resource>
+		<resource name="filename">文件名</resource>
+		<resource name="include_person_spaces">在搜索和浏览时包含个人空间</resource>
+		<resource name="label_password">密码</resource>
+		<resource name="label_timeout">超时</resource>
+		<resource name="label_url">网址</resource>
+		<resource name="label_user">用户名</resource>
+		<resource name="loading">正在载入Confluence数据，请稍后...</resource>
+		<resource name="login_error">登录时发生错误：{0}</resource>
+		<resource name="login_title">请输入您的Confluence登录信息</resource>
+		<resource name="OK">确认</resource>
+		<resource name="open_page_after_upload">上传之后打开页面</resource>
+		<resource name="open_pages">打开页面</resource>
+		<resource name="plugin_settings">Confluence设置</resource>
+		<resource name="search">搜索</resource>
+		<resource name="search_pages">搜索页面</resource>
+		<resource name="search_text">搜索文字</resource>
+		<resource name="upload">上传</resource>
+		<resource name="upload_failure">上传到Confluence时发生错误</resource>
+		<resource name="upload_format">上传格式</resource>
+		<resource name="upload_menu_item">上传到Confluence</resource>
+		<resource name="upload_success">图片已成功上传到Confluence！</resource>
+	</resources>
+</language>

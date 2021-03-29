@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="CANCEL">Anuluj</resource>
+		<resource name="communication_wait">Trwa komunikacja z Photobucket. Proszę czekać...</resource>
+		<resource name="configure">Konfiguruj Photobucket</resource>
+		<resource name="label_upload_format">Format obrazów</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Ustawienia Photobucket</resource>
+		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu do Photobucket:</resource>
+		<resource name="upload_menu_item">Wyślij do Photobucket</resource>
+		<resource name="upload_success">Wysyłanie obrazu do Photobucket powiodło się!</resource>
+		<resource name="use_page_link">Kopiuj do schowka link do strony zamiast link do obrazu</resource>
+	</resources>
+</language>

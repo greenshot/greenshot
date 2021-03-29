@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -459,7 +459,7 @@ namespace Greenshot.Base.Interop
                                 // If we're passing a decimal value by reference,
                                 // we need to pass a CurrencyWrapper to avoid a 
                                 // type mismatch exception.
-                                // http://support.microsoft.com/?kbid=837378
+                                // https://support.microsoft.com/?kbid=837378
                                 args[i] = new CurrencyWrapper(args[i]);
                             }
                         }
@@ -476,9 +476,7 @@ namespace Greenshot.Base.Interop
                     catch (InvalidComObjectException icoEx)
                     {
                         // Should assist BUG-1616 and others
-                        Log.WarnFormat(
-                            "COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.",
-                            _interceptType.FullName);
+                        Log.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _interceptType.FullName);
                         return new ReturnMessage(icoEx, callMessage);
                     }
                     catch (Exception ex)

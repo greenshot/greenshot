@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">Вивантажити на Jira</resource>
+	<resource name="column_assignee">Представник</resource>
+	<resource name="column_created">Створено</resource>
+	<resource name="column_id">Ідентифікатор</resource>
+	<resource name="column_reporter">Кореспондент</resource>
+	<resource name="column_summary">Зведення</resource>
+	<resource name="label_comment">Коментар</resource>
+	<resource name="label_filename">Назва файла</resource>
+	<resource name="label_jira">JIRA</resource>
+	<resource name="label_jirafilter">Фільтр JIRA</resource>
+	<resource name="login_error">Відбулась помилка під час авторизації: {0}</resource>
+	<resource name="label_url">Посилання</resource>
+  	<resource name="login_title">Будь ласка, введіть дані облікового запису Jira</resource>
+	<resource name="settings_title">Параметри Jira</resource>
+  	<resource name="OK">Гаразд</resource>
+  	<resource name="CANCEL">Скасувати</resource>
+  	<resource name="upload_success">Зображення вдало вивантажено на Jira!</resource>
+  	<resource name="upload_failure">Відбулась помилка під час вивантаження на Jira:</resource>
+  	<resource name="label_upload_format">Формат зображення</resource>
+  	<resource name="communication_wait">Передача даних на JIRA, будь ласка, зачекайте...</resource>
+  </resources>
+</language>

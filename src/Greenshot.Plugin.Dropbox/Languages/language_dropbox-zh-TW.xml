@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="communication_wait">正在與 Dropbox 通訊，請稍候...</resource>
+		<resource name="Configure">組態 Dropbox</resource>
+		<resource name="label_AfterUpload">上傳後</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">連結到剪貼簿</resource>
+		<resource name="label_AfterUploadOpenHistory">開啟歷程記錄</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="settings_title">Dropbox 設定</resource>
+		<resource name="upload_failure">上傳到 Dropbox 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到 Dropbox</resource>
+		<resource name="upload_success">上傳圖片到 Dropbox 成功!</resource>
+	</resources>
+</language>

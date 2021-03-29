@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-	<!-- See http://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html -->
+	<!-- See https://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html -->
 	<log4net>
 		<appender name="FileAppender" type="log4net.Appender.RollingFileAppender">
 			<file type="log4net.Util.PatternString">

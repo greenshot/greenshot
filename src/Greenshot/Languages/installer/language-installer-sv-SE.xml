@@ -7,7 +7,7 @@
 		<resource name="confluence">Confluence-insticksprogram</resource>
 		<resource name="externalcommand">Öppna med externt kommando-insticksprogram</resource>
 		<resource name="ocr">OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))</resource>
-		<resource name="imgur">Imgur-insticksprogram (Se: http://imgur.com)</resource>
+		<resource name="imgur">Imgur-insticksprogram (Se: https://imgur.com)</resource>
 		<resource name="language">Ytterligare språk</resource>
 		<resource name="optimize">Optimerar prestanda, detta kan ta en stund.</resource>
 	</resources>

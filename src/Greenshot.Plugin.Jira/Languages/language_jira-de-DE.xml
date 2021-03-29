@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		In Jira hochladen
+	</resource>
+	<resource name="column_assignee">
+		Bearbeiter
+	</resource>
+	<resource name="column_created">
+		Erstellt
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Author
+	</resource>
+	<resource name="column_summary">
+		Kurzbeschreibung
+	</resource>
+	<resource name="label_comment">
+		Kommentar
+	</resource>
+	<resource name="label_filename">
+		Dateiname
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA Filter
+	</resource>
+	<resource name="login_error">
+		Es gab ein Problem beim Login: {0}
+	</resource>
+  	<resource name="login_title">
+		Bitte geben Sie ihre Jira Login-Daten ein
+	</resource>
+	<resource name="settings_title">
+		Jira Einstellungen
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Cancel
+	</resource>
+  	<resource name="upload_success">
+		Das Hochladen zu Jira war erfolgreich.
+	</resource>
+  	<resource name="upload_failure">
+		Es gab einen Fehler beim Hochladen zu Jira:
+	</resource>
+  	<resource name="label_upload_format">
+  		Bildformat
+	</resource>
+  	<resource name="communication_wait">
+  		Übermittle Daten zu Jira. Bitte warten...
+	</resource>
+  </resources>
+</language>

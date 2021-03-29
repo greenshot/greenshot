@@ -20,7 +20,7 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Code for handling with "windows"
     /// Main code is taken from vbAccelerator, location:
-    /// http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows/Enumerating_Windows/article.asp
+    /// https://www.vbaccelerator.com/home/NET/Code/Libraries/Windows/Enumerating_Windows/article.asp
     /// but a LOT of changes/enhancements were made to adapt it for Greenshot.
     ///
     /// Provides details about a Window returned by the  enumeration

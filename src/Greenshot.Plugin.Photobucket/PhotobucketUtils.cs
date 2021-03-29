@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -43,7 +43,7 @@ namespace Greenshot.Plugin.Photobucket
 
         /// <summary>
         /// Do the actual upload to Photobucket
-        /// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
+        /// For more details on the available parameters, see: https://api.Photobucket.com/resources_anon
         /// </summary>
         /// <returns>PhotobucketResponse</returns>
         public static PhotobucketInfo UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename)
@@ -90,7 +90,7 @@ namespace Greenshot.Plugin.Photobucket
             };
             try
             {
-                string apiUrl = "http://api.photobucket.com/album/!/upload";
+                string apiUrl = "https://api.photobucket.com/album/!/upload";
                 responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", PhotobucketConfig.SubDomain), signedParameters,
                     unsignedParameters, null);
             }
@@ -133,10 +133,10 @@ namespace Greenshot.Plugin.Photobucket
             {
                 AutoLogin = autoLogin,
                 CheckVerifier = false,
-                CallbackUrl = "http://getgreenshot.org",
-                AccessTokenUrl = "http://api.photobucket.com/login/access",
-                AuthorizeUrl = "http://photobucket.com/apilogin/login",
-                RequestTokenUrl = "http://api.photobucket.com/login/request",
+                CallbackUrl = "https://getgreenshot.org",
+                AccessTokenUrl = "https://api.photobucket.com/login/access",
+                AuthorizeUrl = "https://photobucket.com/apilogin/login",
+                RequestTokenUrl = "https://api.photobucket.com/login/request",
                 BrowserSize = new Size(1010, 400),
                 RequestTokenMethod = HTTPMethod.POST,
                 AccessTokenMethod = HTTPMethod.POST,
@@ -207,7 +207,7 @@ namespace Greenshot.Plugin.Photobucket
             IDictionary<string, object> signedParameters = new Dictionary<string, object>();
             try
             {
-                string apiUrl = $"http://api.photobucket.com/album/{PhotobucketConfig.Username}";
+                string apiUrl = $"https://api.photobucket.com/album/{PhotobucketConfig.Username}";
                 responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, apiUrl, apiUrl.Replace("api.photobucket.com", PhotobucketConfig.SubDomain), signedParameters, null, null);
             }
             catch (Exception ex)

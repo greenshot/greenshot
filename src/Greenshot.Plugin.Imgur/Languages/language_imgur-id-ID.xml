@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Bahasa Indonesia" ietf="id-ID" version="1.0.0.0" languagegroup="">
+	<resources>
+		<resource name="anonymous_access">Gunakan akses anonim</resource>
+		<resource name="CANCEL">Batal</resource>
+		<resource name="clear_question">Apakah anda benar-benar ingin menghapus riwayat lokal Imgur?</resource>
+		<resource name="communication_wait">Menyambungkan ke Imgur. Tunggu sebentar...</resource>
+		<resource name="configure">Pengaturan</resource>
+		<resource name="delete_question">Apakah anda benar-benar ingin menghapus gambar {0} dari Imgur?</resource>
+		<resource name="delete_title">Hapus Imgur {0}</resource>
+		<resource name="history">Riwayat</resource>
+		<resource name="label_upload_format">Format gambar</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="OK">Oke</resource>
+		<resource name="settings_title">Setelan Imgur</resource>
+		<resource name="upload_failure">Kesalahan terjadi ketika mengunggah ke Imgur:</resource>
+		<resource name="upload_menu_item">Unggah ke Imgur</resource>
+		<resource name="upload_success">Gambar berhasil diunggah ke Imgur!</resource>
+		<resource name="use_page_link">Gunakan link laman daripada link gambar di papanklip</resource>
+	</resources>
+</language>

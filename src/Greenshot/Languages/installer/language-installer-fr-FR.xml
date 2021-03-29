@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="confluence">Greffon Confluence</resource>
 		<resource name="externalcommand">Ouvrir avec le greffon de commande externe</resource>
-		<resource name="imgur">Greffon Imgur (Voir: http://imgur.com)</resource>
+		<resource name="imgur">Greffon Imgur (Voir: https://imgur.com)</resource>
 		<resource name="jira">Greffon Jira</resource>
 		<resource name="language">Langues additionnelles</resource>
 		<resource name="ocr">Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])</resource>

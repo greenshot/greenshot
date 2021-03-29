@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Nederlands" ietf="nl-NL" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Naar Jira uploaden
+	</resource>
+	<resource name="column_assignee">
+		Toegewezen aan
+	</resource>
+	<resource name="column_created">
+		Gecreërd 
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Gemeld door
+	</resource>
+	<resource name="column_summary">
+		Samenvatting
+	</resource>
+	<resource name="label_comment">
+		Kommentaar
+	</resource>
+	<resource name="label_filename">
+		Filename
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA filter
+	</resource>
+	<resource name="login_error">
+		Tijdens de login is een fout opgetreden: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="label_user">
+		Gebruiker
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+  	<resource name="login_title">
+		Geef uw Jira login data
+	</resource>
+	<resource name="settings_title">
+		Jira instellingen
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Afbreken
+	</resource>
+  	<resource name="upload_success">
+		Het uploaden naar Jira is geslaagt!
+	</resource>
+  	<resource name="upload_failure">
+		Tijdens het uploaden naar Jira is een fout opgetreden:
+	</resource>
+  	<resource name="label_upload_format">
+  		Beeld formaat
+	</resource>
+  	<resource name="communication_wait">
+      Gegevensoverdracht naar Jira, wachten A.U.B...
+    </resource>
+  </resources>
+</language>

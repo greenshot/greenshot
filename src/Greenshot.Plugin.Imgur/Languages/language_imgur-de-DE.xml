@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Zu Imgur hochladen
+	</resource>
+	<resource name="settings_title">
+		Imgur Einstellungen
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancel
+	</resource>
+	<resource name="upload_success">
+		Das Hochladen zu Imgur war erfolgreich.
+	</resource>
+	<resource name="upload_failure">
+		Es gab einen Fehler beim Hochladen zu Imgur:
+	</resource>
+	<resource name="label_upload_format">
+		Bildformat
+	</resource>
+	<resource name="communication_wait">
+		Übermittle Daten zu Imgur. Bitte warten...
+	</resource>
+	<resource name="delete_question">
+		Sind Sie sicher das sie das Bild {0} von Imgur löschen möchte?
+	</resource>
+	<resource name="clear_question">
+		Sind Sie sicher das sie den lokalen Imgur Verlauf löschen möchte?
+	</resource>
+	<resource name="delete_title">
+		Imgur {0} löschen
+	</resource>
+	<resource name="use_page_link">
+		Benutze der Seite-URL statt Bild-URL im Zwischenablage
+	</resource>
+	<resource name="history">
+		Verlauf
+	</resource>
+	<resource name="configure">
+		Einstellungen
+	</resource>
+  </resources>
+</language>

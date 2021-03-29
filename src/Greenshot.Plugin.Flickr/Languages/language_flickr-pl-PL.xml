@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+	<resources>
+		<resource name="communication_wait">Trwa komunikacja z Flickr. Proszę czekać...</resource>
+		<resource name="Configure">Konfiguruj Flickr</resource>
+		<resource name="family">Rodzina</resource>
+		<resource name="friend">Przyjaciele</resource>
+		<resource name="label_AfterUpload">Po wysłaniu</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Link do schowka</resource>
+		<resource name="label_HiddenFromSearch">Ukrywaj z wyszukiwarki</resource>
+		<resource name="label_SafetyLevel">Poziom bezpieczeństwa</resource>
+		<resource name="label_upload_format">Format obrazów</resource>
+		<resource name="public">Publiczny</resource>
+		<resource name="settings_title">Ustawienia Flickr</resource>
+		<resource name="upload_failure">Wystąpił błąd przy wysyłaniu doFlickr:</resource>
+		<resource name="upload_menu_item">Wyślij do Flickr</resource>
+		<resource name="upload_success">Wysyłanie obrazu do Flickr powiodło się!</resource>
+	</resources>
+</language>

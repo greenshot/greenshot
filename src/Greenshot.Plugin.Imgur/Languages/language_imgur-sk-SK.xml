@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Slovenčina" ietf="sk-SK" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Nahrať na Imgur
+	</resource>
+	<resource name="settings_title">
+		Imgur nastavenia
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Zrušiť
+	</resource>
+	<resource name="upload_success">
+		Obrázok bol úspešne nahraný na Imgur!
+	</resource>
+	<resource name="upload_failure">
+		Chyba pri nahrávaní na Imgur:
+	</resource>
+	<resource name="label_upload_format">
+		Formát obrázku
+	</resource>
+	<resource name="communication_wait">
+		Prebieha komunikácia s Imgur. Čakajte prosím ...
+	</resource>
+	<resource name="delete_question">
+		Chcete naozaj zmazať  obrázok {0} z Imgur?
+	</resource>
+	<resource name="clear_question">
+		Chcete naozaj zmazať lokálnu históriu Imgur?
+	</resource>
+	<resource name="delete_title">
+		Zmazať Imgur {0}
+	</resource>
+	<resource name="anonymous_access">
+		Použiť anonymný prístup
+	</resource>
+	<resource name="use_page_link">
+		Použiť odkaz stránky namiesto odkazu obrázku v schránke
+	</resource>
+	<resource name="history">
+		História
+	</resource>
+	<resource name="configure">
+		Konfigurácia
+	</resource>
+  </resources>
+</language>

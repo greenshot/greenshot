@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="0.8.0" prefix="confluence">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence einstellungen
+	</resource>
+	<resource name="login_error">
+		Es gab ein Problem während dem Login: {0}
+	</resource>
+	<resource name="login_title">
+		Bitte geben Sie ihr Confluence anmelde Daten ein
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Timeout
+	</resource>
+	<resource name="label_user">
+		Benutzer
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Abbrechen
+	</resource>
+	<resource name="upload_menu_item">
+		In Confluence hochladen
+	</resource>
+	<resource name="upload_success">
+		Ein erfolg beim Hochladen zum Confluence!
+	</resource>
+  <resource name="upload_failure">
+		Es gab einen Fehler beim Hochladen zum Confluence:
+	</resource>
+  <resource name="open_page_after_upload">
+		Seite nach dem upload öffnen
+	</resource>
+  <resource name="upload_format">
+		Bildformat für Hochladen
+  </resource>
+	<resource name="copy_wikimarkup">
+    Kopiere Wikimarkup in der Zwischenablage
+  </resource>
+  <resource name="filename">
+		Dateiname
+	</resource>
+  <resource name="upload">
+		Hochladen
+	</resource>
+  <resource name="open_pages">
+		Aktuelle Seiten
+	</resource>
+  <resource name="search_pages">
+		Seiten suchen
+	</resource>
+  <resource name="browse_pages">
+		Seiten durchstöbern
+	</resource>
+  <resource name="search_text">
+		Text suchen
+	</resource>
+  <resource name="search">
+		Suchen
+	</resource>
+  <resource name="loading">
+		Confluence Daten werden geladen, bitte warten!
+	</resource>
+   <resource name="communication_wait">
+     Übermittle Daten zu Confluence. Bitte warten...
+   </resource>
+ </resources>
+</language>

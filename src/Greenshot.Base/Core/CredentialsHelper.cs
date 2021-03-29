@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -29,10 +29,10 @@ using System.Windows.Forms;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
+    /// The following code comes from: https://www.developerfusion.com/code/4693/using-the-credential-management-api/
     /// and is slightly modified so it works for us.
     /// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
-    /// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
+    /// doesn't show all credentials use the tool here: https://www.microsoft.com/indonesia/msdn/credmgmt.aspx
     /// The following code is an example for a login, it will call the Authenticate with user/password
     /// which should return true if the login worked, false if not.
     ///		private static bool Login(string system, string name) {
@@ -444,7 +444,7 @@ namespace Greenshot.Base.Core
 
     internal static class CredUi
     {
-        /// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
+        /// <summary>https://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
         public const int MAX_MESSAGE_LENGTH = 100;
 
         public const int MAX_CAPTION_LENGTH = 100;
@@ -453,9 +453,9 @@ namespace Greenshot.Base.Core
         public const int MAX_PASSWORD_LENGTH = 100;
 
         /// <summary>
-        /// http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
-        /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
-        /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
+        /// https://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
+        /// https://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
+        /// https://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
         /// </summary>
         [Flags]
         public enum CredFlags
@@ -471,7 +471,7 @@ namespace Greenshot.Base.Core
             KEEP_USERNAME = 0x100000,
         }
 
-        /// <summary>http://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>
+        /// <summary>https://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>
         public enum ReturnCodes
         {
             NO_ERROR = 0,
@@ -485,8 +485,8 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
-        /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
+        /// https://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
+        /// https://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
         /// </summary>
         public struct INFO
         {
@@ -498,8 +498,8 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
-        /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
+        /// https://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
+        /// https://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
         /// </summary>
         [DllImport("credui", CharSet = CharSet.Unicode)]
         public static extern ReturnCodes CredUIPromptForCredentials(
@@ -516,8 +516,8 @@ namespace Greenshot.Base.Core
         );
 
         /// <summary>
-        /// http://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
-        /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
+        /// https://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
+        /// https://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
         /// </summary>
         [DllImport("credui.dll", CharSet = CharSet.Unicode)]
         public static extern ReturnCodes CredUIConfirmCredentials(string targetName, [MarshalAs(UnmanagedType.Bool)] bool confirm);

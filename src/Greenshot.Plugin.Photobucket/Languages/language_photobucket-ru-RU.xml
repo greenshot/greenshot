@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.4.2622" languagegroup="5">
+	<resources>
+		<resource name="CANCEL">Отмена</resource>
+		<resource name="communication_wait">Обмен данными с Photobucket. Подождите...</resource>
+		<resource name="configure">Настройка Photobucket</resource>
+		<resource name="label_upload_format">Формат изображения</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Параметры Photobucket</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на Photobucket:</resource>
+		<resource name="upload_menu_item">Загрузить на Photobucket</resource>
+		<resource name="upload_success">Изображение успешно загружено на Photobucket!</resource>
+		<resource name="use_page_link">Использовать ссылку страницы, вместо ссылки изображения в буфере обмена</resource>
+	</resources>
+</language>

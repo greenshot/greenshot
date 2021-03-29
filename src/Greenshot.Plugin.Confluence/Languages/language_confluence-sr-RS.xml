@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="0.8.0" languagegroup="">
+	<resources>
+		<resource name="browse_pages">Прегледај странице</resource>
+		<resource name="CANCEL">Откажи</resource>
+		<resource name="communication_wait">Преносим податке на Конфлуенс…</resource>
+		<resource name="copy_wikimarkup">Умножи Wikimarkup</resource>
+		<resource name="filename">Назив датотеке</resource>
+		<resource name="include_person_spaces">Лични простор у претрази и прегледању</resource>
+		<resource name="label_password">Лозинка:</resource>
+		<resource name="label_timeout">Време истека:</resource>
+		<resource name="label_url">Адреса:</resource>
+		<resource name="label_user">Корисник:</resource>
+		<resource name="loading">Учитавам податке Конфлуенса…</resource>
+		<resource name="login_error">Дошло је до грешке при пријављивању: {0}</resource>
+		<resource name="login_title">Унесите податке за пријављивање на Конфлуенс</resource>
+		<resource name="OK">У реду</resource>
+		<resource name="open_page_after_upload">Отвори страницу након отпремања</resource>
+		<resource name="open_pages">Отвори странице</resource>
+		<resource name="plugin_settings">Поставке Конфлуенса</resource>
+		<resource name="search">Претражи</resource>
+		<resource name="search_pages">Претражи странице</resource>
+		<resource name="search_text">Претражи текст</resource>
+		<resource name="upload">Отпреми</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Конфлуенс:</resource>
+		<resource name="upload_format">Формат слике:</resource>
+		<resource name="upload_menu_item">Отпреми на Конфлуенс</resource>
+		<resource name="upload_success">Слика је успешно отпремљена на Конфлуенс.</resource>
+	</resources>
+</language>

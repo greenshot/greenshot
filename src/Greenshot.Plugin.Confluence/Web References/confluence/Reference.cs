@@ -26,7 +26,7 @@ namespace GreenshotConfluencePlugin.confluence {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4084.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="confluenceservice-v1SoapBinding", Namespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="confluenceservice-v1SoapBinding", Namespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
     [System.Xml.Serialization.SoapIncludeAttribute(typeof(AbstractRemotePageSummary))]
     [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteSpaceSummary))]
     [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteSearchResult))]
@@ -58,7 +58,7 @@ namespace GreenshotConfluencePlugin.confluence {
         
         /// <remarks/>
         public ConfluenceSoapServiceService() {
-            this.Url = "http://confluence/rpc/soap-axis/confluenceservice-v1";
+            this.Url = "https://confluence/rpc/soap-axis/confluenceservice-v1";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -126,7 +126,7 @@ namespace GreenshotConfluencePlugin.confluence {
         public event getPagesCompletedEventHandler getPagesCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("searchReturn")]
         public RemoteSearchResult[] search(string in0, string in1, int in2) {
             object[] results = this.Invoke("search", new object[] {
@@ -160,7 +160,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getSpaceReturn")]
         public RemoteSpace getSpace(string in0, string in1) {
             object[] results = this.Invoke("getSpace", new object[] {
@@ -192,7 +192,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getChildrenReturn")]
         public RemotePageSummary[] getChildren(string in0, long in1) {
             object[] results = this.Invoke("getChildren", new object[] {
@@ -224,7 +224,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("loginReturn")]
         public string login(string in0, string in1) {
             object[] results = this.Invoke("login", new object[] {
@@ -256,7 +256,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getPageReturn")]
         public RemotePage getPage(string in0, string in1, string in2) {
             object[] results = this.Invoke("getPage", new object[] {
@@ -291,7 +291,7 @@ namespace GreenshotConfluencePlugin.confluence {
         
         /// <remarks/>
         [System.Web.Services.WebMethodAttribute(MessageName="getPage1")]
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getPageReturn")]
         public RemotePage getPage(string in0, long in1) {
             object[] results = this.Invoke("getPage1", new object[] {
@@ -323,7 +323,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("logoutReturn")]
         public bool logout(string in0) {
             object[] results = this.Invoke("logout", new object[] {
@@ -353,7 +353,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("addAttachmentReturn")]
         public RemoteAttachment addAttachment(string in0, long in1, RemoteAttachment in2, [System.Xml.Serialization.SoapElementAttribute(DataType="base64Binary")] byte[] in3) {
             object[] results = this.Invoke("addAttachment", new object[] {
@@ -390,7 +390,7 @@ namespace GreenshotConfluencePlugin.confluence {
         
         /// <remarks/>
         [System.Web.Services.WebMethodAttribute(MessageName="addAttachment1")]
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("addAttachmentReturn")]
         public RemoteAttachment addAttachment(string in0, RemoteAttachment in1, [System.Xml.Serialization.SoapElementAttribute(DataType="base64Binary")] byte[] in2) {
             object[] results = this.Invoke("addAttachment1", new object[] {
@@ -424,7 +424,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getSpacesReturn")]
         public RemoteSpaceSummary[] getSpaces(string in0) {
             object[] results = this.Invoke("getSpaces", new object[] {
@@ -454,7 +454,7 @@ namespace GreenshotConfluencePlugin.confluence {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="http://confluence/rpc/soap-axis/confluenceservice-v1")]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.confluence.atlassian.com", ResponseNamespace="https://confluence/rpc/soap-axis/confluenceservice-v1")]
         [return: System.Xml.Serialization.SoapElementAttribute("getPagesReturn")]
         public RemotePageSummary[] getPages(string in0, string in1) {
             object[] results = this.Invoke("getPages", new object[] {

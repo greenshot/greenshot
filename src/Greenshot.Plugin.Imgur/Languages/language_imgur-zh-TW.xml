@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+	<resources>
+		<resource name="anonymous_access">使用匿名存取</resource>
+		<resource name="CANCEL">取消</resource>
+		<resource name="clear_question">您確定要刪除本機 Imgur 歷程記錄嗎?</resource>
+		<resource name="communication_wait">正在與 Imgur 通訊，請稍候...</resource>
+		<resource name="configure">組態</resource>
+		<resource name="delete_question">您確定要從 Imgur 刪除圖片 {0} 嗎? </resource>
+		<resource name="delete_title">刪除 Imgur {0}</resource>
+		<resource name="history">歷程記錄</resource>
+		<resource name="label_upload_format">圖片格式</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="OK">確定</resource>
+		<resource name="settings_title">Imgur 設定</resource>
+		<resource name="upload_failure">上傳到 Imgur 時發生錯誤:</resource>
+		<resource name="upload_menu_item">上傳到 Imgur</resource>
+		<resource name="upload_success">上傳圖片到 Imgur 成功!</resource>
+		<resource name="use_page_link">在剪貼簿使用頁面連結而不是圖片連結</resource>
+	</resources>
+</language>

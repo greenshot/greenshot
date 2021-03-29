@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Комуницирам с Боксом. Сачекајте…</resource>
+		<resource name="Configure">Поставке Бокса</resource>
+		<resource name="label_AfterUpload">Након отпремања:</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Веза ка остави</resource>
+		<resource name="label_upload_format">Формат слике:</resource>
+		<resource name="settings_title">Поставке Бокса</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Бокс:</resource>
+		<resource name="upload_menu_item">Отпреми на Бокс</resource>
+		<resource name="upload_success">Слика је успешно отпремљена на Бокс.</resource>
+	</resources>
+</language>

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.0.1">
+  <resources>
+	<resource name="upload_menu_item">
+		Carica su Imgur
+	</resource>
+	<resource name="settings_title">
+		Impostazioni Imgur
+	</resource>
+	<resource name="label_url">
+		URL
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Annulla
+	</resource>
+	<resource name="upload_success">
+		caricamento immagine su Imgur completato!
+	</resource>
+	<resource name="upload_failure">
+		Si è verificato un problema durante il caricamento:
+	</resource>
+	<resource name="label_upload_format">
+		Formato immagine
+	</resource>
+	<resource name="communication_wait">
+		Comunicazione con Imgur...
+	</resource>
+	<resource name="delete_question">
+		Sei sicuro di voler eliminare l'immagine {0} da Imgur?
+	</resource>
+	<resource name="clear_question">
+		Sei sicuro di voler eliminare la cronologia locale di Imgur?
+	</resource>
+	<resource name="delete_title">
+		Elimina Imgur {0}
+	</resource>
+	<resource name="anonymous_access">
+		Usa accesso anonimo
+	</resource>
+	<resource name="use_page_link">
+		Negli Appunti usa collegamento pagina invece di quello all'immagine
+	</resource>
+	<resource name="history">
+		Cronologia
+	</resource>
+	<resource name="configure">
+		Impostazioni
+	</resource>
+  </resources>
+</language>

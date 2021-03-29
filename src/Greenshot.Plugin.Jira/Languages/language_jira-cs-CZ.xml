@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Zrušit</resource>
+		<resource name="column_assignee">Pověřené osoby</resource>
+		<resource name="column_created">Vytvořil(a)</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">Reporter ???</resource>
+		<resource name="column_summary">Shrnutí</resource>
+		<resource name="communication_wait">Přenos dat na JIRA, prosím počkejte...</resource>
+		<resource name="label_comment">Komentář</resource>
+		<resource name="label_filename">Jméno souboru</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">JIRA filtr</resource>
+		<resource name="label_upload_format">Formát obrázku</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="login_error">Problém při přihlášení: {0}</resource>
+		<resource name="login_title">Prosím, zadejte přihlašovací údaje pre Jira</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Nastavení Jira</resource>
+		<resource name="upload_failure">Došlo k chybě při nahrávání na Jira:</resource>
+		<resource name="upload_menu_item">Nahrát na Jira</resource>
+		<resource name="upload_success">Obrázek úspěšně nahrán na Jira!</resource>
+	</resources>
+</language>

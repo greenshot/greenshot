@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">Налаштувати зовнішні команди</resource>
+  <resource name="settings_title">Параметри зовнішньої команди</resource>
+	<resource name="settings_detail_title">Налаштувати команду</resource>
+	<resource name="settings_new">Нова</resource>
+	<resource name="settings_delete">Видалити</resource>
+	<resource name="settings_edit">Змінити</resource>
+    <resource name="label_name">Назва</resource>
+    <resource name="label_command">Команда</resource>
+    <resource name="label_argument">Аргументи</resource>
+    <resource name="label_information">{0} — назва файла Вашого знімку</resource>
+  </resources>
+</language>

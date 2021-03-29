@@ -8,7 +8,7 @@
 #define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
 
 ; Include the scripts to install .NET Framework
-; See http://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
+; See https://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
 #include "scripts\products.iss"
 #include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
@@ -117,9 +117,9 @@ AppId={#ExeName}
 AppName={#ExeName}
 AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 AppPublisher={#ExeName}
-AppPublisherURL=http://getgreenshot.org
-AppSupportURL=http://getgreenshot.org
-AppUpdatesURL=http://getgreenshot.org
+AppPublisherURL=https://getgreenshot.org
+AppSupportURL=https://getgreenshot.org
+AppUpdatesURL=https://getgreenshot.org
 AppVerName={#ExeName} {#Version}
 AppVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
@@ -136,9 +136,9 @@ OutputDir=..\
 PrivilegesRequired=lowest
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 ; Create a SHA1 signature
-; SignTool=SignTool sign /debug /fd sha1 /tr http://time.certum.pl /td sha1 $f
+; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
 ; Append a SHA256 to the previous SHA1 signature (this is what as does)
-; SignTool=SignTool sign /debug /as /fd sha256 /tr http://time.certum.pl /td sha256 $f
+; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
 ; SignedUninstaller=yes
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
@@ -256,7 +256,7 @@ en.default=Default installation
 en.dropbox=Dropbox plug-in
 en.externalcommand=Open with external command plug-in
 en.flickr=Flickr plug-in
-en.imgur=Imgur plug-in (See: http://imgur.com)
+en.imgur=Imgur plug-in (See: https://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.office=Microsoft Office plug-in
@@ -272,7 +272,7 @@ en.ShowReadme=Show Readme
 de.confluence=Confluence Plug-in
 de.default=Standard installation
 de.externalcommand=Externes Kommando Plug-in
-de.imgur=Imgur Plug-in (Siehe: http://imgur.com)
+de.imgur=Imgur Plug-in (Siehe: https://imgur.com)
 de.jira=Jira Plug-in
 de.language=Zusätzliche Sprachen
 de.office=Microsoft Office Plug-in
@@ -284,7 +284,7 @@ de.win10=Windows 10 Plug-in
 es.confluence=Extensión para Confluence
 es.default=${default}
 es.externalcommand=Extensión para abrir con programas externos
-es.imgur=Extensión para Imgur (Ver http://imgur.com)
+es.imgur=Extensión para Imgur (Ver https://imgur.com)
 es.jira=Extensión para Jira
 es.language=Idiomas adicionales
 es.optimize=Optimizando rendimiento; por favor, espera.
@@ -295,7 +295,7 @@ es.win10=Extensión para Windows 10
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
 fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
-fi.imgur=Imgur-liitännäinen (Katso: http://imgur.com)
+fi.imgur=Imgur-liitännäinen (Katso: https://imgur.com)
 fi.jira=Jira-liitännäinen
 fi.language=Lisäkielet
 fi.office=Microsoft-Office-liitännäinen
@@ -307,7 +307,7 @@ fi.win10=Windows 10-liitännäinen
 fr.confluence=Greffon Confluence
 fr.default=${default}
 fr.externalcommand=Ouvrir avec le greffon de commande externe
-fr.imgur=Greffon Imgur (Voir: http://imgur.com)
+fr.imgur=Greffon Imgur (Voir: https://imgur.com)
 fr.jira=Greffon Jira
 fr.language=Langues additionnelles
 fr.office=Greffon Microsoft Office
@@ -322,7 +322,7 @@ it.default=Installazione predefinita
 it.dropbox=Plugin Dropbox
 it.externalcommand=Apri con comando esterno plugin
 it.flickr=Plugin Flickr
-it.imgur=Plugin Imgur (vedi: http://imgur.com)
+it.imgur=Plugin Imgur (vedi: https://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
 it.office=Plugin Microsoft Office
@@ -374,7 +374,7 @@ it.zhTW=Cinese (Taiwan)
 lt.confluence=Confluence spraudnis
 lt.default=${default}
 lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
+lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
 lt.jira=Jira spraudnis
 lt.language=Papildus valodas
 lt.office=Microsoft Office spraudnis
@@ -386,7 +386,7 @@ lt.win10=Windows 10 spraudnis
 lt.confluence=Confluence spraudnis
 lt.default=${default}
 lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: http://imgur.com)
+lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
 lt.jira=Jira spraudnis
 lt.language=Papildus valodas
 lt.office=Microsoft Office spraudnis
@@ -398,7 +398,7 @@ lt.win10=Windows 10 spraudnis
 nl.confluence=Confluence plug-in
 nl.default=Standaardinstallatie
 nl.externalcommand=Openen met extern commando plug-in
-nl.imgur=Imgur plug-in (zie: http://imgur.com)
+nl.imgur=Imgur plug-in (zie: https://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
 nl.office=Microsoft Office plug-in
@@ -410,7 +410,7 @@ nl.win10=Windows 10 plug-in
 nn.confluence=Confluence-tillegg
 nn.default=Default installation
 nn.externalcommand=Tillegg for å opne med ekstern kommando
-nn.imgur=Imgur-tillegg (sjå http://imgur.com)
+nn.imgur=Imgur-tillegg (sjå https://imgur.com)
 nn.jira=Jira-tillegg
 nn.language=Andre språk
 nn.office=Microsoft Office Tillegg
@@ -434,7 +434,7 @@ ru.win10=Плагин Windows 10
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
 sr.externalcommand=Отвори са прикључком за спољне наредбе
-sr.imgur=Прикључак за Имиџер (http://imgur.com)
+sr.imgur=Прикључак за Имиџер (https://imgur.com)
 sr.jira=Прикључак за Џиру
 sr.language=Додатни језици
 sr.optimize=Оптимизујем перформансе…
@@ -444,7 +444,7 @@ sr.win10=Прикључак за Windows 10
 
 sv.confluence=Confluence-insticksprogram
 sv.externalcommand=Öppna med externt kommando-insticksprogram
-sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
+sv.imgur=Imgur-insticksprogram (Se: https://imgur.com)
 sv.jira=Jira-insticksprogram
 sv.language=Ytterligare språk
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
@@ -455,7 +455,7 @@ sv.win10=Windows 10-insticksprogram
 uk.confluence=Плагін Confluence
 uk.default=${default}
 uk.externalcommand=Плагін запуску зовнішньої команди
-uk.imgur=Плагін Imgur (див.: http://imgur.com)
+uk.imgur=Плагін Imgur (див.: https://imgur.com)
 uk.jira=Плагін Jira
 uk.language=Додаткові мови
 uk.optimize=Оптимізація продуктивності, це може забрати час.
@@ -466,7 +466,7 @@ uk.win10=Плагін Windows 10
 cn.confluence=Confluence插件
 cn.default=${default}
 cn.externalcommand=使用外部命令打开插件
-cn.imgur=Imgur插件( (请访问： http://imgur.com))
+cn.imgur=Imgur插件( (请访问： https://imgur.com))
 cn.jira=Jira插件
 cn.language=其它语言
 cn.optimize=正在优化性能，这可能需要一点时间。
@@ -563,7 +563,7 @@ begin
 end;
 /////////////////////////////////////////////////////////////////////
 // The following uninstall code was found at:
-// http://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
+// https://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
 // and than modified to work in a 32/64 bit environment
 /////////////////////////////////////////////////////////////////////
 function GetUninstallStrings(): array of String;
@@ -746,7 +746,7 @@ end;
 
 [Run]
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
-Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
+Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
 Name: {app}; Type: dirifempty;

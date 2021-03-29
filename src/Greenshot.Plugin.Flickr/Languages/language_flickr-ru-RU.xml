@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
+	<resources>
+		<resource name="communication_wait">Общение с Flickr. Подождите...</resource>
+		<resource name="Configure">Настройка Flickr</resource>
+		<resource name="family">Семья</resource>
+		<resource name="friend">Друг</resource>
+		<resource name="label_AfterUpload">После загрузки</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Ссылка в буфер обмена</resource>
+		<resource name="label_HiddenFromSearch">Поиск скрытых форм</resource>
+		<resource name="label_SafetyLevel">Уровень безопасности</resource>
+		<resource name="label_upload_format">Формат изображения</resource>
+		<resource name="public">Общество</resource>
+		<resource name="settings_title">Параметры Flickr</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на Flickr:</resource>
+		<resource name="upload_menu_item">Загрузить на Flickr</resource>
+		<resource name="upload_success">Изображение успешно загружено на Flickr!</resource>
+	</resources>
+</language>

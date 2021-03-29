@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		上传到 Photobucket
+	</resource>
+	<resource name="settings_title">
+		Photobucket 设置
+	</resource>
+  	<resource name="upload_success">
+		已成功上传图片到 Photobucket ！
+	</resource>
+  	<resource name="upload_failure">
+		上传到 Photobucket 时出现错误：
+	</resource>
+  	<resource name="label_upload_format">
+  		图片格式
+	</resource>
+  	<resource name="communication_wait">
+  		连接到 Photobucket，请稍候...
+	</resource>
+  </resources>
+</language>

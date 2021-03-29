@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.0.1">
+  <resources>
+	<resource name="upload_menu_item">
+		Carica su Photobucket
+	</resource>
+	<resource name="settings_title">
+		Impostazioni Photobucket
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Annulla
+	</resource>
+	<resource name="upload_success">
+		Caricamento immagine su Photobucket completato!
+	</resource>
+	<resource name="upload_failure">
+		Si è verificato un errore durante il caricamento su Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Formato immagine
+	</resource>
+	<resource name="communication_wait">
+		Comunicazione con Photobucket...
+	</resource>
+	<resource name="use_page_link">
+		Negli Appunti usa il collegamento pagina invece di quello all'immagine
+	</resource>
+	<resource name="configure">
+    Impostazioni Photobucket
+  </resource>
+  </resources>
+</language>

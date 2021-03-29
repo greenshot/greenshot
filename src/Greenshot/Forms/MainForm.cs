@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -394,7 +394,7 @@ namespace Greenshot.Forms
             catch (ArgumentException ex)
             {
                 // Added for Bug #1420, this doesn't solve the issue but maybe the user can do something with it.
-                ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
+                ex.Data.Add("more information here", "https://support.microsoft.com/kb/943140");
                 throw;
             }
 
@@ -1266,7 +1266,7 @@ namespace Greenshot.Forms
         /// <param name="e">EventArgs</param>
         private void Contextmenu_DonateClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { Process.Start("http://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
+            BeginInvoke((MethodInvoker) delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
         }
 
         /// <summary>

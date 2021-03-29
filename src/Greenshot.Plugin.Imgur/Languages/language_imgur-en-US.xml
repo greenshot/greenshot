@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Upload to Imgur
+	</resource>
+	<resource name="settings_title">
+		Imgur settings
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancel
+	</resource>
+	<resource name="upload_success">
+		Successfully uploaded image to Imgur!
+	</resource>
+	<resource name="upload_failure">
+		An error occured while uploading to Imgur:
+	</resource>
+	<resource name="label_upload_format">
+		Image format
+	</resource>
+	<resource name="communication_wait">
+		Communicating with Imgur. Please wait...
+	</resource>
+	<resource name="delete_question">
+		Are you sure you want to delete the image {0} from Imgur?
+	</resource>
+	<resource name="clear_question">
+		Are you sure you want to delete the local Imgur history?
+	</resource>
+	<resource name="delete_title">
+		Delete Imgur {0}
+	</resource>
+	<resource name="anonymous_access">
+		Use anonymous access
+	</resource>
+	<resource name="use_page_link">
+		Use page link instead of image link on clipboard
+	</resource>
+	<resource name="history">
+		History
+	</resource>
+	<resource name="configure">
+		Configure
+	</resource>
+  </resources>
+</language>

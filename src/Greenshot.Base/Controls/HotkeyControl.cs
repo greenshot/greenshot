@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -33,7 +33,7 @@ namespace Greenshot.Base.Controls
 {
     /// <summary>
     /// A simple control that allows the user to select pretty much any valid hotkey combination
-    /// See: http://www.codeproject.com/KB/buttons/hotkeycontrol.aspx
+    /// See: https://www.codeproject.com/KB/buttons/hotkeycontrol.aspx
     /// But is modified to fit in Greenshot, and have localized support
     /// </summary>
     public sealed class HotkeyControl : GreenshotTextBox

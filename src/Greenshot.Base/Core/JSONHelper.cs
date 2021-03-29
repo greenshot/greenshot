@@ -16,9 +16,9 @@ namespace Greenshot.Base.Core
 {
     /// <summary>
     /// This parses a JSON response, a modified version of the code found at:
-    /// See: http://techblog.procurios.nl/k/n618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
+    /// See: https://techblog.procurios.nl/k/n618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
     /// 
-    /// This file is under the MIT License, which is GPL Compatible and according to: http://en.wikipedia.org/wiki/MIT_License
+    /// This file is under the MIT License, which is GPL Compatible and according to: https://en.wikipedia.org/wiki/MIT_License
     /// can be used under the GPL "umbrella".
     /// 
     /// TODO: code should be replaced when upgrading to .NET 3.5 or higher!!

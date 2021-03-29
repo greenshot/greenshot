@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Annuler</resource>
+		<resource name="column_assignee">Bénéficiaire</resource>
+		<resource name="column_created">Créé</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">Reporter</resource>
+		<resource name="column_summary">Résumé</resource>
+		<resource name="communication_wait">Transfert de données vers JIRA, veuillez patienter...</resource>
+		<resource name="label_comment">Commentaire</resource>
+		<resource name="label_filename">Fichier</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">Filtre JIRA</resource>
+		<resource name="label_upload_format">Format image</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="login_error">Un problème est survenu lors de l'authentification : {0}</resource>
+		<resource name="login_title">Veuillez saisir vos identifiants Jira</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Paramètres Jira</resource>
+		<resource name="upload_failure">Une erreur est survenue lors du téléversement vers Jira :</resource>
+		<resource name="upload_menu_item">Téléverser vers Jira</resource>
+		<resource name="upload_success">L'image a été téléversée vers Jira avec succès !</resource>
+	</resources>
+</language>

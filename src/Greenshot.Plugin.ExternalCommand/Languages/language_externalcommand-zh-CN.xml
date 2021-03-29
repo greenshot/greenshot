@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="contextmenu_configure">配置外部命令</resource>
+		<resource name="label_argument">参数</resource>
+		<resource name="label_command">命令</resource>
+		<resource name="label_information">{0}为您的截图文件的名称</resource>
+		<resource name="label_name">名称</resource>
+		<resource name="settings_delete">删除</resource>
+		<resource name="settings_detail_title">配置命令</resource>
+		<resource name="settings_edit">编辑</resource>
+		<resource name="settings_new">新建</resource>
+		<resource name="settings_title">外部命令设置</resource>
+	</resources>
+</language>

@@ -7,7 +7,7 @@
 		<resource name="confluence">Плагін Confluence</resource>
 		<resource name="externalcommand">Плагін запуску зовнішньої команди</resource>
 		<resource name="ocr">Плагін OCR (потребує Microsoft Office Document Imaging (MODI))</resource>
-		<resource name="imgur">Плагін Imgur (див.: http://imgur.com)</resource>
+		<resource name="imgur">Плагін Imgur (див.: https://imgur.com)</resource>
 		<resource name="language">Додаткові мови</resource>
 		<resource name="optimize">Оптимізація продуктивності, це може зайняти певний час.</resource>
 	</resources>

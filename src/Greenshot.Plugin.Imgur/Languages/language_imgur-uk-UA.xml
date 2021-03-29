@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">Вивантажити на Imgur</resource>
+	<resource name="settings_title">Параметри Imgur</resource>
+	<resource name="label_url">Посилання</resource>
+	<resource name="OK">Гаразд</resource>
+	<resource name="CANCEL">Скасувати</resource>
+	<resource name="upload_success">Зображення вдало вивантажено на Imgur!</resource>
+	<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Imgur:</resource>
+	<resource name="label_upload_format">Формат зображення</resource>
+	<resource name="communication_wait">З’єднання з Imgur. Будь ласка, зачекайте...</resource>
+	<resource name="delete_question">Чи дійсно Ви хочете видалити зображення {0} з Imgur?</resource>
+	<resource name="clear_question">Чи дійсно Ви хочете видалити локальну історію Imgur?</resource>
+	<resource name="delete_title">Видалити Imgur {0}</resource>
+	<resource name="anonymous_access">Використовувати анонімний доступ</resource>
+	<resource name="use_page_link">Використовувати посилання на сторінку замість посилання на зображення</resource>
+	<resource name="history">Історія</resource>
+	<resource name="configure">Налаштувати</resource>
+  </resources>
+</language>

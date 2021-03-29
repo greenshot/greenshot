@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+	<resources>
+	 <resource name="label_HiddenFromSearch">Приховати з пошуку</resource>
+		<resource name="label_SafetyLevel">Рівень безпеки</resource>
+	<resource name="label_AfterUploadLinkToClipBoard">Посилання в буфер обміну</resource>
+		<resource name="label_AfterUpload">Після вивантаження</resource>
+	<resource name="Configure">Налаштувати Flickr</resource>
+		<resource name="upload_menu_item">Вивантажити на Flickr</resource>
+	<resource name="settings_title">Параметри Flickr</resource>
+		<resource name="upload_success">Зображення вдало вивантажено на Flickr!</resource>
+		<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Flickr:</resource>
+		<resource name="label_upload_format">Формат зображення</resource>
+		<resource name="communication_wait">З’єднання з Flickr. Будь ласка, зачекайте...</resource>
+	  <resource name="public">Загальне</resource>
+	<resource name="family">Родина</resource>
+	<resource name="friend">Друзі</resource>
+  </resources>
+</language>

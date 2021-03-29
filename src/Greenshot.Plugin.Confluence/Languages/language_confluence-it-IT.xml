@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.0.1">
+ <resources>
+	<resource name="plugin_settings">
+		Impostazioni di Confluence
+	</resource>
+	<resource name="login_error">
+		Si è verificato un problema durante il caricamento: {0}
+	</resource>
+	<resource name="label_url">
+		Indirizzo URL
+	</resource>
+	<resource name="label_timeout">
+		Timeout
+	</resource>
+	<resource name="label_user">
+		Utente
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+	<resource name="login_title">
+		Inserisci le credenziali di accesso a Confluence
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Annulla
+	</resource>
+	<resource name="upload_menu_item">
+		Carica su Confluence
+	</resource>
+	<resource name="upload_success">
+		Caricamento immagine su Confluence completato!
+	</resource>
+	<resource name="upload_failure">
+		Si è verificato un errore durante il caricamento su Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Apri pagina dopo il caricamento
+	</resource>
+	<resource name="upload_format">
+		Formato di caricamento
+	</resource>
+	<resource name="copy_wikimarkup">
+		Copia Wikimarkup negli Appunti
+	</resource>
+	<resource name="filename">
+		Nome file
+	</resource>
+  <resource name="upload">
+		Carica
+	</resource>
+  <resource name="open_pages">
+		Apri pagine
+	</resource>
+  <resource name="search_pages">
+		Cerca pagine
+	</resource>
+  <resource name="browse_pages">
+		Sfoglia pagine
+	</resource>
+  <resource name="search_text">
+		Cerca testo
+	</resource>
+  <resource name="search">
+		Cerca
+	</resource>
+  <resource name="loading">
+		Caricamento dati di Confluence...
+	</resource>
+  <resource name="include_person_spaces">
+    Includi spazi personali in ricerca e navigazione
+  </resource>
+   <resource name="communication_wait">
+     Trasferimento dati su Confluence...
+   </resource>
+ </resources>
+</language>

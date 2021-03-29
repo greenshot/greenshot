@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">Параметри Confluence</resource>
+	<resource name="login_error">Відбулась помилка під час авторизації: {0}</resource>
+	<resource name="label_url">Посилання</resource>
+	<resource name="label_timeout">Затримка</resource>
+	<resource name="label_user">Користувач</resource>
+	<resource name="label_password">Пароль</resource>
+	<resource name="login_title">Будь ласка, введіть дані облікового запису Confluence</resource>
+	<resource name="OK">Гаразд</resource>
+	<resource name="CANCEL">Скасувати</resource>
+	<resource name="upload_menu_item">Вивантажити на Confluence</resource>
+	<resource name="upload_success">Зображення вдало вивантажено на Confluence!</resource>
+	<resource name="upload_failure">Відбулась помилка при вивантаженні зображення на Confluence:</resource>
+	<resource name="open_page_after_upload">Відкрити сторінку після вивантаження</resource>
+	<resource name="upload_format">Вивантажити у форматі</resource>
+	<resource name="copy_wikimarkup">Копіювати Вікі-розмітку в буфер обміну</resource>
+	<resource name="filename">Назва файла</resource>
+  <resource name="upload">Вивантажити</resource>
+  <resource name="open_pages">Відкрити сторінки</resource>
+  <resource name="search_pages">Пошук сторінок</resource>
+  <resource name="browse_pages">Огляд сторінок</resource>
+  <resource name="search_text">Шукати текст</resource>
+  <resource name="search">Пошук</resource>
+  <resource name="loading">Завантаження даних Confluence, будь ласка, зачекайте...</resource>
+  <resource name="include_person_spaces">Включити особистий простір у пошук та перегляд</resource>
+   <resource name="communication_wait">Передача даних на Confluence, будь ласка, зачекайте...</resource>
+ </resources>
+</language>

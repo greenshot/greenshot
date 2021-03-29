@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="0.8.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Téléverser vers Photobucket
+	</resource>
+	<resource name="settings_title">
+		Paramètres Photobucket
+	</resource>
+	<resource name="label_use_proxy">
+		Utiliser proxy
+	</resource>
+	<resource name="upload_success">
+		L'image a été téléversée vers Photobucket avec succès !
+	</resource>
+	<resource name="upload_failure">
+		Une erreur est survenue lors du téléversement vers Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Format d'image
+	</resource>
+	<resource name="upload_wait">
+		Téléversement vers Photobucket, veuillez patienter...
+	</resource>
+	<resource name="configure">
+    Configurer Photobucket
+  </resource>
+  </resources>
+</language>

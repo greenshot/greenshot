@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence settings
+	</resource>
+	<resource name="login_error">
+		There was a problem during the login: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Timeout
+	</resource>
+	<resource name="label_user">
+		User
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+	<resource name="login_title">
+		Please enter your Confluence login data
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Cancel
+	</resource>
+	<resource name="upload_menu_item">
+		Upload to Confluence
+	</resource>
+	<resource name="upload_success">
+		Successfully uploaded image to Confluence!
+	</resource>
+	<resource name="upload_failure">
+		An error occured while uploading to Confluence:
+	</resource>
+	<resource name="open_page_after_upload">
+		Open page after upload
+	</resource>
+	<resource name="upload_format">
+		Upload format
+	</resource>
+	<resource name="copy_wikimarkup">
+		Copy Wikimarkup to the Clipboard
+	</resource>
+	<resource name="filename">
+		Filename
+	</resource>
+  <resource name="upload">
+		Upload
+	</resource>
+  <resource name="open_pages">
+		Open pages
+	</resource>
+  <resource name="search_pages">
+		Search pages
+	</resource>
+  <resource name="browse_pages">
+		Browse pages
+	</resource>
+  <resource name="search_text">
+		Search text
+	</resource>
+  <resource name="search">
+		Search
+	</resource>
+  <resource name="loading">
+		Confluence data is loading, please wait...
+	</resource>
+  <resource name="include_person_spaces">
+    Include personal spaces in search and browsing
+  </resource>
+   <resource name="communication_wait">
+     Transferring data to Confluence, please wait...
+   </resource>
+ </resources>
+</language>

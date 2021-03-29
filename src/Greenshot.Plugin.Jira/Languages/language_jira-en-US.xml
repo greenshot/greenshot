@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Upload to Jira
+	</resource>
+	<resource name="column_assignee">
+		Assignee
+	</resource>
+	<resource name="column_created">
+		Created
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Reporter
+	</resource>
+	<resource name="column_summary">
+		Summary
+	</resource>
+	<resource name="label_comment">
+		Comment
+	</resource>
+	<resource name="label_filename">
+		Filename
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA Filter
+	</resource>
+	<resource name="login_error">
+		There was a problem during the login: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="login_title">
+		Please enter your Jira login data
+	</resource>
+	<resource name="settings_title">
+		Jira settings
+	</resource>
+  	<resource name="OK">
+		OK
+	</resource>
+  	<resource name="CANCEL">
+		Cancel
+	</resource>
+  	<resource name="upload_success">
+		Successfully uploaded image to Jira!
+	</resource>
+  	<resource name="upload_failure">
+		An error occured while uploading to Jira:
+	</resource>
+  	<resource name="label_upload_format">
+  		Image format
+	</resource>
+  	<resource name="communication_wait">
+  		Transferring data to JIRA, please wait...
+	</resource>
+  </resources>
+</language>

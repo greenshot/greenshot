@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -24,60 +24,14 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
+using Greenshot.Plugin.Confluence.Entities;
 using GreenshotConfluencePlugin.confluence;
 
 namespace Greenshot.Plugin.Confluence
 {
-    public class Page
-    {
-        public Page(RemotePage page)
-        {
-            Id = page.id;
-            Title = page.title;
-            SpaceKey = page.space;
-            Url = page.url;
-            Content = page.content;
-        }
-
-        public Page(RemoteSearchResult searchResult, string space)
-        {
-            Id = searchResult.id;
-            Title = searchResult.title;
-            SpaceKey = space;
-            Url = searchResult.url;
-            Content = searchResult.excerpt;
-        }
-
-        public Page(RemotePageSummary pageSummary)
-        {
-            Id = pageSummary.id;
-            Title = pageSummary.title;
-            SpaceKey = pageSummary.space;
-            Url = pageSummary.url;
-        }
-
-        public long Id { get; set; }
-        public string Title { get; set; }
-        public string Url { get; set; }
-        public string Content { get; set; }
-        public string SpaceKey { get; set; }
-    }
-
-    public class Space
-    {
-        public Space(RemoteSpaceSummary space)
-        {
-            Key = space.key;
-            Name = space.name;
-        }
-
-        public string Key { get; set; }
-        public string Name { get; set; }
-    }
-
     /// <summary>
     /// For details see the Confluence API site
-    /// See: http://confluence.atlassian.com/display/CONFDEV/Remote+API+Specification
+    /// See: https://confluence.atlassian.com/display/CONFDEV/Remote+API+Specification
     /// </summary>
     public class ConfluenceConnector : IDisposable
     {
@@ -99,7 +53,7 @@ namespace Greenshot.Plugin.Confluence
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_confluence != null)
             {
@@ -183,7 +137,7 @@ namespace Greenshot.Plugin.Confluence
                 // Get the system name, so the user knows where to login to
                 string systemName = _url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX1, "");
                 systemName = systemName.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
-                CredentialsDialog dialog = new CredentialsDialog(systemName)
+                var dialog = new CredentialsDialog(systemName)
                 {
                     Name = null
                 };
@@ -255,7 +209,7 @@ namespace Greenshot.Plugin.Confluence
         public void AddAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image)
         {
             CheckCredentials();
-            // Comment is ignored, see: http://jira.atlassian.com/browse/CONF-9395
+            // Comment is ignored, see: https://jira.atlassian.com/browse/CONF-9395
             var attachment = new RemoteAttachment
             {
                 comment = comment,

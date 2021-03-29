@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System.Windows.Forms;
@@ -27,7 +27,7 @@ namespace Greenshot.Base.Core
 {
     /// <summary>
     /// This IMessageFilter filters out all WM_INPUTLANGCHANGEREQUEST messages which go to a handle which is >32 bits.
-    /// The need for this is documented here: http://stackoverflow.com/a/32021586
+    /// The need for this is documented here: https://stackoverflow.com/a/32021586
     /// </summary>
     public class WmInputLangChangeRequestFilter : IMessageFilter
     {

@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -26,7 +26,7 @@ namespace Greenshot.Base.UnmanagedHelpers.Structs
 {
     /// <summary>
     /// The structure for the WindowInfo
-    /// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms632610%28v=vs.85%29.aspx
+    /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632610%28v=vs.85%29.aspx
     /// </summary>
     [StructLayout(LayoutKind.Sequential), Serializable]
     public struct WindowInfo

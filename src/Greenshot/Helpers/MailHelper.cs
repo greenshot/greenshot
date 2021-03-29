@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using log4net;
@@ -37,7 +37,7 @@ namespace Greenshot.Helpers
     /// <summary>
     /// Author: Andrew Baker
     /// Datum: 10.03.2006
-    /// Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
+    /// Available from <a href="https://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
     /// </summary>
     /// <summary>
     /// Represents an email message to be sent through MAPI.

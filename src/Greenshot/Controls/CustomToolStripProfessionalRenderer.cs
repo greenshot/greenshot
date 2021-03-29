@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System.Drawing;
@@ -26,7 +26,7 @@ namespace Greenshot.Controls
 {
     /// <summary>
     /// Prevent having a gradient background in the toolstrip, and the overflow button
-    /// See: http://stackoverflow.com/a/16926979
+    /// See: https://stackoverflow.com/a/16926979
     /// </summary>
     internal class CustomProfessionalColorTable : ProfessionalColorTable
     {
@@ -63,7 +63,7 @@ namespace Greenshot.Controls
 
     /// <summary>
     /// ToolStripProfessionalRenderer without having a visual artifact
-    /// See: http://stackoverflow.com/a/16926979 and http://stackoverflow.com/a/13418840
+    /// See: https://stackoverflow.com/a/16926979 and https://stackoverflow.com/a/13418840
     /// </summary>
     public class CustomToolStripProfessionalRenderer : ToolStripProfessionalRenderer
     {

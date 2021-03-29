@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Annuler</resource>
+		<resource name="clear_question">Êtes-vous sûr(e) de vouloir supprimer l'historique local de Imgur ?</resource>
+		<resource name="communication_wait">Communication en cours avec Imgur. Veuillez patienter...</resource>
+		<resource name="configure">Configurer</resource>
+		<resource name="delete_question">Êtes-vous sûr(e) de vouloir supprimer l'image {0} de Imgur ?</resource>
+		<resource name="delete_title">Supprimer Imgur {0}</resource>
+		<resource name="history">Historique</resource>
+		<resource name="label_upload_format">Format image</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Paramètres Imgur</resource>
+		<resource name="upload_failure">Une erreur est survenue lors du téléversement vers Imgur :</resource>
+		<resource name="upload_menu_item">Téléverser vers Imgur</resource>
+		<resource name="upload_success">Image téléversée vers Imgur avec succès !</resource>
+		<resource name="use_page_link">Utiliser le lien de la page au lieu du lien de l'image dans le presse-papier</resource>
+	</resources>
+</language>

@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -38,7 +38,7 @@ namespace Greenshot.Plugin.Imgur
     public static class ImgurUtils
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurUtils));
-        private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
+        private const string SmallUrlPattern = "https://i.imgur.com/{0}s.jpg";
         private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Greenshot.Plugin.Imgur
 
         /// <summary>
         /// Do the actual upload to Imgur
-        /// For more details on the available parameters, see: http://api.imgur.com/resources_anon
+        /// For more details on the available parameters, see: https://api.imgur.com/resources_anon
         /// </summary>
         /// <param name="surfaceToUpload">ISurface to upload</param>
         /// <param name="outputSettings">OutputSettings for the image file format</param>

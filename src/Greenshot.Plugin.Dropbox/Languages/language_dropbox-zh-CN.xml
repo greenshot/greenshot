@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+	<resources>
+		<resource name="communication_wait">正在连接Dropbox。请稍后...</resource>
+		<resource name="Configure">配置Dropbox</resource>
+		<resource name="label_AfterUpload">上传之后</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">复制链接到剪贴板</resource>
+		<resource name="label_AfterUploadOpenHistory">打开历史记录</resource>
+		<resource name="label_upload_format">图片格式</resource>
+		<resource name="settings_title">Dropbox设置</resource>
+		<resource name="upload_failure">在上传到Dropbox时发生错误：</resource>
+		<resource name="upload_menu_item">上传到Dropbox</resource>
+		<resource name="upload_success">图片已成功上传到了Dropbox！</resource>
+	</resources>
+</language>

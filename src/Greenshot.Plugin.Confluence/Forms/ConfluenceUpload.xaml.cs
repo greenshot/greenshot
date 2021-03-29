@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -24,17 +24,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence.Forms
 {
     /// <summary>
     /// Interaction logic for ConfluenceUpload.xaml
     /// </summary>
-    public partial class ConfluenceUpload : Window
+    public partial class ConfluenceUpload
     {
-        private System.Windows.Controls.Page _pickerPage;
+        private ConfluencePagePicker _pickerPage;
 
-        public System.Windows.Controls.Page PickerPage
+        public ConfluencePagePicker PickerPage
         {
             get
             {
@@ -104,11 +105,12 @@ namespace Greenshot.Plugin.Confluence.Forms
             InitializeComponent();
             DataContext = this;
             UpdateSpaces();
-            if (PickerPage == null)
+            if (PickerPage != null)
             {
-                PickerTab.Visibility = Visibility.Collapsed;
-                SearchTab.IsSelected = true;
+                return;
             }
+            PickerTab.Visibility = Visibility.Collapsed;
+            SearchTab.IsSelected = true;
         }
 
         private void UpdateSpaces()

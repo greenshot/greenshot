@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.4.2622" languagegroup="5">
+	<resources>
+		<resource name="anonymous_access">Использовать анонимный доступ</resource>
+		<resource name="CANCEL">Отмена</resource>
+		<resource name="clear_question">Вы действительно хотите удалить местную историю Imgur?</resource>
+		<resource name="communication_wait">Взаимодействие с Imgur. Подождите...</resource>
+		<resource name="configure">Настройка</resource>
+		<resource name="delete_question">Вы действительно хотите удалить изображение {0} из Imgur?</resource>
+		<resource name="delete_title">Удалить Imgur {0}</resource>
+		<resource name="history">История</resource>
+		<resource name="label_upload_format">Формат изображения</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Imgur параметры</resource>
+		<resource name="upload_failure">Произошла ошибка при загрузке на Imgur:</resource>
+		<resource name="upload_menu_item">Загрузить на Imgur</resource>
+		<resource name="upload_success">Изображение успешно загружено на Imgur!</resource>
+		<resource name="use_page_link">Использовать ссылку страницы, вместо ссылки изображения в буфере обмена</resource>
+	</resources>
+</language>

@@ -7,7 +7,7 @@
 		<resource name="confluence">Confluence plug-in</resource>
 		<resource name="externalcommand">Open with external command plug-in</resource>
 		<resource name="ocr">OCR plug-in (needs Microsoft Office Document Imaging (MODI))</resource>
-		<resource name="imgur">Imgur plug-in (See: http://imgur.com)</resource>
+		<resource name="imgur">Imgur plug-in (See: https://imgur.com)</resource>
 		<resource name="language">Additional languages</resource>
 		<resource name="optimize">Optimizing performance, this may take a while.</resource>
 	</resources>

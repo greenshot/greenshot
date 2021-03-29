@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Slovenčina" ietf="sk-SK" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Konfigurácia externých príkazov
+  </resource>
+  <resource name="settings_title">
+  		Nastavenia externých príkazov
+	</resource>
+	<resource name="settings_detail_title">
+  		Konfigurácia príkazu
+	</resource>
+	<resource name="settings_new">
+  		Nový
+	</resource>
+	<resource name="settings_delete">
+  		Zmazať
+	</resource>
+	<resource name="settings_edit">
+  		Upraviť
+	</resource>
+    <resource name="label_name">
+      Názov
+    </resource>
+    <resource name="label_command">
+      Príkaz
+    </resource>
+    <resource name="label_argument">
+      Parametre
+    </resource>
+    <resource name="label_information">
+      {0} = názov súboru kde je uložená snímka
+    </resource>
+  </resources>
+</language>

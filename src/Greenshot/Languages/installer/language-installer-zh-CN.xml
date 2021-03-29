@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="confluence">Confluence插件</resource>
 		<resource name="externalcommand">使用外部命令打开插件</resource>
-		<resource name="imgur">Imgur插件( (请访问： http://imgur.com))</resource>
+		<resource name="imgur">Imgur插件( (请访问： https://imgur.com))</resource>
 		<resource name="jira">Jira插件</resource>
 		<resource name="language">其它语言</resource>
 		<resource name="ocr">OCR插件(需要Microsoft Office Document Imaging (MODI)的支持)</resource>

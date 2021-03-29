@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
+	<resources>
+		<resource name="authenticate_dropbox">Použijte prosím webové stránky dropbox k přihlášení a poskytněte programu Greenshot přístup k službě dropbox, dokončete stisknutím OK.</resource>
+		<resource name="buttonAuthenticate">Ověřit</resource>
+		<resource name="CANCEL">Zrušit</resource>
+		<resource name="communication_wait">Probíhá komunikace s Dropbox. Počkejte prosím...</resource>
+		<resource name="Configure">Konfigurovat</resource>
+		<resource name="delete_question">Jste si jistý, že chcete odstranit obrázek {0} z Dropbox?</resource>
+		<resource name="delete_title">Odstranit Dropbox {0}</resource>
+		<resource name="History">Historie</resource>
+		<resource name="label_AfterUpload">Po odeslání</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Odkaz do schránky</resource>
+		<resource name="label_AfterUploadOpenHistory">Otevřít historii</resource>
+		<resource name="label_AuthToken">Ověření Token</resource>
+		<resource name="label_upload_format">Formát obrázku</resource>
+		<resource name="OK">OK</resource>
+		<resource name="settings_title">Nastavení Dropbox</resource>
+		<resource name="TokenNotSet">Prosím ověřit dostupnost aplikace Dropbox. Otevřít obrazovku pro nastavení snímku.</resource>
+		<resource name="Upload">Odeslat</resource>
+		<resource name="upload_failure">Při odesílání do Dropbox došlo k chybě:</resource>
+		<resource name="upload_menu_item">Odeslat do Dropbox</resource>
+		<resource name="upload_success">Obrázek úspěšně odslán do Dropbox!</resource>
+	</resources>
+</language>

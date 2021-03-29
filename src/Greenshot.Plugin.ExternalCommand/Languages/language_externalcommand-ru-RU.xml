@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Русский" ietf="ru-RU" version="1.1.4.2622" languagegroup="5">
+	<resources>
+		<resource name="contextmenu_configure">Настройка внешних команд</resource>
+		<resource name="label_argument">Аргументы</resource>
+		<resource name="label_command">Команда</resource>
+		<resource name="label_information">{0} это имя файла вашего скриншота</resource>
+		<resource name="label_name">Имя</resource>
+		<resource name="settings_delete">Удалить</resource>
+		<resource name="settings_detail_title">Настройка команды</resource>
+		<resource name="settings_edit">Изменить</resource>
+		<resource name="settings_new">Новая</resource>
+		<resource name="settings_title">Параметры внешней команды</resource>
+	</resources>
+</language>

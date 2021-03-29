@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="简体中文" ietf="zh-CN" version="1.0.2" languagegroup="a">
+	<resources>
+		<resource name="anonymous_access">使用匿名连接</resource>
+		<resource name="CANCEL">取消</resource>
+		<resource name="clear_question">是否真的要删除本地的Imgur历史记录？</resource>
+		<resource name="communication_wait">正在连接到Imgur。请稍后...</resource>
+		<resource name="configure">配置</resource>
+		<resource name="delete_question">是否真的要从Imgur上删除图片{0}？</resource>
+		<resource name="delete_title">删除 Imgur {0}</resource>
+		<resource name="history">历史记录</resource>
+		<resource name="label_upload_format">图片格式</resource>
+		<resource name="label_url">网址</resource>
+		<resource name="OK">确认</resource>
+		<resource name="settings_title">Imgur设置</resource>
+		<resource name="upload_failure">上传图片到Imgur时发生错误：</resource>
+		<resource name="upload_menu_item">上传到Imgur</resource>
+		<resource name="upload_success">图片已成功上传到了Imgur！</resource>
+		<resource name="use_page_link">当复制链接到剪贴板时，使用页面的网址而不是图片的网址</resource>
+	</resources>
+</language>

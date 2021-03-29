@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -62,8 +62,8 @@ namespace Greenshot.Base.Core
         //private static readonly string FORMAT_HTML = "HTML Format";
 
         // Template for the HTML Text on the clipboard
-        // see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
-        // or:  http://msdn.microsoft.com/en-us/library/Aa767917.aspx
+        // see: https://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
+        // or:  https://msdn.microsoft.com/en-us/library/Aa767917.aspx
         private const string HtmlClipboardString = @"Version:0.9
 StartHTML:<<<<<<<1
 EndHTML:<<<<<<<2
@@ -522,7 +522,7 @@ EndSelection:<<<<<<<4
         /// <summary>
         /// Helper method to try to get an image in the specified format from the dataObject
         /// the DIB reader should solve some issues
-        /// It also supports Format17/DibV5, by using the following information: http://stackoverflow.com/a/14335591
+        /// It also supports Format17/DibV5, by using the following information: https://stackoverflow.com/a/14335591
         /// </summary>
         /// <param name="format">string with the format</param>
         /// <param name="dataObject">IDataObject</param>
@@ -727,7 +727,7 @@ EndSelection:<<<<<<<4
         /// Set an Image to the clipboard
         /// This method will place images to the clipboard depending on the ClipboardFormats setting.
         /// e.g. Bitmap which works with pretty much everything and type Dib for e.g. OpenOffice
-        /// because OpenOffice has a bug http://qa.openoffice.org/issues/show_bug.cgi?id=85661
+        /// because OpenOffice has a bug https://qa.openoffice.org/issues/show_bug.cgi?id=85661
         /// The Dib (Device Indenpendend Bitmap) in 32bpp actually won't work with Powerpoint 2003!
         /// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
         /// For this problem the user should not use the direct paste (=Dib), but select Bitmap
@@ -898,7 +898,7 @@ EndSelection:<<<<<<<4
 
         /// <summary>
         /// Helper method so get the bitmap bytes
-        /// See: http://stackoverflow.com/a/6570155
+        /// See: https://stackoverflow.com/a/6570155
         /// </summary>
         /// <param name="bitmap">Bitmap</param>
         /// <returns>byte[]</returns>

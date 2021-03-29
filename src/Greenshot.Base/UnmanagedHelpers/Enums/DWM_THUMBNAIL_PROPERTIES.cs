@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System.Runtime.InteropServices;
@@ -25,7 +25,7 @@ using Greenshot.Base.UnmanagedHelpers.Structs;
 namespace Greenshot.Base.UnmanagedHelpers.Enums
 {
     /// <summary>
-    /// See: http://msdn.microsoft.com/en-us/library/aa969502(v=vs.85).aspx
+    /// See <a href="https://docs.microsoft.com/en-gb/windows/win32/api/dwmapi/ns-dwmapi-dwm_thumbnail_properties">DWM_THUMBNAIL_PROPERTIES</a>
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct DWM_THUMBNAIL_PROPERTIES

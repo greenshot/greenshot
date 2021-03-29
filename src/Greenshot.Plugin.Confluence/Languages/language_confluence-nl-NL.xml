@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Nederlands" ietf="nl-NL" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence instellingen
+	</resource>
+	<resource name="login_error">
+		Tijden de login is een fout opgetreden: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Timeout
+	</resource>
+	<resource name="label_user">
+		Gebruiker
+	</resource>
+	<resource name="label_password">
+		Password
+	</resource>
+	<resource name="login_title">
+		Geef uw Confluence login data
+	</resource>
+	<resource name="OK">
+		OK
+	</resource>
+	<resource name="CANCEL">
+		Afbreken
+	</resource>
+	<resource name="upload_menu_item">
+		Upload naar Confluence
+	</resource>
+	<resource name="upload_success">
+		Het uploaden naar Confluence is geslaagt!
+	</resource>
+	<resource name="upload_failure">
+		Tijdens het uploaden naar Confluence is een fout opgetreden:
+	</resource>
+	<resource name="open_page_after_upload">
+		Open pagina na het uploaden
+	</resource>
+	<resource name="upload_format">
+		Upload formaat
+	</resource>
+	<resource name="copy_wikimarkup">
+		Kopier Wikimarkup naar het klembord
+	</resource>
+	<resource name="filename">
+		Filenaam
+	</resource>
+  <resource name="upload">
+		Upload
+	</resource>
+  <resource name="open_pages">
+		Open paginas
+	</resource>
+  <resource name="search_pages">
+		Paginas zoeken
+	</resource>
+  <resource name="browse_pages">
+		Paginas browsen
+	</resource>
+  <resource name="search_text">
+		Zoek op text
+	</resource>
+  <resource name="search">
+		Zoeken
+	</resource>
+  <resource name="loading">
+		Confluence daten worden geladen, wachten A.U.B.
+	</resource>
+   <resource name="communication_wait">
+     Gegevensoverdracht naar Confluence, wachten A.U.B...
+   </resource>
+ </resources>
+</language>

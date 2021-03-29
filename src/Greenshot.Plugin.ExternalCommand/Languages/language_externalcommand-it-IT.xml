@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Italiano" ietf="it-IT" version="1.1.5">
+  <resources>
+  <resource name="contextmenu_configure">
+    Impostazioni comandi esterni
+  </resource>
+  <resource name="settings_title">
+  		Impostazioni comandi esterni
+	</resource>
+	<resource name="settings_detail_title">
+  		Impostazioni comando
+	</resource>
+	<resource name="settings_new">
+  		Nuovo
+	</resource>
+	<resource name="settings_delete">
+  		Elimina
+	</resource>
+	<resource name="settings_edit">
+  		Modifica
+	</resource>
+    <resource name="label_name">
+      Nome
+    </resource>
+    <resource name="label_command">
+      Comando
+    </resource>
+    <resource name="label_argument">
+      Argomenti
+    </resource>
+    <resource name="label_information">
+      {0} è il noem file della schermata
+    </resource>
+  </resources>
+</language>

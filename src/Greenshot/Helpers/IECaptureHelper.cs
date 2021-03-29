@@ -2,7 +2,7 @@
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
- * For more information see: http://getgreenshot.org/
+ * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -40,7 +40,7 @@ using log4net;
 namespace Greenshot.Helpers
 {
     /// <summary>
-    /// The code for this helper comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx
+    /// The code for this helper comes from: https://www.codeproject.com/KB/graphics/IECapture.aspx
     /// The code is modified with some of the suggestions in different comments and there still were leaks which I fixed.
     /// On top I modified it to use the already available code in Greenshot.
     /// Many thanks to all the people who contributed here!
@@ -293,7 +293,7 @@ namespace Greenshot.Helpers
                     if (contentWindowHandle != IntPtr.Zero)
                     {
                         // Get the HTMLDocument to check the hasFocus
-                        // See: http://social.msdn.microsoft.com/Forums/en-US/vbgeneral/thread/60c6c95d-377c-4bf4-860d-390840fce31c/
+                        // See: https://social.msdn.microsoft.com/Forums/en-US/vbgeneral/thread/60c6c95d-377c-4bf4-860d-390840fce31c/
                         IHTMLDocument4 document4 = (IHTMLDocument4) document2;
 
                         if (document4.hasFocus())
