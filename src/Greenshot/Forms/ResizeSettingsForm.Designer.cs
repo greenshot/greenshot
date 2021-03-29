@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows.Forms;
 using Greenshot.Base.Controls;
 
 namespace Greenshot.Forms {
@@ -65,7 +66,7 @@ namespace Greenshot.Forms {
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 6;
 			this.buttonOK.UseVisualStyleBackColor = true;
-			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
+			this.buttonOK.Click += new System.EventHandler(this.ButtonOK_Click);
 			// 
 			// buttonCancel
 			// 
@@ -108,8 +109,8 @@ namespace Greenshot.Forms {
 			this.textbox_height.Name = "textbox_height";
 			this.textbox_height.Size = new System.Drawing.Size(69, 20);
 			this.textbox_height.TabIndex = 3;
-			this.textbox_height.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textbox_KeyUp);
-			this.textbox_height.Validating += new System.ComponentModel.CancelEventHandler(this.textbox_Validating);
+			this.textbox_height.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Textbox_KeyUp);
+			this.textbox_height.Validating += new System.ComponentModel.CancelEventHandler(this.Textbox_Validating);
 			// 
 			// textbox_width
 			// 
@@ -117,8 +118,8 @@ namespace Greenshot.Forms {
 			this.textbox_width.Name = "textbox_width";
 			this.textbox_width.Size = new System.Drawing.Size(69, 20);
 			this.textbox_width.TabIndex = 1;
-			this.textbox_width.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textbox_KeyUp);
-			this.textbox_width.Validating += new System.ComponentModel.CancelEventHandler(this.textbox_Validating);
+			this.textbox_width.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Textbox_KeyUp);
+			this.textbox_width.Validating += new System.ComponentModel.CancelEventHandler(this.Textbox_Validating);
 			// 
 			// combobox_width
 			// 
@@ -127,19 +128,21 @@ namespace Greenshot.Forms {
 			this.combobox_width.Name = "combobox_width";
 			this.combobox_width.Size = new System.Drawing.Size(65, 21);
 			this.combobox_width.TabIndex = 2;
-			// 
-			// combobox_height
-			// 
-			this.combobox_height.FormattingEnabled = true;
+            this.combobox_width.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            // 
+            // combobox_height
+            // 
+            this.combobox_height.FormattingEnabled = true;
 			this.combobox_height.ItemHeight = 13;
 			this.combobox_height.Location = new System.Drawing.Point(165, 38);
 			this.combobox_height.Name = "combobox_height";
 			this.combobox_height.Size = new System.Drawing.Size(65, 21);
 			this.combobox_height.TabIndex = 4;
-			// 
-			// ResizeSettingsForm
-			// 
-			this.AcceptButton = this.buttonOK;
+            this.combobox_height.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            // 
+            // ResizeSettingsForm
+            // 
+            this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.buttonCancel;

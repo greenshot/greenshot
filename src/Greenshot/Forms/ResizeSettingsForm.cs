@@ -53,15 +53,16 @@ namespace Greenshot.Forms
             textbox_height.Text = effect.Height.ToString();
             _newWidth = effect.Width;
             _newHeight = effect.Height;
-            combobox_width.SelectedIndexChanged += combobox_SelectedIndexChanged;
-            combobox_height.SelectedIndexChanged += combobox_SelectedIndexChanged;
+            combobox_width.SelectedIndexChanged += Combobox_SelectedIndexChanged;
+            combobox_height.SelectedIndexChanged += Combobox_SelectedIndexChanged;
 
             checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
         }
 
-        private void buttonOK_Click(object sender, EventArgs e)
+        private void ButtonOK_Click(object sender, EventArgs e)
         {
-            if (_newWidth != _effect.Width || _newHeight != _effect.Height)
+            const double tolerance = 3 * double.Epsilon;
+            if (Math.Abs(_newWidth - _effect.Width) > tolerance || Math.Abs(_newHeight - _effect.Height) > tolerance)
             {
                 _effect.Width = (int) _newWidth;
                 _effect.Height = (int) _newHeight;
@@ -72,16 +73,17 @@ namespace Greenshot.Forms
 
         private static bool Validate(object sender)
         {
-            if (sender is TextBox textbox)
+            if (sender is not TextBox textBox)
             {
-                if (!double.TryParse(textbox.Text, out var numberEntered))
-                {
-                    textbox.BackColor = Color.Red;
-                    return false;
-                }
-
-                textbox.BackColor = Color.White;
+                return true;
             }
+            if (!double.TryParse(textBox.Text, out _))
+            {
+                textBox.BackColor = Color.Red;
+                return false;
+            }
+
+            textBox.BackColor = Color.White;
 
             return true;
         }
@@ -116,7 +118,7 @@ namespace Greenshot.Forms
             textbox_height.Text = ((int) displayValue).ToString();
         }
 
-        private void textbox_KeyUp(object sender, KeyEventArgs e)
+        private void Textbox_KeyUp(object sender, KeyEventArgs e)
         {
             if (!Validate(sender))
             {
@@ -186,7 +188,7 @@ namespace Greenshot.Forms
             }
         }
 
-        private void textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Validate(sender);
         }
@@ -196,7 +198,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void combobox_SelectedIndexChanged(object sender, EventArgs e)
+        private void Combobox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Validate(textbox_width))
             {
