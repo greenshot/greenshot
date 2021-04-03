@@ -619,49 +619,6 @@ namespace Greenshot.Drawing
         }
 
         /// <summary>
-        /// Convert the StringFormat information into a TextFormatFlags
-        /// This is important for the rending to work, have it aligned to the correct place
-        /// </summary>
-        /// <param name="stringFormat">StringFormat</param>
-        /// <returns>TextFormatFlags</returns>
-        private static TextFormatFlags ConvertStringFormat(StringFormat stringFormat)
-        {
-            var flags = TextFormatFlags.TextBoxControl | TextFormatFlags.WordBreak;
-            if (stringFormat == null)
-            {
-                return flags;
-            }
-
-            switch (stringFormat.LineAlignment)
-            {
-                case StringAlignment.Center:
-                    flags |= TextFormatFlags.VerticalCenter;
-                    break;
-                case StringAlignment.Far:
-                    flags |= TextFormatFlags.Bottom;
-                    break;
-                case StringAlignment.Near:
-                    flags |= TextFormatFlags.Top;
-                    break;
-            }
-
-            switch (stringFormat.Alignment)
-            {
-                case StringAlignment.Center:
-                    flags |= TextFormatFlags.HorizontalCenter;
-                    break;
-                case StringAlignment.Far:
-                    flags |= TextFormatFlags.Right;
-                    break;
-                case StringAlignment.Near:
-                    flags |= TextFormatFlags.Left;
-                    break;
-            }
-
-            return flags;
-        }
-
-        /// <summary>
         /// This method can be used from other containers
         /// </summary>
         /// <param name="graphics"></param>
@@ -699,8 +656,8 @@ namespace Greenshot.Drawing
                     {
                         shadowRect.Inflate(-textOffset, -textOffset);
                     }
-
-                    TextRenderer.DrawText(graphics, text, font, shadowRect, Color.FromArgb(alpha, 100, 100, 100), ConvertStringFormat(stringFormat));
+                    using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
+                    graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
 
                     currentStep++;
                     alpha -= basealpha / steps;
@@ -711,8 +668,17 @@ namespace Greenshot.Drawing
             {
                 drawingRectange.Inflate(-textOffset, -textOffset);
             }
-
-            TextRenderer.DrawText(graphics, text, font, drawingRectange, fontColor, ConvertStringFormat(stringFormat));
+            using (Brush fontBrush = new SolidBrush(fontColor))
+            {
+                if (stringFormat != null)
+                {
+                    graphics.DrawString(text, font, fontBrush, drawingRectange, stringFormat);
+                }
+                else
+                {
+                    graphics.DrawString(text, font, fontBrush, drawingRectange);
+                }
+            }
         }
 
         public override bool ClickableAt(int x, int y)
