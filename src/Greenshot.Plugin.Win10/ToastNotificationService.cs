@@ -111,63 +111,71 @@ namespace Greenshot.Plugin.Win10
                 Log.Info("Ignoring exception as this means that there was no stored settings.");
             }
 
-            // Generate the toast and send it off
-            new ToastContentBuilder()
-                .AddArgument("ToastID", 100)
-                // Inline image
-                .AddText(message)
-                // Profile (app logo override) image
-                //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
-                .Show(toast =>
-                {
+            try
+            {
+                // Generate the toast and send it off
+                new ToastContentBuilder()
+                    .AddArgument("ToastID", 100)
+                    // Inline image
+                    .AddText(message)
+                    // Profile (app logo override) image
+                    //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
+                    .Show(toast =>
+                    {
                     // Windows 10 first with 1903: ExpiresOnReboot = true
-                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?) null;
+                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
 
-                    void ToastActivatedHandler(ToastNotification toastNotification, object sender)
-                    {
-                        try
+                        void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                         {
-                            onClickAction?.Invoke();
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn("Exception while handling the onclick action: ", ex);
-                        }
+                            try
+                            {
+                                onClickAction?.Invoke();
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warn("Exception while handling the onclick action: ", ex);
+                            }
 
-                        toast.Activated -= ToastActivatedHandler;
-                    }
-
-                    if (onClickAction != null)
-                    {
-                        toast.Activated += ToastActivatedHandler;
-                    }
-
-                    void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
-                    {
-                        Log.Debug($"Toast closed with reason {eventArgs.Reason}");
-                        if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
-                        {
-                            return;
+                            toast.Activated -= ToastActivatedHandler;
                         }
 
-                        try
+                        if (onClickAction != null)
                         {
-                            onClosedAction?.Invoke();
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn("Exception while handling the onClosed action: ", ex);
+                            toast.Activated += ToastActivatedHandler;
                         }
 
-                        toast.Dismissed -= ToastDismissedHandler;
+                        void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
+                        {
+                            Log.Debug($"Toast closed with reason {eventArgs.Reason}");
+                            if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
+                            {
+                                return;
+                            }
+
+                            try
+                            {
+                                onClosedAction?.Invoke();
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warn("Exception while handling the onClosed action: ", ex);
+                            }
+
+                            toast.Dismissed -= ToastDismissedHandler;
                         // Remove the other handler too
                         toast.Activated -= ToastActivatedHandler;
-                        toast.Failed -= ToastOnFailed;
-                    }
+                            toast.Failed -= ToastOnFailed;
+                        }
 
-                    toast.Dismissed += ToastDismissedHandler;
-                    toast.Failed += ToastOnFailed;
-                });
+                        toast.Dismissed += ToastDismissedHandler;
+                        toast.Failed += ToastOnFailed;
+                    });
+
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Ignoring exception as this means that it was not possible to generate a toast.", ex);
+            }
         }
 
         private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)

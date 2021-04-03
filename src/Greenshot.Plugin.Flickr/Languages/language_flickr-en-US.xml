@@ -26,7 +26,7 @@
 		Successfully uploaded image to Flickr!
 	</resource>
 		<resource name="upload_failure">
-		An error occured while uploading to Flickr:
+		An error occurred while uploading to Flickr:
 	</resource>
 		<resource name="label_upload_format">
 			Image format

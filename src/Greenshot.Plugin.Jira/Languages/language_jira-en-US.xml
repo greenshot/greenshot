@@ -53,7 +53,7 @@
 		Successfully uploaded image to Jira!
 	</resource>
   	<resource name="upload_failure">
-		An error occured while uploading to Jira:
+		An error occurred while uploading to Jira:
 	</resource>
   	<resource name="label_upload_format">
   		Image format

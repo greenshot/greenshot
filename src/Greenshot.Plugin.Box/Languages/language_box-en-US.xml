@@ -20,7 +20,7 @@
 		Successfully uploaded image to Box!
 	</resource>
 		<resource name="upload_failure">
-		An error occured while uploading to Box:
+		An error occurred while uploading to Box:
 	</resource>
 		<resource name="label_upload_format">
 			Image format

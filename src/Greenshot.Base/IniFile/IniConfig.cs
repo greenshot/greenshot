@@ -496,7 +496,7 @@ namespace Greenshot.Base.IniFile
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("A problem occured while writing the configuration file to: " + iniLocation);
+                        Log.Error("A problem occurred while writing the configuration file to: " + iniLocation);
                         Log.Error(ex);
                     }
                 }

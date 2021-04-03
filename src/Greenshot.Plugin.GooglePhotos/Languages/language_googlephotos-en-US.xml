@@ -20,7 +20,7 @@
 	  Successfully uploaded image to GooglePhotos!
 	</resource>
 	<resource name="upload_failure">
-	  An error occured while uploading to GooglePhotos:
+	  An error occurred while uploading to GooglePhotos:
 	</resource>
 	<resource name="label_upload_format">
 	  Image format

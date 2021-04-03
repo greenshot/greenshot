@@ -35,7 +35,7 @@
 		Successfully uploaded image to Confluence!
 	</resource>
 	<resource name="upload_failure">
-		An error occured while uploading to Confluence:
+		An error occurred while uploading to Confluence:
 	</resource>
 	<resource name="open_page_after_upload">
 		Open page after upload

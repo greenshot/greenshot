@@ -124,7 +124,7 @@ namespace Greenshot.Helpers
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Error occured when trying to check for updates.", ex);
+                        Log.Error("Error occurred when trying to check for updates.", ex);
                     }
 
                     try
@@ -137,7 +137,7 @@ namespace Greenshot.Helpers
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Error occured await for the next update check.", ex);
+                        Log.Error("Error occurred await for the next update check.", ex);
                     }
                 }
             }, cancellationToken).ConfigureAwait(false);

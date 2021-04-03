@@ -121,7 +121,7 @@ namespace Greenshot.Base.Controls
                 Close();
             }
 
-            // Check if an exception occured, if so throw it
+            // Check if an exception occurred, if so throw it
             if (threadException != null)
             {
                 throw threadException;

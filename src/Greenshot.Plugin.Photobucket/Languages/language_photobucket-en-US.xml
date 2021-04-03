@@ -17,7 +17,7 @@
 		Successfully uploaded image to Photobucket!
 	</resource>
 	<resource name="upload_failure">
-		An error occured while uploading to Photobucket:
+		An error occurred while uploading to Photobucket:
 	</resource>
 	<resource name="label_upload_format">
 		Image format

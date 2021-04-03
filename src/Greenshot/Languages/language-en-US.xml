@@ -12,7 +12,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="about_translation"><!-- diplayed in about dialog, use to add credits or other translation-related info, e.g. "English translation by Jane Doe" --></resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">Close</resource>
-		<resource name="bugreport_info">Sorry, an unexpected error occured.
+		<resource name="bugreport_info">Sorry, an unexpected error occurred.
 
 The good news is: you can help us getting rid of it by filing a bug report.
 Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
@@ -21,7 +21,7 @@ Please add a meaningful summary and enclose any information you consider to be h
 Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)</resource>
 		<resource name="bugreport_title">Error</resource>
 		<resource name="CANCEL">Cancel</resource>
-		<resource name="clipboard_error">An unexpected error occured while writing to the clipboard.</resource>
+		<resource name="clipboard_error">An unexpected error occurred while writing to the clipboard.</resource>
 		<resource name="clipboard_inuse">Greenshot wasn't able to write to the clipboard as the process {0} blocked the access.</resource>
 		<resource name="clipboard_noimage">Couldn't find a clipboard image.</resource>
 		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
@@ -179,7 +179,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suppress the save dialog when closing the editor</resource>
 		<resource name="expertsettings_thumbnailpreview">Show window thumbnails in context menu (for Vista and windows 7)</resource>
 		<resource name="exported_to">Exported to: {0}</resource>
-		<resource name="exported_to_error">An error occured while exporting to {0}:</resource>
+		<resource name="exported_to_error">An error occurred while exporting to {0}:</resource>
 		<resource name="help_title">Greenshot Help</resource>
 		<resource name="hotkeys">Hotkeys</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">Please choose the JPEG quality for your image.</resource>

@@ -222,7 +222,7 @@ namespace Greenshot.Base.UnmanagedHelpers
         /// <param name="area">Rectangle to apply the blur effect to</param>
         /// <param name="radius">0-255</param>
         /// <param name="expandEdges">bool true if the edges are expanded with the radius</param>
-        /// <returns>false if there is no GDI+ available or an exception occured</returns>
+        /// <returns>false if there is no GDI+ available or an exception occurred</returns>
         public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges)
         {
             if (!IsBlurPossible(radius))
@@ -303,7 +303,7 @@ namespace Greenshot.Base.UnmanagedHelpers
         /// <summary>
         /// Draw the image on the graphics with GDI+ blur effect 
         /// </summary>
-        /// <returns>false if there is no GDI+ available or an exception occured</returns>
+        /// <returns>false if there is no GDI+ available or an exception occurred</returns>
         public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges)
         {
             if (!IsBlurPossible(radius))
