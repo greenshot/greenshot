@@ -43,7 +43,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Сделайте пожертвование</a></li>
 <li><a href="#help-spread">Расскажите о Greenshot</a></li>
-<li><a href="#help-translate">Помогите с переводом</a></li>
 </ol>
 </ol>
 
@@ -354,22 +353,4 @@ Greenshot имеет встроенный редактор изображени�
 <p>
 Если вам нравится Greenshot, расскажите о нем людям, и возможно, он понравится кому-то еще :)<br>
 Голосуйте за Greenshot на софтовых порталах. Поместите ссылку на Greenshot на вашем сайте или в блоге.
-</p>
-
-
-<a name="help-translate"></a>
-<h3>Помогите с переводом</h3>
-<p>
-Greenshot не доступен на предпочитаемом вами языке? Если вы чувствуете в себе способности
-к переводу интерфейса, приветствуем вашу готовность. Для начала попытайтесь справиться с этим текстом:<br>
-If you are a registered user at sourceforge.net, you can submit translations to our 
-<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br>
-Please make sure there is no existing translation for your language on our
-<a target="_blank" href="http://getgreenshot.org/downloads/">downloads page</a>. Also check our <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>,
-there might be a translation in progress, or at least in discussion.<br>
-Please note that we will only provide a translation on our downloads page if it has 
-been submitted through your sourceforge.net user account. Since we most probably are
-not capable to understand your translation, it is good for other sourceforge users 
-to be able to contact you about improvements or enhancements in case of a new Greenshot
-version.
 </p>

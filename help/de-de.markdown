@@ -48,7 +48,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Spenden</a></li>
 <li><a href="#help-spread">Weitersagen</a></li>
-<li><a href="#help-translate">Übersetzen</a></li>
 </ol>
 </ol>
 
@@ -392,22 +391,4 @@ Wenn Sie Greenshot mögen, sagen Sie es weiter: Erzählen Sie Ihren Freunden und
 von Greenshot. Und Ihren Followern :)<br>
 Bewerten Sie Greenshot auf Software-Portalen oder verlinken Sie unsere Webseite von
 Ihrem Blog oder Ihrer eigenen Webseite.
-</p>
-
-<a name="help-translate"></a>
-<h3>Übersetzen</h3>
-<p>
-Gibt es Greenshot noch nicht in Ihrer bevorzugten Sprache? Wenn Sie sich in der
-Lage fühlen, ein Programm zu übersetzen, sind Sie herzlich eingeladen.<br>
-Wenn Sie registrierter Nutzer bei sourceforge.net sind, können Sie Übersetzungen
-<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a> hochladen.<br>
-Bitte stellen Sie vorher sicher, dass keine Übersetzung für Ihre Sprache auf unserer
-<a target="_blank" href="https://getgreenshot.org/downloads/">Download-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob
-evtl. eine Übersetzung in Arbeit oder in Vorbereitung ist.<br>
-Bitte bedenken Sie, dass wir eine Übersetzung nur auf unserer Download-Seite zur 
-Verfügung stellen werden, wenn Sie über ein sourceforge.net Benutzerkonto bereitgestellt
-wurde. Da wir höchstwahrscheinlich nicht in der Lage sein werden, Ihre Übersetzung
-zu verstehen, ist es gut, wenn andere sourceforge Nutzer Sie kontaktieren können,
-um Verbesserungen vorzuschlagen oder die Übersetzung für eine nachfolgende Greenshot-Version
-zu erweitern.
 </p>

@@ -48,7 +48,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Överväg en donation</a></li>
 <li><a href="#help-spread">Sprid ordet</a></li>
-<li><a href="#help-translate">Skicka in en översättning</a></li>
 </ol>
 </ol>
 
@@ -355,13 +354,3 @@ Om du gillar Greenshot, låt folk veta: berätta för dina vänner och kollegor 
 Betygsätt Greenshort i mjukvaruportaler eller länka till vår hemsida från din blogg eller hemsida.
 </p>
 
-<a name="help-translate"></a>
-<h3>Skicka in en översättning</h3>
-<p>
-Är inte Greenshot tillgängligt på ditt språk? Om du känner dig trygg med att översätta mjukvara är du mer än välkommen att göra så.
-Om du är en registrerad användare på sourceforge.net kan du skicka in översättningar till vår <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>.<br>
-Se till så att det inte finns någon existerande översättning till ditt språk på vår
-<a target="_blank" href="http://getgreenshot.org/downloads/">nerladdningssida</a>. Kolla också vår <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>,
-det kan finnas pågående översättningar, eller i alla fall i planeringsstadiet.<br>
-Observera att vi enbart tillhandahåller en översättning på vår nerladdningssida om den blivit inskickad via ditt konto på sourceforge.net. Eftersom vi sannolikt inte har möjlighet att förstå din översättning är det bra om andra användare på sourceforge kan kontakta dig angående förbättringar eller ändringar om en ny version av Greenshot släpps.
-</p>

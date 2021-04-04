@@ -45,7 +45,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Vurder ein donasjon</a></li>
 <li><a href="#help-spread">Spre ryktet</a></li>
-<li><a href="#help-translate">Send inn omsetjing</a></li>
 </ol>
 </ol>
 
@@ -409,21 +408,4 @@ Om du likar Greenshot, syt for at andre får greie på det! Fortel vener, kolleg
 fygljarar på sosiale media om Greenshot!<br>
 Gje tilbakemelding på Greenshot på relevante programvaresider eller legg ei
 lenkje til nettsida vår (http://getgreenshot.org) på bloggen eller heimesida di.
-</p>
-
-<a name="help-translate"></a>
-<h3>Send inn omsetjing</h3>
-<p>
-Er ikkje Greenshot tilgjengeleg på ditt føretrekte språk? Om du kjenner deg
-i stand til å omsetje programmet er du meir enn velkomen!
-Om du er registrert på sourceforge.net kan du sende inn omsetjingar til vår 
-<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-tracker</a>.<br>
-Kontroller fyrst om det alt finst ei omsetjing på
-<a target="_blank" href="http://getgreenshot.org/downloads/">nedlastingssida</a>.
-Sjekk òg <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-trackeren</a>,
-då den kan innehalde ein omsetjing under arbeid eller diskusjon.<br>
-Ver merksam på at me bare tilbyr omsetjingar på nedlastingssida vår om den har
-blitt sendt inn gjennom ein sourceforge.net-konto. Sidan me sannsynlegvis ikkje
-forstår omsetjinga di er det fint om andre sourceforge-brukarar kan kontakte deg
-om endringar eller forbetringar i samband med til dømes nye programversjonar.
 </p>

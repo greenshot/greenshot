@@ -48,7 +48,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">考虑一下捐助</a></li>
 <li><a href="#help-spread">广而告之</a></li>
-<li><a href="#help-translate">提交一个翻译</a></li>
 </ol>
 </ol>
 
@@ -358,13 +357,4 @@ Greenshot的图片编辑器不仅仅可以在抓图时使用。你同样也可�
 如果你喜欢Greenshot，请告诉其他人比如你的朋友和同学以及你的跟随者，有个好的开源的抓图/截图工具叫Greenshot。
 :)<br>
 在软件门户网站投票支持Greenshot或者在你的博客或网站添加一个Greenshot的主页的链接。
-</p>
-
-<a name="help-translate"></a>
-<h3>提交一个翻译</h3>
-<p>
-Greenshot还没有支持你所使用的语言？如果你觉得自己适合来为此软件制作一个翻译，不用客气来做吧。
-如果你已经在开源社区sourceforge.net注册，你可以在我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>提交你的翻译。<br>
-但是请先确认在我们的<a target="_blank" href="http://getgreenshot.org/downloads/">下载页面</a>里还没有你使用的语言的翻译存在，同样请查看一下我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>，是否已经有了正在进行中的翻译或者至少已经开始讨论。<br>
-请注意我们只会在我们的下载页提供一个通过sourceforge.net提交的翻译，因为我们没有能力去阅读所有的语言，所以这样可以让其他用户能够联系到你，并帮助你在下一个新版本的Greenshot的翻译中提出改进意见。
 </p>
