@@ -45,7 +45,6 @@ Version 0.8
 <ol>
 <li><a href="#help-donate">Considere una donaci&oacute;n</a></li>
 <li><a href="#help-spread">Corra la voz</a></li>
-<li><a href="#help-translate">Env&iacute;e una traducci&oacute;n</a></li>
 </ol>
 </ol>
 
@@ -369,25 +368,3 @@ Sus seguidores, tambi&eacute;n :)<br>
 Califique a Greenshot en los portales de software o ponga un enlace a nuestra
   p&aacute;gina de inicio desde su blog o sitio web.
 </p>
-
-<a name="help-translate"></a>
-<h3>Env&iacute;e una traducci&oacute;n</h3>
-<p>
-&iquest; Greenshot no esta disponible en su lenguaje preferido ?
-  Si usted se siente capaz para traducir una pieza de software, usted es m&aacute;s
-  que bienvenido.
-Si usted es un usuario registrado en sourceforge.net, usted puede enviar 
-  traducciones a nuestro 
-<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">seguimiento de traducciones</a>.<br>
-Por favor aseg&uacute;rese que no exista traducci&oacute;n para su idioma en nuestra
-<a href="#">p&aacute;gina de descargas</a>. Tambi&eacute;n visite nuestra
- <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">seguimiento de traducciones</a>,
-alli podr&iacute;a haber una traducci&oacute;n en progreso, o al menos en 
-  discusi&oacute;n.<br>
-Por favor note que nosotros solamente proveeremos una traducci&oacute;n en 
-  nuestra p&aacute;gina de descargas si esta ha sido presentada a trav&eacute;s de 
-  su cuenta de usuario en sourceforge.net. 
-  Puesto que lo m&aacute;s probable es que nosotros no seamos capaces de entender 
-  su traducci&oacute;n, es bueno que otros usuarios de sourceforge puedan contactarlo
-  acerca de mejoras y ampliaciones en caso de una nueva versi&oacute;n de Greenshot.
-</p> 

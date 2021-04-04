@@ -40,7 +40,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Rozważ darowiznę</a></li>
 <li><a href="#help-spread">Opowiadaj o nas</a></li>
-<li><a href="#help-translate">Dodaj tłumaczenie</a></li>
 </ol>
 </ol>
 <p>	<a name="screenshot"></a></p>
@@ -273,20 +272,4 @@ comments: []
 		Jeśli podoba Ci się Greenshot, niech ludzie się dowiedzą: powiedzieć swoim znajomym i kolegom o Greenshot.<br />
 		Swoim zwolennikom, także :)<br><br />
 		Oceń Greenshot na portalach z oprogramowaniem, lub wstaw łącze do naszej strony głównej, na swoim blogu lub stronie.
-	</p>
-<p>	<a name="help-translate"></a></p>
-<h3>Dodaj tłumaczenie</h3>
-<p>
-		Greenshot nie jest dostępny w wybranym języku? Jeśli uważasz, że nadaje się do tłumaczenia jakiś<br />
-        kawałek oprogramowania, to jest to więcej niż mile widziane.<br />
-		Jeżeli jesteś zarejestrowanym użytkownikiem na sourceforge.net, możesz przesłać tłumaczenia do naszego<br />
-		<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">działu tłumaczeń</a>.<br><br />
-		Upewnij się, że nie istnieje już tłumaczenie na Twój język w naszych<br />
-		<a href="#">plikach do pobrania</a>. Sprawdź również nasz <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">dział tłumaczeń</a>,<br />
-		może być tam tłumaczenie w toku, lub przynajmniej w dyskusji.<br><br />
-		Pamiętaj, my tylko dostarczamy tłumaczenie na naszej stronie plików do pobrania, jeżeli<br />
-		zostały złożone za pośrednictwem konta użytkownika sourceforge.net. Ponieważ ktoś może<br />
-		nie być w stanie zrozumieć tłumaczenia, w interesie innych użytkowników sourceforge jest to,<br />
-		aby mogli skontaktować się z Tobą w sprawie ulepszeń i udoskonaleń, w przypadku nowej wersji<br />
-		Greenshot.
 	</p>

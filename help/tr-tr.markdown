@@ -42,7 +42,6 @@ comments: []
 <ol>
 <li><a href="#help-donate">Bağış yapmayı düşünün</a></li>
 <li><a href="#help-spread">Dünyaya yayın</a></li>
-<li><a href="#help-translate">Kendi dilinize çevirin</a></li>
 </ol>
 </ol>
 
@@ -302,21 +301,3 @@ Greenshot geliştirici takımını nasıl destekleyeceğinizi görmek için web 
 Greenshot hoşunuza gittiyse, tanıdıklarınıza anlatın ve onların da yararlanmasını sağlayın.<br>
 Yazılım yorumlama sitelerinde bahsedin ve blogunuz veya web sitenizden bağlantı verin.
 </p>
-
-<a name="help-translate"></a>
-<h3>Kendi dilinize çevirin</h3>
-<p>
-Greenshot sizin dilinizi konuşmuyor mu? Eğer bir yazılımı çevirebileceğinizi düşünüyorsanız
-hoşgeldinden fazlasını hakediyorsunuz.
-Eğer kayıtlı bir sourceforge.net üyesi iseniz, çevirilerinizi
-<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimize</a> gönderbilirsiniz.<br>
-Öncesinde 
-<a target="_blank" href="http://getgreenshot.org/downloads/">indirme sayfasından</a> dilinizde bir çeviri olmadığından emin olun. Ayrıca <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimizden</a> de durumu denetleyin.
-Dilinizde bir çeviri çalışması planlanıyor veya yapılıyor olabilir.<br>
-Çevirileri indirme sayfalarımızda ancak sourceforge.net kullanıcı hesabınızla gönderdiyseniz  
-yayınlayacağız. Böylece bizler çevirinizi büyük olasılıkla anlayamayacağımız için diğer sourceforge.
-net kullanıcılarının sizinle iletişim kurması veya yeni sürümlerin çevirisini güncellenmek için 
-devreye girebilmesi sağlanacak.
-</p>
-
-	

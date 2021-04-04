@@ -48,7 +48,6 @@ comments: []
 	<ol>
 		<li><a href="#help-donate">Overweeg een donatie</a></li>
 		<li><a href="#help-spread">Vertel het door</a></li>
-		<li><a href="#help-translate">Draag bij met een vertaling</a></li>
 	</ol>
 </ol>
 
@@ -424,19 +423,3 @@ comments: []
 	En ook uw aanhang en achterban ! :)</br>
 	Bespreek Greenshot met goede kritieken op software portals of plaats een verwijzing naar Greenshot in uw blog of op uw website.
 </p>
-
-<a name="help-translate"></a>
-<h3>Maak een vertaling</h3>
-<p>
-	Is Greenshot niet beschikbaar in uw favoriete taal en u denkt dat u software kunt vertalen dan bent u van harte welkom!
-	Als geregisteerde gebruiker bij sourceforge.net kunt u uw vertaling in onze 
-	<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> aanmelden.</br>
-	Voordat u begint is het verstandig om te kijken of Greenshot niet al in de taal vertaald is, zie de 
-	<a href="#">downloads pagina</a>. Ook kunt u op onze <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">vertalings tracker</a> kijken.
-	Het zou namelijk kunnen zijn dat iemand al aan de vertaling werkt of misschien hierover heeft gecommuniceerd.</br>
-	
-	Merk op dat vertalingen alleen kunnen worden geaccepteerd als ze afkomstig zijn van een geregistreerde 
-	sourceforge.net-gebruiker. Wij kunnen niet elke vertaling doorgronden en daarom is het belangrijk dat we 
-	de vertaler kunnen bereiken. Alleen op deze manier kunnen we bij nieuwe versies	van Greenshot deze taal 
-	laten bijwerken en weer uitleveren.
-</p>	
