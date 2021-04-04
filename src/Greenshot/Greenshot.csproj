@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.*\*.csproj" />
     <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
   </ItemGroup>
 

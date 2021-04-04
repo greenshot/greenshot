@@ -107,16 +107,4 @@
   <ItemGroup>
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
-
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
-    <Exec Command="
-    xcopy /f /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    xcopy /f /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
-    IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
-        IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
-            mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
-        )&#xD;&#xA;
-        xcopy /f /y /d &quot;$(TargetDir)Languages\*en-US.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
-	)" />
-  </Target>
 </Project>
