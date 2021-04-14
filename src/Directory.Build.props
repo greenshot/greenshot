@@ -108,7 +108,7 @@
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.Contains('Plugin')) And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
     <Exec Command="
     xcopy /f /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;
     xcopy /f /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)&quot;&#xD;&#xA;

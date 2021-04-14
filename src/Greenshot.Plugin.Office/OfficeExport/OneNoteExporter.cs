@@ -23,6 +23,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.Com;

@@ -28,8 +28,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -428,7 +430,7 @@ namespace Greenshot.Forms
                     imageNr++;
                 }
 
-                if (PickerDestination.DESIGNATION.Equals(currentDestination.Designation))
+                if (nameof(WellKnownDestinations.Picker).Equals(currentDestination.Designation))
                 {
                     checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
                     checkbox_picker.Text = currentDestination.Description;
@@ -571,7 +573,7 @@ namespace Greenshot.Forms
             List<string> destinations = new List<string>();
             if (checkbox_picker.Checked)
             {
-                destinations.Add(PickerDestination.DESIGNATION);
+                destinations.Add(nameof(WellKnownDestinations.Picker));
             }
 
             foreach (int index in listview_destinations.CheckedIndices)
@@ -742,7 +744,7 @@ namespace Greenshot.Forms
             foreach (int index in listview_destinations.CheckedIndices)
             {
                 ListViewItem item = listview_destinations.Items[index];
-                if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION))
+                if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(nameof(WellKnownDestinations.Clipboard)))
                 {
                     clipboardDestinationChecked = true;
                     break;

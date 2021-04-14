@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <ItemGroup>
+    <None Include="Languages\language*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\BindableToolStripButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\BindableToolStripComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\BindableToolStripDropDownButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\FontFamilyComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\MenuStripEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\NonJumpingPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\Pipette.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ToolStripColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ToolStripEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ToolStripNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Drawing\Surface.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ColorPickerToolStripButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\DropShadowSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\EditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ImageEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MovableShowColorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ResizeSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\TornEdgeSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Forms\ColorDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\ImageEditorForm.resx">
+      <DependentUpon>ImageEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

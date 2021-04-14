@@ -80,7 +80,7 @@ namespace Greenshot.Base.Core
                         }
                         finally
                         {
-                            // Always dispose, even when a exception occured
+                            // Always dispose, even when a exception occurred
                             value.Dispose();
                         }
                     }

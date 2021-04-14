@@ -26,57 +26,12 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Core
 {
-    public enum ClipboardFormat
-    {
-        PNG,
-        DIB,
-        HTML,
-        HTMLDATAURL,
-        BITMAP,
-        DIBV5
-    }
-
-    public enum OutputFormat
-    {
-        bmp,
-        gif,
-        jpg,
-        png,
-        tiff,
-        greenshot,
-        ico
-    }
-
-    public enum WindowCaptureMode
-    {
-        Screen,
-        GDI,
-        Aero,
-        AeroTransparent,
-        Auto
-    }
-
-    public enum BuildStates
-    {
-        UNSTABLE,
-        RELEASE_CANDIDATE,
-        RELEASE
-    }
-
-    public enum ClickActions
-    {
-        DO_NOTHING,
-        OPEN_LAST_IN_EXPLORER,
-        OPEN_LAST_IN_EDITOR,
-        OPEN_SETTINGS,
-        SHOW_CONTEXT_MENU
-    }
-
     /// <summary>
     /// Description of CoreConfiguration.
     /// </summary>

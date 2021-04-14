@@ -19,8 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Drawing;
-using Greenshot.Helpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -38,6 +36,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Forms
 {
@@ -204,8 +203,7 @@ namespace Greenshot.Forms
             if (isOn)
             {
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic,
-                    EasingMode.EaseOut);
+                _zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
@@ -270,16 +268,6 @@ namespace Greenshot.Forms
                     _capture.CursorVisible = !_capture.CursorVisible;
                     Invalidate();
                     break;
-                //// TODO: Enable when the screen capture code works reliable
-                //case Keys.V:
-                //	// Video
-                //	if (capture.CaptureDetails.CaptureMode != CaptureMode.Video) {
-                //		capture.CaptureDetails.CaptureMode = CaptureMode.Video;
-                //	} else {
-                //		capture.CaptureDetails.CaptureMode = captureMode;
-                //	}
-                //	Invalidate();
-                //	break;
                 case Keys.Z:
                     if (_captureMode == CaptureMode.Region)
                     {
@@ -309,8 +297,7 @@ namespace Greenshot.Forms
                             // "Fade out" Zoom
                             InitializeZoomer(false);
                             // "Fade in" window
-                            _windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic,
-                                EasingMode.EaseOut);
+                            _windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
                             _captureRect = Rectangle.Empty;
                             Invalidate();
                             break;
@@ -670,7 +657,7 @@ namespace Greenshot.Forms
                 }
             }
 
-            // always animate the Window area through to the last frame, so we see the fade-in/out untill the end
+            // always animate the Window area through to the last frame, so we see the fade-in/out until the end
             // Using a safety "offset" to make sure the text is invalidated too
             const int safetySize = 30;
             // Check if the animation needs to be drawn
@@ -717,34 +704,21 @@ namespace Greenshot.Forms
                 foreach (var line in ocrInfo.Lines)
                 {
                     var lineBounds = line.CalculatedBounds;
-                    if (!lineBounds.IsEmpty)
+                    if (lineBounds.IsEmpty)
                     {
-                        if (_mouseDown)
-                        {
-                            // Highlight the text which is selected
-                            if (lineBounds.IntersectsWith(_captureRect))
-                            {
-                                foreach (var word in line.Words)
-                                {
-                                    if (word.Bounds.IntersectsWith(_captureRect))
-                                    {
-                                        if (invalidateRectangle.IsEmpty)
-                                        {
-                                            invalidateRectangle = word.Bounds;
-                                        }
-                                        else
-                                        {
-                                            invalidateRectangle = Rectangle.Union(invalidateRectangle, word.Bounds);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if (lineBounds.Contains(_mouseMovePos))
+                        continue;
+                    }
+                    if (_mouseDown)
+                    {
+                        // Highlight the text which is selected
+                        if (lineBounds.IntersectsWith(_captureRect))
                         {
                             foreach (var word in line.Words)
                             {
-                                if (!word.Bounds.Contains(_mouseMovePos)) continue;
+                                if (!word.Bounds.IntersectsWith(_captureRect))
+                                {
+                                    continue;
+                                }
                                 if (invalidateRectangle.IsEmpty)
                                 {
                                     invalidateRectangle = word.Bounds;
@@ -753,9 +727,24 @@ namespace Greenshot.Forms
                                 {
                                     invalidateRectangle = Rectangle.Union(invalidateRectangle, word.Bounds);
                                 }
-
-                                break;
                             }
+                        }
+                    }
+                    else if (lineBounds.Contains(_mouseMovePos))
+                    {
+                        foreach (var word in line.Words)
+                        {
+                            if (!word.Bounds.Contains(_mouseMovePos)) continue;
+                            if (invalidateRectangle.IsEmpty)
+                            {
+                                invalidateRectangle = word.Bounds;
+                            }
+                            else
+                            {
+                                invalidateRectangle = Rectangle.Union(invalidateRectangle, word.Bounds);
+                            }
+
+                            break;
                         }
                     }
                 }
@@ -796,38 +785,39 @@ namespace Greenshot.Forms
 
             Rectangle targetRectangle = _zoomAnimator.Final;
             targetRectangle.Offset(pos);
-            if (!screenBounds.Contains(targetRectangle) || (!allowZoomOverCaptureRect && _captureRect.IntersectsWith(targetRectangle)))
+            if (screenBounds.Contains(targetRectangle) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(targetRectangle)))
             {
-                Point destinationLocation = Point.Empty;
-                Rectangle tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
-                Rectangle tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
-                Rectangle bl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
-                Rectangle br = new Rectangle(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
-                if (screenBounds.Contains(br) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(br)))
-                {
-                    destinationLocation = new Point(zoomOffset.X, zoomOffset.Y);
-                }
-                else if (screenBounds.Contains(bl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(bl)))
-                {
-                    destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
-                }
-                else if (screenBounds.Contains(tr) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tr)))
-                {
-                    destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
-                }
-                else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tl)))
-                {
-                    destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
-                }
+                return;
+            }
+            Point destinationLocation = Point.Empty;
+            Rectangle tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+            Rectangle tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+            Rectangle bl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+            Rectangle br = new Rectangle(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+            if (screenBounds.Contains(br) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(br)))
+            {
+                destinationLocation = new Point(zoomOffset.X, zoomOffset.Y);
+            }
+            else if (screenBounds.Contains(bl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(bl)))
+            {
+                destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
+            }
+            else if (screenBounds.Contains(tr) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tr)))
+            {
+                destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
+            }
+            else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tl)))
+            {
+                destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
+            }
 
-                if (destinationLocation == Point.Empty && !allowZoomOverCaptureRect)
-                {
-                    VerifyZoomAnimation(pos, true);
-                }
-                else
-                {
-                    _zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
-                }
+            if (destinationLocation == Point.Empty && !allowZoomOverCaptureRect)
+            {
+                VerifyZoomAnimation(pos, true);
+            }
+            else
+            {
+                _zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
             }
         }
 
@@ -877,8 +867,7 @@ namespace Greenshot.Forms
                 }
                 else
                 {
-                    graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height,
-                        GraphicsUnit.Pixel, attributes);
+                    graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
                 }
             }
 
@@ -964,31 +953,35 @@ namespace Greenshot.Forms
                 foreach (var line in ocrInfo.Lines)
                 {
                     var lineBounds = line.CalculatedBounds;
-                    if (!lineBounds.IsEmpty)
+                    if (lineBounds.IsEmpty)
                     {
-                        graphics.DrawRectangle(pen, line.CalculatedBounds);
-                        if (_mouseDown)
-                        {
-                            // Highlight the text which is selected
-                            if (lineBounds.IntersectsWith(_captureRect))
-                            {
-                                foreach (var word in line.Words)
-                                {
-                                    if (word.Bounds.IntersectsWith(_captureRect))
-                                    {
-                                        graphics.FillRectangle(highlightTextBrush, word.Bounds);
-                                    }
-                                }
-                            }
-                        }
-                        else if (lineBounds.Contains(_mouseMovePos))
+                        continue;
+                    }
+                    graphics.DrawRectangle(pen, line.CalculatedBounds);
+                    if (_mouseDown)
+                    {
+                        // Highlight the text which is selected
+                        if (lineBounds.IntersectsWith(_captureRect))
                         {
                             foreach (var word in line.Words)
                             {
-                                if (!word.Bounds.Contains(_mouseMovePos)) continue;
-                                graphics.FillRectangle(highlightTextBrush, word.Bounds);
-                                break;
+                                if (word.Bounds.IntersectsWith(_captureRect))
+                                {
+                                    graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                                }
                             }
+                        }
+                    }
+                    else if (lineBounds.Contains(_mouseMovePos))
+                    {
+                        foreach (var word in line.Words)
+                        {
+                            if (!word.Bounds.Contains(_mouseMovePos))
+                            {
+                                continue;
+                            }
+                            graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                            break;
                         }
                     }
                 }

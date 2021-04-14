@@ -30,6 +30,7 @@ using System.Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Hooking;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;

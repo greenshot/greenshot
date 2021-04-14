@@ -21,6 +21,7 @@
 
 using System;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Plugin;
 

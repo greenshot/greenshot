@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
@@ -36,7 +37,6 @@ namespace Greenshot.Destinations
     /// </summary>
     public class PrinterDestination : AbstractDestination
     {
-        public const string DESIGNATION = "Printer";
         private readonly string _printerName;
 
         public PrinterDestination()
@@ -48,7 +48,7 @@ namespace Greenshot.Destinations
             _printerName = printerName;
         }
 
-        public override string Designation => DESIGNATION;
+        public override string Designation => nameof(WellKnownDestinations.Printer);
 
         public override string Description
         {

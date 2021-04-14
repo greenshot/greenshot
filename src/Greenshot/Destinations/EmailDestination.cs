@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
@@ -31,14 +32,13 @@ using Microsoft.Win32;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// Description of EmailDestination.
+    /// This is the EmailDestination, used for MAPI clients.
     /// </summary>
     public class EmailDestination : AbstractDestination
     {
         private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
         private static bool _isActiveFlag;
         private static string _mapiClient;
-        public const string DESIGNATION = "EMail";
 
         static EmailDestination()
         {
@@ -51,7 +51,7 @@ namespace Greenshot.Destinations
             }
         }
 
-        public override string Designation => DESIGNATION;
+        public override string Designation => nameof(WellKnownDestinations.EMail);
 
         public override string Description
         {

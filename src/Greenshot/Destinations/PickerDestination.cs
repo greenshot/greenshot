@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
@@ -31,9 +32,7 @@ namespace Greenshot.Destinations
     /// </summary>
     public class PickerDestination : AbstractDestination
     {
-        public const string DESIGNATION = "Picker";
-
-        public override string Designation => DESIGNATION;
+        public override string Designation => nameof(WellKnownDestinations.Picker);
 
         public override string Description => Language.GetString(LangKey.settings_destination_picker);
 

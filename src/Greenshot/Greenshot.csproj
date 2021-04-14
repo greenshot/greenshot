@@ -21,12 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <EmbeddedResource Include="Forms\ColorDialog.resx">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ImageEditorForm.resx">
-      <DependentUpon>ImageEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -38,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
   </ItemGroup>
 

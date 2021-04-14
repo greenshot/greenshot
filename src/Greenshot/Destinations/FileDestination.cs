@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
@@ -35,15 +36,14 @@ using log4net;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// Description of FileSaveAsDestination.
+    /// This is the destination which saves the capture to the default location (no dialog)
     /// </summary>
     public class FileDestination : AbstractDestination
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FileDestination));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        public const string DESIGNATION = "FileNoDialog";
 
-        public override string Designation => DESIGNATION;
+        public override string Designation => nameof(WellKnownDestinations.FileNoDialog);
 
         public override string Description => Language.GetString(LangKey.quicksettings_destination_file);
 

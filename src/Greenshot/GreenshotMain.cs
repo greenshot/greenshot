@@ -64,6 +64,7 @@ namespace Greenshot
 
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
             MainForm.Start(args);
         }
     }

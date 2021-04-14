@@ -24,11 +24,13 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Editor.Helpers;
 using Greenshot.Forms;
 using log4net;
 

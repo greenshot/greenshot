@@ -19,24 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Configuration;
-using Greenshot.Destinations;
-using Greenshot.Drawing;
-using Greenshot.Forms;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Configuration;
+using Greenshot.Editor.Destinations;
+using Greenshot.Editor.Drawing;
+using Greenshot.Forms;
 
 namespace Greenshot.Helpers
 {
@@ -48,10 +49,8 @@ namespace Greenshot.Helpers
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-
-        // TODO: when we get the screen capture code working correctly, this needs to be enabled
-        //private static ScreenCaptureHelper screenCapture = null;
-        private List<WindowDetails> _windows = new List<WindowDetails>();
+        
+        private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
         private Rectangle _captureRect = Rectangle.Empty;
         private readonly bool _captureMouseCursor;
@@ -411,11 +410,11 @@ namespace Greenshot.Helpers
                         _capture.CaptureDetails.Title = "Clipboard";
                         _capture.CaptureDetails.AddMetaData("source", "Clipboard");
                         // Force Editor, keep picker
-                        if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
+                        if (_capture.CaptureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
                         {
                             _capture.CaptureDetails.ClearDestinations();
                             _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(nameof(WellKnownDestinations.Picker)));
                         }
                         else
                         {
@@ -480,11 +479,11 @@ namespace Greenshot.Helpers
                         }
 
                         // Force Editor, keep picker, this is currently the only usefull destination
-                        if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
+                        if (_capture.CaptureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
                         {
                             _capture.CaptureDetails.ClearDestinations();
                             _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(nameof(WellKnownDestinations.Picker)));
                         }
                         else
                         {
@@ -567,7 +566,7 @@ namespace Greenshot.Helpers
         {
             _windows = new List<WindowDetails>();
 
-            // If the App Launcher is visisble, no other windows are active
+            // If the App Launcher is visible, no other windows are active
             WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
             if (appLauncherWindow != null && appLauncherWindow.Visible)
             {
@@ -779,9 +778,9 @@ namespace Greenshot.Helpers
             ICaptureDetails captureDetails = _capture.CaptureDetails;
             bool canDisposeSurface = true;
 
-            if (captureDetails.HasDestination(PickerDestination.DESIGNATION))
+            if (captureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
             {
-                DestinationHelper.ExportCapture(false, PickerDestination.DESIGNATION, surface, captureDetails);
+                DestinationHelper.ExportCapture(false, nameof(WellKnownDestinations.Picker), surface, captureDetails);
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }
@@ -799,7 +798,7 @@ namespace Greenshot.Helpers
                 // or use the file that was written
                 foreach (IDestination destination in captureDetails.CaptureDestinations)
                 {
-                    if (PickerDestination.DESIGNATION.Equals(destination.Designation))
+                    if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                     {
                         continue;
                     }
@@ -899,29 +898,31 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Check if Process uses PresentationFramework.dll -> meaning it uses WPF
         /// </summary>
-        /// <param name="process">Proces to check for the presentation framework</param>
+        /// <param name="process">Process to check for the presentation framework</param>
         /// <returns>true if the process uses WPF</returns>
         private static bool IsWpf(Process process)
         {
-            if (process != null)
+            if (process == null)
             {
-                try
+                return false;
+            }
+            try
+            {
+                foreach (ProcessModule module in process.Modules)
                 {
-                    foreach (ProcessModule module in process.Modules)
+                    if (!module.ModuleName.StartsWith("PresentationFramework"))
                     {
-                        if (module.ModuleName.StartsWith("PresentationFramework"))
-                        {
-                            Log.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
-                            return true;
-                        }
+                        continue;
                     }
-                }
-                catch (Exception)
-                {
-                    // Access denied on the modules
-                    Log.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+                    Log.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
                     return true;
                 }
+            }
+            catch (Exception)
+            {
+                // Access denied on the modules
+                Log.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+                return true;
             }
 
             return false;
@@ -933,7 +934,7 @@ namespace Greenshot.Helpers
         /// <param name="windowToCapture">Window to capture</param>
         /// <param name="captureForWindow">The capture to store the details</param>
         /// <param name="windowCaptureMode">What WindowCaptureMode to use</param>
-        /// <returns></returns>
+        /// <returns>ICapture</returns>
         public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode)
         {
             if (captureForWindow == null)
@@ -1163,7 +1164,7 @@ namespace Greenshot.Helpers
             // Workaround for problem with DPI retrieval, the FromHwnd activates the window...
             WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
             // Workaround for changed DPI settings in Windows 7
-            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+            var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
             using (Graphics graphics = Graphics.FromHwnd(mainForm.Handle))
             {
                 _capture.CaptureDetails.DpiX = graphics.DpiX;
@@ -1180,21 +1181,12 @@ namespace Greenshot.Helpers
 
         private void CaptureWithFeedback()
         {
-            // The following, to be precise the HideApp, causes the app to close as described in BUG-1620
-            // Added check for metro (Modern UI) apps, which might be maximized and cover the screen.
-
-            //foreach(WindowDetails app in WindowDetails.GetAppWindows()) {
-            //	if (app.Maximised) {
-            //		app.HideApp();
-            //	}
-            //}
-
             using CaptureForm captureForm = new CaptureForm(_capture, _windows);
             // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
             DialogResult result;
             try
             {
-                var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+                var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
                 result = captureForm.ShowDialog(mainForm);
             }
             finally

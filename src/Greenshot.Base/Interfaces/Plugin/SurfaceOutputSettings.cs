@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 

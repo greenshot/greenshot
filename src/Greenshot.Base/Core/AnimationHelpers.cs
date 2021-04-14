@@ -238,19 +238,19 @@ namespace Greenshot.Base.Core
                     return true;
                 }
 
-                if (_queue.Count > 0)
+                if (_queue.Count <= 0)
                 {
-                    First = Current;
-                    CurrentFrameNr = 0;
-                    AnimationLeg<T> nextLeg = _queue.Dequeue();
-                    Last = nextLeg.Destination;
-                    Frames = nextLeg.Frames;
-                    EasingType = nextLeg.EasingType;
-                    EasingMode = nextLeg.EasingMode;
-                    return true;
+                    return false;
                 }
+                First = Current;
+                CurrentFrameNr = 0;
+                AnimationLeg<T> nextLeg = _queue.Dequeue();
+                Last = nextLeg.Destination;
+                Frames = nextLeg.Frames;
+                EasingType = nextLeg.EasingType;
+                EasingMode = nextLeg.EasingMode;
+                return true;
 
-                return false;
             }
         }
 
@@ -303,20 +303,21 @@ namespace Greenshot.Base.Core
         /// <returns>Rectangle</returns>
         public override Rectangle Next()
         {
-            if (NextFrame)
+            if (!NextFrame)
             {
-                double easingValue = EasingValue;
-                double dx = Last.X - First.X;
-                double dy = Last.Y - First.Y;
-
-                int x = First.X + (int) (easingValue * dx);
-                int y = First.Y + (int) (easingValue * dy);
-                double dw = Last.Width - First.Width;
-                double dh = Last.Height - First.Height;
-                int width = First.Width + (int) (easingValue * dw);
-                int height = First.Height + (int) (easingValue * dh);
-                Current = new Rectangle(x, y, width, height);
+                return Current;
             }
+            double easingValue = EasingValue;
+            double dx = Last.X - First.X;
+            double dy = Last.Y - First.Y;
+
+            int x = First.X + (int) (easingValue * dx);
+            int y = First.Y + (int) (easingValue * dy);
+            double dw = Last.Width - First.Width;
+            double dh = Last.Height - First.Height;
+            int width = First.Width + (int) (easingValue * dw);
+            int height = First.Height + (int) (easingValue * dh);
+            Current = new Rectangle(x, y, width, height);
 
             return Current;
         }

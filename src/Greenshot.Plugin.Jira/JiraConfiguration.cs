@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira

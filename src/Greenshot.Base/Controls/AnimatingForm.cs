@@ -51,8 +51,8 @@ namespace Greenshot.Base.Controls
             {
                 if (_vRefresh == 0)
                 {
-                    // get te hDC of the desktop to get the VREFRESH
-                    using SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop();
+                    // get te hDC of the desktop to get the V-REFRESH
+                    using var desktopHandle = SafeWindowDcHandle.FromDesktop();
                     _vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
                 }
 
@@ -89,6 +89,12 @@ namespace Greenshot.Base.Controls
         }
 
         /// <summary>
+        /// Calculate the interval for the timer to animate the frames
+        /// </summary>
+        /// <returns>Milliseconds for the interval</returns>
+        protected int Interval() => (int)1000 / VRefresh;
+
+        /// <summary>
         /// Initialize the animation
         /// </summary>
         protected AnimatingForm()
@@ -102,13 +108,13 @@ namespace Greenshot.Base.Controls
 
                 _timer = new Timer
                 {
-                    Interval = 1000 / VRefresh
+                    Interval = Interval()
                 };
-                _timer.Tick += timer_Tick;
+                _timer.Tick += Timer_Tick;
                 _timer.Start();
             };
 
-            // Unregister at close
+            // Un-register at close
             FormClosing += delegate { _timer?.Stop(); };
         }
 
@@ -117,7 +123,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
             try
             {
@@ -125,7 +131,7 @@ namespace Greenshot.Base.Controls
             }
             catch (Exception ex)
             {
-                Log.Warn("An exception occured while animating:", ex);
+                Log.Warn("An exception occurred while animating:", ex);
             }
         }
 

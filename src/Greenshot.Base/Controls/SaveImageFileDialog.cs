@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using log4net;

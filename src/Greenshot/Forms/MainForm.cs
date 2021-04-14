@@ -32,26 +32,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
-using Greenshot.Drawing;
-using Greenshot.Help;
+using Greenshot.Editor.Destinations;
+using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
+using Greenshot.Processors;
 using log4net;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
 {
     /// <summary>
-    /// Description of MainForm.
+    /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm
+    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper
     {
         private static ILog LOG;
         private static ResourceMutex _applicationMutex;
@@ -336,17 +341,18 @@ namespace Greenshot.Forms
         private static void FreeMutex()
         {
             // Remove the application mutex
-            if (_applicationMutex != null)
+            if (_applicationMutex == null)
             {
-                try
-                {
-                    _applicationMutex.Dispose();
-                    _applicationMutex = null;
-                }
-                catch (Exception ex)
-                {
-                    LOG.Error("Error releasing Mutex!", ex);
-                }
+                return;
+            }
+            try
+            {
+                _applicationMutex.Dispose();
+                _applicationMutex = null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Error("Error releasing Mutex!", ex);
             }
         }
 
@@ -376,6 +382,8 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<Form>(this);
             // Also as itself
             SimpleServiceProvider.Current.AddService(this);
+            SimpleServiceProvider.Current.AddService<IGreenshotMainForm>(this);
+            SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
 
             _instance = this;
 
@@ -417,9 +425,9 @@ namespace Greenshot.Forms
             UpdateUi();
 
             // This forces the registration of all destinations inside Greenshot itself.
-            DestinationHelper.RegisterInternalDestinations();
+            RegisterInternalDestinations();
             // This forces the registration of all processors inside Greenshot itself.
-            ProcessorHelper.RegisterInternalProcessors();
+            RegisterInternalProcessors();
 
             // Load all the plugins
             PluginHelper.Instance.LoadPlugins();
@@ -492,6 +500,62 @@ namespace Greenshot.Forms
             if (_conf.MinimizeWorkingSetSize)
             {
                 PsAPI.EmptyWorkingSet();
+            }
+        }
+
+        /// <summary>
+        /// Create all the internal destinations
+        /// </summary>
+        private void RegisterInternalDestinations()
+        {
+            var internalDestinations = new List<IDestination>
+            {
+                new FileDestination(),
+                new FileWithDialogDestination(),
+                new ClipboardDestination(),
+                new PrinterDestination(),
+                new EmailDestination(),
+                new PickerDestination()
+            };
+
+            int len = 250;
+            var stringBuilder = new StringBuilder(len);
+            using var proc = Process.GetCurrentProcess();
+            var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
+            if (err != 0)
+            {
+                internalDestinations.Add(new EditorDestination());
+            }
+            foreach (var internalDestination in internalDestinations)
+            {
+                if (internalDestination.IsActive)
+                {
+                    SimpleServiceProvider.Current.AddService(internalDestination);
+                }
+                else
+                {
+                    internalDestination.Dispose();
+                }
+            }
+        }
+
+        private void RegisterInternalProcessors()
+        {
+            var internalProcessors = new List<IProcessor>
+            {
+                new TitleFixProcessor()
+            };
+
+            foreach (var internalProcessor in internalProcessors)
+            {
+                if (internalProcessor.isActive)
+                {
+                    SimpleServiceProvider.Current.AddService(internalProcessor);
+                }
+                else
+                {
+                    internalProcessor.Dispose();
+                }
             }
         }
 
@@ -845,6 +909,11 @@ namespace Greenshot.Forms
         {
             Hide();
             ShowInTaskbar = false;
+
+
+            using var loProcess = Process.GetCurrentProcess();
+            loProcess.MaxWorkingSet = (IntPtr)750000;
+            loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
         private void CaptureRegion()
@@ -1505,7 +1574,7 @@ namespace Greenshot.Forms
             IDestination selectedDestination = (IDestination) item.Data;
             if (item.Checked)
             {
-                if (selectedDestination.Designation.Equals(PickerDestination.DESIGNATION))
+                if (selectedDestination.Designation.Equals(nameof(WellKnownDestinations.Picker)))
                 {
                     // If the item is the destination picker, remove all others
                     _conf.OutputDestinations.Clear();
@@ -1513,7 +1582,7 @@ namespace Greenshot.Forms
                 else
                 {
                     // If the item is not the destination picker, remove the picker
-                    _conf.OutputDestinations.Remove(PickerDestination.DESIGNATION);
+                    _conf.OutputDestinations.Remove(nameof(WellKnownDestinations.Picker));
                 }
 
                 // Checked an item, add if the destination is not yet selected
@@ -1534,7 +1603,7 @@ namespace Greenshot.Forms
             // Check if something was selected, if not make the picker the default
             if (_conf.OutputDestinations == null || _conf.OutputDestinations.Count == 0)
             {
-                _conf.OutputDestinations.Add(PickerDestination.DESIGNATION);
+                _conf.OutputDestinations.Add(nameof(WellKnownDestinations.Picker));
             }
 
             IniConfig.Save();
@@ -1809,6 +1878,28 @@ namespace Greenshot.Forms
                 notifyIcon.Dispose();
                 notifyIcon = null;
             }
+        }
+
+        /// <summary>
+        /// TODO: Delete when the ICaptureHelper can be solve someway else
+        /// </summary>
+        /// <param name="windowToCapture">WindowDetails</param>
+        /// <returns>WindowDetails</returns>
+        public WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
+        {
+            return CaptureHelper.SelectCaptureWindow(windowToCapture);
+        }
+
+        /// <summary>
+        /// TODO: Delete when the ICaptureHelper can be solve someway else
+        /// </summary>
+        /// <param name="windowToCapture">WindowDetails</param>
+        /// <param name="capture">ICapture</param>
+        /// <param name="coreConfigurationWindowCaptureMode">WindowCaptureMode</param>
+        /// <returns>ICapture</returns>
+        public ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode)
+        {
+            return CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfigurationWindowCaptureMode);
         }
     }
 }

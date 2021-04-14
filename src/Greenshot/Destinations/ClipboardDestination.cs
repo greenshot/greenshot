@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
@@ -33,12 +34,7 @@ namespace Greenshot.Destinations
     /// </summary>
     public class ClipboardDestination : AbstractDestination
     {
-        public const string DESIGNATION = "Clipboard";
-
-        public override string Designation
-        {
-            get { return DESIGNATION; }
-        }
+        public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
         public override string Description
         {

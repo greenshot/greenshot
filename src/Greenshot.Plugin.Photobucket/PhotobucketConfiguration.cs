@@ -22,6 +22,7 @@
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Photobucket.Forms;
 

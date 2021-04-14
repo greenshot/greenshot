@@ -21,6 +21,7 @@
 
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -29,27 +30,18 @@ using Greenshot.Configuration;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// Description of FileWithDialog.
+    /// This is the destination which allows the user to select the location via a file dialog.
     /// </summary>
     public class FileWithDialogDestination : AbstractDestination
     {
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-        public const string DESIGNATION = "FileDialog";
 
-        public override string Designation
-        {
-            get { return DESIGNATION; }
-        }
+        public override string Designation => nameof(WellKnownDestinations.FileDialog);
 
-        public override string Description
-        {
-            get { return Language.GetString(LangKey.settings_destination_fileas); }
-        }
+        public override string Description => Language.GetString(LangKey.settings_destination_fileas);
 
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
+
 
         public override Keys EditorShortcutKeys
         {

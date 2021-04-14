@@ -64,6 +64,10 @@ namespace Greenshot.Base.UnmanagedHelpers
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
 
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetPackageFullName(IntPtr hProcess, ref Int32 packageFullNameLength, StringBuilder fullName);
+
+
         /// <summary>
         /// Method to get the process path
         /// </summary>

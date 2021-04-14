@@ -31,7 +31,6 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Configuration;
-using Greenshot.Helpers;
 using log4net;
 
 namespace Greenshot.Forms
@@ -44,10 +43,10 @@ namespace Greenshot.Forms
         private static readonly ILog Log = LogManager.GetLogger(typeof(AboutForm));
         private Bitmap _bitmap;
         private readonly ColorAnimator _backgroundAnimation;
-        private readonly List<RectangleAnimator> _pixels = new List<RectangleAnimator>();
-        private readonly List<Color> _colorFlow = new List<Color>();
-        private readonly List<Color> _pixelColors = new List<Color>();
-        private readonly Random _rand = new Random();
+        private readonly List<RectangleAnimator> _pixels = new();
+        private readonly List<Color> _colorFlow = new();
+        private readonly List<Color> _pixelColors = new();
+        private readonly Random _rand = new();
         private readonly Color _backColor = Color.FromArgb(61, 61, 61);
         private readonly Color _pixelColor = Color.FromArgb(138, 255, 0);
 
@@ -117,7 +116,7 @@ namespace Greenshot.Forms
         // 18 19 20 21 22 23
 
         // The order in which we draw the dots & flow the colors.
-        private readonly List<int> _flowOrder = new List<int>{ 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+        private readonly List<int> _flowOrder = new() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
         /// <summary>
         /// Cleanup all the allocated resources
@@ -177,8 +176,7 @@ namespace Greenshot.Forms
                 if (IsTerminalServerSession)
                 {
                     // No animation
-                    pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), 1, EasingType.Cubic,
-                        EasingMode.EaseIn);
+                    pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
                 }
                 else
                 {
