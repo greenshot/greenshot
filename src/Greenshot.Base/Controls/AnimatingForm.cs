@@ -34,7 +34,6 @@ namespace Greenshot.Base.Controls
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnimatingForm));
         private const int DEFAULT_VREFRESH = 60;
-        private int _vRefresh;
         private Timer _timer;
 
         /// <summary>
@@ -45,27 +44,7 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Vertical Refresh Rate
         /// </summary>
-        protected int VRefresh
-        {
-            get
-            {
-                if (_vRefresh == 0)
-                {
-                    // get te hDC of the desktop to get the V-REFRESH
-                    using var desktopHandle = SafeWindowDcHandle.FromDesktop();
-                    _vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
-                }
-
-                // A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
-                // As there is currently no know way to get the default, we guess it.
-                if (_vRefresh <= 1)
-                {
-                    _vRefresh = DEFAULT_VREFRESH;
-                }
-
-                return _vRefresh;
-            }
-        }
+        protected int VRefresh => DEFAULT_VREFRESH;
 
         /// <summary>
         /// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
