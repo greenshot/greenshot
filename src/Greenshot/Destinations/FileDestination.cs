@@ -55,12 +55,12 @@ namespace Greenshot.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            var exportInformation = new ExportInformation(Designation, Description);
             bool outputMade;
             bool overwrite;
             string fullPath;
             // Get output settings from the configuration
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
+            var outputSettings = new SurfaceOutputSettings();
 
             if (captureDetails?.Filename != null)
             {
@@ -79,7 +79,7 @@ namespace Greenshot.Destinations
 
             if (CoreConfig.OutputFilePromptQuality)
             {
-                QualityDialog qualityDialog = new QualityDialog(outputSettings);
+                var qualityDialog = new QualityDialog(outputSettings);
                 qualityDialog.ShowDialog();
             }
 

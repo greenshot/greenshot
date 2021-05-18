@@ -299,39 +299,24 @@ EndSelection:<<<<<<<4
                 return true;
             }
 
-            var fileDescriptor = (MemoryStream) dataObject.GetData("FileGroupDescriptorW");
-            var files = FileDescriptorReader.Read(fileDescriptor);
-            var fileIndex = 0;
-            foreach (var fileContentFile in files)
+            foreach (var fileData in IterateClipboardContent(dataObject))
             {
-                if ((fileContentFile.FileAttributes & FileAttributes.Directory) != 0)
-                {
-                    //Do something with directories?
-                    //Note that directories do not have FileContents
-                    //And will throw if we try to read them
-                    continue;
-                }
-
-                var fileData = FileDescriptorReader.GetFileContents(dataObject, fileIndex);
                 try
                 {
-                    //Do something with the fileContent Stream
-                    if (IsValidStream(fileData))
+                    using (ImageHelper.FromStream(fileData))
                     {
-                        fileData.Position = 0;
-                        using (ImageHelper.FromStream(fileData))
-                        {
-                            // If we get here, there is an image
-                            return true;
-                        }
+                        // If we get here, there is an image
+                        return true;
                     }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
                 }
                 finally
                 {
                     fileData?.Dispose();
                 }
-
-                fileIndex++;
             }
 
             if (dataObject.GetDataPresent(FORMAT_FILECONTENTS))
@@ -357,26 +342,114 @@ EndSelection:<<<<<<<4
 
             // Try to get the image from the HTML code
             var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
-            if (textObject != null)
+            if (textObject == null)
             {
-                var doc = new HtmlDocument();
-                doc.LoadHtml(textObject);
-                var imgNodes = doc.DocumentNode.SelectNodes("//img");
-                if (imgNodes != null)
+                return false;
+            }
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(textObject);
+            var imgNodes = doc.DocumentNode.SelectNodes("//img");
+
+            if (imgNodes == null)
+            {
+                return false;
+            }
+
+            foreach (var imgNode in imgNodes)
+            {
+                var srcAttribute = imgNode.Attributes["src"];
+                var imageUrl = srcAttribute.Value;
+                if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    foreach (var imgNode in imgNodes)
-                    {
-                        var srcAttribute = imgNode.Attributes["src"];
-                        var imageUrl = srcAttribute.Value;
-                        if (!string.IsNullOrEmpty(imageUrl))
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Iterate the clipboard content
+        /// </summary>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>IEnumerable{MemoryStream}</returns>
+        private static IEnumerable<MemoryStream> IterateClipboardContent(IDataObject dataObject)
+        {
+            var fileDescriptors = AvailableFileDescriptors(dataObject);
+            if (fileDescriptors == null) yield break;
+
+            foreach (var fileData in IterateFileDescriptors(fileDescriptors, dataObject))
+            {
+                yield return fileData;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve the FileDescriptor on the clipboard
+        /// </summary>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>IEnumerable{FileDescriptor}</returns>
+        private static IEnumerable<FileDescriptor> AvailableFileDescriptors(IDataObject dataObject)
+        {
+            var fileDescriptor = (MemoryStream) dataObject.GetData("FileGroupDescriptorW");
+            if (fileDescriptor != null)
+            {
+                try
+                {
+                    return FileDescriptorReader.Read(fileDescriptor);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't use FileDescriptorReader.", ex);
+                }
+            }
+
+            return Enumerable.Empty<FileDescriptor>();
+        }
+
+        /// <summary>
+        /// Iterate the file descriptors on the clipboard
+        /// </summary>
+        /// <param name="fileDescriptors">IEnumerable{FileDescriptor}</param>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>IEnumerable{MemoryStream}</returns>
+        private static IEnumerable<MemoryStream> IterateFileDescriptors(IEnumerable<FileDescriptor> fileDescriptors, IDataObject dataObject)
+        {
+            if (fileDescriptors == null)
+            {
+                yield break;
+            }
+
+            var fileIndex = 0;
+            foreach (var fileDescriptor in fileDescriptors)
+            {
+                if ((fileDescriptor.FileAttributes & FileAttributes.Directory) != 0)
+                {
+                    //Do something with directories?
+                    //Note that directories do not have FileContents
+                    //And will throw if we try to read them
+                    continue;
+                }
+
+                MemoryStream fileData = null;
+                try
+                {
+                    fileData = FileDescriptorReader.GetFileContents(dataObject, fileIndex);
+                    //Do something with the fileContent Stream
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Couldn't read file contents for {fileDescriptor.FileName}.", ex);
+                }
+                if (fileData?.Length > 0)
+                {
+                    fileData.Position = 0;
+                    yield return fileData;
+                }
+
+                fileIndex++;
+            }
         }
 
         /// <summary>
@@ -403,10 +476,10 @@ EndSelection:<<<<<<<4
         /// Simple helper to check the stream
         /// </summary>
         /// <param name="memoryStream"></param>
-        /// <returns></returns>
+        /// <returns>true if there is a valid stream</returns>
         private static bool IsValidStream(MemoryStream memoryStream)
         {
-            return memoryStream != null && memoryStream.Length > 0;
+            return memoryStream?.Length > 0;
         }
 
         /// <summary>
@@ -426,7 +499,7 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// Get all images (multiple if filenames are available) from the dataObject
+        /// Get all images (multiple if file names are available) from the dataObject
         /// Returned images must be disposed by the calling code!
         /// </summary>
         /// <param name="dataObject"></param>
@@ -442,6 +515,26 @@ EndSelection:<<<<<<<4
             }
             else
             {
+                foreach (var fileData in IterateClipboardContent(dataObject))
+                {
+                    Image image; 
+                    try
+                    {
+                        image = ImageHelper.FromStream(fileData);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Couldn't read file contents", ex);
+                        continue;
+                    }
+                    finally
+                    {
+                        fileData?.Dispose();
+                    }
+                    // If we get here, there is an image
+                    yield return image;
+                }
+
                 // check if files are supplied
                 foreach (string imageFile in GetImageFilenames(dataObject))
                 {
@@ -478,7 +571,7 @@ EndSelection:<<<<<<<4
                 string[] retrieveFormats;
 
                 // Found a weird bug, where PNG's from Outlook 2010 are clipped
-                // So I build some special logik to get the best format:
+                // So I build some special logic to get the best format:
                 if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
                 {
                     // Outlook ??
@@ -729,7 +822,7 @@ EndSelection:<<<<<<<4
         /// This method will place images to the clipboard depending on the ClipboardFormats setting.
         /// e.g. Bitmap which works with pretty much everything and type Dib for e.g. OpenOffice
         /// because OpenOffice has a bug https://qa.openoffice.org/issues/show_bug.cgi?id=85661
-        /// The Dib (Device Indenpendend Bitmap) in 32bpp actually won't work with Powerpoint 2003!
+        /// The Dib (Device Independent Bitmap) in 32bpp actually won't work with Powerpoint 2003!
         /// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
         /// For this problem the user should not use the direct paste (=Dib), but select Bitmap
         /// </summary>

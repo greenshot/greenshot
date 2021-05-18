@@ -24,8 +24,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -33,60 +31,12 @@ namespace Greenshot.Base.Core
     /// Specifies which fields are valid in a FileDescriptor Structure
     /// </summary>    
     [Flags]
-    internal enum FileDescriptorFlags : uint
+    public enum FileDescriptorFlags : uint
     {
     }
 
     internal static class FileDescriptorReader
     {
-        internal sealed class FileDescriptor
-        {
-            public FileDescriptorFlags Flags { get; set; }
-            public Guid ClassId { get; set; }
-            public SIZE Size { get; set; }
-            public POINT Point { get; set; }
-            public FileAttributes FileAttributes { get; set; }
-            public DateTime CreationTime { get; set; }
-            public DateTime LastAccessTime { get; set; }
-            public DateTime LastWriteTime { get; set; }
-            public Int64 FileSize { get; set; }
-            public string FileName { get; set; }
-
-            public FileDescriptor(BinaryReader reader)
-            {
-                //Flags
-                Flags = (FileDescriptorFlags) reader.ReadUInt32();
-                //ClassID
-                ClassId = new Guid(reader.ReadBytes(16));
-                //Size
-                Size = new SIZE(reader.ReadInt32(), reader.ReadInt32());
-                //Point
-                Point = new POINT(reader.ReadInt32(), reader.ReadInt32());
-                //FileAttributes
-                FileAttributes = (FileAttributes) reader.ReadUInt32();
-                //CreationTime
-                CreationTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
-                //LastAccessTime
-                LastAccessTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
-                //LastWriteTime
-                LastWriteTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
-                //FileSize
-                FileSize = reader.ReadInt64();
-                //FileName
-                byte[] nameBytes = reader.ReadBytes(520);
-                int i = 0;
-                while (i < nameBytes.Length)
-                {
-                    if (nameBytes[i] == 0 && nameBytes[i + 1] == 0)
-                        break;
-                    i++;
-                    i++;
-                }
-
-                FileName = Encoding.Unicode.GetString(nameBytes, 0, i);
-            }
-        }
-
         public static IEnumerable<FileDescriptor> Read(Stream fileDescriptorStream)
         {
             if (fileDescriptorStream == null)
