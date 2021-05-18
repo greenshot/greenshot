@@ -35,7 +35,6 @@ namespace Greenshot.Plugin.Photobucket
     /// <summary>
     /// This is the GreenshotPhotobucketPlugin base code
     /// </summary>
-    [Plugin("Photobucket", true)]
     public class PhotobucketPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
@@ -49,13 +48,23 @@ namespace Greenshot.Plugin.Photobucket
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing) return;
             if (_itemPlugInConfig == null) return;
             _itemPlugInConfig.Dispose();
             _itemPlugInConfig = null;
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Photobucket";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize

@@ -34,7 +34,6 @@ namespace Greenshot.Plugin.GooglePhotos
     /// <summary>
     /// This is the GooglePhotos base code
     /// </summary>
-    [Plugin("GooglePhotos", true)]
     public class GooglePhotosPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(GooglePhotosPlugin));
@@ -55,6 +54,16 @@ namespace Greenshot.Plugin.GooglePhotos
             _itemPlugInRoot.Dispose();
             _itemPlugInRoot = null;
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "GooglePhotos";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize

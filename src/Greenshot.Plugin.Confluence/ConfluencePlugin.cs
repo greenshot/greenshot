@@ -33,7 +33,6 @@ namespace Greenshot.Plugin.Confluence
     /// <summary>
     /// This is the ConfluencePlugin base code
     /// </summary>
-    [Plugin("Confluence", true)]
     public class ConfluencePlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
@@ -46,10 +45,20 @@ namespace Greenshot.Plugin.Confluence
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             //if (disposing) {}
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Confluence";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         private static void CreateConfluenceConnector()
         {

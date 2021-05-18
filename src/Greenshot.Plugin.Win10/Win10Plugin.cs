@@ -32,7 +32,6 @@ namespace Greenshot.Plugin.Win10
     /// <summary>
     /// This is the Win10Plugin
     /// </summary>
-    [Plugin("Win10", false)]
     public sealed class Win10Plugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10Plugin));
@@ -46,6 +45,16 @@ namespace Greenshot.Plugin.Win10
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Win10";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => false;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize

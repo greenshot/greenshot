@@ -34,7 +34,6 @@ namespace Greenshot.Plugin.Dropbox
     /// <summary>
     /// This is the Dropbox base code
     /// </summary>
-    [Plugin("Dropbox", true)]
     public class DropboxPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
@@ -55,6 +54,16 @@ namespace Greenshot.Plugin.Dropbox
             _itemPlugInConfig.Dispose();
             _itemPlugInConfig = null;
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Dropbox";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize

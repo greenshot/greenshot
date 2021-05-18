@@ -35,7 +35,6 @@ namespace Greenshot.Plugin.Box
     /// <summary>
     /// This is the Box base code
     /// </summary>
-    [Plugin("Box", true)]
     public class BoxPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
@@ -48,6 +47,16 @@ namespace Greenshot.Plugin.Box
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Box";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         private void Dispose(bool disposing)
         {

@@ -37,7 +37,6 @@ namespace Greenshot.Plugin.Imgur
     /// <summary>
     /// This is the ImgurPlugin code
     /// </summary>
-    [Plugin("Imgur", true)]
     public class ImgurPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
@@ -52,23 +51,31 @@ namespace Greenshot.Plugin.Imgur
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing) return;
+            if (_historyMenuItem != null)
             {
-                if (_historyMenuItem != null)
-                {
-                    _historyMenuItem.Dispose();
-                    _historyMenuItem = null;
-                }
+                _historyMenuItem.Dispose();
+                _historyMenuItem = null;
+            }
 
-                if (_itemPlugInConfig != null)
-                {
-                    _itemPlugInConfig.Dispose();
-                    _itemPlugInConfig = null;
-                }
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Dispose();
+                _itemPlugInConfig = null;
             }
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Imgur";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         private IEnumerable<IDestination> Destinations()
         {

@@ -35,7 +35,6 @@ namespace Greenshot.Plugin.Jira
     /// <summary>
     /// This is the JiraPlugin base code
     /// </summary>
-    [Plugin("Jira", true)]
     public class JiraPlugin : IGreenshotPlugin
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
@@ -47,14 +46,22 @@ namespace Greenshot.Plugin.Jira
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-                jiraConnector?.Dispose();
-            }
+            if (!disposing) return;
+            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+            jiraConnector?.Dispose();
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Jira";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize

@@ -34,7 +34,6 @@ namespace Greenshot.Plugin.ExternalCommand
     /// <summary>
     /// An Plugin to run commands after an image was written
     /// </summary>
-    [Plugin("ExternalCommand", true)]
     public class ExternalCommandPlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
@@ -48,13 +47,23 @@ namespace Greenshot.Plugin.ExternalCommand
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing) return;
             if (_itemPlugInRoot == null) return;
             _itemPlugInRoot.Dispose();
             _itemPlugInRoot = null;
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "ExternalCommand";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         private IEnumerable<IDestination> Destinations()
         {

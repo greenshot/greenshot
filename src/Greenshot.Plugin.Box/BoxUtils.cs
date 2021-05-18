@@ -67,6 +67,7 @@ namespace Greenshot.Plugin.Box
         /// <param name="title">Title of box upload</param>
         /// <param name="filename">Filename of box upload</param>
         /// <returns>url to uploaded image</returns>
+        /// TODO: Remove title und filename?
         public static string UploadToBox(SurfaceContainer image, string title, string filename)
         {
             // Fill the OAuth2Settings

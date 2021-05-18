@@ -31,7 +31,6 @@ namespace Greenshot.Plugin.Office
     /// <summary>
     /// This is the OfficePlugin base code
     /// </summary>
-    [Plugin("Office", false)]
     public class OfficePlugin : IGreenshotPlugin
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
@@ -42,10 +41,20 @@ namespace Greenshot.Plugin.Office
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             // Do nothing
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Office";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => false;
 
         private IEnumerable<IDestination> Destinations()
         {

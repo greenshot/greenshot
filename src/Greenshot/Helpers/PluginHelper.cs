@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -67,10 +66,9 @@ namespace Greenshot.Helpers
         {
             foreach (var plugin in SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>())
             {
-                var pluginAttribute = plugin.GetType().GetCustomAttribute<PluginAttribute>();
-                var item = new ListViewItem(pluginAttribute.Name)
+                var item = new ListViewItem(plugin.Name)
                 {
-                    Tag = pluginAttribute
+                    Tag = plugin
                 };
                 var assembly = plugin.GetType().Assembly;
 
@@ -89,8 +87,8 @@ namespace Greenshot.Helpers
                 return false;
             }
 
-            var pluginAttribute = (PluginAttribute) listView.SelectedItems[0].Tag;
-            return pluginAttribute != null && pluginAttribute.Configurable;
+            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            return greenshotPlugin?.IsConfigurable == true;
         }
 
         public void ConfigureSelectedItem(ListView listView)
@@ -100,14 +98,15 @@ namespace Greenshot.Helpers
                 return;
             }
 
-            var pluginAttribute = (PluginAttribute) listView.SelectedItems[0].Tag;
-            if (pluginAttribute == null)
+            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            if (greenshotPlugin == null)
             {
                 return;
             }
 
-            var plugin = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().FirstOrDefault(p =>
-                p.GetType().GetCustomAttribute<PluginAttribute>().Name == pluginAttribute.Name);
+            var plugin = SimpleServiceProvider.Current
+                .GetAllInstances<IGreenshotPlugin>()
+                .FirstOrDefault(p => p.Name == greenshotPlugin.Name);
             plugin?.Configure();
         }
 
@@ -224,12 +223,11 @@ namespace Greenshot.Helpers
 
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
-                    var pluginAttribute = pluginEntryType.GetCustomAttribute<PluginAttribute>();
 
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginAttribute.Name))
+                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginEntryName))
                     {
                         Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
-                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, assembly.GetName().Version, pluginFile);
+                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginEntryName, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
@@ -242,7 +240,7 @@ namespace Greenshot.Helpers
                         }
                         else
                         {
-                            Log.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+                            Log.InfoFormat("Plugin {0} not initialized!", plugin.Name);
                         }
                     }
                     else

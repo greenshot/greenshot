@@ -30,13 +30,13 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
+using log4net.Config;
 
 namespace Greenshot.Plugin.Flickr
 {
     /// <summary>
     /// This is the Flickr base code
     /// </summary>
-    [Plugin("Flickr", true)]
     public class FlickrPlugin : IGreenshotPlugin
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
@@ -50,7 +50,7 @@ namespace Greenshot.Plugin.Flickr
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing)
             {
@@ -65,6 +65,16 @@ namespace Greenshot.Plugin.Flickr
             _itemPlugInConfig.Dispose();
             _itemPlugInConfig = null;
         }
+
+        /// <summary>
+        /// Name of the plugin
+        /// </summary>
+        public string Name => "Flickr";
+
+        /// <summary>
+        /// Specifies if the plugin can be configured
+        /// </summary>
+        public bool IsConfigurable => true;
 
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize
