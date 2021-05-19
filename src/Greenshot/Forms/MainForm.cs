@@ -1735,6 +1735,23 @@ namespace Greenshot.Forms
                     MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
                     oMethodInfo.Invoke(notifyIcon, null);
                     break;
+                case ClickActions.CAPTURE_CLIPBOARD:
+                    CaptureHelper.CaptureClipboard();
+                    break;
+                case ClickActions.CAPTURE_REGION:
+                    CaptureHelper.CaptureRegion(false);
+                    break;
+                case ClickActions.CAPTURE_SCREEN:
+                    CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+                    break;
+                case ClickActions.CAPTURE_WINDOW:
+                    CaptureHelper.CaptureWindowInteractive(false);
+                    break;
+                case ClickActions.OPEN_EMPTY_EDITOR:
+                    var imageEditor = new ImageEditorForm();
+                    imageEditor.Show();
+                    imageEditor.Activate();
+                    break;
             }
         }
 

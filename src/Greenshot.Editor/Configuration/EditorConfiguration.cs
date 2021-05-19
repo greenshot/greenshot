@@ -79,6 +79,10 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
         public TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
+        [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
+        public Size DefaultEditorSize { get; set; }
+
+
         public override void AfterLoad()
         {
             base.AfterLoad();

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -124,7 +125,19 @@ namespace Greenshot.Editor.Forms
             UpdateUi();
         }
 
-        public ImageEditorForm(ISurface iSurface, bool outputMade)
+        public ImageEditorForm()
+        {
+            var image = ImageHelper.CreateEmpty(EditorConfiguration.DefaultEditorSize.Width, EditorConfiguration.DefaultEditorSize.Height, PixelFormat.Format32bppArgb, Color.White, 96f, 96f);
+            ISurface surface = new Surface(image);
+            Initialize(surface, false);
+        }
+
+        public ImageEditorForm(ISurface surface, bool outputMade)
+        {
+            Initialize(surface, outputMade);
+        }
+
+        private void Initialize(ISurface surface, bool outputMade)
         {
             EditorList.Add(this);
 
@@ -162,7 +175,7 @@ namespace Greenshot.Editor.Forms
             };
 
             // init surface
-            Surface = iSurface;
+            Surface = surface;
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
 
