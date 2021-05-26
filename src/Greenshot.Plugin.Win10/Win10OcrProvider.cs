@@ -27,6 +27,8 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
@@ -39,6 +41,8 @@ namespace Greenshot.Plugin.Win10
     public class Win10OcrProvider : IOcrProvider
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProvider));
+        private const int MinWidth = 130;
+        private const int MinHeight = 130;
 
         /// <summary>
         /// Constructor, this is only debug information
@@ -62,7 +66,38 @@ namespace Greenshot.Plugin.Win10
             OcrInformation result;
             using (var imageStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
+                // We only want the background
+                var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 0, true)
+                {
+                    ReduceColors = true,
+                    SaveBackgroundOnly = true
+                };
+                // Force Grayscale output
+                outputSettings.Effects.Add(new GrayscaleEffect());
+                if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight)
+                {
+                    int addedWidth = MinWidth - surface.Image.Width;
+                    if (addedWidth < 0)
+                    {
+                        addedWidth = 0;
+                    }
+                    else
+                    {
+                        addedWidth /= 2;
+                    }
+                    int addedHeight = MinHeight - surface.Image.Height;
+                    if (addedHeight < 0)
+                    {
+                        addedHeight = 0;
+                    }
+                    else
+                    {
+                        addedHeight /= 2;
+                    }
+                    IEffect effect = new ResizeCanvasEffect(addedWidth, addedWidth, addedHeight, addedHeight);
+                    outputSettings.Effects.Add(effect);
+                }
+                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
