@@ -533,8 +533,7 @@ namespace Greenshot.Forms
 
             numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
             numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-            var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
-            numericUpdownIconSize.Value = scaledIconSize.Width / 16 * 16;
+            numericUpdownIconSize.Value = coreConfiguration.IconSize.Width;
             CheckDestinationSettings();
         }
 
