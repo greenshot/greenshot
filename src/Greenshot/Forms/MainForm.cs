@@ -517,15 +517,25 @@ namespace Greenshot.Forms
                 new EmailDestination(),
                 new PickerDestination()
             };
+            
+            bool useEditor = true;
+            if (WindowsVersion.IsWindows10OrLater)
+            {
+                int len = 250;
+                var stringBuilder = new StringBuilder(len);
+                using var proc = Process.GetCurrentProcess();
+                var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
+                if (err != 0)
+                {
+                    useEditor = false;
+                }
+            }
 
-            int len = 250;
-            var stringBuilder = new StringBuilder(len);
-            using var proc = Process.GetCurrentProcess();
-            var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
-            if (err != 0)
+            if (useEditor)
             {
                 internalDestinations.Add(new EditorDestination());
             }
+
             foreach (var internalDestination in internalDestinations)
             {
                 if (internalDestination.IsActive)
