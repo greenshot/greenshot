@@ -518,7 +518,7 @@ namespace Greenshot.Forms
                 new PickerDestination()
             };
             
-            bool useEditor = true;
+            bool useEditor = false;
             if (WindowsVersion.IsWindows10OrLater)
             {
                 int len = 250;
@@ -527,8 +527,11 @@ namespace Greenshot.Forms
                 var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
                 if (err != 0)
                 {
-                    useEditor = false;
+                    useEditor = true;
                 }
+            } else
+            {
+                useEditor = true;
             }
 
             if (useEditor)
@@ -931,7 +934,7 @@ namespace Greenshot.Forms
             CaptureHelper.CaptureRegion(true);
         }
 
-        private void CaptureFile()
+        private void CaptureFile(IDestination destination = null)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -944,7 +947,7 @@ namespace Greenshot.Forms
 
             if (File.Exists(openFileDialog.FileName))
             {
-                CaptureHelper.CaptureFile(openFileDialog.FileName);
+                CaptureHelper.CaptureFile(openFileDialog.FileName, destination);
             }
         }
 
@@ -1255,12 +1258,12 @@ namespace Greenshot.Forms
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) CaptureHelper.CaptureClipboard);
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureClipboard(); });
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) CaptureFile);
+            BeginInvoke((MethodInvoker) delegate { CaptureFile(); });
         }
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
@@ -1747,6 +1750,12 @@ namespace Greenshot.Forms
                     break;
                 case ClickActions.CAPTURE_CLIPBOARD:
                     CaptureHelper.CaptureClipboard();
+                    break;
+                case ClickActions.OPEN_CLIPBOARD_IN_EDITOR:
+                    CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+                    break;
+                case ClickActions.OPEN_FILE_IN_EDITOR:
+                    CaptureFile(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
                     break;
                 case ClickActions.CAPTURE_REGION:
                     CaptureHelper.CaptureRegion(false);

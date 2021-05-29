@@ -35,6 +35,8 @@ namespace Greenshot.Base.Core.Enums
         CAPTURE_SCREEN,
         CAPTURE_CLIPBOARD,
         CAPTURE_WINDOW,
-        OPEN_EMPTY_EDITOR
+        OPEN_EMPTY_EDITOR,
+        OPEN_FILE_IN_EDITOR,
+        OPEN_CLIPBOARD_IN_EDITOR
     }
 }

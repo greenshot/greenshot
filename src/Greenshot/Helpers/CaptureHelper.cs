@@ -93,13 +93,7 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureClipboard()
-        {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard);
-            captureHelper.MakeCapture();
-        }
-
-        public static void CaptureClipboard(IDestination destination)
+        public static void CaptureClipboard(IDestination destination = null)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard);
             if (destination != null)
@@ -173,16 +167,16 @@ namespace Greenshot.Helpers
             captureHelper.MakeCapture();
         }
 
-        public static void CaptureFile(string filename)
+        public static void CaptureFile(string filename, IDestination destination = null)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
-            captureHelper.MakeCapture(filename);
-        }
 
-        public static void CaptureFile(string filename, IDestination destination)
-        {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
-            captureHelper.AddDestination(destination).MakeCapture(filename);
+            if (destination != null)
+            {
+                captureHelper.AddDestination(destination);
+            }
+
+            captureHelper.MakeCapture(filename);
         }
 
         public static void ImportCapture(ICapture captureToImport)
