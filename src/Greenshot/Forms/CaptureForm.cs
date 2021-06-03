@@ -36,6 +36,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Base.UnmanagedHelpers.Enums;
 using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Forms
@@ -111,7 +112,8 @@ namespace Greenshot.Forms
             get
             {
                 CreateParams createParams = base.CreateParams;
-                createParams.ExStyle |= 0x02000000;
+                createParams.ExStyle |= (int)ExtendedWindowStyleFlags.WS_EX_COMPOSITED;
+                createParams.Style = (int)WindowStyleFlags.WS_POPUP;
                 return createParams;
             }
         }
