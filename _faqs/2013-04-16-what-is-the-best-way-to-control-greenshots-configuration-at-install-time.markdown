@@ -5,7 +5,7 @@ published: true
 title: How can I control Greenshot's configuration during installation and beyond
 # override permalink for to keep old URLs intact
 permalink: /faq/what-is-the-best-way-to-control-greenshots-configuration-at-install-time/
-tags: []
+tags: [uses_alerts]
 
 ---
 
@@ -30,7 +30,13 @@ Greenshot knows of 3 different files, which are loaded in the following order:
 2. greenshot.ini: this is the normal file, with all the settings of the user, which is written by Greenshot. This overrules the settings in the greenshot-defaults.ini file.
 3. greenshot-fixed.ini: has settings which will overrule all settings in the files above.
 
-Greenshot will look for every mentioned file, in the described order, first in the same location as the executable (e.g. installation directory) and if there is not there than in %APPDATA%\Greenshot (e.g. ```C:\Users\%USERNAME%\AppData\Roaming\Greenshot\```).
+Greenshot will look for every mentioned file, in the described order, first in the same location as the executable (e.g. installation directory) and if it is not there than in the default location %APPDATA%\Greenshot (e.g. ```C:\Users\%USERNAME%\AppData\Roaming\Greenshot\```).
+
+<div id="note" class="alert alert-danger" role="alert">
+<B>Important note:</B><P>
+Greenshot needs to be able to write to the <code>greenshot.ini</code> to work properly. As the running process (greenshot.exe) should not have write permissions to the program files directories, it doesn't make sense to copy a <code>greenshot.ini</code> there. We do advice you to provide the <code>greenshot-defaults.ini</code> and <code>greenshot-fixed.ini</code> in that directory, so they cannot be changed. Let Greenshot itself create the <code>greenshot.ini</code> to the default location, alternatively you can copy a preconfigured <code>greenshot.ini</code> yourself to the default location.
+</P>
+</div>
 
 The configuration is build from zero, setting for setting, by using the following 4 steps:
 
@@ -40,6 +46,7 @@ The configuration is build from zero, setting for setting, by using the followin
 4. If a greenshot-fixed.ini was found, and the setting can be found in there, the value from 3 is overwritten.
 
 Greenshot will use the resulting setting, and when every single setting in the complete configuration is processed it will write the complete configuration to it's greenshot.ini file (and only there).
+
 
 Let's look at a use-case which was asked for a lot of times:
 For instance you want to rollout Greenshot in your company and you want to make sure the user doesn't need to select the language (which is asked if nothing was set)?
