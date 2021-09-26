@@ -56,6 +56,7 @@ namespace Greenshot.Editor.Drawing
         {
             FieldChanged += HighlightContainer_OnFieldChanged;
             ConfigurePreparedFilters();
+            CreateDefaultAdorners();
         }
 
         protected void HighlightContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
