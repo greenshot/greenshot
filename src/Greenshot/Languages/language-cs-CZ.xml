@@ -9,10 +9,11 @@
 Greenshot je ABSOLUTNĚ BEZ ZÁRUKY. Toto je svobodný software, můžete jej dále šířit za určitých podmínek.
 Podrobnosti o GNU General Public License:</resource>
 		<resource name="about_title">O programu Greenshot</resource>
-		<resource name="about_translation">Překlad: Zdeněk Chalupský &lt;chalzd@gmail.com&gt;. Korektura: Petr Toman</resource>
+		<resource name="about_translation">Překlad: Zdeněk Chalupský &lt;chalzd@gmail.com&gt; a Svatopluk Vít. Korektura: Petr Toman</resource>
 		<resource name="application_title">Greenshot - revoluční utilita pro snímání obrazovky</resource>
 		<resource name="bugreport_cancel">Zavřít</resource>
 		<resource name="bugreport_info">Omlouváme se, ale došlo k neočekávané chybě.
+
 Dobrá zpráva: můžete nám pomoci odstranit chybu, když o ní podáte hlášení.
 Navštivte prosím níže uvedenou adresu, vytvořte nové hlášení o chybě a vložte popis chyby.
 
@@ -232,14 +233,17 @@ ${hh} hodina, 2 číslice
 ${mm} minuta, 2 číslice
 ${ss} sekunda, 2 číslice
 ${NUM} počítadlo, 6 číslic
+${RRR...} random alphanumerics, same length as 'R's
 ${title} titulek okna
 ${user} uživatel Windows
 ${domain} doména Windows 
 ${hostname} název počítače
 
 Složky také můžete vytvářet dynamicky pomocí zpětného lomítka (symbol \).
-Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} vytvoří ve výchozím úložišti složku pro dnešní den, např. 2008-06-29, a název souboru snímku bude odvozen od aktuálního času, např. 11_58_32 (plus rozšíření uvedené v nastavení).</resource>
-		<resource name="settings_network">Síť a aktualizace</resource>
+Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
+vytvoří ve výchozím úložišti složku pro dnešní den, např. 2008-06-29, a název souboru snímku bude odvozen od aktuálního času, 
+např. 11_58_32 (plus rozšíření uvedené v nastavení).</resource>
+	        <resource name="settings_network">Síť a aktualizace</resource>
 		<resource name="settings_output">Výstup</resource>
 		<resource name="settings_playsound">Přehrát zvuk uzávěrky fotoaparátu</resource>
 		<resource name="settings_plugins">Pluginy</resource>		
