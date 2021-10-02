@@ -241,7 +241,8 @@ namespace Greenshot.Editor.Forms
                     Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
                 }
             }
-
+            TornEdgesToolStripMenuItemMouseUp(null, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+            AddDropshadowToolStripMenuItemMouseUp(null, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
             Activate();
             WindowDetails.ToForeground(Handle);
         }
