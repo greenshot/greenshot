@@ -215,7 +215,7 @@ Name: startup; Description: {cm:startup}
 dexfranconia=Frängisch (Deutsch)
 arSY=العربية
 caCA=Català
-csCZ=Ceština
+csCZ=Čeština
 daDK=Dansk
 elGR=ελληνικά
 esES=Español
