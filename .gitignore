@@ -215,3 +215,4 @@ ModelManifest.xml
 
 # Rider files
 .idea
+*.exe

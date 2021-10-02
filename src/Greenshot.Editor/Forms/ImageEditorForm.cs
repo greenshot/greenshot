@@ -241,8 +241,10 @@ namespace Greenshot.Editor.Forms
                     Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
                 }
             }
-            TornEdgesToolStripMenuItemMouseUp(null, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
-            AddDropshadowToolStripMenuItemMouseUp(null, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+            _surface.ApplyBitmapEffect(EditorConfiguration.TornEdgeEffectSettings);
+            UpdateUndoRedoSurfaceDependencies();
+            _surface.ApplyBitmapEffect(EditorConfiguration.DropShadowEffectSettings);
+            UpdateUndoRedoSurfaceDependencies();
             Activate();
             WindowDetails.ToForeground(Handle);
         }
