@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -35,6 +36,17 @@ namespace Greenshot.Editor.Drawing
     public class EllipseContainer : DrawableContainer
     {
         public EllipseContainer(Surface parent) : base(parent)
+        {
+            Init();
+        }
+
+        protected override void OnDeserialized(StreamingContext streamingContext)
+        {
+            base.OnDeserialized(streamingContext);
+            Init();
+        }
+
+        private void Init()
         {
             CreateDefaultAdorners();
         }
