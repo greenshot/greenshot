@@ -169,20 +169,20 @@ Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: none; ValueName: {#Ex
 
 ; Create the startup entries if requested to do so
 ; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
 ; HKEY_LOCAL_MACHINE - for all users when admin
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
 
 ; Register our own filetype for all users
 ; HKEY_LOCAL_USER - for current user only
 Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 ; HKEY_LOCAL_MACHINE - for all users when admin
 Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 
 [Icons]
