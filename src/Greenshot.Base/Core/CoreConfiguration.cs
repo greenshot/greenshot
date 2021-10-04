@@ -559,11 +559,6 @@ namespace Greenshot.Base.Core
                 {
                     ExcludeDestinations.Remove("OneNote");
                 }
-                else
-                {
-                    // TODO: Remove with the release
-                    ExcludeDestinations.Remove("OneNote");
-                }
             }
 
             if (OutputDestinations == null)

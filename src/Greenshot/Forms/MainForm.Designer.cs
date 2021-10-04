@@ -223,7 +223,7 @@ namespace Greenshot.Forms {
 			this.contextmenu_help.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_help.Image")));
 			this.contextmenu_help.Name = "contextmenu_help";
 			this.contextmenu_help.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_help.Click += new System.EventHandler(this.Contextmenu_helpClick);
+			this.contextmenu_help.Click += new System.EventHandler(this.Contextmenu_HelpClick);
 			// 
 			// contextmenu_donate
 			// 
@@ -248,7 +248,7 @@ namespace Greenshot.Forms {
 			this.contextmenu_exit.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_exit.Image")));
 			this.contextmenu_exit.Name = "contextmenu_exit";
 			this.contextmenu_exit.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_exit.Click += new System.EventHandler(this.Contextmenu_exitClick);
+			this.contextmenu_exit.Click += new System.EventHandler(this.Contextmenu_ExitClick);
 			// 
 			// notifyIcon
 			// 

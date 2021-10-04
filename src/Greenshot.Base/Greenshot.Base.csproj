@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.10" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.33" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.11" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.37" />
     <PackageReference Include="log4net" version="2.0.12" />
-    <PackageReference Include="Svg" Version="3.2.3" />
+    <PackageReference Include="Svg" Version="3.3.0" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

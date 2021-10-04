@@ -1122,12 +1122,18 @@ namespace Greenshot.Forms
                 Rectangle allScreensBounds = WindowCapture.GetScreenBounds();
 
                 var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-                captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen); }); };
+                captureScreenItem.Click += delegate {
+                    BeginInvoke((MethodInvoker) delegate {
+                        CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+                    });
+                };
+
                 captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
                 foreach (Screen screen in Screen.AllScreens)
                 {
                     Screen screenToCapture = screen;
-                    string deviceAlignment = string.Empty;
+                    string deviceAlignment = screenToCapture.DeviceName;
+                    
                     if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
                     {
                         deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
@@ -1147,7 +1153,13 @@ namespace Greenshot.Forms
                     }
 
                     captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-                    captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false, screenToCapture.Bounds); }); };
+                    captureScreenItem.Click += delegate
+                    {
+                        BeginInvoke((MethodInvoker) delegate
+                        {
+                            CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
+                        });
+                    };
                     captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
                 }
             }
@@ -1426,7 +1438,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_helpClick(object sender, EventArgs e)
+        private void Contextmenu_HelpClick(object sender, EventArgs e)
         {
             HelpFileLoader.LoadHelp();
         }
@@ -1436,7 +1448,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_exitClick(object sender, EventArgs e)
+        private void Contextmenu_ExitClick(object sender, EventArgs e)
         {
             Exit();
         }
