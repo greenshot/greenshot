@@ -54,7 +54,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_capturelastregion">Zuletzt gewählten Bereich abfotografieren</resource>
 		<resource name="contextmenu_capturewindow">Fenster abfotografieren</resource>
 		<resource name="contextmenu_capturewindowfromlist">Fenster aus Liste abfotografieren</resource>
-        <resource name="contextmenu_discard">Verwerfen und schließen</resource>
+		<resource name="contextmenu_discard">Verwerfen und schließen</resource>
 		<resource name="contextmenu_donate">Greenshot unterstützen</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>
@@ -96,9 +96,9 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_cursortool">Auswahlwerkzeug (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Ausschneiden</resource>
 		<resource name="editor_deleteelement">Gewähltes Element löschen</resource>
-        <resource name="editor_discard">Möchten Sie den Screenshot löschen und den Editor schließen?</resource>
-        <resource name="editor_discard_title">Bild verwerfen?</resource>
-        <resource name="editor_downonelevel">Eine Ebene nach hinten</resource>
+		<resource name="editor_discard">Möchten Sie den Screenshot löschen und den Editor schließen?</resource>
+		<resource name="editor_discard_title">Bild verwerfen?</resource>
+		<resource name="editor_downonelevel">Eine Ebene nach hinten</resource>
 		<resource name="editor_downtobottom">In den Hintergrund</resource>
 		<resource name="editor_drawarrow">Pfeil zeichnen (A)</resource>
 		<resource name="editor_drawellipse">Ellipse zeichnen (E)</resource>
