@@ -867,6 +867,41 @@ namespace Greenshot.Editor.Forms
             HelpToolStripMenuItem1Click(sender, e);
         }
 
+        private void BtnDiscardClick(object sender, EventArgs e)
+        {
+            // Make sure the editor is visible
+            WindowDetails.ToForeground(Handle);
+
+            DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_discard), Language.GetString(LangKey.editor_discard_title), MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (result.Equals(DialogResult.No))
+            {
+                return;
+            }
+
+            if (result.Equals(DialogResult.Yes))
+            {
+                _surface.Modified = false;
+
+                if (_surface.LastSaveFullPath != null)
+                {
+                    if (File.Exists(_surface.LastSaveFullPath))
+                    {
+                        try
+                        {
+                            File.Delete(_surface.LastSaveFullPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Do nothing.
+                        }
+                    }
+                }
+
+                Close();
+            }
+        }
+
         private void ImageEditorFormActivated(object sender, EventArgs e)
         {
             UpdateClipboardSurfaceDependencies();
@@ -934,6 +969,9 @@ namespace Greenshot.Editor.Forms
                 {
                     case Keys.Escape:
                         BtnCursorClick(sender, e);
+                        break;
+                    case Keys.Delete: // Discard changes, delete file and close.
+                        BtnDiscardClick(sender, e);
                         break;
                     case Keys.R:
                         BtnRectClick(sender, e);
