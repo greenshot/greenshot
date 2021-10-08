@@ -78,7 +78,7 @@
 		<resource name="editor_arrowheads_none">Κανένα</resource>
 		<resource name="editor_arrowheads_start">Σημείο έναρξης</resource>
 		<resource name="editor_autocrop">Αυτόματη Περικοπή</resource>
-		<resource name="editor_backcolor">Γέμισμα</resource>
+		<resource name="editor_backcolor">Γέμισμα (0-9)</resource>
 		<resource name="editor_blur_radius">Θόλωμα</resource>
 		<resource name="editor_bold">Έντονα</resource>
 		<resource name="editor_border">Περίγραμμα</resource>
@@ -115,7 +115,7 @@
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Αρχείο</resource>
 		<resource name="editor_fontsize">Μέγεθος</resource>
-		<resource name="editor_forecolor">Χρώμα γραμμής</resource>
+		<resource name="editor_forecolor">Χρώμα γραμμής (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Απόχρωση του γκρι</resource>
 		<resource name="editor_highlight_area">Επισήμανση περιοχής</resource>
 		<resource name="editor_highlight_grayscale">Απόχρωση του γκρι</resource>
@@ -151,7 +151,7 @@
 		<resource name="editor_saveas">Αποθήκευση ως...</resource>
 		<resource name="editor_selectall">Επιλογή όλων</resource>
 		<resource name="editor_senttoprinter">Η εκτύπωση στάλθηκε στον '{0}'.</resource>
-		<resource name="editor_shadow">Σκιά</resource>
+		<resource name="editor_shadow">Σκιά (/)</resource>
 		<resource name="editor_storedtoclipboard">Η εικόνα αποθηκεύτηκε στο πρόχειρο.</resource>
 		<resource name="editor_thickness">Πάχος γραμμής</resource>
 		<resource name="editor_title">Επεξεργαστής εικόνας του Greenshot</resource>

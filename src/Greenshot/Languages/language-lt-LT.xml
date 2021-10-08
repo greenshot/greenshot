@@ -47,7 +47,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_arrowheads_end">Pabaigoje</resource>
 		<resource name="editor_arrowheads_none">Ne</resource>
 		<resource name="editor_arrowheads_start">Pradžioje</resource>
-		<resource name="editor_backcolor">Fono spalva</resource>
+		<resource name="editor_backcolor">Fono spalva (0-9)</resource>
 		<resource name="editor_blur_radius">Išliejimo spindulys</resource>
 		<resource name="editor_bold">Pastorintas</resource>
 		<resource name="editor_brightness">Ryškumas</resource>
@@ -77,7 +77,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_email">Išsiųsti elektroninu paštu</resource>
 		<resource name="editor_file">Failas</resource>
 		<resource name="editor_fontsize">Dydis</resource>
-		<resource name="editor_forecolor">Apvado spalva</resource>
+		<resource name="editor_forecolor">Apvado spalva (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_highlight_area">Skaidrus tarp blankaus (I)</resource>
 		<resource name="editor_highlight_grayscale">Zonos išskyrimas</resource>
 		<resource name="editor_highlight_magnify">Išdidinimas</resource>
@@ -102,7 +102,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_saveas">Išsaugoti kaip...</resource>
 		<resource name="editor_selectall">išskirti viską</resource>
 		<resource name="editor_senttoprinter">Spausdinys nusiųstas į {0}.</resource>
-		<resource name="editor_shadow">Šešėlis</resource>
+		<resource name="editor_shadow">Šešėlis (/)</resource>
 		<resource name="editor_image_shadow">Šešėlis</resource>
 		<resource name="editor_storedtoclipboard">Vaizdas patalpintas į iškarpinių podelį.</resource>
 		<resource name="editor_thickness">Apvado storis</resource>

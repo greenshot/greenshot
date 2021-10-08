@@ -69,7 +69,7 @@
 		<resource name="editor_arrowheads_none">不显示箭头</resource>
 		<resource name="editor_arrowheads_start">箭头在起点</resource>
 		<resource name="editor_autocrop">自动裁剪</resource>
-		<resource name="editor_backcolor">填充颜色</resource>
+		<resource name="editor_backcolor">填充颜色 (0-9)</resource>
 		<resource name="editor_blur_radius">模糊半径</resource>
 		<resource name="editor_bold">粗体</resource>
 		<resource name="editor_border">边框</resource>
@@ -106,7 +106,7 @@
 		<resource name="editor_email">编辑E-Mail</resource>
 		<resource name="editor_file">文件</resource>
 		<resource name="editor_fontsize">字体大小</resource>
-		<resource name="editor_forecolor">线条颜色</resource>
+		<resource name="editor_forecolor">线条颜色 (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">灰度</resource>
 		<resource name="editor_highlight_area">高亮区域</resource>
 		<resource name="editor_highlight_grayscale">灰阶</resource>
@@ -142,7 +142,7 @@
 		<resource name="editor_resize_percent">百分比</resource>
 		<resource name="editor_selectall">全选</resource>
 		<resource name="editor_senttoprinter">已使用 '{0}' 进行打印。</resource>
-		<resource name="editor_shadow">阴影</resource>
+		<resource name="editor_shadow">阴影 (/)</resource>
 		<resource name="editor_storedtoclipboard">图片已保存到剪贴板。</resource>
 		<resource name="editor_thickness">线条粗细</resource>
 		<resource name="editor_title">Greenshot 图片编辑器</resource>

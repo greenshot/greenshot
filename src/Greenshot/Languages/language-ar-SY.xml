@@ -48,7 +48,7 @@
 		<resource name="editor_arrowheads_end">نقطة النهاية</resource>
 		<resource name="editor_arrowheads_none">لاشيء</resource>
 		<resource name="editor_arrowheads_start">نقطة البداية</resource>
-		<resource name="editor_backcolor">لون التعبئة</resource>
+		<resource name="editor_backcolor">لون التعبئة (0-9)</resource>
 		<resource name="editor_blur_radius">قطر التأثير الضبابي</resource>
 		<resource name="editor_bold">عريض</resource>
 		<resource name="editor_brightness">السطوع</resource>
@@ -78,7 +78,7 @@
 		<resource name="editor_email">البريد الالكتروني</resource>
 		<resource name="editor_file">ملف</resource>
 		<resource name="editor_fontsize">الحجم</resource>
-		<resource name="editor_forecolor">لون الخط</resource>
+		<resource name="editor_forecolor">لون الخط (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_highlight_area">منطقة التظليل</resource>
 		<resource name="editor_highlight_grayscale">مقياس اللون الرمادي</resource>
 		<resource name="editor_highlight_magnify">تكبير</resource>
@@ -103,7 +103,7 @@
 		<resource name="editor_saveas">احفظ باسم...</resource>
 		<resource name="editor_selectall">حدد الكل</resource>
 		<resource name="editor_senttoprinter">امر الطباعة ارسل الى '{0}'.</resource>
-		<resource name="editor_shadow">الظل</resource>
+		<resource name="editor_shadow">الظل (/)</resource>
 		<resource name="editor_image_shadow">الظل</resource>
 		<resource name="editor_storedtoclipboard">ثم حفظ الصورة في الذاكرة.</resource>
 		<resource name="editor_thickness">سماكة الخط</resource>

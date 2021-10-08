@@ -63,7 +63,7 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_arrowheads_none">Nič</resource>
 		<resource name="editor_arrowheads_start">Začetek</resource>
 		<resource name="editor_autocrop">Samodejno obreži</resource>
-		<resource name="editor_backcolor">Zapolni z barvo</resource>
+		<resource name="editor_backcolor">Zapolni z barvo (0-9)</resource>
 		<resource name="editor_blur_radius">Blur radija</resource>
 		<resource name="editor_bold">Krepko</resource>
 		<resource name="editor_border">Obroba</resource>
@@ -96,7 +96,7 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_email">E-pošta</resource>
 		<resource name="editor_file">Datoteka</resource>
 		<resource name="editor_fontsize">Velikost</resource>
-		<resource name="editor_forecolor">Barva črte</resource>
+		<resource name="editor_forecolor">Barva črte (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Črno-belo</resource>
 		<resource name="editor_highlight_area">Označi področje</resource>
 		<resource name="editor_highlight_grayscale">Označi črno-belo</resource>
@@ -130,7 +130,7 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_saveas">Shrani kot...</resource>
 		<resource name="editor_selectall">Izberi vse</resource>
 		<resource name="editor_senttoprinter">Tiskanje na '{0}'.</resource>
-		<resource name="editor_shadow">Spusti senco</resource>
+		<resource name="editor_shadow">Spusti senco (/)</resource>
 		<resource name="editor_storedtoclipboard">Slika shranjena na odložišče.</resource>
 		<resource name="editor_thickness">Debelina črte</resource>
 		<resource name="editor_title">Greenshot urejevalnik izrezkov</resource>

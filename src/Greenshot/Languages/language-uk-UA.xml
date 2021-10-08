@@ -77,7 +77,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="editor_arrowheads_none">Немає</resource>
 		<resource name="editor_arrowheads_start">На початку</resource>
 		<resource name="editor_autocrop">Автоматичне обрізання</resource>
-		<resource name="editor_backcolor">Колір заливки</resource>
+		<resource name="editor_backcolor">Колір заливки (0-9)</resource>
 		<resource name="editor_blur_radius">Радіус розмиття</resource>
 		<resource name="editor_bold">Жирний</resource>
 		<resource name="editor_border">Межа</resource>
@@ -110,7 +110,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="editor_email">Ел. пошта</resource>
 		<resource name="editor_file">Файл</resource>
 		<resource name="editor_fontsize">Розмір</resource>
-		<resource name="editor_forecolor">Колір лінії</resource>
+		<resource name="editor_forecolor">Колір лінії (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Відтінки сірого</resource>
 		<resource name="editor_highlight_area">Підсвічення області</resource>
 		<resource name="editor_highlight_grayscale">Відтінки сірого</resource>
@@ -146,7 +146,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="editor_saveas">Зберегти як...</resource>
 		<resource name="editor_selectall">Вибрати все</resource>
 		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
-		<resource name="editor_shadow">Тінь</resource>
+		<resource name="editor_shadow">Тінь (/)</resource>
 		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
 		<resource name="editor_thickness">Товщина лінії</resource>
 		<resource name="editor_title">Редактор зображень Greenshot</resource>

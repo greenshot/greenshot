@@ -230,6 +230,10 @@ namespace Greenshot.Editor.Forms
                 _surface.DrawingModeChanged += Surface_DrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
                 _surface.SurfaceMessage += SurfaceMessageReceived;
+                _surface.ForegroundColorChanged += ForegroundColorChanged;
+                _surface.BackgroundColorChanged += BackgroundColorChanged;
+                _surface.LineThicknessChanged += LineThicknessChanged;
+                _surface.ShadowChanged += ShadowChanged;
                 _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
                 SurfaceSizeChanged(Surface, null);
 
@@ -496,6 +500,46 @@ namespace Greenshot.Editor.Forms
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// This is called when the foreground color of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
+        {
+	        btnLineColor.SelectedColor = eventArgs.Color;
+        }
+        
+        /// <summary>
+        /// This is called when the background color of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
+        {
+	        btnFillColor.SelectedColor = eventArgs.Color;
+        }
+        
+        /// <summary>
+        /// This is called when the line thickness of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void LineThicknessChanged(object sender, SurfaceLineThicknessEventArgs eventArgs)
+        {
+	        lineThicknessUpDown.Value = eventArgs.Thickness;
+        }
+        
+        /// <summary>
+        /// This is called when the shadow of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void ShadowChanged(object sender, SurfaceShadowEventArgs eventArgs)
+        {
+	        shadowButton.Checked = eventArgs.HasShadow;
         }
 
         /// <summary>

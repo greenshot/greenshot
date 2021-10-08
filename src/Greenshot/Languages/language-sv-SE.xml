@@ -78,7 +78,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_arrowheads_none">Inget</resource>
 		<resource name="editor_arrowheads_start">Startpunkt</resource>
 		<resource name="editor_autocrop">Autobeskärning</resource>
-		<resource name="editor_backcolor">Fyllnadsfärg</resource>
+		<resource name="editor_backcolor">Fyllnadsfärg (0-9)</resource>
 		<resource name="editor_blur_radius">Oskärpans styrka</resource>
 		<resource name="editor_bold">Fetstil</resource>
 		<resource name="editor_border">Kantlinje</resource>
@@ -111,7 +111,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_email">E-post</resource>
 		<resource name="editor_file">Arkiv</resource>
 		<resource name="editor_fontsize">Storlek</resource>
-		<resource name="editor_forecolor">Linjefärg</resource>
+		<resource name="editor_forecolor">Linjefärg (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Gråskala</resource>
 		<resource name="editor_highlight_area">Framhäv område</resource>
 		<resource name="editor_highlight_grayscale">Gråskala</resource>
@@ -147,7 +147,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_saveas">Spara som...</resource>
 		<resource name="editor_selectall">Markera allt</resource>
 		<resource name="editor_senttoprinter">Utskriften skickades till '{0}'.</resource>
-		<resource name="editor_shadow">Skugga</resource>
+		<resource name="editor_shadow">Skugga (/)</resource>
 		<resource name="editor_storedtoclipboard">Bilden sparades i urklipp.</resource>
 		<resource name="editor_thickness">Linjetjocklek</resource>
 		<resource name="editor_title">Greenshot bildredigerare</resource>

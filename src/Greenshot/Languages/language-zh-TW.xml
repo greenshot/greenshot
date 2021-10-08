@@ -77,7 +77,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="editor_arrowheads_none">無</resource>
 		<resource name="editor_arrowheads_start">起點</resource>
 		<resource name="editor_autocrop">自動裁剪</resource>
-		<resource name="editor_backcolor">填色</resource>
+		<resource name="editor_backcolor">填色 (0-9)</resource>
 		<resource name="editor_blur_radius">模糊半徑</resource>
 		<resource name="editor_bold">粗體</resource>
 		<resource name="editor_border">框線</resource>
@@ -114,7 +114,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="editor_email">電子郵件</resource>
 		<resource name="editor_file">檔案</resource>
 		<resource name="editor_fontsize">大小</resource>
-		<resource name="editor_forecolor">直線色彩</resource>
+		<resource name="editor_forecolor">直線色彩 (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">灰階</resource>
 		<resource name="editor_highlight_area">標示區域</resource>
 		<resource name="editor_highlight_grayscale">灰階</resource>
@@ -150,7 +150,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="editor_saveas">另存新檔...</resource>
 		<resource name="editor_selectall">全選</resource>
 		<resource name="editor_senttoprinter">列印工作已傳送到「{0}」。</resource>
-		<resource name="editor_shadow">陰影</resource>
+		<resource name="editor_shadow">陰影 (/)</resource>
 		<resource name="editor_storedtoclipboard">圖片已儲存到剪貼簿。</resource>
 		<resource name="editor_thickness">直線粗細</resource>
 		<resource name="editor_title">Greenshot 圖片編輯器</resource>

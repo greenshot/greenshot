@@ -44,7 +44,7 @@
 		<resource name="editor_arrowheads_end">Điểm cuối</resource>
 		<resource name="editor_arrowheads_none">không</resource>
 		<resource name="editor_arrowheads_start">Điểm đầu</resource>
-		<resource name="editor_backcolor">Tô đè</resource>
+		<resource name="editor_backcolor">Tô đè (0-9)</resource>
 		<resource name="editor_blur_radius">Bán kính blur</resource>
 		<resource name="editor_bold">Chữ đậm</resource>
 		<resource name="editor_brightness">Độ sáng</resource>
@@ -74,7 +74,7 @@
 		<resource name="editor_email">Email</resource>
 		<resource name="editor_file">Tệp</resource>
 		<resource name="editor_fontsize">Cỡ</resource>
-		<resource name="editor_forecolor">Màu dòng kẻ</resource>
+		<resource name="editor_forecolor">Màu dòng kẻ (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_highlight_area">Tô sáng vùng</resource>
 		<resource name="editor_highlight_grayscale">tô xám</resource>
 		<resource name="editor_highlight_magnify">phóng to</resource>
@@ -99,7 +99,7 @@
 		<resource name="editor_saveas">Lưu thành tệp...</resource>
 		<resource name="editor_selectall">Chọn tất cả</resource>
 		<resource name="editor_senttoprinter">Đã gửi yêu cầu in'{0}'.</resource>
-		<resource name="editor_shadow">Đổ bóng</resource>
+		<resource name="editor_shadow">Đổ bóng (/)</resource>
 		<resource name="editor_image_shadow">Đổ bóng</resource>
 		<resource name="editor_storedtoclipboard">Đã chép ảnh vào clipboard.</resource>
 		<resource name="editor_thickness">Độ dày của đường kẻ</resource>

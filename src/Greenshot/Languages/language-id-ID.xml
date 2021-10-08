@@ -77,7 +77,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_arrowheads_none">Nihil</resource>
 		<resource name="editor_arrowheads_start">Titik awal</resource>
 		<resource name="editor_autocrop">Auto potong</resource>
-		<resource name="editor_backcolor">Warna pengisi</resource>
+		<resource name="editor_backcolor">Warna pengisi (0-9)</resource>
 		<resource name="editor_blur_radius">Blur radius</resource>
 		<resource name="editor_bold">Tebal</resource>
 		<resource name="editor_border">Batas</resource>
@@ -115,7 +115,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Berkas</resource>
 		<resource name="editor_fontsize">Ukuran</resource>
-		<resource name="editor_forecolor">Warna garis</resource>
+		<resource name="editor_forecolor">Warna garis (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Keabu-abuan</resource>
 		<resource name="editor_highlight_area">Tandai area</resource>
 		<resource name="editor_highlight_grayscale">Keabu-abuan</resource>
@@ -156,7 +156,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_saveas">Simpan sebagai...</resource>
 		<resource name="editor_selectall">Pilih semua</resource>
 		<resource name="editor_senttoprinter">Cetakan dikirim ke '{0}'.</resource>
-		<resource name="editor_shadow">Bayangan</resource>
+		<resource name="editor_shadow">Bayangan (/)</resource>
 		<resource name="editor_speechbubble">Buat kotak dialog</resource>
 		<resource name="editor_storedtoclipboard">Gambar tersimpan di papan klip.</resource>
 		<resource name="editor_thickness">Ketebalan garis</resource>

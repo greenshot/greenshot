@@ -77,7 +77,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_arrowheads_none">없음</resource>
 		<resource name="editor_arrowheads_start">시작점</resource>
 		<resource name="editor_autocrop">자동 잘라내기</resource>
-		<resource name="editor_backcolor">채움 색상</resource>
+		<resource name="editor_backcolor">채움 색상 (0-9)</resource>
 		<resource name="editor_blur_radius">흐림 반경</resource>
 		<resource name="editor_bold">진하게</resource>
 		<resource name="editor_border">경계</resource>
@@ -110,7 +110,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_email">이메일</resource>
 		<resource name="editor_file">파일</resource>
 		<resource name="editor_fontsize">크기</resource>
-		<resource name="editor_forecolor">선 색상</resource>
+		<resource name="editor_forecolor">선 색상 (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">그레이스케일</resource>
 		<resource name="editor_highlight_area">구역 강조</resource>
 		<resource name="editor_highlight_grayscale">그레이스케일</resource>
@@ -146,7 +146,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_saveas">다른 이름으로 저장...</resource>
 		<resource name="editor_selectall">전체 선택</resource>
 		<resource name="editor_senttoprinter">인쇄 작업을 '{0}'로 보내기.</resource>
-		<resource name="editor_shadow">그림자</resource>
+		<resource name="editor_shadow">그림자 (/)</resource>
 		<resource name="editor_storedtoclipboard">이미지를 클립보드로 저장.</resource>
 		<resource name="editor_thickness">선 두께</resource>
 		<resource name="editor_title">Greenshot 내장 이미지 편집기</resource>

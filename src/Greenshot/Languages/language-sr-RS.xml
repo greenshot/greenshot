@@ -63,7 +63,7 @@
 		<resource name="editor_arrowheads_none">Ништа</resource>
 		<resource name="editor_arrowheads_start">Почетна тачка</resource>
 		<resource name="editor_autocrop">Аутоматско опсецање</resource>
-		<resource name="editor_backcolor">Пуне боје</resource>
+		<resource name="editor_backcolor">Пуне боје (0-9)</resource>
 		<resource name="editor_blur_radius">Замагљење радијуса</resource>
 		<resource name="editor_bold">Масно</resource>
 		<resource name="editor_border">Ивице</resource>
@@ -96,7 +96,7 @@
 		<resource name="editor_email">Е-пошта</resource>
 		<resource name="editor_file">Датотека</resource>
 		<resource name="editor_fontsize">Величина</resource>
-		<resource name="editor_forecolor">Боја линије</resource>
+		<resource name="editor_forecolor">Боја линије (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Сиве нијансе</resource>
 		<resource name="editor_highlight_area">Истакни област</resource>
 		<resource name="editor_highlight_grayscale">Сиве нијансе</resource>
@@ -130,7 +130,7 @@
 		<resource name="editor_saveas">Сачувај као…</resource>
 		<resource name="editor_selectall">Изабери све</resource>
 		<resource name="editor_senttoprinter">Задужење за штампање је послато у „{0}“.</resource>
-		<resource name="editor_shadow">Исцртај сенке</resource>
+		<resource name="editor_shadow">Исцртај сенке (/)</resource>
 		<resource name="editor_storedtoclipboard">Слика је смештена у оставу.</resource>
 		<resource name="editor_thickness">Дебљина линије</resource>
 		<resource name="editor_title">Уређивач слика</resource>

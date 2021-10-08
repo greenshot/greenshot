@@ -77,7 +77,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_arrowheads_none">Nenhuma</resource>
 		<resource name="editor_arrowheads_start">No início</resource>
 		<resource name="editor_autocrop">Recortar auto</resource>
-		<resource name="editor_backcolor">Cor de preenchimento</resource>
+		<resource name="editor_backcolor">Cor de preenchimento (0-9)</resource>
 		<resource name="editor_blur_radius">Raio de desfoque</resource>
 		<resource name="editor_bold">Negrito</resource>
 		<resource name="editor_border">Borda</resource>
@@ -110,7 +110,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_email">Enviar por e-mail</resource>
 		<resource name="editor_file">Ficheiro</resource>
 		<resource name="editor_fontsize">Tamanho</resource>
-		<resource name="editor_forecolor">Cor da linha</resource>
+		<resource name="editor_forecolor">Cor da linha (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Escala cinza</resource>
 		<resource name="editor_highlight_area">Realçar área</resource>
 		<resource name="editor_highlight_grayscale">Escala de cinza</resource>
@@ -146,7 +146,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_saveas">Guardar como...</resource>
 		<resource name="editor_selectall">Seleccionar tudo</resource>
 		<resource name="editor_senttoprinter">A impressão foi enviada para '{0}'.</resource>
-		<resource name="editor_shadow">Sombra projectada</resource>
+		<resource name="editor_shadow">Sombra projectada (/)</resource>
 		<resource name="editor_storedtoclipboard">Imagem enviada para a área de transferência.</resource>
 		<resource name="editor_thickness">Espessura da linha</resource>
 		<resource name="editor_title">Editor de Imagens do Greenshot</resource>

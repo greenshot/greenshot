@@ -83,7 +83,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_arrowheads_none">Nessuna</resource>
         <resource name="editor_arrowheads_start">Punto iniziale</resource>
         <resource name="editor_autocrop">Ritaglia Automaticamente</resource>
-        <resource name="editor_backcolor">Colore di riempimento</resource>
+        <resource name="editor_backcolor">Colore di riempimento (0-9)</resource>
         <resource name="editor_blur_radius">Raggio sfumatura</resource>
         <resource name="editor_bold">Grassetto</resource>
         <resource name="editor_border">Bordi</resource>
@@ -116,7 +116,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_email">Email</resource>
         <resource name="editor_file">File</resource>
         <resource name="editor_fontsize">Dimensioni</resource>
-        <resource name="editor_forecolor">Colore linea</resource>
+        <resource name="editor_forecolor">Colore linea (NumPad0-9, Shift+0-9)</resource>
         <resource name="editor_grayscale">Scala di grigi</resource>
         <resource name="editor_highlight_area">Evidenzia l'area</resource>
         <resource name="editor_highlight_grayscale">Scala di grigi</resource>
@@ -152,7 +152,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_saveas">Salva come...</resource>
         <resource name="editor_selectall">Seleziona tutto</resource>
         <resource name="editor_senttoprinter">Stampa inviata a '{0}'.</resource>
-        <resource name="editor_shadow">Ombra</resource>
+        <resource name="editor_shadow">Ombra (/)</resource>
         <resource name="editor_storedtoclipboard">Immagine copiata negli Appunti.</resource>
         <resource name="editor_thickness">Spessore linea</resource>
         <resource name="editor_title">Gestione immagini di Greenshot</resource>

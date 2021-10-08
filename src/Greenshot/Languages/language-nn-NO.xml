@@ -65,7 +65,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_arrowheads_none">Ingen</resource>
 		<resource name="editor_arrowheads_start">Startpunkt</resource>
 		<resource name="editor_autocrop">Auto-skjer</resource>
-		<resource name="editor_backcolor">Fyllfarge</resource>
+		<resource name="editor_backcolor">Fyllfarge (0-9)</resource>
 		<resource name="editor_blur_radius">Uskarp-radius</resource>
 		<resource name="editor_bold">Feit</resource>
 		<resource name="editor_border">Ramme</resource>
@@ -98,7 +98,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_email">E-post</resource>
 		<resource name="editor_file">Fil</resource>
 		<resource name="editor_fontsize">Storleik</resource>
-		<resource name="editor_forecolor">Linefarge</resource>
+		<resource name="editor_forecolor">Linefarge (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Gråtone</resource>
 		<resource name="editor_highlight_area">Marker område</resource>
 		<resource name="editor_highlight_grayscale">Gråtone</resource>
@@ -131,7 +131,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_saveas">Lagre som...</resource>
 		<resource name="editor_selectall">Vel alt</resource>
 		<resource name="editor_senttoprinter">Utskrifta vart sent til "{0}".</resource>
-		<resource name="editor_shadow">Skuggeeffekt</resource>
+		<resource name="editor_shadow">Skuggeeffekt (/)</resource>
 		<resource name="editor_image_shadow">Skuggeeffekt</resource>
 		<resource name="editor_storedtoclipboard">Bildet er sendt til utklyppstavla.</resource>
 		<resource name="editor_thickness">Linebreidde</resource>

@@ -4,6 +4,7 @@
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
 	your efforts honored in the "About Greenshot" dialog 
+	TODO: remove newlines as in other files -> this leads to problems in multiline texts (or try xml:space=preserve)
 	-->
 	<resource name="about_translation">
 		Dansk oversættelse af Jens Jacob Thomsen
@@ -201,10 +202,10 @@ Detaljer om GNU General Public License:
 		Gem som standard og spørg ikke igen
 	</resource>
 	<resource name="editor_forecolor">
-		Linjefarve
+		Linjefarve (NumPad0-9, Shift+0-9)
 	</resource>
 	<resource name="editor_backcolor">
-		Fyldfarve
+		Fyldfarve (0-9)
 	</resource>
 	<resource name="editor_thickness">
 		Linjetykkelse
@@ -457,7 +458,7 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 		Forstørrelsesfaktor
 	</resource>
 	<resource name="editor_shadow">
-		Skygge
+		Skygge (/)
 	</resource>
 	<resource name="editor_confirm">
 		Bekræft

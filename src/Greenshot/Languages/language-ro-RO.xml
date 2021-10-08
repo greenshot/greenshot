@@ -4,6 +4,7 @@
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
 	your efforts honored in the "About Greenshot" dialog 
+	TODO: remove newlines as in other files -> this leads to problems in multiline texts (or try xml:space=preserve)
 	-->
 	<resource name="about_translation">
 		Traducere în limba română - Radu Mogoș
@@ -201,10 +202,10 @@ Detalii despre licența GNU General Public License:
 		Definește ca și calitate JPEG standard și nu mă mai întreba
 	</resource>
 	<resource name="editor_forecolor">
-		Culoare linie
+		Culoare linie (NumPad0-9, Shift+0-9)
 	</resource>
 	<resource name="editor_backcolor">
-		Culoare umplere
+		Culoare umplere (0-9)
 	</resource>
 	<resource name="editor_thickness">
 		Grosime linie
@@ -456,7 +457,7 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 		Factor de mărire
 	</resource>
 	<resource name="editor_shadow">
-		Umbră
+		Umbră (/)
 	</resource>
 	<resource name="editor_image_shadow">
 		Umbră

@@ -48,7 +48,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_arrowheads_end">Loppupää</resource>
 		<resource name="editor_arrowheads_none">Ei</resource>
 		<resource name="editor_arrowheads_start">Alkupää</resource>
-		<resource name="editor_backcolor">Täyttöväri</resource>
+		<resource name="editor_backcolor">Täyttöväri (0-9)</resource>
 		<resource name="editor_blur_radius">Sumennussäde</resource>
 		<resource name="editor_bold">Lihavoitu</resource>
 		<resource name="editor_brightness">Kirkkaus</resource>
@@ -78,7 +78,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_email">Sähköposti</resource>
 		<resource name="editor_file">Tiedosto</resource>
 		<resource name="editor_fontsize">Size</resource>
-		<resource name="editor_forecolor">Viivan väri</resource>
+		<resource name="editor_forecolor">Viivan väri (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_highlight_area">Korosta alue</resource>
 		<resource name="editor_highlight_grayscale">Grayscale</resource>
 		<resource name="editor_highlight_magnify">Magnify</resource>
@@ -103,7 +103,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_saveas">Tallenna nimellä...</resource>
 		<resource name="editor_selectall">Valitse kaikki</resource>
 		<resource name="editor_senttoprinter">Tulostustyö lähetettiin tulostimelle '{0}'.</resource>
-		<resource name="editor_shadow">Varjo</resource>
+		<resource name="editor_shadow">Varjo (/)</resource>
 		<resource name="editor_image_shadow">Varjo</resource>
 		<resource name="editor_storedtoclipboard">Kuva on kopioitu leikepöydälle.</resource>
 		<resource name="editor_thickness">Viivan paksuus</resource>
