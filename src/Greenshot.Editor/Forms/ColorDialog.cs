@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
@@ -57,6 +58,7 @@ namespace Greenshot.Editor.Forms
         private readonly List<Button> _recentColorButtons = new List<Button>();
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _updateInProgress;
+        private DateTime _lastClick = DateTime.Now;
 
         public Color Color
         {
@@ -123,7 +125,7 @@ namespace Greenshot.Editor.Forms
                 TabStop = false
             };
             b.FlatAppearance.BorderSize = 0;
-            b.Click += ColorButtonClick;
+            b.MouseClick += ColorButtonClick;
             _toolTip.SetToolTip(b, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
             return b;
         }
@@ -189,7 +191,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            TextBox textBox = (TextBox) sender;
+            TextBox textBox = (TextBox)sender;
             string text = textBox.Text.Replace("#", string.Empty);
             Color c;
             if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i))
@@ -200,7 +202,7 @@ namespace Greenshot.Editor.Forms
             {
                 try
                 {
-                    var knownColor = (KnownColor) Enum.Parse(typeof(KnownColor), text, true);
+                    var knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
                     c = Color.FromKnownColor(knownColor);
                 }
                 catch (Exception)
@@ -220,7 +222,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            TextBox textBox = (TextBox) sender;
+            TextBox textBox = (TextBox)sender;
             PreviewColor(
                 Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text),
                     GetColorPartIntFromString(textBoxBlue.Text)), textBox);
@@ -241,8 +243,27 @@ namespace Greenshot.Editor.Forms
 
         private void ColorButtonClick(object sender, EventArgs e)
         {
-            Button b = (Button) sender;
+            Button b = (Button)sender;
             PreviewColor(b.BackColor, b);
+
+            if (IsDoubleClick(_lastClick))
+            {
+                BtnApplyClick(this, e);
+            }
+
+            _lastClick = DateTime.Now;
+        }
+
+        private bool IsDoubleClick(DateTime lastClick)
+        {
+            TimeSpan diff = DateTime.Now - lastClick;
+
+            if ((diff.TotalMilliseconds) <= SystemInformation.DoubleClickTime)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void BtnTransparentClick(object sender, EventArgs e)
