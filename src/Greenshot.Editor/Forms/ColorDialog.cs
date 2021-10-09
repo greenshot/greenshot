@@ -125,7 +125,7 @@ namespace Greenshot.Editor.Forms
                 TabStop = false
             };
             b.FlatAppearance.BorderSize = 0;
-            b.MouseClick += ColorButtonClick;
+            b.Click += ColorButtonClick;
             _toolTip.SetToolTip(b, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
             return b;
         }
