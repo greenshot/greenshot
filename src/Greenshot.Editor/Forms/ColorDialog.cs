@@ -21,10 +21,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.IniFile;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
@@ -114,7 +116,7 @@ namespace Greenshot.Editor.Forms
 
         private Button CreateColorButton(Color color, int x, int y, int w, int h)
         {
-            Button b = new Button
+            Button b = new GreenshotDoubleClickButton
             {
                 BackColor = color,
                 FlatStyle = FlatStyle.Flat,
@@ -124,8 +126,15 @@ namespace Greenshot.Editor.Forms
             };
             b.FlatAppearance.BorderSize = 0;
             b.Click += ColorButtonClick;
-            _toolTip.SetToolTip(b, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
+            b.DoubleClick += ColorButtonDoubleClick;
+            SetButtonTooltip(b, color);
             return b;
+        }
+
+        private void ColorButtonDoubleClick(object sender, EventArgs e)
+        {
+            ColorButtonClick(sender, e);
+            BtnApplyClick(sender, e);
         }
 
         private void CreateLastUsedColorButtonRow(int x, int y, int w, int h)
@@ -147,6 +156,7 @@ namespace Greenshot.Editor.Forms
             {
                 _recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
                 _recentColorButtons[i].Enabled = true;
+                SetButtonTooltip(_recentColorButtons[i], EditorConfig.RecentColors[i]);
             }
         }
 
@@ -189,7 +199,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            TextBox textBox = (TextBox) sender;
+            TextBox textBox = (TextBox)sender;
             string text = textBox.Text.Replace("#", string.Empty);
             Color c;
             if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i))
@@ -200,7 +210,7 @@ namespace Greenshot.Editor.Forms
             {
                 try
                 {
-                    var knownColor = (KnownColor) Enum.Parse(typeof(KnownColor), text, true);
+                    var knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
                     c = Color.FromKnownColor(knownColor);
                 }
                 catch (Exception)
@@ -220,7 +230,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            TextBox textBox = (TextBox) sender;
+            TextBox textBox = (TextBox)sender;
             PreviewColor(
                 Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text),
                     GetColorPartIntFromString(textBoxBlue.Text)), textBox);
@@ -241,8 +251,13 @@ namespace Greenshot.Editor.Forms
 
         private void ColorButtonClick(object sender, EventArgs e)
         {
-            Button b = (Button) sender;
+            Button b = (Button)sender;
             PreviewColor(b.BackColor, b);
+        }
+
+        private void SetButtonTooltip(Button colorButton, Color color)
+        {
+            _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
         }
 
         private void BtnTransparentClick(object sender, EventArgs e)
