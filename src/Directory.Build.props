@@ -6,8 +6,7 @@
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
-    <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
-    <PackageLicenseExpression>GPL</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <LangVersion>9</LangVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
