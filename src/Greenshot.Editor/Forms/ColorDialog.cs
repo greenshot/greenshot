@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.IniFile;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
@@ -58,7 +59,6 @@ namespace Greenshot.Editor.Forms
         private readonly List<Button> _recentColorButtons = new List<Button>();
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _updateInProgress;
-        private DateTime _lastClick = DateTime.Now;
 
         public Color Color
         {
@@ -116,7 +116,7 @@ namespace Greenshot.Editor.Forms
 
         private Button CreateColorButton(Color color, int x, int y, int w, int h)
         {
-            Button b = new Button
+            Button b = new GreenshotDoubleClickButton
             {
                 BackColor = color,
                 FlatStyle = FlatStyle.Flat,
@@ -126,8 +126,15 @@ namespace Greenshot.Editor.Forms
             };
             b.FlatAppearance.BorderSize = 0;
             b.Click += ColorButtonClick;
-            _toolTip.SetToolTip(b, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
+            b.DoubleClick += ColorButtonDoubleClick;
+            SetButtonTooltip(b, color);
             return b;
+        }
+
+        private void ColorButtonDoubleClick(object sender, EventArgs e)
+        {
+            ColorButtonClick(sender, e);
+            BtnApplyClick(sender, e);
         }
 
         private void CreateLastUsedColorButtonRow(int x, int y, int w, int h)
@@ -149,6 +156,7 @@ namespace Greenshot.Editor.Forms
             {
                 _recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
                 _recentColorButtons[i].Enabled = true;
+                SetButtonTooltip(_recentColorButtons[i], EditorConfig.RecentColors[i]);
             }
         }
 
@@ -245,25 +253,11 @@ namespace Greenshot.Editor.Forms
         {
             Button b = (Button)sender;
             PreviewColor(b.BackColor, b);
-
-            if (IsDoubleClick(_lastClick))
-            {
-                BtnApplyClick(this, e);
-            }
-
-            _lastClick = DateTime.Now;
         }
 
-        private bool IsDoubleClick(DateTime lastClick)
+        private void SetButtonTooltip(Button colorButton, Color color)
         {
-            TimeSpan diff = DateTime.Now - lastClick;
-
-            if ((diff.TotalMilliseconds) <= SystemInformation.DoubleClickTime)
-            {
-                return true;
-            }
-
-            return false;
+            _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
         }
 
         private void BtnTransparentClick(object sender, EventArgs e)
