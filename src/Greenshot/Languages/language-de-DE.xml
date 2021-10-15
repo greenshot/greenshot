@@ -241,7 +241,7 @@ Greenshot kann auch Verzeichnisse dynamisch erstellen.
 Verwenden Sie den Backslash \, um Verzeichnisse vom Dateinamen zu trennen.
 Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format mit der vorgegebenen Dateiendung ab.
-Z. B.: C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
+Beispiel: C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_network">Netzwerk und Aktualisierungen</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameraton abspielen</resource>
