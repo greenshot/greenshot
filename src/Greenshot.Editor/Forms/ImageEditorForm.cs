@@ -995,7 +995,7 @@ namespace Greenshot.Editor.Forms
                     case Keys.G: // Grayscale Ctrl + G
                         GrayscaleToolStripMenuItemClick(sender, e);
                         break;
-                    case Keys.Delete: // Grayscale Ctrl + Delete
+                    case Keys.Delete: // Clear capture, use transparent background Ctrl + Delete
                         ClearToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.Oemcomma: // Rotate CCW Ctrl + ,
