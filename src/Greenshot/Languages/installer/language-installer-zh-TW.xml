@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="繁體中文" ietf="zh-TW" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="startup">讓 {#ExeName} 隨 Windows 自動啟動</resource>
+		<resource name="startgreenshot">啟動 {#ExeName}</resource>
+		<resource name="jira">Jira 擴充功能</resource>
+		<resource name="confluence">Confluence 擴充功能</resource>
+		<resource name="externalcommand">使用外部指令擴充功能開啟</resource>
+		<resource name="ocr">OCR 擴充功能 (需要 Microsoft Office Document Imaging (MODI))</resource>
+		<resource name="imgur">Imgur 擴充功能 (請見：https://imgur.com)</resource>
+		<resource name="language">其他語言</resource>
+		<resource name="optimize">正在最佳化性能，這可能需要一點時間。</resource>
+	</resources>
+</language>

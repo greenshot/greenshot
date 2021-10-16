@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="繁體中文" ietf="zh-TW" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">下載</resource>
+		<resource name="home_headline">Greenshot - 為生產力最佳化的免費截圖工具</resource>
+		<resource name="home_opensource">Greenshot 免費且開源</resource>
+		<resource name="home_opensource_donate">如果 Greenshot 為您節省了許多時間和/或金錢，歡迎 &lt;a href="/support/"&gt;贊助&lt;/a&gt; Greenshot 的開發。</resource>
+		<resource name="home_opensource_gpl">Greenshot 採用 &lt;a href="https://zh.wikipedia.org/zh-tw/GNU通用公共许可证" target="_blank"&gt;GPL&lt;/a&gt; 授權，這表示該軟體能夠免費下載使用，即使是在商業環境中。</resource>
+		<resource name="home_seemore">想要了解更多嗎？</resource>
+		<resource name="home_seemore_screenshots">Greenshot 當然不只有這些功能而已。看看 Greenshot 的 &lt;a title="Screenshots of Greenshot in action" href="/screenshots/"&gt;使用截圖&lt;/a&gt;，或者試試 &lt;a title="下載 Greenshot 的最新版本" href="/downloads/"&gt;Greenshot 的最新版本&lt;/a&gt;。</resource>
+		<resource name="home_whatis">什麼是 Greenshot????</resource>
+		<resource name="home_whatis_create">快速擷取指定區域、視窗、或是全螢幕；您甚至可以在 Internet Explorer 中完整擷取整個網頁。</resource>
+		<resource name="home_whatis_edit">輕鬆地在截圖上作註解、醒目提示、及模糊區域。</resource>
+		<resource name="home_whatis_intro">Greenshot 是輕量化的截圖軟體，專為 Windows 設計，並有以下重點功能：</resource>
+		<resource name="home_whatis_more">...還有更多功能幫助您簡化截圖流程。</resource>
+		<resource name="home_whatis_send">以多種方式匯出截圖：儲存成檔案，傳送至印表機、複製到剪貼簿、作為附件傳送、傳送至 Office 程式、或是上傳到網路相簿，像是 Flickr 或 Picasa...等。</resource>
+		<resource name="home_whatis_usage">容易上手，又能客製化，對於專案經理、軟體開發者、技術寫作人員、測試人員以及其他需要經常截圖的工作者來說，Greenshot 絕對是幫助他們提升效率的好工具。</resource>
+	</resources>
+</language>
