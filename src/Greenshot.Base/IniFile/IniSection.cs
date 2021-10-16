@@ -143,7 +143,7 @@ namespace Greenshot.Base.IniFile
                     IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute) fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
                     if (!Values.ContainsKey(iniPropertyAttribute.Name))
                     {
-                        Values.Add(iniPropertyAttribute.Name, new IniValue(this, fieldInfo, iniPropertyAttribute));
+                        Values[iniPropertyAttribute.Name] = new IniValue(this, fieldInfo, iniPropertyAttribute);
                     }
                 }
             }
@@ -155,7 +155,7 @@ namespace Greenshot.Base.IniFile
                     if (!Values.ContainsKey(propertyInfo.Name))
                     {
                         IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute) propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-                        Values.Add(iniPropertyAttribute.Name, new IniValue(this, propertyInfo, iniPropertyAttribute));
+                        Values[iniPropertyAttribute.Name] = new IniValue(this, propertyInfo, iniPropertyAttribute);
                     }
                 }
             }
