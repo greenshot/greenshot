@@ -125,6 +125,7 @@ namespace Greenshot {
 			this.destinationsToolStrip = new Greenshot.Controls.ToolStripEx();
 			this.btnSave = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnClipboard = new GreenshotPlugin.Controls.GreenshotToolStripButton();
+			this.btnClipboardAndClose = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.btnPrint = new GreenshotPlugin.Controls.GreenshotToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnDelete = new GreenshotPlugin.Controls.GreenshotToolStripButton();
@@ -186,6 +187,7 @@ namespace Greenshot {
 			this.btnCancel = new Greenshot.Controls.BindableToolStripButton();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			this.closeToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.clipboardAndCloseToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.openDirectoryMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
@@ -870,6 +872,7 @@ namespace Greenshot {
 			this.destinationsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnSave,
 									this.btnClipboard,
+									this.btnClipboardAndClose,
 									this.btnPrint,
 									this.toolStripSeparator2,
 									this.btnDelete,
@@ -902,6 +905,15 @@ namespace Greenshot {
 			this.btnClipboard.LanguageKey = "editor_copyimagetoclipboard";
 			this.btnClipboard.Name = "btnClipboard";
 			this.btnClipboard.Click += new System.EventHandler(this.BtnClipboardClick);
+			// 
+			// btnClipboardAndClose
+			// 
+			this.btnClipboardAndClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnClipboardAndClose.Image = ((System.Drawing.Image)(resources.GetObject("btnClipboardAndClose.Image")));
+			this.btnClipboardAndClose.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnClipboardAndClose.LanguageKey = "editor_clipboardandclose";
+			this.btnClipboardAndClose.Name = "btnClipboardAndClose";
+			this.btnClipboardAndClose.Click += new System.EventHandler(this.BtnClipboardClickAndClose);
 			// 
 			// btnPrint
 			// 
@@ -1566,6 +1578,14 @@ namespace Greenshot {
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
 			// 
+			// clipboardAndCloseToolStripMenuItem
+			// 
+			this.clipboardAndCloseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnClipboardAndClose.Image")));
+			this.clipboardAndCloseToolStripMenuItem.LanguageKey = "editor_clipboardandclose";
+			this.clipboardAndCloseToolStripMenuItem.Name = "clipboardAndClose";
+			this.clipboardAndCloseToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.C)));
+			this.clipboardAndCloseToolStripMenuItem.Click += new System.EventHandler(this.ClipboardAndCloseToolStripMenuItemClick);
+			// 
 			// fileSavedStatusContextMenu
 			// 
 			this.fileSavedStatusContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1747,6 +1767,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem helpToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem preferencesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem clipboardAndCloseToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem closeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
@@ -1779,6 +1800,7 @@ namespace Greenshot {
 		private System.Windows.Forms.ToolStripButton btnRedo;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnClipboard;
+        private GreenshotPlugin.Controls.GreenshotToolStripButton btnClipboardAndClose;
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnDelete;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
