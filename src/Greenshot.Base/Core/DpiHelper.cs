@@ -114,6 +114,10 @@ namespace Greenshot.Base.Core
         /// <returns>uint</returns>
         public static uint GetDpi(POINT location)
         {
+            if (!WindowsVersion.IsWindows81OrLater)
+            {
+                return DefaultScreenDpi;
+            }
             RECT rect = new RECT(location.X, location.Y, 1, 1);
             IntPtr hMonitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONEAREST);
             var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
@@ -172,7 +176,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="hWnd">IntPtr</param>
         /// <returns>uint with dpi</returns>
-        [DllImport("User32.dll")]
+        [DllImport("user32.dll")]
         private static extern uint GetDpiForWindow(IntPtr hWnd);
 
         /// <summary>
@@ -193,7 +197,7 @@ namespace Greenshot.Base.Core
         /// Returns the system DPI.
         /// </summary>
         /// <returns>uint with the system DPI</returns>
-        [DllImport("User32.dll")]
+        [DllImport("user32.dll")]
         private static extern uint GetDpiForSystem();
     }
 }
