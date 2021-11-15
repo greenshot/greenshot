@@ -77,7 +77,7 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_arrowheads_none">Tühi</resource>
 		<resource name="editor_arrowheads_start">Alguspunkt</resource>
 		<resource name="editor_autocrop">Automaatne lõikus</resource>
-		<resource name="editor_backcolor">Täitke värviga (0-9)</resource>
+		<resource name="editor_backcolor">Täitke värviga</resource>
 		<resource name="editor_blur_radius">Uduse ala raadius</resource>
 		<resource name="editor_bold">Paks</resource>
 		<resource name="editor_border">Äär</resource>
@@ -114,7 +114,7 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_email">E-post</resource>
 		<resource name="editor_file">Fail</resource>
 		<resource name="editor_fontsize">Suurus</resource>
-		<resource name="editor_forecolor">Joone värv (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Joone värv</resource>
 		<resource name="editor_grayscale">Halli skaala</resource>
 		<resource name="editor_highlight_area">Tooge esiplaanile</resource>
 		<resource name="editor_highlight_grayscale">Hall skaala</resource>
@@ -150,7 +150,7 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_saveas">Salvestage nimega...</resource>
 		<resource name="editor_selectall">Valige kõik</resource>
 		<resource name="editor_senttoprinter">Printimiskäsklus saadeti '{0}'.</resource>
-		<resource name="editor_shadow">Langev vari (/)</resource>
+		<resource name="editor_shadow">Langev vari</resource>
 		<resource name="editor_storedtoclipboard">Pilt taastati lõikelauale.</resource>
 		<resource name="editor_thickness">Joone paksus</resource>
 		<resource name="editor_title">Greenshoti pildihaldur</resource>

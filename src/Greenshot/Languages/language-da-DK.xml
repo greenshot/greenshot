@@ -202,10 +202,10 @@ Detaljer om GNU General Public License:
 		Gem som standard og spørg ikke igen
 	</resource>
 	<resource name="editor_forecolor">
-		Linjefarve (NumPad0-9, Shift+0-9)
+		Linjefarve
 	</resource>
 	<resource name="editor_backcolor">
-		Fyldfarve (0-9)
+		Fyldfarve
 	</resource>
 	<resource name="editor_thickness">
 		Linjetykkelse
@@ -458,7 +458,7 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 		Forstørrelsesfaktor
 	</resource>
 	<resource name="editor_shadow">
-		Skygge (/)
+		Skygge
 	</resource>
 	<resource name="editor_confirm">
 		Bekræft

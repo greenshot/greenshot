@@ -78,7 +78,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_arrowheads_none">Żaden</resource>
 		<resource name="editor_arrowheads_start">Początkowy</resource>
 		<resource name="editor_autocrop">Przytnij automatycznie</resource>
-		<resource name="editor_backcolor">Kolor wypełnienia (0-9)</resource>
+		<resource name="editor_backcolor">Kolor wypełnienia</resource>
 		<resource name="editor_blur_radius">Promień rozmycia</resource>
 		<resource name="editor_bold">Pogrubienie</resource>
 		<resource name="editor_border">Obramowanie</resource>
@@ -115,7 +115,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_email">Wyślij e-mailem</resource>
 		<resource name="editor_file">Plik</resource>
 		<resource name="editor_fontsize">Rozmiar</resource>
-		<resource name="editor_forecolor">Kolor linii (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Kolor linii</resource>
 		<resource name="editor_grayscale">Skala szarości</resource>
 		<resource name="editor_highlight_area">Uwydatnienie obszaru</resource>
 		<resource name="editor_highlight_grayscale">Wyszarzenie</resource>
@@ -151,7 +151,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_saveas">Zapisz jako...</resource>
 		<resource name="editor_selectall">Zaznacz wszystko</resource>
 		<resource name="editor_senttoprinter">Zadanie drukowania zostało wysłane do '{0}'.</resource>
-		<resource name="editor_shadow">Cień (/)</resource>
+		<resource name="editor_shadow">Cień</resource>
 		<resource name="editor_storedtoclipboard">Obraz został zapisany w schowku.</resource>
 		<resource name="editor_thickness">Grubość linii</resource>
 		<resource name="editor_title">Greenshot - edytor obrazów</resource>

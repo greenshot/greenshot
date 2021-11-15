@@ -49,7 +49,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_arrowheads_end">Vég pont</resource>
 		<resource name="editor_arrowheads_none">Egyiksem</resource>
 		<resource name="editor_arrowheads_start">Kezdő pont</resource>
-		<resource name="editor_backcolor">Kitöltési szín (0-9)</resource>
+		<resource name="editor_backcolor">Kitöltési szín</resource>
 		<resource name="editor_blur_radius">Homályosítás mértéke</resource>
 		<resource name="editor_bold">Félkövér</resource>
 		<resource name="editor_brightness">Fényerő</resource>
@@ -79,7 +79,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Fájl</resource>
 		<resource name="editor_fontsize">Méret</resource>
-		<resource name="editor_forecolor">Vonal szín (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Vonal szín</resource>
 		<resource name="editor_highlight_area">Terület kiemelés</resource>
 		<resource name="editor_highlight_grayscale">Szürkeárnyalat</resource>
 		<resource name="editor_highlight_magnify">Nagyítás</resource>
@@ -104,7 +104,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_saveas">Mentés másként</resource>
 		<resource name="editor_selectall">Mindet kijelöl</resource>
 		<resource name="editor_senttoprinter">Nyomtatási feladat küldése '{0}'.</resource>
-		<resource name="editor_shadow">Árnyékolás (/)</resource>
+		<resource name="editor_shadow">Árnyékolás</resource>
 		<resource name="editor_image_shadow">Árnyékolás</resource>
 		<resource name="editor_storedtoclipboard">A tárolt képet a vágólapra.</resource>
 		<resource name="editor_thickness">Vonal vastagság</resource>

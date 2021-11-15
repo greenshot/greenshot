@@ -77,7 +77,7 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_arrowheads_none">Bez uzgaļiem</resource>
 		<resource name="editor_arrowheads_start">Līnjas sākumā</resource>
 		<resource name="editor_autocrop">Automātiski apcirst</resource>
-		<resource name="editor_backcolor">Aizpildījuma krāsa (0-9)</resource>
+		<resource name="editor_backcolor">Aizpildījuma krāsa</resource>
 		<resource name="editor_blur_radius">Izpludinājuma rādiuss</resource>
 		<resource name="editor_bold">Trekns</resource>
 		<resource name="editor_border">Apmale</resource>
@@ -110,7 +110,7 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_email">E-pasts</resource>
 		<resource name="editor_file">Fails</resource>
 		<resource name="editor_fontsize">Izmērs</resource>
-		<resource name="editor_forecolor">Līnijas krāsa (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Līnijas krāsa</resource>
 		<resource name="editor_grayscale">Pelēko toņu</resource>
 		<resource name="editor_highlight_area">Aptumšot apkārt</resource>
 		<resource name="editor_highlight_grayscale">Bez krāsas apkārt</resource>
@@ -146,7 +146,7 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_saveas">Saglbāt kā...</resource>
 		<resource name="editor_selectall">Saglabāt visu</resource>
 		<resource name="editor_senttoprinter">Izdrukāt tika nosūtīts uz '{0}'.</resource>
-		<resource name="editor_shadow">Veidot ēnu (/)</resource>
+		<resource name="editor_shadow">Veidot ēnu</resource>
 		<resource name="editor_storedtoclipboard">Attēls saglabāts starpliktuvē.</resource>
 		<resource name="editor_thickness">Līnijas biezums</resource>
 		<resource name="editor_title">„Greenshot” attēla redaktors</resource>

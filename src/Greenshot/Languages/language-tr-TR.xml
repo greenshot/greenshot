@@ -63,7 +63,7 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_arrowheads_none">Ok ucu olmasın</resource>
 		<resource name="editor_arrowheads_start">Başlangıçta</resource>
 		<resource name="editor_autocrop">Otomatik kırpma</resource>
-		<resource name="editor_backcolor">Art alan rengi (0-9)</resource>
+		<resource name="editor_backcolor">Art alan rengi</resource>
 		<resource name="editor_blur_radius">Bulanıklaştırma çapı</resource>
 		<resource name="editor_bold">Koyu</resource>
 		<resource name="editor_border">Kenarlar</resource>
@@ -96,7 +96,7 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_email">E-Posta Gönder</resource>
 		<resource name="editor_file">Dosya</resource>
 		<resource name="editor_fontsize">Boyut</resource>
-		<resource name="editor_forecolor">Çizgi rengi (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Çizgi rengi</resource>
 		<resource name="editor_grayscale">Gri Tonlamalı</resource>
 		<resource name="editor_highlight_area">Bölgeyi vurgula</resource>
 		<resource name="editor_highlight_grayscale">Gri tonlama</resource>
@@ -129,7 +129,7 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_saveas">Farklı kaydet...</resource>
 		<resource name="editor_selectall">Tümünü seç</resource>
 		<resource name="editor_senttoprinter">Yazdırma işi şuraya iletildi '{0}'.</resource>
-		<resource name="editor_shadow">Gölge (/)</resource>
+		<resource name="editor_shadow">Gölge</resource>
 		<resource name="editor_image_shadow">Gölge</resource>
 		<resource name="editor_storedtoclipboard">Görüntü panoya kopyalandı.</resource>
 		<resource name="editor_thickness">Çizgi kalınlığı</resource>

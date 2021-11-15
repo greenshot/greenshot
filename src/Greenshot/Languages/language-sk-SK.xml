@@ -65,7 +65,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_arrowheads_none">Žiaden</resource>
 		<resource name="editor_arrowheads_start">Začiatočný bod</resource>
 		<resource name="editor_autocrop">Automatické orezanie</resource>
-		<resource name="editor_backcolor">Farba výplne (0-9)</resource>
+		<resource name="editor_backcolor">Farba výplne</resource>
 		<resource name="editor_blur_radius">Rádius rozmazania</resource>
 		<resource name="editor_bold">Tučné</resource>
 		<resource name="editor_border">Orámovať</resource>		
@@ -98,7 +98,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Súbor</resource>
 		<resource name="editor_fontsize">Veľkosť</resource>
-		<resource name="editor_forecolor">Farba čiary (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Farba čiary</resource>
 		<resource name="editor_grayscale">Stupne šedej</resource>
 		<resource name="editor_highlight_area">Zvýrazniť oblasť</resource>
 		<resource name="editor_highlight_grayscale">V odtieňoch šedej</resource>
@@ -132,7 +132,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_saveas">Uložiť ako...</resource>
 		<resource name="editor_selectall">Vybrať všetko</resource>
 		<resource name="editor_senttoprinter">Tlačová úloha odoslaná do '{0}'.</resource>
-		<resource name="editor_shadow">Tieň (/)</resource>
+		<resource name="editor_shadow">Tieň</resource>
 		<resource name="editor_image_shadow">Tieň</resource>
 		<resource name="editor_storedtoclipboard">Obrázek je uložený do schránky.</resource>
 		<resource name="editor_thickness">Hrúbka čiary</resource>

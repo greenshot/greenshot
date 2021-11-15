@@ -75,7 +75,7 @@
 		<resource name="editor_arrowheads_end">No fim</resource>
 		<resource name="editor_arrowheads_none">Nenhuma</resource>
 		<resource name="editor_arrowheads_start">No início</resource>
-		<resource name="editor_backcolor">Cor de preenchimento (0-9)</resource>
+		<resource name="editor_backcolor">Cor de preenchimento</resource>
 		<resource name="editor_blur_radius">Raio de desfoque</resource>
 		<resource name="editor_bold">Negrito</resource>
 		<resource name="editor_brightness">Brilho</resource>
@@ -105,7 +105,7 @@
 		<resource name="editor_email">Enviar por e-mail</resource>
 		<resource name="editor_file">Arquivo</resource>
 		<resource name="editor_fontsize">Tamanho</resource>
-		<resource name="editor_forecolor">Cor da linha (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Cor da linha</resource>
 		<resource name="editor_highlight_area">Destacar área</resource>
 		<resource name="editor_highlight_grayscale">Escalas de cinza</resource>
 		<resource name="editor_highlight_magnify">Ampliar</resource>
@@ -130,7 +130,7 @@
 		<resource name="editor_saveas">Salvar como...</resource>
 		<resource name="editor_selectall">Selecionar tudo</resource>
 		<resource name="editor_senttoprinter">A impressão foi enviada para '{0}'.</resource>
-		<resource name="editor_shadow">Sombra (/)</resource>
+		<resource name="editor_shadow">Sombra</resource>
 		<resource name="editor_image_shadow">Sombra</resource>
 		<resource name="editor_storedtoclipboard">Imagem enviada para a área de transferência.</resource>
 		<resource name="editor_thickness">Espessura da linha</resource>

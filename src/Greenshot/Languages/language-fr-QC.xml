@@ -63,7 +63,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_arrowheads_none">Aucun</resource>
 		<resource name="editor_arrowheads_start">Point d'origine</resource>
 		<resource name="editor_autocrop">Rognage automatique</resource>
-		<resource name="editor_backcolor">Couleur de remplissage (0-9)</resource>
+		<resource name="editor_backcolor">Couleur de remplissage</resource>
 		<resource name="editor_blur_radius">Rayon du flou</resource>
 		<resource name="editor_bold">Gras</resource>
 		<resource name="editor_border">Bordure</resource>
@@ -96,7 +96,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_email">Courriel</resource>
 		<resource name="editor_file">Fichier</resource>
 		<resource name="editor_fontsize">Taille</resource>
-		<resource name="editor_forecolor">Couleur de ligne (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Couleur de ligne</resource>
 		<resource name="editor_grayscale">Tons de gris</resource>
 		<resource name="editor_highlight_area">Surligner une zone</resource>
 		<resource name="editor_highlight_grayscale">Niveaux de gris</resource>
@@ -129,7 +129,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_saveas">Sauvegarder sous...</resource>
 		<resource name="editor_selectall">Sélectionner tout</resource>
 		<resource name="editor_senttoprinter">La tâche d'impression a été envoyée vers '{0}'.</resource>
-		<resource name="editor_shadow">Ombre (/)</resource>
+		<resource name="editor_shadow">Ombre</resource>
 		<resource name="editor_storedtoclipboard">L'image a été placée dans le presse-papier.</resource>
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
 		<resource name="editor_title">Éditeur d'image Greenshot</resource>

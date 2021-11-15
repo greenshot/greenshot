@@ -76,7 +76,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_arrowheads_none">なし</resource>
 		<resource name="editor_arrowheads_start">始点</resource>
 		<resource name="editor_autocrop">自動切り抜き</resource>
-		<resource name="editor_backcolor">塗りつぶし (0-9)</resource>
+		<resource name="editor_backcolor">塗りつぶし</resource>
 		<resource name="editor_blur_radius">ブラー半径</resource>
 		<resource name="editor_bold">太字</resource>
 		<resource name="editor_border">ボーダーライン</resource>
@@ -114,7 +114,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_email">Eメール</resource>
 		<resource name="editor_file">ファイル</resource>
 		<resource name="editor_fontsize">サイズ</resource>
-		<resource name="editor_forecolor">ライン カラー (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">ライン カラー</resource>
 		<resource name="editor_grayscale">グレースケール</resource>
 		<resource name="editor_highlight_area">エリア ハイライト</resource>
 		<resource name="editor_highlight_grayscale">グレースケール</resource>
@@ -155,7 +155,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_saveas">名付けて保存...</resource>
 		<resource name="editor_selectall">すべて選択</resource>
 		<resource name="editor_senttoprinter">'{0}' に印刷ジョブを送りました。</resource>
-		<resource name="editor_shadow">シャドウ (/)</resource>
+		<resource name="editor_shadow">シャドウ</resource>
 		<resource name="editor_speechbubble">吹き出しを挿入する (S)</resource>
 		<resource name="editor_storedtoclipboard">画像をクリップボードに送りました。</resource>
 		<resource name="editor_thickness">線の太さ</resource>

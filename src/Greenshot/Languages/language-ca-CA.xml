@@ -77,7 +77,7 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_arrowheads_none">Cap</resource>
 		<resource name="editor_arrowheads_start">Punt inicial</resource>
 		<resource name="editor_autocrop">Autorretalla</resource>
-		<resource name="editor_backcolor">Color de fons (0-9)</resource>
+		<resource name="editor_backcolor">Color de fons</resource>
 		<resource name="editor_blur_radius">Radi del difuminat</resource>
 		<resource name="editor_bold">Negreta</resource>
 		<resource name="editor_border">Vora</resource>
@@ -110,7 +110,7 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_email">Correu electrònic</resource>
 		<resource name="editor_file">Fitxer</resource>
 		<resource name="editor_fontsize">Mida</resource>
-		<resource name="editor_forecolor">Color de línia (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Color de línia</resource>
 		<resource name="editor_grayscale">Escala de grisos</resource>
 		<resource name="editor_highlight_area">Destaca l'àrea</resource>
 		<resource name="editor_highlight_grayscale">Escala de grisos</resource>
@@ -146,7 +146,7 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_saveas">Anomena i desa...</resource>
 		<resource name="editor_selectall">Selecciona-ho tot</resource>
 		<resource name="editor_senttoprinter">S'ha enviat el treball d'impressió a '{0}'.</resource>
-		<resource name="editor_shadow">Ombra (/)</resource>
+		<resource name="editor_shadow">Ombra</resource>
 		<resource name="editor_storedtoclipboard">Imatge copiada al porta-retalls.</resource>
 		<resource name="editor_thickness">Gruix de línia</resource>
 		<resource name="editor_title">Editor d'imatges de Greenshot</resource>

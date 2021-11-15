@@ -52,7 +52,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_arrowheads_end">نقطه پایان</resource>
 		<resource name="editor_arrowheads_none">هیچکدام</resource>
 		<resource name="editor_arrowheads_start">نقطه شروع</resource>
-		<resource name="editor_backcolor">رنگ پرکننده (0-9)</resource>
+		<resource name="editor_backcolor">رنگ پرکننده</resource>
 		<resource name="editor_blur_radius">شدت  محو کردن</resource>
 		<resource name="editor_bold">ضخیم</resource>
 		<resource name="editor_brightness">روشنایی</resource>
@@ -90,7 +90,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_email">ایمیل</resource>
 		<resource name="editor_file">پوشه</resource>
 		<resource name="editor_fontsize">اندازه</resource>
-		<resource name="editor_forecolor">رنگ خط (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">رنگ خط</resource>
 		<resource name="editor_highlight_area">برجسته نمودن ناحیه</resource>
 		<resource name="editor_highlight_grayscale">خاکستری</resource>
 		<resource name="editor_highlight_magnify">بزرگنمایی</resource>
@@ -116,7 +116,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_saveas">...ذخیره با نام</resource>
 		<resource name="editor_selectall">اتخاب همه</resource>
 		<resource name="editor_senttoprinter">.چاپ به     ' {0} ' فرستاده شد</resource>
-		<resource name="editor_shadow">سایه (/)</resource>
+		<resource name="editor_shadow">سایه</resource>
 		<resource name="editor_image_shadow">سایه</resource>
 		<resource name="editor_storedtoclipboard">.تصویر در حافظه موقت ذخیره شد</resource>
 		<resource name="editor_thickness">ضخامت خط</resource>

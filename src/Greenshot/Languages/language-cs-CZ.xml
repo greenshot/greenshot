@@ -78,7 +78,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_arrowheads_none">Žádný</resource>
 		<resource name="editor_arrowheads_start">Počáteční bod</resource>
 		<resource name="editor_autocrop">Automatické oříznutí</resource>
-		<resource name="editor_backcolor">Barva výplně (0-9)</resource>
+		<resource name="editor_backcolor">Barva výplně</resource>
 		<resource name="editor_blur_radius">Poloměr rozostření</resource>
 		<resource name="editor_bold">Tučné</resource>
 		<resource name="editor_border">Okraj</resource>
@@ -111,7 +111,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_email">E-mail</resource>
 		<resource name="editor_file">Soubor</resource>
 		<resource name="editor_fontsize">Velikost</resource>
-		<resource name="editor_forecolor">Barva čáry (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Barva čáry</resource>
 		<resource name="editor_grayscale">Stupně šedi</resource>
 		<resource name="editor_highlight_area">Zvýraznit oblast</resource>
 		<resource name="editor_highlight_grayscale">Ve stupních šedi</resource>
@@ -147,7 +147,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_saveas">Uložit jako...</resource>
 		<resource name="editor_selectall">Vybrat vše</resource>
 		<resource name="editor_senttoprinter">Tisková úloha byla zaslána na '{0}'.</resource>
-		<resource name="editor_shadow">Vržený stín (/)</resource>
+		<resource name="editor_shadow">Vržený stín</resource>
 		<resource name="editor_storedtoclipboard">Obrázek byl vložen do schránky.</resource>
 		<resource name="editor_thickness">Tloušťka linky</resource>
 		<resource name="editor_title">Greenshot editor obrázků</resource>

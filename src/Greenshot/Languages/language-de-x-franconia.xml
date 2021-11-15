@@ -73,7 +73,7 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_arrowheads_none">Kanne</resource>
 		<resource name="editor_arrowheads_start">Anfangsbunkd</resource>
 		<resource name="editor_autocrop">Audomadisch zamschneidn</resource>
-		<resource name="editor_backcolor">Hindergrundfarm (0-9)</resource>
+		<resource name="editor_backcolor">Hindergrundfarm</resource>
 		<resource name="editor_blur_radius">Weichzeichner-Rodius</resource>
 		<resource name="editor_bold">Fedd</resource>
 		<resource name="editor_border">Rohma</resource>
@@ -106,7 +106,7 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_email">I-Mehl</resource>
 		<resource name="editor_file">Dadei</resource>
 		<resource name="editor_fontsize">Größe</resource>
-		<resource name="editor_forecolor">Rahmafarb (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Rahmafarb</resource>
 		<resource name="editor_grayscale">Grauschdufn</resource>
 		<resource name="editor_highlight_area">Breich hervorheem</resource>
 		<resource name="editor_highlight_grayscale">Grauschdufn</resource>
@@ -140,7 +140,7 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_saveas">Schbeichern under...</resource>
 		<resource name="editor_selectall">Alle Objegde auswähln</resource>
 		<resource name="editor_senttoprinter">Drugger läffd: '{0}'</resource>
-		<resource name="editor_shadow">Schaddn An/Aus (/)</resource>
+		<resource name="editor_shadow">Schaddn An/Aus</resource>
 		<resource name="editor_storedtoclipboard">Bild is in der Zwischnablach.</resource>
 		<resource name="editor_thickness">Linienschdärge</resource>
 		<resource name="editor_title">Greenshot Edidor</resource>

@@ -65,7 +65,7 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_arrowheads_none">Nada</resource>
 		<resource name="editor_arrowheads_start">Punto inicial</resource>
 		<resource name="editor_autocrop">Autorrecortar</resource>
-		<resource name="editor_backcolor">Color de relleno (0-9)</resource>
+		<resource name="editor_backcolor">Color de relleno</resource>
 		<resource name="editor_blur_radius">Blur radius</resource>
 		<resource name="editor_bold">Bold</resource>
 		<resource name="editor_border">Borde</resource>
@@ -98,7 +98,7 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_email">Correo electrónico</resource>
 		<resource name="editor_file">Archivo</resource>
 		<resource name="editor_fontsize">Tamaño</resource>
-		<resource name="editor_forecolor">Color de línea (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Color de línea</resource>
 		<resource name="editor_grayscale">Escala de grises</resource>
 		<resource name="editor_highlight_area">Destacar área</resource>
 		<resource name="editor_highlight_grayscale">Escala de grises</resource>
@@ -132,7 +132,7 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_saveas">Guardar como...</resource>
 		<resource name="editor_selectall">Seleccionar todo</resource>
 		<resource name="editor_senttoprinter">Se ha enviado el trabajo de impresión a '{0}'.</resource>
-		<resource name="editor_shadow">Sombra (/)</resource>
+		<resource name="editor_shadow">Sombra</resource>
 		<resource name="editor_storedtoclipboard">Imagen guardada en el portapapeles.</resource>
 		<resource name="editor_thickness">Grosor de línea</resource>
 		<resource name="editor_title">Editor de imagen de Greenshot</resource>
