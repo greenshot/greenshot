@@ -609,7 +609,7 @@ namespace Greenshot.Editor.Drawing
                 // Calculate height and width of new frame.
                 int width = this[0].Width + surface.Image.Width;
                 int height = Math.Max(surface.Image.Height, this[0].Height);
-                int oldWidth = surface.Image.Width;
+                int imageBorder = surface.Image.Width;
                 // Create image for use as new frame.
                 Bitmap newImage = new Bitmap(width, height);
                 // Save old image.
@@ -617,7 +617,7 @@ namespace Greenshot.Editor.Drawing
                 // Set background to new, larger frame.
                 surface.Image = newImage;
                 // Move object to open space
-                this[0].MoveBy(oldWidth - this[0].Location.X, -this[0].Location.Y);
+                this[0].MoveBy(imageBorder - this[0].Location.X, -this[0].Location.Y);
                 // Push original image to bottom.
                 var oldImageContainer = surface.AddImageContainer(oldImage, 0, 0);
                 IDrawableContainerList oldImageContainerList = this.Clone();
@@ -648,6 +648,62 @@ namespace Greenshot.Editor.Drawing
                 this[0].MoveBy(-this[0].Location.X, -this[0].Location.Y);
                 // Re-add original image and push to bottom.
                 var oldImageContainer = surface.AddImageContainer(oldImage, this[0].Width, 0);
+                IDrawableContainerList oldImageContainerList = this.Clone();
+                oldImageContainerList[0] = oldImageContainer;
+                surface.Elements.PushElementsToBottom(oldImageContainerList);
+            };
+            menu.Items.Add(item);
+
+            // Top
+            item = new ToolStripMenuItem("Expand to Top")
+            {
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+            };
+            // Action to perform on click.
+            item.Click += delegate
+            {
+                // Calculate height and width of new frame.
+                int width = Math.Max(surface.Image.Width, this[0].Width);
+                int height = this[0].Height + surface.Image.Height;
+                int imageBorder = surface.Image.Width; // probably unnecessary
+                // Create image for use as new frame.
+                Bitmap newImage = new Bitmap(width, height);
+                // Save old image.
+                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+                // Set background to new, larger frame.
+                surface.Image = newImage;
+                // Move object to open space
+                this[0].MoveBy(-this[0].Location.X, -this[0].Location.Y);
+                // Re-add original image and push to bottom.
+                var oldImageContainer = surface.AddImageContainer(oldImage, 0, this[0].Height);
+                IDrawableContainerList oldImageContainerList = this.Clone();
+                oldImageContainerList[0] = oldImageContainer;
+                surface.Elements.PushElementsToBottom(oldImageContainerList);
+            };
+            menu.Items.Add(item);
+
+            // Top
+            item = new ToolStripMenuItem("Expand to Bottom")
+            {
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+            };
+            // Action to perform on click.
+            item.Click += delegate
+            {
+                // Calculate height and width of new frame.
+                int width = Math.Max(surface.Image.Width, this[0].Width);
+                int height = this[0].Height + surface.Image.Height;
+                int imageBorder = surface.Image.Height;
+                // Create image for use as new frame.
+                Bitmap newImage = new Bitmap(width, height);
+                // Save old image.
+                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+                // Set background to new, larger frame.
+                surface.Image = newImage;
+                // Move object to open space
+                this[0].MoveBy(-this[0].Location.X, imageBorder - this[0].Location.Y);
+                // Re-add original image and push to bottom.
+                var oldImageContainer = surface.AddImageContainer(oldImage, 0, 0);
                 IDrawableContainerList oldImageContainerList = this.Clone();
                 oldImageContainerList[0] = oldImageContainer;
                 surface.Elements.PushElementsToBottom(oldImageContainerList);
