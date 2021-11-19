@@ -598,6 +598,62 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
+            // Stich? Append? Attach? Expand? Push? 
+            item = new ToolStripMenuItem("Expand to Right")
+            {
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+            };
+            // Action to perform on click.
+            item.Click += delegate
+            {
+                // Calculate height and width of new frame.
+                int width = this[0].Width + surface.Image.Width;
+                int height = Math.Max(surface.Image.Height, this[0].Height);
+                int oldWidth = surface.Image.Width;
+                // Create image for use as new frame.
+                Bitmap newImage = new Bitmap(width, height);
+                // Save old image.
+                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+                // Set background to new, larger frame.
+                surface.Image = newImage;
+                // Move object to open space
+                this[0].MoveBy(oldWidth - this[0].Location.X, -this[0].Location.Y);
+                // Push original image to bottom.
+                var oldImageContainer = surface.AddImageContainer(oldImage, 0, 0);
+                IDrawableContainerList oldImageContainerList = this.Clone();
+                oldImageContainerList[0] = oldImageContainer;
+                surface.Elements.PushElementsToBottom(oldImageContainerList);
+            };
+            menu.Items.Add(item);
+
+            // Left
+            item = new ToolStripMenuItem("Expand to Left")
+            {
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+            };
+            // Action to perform on click.
+            item.Click += delegate
+            {
+                // Calculate height and width of new frame.
+                int width = this[0].Width + surface.Image.Width;
+                int height = Math.Max(surface.Image.Height, this[0].Height);
+                int oldWidth = surface.Image.Width;
+                // Create image for use as new frame.
+                Bitmap newImage = new Bitmap(width, height);
+                // Save old image.
+                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+                // Set background to new, larger frame.
+                surface.Image = newImage;
+                // Move object to open space
+                this[0].MoveBy(-this[0].Location.X, -this[0].Location.Y);
+                // Re-add original image and push to bottom.
+                var oldImageContainer = surface.AddImageContainer(oldImage, this[0].Width, 0);
+                IDrawableContainerList oldImageContainerList = this.Clone();
+                oldImageContainerList[0] = oldImageContainer;
+                surface.Elements.PushElementsToBottom(oldImageContainerList);
+            };
+            menu.Items.Add(item);
+
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
