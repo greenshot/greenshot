@@ -711,6 +711,76 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
+            // Fit width
+            item = new ToolStripMenuItem("Fit to width")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                this[0].Width = surface.Image.Width;
+                this[0].MoveBy(-this[0].Location.X, 0);
+                surface.DeselectAllElements();
+            };
+            menu.Items.Add(item);
+
+            // Fit height
+            item = new ToolStripMenuItem("Fit to height")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                this[0].Height = surface.Image.Height;
+                this[0].MoveBy(0, -this[0].Location.Y);
+                surface.DeselectAllElements();
+            };
+            menu.Items.Add(item);
+
+            // Snap left
+            item = new ToolStripMenuItem("Snap left")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge("left", surface, this);
+            };
+            menu.Items.Add(item);
+
+            // Snap right
+            item = new ToolStripMenuItem("Snap right")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge("right", surface, this);
+            };
+            menu.Items.Add(item);
+
+            // Snap to top
+            item = new ToolStripMenuItem("Snap to top")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge("top", surface, this);
+            };
+            menu.Items.Add(item);
+
+            // Snap to bottom
+            item = new ToolStripMenuItem("Snap to bottom")
+            {
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge("bottom", surface, this);
+            };
+            menu.Items.Add(item);
+
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
@@ -836,6 +906,29 @@ namespace Greenshot.Editor.Drawing
             {
                 drawableContainer.AdjustToDpi(dpi);
             }
+        }
+
+        public void SnapToEdge(string direction, ISurface surface, IDrawableContainer target)
+        {
+            int xMovement = 0, yMovement = 0;
+            if (direction == "left")
+                xMovement = -target.Location.X;
+            else if (direction == "right")
+                xMovement = surface.Image.Width - target.Location.X - target.Width;
+            else if (direction == "top")
+                yMovement = -target.Location.Y;
+            else if (direction == "bottom")
+                yMovement = surface.Image.Height - target.Location.Y - target.Height;
+            target.MoveBy(xMovement, yMovement);
+        }
+
+        public void SnapAllToEdge(string direction, ISurface surface, IDrawableContainerList containers)
+        {
+            foreach (var item in containers)
+            {
+                SnapToEdge(direction, surface, item);
+            }
+            surface.DeselectAllElements();
         }
     }
 }
