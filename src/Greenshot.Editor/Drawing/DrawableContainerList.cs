@@ -598,8 +598,8 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
-            // Stich? Append? Attach? Expand? Push? 
-            item = new ToolStripMenuItem("Expand to Right")
+            // Align
+            item = new ToolStripMenuItem("Align Right")
             {
                 Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
@@ -623,11 +623,12 @@ namespace Greenshot.Editor.Drawing
                 IDrawableContainerList oldImageContainerList = this.Clone();
                 oldImageContainerList[0] = oldImageContainer;
                 surface.Elements.PushElementsToBottom(oldImageContainerList);
+                //_surfaceSizeChanged(this, null);
             };
             menu.Items.Add(item);
 
             // Left
-            item = new ToolStripMenuItem("Expand to Left")
+            item = new ToolStripMenuItem("Align Left")
             {
                 Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
@@ -655,7 +656,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Top
-            item = new ToolStripMenuItem("Expand to Top")
+            item = new ToolStripMenuItem("Stack on Top")
             {
                 Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
@@ -682,8 +683,8 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
-            // Top
-            item = new ToolStripMenuItem("Expand to Bottom")
+            // Bottom
+            item = new ToolStripMenuItem("Stack on Bottom")
             {
                 Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
