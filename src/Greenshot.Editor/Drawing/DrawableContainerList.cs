@@ -598,6 +598,8 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
+            ToolStripMenuItem alignSubmenu = new ToolStripMenuItem("Align/Stack");
+
             // Align
             item = new ToolStripMenuItem("Align Right")
             {
@@ -606,26 +608,9 @@ namespace Greenshot.Editor.Drawing
             // Action to perform on click.
             item.Click += delegate
             {
-                // Calculate height and width of new frame.
-                int width = this[0].Width + surface.Image.Width;
-                int height = Math.Max(surface.Image.Height, this[0].Height);
-                int imageBorder = surface.Image.Width;
-                // Create image for use as new frame.
-                Bitmap newImage = new Bitmap(width, height);
-                // Save old image.
-                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
-                // Set background to new, larger frame.
-                surface.Image = newImage;
-                // Move object to open space
-                this[0].MoveBy(imageBorder - this[0].Location.X, -this[0].Location.Y);
-                // Push original image to bottom.
-                var oldImageContainer = surface.AddImageContainer(oldImage, 0, 0);
-                IDrawableContainerList oldImageContainerList = this.Clone();
-                oldImageContainerList[0] = oldImageContainer;
-                surface.Elements.PushElementsToBottom(oldImageContainerList);
-                //_surfaceSizeChanged(this, null);
+                AlignOrStack("right", surface, this[0], this);
             };
-            menu.Items.Add(item);
+            alignSubmenu.DropDownItems.Add(item);
 
             // Left
             item = new ToolStripMenuItem("Align Left")
@@ -635,25 +620,9 @@ namespace Greenshot.Editor.Drawing
             // Action to perform on click.
             item.Click += delegate
             {
-                // Calculate height and width of new frame.
-                int width = this[0].Width + surface.Image.Width;
-                int height = Math.Max(surface.Image.Height, this[0].Height);
-                int oldWidth = surface.Image.Width;
-                // Create image for use as new frame.
-                Bitmap newImage = new Bitmap(width, height);
-                // Save old image.
-                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
-                // Set background to new, larger frame.
-                surface.Image = newImage;
-                // Move object to open space
-                this[0].MoveBy(-this[0].Location.X, -this[0].Location.Y);
-                // Re-add original image and push to bottom.
-                var oldImageContainer = surface.AddImageContainer(oldImage, this[0].Width, 0);
-                IDrawableContainerList oldImageContainerList = this.Clone();
-                oldImageContainerList[0] = oldImageContainer;
-                surface.Elements.PushElementsToBottom(oldImageContainerList);
+                AlignOrStack("left", surface, this[0], this);
             };
-            menu.Items.Add(item);
+            alignSubmenu.DropDownItems.Add(item);
 
             // Top
             item = new ToolStripMenuItem("Stack on Top")
@@ -663,25 +632,9 @@ namespace Greenshot.Editor.Drawing
             // Action to perform on click.
             item.Click += delegate
             {
-                // Calculate height and width of new frame.
-                int width = Math.Max(surface.Image.Width, this[0].Width);
-                int height = this[0].Height + surface.Image.Height;
-                int imageBorder = surface.Image.Width; // probably unnecessary
-                // Create image for use as new frame.
-                Bitmap newImage = new Bitmap(width, height);
-                // Save old image.
-                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
-                // Set background to new, larger frame.
-                surface.Image = newImage;
-                // Move object to open space
-                this[0].MoveBy(-this[0].Location.X, -this[0].Location.Y);
-                // Re-add original image and push to bottom.
-                var oldImageContainer = surface.AddImageContainer(oldImage, 0, this[0].Height);
-                IDrawableContainerList oldImageContainerList = this.Clone();
-                oldImageContainerList[0] = oldImageContainer;
-                surface.Elements.PushElementsToBottom(oldImageContainerList);
+                AlignOrStack("top", surface, this[0], this);
             };
-            menu.Items.Add(item);
+            alignSubmenu.DropDownItems.Add(item);
 
             // Bottom
             item = new ToolStripMenuItem("Stack on Bottom")
@@ -691,25 +644,13 @@ namespace Greenshot.Editor.Drawing
             // Action to perform on click.
             item.Click += delegate
             {
-                // Calculate height and width of new frame.
-                int width = Math.Max(surface.Image.Width, this[0].Width);
-                int height = this[0].Height + surface.Image.Height;
-                int imageBorder = surface.Image.Height;
-                // Create image for use as new frame.
-                Bitmap newImage = new Bitmap(width, height);
-                // Save old image.
-                Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
-                // Set background to new, larger frame.
-                surface.Image = newImage;
-                // Move object to open space
-                this[0].MoveBy(-this[0].Location.X, imageBorder - this[0].Location.Y);
-                // Re-add original image and push to bottom.
-                var oldImageContainer = surface.AddImageContainer(oldImage, 0, 0);
-                IDrawableContainerList oldImageContainerList = this.Clone();
-                oldImageContainerList[0] = oldImageContainer;
-                surface.Elements.PushElementsToBottom(oldImageContainerList);
+                AlignOrStack("bottom", surface, this[0], this);
             };
-            menu.Items.Add(item);
+            alignSubmenu.DropDownItems.Add(item);
+            menu.Items.Add(alignSubmenu);
+
+            // Fit menu
+            ToolStripMenuItem fitSubmenu = new ToolStripMenuItem("Fit");
 
             // Fit width
             item = new ToolStripMenuItem("Fit to width")
@@ -718,11 +659,13 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                this[0].Width = surface.Image.Width;
-                this[0].MoveBy(-this[0].Location.X, 0);
-                surface.DeselectAllElements();
+                foreach (var item in this)
+                {
+                    item.Width = surface.Image.Width;
+                }
+                SnapAllToEdge("left", surface, this);
             };
-            menu.Items.Add(item);
+            fitSubmenu.DropDownItems.Add(item);
 
             // Fit height
             item = new ToolStripMenuItem("Fit to height")
@@ -731,11 +674,16 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                this[0].Height = surface.Image.Height;
-                this[0].MoveBy(0, -this[0].Location.Y);
-                surface.DeselectAllElements();
+                foreach (var item in this)
+                {
+                    item.Height = surface.Image.Height;
+                }
+                SnapAllToEdge("top", surface, this);
             };
-            menu.Items.Add(item);
+            fitSubmenu.DropDownItems.Add(item);
+            menu.Items.Add(fitSubmenu);
+
+            ToolStripMenuItem snapSubmenu = new ToolStripMenuItem("Snap");
 
             // Snap left
             item = new ToolStripMenuItem("Snap left")
@@ -746,7 +694,7 @@ namespace Greenshot.Editor.Drawing
             {
                 SnapAllToEdge("left", surface, this);
             };
-            menu.Items.Add(item);
+            snapSubmenu.DropDownItems.Add(item);
 
             // Snap right
             item = new ToolStripMenuItem("Snap right")
@@ -757,7 +705,7 @@ namespace Greenshot.Editor.Drawing
             {
                 SnapAllToEdge("right", surface, this);
             };
-            menu.Items.Add(item);
+            snapSubmenu.DropDownItems.Add(item);
 
             // Snap to top
             item = new ToolStripMenuItem("Snap to top")
@@ -768,7 +716,7 @@ namespace Greenshot.Editor.Drawing
             {
                 SnapAllToEdge("top", surface, this);
             };
-            menu.Items.Add(item);
+            snapSubmenu.DropDownItems.Add(item);
 
             // Snap to bottom
             item = new ToolStripMenuItem("Snap to bottom")
@@ -779,7 +727,8 @@ namespace Greenshot.Editor.Drawing
             {
                 SnapAllToEdge("bottom", surface, this);
             };
-            menu.Items.Add(item);
+            snapSubmenu.DropDownItems.Add(item);
+            menu.Items.Add(snapSubmenu);
 
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
@@ -929,6 +878,56 @@ namespace Greenshot.Editor.Drawing
                 SnapToEdge(direction, surface, item);
             }
             surface.DeselectAllElements();
+        }
+
+        public void AlignOrStack(string direction, ISurface surface, IDrawableContainer target, IDrawableContainerList parent)
+        {
+            int newBackgroundWidth = 0, newBackgroundHeight = 0, imageBorder = 0, xMovement = 0, yMovement = 0;
+            int oldImageX = 0, oldImageY = 0;
+            // Calculate height and width of new frame.
+            // Also calculate movement for target object and old image.
+            if (direction == "right" || direction == "left")
+            {
+                newBackgroundWidth = target.Width + surface.Image.Width;
+                newBackgroundHeight = Math.Max(surface.Image.Height, target.Height);
+                if (direction == "right")
+                    imageBorder = surface.Image.Width;
+                if (direction == "left")
+                    oldImageX = target.Width;
+            }
+            else if (direction == "top" || direction == "bottom")
+            {
+                newBackgroundWidth = Math.Max(surface.Image.Width, target.Width);
+                newBackgroundHeight = target.Height + surface.Image.Height;
+                if (direction == "top")
+                    oldImageY = target.Height;
+                if (direction == "bottom")
+                    imageBorder = surface.Image.Height;
+            }
+            // Create image for use as new frame.
+            Bitmap newImage = new Bitmap(newBackgroundWidth, newBackgroundHeight);
+            // Save old image.
+            Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+            // Set background to new, larger frame.
+            surface.Image = newImage;
+            if (direction == "right" || direction == "left")
+            {
+                xMovement = imageBorder - target.Location.X;
+                yMovement = -target.Location.Y;
+            }
+            else if (direction == "top" || direction == "bottom")
+            {
+                xMovement = -target.Location.X;
+                yMovement = imageBorder - target.Location.Y;
+            }
+            // Move object to open space
+            target.MoveBy(xMovement, yMovement);
+            // Push original image to bottom.
+            var oldImageContainer = surface.AddImageContainer(oldImage, oldImageX, oldImageY);
+            IDrawableContainerList oldImageContainerList = parent.Clone();
+            oldImageContainerList[0] = oldImageContainer;
+            surface.Elements.PushElementsToBottom(oldImageContainerList);
+            //_surfaceSizeChanged(this, null);
         }
     }
 }
