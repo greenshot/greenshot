@@ -229,6 +229,7 @@ namespace Greenshot.Editor.Forms
                 _surface.MovingElementChanged += delegate { RefreshEditorControls(); };
                 _surface.DrawingModeChanged += Surface_DrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
+                _surface.SurfaceExpanded += SurfaceExpanded;
                 _surface.SurfaceMessage += SurfaceMessageReceived;
                 _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
                 SurfaceSizeChanged(Surface, null);
@@ -512,6 +513,14 @@ namespace Greenshot.Editor.Forms
 
             dimensionsLabel.Text = Surface.Image.Width + "x" + Surface.Image.Height;
             AlignCanvasPositionAfterResize();
+        }
+
+        /// <summary>
+        /// Used when expanding the surface in one direction to accomodate shifting an object to one side.
+        /// </summary>
+        private void SurfaceExpanded(object sender, EventArgs e)
+        {
+            UpdateUndoRedoSurfaceDependencies();
         }
 
         public ISurface Surface

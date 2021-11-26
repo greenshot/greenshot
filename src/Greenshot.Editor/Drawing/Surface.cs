@@ -104,6 +104,14 @@ namespace Greenshot.Editor.Drawing
             remove => _surfaceSizeChanged -= value;
         }
 
+        [NonSerialized] private SurfaceExpandedEventHandler _surfaceExpanded;
+
+        public event SurfaceExpandedEventHandler SurfaceExpanded
+        {
+            add => _surfaceExpanded += value;
+            remove => _surfaceExpanded -= value;
+        }
+
         [NonSerialized] private SurfaceMessageEventHandler _surfaceMessage;
 
         public event SurfaceMessageEventHandler SurfaceMessage
@@ -962,6 +970,13 @@ namespace Greenshot.Editor.Drawing
                 SetImage(newBitmap, false);
                 Invalidate();
             }
+        }
+
+        public void ResizeCanvas(int left, int right, int top, int bottom)
+        {
+            var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
+            ApplyBitmapEffect(resizeEffect);
+            _surfaceExpanded(this, null);
         }
 
         /// <summary>

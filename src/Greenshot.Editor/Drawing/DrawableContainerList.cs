@@ -882,52 +882,101 @@ namespace Greenshot.Editor.Drawing
 
         public void AlignOrStack(string direction, ISurface surface, IDrawableContainer target, IDrawableContainerList parent)
         {
-            int newBackgroundWidth = 0, newBackgroundHeight = 0, imageBorder = 0, xMovement = 0, yMovement = 0;
-            int oldImageX = 0, oldImageY = 0;
-            // Calculate height and width of new frame.
-            // Also calculate movement for target object and old image.
-            if (direction == "right" || direction == "left")
-            {
-                newBackgroundWidth = target.Width + surface.Image.Width;
-                newBackgroundHeight = Math.Max(surface.Image.Height, target.Height);
-                if (direction == "right")
-                    imageBorder = surface.Image.Width;
-                if (direction == "left")
-                    oldImageX = target.Width;
-            }
+            // Make calculations
+            int left = 0, right = 0, top = 0, bottom = 0;
+            if (direction == "left")
+                left = target.Width;
+            else if (direction == "right")
+                right = target.Width;
+            else if (direction == "top")
+                top = target.Height;
+            else if (direction == "bottom")
+                bottom = target.Height;
+            
+            // Use surface function
+            surface.ResizeCanvas(left, right, top, bottom);
+
+            // Move target object
+            SnapToEdge(direction, surface, target);
+            if (direction == "left" || direction == "right")
+                SnapToEdge("top", surface, target);
             else if (direction == "top" || direction == "bottom")
-            {
-                newBackgroundWidth = Math.Max(surface.Image.Width, target.Width);
-                newBackgroundHeight = target.Height + surface.Image.Height;
-                if (direction == "top")
-                    oldImageY = target.Height;
-                if (direction == "bottom")
-                    imageBorder = surface.Image.Height;
-            }
-            // Create image for use as new frame.
-            Bitmap newImage = new Bitmap(newBackgroundWidth, newBackgroundHeight);
-            // Save old image.
-            Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
-            // Set background to new, larger frame.
-            surface.Image = newImage;
-            if (direction == "right" || direction == "left")
-            {
-                xMovement = imageBorder - target.Location.X;
-                yMovement = -target.Location.Y;
-            }
-            else if (direction == "top" || direction == "bottom")
-            {
-                xMovement = -target.Location.X;
-                yMovement = imageBorder - target.Location.Y;
-            }
-            // Move object to open space
-            target.MoveBy(xMovement, yMovement);
-            // Push original image to bottom.
-            var oldImageContainer = surface.AddImageContainer(oldImage, oldImageX, oldImageY);
-            IDrawableContainerList oldImageContainerList = parent.Clone();
-            oldImageContainerList[0] = oldImageContainer;
-            surface.Elements.PushElementsToBottom(oldImageContainerList);
-            //_surfaceSizeChanged(this, null);
+                SnapToEdge("left", surface, target);
+            surface.DeselectAllElements();
+
+            //if (direction == "left")
+            //{
+            //    left = target.Width;
+            //    bottom = Math.Max(target.Height - surface.Image.Height, 0);
+            //    xMovement = -target.Location.X;
+            //    yMovement = -target.Location.Y;
+            //}
+            //else if (direction == "right")
+            //{
+            //    right = target.Width;
+            //    bottom = Math.Max(target.Height - surface.Image.Height, 0);
+            //    xMovement = surface.Image.Width - target.Location.X;
+            //    yMovement = -target.Location.Y;
+            //}
+            //else if (direction == "top")
+            //{
+            //    top = target.Height;
+            //    right = Math.Max(target.Width - surface.Image.Width, 0);
+            //}
+            //else if (direction == "bottom")
+            //{
+            //    bottom = target.Height;
+            //    right = Math.Max(target.Width - surface.Image.Width, 0);
+            //}
+
+
+
+            //int newBackgroundWidth = 0, newBackgroundHeight = 0, imageBorder = 0;
+            //int oldImageX = 0, oldImageY = 0;
+            //// Calculate height and width of new frame.
+            //// Also calculate movement for target object and old image.
+            //if (direction == "right" || direction == "left")
+            //{
+            //    newBackgroundWidth = target.Width + surface.Image.Width;
+            //    newBackgroundHeight = Math.Max(surface.Image.Height, target.Height);
+            //    if (direction == "right")
+            //        imageBorder = surface.Image.Width;
+            //    if (direction == "left")
+            //        oldImageX = target.Width;
+            //}
+            //else if (direction == "top" || direction == "bottom")
+            //{
+            //    newBackgroundWidth = Math.Max(surface.Image.Width, target.Width);
+            //    newBackgroundHeight = target.Height + surface.Image.Height;
+            //    if (direction == "top")
+            //        oldImageY = target.Height;
+            //    if (direction == "bottom")
+            //        imageBorder = surface.Image.Height;
+            //}
+            //// Create image for use as new frame.
+            //Bitmap newImage = new Bitmap(newBackgroundWidth, newBackgroundHeight);
+            //// Save old image.
+            //Bitmap oldImage = (Bitmap)ImageHelper.Clone(surface.Image);
+            //// Set background to new, larger frame.
+            //surface.Image = newImage;
+            //if (direction == "right" || direction == "left")
+            //{
+            //    xMovement = imageBorder - target.Location.X;
+            //    yMovement = -target.Location.Y;
+            //}
+            //else if (direction == "top" || direction == "bottom")
+            //{
+            //    xMovement = -target.Location.X;
+            //    yMovement = imageBorder - target.Location.Y;
+            //}
+            //// Move object to open space
+            //target.MoveBy(xMovement, yMovement);
+            //// Push original image to bottom.
+            //var oldImageContainer = surface.AddImageContainer(oldImage, oldImageX, oldImageY);
+            //IDrawableContainerList oldImageContainerList = parent.Clone();
+            //oldImageContainerList[0] = oldImageContainer;
+            //surface.Elements.PushElementsToBottom(oldImageContainerList);
+            ////_surfaceSizeChanged(this, null);
         }
     }
 }
