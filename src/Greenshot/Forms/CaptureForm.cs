@@ -188,6 +188,7 @@ namespace Greenshot.Forms
             // Set the zoomer animation
             InitializeZoomer(Conf.ZoomerEnabled);
 
+            Log.DebugFormat("Opening CaptureForm with dimensions {0}", capture.ScreenBounds);
             SuspendLayout();
             Bounds = capture.ScreenBounds;
             ResumeLayout();
