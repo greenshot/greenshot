@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -35,6 +36,8 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class RectangleContainer : DrawableContainer
     {
+        private static string _defaultFontName = null;
+
         public RectangleContainer(Surface parent) : base(parent)
         {
             Init();
@@ -162,6 +165,18 @@ namespace Greenshot.Editor.Drawing
             }
 
             return false;
+        }
+
+        protected string GetDefaultFontName()
+        {
+            if (_defaultFontName != null)
+            {
+                // On system supporting it, we default to "Segoe UI Emoji" that supports rendering emojis with GDI+
+                var emojiFont = "Segoe UI Emoji";
+                return FontFamily.Families.Any(f => string.Equals(f.Name, emojiFont, StringComparison.OrdinalIgnoreCase)) ? emojiFont : FontFamily.GenericSansSerif.Name;
+            }
+
+            return _defaultFontName;
         }
     }
 }
