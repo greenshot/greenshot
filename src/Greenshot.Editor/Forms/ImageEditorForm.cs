@@ -269,7 +269,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -652,6 +652,12 @@ namespace Greenshot.Editor.Forms
         private void BtnStepLabelClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.StepLabel;
+            RefreshFieldControls();
+        }
+
+        private void BtnEmojiClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Emoji;
             RefreshFieldControls();
         }
 

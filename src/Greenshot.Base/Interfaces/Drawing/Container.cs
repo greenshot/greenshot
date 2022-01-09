@@ -135,6 +135,11 @@ namespace Greenshot.Base.Interfaces.Drawing
         void Load(string filename);
     }
 
+    public interface IEmojiContainer : IDrawableContainer
+    {
+        string Emoji { get; set; }
+    }
+
     public interface ICursorContainer : IDrawableContainer
     {
         Cursor Cursor { get; set; }

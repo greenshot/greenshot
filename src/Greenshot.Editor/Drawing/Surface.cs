@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -748,6 +748,9 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.None:
                     _undrawnElement = null;
                     break;
+                case DrawingModes.Emoji:
+                    _undrawnElement = new EmojiContainer(this);
+                    break;
             }
 
             if (_undrawnElement != null)
@@ -796,6 +799,15 @@ namespace Greenshot.Editor.Drawing
         {
             IconContainer iconContainer = new IconContainer(this);
             iconContainer.Load(filename);
+            iconContainer.Left = x;
+            iconContainer.Top = y;
+            AddElement(iconContainer);
+            return iconContainer;
+        }
+
+        public IEmojiContainer AddEmojiContainer(string emoji, int x, int y, int size)
+        {
+            var iconContainer = new EmojiContainer(this, emoji, size);
             iconContainer.Left = x;
             iconContainer.Top = y;
             AddElement(iconContainer);

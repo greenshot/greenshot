@@ -179,16 +179,19 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
-            int rotateAngle = CalculateAngle(matrix);
-            // we currently assume only one transformation has been made.
-            if (rotateAngle != 0)
+            if (image != null)
             {
-                Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
-                DisposeShadow();
-                using var tmpMatrix = new Matrix();
-                using (image)
+                int rotateAngle = CalculateAngle(matrix);
+                // we currently assume only one transformation has been made.
+                if (rotateAngle != 0)
                 {
-                    image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+                    Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+                    DisposeShadow();
+                    using var tmpMatrix = new Matrix();
+                    using (image)
+                    {
+                        image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+                    }
                 }
             }
 

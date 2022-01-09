@@ -70,7 +70,8 @@ namespace Greenshot.Editor.Forms {
 			this.btnText = new GreenshotToolStripButton();
 			this.btnSpeechBubble = new GreenshotToolStripButton();
 			this.btnStepLabel = new GreenshotToolStripButton();
-			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnEmoji = new GreenshotToolStripButton();
+            this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new GreenshotToolStripButton();
 			this.btnObfuscate = new GreenshotToolStripButton();
 			this.toolStripSplitButton1 = new GreenshotToolStripDropDownButton();
@@ -334,8 +335,9 @@ namespace Greenshot.Editor.Forms {
 									this.btnText,
 									this.btnSpeechBubble,
 									this.btnStepLabel,
+									this.btnEmoji,
 									this.toolStripSeparator14,
-									this.btnHighlight,
+                                    this.btnHighlight,
 									this.btnObfuscate,
 									this.toolStripSplitButton1,
 									this.toolStripSeparator13,
@@ -443,10 +445,20 @@ namespace Greenshot.Editor.Forms {
 			this.btnStepLabel.LanguageKey = "editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
-			// 
-			// toolStripSeparator14
-			// 
-			this.toolStripSeparator14.Name = "toolStripSeparator14";
+            // 
+            // btnStepEmoji
+            // 
+            this.btnEmoji.CheckOnClick = true;
+            this.btnEmoji.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnEmoji.Image = ((System.Drawing.Image)(resources.GetObject("btnEmoji.Image")));
+            this.btnEmoji.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnEmoji.LanguageKey = "editor_emoji";
+            this.btnEmoji.Name = "btnEmoji";
+            this.btnEmoji.Click += new System.EventHandler(this.BtnEmojiClick);
+            // 
+            // toolStripSeparator14
+            // 
+            this.toolStripSeparator14.Name = "toolStripSeparator14";
 			// 
 			// btnHighlight
 			// 
@@ -1928,7 +1940,8 @@ namespace Greenshot.Editor.Forms {
 		private GreenshotToolStripButton btnText;
 		private GreenshotToolStripButton btnSpeechBubble;
 		private GreenshotToolStripButton btnStepLabel;
-		private GreenshotToolStripMenuItem drawLineToolStripMenuItem;
+        private GreenshotToolStripButton btnEmoji;
+        private GreenshotToolStripMenuItem drawLineToolStripMenuItem;
 		private GreenshotToolStripButton btnLine;
 		private GreenshotToolStripButton btnSettings;
 		private GreenshotToolStripButton btnHelp;
