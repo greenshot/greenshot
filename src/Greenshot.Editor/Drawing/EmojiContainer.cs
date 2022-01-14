@@ -24,13 +24,15 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Emoji.Wpf;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
-using log4net;
+using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 using Size = System.Windows.Size;
 
@@ -42,14 +44,12 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class EmojiContainer : DrawableContainer, IEmojiContainer
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
-
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
-        [NonSerialized] private static Emoji.Wpf.Picker _emojiPicker;
+        [NonSerialized] private static Picker _emojiPicker;
 
         [NonSerialized] private System.Windows.Controls.Image _image;
-        [NonSerialized] private bool _firstSelection = true;
+        [NonSerialized] private bool _justCreated = true;
 
         private string _emoji;
 
@@ -99,14 +99,14 @@ namespace Greenshot.Editor.Drawing
             _emojiPickerHost.Top = displayRectangle.Top;
 
             _emojiPicker.Selection = Emoji;
-            _emojiPicker.ShowPopup = true;
+            _emojiPicker.ShowPopup(true);
         }
 
         private void CreatePickerControl()
         {
             if (_emojiPickerHost == null)
             {
-                _emojiPicker = new Emoji.Wpf.Picker();
+                _emojiPicker = new Picker();
                 _emojiPicker.Picked += (_, args) =>
                 {
                     _currentContainer.Emoji = args.Emoji;
@@ -121,12 +121,8 @@ namespace Greenshot.Editor.Drawing
 
         private void HideEmojiPicker()
         {
-            if (_emojiPicker != null)
-            {
-                _emojiPicker.ShowPopup = false;
-            }
+            _emojiPicker?.ShowPopup(false);
         }
-
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -138,7 +134,7 @@ namespace Greenshot.Editor.Drawing
         {
             CreateDefaultAdorners();
 
-            // Create WPF control
+            // Create WPF control that will be used to render the emoji
             _image = new System.Windows.Controls.Image();
             global::Emoji.Wpf.Image.SetSource(_image, Emoji);
 
@@ -153,10 +149,11 @@ namespace Greenshot.Editor.Drawing
                 {
                     HideEmojiPicker();
                 }
-                else if (Status == EditStatus.IDLE && _firstSelection)
+                else if (Status == EditStatus.IDLE && _justCreated)
                 {
+                    // Show picker just after creation
                     ShowEmojiPicker();
-                    _firstSelection = false;
+                    _justCreated = false;
                 }
             }
         }
@@ -195,7 +192,7 @@ namespace Greenshot.Editor.Drawing
 
         private int GetRotationAngle()
         {
-            int rotationAngle = 0;
+            var rotationAngle = 0;
             if (Width < 0)
             {
                 rotationAngle = Height > 0 ? 90 : 180;
@@ -238,6 +235,20 @@ namespace Greenshot.Editor.Drawing
             gfx.DrawImage(img, new Point(0, 0));
 
             return bitmap;
+        }
+    }
+
+    internal static class PickerExtensions
+    {
+        public static void ShowPopup(this Picker picker, bool show)
+        {
+            foreach (var child in picker.Children)
+            {
+                if (child is ToggleButton button)
+                {
+                    button.IsChecked = show;
+                }
+            }
         }
     }
 }
