@@ -332,37 +332,37 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void AddDestinations()
         {
-            Invoke((MethodInvoker)delegate
-           {
-               // Create export buttons
-               foreach (IDestination destination in DestinationHelper.GetAllDestinations())
-               {
-                   if (destination.Priority <= 2)
-                   {
-                       continue;
-                   }
+            Invoke((MethodInvoker) delegate
+            {
+                // Create export buttons
+                foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+                {
+                    if (destination.Priority <= 2)
+                    {
+                        continue;
+                    }
 
-                   if (!destination.IsActive)
-                   {
-                       continue;
-                   }
+                    if (!destination.IsActive)
+                    {
+                        continue;
+                    }
 
-                   if (destination.DisplayIcon == null)
-                   {
-                       continue;
-                   }
+                    if (destination.DisplayIcon == null)
+                    {
+                        continue;
+                    }
 
-                   try
-                   {
-                       AddDestinationButton(destination);
-                   }
-                   catch (Exception addingException)
-                   {
-                       Log.WarnFormat("Problem adding destination {0}", destination.Designation);
-                       Log.Warn("Exception: ", addingException);
-                   }
-               }
-           });
+                    try
+                    {
+                        AddDestinationButton(destination);
+                    }
+                    catch (Exception addingException)
+                    {
+                        Log.WarnFormat("Problem adding destination {0}", destination.Designation);
+                        Log.Warn("Exception: ", addingException);
+                    }
+                }
+            });
         }
 
         private void AddDestinationButton(IDestination toolstripDestination)
@@ -625,7 +625,7 @@ namespace Greenshot.Editor.Forms
         private void BtnPrintClick(object sender, EventArgs e)
         {
             // The BeginInvoke is a solution for the printdialog not having focus
-            BeginInvoke((MethodInvoker)delegate { DestinationHelper.ExportCapture(true, WellKnownDestinations.Printer, _surface, _surface.CaptureDetails); });
+            BeginInvoke((MethodInvoker) delegate { DestinationHelper.ExportCapture(true, WellKnownDestinations.Printer, _surface, _surface.CaptureDetails); });
         }
 
         private void CloseToolStripMenuItemClick(object sender, EventArgs e)
@@ -1212,7 +1212,7 @@ namespace Greenshot.Editor.Forms
 
         private void StatusLabelClicked(object sender, MouseEventArgs e)
         {
-            ToolStrip ss = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
+            ToolStrip ss = (StatusStrip) ((ToolStripStatusLabel) sender).Owner;
             ss.ContextMenuStrip?.Show(ss, e.X, e.Y);
         }
 
@@ -1284,9 +1284,9 @@ namespace Greenshot.Editor.Forms
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
                 counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                               && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
+                                                               && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                         && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                                                         && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
@@ -1316,11 +1316,11 @@ namespace Greenshot.Editor.Forms
             Image icon;
             if (stepLabels <= 20)
             {
-                icon = (Image)resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
+                icon = (Image) resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
             }
             else
             {
-                icon = (Image)resources.GetObject("btnStepLabel20+.Image");
+                icon = (Image) resources.GetObject("btnStepLabel20+.Image");
             }
 
             btnStepLabel.Image = icon;
@@ -1329,7 +1329,7 @@ namespace Greenshot.Editor.Forms
             FieldAggregator props = _surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
             // since we demand confirmation or cancel for confirmable element
-            if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
+            if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
             {
                 // disable most controls
                 if (!_controlsDisabledDueToConfirmable)
@@ -1377,7 +1377,7 @@ namespace Greenshot.Editor.Forms
 
         private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
+            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination) ((ToolStripMenuItem) sender).Tag;
         }
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
@@ -1520,14 +1520,14 @@ namespace Greenshot.Editor.Forms
                     return;
                 }
 
-                clickedDestination = (IDestination)clickedControl.Tag;
+                clickedDestination = (IDestination) clickedControl.Tag;
             }
             else
             {
                 if (sender is ToolStripMenuItem item)
                 {
                     ToolStripMenuItem clickedMenuItem = item;
-                    clickedDestination = (IDestination)clickedMenuItem.Tag;
+                    clickedDestination = (IDestination) clickedMenuItem.Tag;
                 }
             }
 
@@ -1564,17 +1564,17 @@ namespace Greenshot.Editor.Forms
 
         private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
         {
-            ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
+            ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem) sender;
             var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
+            ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
             try
             {
-                WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
+                WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
                 ICapture capture = new Capture();
                 using (Graphics graphics = Graphics.FromHwnd(Handle))
                 {
@@ -1589,8 +1589,8 @@ namespace Greenshot.Editor.Forms
                     capture = captureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
-                        ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-                        _surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
+                        ((Bitmap) capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+                        _surface.AddImageContainer((Bitmap) capture.Image, 100, 100);
                     }
 
                     Activate();
@@ -1770,7 +1770,7 @@ namespace Greenshot.Editor.Forms
             var canvas = Surface as Control;
             Size canvasSize = canvas.Size;
             Size currentClientSize = panel1.ClientSize;
-            Panel panel = (Panel)canvas?.Parent;
+            Panel panel = (Panel) canvas?.Parent;
             if (panel == null)
             {
                 return;
@@ -1863,8 +1863,8 @@ namespace Greenshot.Editor.Forms
 
         private void ZoomSetValueMenuItemClick(object sender, EventArgs e)
         {
-            var senderMenuItem = (ToolStripMenuItem)sender;
-            var nextValue = Fraction.Parse((string)senderMenuItem.Tag);
+            var senderMenuItem = (ToolStripMenuItem) sender;
+            var nextValue = Fraction.Parse((string) senderMenuItem.Tag);
 
             ZoomSetValue(nextValue);
         }
@@ -1877,7 +1877,7 @@ namespace Greenshot.Editor.Forms
             var imageSize = Surface.Image.Size;
 
             static bool isFit(Fraction scale, int source, int boundary)
-                => (int)(source * scale) <= boundary;
+                => (int) (source * scale) <= boundary;
 
             var nextIndex = Array.FindLastIndex(
                 ZOOM_VALUES,
@@ -1939,7 +1939,7 @@ namespace Greenshot.Editor.Forms
             AlignCanvasPositionAfterResize();
 
             // Update zoom controls
-            zoomStatusDropDownBtn.Text = ((int)(100 * (double)value)).ToString() + "%";
+            zoomStatusDropDownBtn.Text = ((int) (100 * (double) value)).ToString() + "%";
             var valueString = value.ToString();
             foreach (var item in zoomMenuStrip.Items)
             {
@@ -1953,8 +1953,8 @@ namespace Greenshot.Editor.Forms
             rc = surface.GetVisibleRectangle();
             size = surface.Size;
             panel.AutoScrollPosition = new Point(
-                (int)(horizontalCenter * size.Width) - rc.Width / 2,
-                (int)(verticalCenter * size.Height) - rc.Height / 2
+                (int) (horizontalCenter * size.Width) - rc.Width / 2,
+                (int) (verticalCenter * size.Height) - rc.Height / 2
             );
         }
     }
