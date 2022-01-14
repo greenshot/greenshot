@@ -89,6 +89,8 @@ namespace Greenshot.Editor.Drawing
 
             CreatePickerControl();
 
+            _parent.Controls.Add(_emojiPickerHost);
+
             var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _emojiPickerHost.Width = 0; // Trick to hide the picker's button
@@ -114,8 +116,6 @@ namespace Greenshot.Editor.Drawing
                 _emojiPickerHost = new ElementHost();
                 _emojiPickerHost.Dock = DockStyle.None;
                 _emojiPickerHost.Child = _emojiPicker;
-
-                _parent.Controls.Add(_emojiPickerHost);
             }
         }
 
