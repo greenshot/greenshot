@@ -44,8 +44,11 @@ namespace Greenshot.Editor.Drawing
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
 
+        [NonSerialized] private static EmojiContainer _currentContainer;
+        [NonSerialized] private static ElementHost _emojiPickerHost;
+        [NonSerialized] private static Emoji.Wpf.Picker _emojiPicker;
+
         [NonSerialized] private System.Windows.Controls.Image _image;
-        [NonSerialized] private ElementHost _emojiPicker;
         [NonSerialized] private bool _firstSelection = true;
 
         private string _emoji;
@@ -82,44 +85,45 @@ namespace Greenshot.Editor.Drawing
 
         private void ShowEmojiPicker()
         {
-            if (_emojiPicker == null)
-            {
-                var picker = new Emoji.Wpf.Picker();
-                picker.Picked += (_, args) =>
-                {
-                    Emoji = args.Emoji;
-                    Invalidate();
-                };
+            _currentContainer = this;
 
-                _emojiPicker = new ElementHost();
-                _emojiPicker.Dock = DockStyle.None;
-                _emojiPicker.Child = picker;
-            }
-
-            var emojiPickerChild = ((Emoji.Wpf.Picker)_emojiPicker.Child);
-            emojiPickerChild.Selection = Emoji;
+            CreatePickerControl();
 
             var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
-            _emojiPicker.Width = 0; // Trick to hide the picker's button
-            _emojiPicker.Height = displayRectangle.Height;
-            _emojiPicker.Left = displayRectangle.Left;
-            _emojiPicker.Top = displayRectangle.Top;
+            _emojiPickerHost.Width = 0; // Trick to hide the picker's button
+            _emojiPickerHost.Height = displayRectangle.Height;
+            _emojiPickerHost.Left = displayRectangle.Left;
+            _emojiPickerHost.Top = displayRectangle.Top;
 
-            if (_parent != null)
+            _emojiPicker.Selection = Emoji;
+            _emojiPicker.ShowPopup = true;
+        }
+
+        private void CreatePickerControl()
+        {
+            if (_emojiPickerHost == null)
             {
-                _parent.KeysLocked = true;
-                _parent.Controls.Add(_emojiPicker);
-            }
+                _emojiPicker = new Emoji.Wpf.Picker();
+                _emojiPicker.Picked += (_, args) =>
+                {
+                    _currentContainer.Emoji = args.Emoji;
+                    _currentContainer.Invalidate();
+                };
 
-            emojiPickerChild.ShowPopup = true;
+                _emojiPickerHost = new ElementHost();
+                _emojiPickerHost.Dock = DockStyle.None;
+                _emojiPickerHost.Child = _emojiPicker;
+
+                _parent.Controls.Add(_emojiPickerHost);
+            }
         }
 
         private void HideEmojiPicker()
         {
-            if (_parent != null && _emojiPicker != null)
+            if (_emojiPicker != null)
             {
-                _parent.Controls.Remove(_emojiPicker);
+                _emojiPicker.ShowPopup = false;
             }
         }
 
