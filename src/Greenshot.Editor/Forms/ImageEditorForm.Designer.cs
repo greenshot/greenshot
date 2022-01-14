@@ -452,7 +452,7 @@ namespace Greenshot.Editor.Forms {
             this.btnEmoji.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.btnEmoji.Image = ((System.Drawing.Image)(resources.GetObject("btnEmoji.Image")));
             this.btnEmoji.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnEmoji.LanguageKey = "editor_emoji";
+            this.btnEmoji.Text = "Emoji";
             this.btnEmoji.Name = "btnEmoji";
             this.btnEmoji.Click += new System.EventHandler(this.BtnEmojiClick);
             // 
