@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base;
@@ -183,6 +184,16 @@ namespace Greenshot.Editor.Forms
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
+
+            HideEmojiButtonWhenFontIsNotInstalled();
+        }
+
+        private void HideEmojiButtonWhenFontIsNotInstalled()
+        {
+            if (!FontFamily.Families.Any(f => string.Equals(f.Name, "Segoe UI Emoji", StringComparison.OrdinalIgnoreCase)))
+            {
+                btnEmoji.Visible = false;
+            }
         }
 
         /// <summary>
@@ -1201,7 +1212,7 @@ namespace Greenshot.Editor.Forms
 
         private void StatusLabelClicked(object sender, MouseEventArgs e)
         {
-            ToolStrip ss = (StatusStrip) ((ToolStripStatusLabel) sender).Owner;
+            ToolStrip ss = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
             ss.ContextMenuStrip?.Show(ss, e.X, e.Y);
         }
 
@@ -1366,7 +1377,7 @@ namespace Greenshot.Editor.Forms
 
         private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination) ((ToolStripMenuItem) sender).Tag;
+            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
         }
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
@@ -1866,7 +1877,7 @@ namespace Greenshot.Editor.Forms
             var imageSize = Surface.Image.Size;
 
             static bool isFit(Fraction scale, int source, int boundary)
-                => (int) (source * scale) <= boundary;
+                => (int)(source * scale) <= boundary;
 
             var nextIndex = Array.FindLastIndex(
                 ZOOM_VALUES,
@@ -1928,7 +1939,7 @@ namespace Greenshot.Editor.Forms
             AlignCanvasPositionAfterResize();
 
             // Update zoom controls
-            zoomStatusDropDownBtn.Text = ((int) (100 * (double) value)).ToString() + "%";
+            zoomStatusDropDownBtn.Text = ((int)(100 * (double)value)).ToString() + "%";
             var valueString = value.ToString();
             foreach (var item in zoomMenuStrip.Items)
             {
@@ -1942,8 +1953,8 @@ namespace Greenshot.Editor.Forms
             rc = surface.GetVisibleRectangle();
             size = surface.Size;
             panel.AutoScrollPosition = new Point(
-                (int) (horizontalCenter * size.Width) - rc.Width / 2,
-                (int) (verticalCenter * size.Height) - rc.Height / 2
+                (int)(horizontalCenter * size.Width) - rc.Width / 2,
+                (int)(verticalCenter * size.Height) - rc.Height / 2
             );
         }
     }
