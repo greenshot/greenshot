@@ -29,7 +29,6 @@ using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Helpers;
 using log4net;
 using Point = System.Drawing.Point;
@@ -46,8 +45,9 @@ namespace Greenshot.Editor.Drawing
         private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
 
         [NonSerialized] private System.Windows.Controls.Image _image;
+        [NonSerialized] private ElementHost _emojiPicker;
+        [NonSerialized] private bool _firstSelection = true;
 
-        private int _rotateAngle;
         private string _emoji;
 
         public string Emoji
@@ -77,32 +77,52 @@ namespace Greenshot.Editor.Drawing
 
         public override void OnDoubleClick()
         {
-            var host = new ElementHost();
-            host.Dock = DockStyle.None;
-            var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            host.Width = rect.Width;
-            host.Height = rect.Height;
-            host.Left = rect.Left;
-            host.Top = rect.Top;
+            ShowEmojiPicker();
+        }
 
-            var picker = new Emoji.Wpf.Picker { Selection = Emoji };
-            picker.Picked += (o, args) =>
+        private void ShowEmojiPicker()
+        {
+            if (_emojiPicker == null)
             {
-                Emoji = args.Emoji;
-                _parent.Controls.Remove(host);
+                var picker = new Emoji.Wpf.Picker();
+                picker.Picked += (_, args) =>
+                {
+                    Emoji = args.Emoji;
+                    Invalidate();
+                };
 
-            };
-            host.Child = picker;
+                _emojiPicker = new ElementHost();
+                _emojiPicker.Dock = DockStyle.None;
+                _emojiPicker.Child = picker;
+            }
+
+            var emojiPickerChild = ((Emoji.Wpf.Picker)_emojiPicker.Child);
+            emojiPickerChild.Selection = Emoji;
+
+            var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
+            _emojiPicker.Width = 0; // Trick to hide the picker's button
+            _emojiPicker.Height = displayRectangle.Height;
+            _emojiPicker.Left = displayRectangle.Left;
+            _emojiPicker.Top = displayRectangle.Top;
 
             if (_parent != null)
             {
                 _parent.KeysLocked = true;
-                _parent.Controls.Add(host);
+                _parent.Controls.Add(_emojiPicker);
             }
 
-            host.Show();
-            host.Focus();
+            emojiPickerChild.ShowPopup = true;
         }
+
+        private void HideEmojiPicker()
+        {
+            if (_parent != null && _emojiPicker != null)
+            {
+                _parent.Controls.Remove(_emojiPicker);
+            }
+        }
+
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -113,17 +133,28 @@ namespace Greenshot.Editor.Drawing
         private void Init()
         {
             CreateDefaultAdorners();
-            
+
             // Create WPF control
             _image = new System.Windows.Controls.Image();
             global::Emoji.Wpf.Image.SetSource(_image, Emoji);
+
+            PropertyChanged += OnPropertyChanged;
         }
 
-        public override void Transform(System.Drawing.Drawing2D.Matrix matrix)
+        private void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            _rotateAngle += CalculateAngle(matrix);
-            _rotateAngle %= 360;
-            base.Transform(matrix);
+            if (e.PropertyName.Equals(nameof(Selected)))
+            {
+                if (!Selected)
+                {
+                    HideEmojiPicker();
+                }
+                else if (Status == EditStatus.IDLE && _firstSelection)
+                {
+                    ShowEmojiPicker();
+                    _firstSelection = false;
+                }
+            }
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)
@@ -147,15 +178,32 @@ namespace Greenshot.Editor.Drawing
 
                 using var bitmap = BitmapFromSource(renderTargetBitmap);
 
-                if (_rotateAngle != 0)
+                var rotationAngle = GetRotationAngle();
+                if (rotationAngle != 0)
                 {
-                    graphics.DrawImage(RotateImage(bitmap, _rotateAngle), Bounds);
+                    graphics.DrawImage(RotateImage(bitmap, rotationAngle), Bounds);
                     return;
                 }
 
                 graphics.DrawImage(bitmap, Bounds);
             }
         }
+
+        private int GetRotationAngle()
+        {
+            int rotationAngle = 0;
+            if (Width < 0)
+            {
+                rotationAngle = Height > 0 ? 90 : 180;
+            }
+            else if (Height < 0)
+            {
+                rotationAngle = 270;
+            }
+
+            return rotationAngle;
+        }
+
         private Bitmap BitmapFromSource(BitmapSource bitmapSource)
         {
             var src = new FormatConvertedBitmap();
