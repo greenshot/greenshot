@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -87,9 +88,7 @@ namespace Greenshot.Editor.Drawing
         {
             _currentContainer = this;
 
-            CreatePickerControl();
-
-            _parent.Controls.Add(_emojiPickerHost);
+            GetOrCreatePickerControl();
 
             var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
@@ -102,8 +101,10 @@ namespace Greenshot.Editor.Drawing
             _emojiPicker.ShowPopup(true);
         }
 
-        private void CreatePickerControl()
+        private void GetOrCreatePickerControl()
         {
+            // Create one picker control by surface
+            _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
             if (_emojiPickerHost == null)
             {
                 _emojiPicker = new Picker();
@@ -116,6 +117,9 @@ namespace Greenshot.Editor.Drawing
                 _emojiPickerHost = new ElementHost();
                 _emojiPickerHost.Dock = DockStyle.None;
                 _emojiPickerHost.Child = _emojiPicker;
+                _emojiPickerHost.Name = "EmojiPickerHost";
+
+                _parent.Controls.Add(_emojiPickerHost);
             }
         }
 
