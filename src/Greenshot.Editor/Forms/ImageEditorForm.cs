@@ -988,6 +988,9 @@ namespace Greenshot.Editor.Forms
                     case Keys.C:
                         BtnCropClick(sender, e);
                         break;
+                    case Keys.M:
+                        BtnEmojiClick(sender, e);
+                        break;
                 }
             }
             else if (e.Modifiers.Equals(Keys.Control))
