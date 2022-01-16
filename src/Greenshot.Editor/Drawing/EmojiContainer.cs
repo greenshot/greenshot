@@ -186,7 +186,8 @@ namespace Greenshot.Editor.Drawing
                 var rotationAngle = GetRotationAngle();
                 if (rotationAngle != 0)
                 {
-                    graphics.DrawImage(RotateImage(bitmap, rotationAngle), Bounds);
+                    using var newBitmap = RotateImage(bitmap, rotationAngle);
+                    graphics.DrawImage(RotateImage(newBitmap, rotationAngle), Bounds);
                     return;
                 }
 

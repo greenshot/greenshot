@@ -65,6 +65,8 @@ namespace Greenshot.Editor.Forms
 
         private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
 
+        private static bool? _emojifontInstalled;
+
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
 
@@ -190,10 +192,8 @@ namespace Greenshot.Editor.Forms
 
         private void HideEmojiButtonWhenFontIsNotInstalled()
         {
-            if (!FontFamily.Families.Any(f => string.Equals(f.Name, "Segoe UI Emoji", StringComparison.OrdinalIgnoreCase)))
-            {
-                btnEmoji.Visible = false;
-            }
+            _emojifontInstalled ??= FontFamily.Families.Any(f => string.Equals(f.Name, "Segoe UI Emoji", StringComparison.OrdinalIgnoreCase));
+            btnEmoji.Visible = _emojifontInstalled.Value;
         }
 
         /// <summary>
