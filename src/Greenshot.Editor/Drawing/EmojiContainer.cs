@@ -34,6 +34,7 @@ using Emoji.Wpf;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
+using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
 using Size = System.Windows.Size;
 
@@ -53,6 +54,7 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private bool _justCreated = true;
 
         private string _emoji;
+        private int _rotationAngle;
 
         public string Emoji
         {
@@ -145,6 +147,14 @@ namespace Greenshot.Editor.Drawing
             PropertyChanged += OnPropertyChanged;
         }
 
+        public override void Transform(Matrix matrix)
+        {
+            _rotationAngle += CalculateAngle(matrix);
+            _rotationAngle %= 360;
+
+            base.Transform(matrix);
+        }
+
         private void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName.Equals(nameof(Selected)))
@@ -183,31 +193,15 @@ namespace Greenshot.Editor.Drawing
 
                 using var bitmap = BitmapFromSource(renderTargetBitmap);
 
-                var rotationAngle = GetRotationAngle();
-                if (rotationAngle != 0)
+                if (_rotationAngle != 0)
                 {
-                    using var newBitmap = RotateImage(bitmap, rotationAngle);
-                    graphics.DrawImage(RotateImage(newBitmap, rotationAngle), Bounds);
+                    using var newBitmap = RotateImage(bitmap, _rotationAngle);
+                    graphics.DrawImage(newBitmap, Bounds);
                     return;
                 }
 
                 graphics.DrawImage(bitmap, Bounds);
             }
-        }
-
-        private int GetRotationAngle()
-        {
-            var rotationAngle = 0;
-            if (Width < 0)
-            {
-                rotationAngle = Height > 0 ? 90 : 180;
-            }
-            else if (Height < 0)
-            {
-                rotationAngle = 270;
-            }
-
-            return rotationAngle;
         }
 
         private Bitmap BitmapFromSource(BitmapSource bitmapSource)
