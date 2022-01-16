@@ -36,7 +36,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 using Matrix = System.Drawing.Drawing2D.Matrix;
-using Point = System.Drawing.Point;
 using Size = System.Windows.Size;
 
 namespace Greenshot.Editor.Drawing
@@ -53,6 +52,7 @@ namespace Greenshot.Editor.Drawing
 
         [NonSerialized] private System.Windows.Controls.Image _image;
         [NonSerialized] private bool _justCreated = true;
+        [NonSerialized] private Image _cachedImage = null;
 
         private string _emoji;
         private int _rotationAngle;
@@ -148,10 +148,22 @@ namespace Greenshot.Editor.Drawing
             PropertyChanged += OnPropertyChanged;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ResetCachedBitmap();
+            }
+
+            base.Dispose(disposing);
+        }
+
         public override void Transform(Matrix matrix)
         {
             _rotationAngle += CalculateAngle(matrix);
             _rotationAngle %= 360;
+
+            ResetCachedBitmap();
 
             base.Transform(matrix);
         }
@@ -185,12 +197,23 @@ namespace Greenshot.Editor.Drawing
             var iconSize = Math.Min(rect.Width, rect.Height);
             if (iconSize > 0)
             {
-                using var bitmap = GetBitmap(iconSize);
-                graphics.DrawImage(bitmap, Bounds);
+                if (_cachedImage == null)
+                {
+                    //  First draw or cache was invalidated
+                    _cachedImage = ComputeBitmap(iconSize);
+                }
+                else if (iconSize != _cachedImage.Width)
+                {
+                    // The elements was resized => recompute
+                    _cachedImage.Dispose();
+                    _cachedImage = ComputeBitmap(iconSize);
+                }
+
+                graphics.DrawImage(_cachedImage, Bounds);
             }
         }
 
-        private Image GetBitmap(int iconSize)
+        private Image ComputeBitmap(int iconSize)
         {
             _image.Measure(new Size(iconSize, iconSize));
             _image.Arrange(new Rect(0, 0, iconSize, iconSize));
@@ -211,7 +234,11 @@ namespace Greenshot.Editor.Drawing
             return bitmap;
         }
 
-        
+        private void ResetCachedBitmap()
+        {
+            _cachedImage?.Dispose();
+            _cachedImage = null;
+        }
     }
 
     internal static class PickerExtensions
