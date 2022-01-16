@@ -31,6 +31,7 @@ using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emoji.Wpf;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
@@ -182,59 +183,35 @@ namespace Greenshot.Editor.Drawing
             var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
             var iconSize = Math.Min(rect.Width, rect.Height);
-
             if (iconSize > 0)
             {
-                _image.Measure(new Size(iconSize, iconSize));
-                _image.Arrange(new Rect(0, 0, iconSize, iconSize));
-
-                var renderTargetBitmap = new RenderTargetBitmap(iconSize, iconSize, 96, 96, PixelFormats.Pbgra32);
-                renderTargetBitmap.Render(_image);
-
-                using var bitmap = BitmapFromSource(renderTargetBitmap);
-
-                if (_rotationAngle != 0)
-                {
-                    using var newBitmap = RotateImage(bitmap, _rotationAngle);
-                    graphics.DrawImage(newBitmap, Bounds);
-                    return;
-                }
-
+                using var bitmap = GetBitmap(iconSize);
                 graphics.DrawImage(bitmap, Bounds);
             }
         }
 
-        private Bitmap BitmapFromSource(BitmapSource bitmapSource)
+        private Image GetBitmap(int iconSize)
         {
-            var src = new FormatConvertedBitmap();
-            src.BeginInit();
-            src.Source = bitmapSource;
-            src.DestinationFormat = PixelFormats.Bgra32;
-            src.EndInit();
+            _image.Measure(new Size(iconSize, iconSize));
+            _image.Arrange(new Rect(0, 0, iconSize, iconSize));
 
-            var bitmap = new Bitmap(src.PixelWidth, src.PixelHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            var data = bitmap.LockBits(new Rectangle(new Point(0, 0), bitmap.Size), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            src.CopyPixels(Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
-            bitmap.UnlockBits(data);
+            var renderTargetBitmap = new RenderTargetBitmap(iconSize, iconSize, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(_image);
+
+            var bitmap = renderTargetBitmap.ToBitmap();
+
+            if (_rotationAngle != 0)
+            {
+                var newBitmap = bitmap.Rotate( _rotationAngle);
+                bitmap.Dispose();
+
+                return newBitmap;
+            }
 
             return bitmap;
         }
 
-        private static Image RotateImage(Image img, float rotationAngle)
-        {
-            var bitmap = new Bitmap(img.Width, img.Height);
-
-            using var gfx = Graphics.FromImage(bitmap);
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
-            gfx.RotateTransform(rotationAngle);
-            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
-
-            gfx.DrawImage(img, new Point(0, 0));
-
-            return bitmap;
-        }
+        
     }
 
     internal static class PickerExtensions

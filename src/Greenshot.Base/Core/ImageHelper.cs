@@ -1803,5 +1803,49 @@ namespace Greenshot.Base.Core
 
             return returnImage;
         }
+
+
+        /// <summary>
+        /// Rotate the image
+        /// </summary>
+        /// <param name="image">Input image</param>
+        /// <param name="rotationAngle">Angle in degrees</param>
+        /// <returns>Rotated image</returns>
+        public static Image Rotate(this Image image, float rotationAngle)
+        {
+            var bitmap = new Bitmap(image.Width, image.Height);
+
+            using var gfx = Graphics.FromImage(bitmap);
+            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            gfx.RotateTransform(rotationAngle);
+            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
+
+            gfx.DrawImage(image, new Point(0, 0));
+
+            return bitmap;
+        }
+
+        /// <summary>
+        /// Returns a bitmap from a WPF bitmap source
+        /// </summary>
+        /// <param name="bitmapSource"></param>
+        /// <returns>Winforms bitmap</returns>
+        public static Bitmap ToBitmap(this System.Windows.Media.Imaging.BitmapSource bitmapSource)
+        {
+            var src = new System.Windows.Media.Imaging.FormatConvertedBitmap();
+            src.BeginInit();
+            src.Source = bitmapSource;
+            src.DestinationFormat = System.Windows.Media.PixelFormats.Bgra32;
+            src.EndInit();
+
+            var bitmap = new Bitmap(src.PixelWidth, src.PixelHeight, PixelFormat.Format32bppArgb);
+            var data = bitmap.LockBits(new Rectangle(new Point(0, 0), bitmap.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            src.CopyPixels(System.Windows.Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
+            bitmap.UnlockBits(data);
+
+            return bitmap;
+        }
     }
 }
