@@ -156,7 +156,7 @@ namespace Greenshot.Base.Core
 
                 PropertyItem item = image.GetPropertyItem(ExifOrientationId);
 
-                ExifOrientations orientation = (ExifOrientations) item.Value[0];
+                ExifOrientations orientation = (ExifOrientations)item.Value[0];
                 // Orient the image.
                 switch (orientation)
                 {
@@ -187,7 +187,7 @@ namespace Greenshot.Base.Core
                 }
 
                 // Set the orientation to be normal, as we rotated the image.
-                item.Value[0] = (byte) ExifOrientations.TopLeft;
+                item.Value[0] = (byte)ExifOrientations.TopLeft;
                 image.SetPropertyItem(item);
             }
             catch (Exception orientEx)
@@ -355,7 +355,7 @@ namespace Greenshot.Base.Core
             // Bottom Left
             // Top Right
             // Bottom Right
-            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap) image))
+            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap)image))
             {
                 // find biggest area
                 foreach (Point checkPoint in checkPoints)
@@ -419,7 +419,7 @@ namespace Greenshot.Base.Core
             try
             {
                 byte[] srcBuf = new byte[iconStream.Length];
-                iconStream.Read(srcBuf, 0, (int) iconStream.Length);
+                iconStream.Read(srcBuf, 0, (int)iconStream.Length);
                 int iCount = BitConverter.ToInt16(srcBuf, 4);
                 for (int iIndex = 0; iIndex < iCount; iIndex++)
                 {
@@ -568,8 +568,8 @@ namespace Greenshot.Base.Core
             using (var path = new GraphicsPath())
             {
                 Random random = new Random();
-                int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
-                int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
+                int horizontalRegions = (int)Math.Round((float)sourceImage.Width / horizontalToothRange);
+                int verticalRegions = (int)Math.Round((float)sourceImage.Height / verticalToothRange);
 
                 Point topLeft = new Point(0, 0);
                 Point topRight = new Point(sourceImage.Width, 0);
@@ -1028,7 +1028,7 @@ namespace Greenshot.Base.Core
             }
 
             Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
-            ApplyColorMatrix((Bitmap) sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
+            ApplyColorMatrix((Bitmap)sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
 
             // blur "shadow", apply to whole new image
             if (useGdiBlur)
@@ -1069,7 +1069,7 @@ namespace Greenshot.Base.Core
         /// <returns>Negative bitmap</returns>
         public static Bitmap CreateNegative(Image sourceImage)
         {
-            Bitmap clone = (Bitmap) Clone(sourceImage);
+            Bitmap clone = (Bitmap)Clone(sourceImage);
             ColorMatrix invertMatrix = new ColorMatrix(new[]
             {
                 new float[]
@@ -1289,7 +1289,7 @@ namespace Greenshot.Base.Core
                 sourceImage.VerticalResolution);
             using (ImageAttributes adjustAttributes = CreateAdjustAttributes(brightness, contrast, gamma))
             {
-                ApplyImageAttributes((Bitmap) sourceImage, Rectangle.Empty, newBitmap, Rectangle.Empty, adjustAttributes);
+                ApplyImageAttributes((Bitmap)sourceImage, Rectangle.Empty, newBitmap, Rectangle.Empty, adjustAttributes);
             }
 
             return newBitmap;
@@ -1302,7 +1302,7 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap with grayscale</returns>
         public static Image CreateGrayscale(Image sourceImage)
         {
-            Bitmap clone = (Bitmap) Clone(sourceImage);
+            Bitmap clone = (Bitmap)Clone(sourceImage);
             ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
             {
                 new[]
@@ -1352,7 +1352,7 @@ namespace Greenshot.Base.Core
         {
             if (sourceImage is Metafile)
             {
-                return (Image) sourceImage.Clone();
+                return (Image)sourceImage.Clone();
             }
 
             return CloneArea(sourceImage, Rectangle.Empty, PixelFormat.DontCare);
@@ -1599,7 +1599,7 @@ namespace Greenshot.Base.Core
                 toCount &= 0xffffff;
             }
 
-            using IFastBitmap bb = FastBitmap.Create((Bitmap) sourceImage);
+            using IFastBitmap bb = FastBitmap.Create((Bitmap)sourceImage);
             for (int y = 0; y < bb.Height; y++)
             {
                 for (int x = 0; x < bb.Width; x++)
@@ -1636,11 +1636,11 @@ namespace Greenshot.Base.Core
             int destX = 0;
             int destY = 0;
 
-            var nPercentW = newWidth / (float) sourceImage.Width;
-            var nPercentH = newHeight / (float) sourceImage.Height;
+            var nPercentW = newWidth / (float)sourceImage.Width;
+            var nPercentH = newHeight / (float)sourceImage.Height;
             if (maintainAspectRatio)
             {
-                if ((int) nPercentW == 1)
+                if ((int)nPercentW == 1)
                 {
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
@@ -1648,7 +1648,7 @@ namespace Greenshot.Base.Core
                         destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
                     }
                 }
-                else if ((int) nPercentH == 1)
+                else if ((int)nPercentH == 1)
                 {
                     nPercentH = nPercentW;
                     if (canvasUseNewSize)
@@ -1656,7 +1656,7 @@ namespace Greenshot.Base.Core
                         destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
                     }
                 }
-                else if ((int) nPercentH != 0 && nPercentH < nPercentW)
+                else if ((int)nPercentH != 0 && nPercentH < nPercentW)
                 {
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
@@ -1690,12 +1690,12 @@ namespace Greenshot.Base.Core
             if (maintainAspectRatio && canvasUseNewSize)
             {
                 newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-                matrix?.Scale((float) newWidth / sourceImage.Width, (float) newHeight / sourceImage.Height, MatrixOrder.Append);
+                matrix?.Scale((float)newWidth / sourceImage.Width, (float)newHeight / sourceImage.Height, MatrixOrder.Append);
             }
             else
             {
                 newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-                matrix?.Scale((float) destWidth / sourceImage.Width, (float) destHeight / sourceImage.Height, MatrixOrder.Append);
+                matrix?.Scale((float)destWidth / sourceImage.Width, (float)destHeight / sourceImage.Height, MatrixOrder.Append);
             }
 
             using (Graphics graphics = Graphics.FromImage(newImage))
@@ -1802,29 +1802,6 @@ namespace Greenshot.Base.Core
             }
 
             return returnImage;
-        }
-
-
-        /// <summary>
-        /// Rotate the image
-        /// </summary>
-        /// <param name="image">Input image</param>
-        /// <param name="rotationAngle">Angle in degrees</param>
-        /// <returns>Rotated image</returns>
-        public static Image Rotate(this Image image, float rotationAngle)
-        {
-            var bitmap = new Bitmap(image.Width, image.Height);
-
-            using var gfx = Graphics.FromImage(bitmap);
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
-            gfx.RotateTransform(rotationAngle);
-            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
-
-            gfx.DrawImage(image, new Point(0, 0));
-
-            return bitmap;
         }
 
         /// <summary>

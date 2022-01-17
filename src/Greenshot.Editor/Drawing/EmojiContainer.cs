@@ -50,7 +50,6 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private static ElementHost _emojiPickerHost;
         [NonSerialized] private static Picker _emojiPicker;
 
-        [NonSerialized] private System.Windows.Controls.Image _image;
         [NonSerialized] private bool _justCreated = true;
         [NonSerialized] private Image _cachedImage = null;
 
@@ -63,10 +62,7 @@ namespace Greenshot.Editor.Drawing
             set
             {
                 _emoji = value;
-                if (_image != null)
-                {
-                    global::Emoji.Wpf.Image.SetSource(_image, Emoji);
-                }
+                ResetCachedBitmap();
             }
         }
 
@@ -141,10 +137,6 @@ namespace Greenshot.Editor.Drawing
         {
             CreateDefaultAdorners();
 
-            // Create WPF control that will be used to render the emoji
-            _image = new System.Windows.Controls.Image();
-            global::Emoji.Wpf.Image.SetSource(_image, Emoji);
-
             PropertyChanged += OnPropertyChanged;
         }
 
@@ -215,23 +207,19 @@ namespace Greenshot.Editor.Drawing
 
         private Image ComputeBitmap(int iconSize)
         {
-            _image.Measure(new Size(iconSize, iconSize));
-            _image.Arrange(new Rect(0, 0, iconSize, iconSize));
+            // Create WPF control that will be used to render the emoji
+            var image = new System.Windows.Controls.Image();
+            global::Emoji.Wpf.Image.SetSource(image, Emoji);
+
+            image.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            image.RenderTransform = new RotateTransform(_rotationAngle);
+            image.Measure(new Size(iconSize, iconSize));
+            image.Arrange(new Rect(0, 0, iconSize, iconSize));
 
             var renderTargetBitmap = new RenderTargetBitmap(iconSize, iconSize, 96, 96, PixelFormats.Pbgra32);
-            renderTargetBitmap.Render(_image);
+            renderTargetBitmap.Render(image);
 
-            var bitmap = renderTargetBitmap.ToBitmap();
-
-            if (_rotationAngle != 0)
-            {
-                var newBitmap = bitmap.Rotate( _rotationAngle);
-                bitmap.Dispose();
-
-                return newBitmap;
-            }
-
-            return bitmap;
+            return renderTargetBitmap.ToBitmap();
         }
 
         private void ResetCachedBitmap()
