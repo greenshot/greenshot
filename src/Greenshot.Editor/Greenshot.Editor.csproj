@@ -5,7 +5,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.3.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0-alpha.0.156" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,9 +83,16 @@
     <EmbeddedResource Update="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\emoji-test.txt" />
+    <EmbeddedResource Include="Resources\TwemojiMozilla.ttf" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <Reference Include="SixLabors.Fonts">
+      <HintPath>..\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.ImageSharp.Drawing">
+      <HintPath>..\SixLabors.ImageSharp.Drawing.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

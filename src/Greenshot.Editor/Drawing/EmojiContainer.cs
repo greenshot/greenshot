@@ -30,9 +30,9 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Emoji.Wpf;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 using Matrix = System.Drawing.Drawing2D.Matrix;
@@ -48,7 +48,7 @@ namespace Greenshot.Editor.Drawing
     {
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
-        [NonSerialized] private static Picker _emojiPicker;
+        [NonSerialized] private static EmojiPicker _emojiPicker;
 
         [NonSerialized] private bool _justCreated = true;
         [NonSerialized] private Image _cachedImage = null;
@@ -106,7 +106,7 @@ namespace Greenshot.Editor.Drawing
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
             if (_emojiPickerHost == null)
             {
-                _emojiPicker = new Picker();
+                _emojiPicker = new EmojiPicker();
                 _emojiPicker.Picked += (_, args) =>
                 {
                     _currentContainer.Emoji = args.Emoji;
@@ -207,19 +207,7 @@ namespace Greenshot.Editor.Drawing
 
         private Image ComputeBitmap(int iconSize)
         {
-            // Create WPF control that will be used to render the emoji
-            var image = new System.Windows.Controls.Image();
-            global::Emoji.Wpf.Image.SetSource(image, Emoji);
-
-            image.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
-            image.RenderTransform = new RotateTransform(_rotationAngle);
-            image.Measure(new Size(iconSize, iconSize));
-            image.Arrange(new Rect(0, 0, iconSize, iconSize));
-
-            var renderTargetBitmap = new RenderTargetBitmap(iconSize, iconSize, 96, 96, PixelFormats.Pbgra32);
-            renderTargetBitmap.Render(image);
-
-            return renderTargetBitmap.ToBitmap();
+            return EmojiRenderer.GetBitmap(Emoji, iconSize);
         }
 
         private void ResetCachedBitmap()
@@ -231,9 +219,9 @@ namespace Greenshot.Editor.Drawing
 
     internal static class PickerExtensions
     {
-        public static void ShowPopup(this Picker picker, bool show)
+        public static void ShowPopup(this EmojiPicker emojiPicker, bool show)
         {
-            foreach (var child in picker.Children)
+            foreach (var child in emojiPicker.Children)
             {
                 if (child is ToggleButton button)
                 {
