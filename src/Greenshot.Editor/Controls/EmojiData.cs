@@ -17,11 +17,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Controls
 {
     public static class EmojiData
     {
+        private static Task _init;
+
         public static IEnumerable<Emoji> AllEmoji
             => from g in AllGroups
                from e in g.EmojiList
@@ -38,13 +42,14 @@ namespace Greenshot.Editor.Controls
         public static HashSet<char> MatchStart { get; private set; }
             = new HashSet<char>();
 
-        // FIXME: should we lazy load this? If the user calls Load() later, then
-        // this first Load() call will have been for nothing.
-        static EmojiData() => Load();
-
         public static void Load()
         {
-            ParseEmojiList();
+            _init = Task.Run(() =>
+            {
+                ParseEmojiList();
+
+                EmojiRenderer.FillIconCache(AllEmoji.Select(e => e.Text));
+            });
         }
 
         public class Emoji

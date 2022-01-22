@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -40,6 +41,7 @@ using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -142,6 +144,9 @@ namespace Greenshot.Editor.Forms
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            // Compute emojis in background
+            EmojiData.Load();
+
             EditorList.Add(this);
 
             //
@@ -186,14 +191,6 @@ namespace Greenshot.Editor.Forms
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
-
-            HideEmojiButtonWhenFontIsNotInstalled();
-        }
-
-        private void HideEmojiButtonWhenFontIsNotInstalled()
-        {
-            _emojifontInstalled ??= FontFamily.Families.Any(f => string.Equals(f.Name, "Segoe UI Emoji", StringComparison.OrdinalIgnoreCase));
-            btnEmoji.Visible = _emojifontInstalled.Value;
         }
 
         /// <summary>

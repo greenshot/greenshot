@@ -35,7 +35,7 @@
                         <Button Background="Transparent" BorderBrush="Transparent"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40" ToolTip="{Binding Path=Name}">
-                            <controls:EmojiControl Height="24" Emoji="{Binding Path=Text, IsAsync=True}"/>
+                            <controls:EmojiControl Height="24" Emoji="{Binding Path=Text}"/>
                         </Button>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -47,7 +47,7 @@
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
                           Click="OnEmojiPicked" Focusable="False" ToolTip="{Binding Path=Name}">
                 <Grid>
-                    <controls:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text, IsAsync=True}"
+                    <controls:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}"
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
