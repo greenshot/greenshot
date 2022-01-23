@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -450,7 +450,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.btnEmoji.CheckOnClick = true;
 			this.btnEmoji.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnEmoji.Image = ((System.Drawing.Image)(resources.GetObject("btnEmoji.Image")));
+            this.btnEmoji.Image = EmojiRenderer.GetBitmap("🙂", 32);
 			this.btnEmoji.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEmoji.Text = "Emoji (M)";
 			this.btnEmoji.Name = "btnEmoji";
