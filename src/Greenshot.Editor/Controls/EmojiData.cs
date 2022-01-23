@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Greenshot.Editor.Drawing;
+using SixLabors.Fonts.Unicode;
 
 namespace Greenshot.Editor.Controls
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Editor.Controls
 
         public static void Load()
         {
-            _init = Task.Run(() =>
+            _init ??= Task.Run(() =>
             {
                 ParseEmojiList();
 
@@ -194,6 +195,12 @@ namespace Greenshot.Editor.Controls
                     var unqualified = text.Replace("\ufe0f", "");
                     if (qualified_lut.ContainsKey(unqualified))
                         continue;
+                    
+                    // Fix simple fully-qualified emojis
+                    if (CodePoint.GetCodePointCount(text.AsSpan()) == 2)
+                    {
+                        text = text.TrimEnd('\ufe0f');
+                    }
 
                     qualified_lut[unqualified] = text;
 

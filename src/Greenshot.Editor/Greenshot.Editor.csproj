@@ -5,7 +5,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0-alpha.0.156" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13.15" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,14 +85,5 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\emoji-test.txt" />
     <EmbeddedResource Include="Resources\TwemojiMozilla.ttf" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="SixLabors.Fonts">
-      <HintPath>..\SixLabors.Fonts.dll</HintPath>
-    </Reference>
-    <Reference Include="SixLabors.ImageSharp.Drawing">
-      <HintPath>..\SixLabors.ImageSharp.Drawing.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
