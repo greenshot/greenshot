@@ -153,12 +153,9 @@ namespace Greenshot.Forms
 
             _currentForm = this;
 
-            // Enable the AnimatingForm
-            EnableAnimation = true;
-
             // clean up
             FormClosed += ClosedHandler;
-
+            Resize += CaptureForm_Resize;
             _capture = capture;
             _windows = windows;
             _captureMode = capture.CaptureDetails.CaptureMode;
@@ -170,6 +167,8 @@ namespace Greenshot.Forms
             // Only double-buffer when we are not in a TerminalServerSession
             DoubleBuffered = !IsTerminalServerSession;
             Text = @"Greenshot capture form";
+
+            SetSize();
 
             // Make sure we never capture the capture-form
             WindowDetails.RegisterIgnoreHandle(Handle);
@@ -188,9 +187,27 @@ namespace Greenshot.Forms
             // Set the zoomer animation
             InitializeZoomer(Conf.ZoomerEnabled);
 
-            Log.DebugFormat("Opening CaptureForm with dimensions {0}", capture.ScreenBounds);
+            // Enable the AnimatingForm
+            EnableAnimation = true;
+        }
+
+        private void CaptureForm_Resize(object sender, EventArgs e)
+        {
+            Log.DebugFormat("Resize was called, new size: {0}", this.Bounds);
+            if (Bounds.Equals(_capture.ScreenBounds))
+            {
+                // We have the correct size
+                return;
+            }
+            // Initiate resize
+            SetSize();
+        }
+
+        private void SetSize()
+        {
+            Log.DebugFormat("Setting CaptureForm with dimensions {0}", _capture.ScreenBounds);
             SuspendLayout();
-            Bounds = capture.ScreenBounds;
+            Bounds = _capture.ScreenBounds;
             ResumeLayout();
 
             // Fix missing focus
@@ -203,15 +220,16 @@ namespace Greenshot.Forms
         /// </summary>
         private void InitializeZoomer(bool isOn)
         {
+            var startingPosition = new Rectangle(_cursorPos, Size.Empty);
             if (isOn)
             {
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
+                _zoomAnimator = new RectangleAnimator( startingPosition , new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
             {
-                _zoomAnimator?.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), FramesForMillis(1000));
+                _zoomAnimator?.ChangeDestination(startingPosition, FramesForMillis(1000));
             }
         }
 
