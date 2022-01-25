@@ -1257,8 +1257,8 @@ namespace Greenshot.Forms {
 			// 
 			// SettingsForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(451, 431);
 			this.Controls.Add(this.tabcontrol);
 			this.Controls.Add(this.settings_confirm);
