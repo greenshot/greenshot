@@ -72,8 +72,7 @@ namespace Greenshot.Editor.Drawing
         {
             using var memoryStream = new MemoryStream();
 
-            var imageEncoder = image.GetConfiguration().ImageFormatsManager.FindEncoder(PngFormat.Instance);
-            image.Save(memoryStream, imageEncoder);
+            image.SaveAsPng(memoryStream);
 
             memoryStream.Seek(0, SeekOrigin.Begin);
 
@@ -84,8 +83,7 @@ namespace Greenshot.Editor.Drawing
         {
             using var memoryStream = new MemoryStream();
 
-            var imageEncoder = image.GetConfiguration().ImageFormatsManager.FindEncoder(PngFormat.Instance);
-            image.Save(memoryStream, imageEncoder);
+            image.SaveAsPng(memoryStream);
 
             memoryStream.Seek(0, SeekOrigin.Begin);
 
@@ -102,10 +100,9 @@ namespace Greenshot.Editor.Drawing
         public static void FillIconCache(IEnumerable<string> emojis)
         {
             var font = _fontFamily.Value.CreateFont(64, FontStyle.Regular);
-            var metric = font.FontMetrics;
             foreach (var emoji in emojis)
             {
-                var image = new Image<Rgba32>(64, 64);
+                using var image = new Image<Rgba32>(64, 64);
                 RenderEmoji(emoji, font, image);
                 _iconCache[emoji] = image.ToBitmapSource();
             }
