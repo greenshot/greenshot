@@ -219,14 +219,15 @@ namespace Greenshot.Forms
         private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (!(sender is LinkLabel linkLabel)) return;
+            var link = linkLabel.Tag?.ToString() ?? linkLabel.Text;
             try
             {
                 linkLabel.LinkVisited = true;
-                Process.Start(linkLabel.Text);
+                Process.Start(link);
             }
             catch (Exception)
             {
-                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link), Language.GetString(LangKey.error));
             }
         }
 

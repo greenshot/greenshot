@@ -104,6 +104,10 @@ namespace Greenshot.Base.Controls
         /// <param name="e"></param>
         private void Timer_Tick(object sender, EventArgs e)
         {
+            if (!Visible)
+            {
+                return;
+            }
             try
             {
                 Animate();
