@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Windows.Media;
@@ -13,6 +14,7 @@ using Font = SixLabors.Fonts.Font;
 using FontFamily = SixLabors.Fonts.FontFamily;
 using FontStyle = SixLabors.Fonts.FontStyle;
 using Image = System.Drawing.Image;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using TextOptions = SixLabors.Fonts.TextOptions;
 
 namespace Greenshot.Editor.Drawing
@@ -44,7 +46,8 @@ namespace Greenshot.Editor.Drawing
             var textOptions = new TextOptions(font)
             {
                 Origin = new SixLabors.ImageSharp.PointF(font.Size / 2.0f, font.Size / 2.0f - verticalOffset),
-                HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             image.Mutate(x => x.DrawText(textOptions, emoji, SixLabors.ImageSharp.Color.Black));
@@ -52,8 +55,23 @@ namespace Greenshot.Editor.Drawing
 
         public static Image GetBitmap(string emoji, int iconSize)
         {
-            using var image = GetImage(emoji, iconSize);
-            return image.ToBitmap();
+            int width = iconSize;
+            int height = iconSize;
+
+            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
+
+            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            BitmapData bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            unsafe
+            {
+                var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, width: width, height: height);
+                RenderEmoji(emoji, font, image);
+            }
+
+            bitmap.UnlockBits(bitmapData);
+
+            return bitmap;
         }
 
         public static BitmapSource GetBitmapSource(string emoji, int iconSize)
@@ -73,17 +91,6 @@ namespace Greenshot.Editor.Drawing
             source.Freeze();
 
             return source;
-        }
-
-        public static Bitmap ToBitmap(this Image<Rgba32> image)
-        {
-            using var memoryStream = new MemoryStream();
-
-            image.SaveAsPng(memoryStream);
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            return new Bitmap(memoryStream);
         }
     }
 }
