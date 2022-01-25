@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
@@ -386,7 +387,7 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public bool IsExperimentalFeatureEnabled(string experimentalFeature)
         {
-            return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
+            return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
         /// <summary>
@@ -398,17 +399,17 @@ namespace Greenshot.Base.Core
         {
             switch (property)
             {
-                case "PluginWhitelist":
-                case "PluginBacklist":
+                case nameof(ExcludePlugins):
+                case nameof(IncludePlugins):
                     return new List<string>();
-                case "OutputFileAsFullpath":
+                case nameof(OutputFileAsFullpath):
                     if (IniConfig.IsPortable)
                     {
                         return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
                     }
 
                     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-                case "OutputFilePath":
+                case nameof(OutputFilePath):
                     if (IniConfig.IsPortable)
                     {
                         string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
@@ -432,16 +433,16 @@ namespace Greenshot.Base.Core
                     }
 
                     return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                case "DWMBackgroundColor":
+                case nameof(DWMBackgroundColor):
                     return Color.Transparent;
-                case "ActiveTitleFixes":
+                case nameof(ActiveTitleFixes):
                     return new List<string>
                     {
                         "Firefox",
                         "IE",
                         "Chrome"
                     };
-                case "TitleFixMatcher":
+                case nameof(TitleFixMatcher):
                     return new Dictionary<string, string>
                     {
                         {
@@ -454,7 +455,7 @@ namespace Greenshot.Base.Core
                             "Chrome", " - Google Chrome.*"
                         }
                     };
-                case "TitleFixReplacer":
+                case nameof(TitleFixReplacer):
                     return new Dictionary<string, string>
                     {
                         {
@@ -509,7 +510,7 @@ namespace Greenshot.Base.Core
             try
             {
                 // Store version, this can be used later to fix settings after an update
-                LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
             }
             catch
             {
@@ -530,7 +531,7 @@ namespace Greenshot.Base.Core
                 try
                 {
                     // Store version, this can be used later to fix settings after an update
-                    LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                    LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
                 }
                 catch
                 {
@@ -656,6 +657,16 @@ namespace Greenshot.Base.Core
             if (WebRequestReadWriteTimeout < 1)
             {
                 WebRequestReadWriteTimeout = 100;
+            }
+
+            // Workaround for the Windows 11 clipboard issue found here: https://github.com/greenshot/greenshot/issues/348
+            if (WindowsVersion.IsWindows11OrLater)
+            {
+                // If the format DIB is used, remove it and replace it with BITMAP.
+                if (ClipboardFormats.Contains(ClipboardFormat.DIB))
+                {
+                    ClipboardFormats = ClipboardFormats.Where(cf => cf != ClipboardFormat.DIB).Append(ClipboardFormat.BITMAP).ToList();
+                }
             }
         }
 
