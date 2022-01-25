@@ -207,7 +207,15 @@ namespace Greenshot.Editor.Drawing
 
         private Image ComputeBitmap(int iconSize)
         {
-            return EmojiRenderer.GetBitmap(Emoji, iconSize);
+            var image = EmojiRenderer.GetBitmap(Emoji, iconSize);
+            if (_rotationAngle != 0)
+            {
+                var newImage = image.Rotate(_rotationAngle);
+                image.Dispose();
+                return newImage;
+            }
+
+            return image;
         }
 
         private void ResetCachedBitmap()

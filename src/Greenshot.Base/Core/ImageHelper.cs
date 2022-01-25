@@ -1824,5 +1824,27 @@ namespace Greenshot.Base.Core
 
             return bitmap;
         }
+
+        /// <summary>
+        /// Rotate the image
+        /// </summary>
+        /// <param name="image">Input image</param>
+        /// <param name="rotationAngle">Angle in degrees</param>
+        /// <returns>Rotated image</returns>
+        public static Image Rotate(this Image image, float rotationAngle)
+        {
+            var bitmap = new Bitmap(image.Width, image.Height);
+
+            using var gfx = Graphics.FromImage(bitmap);
+            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            gfx.RotateTransform(rotationAngle);
+            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
+
+            gfx.DrawImage(image, new Point(0, 0));
+
+            return bitmap;
+        }
     }
 }
