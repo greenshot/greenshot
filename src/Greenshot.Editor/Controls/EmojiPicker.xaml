@@ -89,8 +89,15 @@
                         <ListView Name="EmojiListView" ItemsSource="{Binding EmojiChunkList}"
                                   BorderThickness="0"
                                   MaxHeight="320" Height="Auto" Padding="0" Margin="1"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                   ScrollViewer.VerticalScrollBarVisibility="Visible"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}">
                                     <!-- Get rid of the ugly padding and margin in default ListViewItem -->

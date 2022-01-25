@@ -11,7 +11,7 @@ namespace Greenshot.Editor.Controls
 
         private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((EmojiControl)d).Source = EmojiRenderer.GetIcon((string)e.NewValue);
+            ((EmojiControl)d).Source = EmojiRenderer.GetBitmapSource((string)e.NewValue, iconSize: 48);
         }
 
         public string Emoji

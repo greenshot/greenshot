@@ -45,12 +45,7 @@ namespace Greenshot.Editor.Controls
 
         public static void Load()
         {
-            _init ??= Task.Run(() =>
-            {
-                ParseEmojiList();
-
-                EmojiRenderer.FillIconCache(AllEmoji.Select(e => e.Text));
-            });
+            _init ??= Task.Run(ParseEmojiList);
         }
 
         public class Emoji

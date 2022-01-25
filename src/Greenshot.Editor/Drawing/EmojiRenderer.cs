@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Font = SixLabors.Fonts.Font;
@@ -32,8 +28,6 @@ namespace Greenshot.Editor.Drawing
             return fontFamily;
         });
 
-        private static ConcurrentDictionary<string, BitmapSource> _iconCache = new ConcurrentDictionary<string, BitmapSource>();
-
         public static Image<Rgba32> GetImage(string emoji, int iconSize)
         {
             var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
@@ -44,7 +38,7 @@ namespace Greenshot.Editor.Drawing
             return image;
         }
 
-        private static void RenderEmoji(string emoji, Font font, Image<Rgba32> image)
+        private static void RenderEmoji(string emoji, Font font, SixLabors.ImageSharp.Image image)
         {
             var verticalOffset = font.Size * 0.045f;
             var textOptions = new TextOptions(font)
@@ -64,8 +58,21 @@ namespace Greenshot.Editor.Drawing
 
         public static BitmapSource GetBitmapSource(string emoji, int iconSize)
         {
-            using var image = GetImage(emoji, iconSize);
-            return image.ToBitmapSource();
+            var pixelFormat = PixelFormats.Bgra32;
+            int width = iconSize;
+            int height = iconSize;
+            int stride = (width * pixelFormat.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[stride * height];
+
+            var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(byteMemory: pixels, width: width, height: height);
+
+            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
+            RenderEmoji(emoji, font, image);
+
+            var source = BitmapSource.Create(pixelWidth: width, pixelHeight: height, dpiX: 96, dpiY: 96, pixelFormat: pixelFormat, palette: null, pixels: pixels, stride: stride);
+            source.Freeze();
+
+            return source;
         }
 
         public static Bitmap ToBitmap(this Image<Rgba32> image)
@@ -77,40 +84,6 @@ namespace Greenshot.Editor.Drawing
             memoryStream.Seek(0, SeekOrigin.Begin);
 
             return new Bitmap(memoryStream);
-        }
-
-        public static BitmapSource ToBitmapSource(this Image<Rgba32> image)
-        {
-            using var memoryStream = new MemoryStream();
-
-            image.SaveAsPng(memoryStream);
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.StreamSource = memoryStream;
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
-            bitmap.Freeze();
-
-            return bitmap;
-        }
-
-        public static void FillIconCache(IEnumerable<string> emojis)
-        {
-            var font = _fontFamily.Value.CreateFont(64, FontStyle.Regular);
-            foreach (var emoji in emojis)
-            {
-                using var image = new Image<Rgba32>(64, 64);
-                RenderEmoji(emoji, font, image);
-                _iconCache[emoji] = image.ToBitmapSource();
-            }
-        }
-
-        public static BitmapSource GetIcon(string emoji)
-        {
-            return _iconCache.GetOrAdd(emoji, x => GetBitmapSource(x, 64));
         }
     }
 }
