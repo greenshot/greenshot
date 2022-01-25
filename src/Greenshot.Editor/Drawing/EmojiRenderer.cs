@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -10,7 +9,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using Font = SixLabors.Fonts.Font;
 using FontFamily = SixLabors.Fonts.FontFamily;
 using FontStyle = SixLabors.Fonts.FontStyle;
 using Image = System.Drawing.Image;
@@ -32,16 +30,16 @@ namespace Greenshot.Editor.Drawing
 
         public static Image<Rgba32> GetImage(string emoji, int iconSize)
         {
-            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
-
             var image = new Image<Rgba32>(iconSize, iconSize);
 
-            RenderEmoji(emoji, font, image);
+            RenderEmoji(emoji, iconSize, image);
             return image;
         }
 
-        private static void RenderEmoji(string emoji, Font font, SixLabors.ImageSharp.Image image)
+        private static void RenderEmoji(string emoji, int iconSize, SixLabors.ImageSharp.Image image)
         {
+            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
+
             var verticalOffset = font.Size * 0.045f;
             var textOptions = new TextOptions(font)
             {
@@ -58,18 +56,21 @@ namespace Greenshot.Editor.Drawing
             int width = iconSize;
             int height = iconSize;
 
-            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
-
             var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-            BitmapData bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
 
-            unsafe
+            try
             {
-                var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, width: width, height: height);
-                RenderEmoji(emoji, font, image);
+                unsafe
+                {
+                    var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, width: width, height: height);
+                    RenderEmoji(emoji, iconSize, image);
+                }
             }
-
-            bitmap.UnlockBits(bitmapData);
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
 
             return bitmap;
         }
@@ -84,8 +85,7 @@ namespace Greenshot.Editor.Drawing
 
             var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(byteMemory: pixels, width: width, height: height);
 
-            var font = _fontFamily.Value.CreateFont(iconSize, FontStyle.Regular);
-            RenderEmoji(emoji, font, image);
+            RenderEmoji(emoji, iconSize, image);
 
             var source = BitmapSource.Create(pixelWidth: width, pixelHeight: height, dpiX: 96, dpiY: 96, pixelFormat: pixelFormat, palette: null, pixels: pixels, stride: stride);
             source.Freeze();
