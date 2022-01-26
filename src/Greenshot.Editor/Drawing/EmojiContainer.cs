@@ -33,6 +33,7 @@ using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls;
+using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 using Matrix = System.Drawing.Drawing2D.Matrix;
@@ -44,7 +45,7 @@ namespace Greenshot.Editor.Drawing
     /// Description of EmojiContainer.
     /// </summary>
     [Serializable]
-    public class EmojiContainer : DrawableContainer, IEmojiContainer
+    public class EmojiContainer : DrawableContainer, IEmojiContainer, IHasScaleOptions
     {
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
@@ -135,7 +136,10 @@ namespace Greenshot.Editor.Drawing
 
         private void Init()
         {
-            CreateDefaultAdorners();
+            Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
+            Adorners.Add(new ResizeAdorner(this, Positions.TopRight));
+            Adorners.Add(new ResizeAdorner(this, Positions.BottomLeft));
+            Adorners.Add(new ResizeAdorner(this, Positions.BottomRight));
 
             PropertyChanged += OnPropertyChanged;
         }
@@ -222,6 +226,11 @@ namespace Greenshot.Editor.Drawing
         {
             _cachedImage?.Dispose();
             _cachedImage = null;
+        }
+
+        public ScaleHelper.ScaleOptions GetScaleOptions()
+        {
+            return ScaleHelper.ScaleOptions.Rational;
         }
     }
 

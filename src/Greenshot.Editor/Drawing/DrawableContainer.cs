@@ -512,13 +512,14 @@ namespace Greenshot.Editor.Drawing
         {
             Invalidate();
 
-            // reset "workrbench" rectangle to current bounds
+            // reset "workbench" rectangle to current bounds
             _boundsAfterResize.X = _boundsBeforeResize.Left;
             _boundsAfterResize.Y = _boundsBeforeResize.Top;
             _boundsAfterResize.Width = x - _boundsAfterResize.Left;
             _boundsAfterResize.Height = y - _boundsAfterResize.Top;
-
-            ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
+            
+            var scaleOptions = (this as IHasScaleOptions)?.GetScaleOptions() ?? null;
+            ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor(), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);

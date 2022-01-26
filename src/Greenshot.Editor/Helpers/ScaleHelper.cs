@@ -26,6 +26,11 @@ using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Helpers
 {
+    public interface IHasScaleOptions
+    {
+        ScaleHelper.ScaleOptions GetScaleOptions();
+    }
+
     /// <summary>
     /// Offers a few helper functions for scaling/aligning an element with another element
     /// </summary>
@@ -280,23 +285,23 @@ namespace Greenshot.Editor.Helpers
             return newSize;
         }
 
-        public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize)
+        public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize, ScaleOptions? options)
         {
-            Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null);
+            Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null, options);
         }
 
-        public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize, IDoubleProcessor angleRoundBehavior)
+        public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize, IDoubleProcessor angleRoundBehavior, ScaleOptions? options)
         {
-            Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, ref boundsAfterResize, angleRoundBehavior);
+            Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, ref boundsAfterResize, angleRoundBehavior, options);
         }
 
         public static void Scale(Rectangle boundsBeforeResize, Positions gripperPosition, int cursorX, int cursorY, ref RectangleF boundsAfterResize,
-            IDoubleProcessor angleRoundBehavior)
+            IDoubleProcessor angleRoundBehavior, ScaleOptions? options)
         {
-            ScaleOptions opts = GetScaleOptions();
+            options ??= GetScaleOptions();
 
-            bool rationalScale = (opts & ScaleOptions.Rational) == ScaleOptions.Rational;
-            bool centeredScale = (opts & ScaleOptions.Centered) == ScaleOptions.Centered;
+            bool rationalScale = (options & ScaleOptions.Rational) == ScaleOptions.Rational;
+            bool centeredScale = (options & ScaleOptions.Centered) == ScaleOptions.Centered;
 
             if (rationalScale)
             {
@@ -324,12 +329,13 @@ namespace Greenshot.Editor.Helpers
             }
         }
 
+        /// <param name="drawableContainer"></param>
         /// <returns>the current ScaleOptions depending on modifier keys held down</returns>
         public static ScaleOptions GetScaleOptions()
         {
             bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
             bool maintainAspectRatio = (Control.ModifierKeys & Keys.Shift) != 0;
-            ScaleOptions opts = ScaleOptions.Default;
+            var opts = ScaleOptions.Default;
             if (anchorAtCenter) opts |= ScaleOptions.Centered;
             if (maintainAspectRatio) opts |= ScaleOptions.Rational;
             return opts;
