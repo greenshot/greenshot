@@ -247,7 +247,7 @@ comments: []
 		simply choose <em>Auto-Crop</em> from the <em>Edit</em> menu and Greenshot will automatically<br />
 		select the area for cropping.
 	</p>
-	<a name="editor-enlarge"></a>
+<p>	<a name="editor-enlarge"></a>
 	<h3>Enlarge screenshot</h3>
 	<p>
 		In order to enlarge the screenshot, hit <kbd>Shift</kbd> + <kbd>+</kbd>, which will add 25 pixels to all four sides.
