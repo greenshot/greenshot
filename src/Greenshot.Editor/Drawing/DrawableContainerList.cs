@@ -30,6 +30,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -428,6 +429,70 @@ namespace Greenshot.Editor.Drawing
                 Add(dc);
                 Parent.Modified = true;
             }
+        }
+
+        public void SetForegroundColor(Color color)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.LINE_COLOR;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+		        
+		        fh.SetFieldValue(field, color);
+	        }
+        }
+
+        public void SetBackgroundColor(Color color)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.FILL_COLOR;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        fh.SetFieldValue(field, color);
+	        }
+        }
+
+        public int IncreaseLineThickness(int increaseBy)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.LINE_THICKNESS;
+	        var lastThickness = 0;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        var currentThickness = (int)fh.GetFieldValue(field);
+		        var thickness = Math.Max(0, currentThickness + increaseBy);
+		        fh.SetFieldValue(field, thickness);
+		        lastThickness = thickness;
+	        }
+
+	        return lastThickness;
+        }
+
+        public bool FlipShadow()
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.SHADOW;
+	        var lastShadow = false;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        var currentShadow = (bool)fh.GetFieldValue(field);
+		        var shadow = !currentShadow;
+		        fh.SetFieldValue(field, shadow);
+		        lastShadow = shadow;
+	        }
+
+	        return lastShadow;
         }
 
         /// <summary>

@@ -111,6 +111,10 @@ namespace Greenshot.Base.Interfaces.Drawing
         bool HasIntersectingFilters(Rectangle clipRectangle);
         bool IntersectsWith(Rectangle clipRectangle);
         void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+        void SetForegroundColor(Color color);
+        void SetBackgroundColor(Color color);
+        int IncreaseLineThickness(int increaseBy);
+        bool FlipShadow();
         void Invalidate();
         void PullElementsToTop(IDrawableContainerList elements);
         bool CanPushDown(IDrawableContainerList elements);

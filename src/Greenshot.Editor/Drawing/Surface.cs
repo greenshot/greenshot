@@ -112,6 +112,38 @@ namespace Greenshot.Editor.Drawing
             remove => _surfaceMessage -= value;
         }
 
+        [NonSerialized] private SurfaceForegroundColorEventHandler _foregroundColorChanged;
+
+        public event SurfaceForegroundColorEventHandler ForegroundColorChanged
+        {
+            add => _foregroundColorChanged += value;
+            remove => _foregroundColorChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceBackgroundColorEventHandler _backgroundColorChanged;
+
+        public event SurfaceBackgroundColorEventHandler BackgroundColorChanged
+        {
+            add => _backgroundColorChanged += value;
+            remove => _backgroundColorChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceLineThicknessEventHandler _lineThicknessChanged;
+
+        public event SurfaceLineThicknessEventHandler LineThicknessChanged
+        {
+            add => _lineThicknessChanged += value;
+            remove => _lineThicknessChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceShadowEventHandler _shadowChanged;
+
+        public event SurfaceShadowEventHandler ShadowChanged
+        {
+            add => _shadowChanged += value;
+            remove => _shadowChanged -= value;
+        }
+
         /// <summary>
         /// inUndoRedo makes sure we don't undo/redo while in a undo/redo action
         /// </summary>
@@ -1058,6 +1090,74 @@ namespace Greenshot.Editor.Drawing
                 };
                 _surfaceMessage(source, eventArgs);
             }
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the foreground color
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="color">new color</param>
+        public void UpdateForegroundColorEvent(object source, Color color)
+        {
+            if (_foregroundColorChanged != null)
+            {
+                var eventArgs = new SurfaceForegroundColorEventArgs
+                {
+                    Color = color,
+                };
+                _foregroundColorChanged(source, eventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the background color
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="color">new color</param>
+        public void UpdateBackgroundColorEvent(object source, Color color)
+        {
+            if (_lineThicknessChanged != null)
+            {
+                var eventArgs = new SurfaceBackgroundColorEventArgs
+                {
+                    Color = color,
+                };
+                _backgroundColorChanged(source, eventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the line thickness
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="thickness">new thickness</param>
+        public void UpdateLineThicknessEvent(object source, int thickness)
+        {
+            if (_lineThicknessChanged != null)
+            {
+                var eventArgs = new SurfaceLineThicknessEventArgs
+                {
+                    Thickness = thickness,
+                };
+                _lineThicknessChanged(source, eventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing the key to show/hide the shadow
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="hasShadow">has shadow</param>
+        public void UpdateShadowEvent(object source, bool hasShadow)
+        {
+	        if (_shadowChanged != null)
+	        {
+		        var eventArgs = new SurfaceShadowEventArgs
+		        {
+			        HasShadow = hasShadow,
+		        };
+		        _shadowChanged(source, eventArgs);
+	        }
         }
 
         /// <summary>
@@ -2212,6 +2312,87 @@ namespace Greenshot.Editor.Drawing
                     case Keys.Escape:
                         ConfirmSelectedConfirmableElements(false);
                         break;
+                    case Keys.NumPad0:
+	                    SetSelectedElementColor(Color.Orange, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad1:
+	                    SetSelectedElementColor(Color.Red, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad2:
+	                    SetSelectedElementColor(Color.FromArgb(0,255,0), true, shiftModifier); // Color.Green is #008000 and not #00FF00
+	                    break;
+                    case Keys.NumPad3:
+	                    SetSelectedElementColor(Color.Blue, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad4:
+	                    SetSelectedElementColor(Color.Cyan, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad5:
+	                    SetSelectedElementColor(Color.Magenta, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad6:
+	                    SetSelectedElementColor(Color.Yellow, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad7:
+	                    SetSelectedElementColor(Color.Black, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad8:
+	                    SetSelectedElementColor(Color.Gray, true, shiftModifier);
+	                    break;
+                    case Keys.NumPad9:
+	                    SetSelectedElementColor(Color.White, true, shiftModifier);
+	                    break;
+                    case Keys.D0:
+                    case Keys.D0 | Keys.Shift:
+	                    SetSelectedElementColor(shiftModifier ? Color.Orange : Color.Transparent, false, shiftModifier);
+	                    break;
+                    case Keys.D1:
+                    case Keys.D1 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Red, false, shiftModifier);
+	                    break;
+                    case Keys.D2:
+                    case Keys.D2 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Green, false, shiftModifier);
+	                    break;
+                    case Keys.D3:
+                    case Keys.D3 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Blue, false, shiftModifier);
+	                    break;
+                    case Keys.D4:
+                    case Keys.D4 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Cyan, false, shiftModifier);
+	                    break;
+                    case Keys.D5:
+                    case Keys.D5 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Magenta, false, shiftModifier);
+	                    break;
+                    case Keys.D6:
+                    case Keys.D6 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Yellow, false, shiftModifier);
+	                    break;
+                    case Keys.D7:
+                    case Keys.D7 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Black, false, shiftModifier);
+	                    break;
+                    case Keys.D8:
+                    case Keys.D8 | Keys.Shift:
+	                    SetSelectedElementColor(Color.Gray, false, shiftModifier);
+	                    break;
+                    case Keys.D9:
+                    case Keys.D9 | Keys.Shift:
+	                    SetSelectedElementColor(Color.White, false, shiftModifier);
+	                    break;
+                    case Keys.Add:
+                    case Keys.Add | Keys.Shift:
+	                    ChangeLineThickness(shiftModifier ? 5 : 1);
+	                    break;
+                    case Keys.Subtract:
+                    case Keys.Subtract | Keys.Shift:
+	                    ChangeLineThickness(shiftModifier ? -5 : -1);
+	                    break;
+                    case Keys.Divide:
+	                    FlipShadow();
+	                    break;
                     /*case Keys.Delete:
                         RemoveSelectedElements();
                         break;*/
@@ -2229,6 +2410,36 @@ namespace Greenshot.Editor.Drawing
             }
 
             return false;
+        }
+
+        // for laptops without numPads, also allow shift modifier
+        private void SetSelectedElementColor(Color color, bool numPad, bool shift)
+        {
+	        if (numPad || shift)
+	        {
+		        selectedElements.SetForegroundColor(color);
+				UpdateForegroundColorEvent(this, color);
+	        }
+	        else
+	        {
+		        selectedElements.SetBackgroundColor(color);
+				UpdateBackgroundColorEvent(this, color);
+	        }
+	        selectedElements.Invalidate();
+        }
+
+        private void ChangeLineThickness(int increaseBy)
+        {
+		    var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
+		    UpdateLineThicknessEvent(this, newThickness);
+	        selectedElements.Invalidate();
+        }
+
+        private void FlipShadow()
+        {
+		    var shadow = selectedElements.FlipShadow();
+		    UpdateShadowEvent(this, shadow);
+	        selectedElements.Invalidate();
         }
 
         /// <summary>

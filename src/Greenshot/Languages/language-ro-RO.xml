@@ -4,6 +4,7 @@
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
 	your efforts honored in the "About Greenshot" dialog 
+	TODO: remove newlines as in other files -> this leads to problems in multiline texts (or try xml:space=preserve)
 	-->
 	<resource name="about_translation">
 		Traducere în limba română - Radu Mogoș
