@@ -94,6 +94,14 @@ namespace Greenshot.Forms
             // Changes for BUG-2077
             numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
 
+            // Expert mode, the clipboard formats
+            foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat)))
+            {
+                ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
+                item.Tag = clipboardFormat;
+                item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
+            }
+
             _daysBetweenCheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
             DisplayPluginTab();
             UpdateUi();
@@ -469,14 +477,6 @@ namespace Greenshot.Forms
         private void DisplaySettings()
         {
             colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
-
-            // Expert mode, the clipboard formats
-            foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat)))
-            {
-                ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
-                item.Tag = clipboardFormat;
-                item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
-            }
 
             if (Language.CurrentLanguage != null)
             {

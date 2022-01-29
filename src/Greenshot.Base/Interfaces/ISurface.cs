@@ -38,6 +38,10 @@ namespace Greenshot.Base.Interfaces
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
         event SurfaceElementEventHandler MovingElementChanged;
+        event SurfaceForegroundColorEventHandler ForegroundColorChanged;
+        event SurfaceBackgroundColorEventHandler BackgroundColorChanged;
+        event SurfaceLineThicknessEventHandler LineThicknessChanged;
+        event SurfaceShadowEventHandler ShadowChanged;
 
         /// <summary>
         /// Start value of the step-labels (counts)

@@ -39,9 +39,12 @@ namespace Greenshot.Editor.Memento
         {
             _surface = surface;
             _image = surface.Image;
-            _matrix = matrix.Clone();
-            // Make sure the reverse is applied
-            _matrix.Invert();
+            if (matrix != null)
+            {
+                _matrix = matrix.Clone();
+                // Make sure the reverse is applied
+                _matrix.Invert();
+            }
         }
 
         public void Dispose()

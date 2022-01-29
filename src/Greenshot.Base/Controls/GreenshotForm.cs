@@ -19,11 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
+
+#if DEBUG
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
+#endif
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
@@ -40,24 +43,33 @@ namespace Greenshot.Base.Controls
         private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
         protected static CoreConfiguration coreConfiguration;
         private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
+#if DEBUG
         private IComponentChangeService m_changeService;
         private bool _isDesignModeLanguageSet;
-        private bool _applyLanguageManually;
-        private bool _storeFieldsManually;
         private IDictionary<string, Control> _designTimeControls;
         private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
+#endif
+        private bool _applyLanguageManually;
+        private bool _storeFieldsManually;
 
         static GreenshotForm()
         {
+#if DEBUG
             if (!IsInDesignMode)
             {
+#endif
                 coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+#if DEBUG
             }
+#endif
         }
 
+#if DEBUG
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
+#endif
         public string LanguageKey { get; set; }
 
+#if DEBUG
         /// <summary>
         /// Used to check the designmode during a constructor
         /// </summary>
@@ -71,6 +83,7 @@ namespace Greenshot.Base.Controls
                         (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1));
             }
         }
+#endif
 
         protected bool ManualLanguageApply
         {
@@ -89,6 +102,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
+#if DEBUG
         /// <summary>
         /// Code to initialize the language etc during design time
         /// </summary>
@@ -106,19 +120,18 @@ namespace Greenshot.Base.Controls
 
                 // this "type"
                 Assembly currentAssembly = GetType().Assembly;
-                if (typeResService != null)
-                {
-                    string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-                    string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
-                    if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\")))
-                    {
-                        Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
-                    }
+                if (typeResService == null) return;
 
-                    if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\")))
-                    {
-                        Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
-                    }
+                string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
+                string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
+                if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\")))
+                {
+                    Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
+                }
+
+                if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\")))
+                {
+                    Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
                 }
             }
             catch (Exception ex)
@@ -151,14 +164,17 @@ namespace Greenshot.Base.Controls
 
             base.OnPaint(e);
         }
+#endif
 
         protected override void OnLoad(EventArgs e)
         {
             // Every GreenshotForm should have it's default icon
             // And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
             Icon = GreenshotResources.GetGreenshotIcon();
+#if DEBUG
             if (!DesignMode)
             {
+#endif
                 if (!_applyLanguageManually)
                 {
                     ApplyLanguage();
@@ -166,6 +182,7 @@ namespace Greenshot.Base.Controls
 
                 FillFields();
                 base.OnLoad(e);
+#if DEBUG
             }
             else
             {
@@ -174,6 +191,7 @@ namespace Greenshot.Base.Controls
                 base.OnLoad(e);
                 ApplyLanguage();
             }
+#endif
         }
 
         /// <summary>
@@ -207,6 +225,7 @@ namespace Greenshot.Base.Controls
             base.OnClosed(e);
         }
 
+#if DEBUG
         /// <summary>
         /// This override allows the control to register event handlers for IComponentChangeService events
         /// at the time the control is sited, which happens only in design mode.
@@ -322,6 +341,7 @@ namespace Greenshot.Base.Controls
 
             base.Dispose(disposing);
         }
+#endif
 
         protected void ApplyLanguage(ToolStripItem applyTo, string languageKey)
         {
@@ -454,7 +474,7 @@ namespace Greenshot.Base.Controls
                         ApplyLanguage(applyToControl);
                     }
                 }
-
+#if DEBUG
                 if (DesignMode)
                 {
                     foreach (Control designControl in _designTimeControls.Values)
@@ -467,6 +487,7 @@ namespace Greenshot.Base.Controls
                         ApplyLanguage(designToolStripItem);
                     }
                 }
+#endif
             }
             finally
             {
@@ -515,57 +536,55 @@ namespace Greenshot.Base.Controls
             {
                 var controlObject = field.GetValue(this);
                 IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
-                if (!string.IsNullOrEmpty(configBindable?.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName))
+                if (string.IsNullOrEmpty(configBindable?.SectionName) || string.IsNullOrEmpty(configBindable.PropertyName)) continue;
+
+                IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+                if (section == null) continue;
+
+                if (!section.Values.TryGetValue(configBindable.PropertyName, out var iniValue))
                 {
-                    IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-                    if (section != null)
+                    LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+                    continue;
+                }
+
+                if (controlObject is CheckBox checkBox)
+                {
+                    checkBox.Checked = (bool) iniValue.Value;
+                    checkBox.Enabled = !iniValue.IsFixed;
+                    continue;
+                }
+
+                if (controlObject is RadioButton radíoButton)
+                {
+                    radíoButton.Checked = (bool) iniValue.Value;
+                    radíoButton.Enabled = !iniValue.IsFixed;
+                    continue;
+                }
+
+                if (controlObject is TextBox textBox)
+                {
+                    if (controlObject is HotkeyControl hotkeyControl)
                     {
-                        if (!section.Values.TryGetValue(configBindable.PropertyName, out var iniValue))
+                        string hotkeyValue = (string) iniValue.Value;
+                        if (!string.IsNullOrEmpty(hotkeyValue))
                         {
-                            LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
-                            continue;
+                            hotkeyControl.SetHotkey(hotkeyValue);
+                            hotkeyControl.Enabled = !iniValue.IsFixed;
                         }
 
-                        if (controlObject is CheckBox checkBox)
-                        {
-                            checkBox.Checked = (bool) iniValue.Value;
-                            checkBox.Enabled = !iniValue.IsFixed;
-                            continue;
-                        }
-
-                        if (controlObject is RadioButton radíoButton)
-                        {
-                            radíoButton.Checked = (bool) iniValue.Value;
-                            radíoButton.Enabled = !iniValue.IsFixed;
-                            continue;
-                        }
-
-                        if (controlObject is TextBox textBox)
-                        {
-                            if (controlObject is HotkeyControl hotkeyControl)
-                            {
-                                string hotkeyValue = (string) iniValue.Value;
-                                if (!string.IsNullOrEmpty(hotkeyValue))
-                                {
-                                    hotkeyControl.SetHotkey(hotkeyValue);
-                                    hotkeyControl.Enabled = !iniValue.IsFixed;
-                                }
-
-                                continue;
-                            }
-
-                            textBox.Text = iniValue.ToString();
-                            textBox.Enabled = !iniValue.IsFixed;
-                            continue;
-                        }
-
-                        if (controlObject is GreenshotComboBox comboxBox)
-                        {
-                            comboxBox.Populate(iniValue.ValueType);
-                            comboxBox.SetValue((Enum) iniValue.Value);
-                            comboxBox.Enabled = !iniValue.IsFixed;
-                        }
+                        continue;
                     }
+
+                    textBox.Text = iniValue.ToString();
+                    textBox.Enabled = !iniValue.IsFixed;
+                    continue;
+                }
+
+                if (controlObject is GreenshotComboBox comboxBox)
+                {
+                    comboxBox.Populate(iniValue.ValueType);
+                    comboxBox.SetValue((Enum) iniValue.Value);
+                    comboxBox.Enabled = !iniValue.IsFixed;
                 }
             }
 
@@ -587,50 +606,48 @@ namespace Greenshot.Base.Controls
                 var controlObject = field.GetValue(this);
                 IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
 
-                if (!string.IsNullOrEmpty(configBindable?.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName))
+                if (string.IsNullOrEmpty(configBindable?.SectionName) || string.IsNullOrEmpty(configBindable.PropertyName)) continue;
+
+                IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+                if (section == null) continue;
+
+                if (!section.Values.TryGetValue(configBindable.PropertyName, out var iniValue))
                 {
-                    IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-                    if (section != null)
+                    continue;
+                }
+
+                if (controlObject is CheckBox checkBox)
+                {
+                    iniValue.Value = checkBox.Checked;
+                    iniDirty = true;
+                    continue;
+                }
+
+                if (controlObject is RadioButton radioButton)
+                {
+                    iniValue.Value = radioButton.Checked;
+                    iniDirty = true;
+                    continue;
+                }
+
+                if (controlObject is TextBox textBox)
+                {
+                    if (controlObject is HotkeyControl hotkeyControl)
                     {
-                        if (!section.Values.TryGetValue(configBindable.PropertyName, out var iniValue))
-                        {
-                            continue;
-                        }
-
-                        if (controlObject is CheckBox checkBox)
-                        {
-                            iniValue.Value = checkBox.Checked;
-                            iniDirty = true;
-                            continue;
-                        }
-
-                        if (controlObject is RadioButton radioButton)
-                        {
-                            iniValue.Value = radioButton.Checked;
-                            iniDirty = true;
-                            continue;
-                        }
-
-                        if (controlObject is TextBox textBox)
-                        {
-                            if (controlObject is HotkeyControl hotkeyControl)
-                            {
-                                iniValue.Value = hotkeyControl.ToString();
-                                iniDirty = true;
-                                continue;
-                            }
-
-                            iniValue.UseValueOrDefault(textBox.Text);
-                            iniDirty = true;
-                            continue;
-                        }
-
-                        if (controlObject is GreenshotComboBox comboxBox)
-                        {
-                            iniValue.Value = comboxBox.GetSelectedEnum();
-                            iniDirty = true;
-                        }
+                        iniValue.Value = hotkeyControl.ToString();
+                        iniDirty = true;
+                        continue;
                     }
+
+                    iniValue.UseValueOrDefault(textBox.Text);
+                    iniDirty = true;
+                    continue;
+                }
+
+                if (controlObject is GreenshotComboBox comboxBox)
+                {
+                    iniValue.Value = comboxBox.GetSelectedEnum();
+                    iniDirty = true;
                 }
             }
 

@@ -68,7 +68,15 @@ namespace Greenshot.Base.Core
             if (!string.IsNullOrEmpty(assemblyFileVersionAttribute?.Version))
             {
                 var assemblyFileVersion = new Version(assemblyFileVersionAttribute.Version);
-                greenshotVersion = assemblyFileVersion.ToString(3);
+                greenshotVersion = assemblyFileVersion.ToString(2);
+                try
+                {
+                    greenshotVersion = assemblyFileVersion.ToString(3);
+                }
+                catch (Exception ex)
+                {
+                    // Ignore
+                }
             }
 
             if (!shortVersion)

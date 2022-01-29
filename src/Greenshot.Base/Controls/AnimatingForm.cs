@@ -21,8 +21,6 @@
 
 using System;
 using System.Windows.Forms;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot.Base.Controls
@@ -104,6 +102,10 @@ namespace Greenshot.Base.Controls
         /// <param name="e"></param>
         private void Timer_Tick(object sender, EventArgs e)
         {
+            if (!Visible)
+            {
+                return;
+            }
             try
             {
                 Animate();

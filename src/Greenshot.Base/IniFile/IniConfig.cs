@@ -137,7 +137,7 @@ namespace Greenshot.Base.IniFile
         {
             AssemblyProductAttribute[] assemblyProductAttributes =
                 Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false) as AssemblyProductAttribute[];
-            if (assemblyProductAttributes != null && assemblyProductAttributes.Length > 0)
+            if (assemblyProductAttributes is { Length: > 0 })
             {
                 string productName = assemblyProductAttributes[0].Product;
                 Log.InfoFormat("Using ProductName {0}", productName);

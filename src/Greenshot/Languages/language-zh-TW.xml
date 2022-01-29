@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="正體中文" ietf="zh-TW" version="1.1.4" languagegroup="9">
+<language description="正體中文" ietf="zh-TW" version="1.2.10" languagegroup="9">
 	<resources>
 		<resource name="about_bugs">請回報錯誤到以下網址</resource>
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
 		<resource name="about_host">Greenshot 的主機在 GitHub 網址是</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
 		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
-關於GNU General Public License 詳細資料:</resource>
+Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
+關於 GNU General Public License 詳細資料:</resource>
 		<resource name="about_title">關於 Greenshot</resource>
+        <resource name="about_translation"><!-- diplayed in about dialog, use to add credits or other translation-related info, e.g. "English translation by Jane Doe" --></resource>
 		<resource name="application_title">Greenshot - 革命性的螢幕截圖工具</resource>
 		<resource name="bugreport_cancel">關閉</resource>
 		<resource name="bugreport_info">很抱歉，發生未預期錯誤。
@@ -24,7 +25,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="clipboard_inuse">Greenshot 無法將資料寫入剪貼簿，因為 {0} 已將剪貼簿鎖定。</resource>
 		<resource name="clipboard_noimage">找不到剪貼簿圖片。</resource>
 		<resource name="ClipboardFormat.BITMAP">Windows 點陣圖</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML 含內嵌圖像</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
@@ -104,10 +105,6 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="editor_drawline">繪製直線 (L)</resource>
 		<resource name="editor_drawrectangle">繪製矩形 (R)</resource>
 		<resource name="editor_drawtextbox">加入文字方塊 (T)</resource>
-		<resource name="editor_dropshadow_darkness">陰影黑暗</resource>
-		<resource name="editor_dropshadow_offset">陰影偏移</resource>
-		<resource name="editor_dropshadow_settings">陰影設定</resource>
-		<resource name="editor_dropshadow_thickness">陰影厚度</resource>
 		<resource name="editor_duplicate">複製選取的元素</resource>
 		<resource name="editor_edit">編輯</resource>
 		<resource name="editor_effects">效果</resource>
@@ -155,12 +152,8 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="editor_thickness">直線粗細</resource>
 		<resource name="editor_title">Greenshot 圖片編輯器</resource>
 		<resource name="editor_torn_edge">撕裂邊緣</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">水平鋸齒範圍</resource>
-		<resource name="editor_tornedge_settings">撕裂邊緣設定</resource>
-		<resource name="editor_tornedge_toothsize">鋸齒大小</resource>
-		<resource name="editor_tornedge_verticaltoothrange">垂直鋸齒範圍</resource>
-		<resource name="editor_undo">復原 {0}</resource>
-		<resource name="editor_uponelevel">上移一層</resource>
+        <resource name="editor_undo">復原 {0}</resource>
+        <resource name="editor_uponelevel">上移一層</resource>
 		<resource name="editor_uptotop">移到最上層</resource>
 		<resource name="EmailFormat.MAPI">MAPI 用戶端</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook 使用 HTML</resource>
@@ -172,12 +165,13 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="error_openfile">無法開啟檔案「{0}」。</resource>
 		<resource name="error_openlink">無法開啟連結「{0}」。</resource>
 		<resource name="error_save">無法儲存螢幕擷圖，請尋找適合的位置。</resource>
+        <resource name="error_save_invalid_chars">產生的檔名或是路徑名稱無效。請修正檔名樣式並重試。</resource>
 		<resource name="expertsettings">專家</resource>
 		<resource name="expertsettings_autoreducecolors">在 &gt; 8 位元圖像時，如果色彩小於 256 則建立 8 位元圖像</resource>
 		<resource name="expertsettings_checkunstableupdates">檢查 Beta 版更新</resource>
 		<resource name="expertsettings_clipboardformats">剪貼簿格式</resource>
 		<resource name="expertsettings_counter">檔案名稱樣式中 ${NUM} 的數字</resource>
-		<resource name="expertsettings_enableexpert">我明白我所做的動作!</resource>
+		<resource name="expertsettings_enableexpert">我知道我在做什麼！</resource>
 		<resource name="expertsettings_footerpattern">印表機頁尾樣式</resource>
 		<resource name="expertsettings_minimizememoryfootprint">最小化記憶體佔用空間，但降低效能 (不建議)。</resource>
 		<resource name="expertsettings_optimizeforrdp">進行使用遠端桌面的一些最佳化</resource>
@@ -188,7 +182,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="exported_to_error">匯出到 {0} 時發生錯誤:</resource>
 		<resource name="help_title">Greenshot 說明</resource>
 		<resource name="hotkeys">熱鍵</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">請選擇圖片的 JPEG品質。</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">請選擇圖片的 JPEG 品質。</resource>
 		<resource name="OK">確定</resource>
 		<resource name="print_error">嘗試列印時發生錯誤。</resource>
 		<resource name="printoptions_allowcenter">列印在紙張的正中央</resource>
@@ -231,7 +225,7 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="settings_iecapture">Internet Explorer 擷取</resource>
 		<resource name="settings_jpegquality">JPEG 品質</resource>
 		<resource name="settings_language">語言</resource>
-		<resource name="settings_message_filenamepattern">在樣式定義中以下預留位置將自動取代:
+		<resource name="settings_message_filenamepattern">在樣式定義中以下預留位置將自動取代：
 ${YYYY}  年，4 位數字
 ${MM}  月，2 位數字
 ${DD}  日，2 位數字
@@ -239,6 +233,7 @@ ${hh}  時，2 位數字
 ${mm}  分，2 位數字
 ${ss}  秒，2 位數字
 ${NUM}  自動編號，6 位數字
+${RRR...} 隨機編號, 與 R 的長度相同
 ${title}   視窗標題
 ${user}   Windows 使用者名稱
 ${domain}   Windows 網域名稱
@@ -278,7 +273,7 @@ ${hostname}   電腦名稱
 		<resource name="settings_windowscapture">視窗擷取</resource>
 		<resource name="settings_zoom">顯示放大鏡</resource>
 		<resource name="tooltip_firststart">右鍵按一下這裡或是按下 {0} 鍵。</resource>
-		<resource name="update_found">Greenshot 的新版本可以使用! 您要下載 Greenshot {0} 嗎?</resource>
+		<resource name="update_found">Greenshot 的新版本可以使用! 您要下載 Greenshot {0} 嗎？</resource>
 		<resource name="wait_ie_capture">擷取 Internet Explorer 中頁面時請稍候...</resource>
 		<resource name="warning">警告</resource>
 		<resource name="warning_hotkeys">無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
@@ -289,5 +284,33 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
 		<resource name="WindowCaptureMode.Auto">自動</resource>
 		<resource name="WindowCaptureMode.GDI">使用預設色彩</resource>
 		<resource name="WindowCaptureMode.Screen">如顯示</resource>
+
+        <!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">陰影黑暗</resource>
+		<resource name="editor_dropshadow_offset">陰影偏移</resource>
+		<resource name="editor_dropshadow_settings">陰影設定</resource>
+		<resource name="editor_dropshadow_thickness">陰影厚度</resource>
+
+		<resource name="editor_tornedge_horizontaltoothrange">水平鋸齒範圍</resource>
+		<resource name="editor_tornedge_settings">撕裂邊緣設定</resource>
+		<resource name="editor_tornedge_toothsize">鋸齒大小</resource>
+		<resource name="editor_tornedge_verticaltoothrange">垂直鋸齒範圍</resource>
+        <resource name="editor_tornedge_all">撕裂所有邊緣</resource>
+        <resource name="editor_tornedge_left">左側</resource>
+        <resource name="editor_tornedge_right">右側</resource>
+        <resource name="editor_tornedge_top">上方</resource>
+        <resource name="editor_tornedge_bottom">下方</resource>
+        <resource name="editor_tornedge_shadow">產生陰影</resource>
+    
+        <resource name="editor_counter">加入計數器 (I)</resource>
+        <resource name="editor_speechbubble">加入對話框 (S)</resource>
+
+        <resource name="editor_resize">縮放</resource>
+        <resource name="editor_resize_settings">縮放設定</resource>
+        <resource name="editor_resize_aspectratio">維持長寬比</resource>
+        <resource name="editor_resize_width">長度</resource>
+        <resource name="editor_resize_height">寬度</resource>
+	    <resource name="settings_iconsize">圖示大小</resource>
+
 	</resources>
 </language>
