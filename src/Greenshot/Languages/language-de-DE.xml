@@ -58,7 +58,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>
 		<resource name="contextmenu_openfile">Datei öffnen...</resource>
-		<resource name="contextmenu_openrecentcapture">Ordner des letzten Screenshots im Explorer öffnen</resource>
+		<resource name="contextmenu_openrecentcapture">Letzten Speicherort im Explorer öffnen</resource>
 		<resource name="contextmenu_quicksettings">Schnelleinstellungen</resource>
 		<resource name="contextmenu_settings">Einstellungen...</resource>
 		<resource name="destination_exportfailed">Fehler beim Exportieren nach '{0}'. Bitte wiederholen Sie den Vorgang.</resource>
@@ -77,7 +77,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_arrowheads_none">Keine</resource>
 		<resource name="editor_arrowheads_start">Anfangspunkt</resource>
 		<resource name="editor_autocrop">Automatisch zuschneiden</resource>
-		<resource name="editor_backcolor">Hintergrundfarbe</resource>
+		<resource name="editor_backcolor">Hintergrundfarbe (0-9)</resource>
 		<resource name="editor_blur_radius">Weichzeichner-Radius</resource>
 		<resource name="editor_bold">Fett</resource>
 		<resource name="editor_border">Rand</resource>
@@ -92,14 +92,14 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_copypathtoclipboard">Pfad in Zwischenablage kopieren</resource>
 		<resource name="editor_copytoclipboard">Kopieren</resource>
 		<resource name="editor_crop">Zuschneiden (C)</resource>
-		<resource name="editor_cursortool">Auswahlwerkzeug (ESC)</resource>
+		<resource name="editor_cursortool">Auswahlwerkzeug (Esc)</resource>
 		<resource name="editor_cuttoclipboard">Ausschneiden</resource>
 		<resource name="editor_deleteelement">Gewähltes Element löschen</resource>
 		<resource name="editor_downonelevel">Eine Ebene nach hinten</resource>
 		<resource name="editor_downtobottom">In den Hintergrund</resource>
 		<resource name="editor_drawarrow">Pfeil zeichnen (A)</resource>
 		<resource name="editor_drawellipse">Ellipse zeichnen (E)</resource>
-		<resource name="editor_drawfreehand">Freihand zeichnen (F)</resource>
+		<resource name="editor_drawfreehand">Frei Hand zeichnen (F)</resource>
 		<resource name="editor_drawhighlighter">Hervorheben (H)</resource>
 		<resource name="editor_drawline">Linie zeichnen (L)</resource>
 		<resource name="editor_drawrectangle">Rechteck zeichnen (R)</resource>
@@ -110,7 +110,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Datei</resource>
 		<resource name="editor_fontsize">Größe</resource>
-		<resource name="editor_forecolor">Rahmenfarbe</resource>
+		<resource name="editor_forecolor">Rahmenfarbe (Num+0-9, Umschalt+0-9)</resource>
 		<resource name="editor_grayscale">Graustufe</resource>
 		<resource name="editor_highlight_area">Bereich hervorheben</resource>
 		<resource name="editor_highlight_grayscale">Graustufen</resource>
@@ -130,7 +130,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_obfuscate_mode">Unkenntlich machen - Modus</resource>
 		<resource name="editor_obfuscate_pixelize">Verpixeln</resource>
 		<resource name="editor_object">Objekt</resource>
-		<resource name="editor_opendirinexplorer">Verzeichnis in Windows Explorer öffnen</resource>
+		<resource name="editor_opendirinexplorer">Verzeichnis im Windows Explorer öffnen</resource>
 		<resource name="editor_pastefromclipboard">Einfügen</resource>
 		<resource name="editor_pixel_size">Pixelgröße</resource>
 		<resource name="editor_preview_quality">Vorschauqualität</resource>
@@ -146,10 +146,10 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_saveas">Speichern unter...</resource>
 		<resource name="editor_selectall">Alle Objekte auswählen</resource>
 		<resource name="editor_senttoprinter">Druckauftrag wurde an '{0}' gesendet.</resource>
-		<resource name="editor_shadow">Schatten An/Aus</resource>
+		<resource name="editor_shadow">Schatten an/aus (/)</resource>
 		<resource name="editor_storedtoclipboard">Bild wurde in Zwischenablage kopiert.</resource>
 		<resource name="editor_thickness">Linienstärke</resource>
-		<resource name="editor_title">Greenshot Editor</resource>
+		<resource name="editor_title">Greenshot - Editor</resource>
 		<resource name="editor_torn_edge">Gerissene Kanten</resource>
 		<resource name="editor_undo">Rückgängig {0}</resource>
 		<resource name="editor_uponelevel">Eine Ebene nach vorne</resource>
