@@ -2270,146 +2270,113 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
-            if (selectedElements.Count > 0)
-            {
-                bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
-                int px = shiftModifier ? 10 : 1;
-                Point moveBy = Point.Empty;
+            if (selectedElements.Count <= 0) return false;
 
-                switch (k)
-                {
-                    case Keys.Left:
-                    case Keys.Left | Keys.Shift:
-                        moveBy = new Point(-px, 0);
-                        break;
-                    case Keys.Up:
-                    case Keys.Up | Keys.Shift:
-                        moveBy = new Point(0, -px);
-                        break;
-                    case Keys.Right:
-                    case Keys.Right | Keys.Shift:
-                        moveBy = new Point(px, 0);
-                        break;
-                    case Keys.Down:
-                    case Keys.Down | Keys.Shift:
-                        moveBy = new Point(0, px);
-                        break;
-                    case Keys.PageUp:
-                        PullElementsUp();
-                        break;
-                    case Keys.PageDown:
-                        PushElementsDown();
-                        break;
-                    case Keys.Home:
-                        PullElementsToTop();
-                        break;
-                    case Keys.End:
-                        PushElementsToBottom();
-                        break;
-                    case Keys.Enter:
-                        ConfirmSelectedConfirmableElements(true);
-                        break;
-                    case Keys.Escape:
-                        ConfirmSelectedConfirmableElements(false);
-                        break;
-                    case Keys.NumPad0:
-	                    SetSelectedElementColor(Color.Orange, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad1:
-	                    SetSelectedElementColor(Color.Red, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad2:
-	                    SetSelectedElementColor(Color.FromArgb(0,255,0), true, shiftModifier); // Color.Green is #008000 and not #00FF00
-	                    break;
-                    case Keys.NumPad3:
-	                    SetSelectedElementColor(Color.Blue, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad4:
-	                    SetSelectedElementColor(Color.Cyan, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad5:
-	                    SetSelectedElementColor(Color.Magenta, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad6:
-	                    SetSelectedElementColor(Color.Yellow, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad7:
-	                    SetSelectedElementColor(Color.Black, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad8:
-	                    SetSelectedElementColor(Color.Gray, true, shiftModifier);
-	                    break;
-                    case Keys.NumPad9:
-	                    SetSelectedElementColor(Color.White, true, shiftModifier);
-	                    break;
-                    case Keys.D0:
-                    case Keys.D0 | Keys.Shift:
-	                    SetSelectedElementColor(shiftModifier ? Color.Orange : Color.Transparent, false, shiftModifier);
-	                    break;
-                    case Keys.D1:
-                    case Keys.D1 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Red, false, shiftModifier);
-	                    break;
-                    case Keys.D2:
-                    case Keys.D2 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Green, false, shiftModifier);
-	                    break;
-                    case Keys.D3:
-                    case Keys.D3 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Blue, false, shiftModifier);
-	                    break;
-                    case Keys.D4:
-                    case Keys.D4 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Cyan, false, shiftModifier);
-	                    break;
-                    case Keys.D5:
-                    case Keys.D5 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Magenta, false, shiftModifier);
-	                    break;
-                    case Keys.D6:
-                    case Keys.D6 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Yellow, false, shiftModifier);
-	                    break;
-                    case Keys.D7:
-                    case Keys.D7 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Black, false, shiftModifier);
-	                    break;
-                    case Keys.D8:
-                    case Keys.D8 | Keys.Shift:
-	                    SetSelectedElementColor(Color.Gray, false, shiftModifier);
-	                    break;
-                    case Keys.D9:
-                    case Keys.D9 | Keys.Shift:
-	                    SetSelectedElementColor(Color.White, false, shiftModifier);
-	                    break;
-                    case Keys.Add:
-                    case Keys.Add | Keys.Shift:
-	                    ChangeLineThickness(shiftModifier ? 5 : 1);
-	                    break;
-                    case Keys.Subtract:
-                    case Keys.Subtract | Keys.Shift:
-	                    ChangeLineThickness(shiftModifier ? -5 : -1);
-	                    break;
-                    case Keys.Divide:
-	                    FlipShadow();
-	                    break;
-                    /*case Keys.Delete:
+            bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
+            int px = shiftModifier ? 10 : 1;
+            Point moveBy = Point.Empty;
+            switch (k)
+            {
+                case Keys.Left:
+                case Keys.Left | Keys.Shift:
+                    moveBy = new Point(-px, 0);
+                    break;
+                case Keys.Up:
+                case Keys.Up | Keys.Shift:
+                    moveBy = new Point(0, -px);
+                    break;
+                case Keys.Right:
+                case Keys.Right | Keys.Shift:
+                    moveBy = new Point(px, 0);
+                    break;
+                case Keys.Down:
+                case Keys.Down | Keys.Shift:
+                    moveBy = new Point(0, px);
+                    break;
+                case Keys.PageUp:
+                    PullElementsUp();
+                    break;
+                case Keys.PageDown:
+                    PushElementsDown();
+                    break;
+                case Keys.Home:
+                    PullElementsToTop();
+                    break;
+                case Keys.End:
+                    PushElementsToBottom();
+                    break;
+                case Keys.Enter:
+                    ConfirmSelectedConfirmableElements(true);
+                    break;
+                case Keys.Escape:
+                    ConfirmSelectedConfirmableElements(false);
+                    break;
+                case Keys.D0 | Keys.Control:
+                case Keys.D0 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(shiftModifier ? Color.Orange : Color.Transparent, false, shiftModifier);
+                    break;
+                case Keys.D1 | Keys.Control:
+                case Keys.D1 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Red, false, shiftModifier);
+                    break;
+                case Keys.D2 | Keys.Control:
+                case Keys.D2 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Green, false, shiftModifier);
+                    break;
+                case Keys.D3 | Keys.Control:
+                case Keys.D3 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Blue, false, shiftModifier);
+                    break;
+                case Keys.D4 | Keys.Control:
+                case Keys.D4 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Cyan, false, shiftModifier);
+                    break;
+                case Keys.D5 | Keys.Control:
+                case Keys.D5 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Magenta, false, shiftModifier);
+                    break;
+                case Keys.D6 | Keys.Control:
+                case Keys.D6 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Yellow, false, shiftModifier);
+                    break;
+                case Keys.D7 | Keys.Control:
+                case Keys.D7 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Black, false, shiftModifier);
+                    break;
+                case Keys.D8 | Keys.Control:
+                case Keys.D8 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Gray, false, shiftModifier);
+                    break;
+                case Keys.D9 | Keys.Control:
+                case Keys.D9 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.White, false, shiftModifier);
+                    break;
+                case Keys.Add | Keys.Control:
+                case Keys.Add | Keys.Shift | Keys.Control:
+                    ChangeLineThickness(shiftModifier ? 5 : 1);
+                    break;
+                case Keys.Subtract | Keys.Control:
+                case Keys.Subtract | Keys.Shift | Keys.Control:
+                    ChangeLineThickness(shiftModifier ? -5 : -1);
+                    break;
+                case Keys.Divide | Keys.Control:
+                    FlipShadow();
+                    break;
+                /*case Keys.Delete:
                         RemoveSelectedElements();
                         break;*/
-                    default:
-                        return false;
-                }
-
-                if (!Point.Empty.Equals(moveBy))
-                {
-                    selectedElements.MakeBoundsChangeUndoable(true);
-                    selectedElements.MoveBy(moveBy.X, moveBy.Y);
-                }
-
-                return true;
+                default:
+                    return false;
             }
 
-            return false;
+            if (!Point.Empty.Equals(moveBy))
+            {
+                selectedElements.MakeBoundsChangeUndoable(true);
+                selectedElements.MoveBy(moveBy.X, moveBy.Y);
+            }
+
+            return true;
+
         }
 
         // for laptops without numPads, also allow shift modifier

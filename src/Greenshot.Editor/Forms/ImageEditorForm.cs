@@ -471,7 +471,7 @@ namespace Greenshot.Editor.Forms
         private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
 
         /// <summary>
-        /// This is the SufraceMessageEvent receiver which display a message in the status bar if the
+        /// This is the SurfaceMessageEvent receiver which display a message in the status bar if the
         /// surface is exported. It also updates the title to represent the filename, if there is one.
         /// </summary>
         /// <param name="sender"></param>
@@ -505,41 +505,41 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// This is called when the foreground color of the select element chances, used for shortcuts
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
         private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
         {
-	        btnLineColor.SelectedColor = eventArgs.Color;
+            _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
         }
         
         /// <summary>
         /// This is called when the background color of the select element chances, used for shortcuts
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
         private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
         {
-	        btnFillColor.SelectedColor = eventArgs.Color;
+            _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
         }
         
         /// <summary>
         /// This is called when the line thickness of the select element chances, used for shortcuts
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceLineThicknessEventArgs</param>
         private void LineThicknessChanged(object sender, SurfaceLineThicknessEventArgs eventArgs)
         {
-	        lineThicknessUpDown.Value = eventArgs.Thickness;
+            _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS).Value = eventArgs.Thickness;
         }
         
         /// <summary>
         /// This is called when the shadow of the select element chances, used for shortcuts
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceShadowEventArgs</param>
         private void ShadowChanged(object sender, SurfaceShadowEventArgs eventArgs)
         {
-	        shadowButton.Checked = eventArgs.HasShadow;
+            _surface.FieldAggregator.GetField(FieldType.SHADOW).Value = eventArgs.HasShadow;
         }
 
         /// <summary>
