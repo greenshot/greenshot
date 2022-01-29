@@ -67,8 +67,6 @@ namespace Greenshot.Editor.Forms
 
         private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
 
-        private static bool? _emojifontInstalled;
-
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
 
