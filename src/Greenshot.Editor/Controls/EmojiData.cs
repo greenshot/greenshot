@@ -241,7 +241,7 @@ namespace Greenshot.Editor.Controls
 
         private static IEnumerable<string> EmojiDescriptionLines()
         {
-            using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"Resources\emoji-test.txt"), FileMode.Open, FileAccess.Read);
+            using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"emoji-test.txt"), FileMode.Open, FileAccess.Read);
             using var streamReader = new StreamReader(fileStream);
             return streamReader.ReadToEnd().Split('\r', '\n');
         }

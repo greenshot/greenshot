@@ -24,7 +24,7 @@ namespace Greenshot.Editor.Drawing
 
         private static Lazy<FontFamily> _twemoji = new Lazy<FontFamily>(() =>
         {
-            using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"Resources\TwemojiMozilla.ttf"), FileMode.Open, FileAccess.Read);
+            using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"TwemojiMozilla.ttf"), FileMode.Open, FileAccess.Read);
             _fontCollection.Add(fileStream);
             _fontCollection.TryGet("Twemoji Mozilla", out var fontFamily);
             return fontFamily;

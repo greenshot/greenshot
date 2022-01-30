@@ -89,10 +89,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\emoji-test.txt">
+    <None Update="Resources\emoji-test.txt" Link="%(LinkBase)\%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\TwemojiMozilla.ttf">
+    <None Update="Resources\TwemojiMozilla.ttf" Link="%(LinkBase)\%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
