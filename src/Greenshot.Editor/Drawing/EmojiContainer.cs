@@ -24,12 +24,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls;
@@ -37,7 +34,6 @@ using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 using Matrix = System.Drawing.Drawing2D.Matrix;
-using Size = System.Windows.Size;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -56,6 +52,7 @@ namespace Greenshot.Editor.Drawing
 
         private string _emoji;
         private int _rotationAngle;
+        private bool _useSystemFont;
 
         public string Emoji
         {
@@ -63,6 +60,16 @@ namespace Greenshot.Editor.Drawing
             set
             {
                 _emoji = value;
+                ResetCachedBitmap();
+            }
+        }
+
+        public bool UseSystemFont
+        {
+            get => _useSystemFont;
+            set
+            {
+                _useSystemFont = value;
                 ResetCachedBitmap();
             }
         }
@@ -111,6 +118,7 @@ namespace Greenshot.Editor.Drawing
                 _emojiPicker.Picked += (_, args) =>
                 {
                     _currentContainer.Emoji = args.Emoji;
+                    _currentContainer.UseSystemFont = _emojiPicker.UseSystemFont;
                     _currentContainer.Invalidate();
                 };
 
@@ -211,7 +219,7 @@ namespace Greenshot.Editor.Drawing
 
         private Image ComputeBitmap(int iconSize)
         {
-            var image = EmojiRenderer.GetBitmap(Emoji, iconSize);
+            var image = EmojiRenderer.GetBitmap(Emoji, iconSize, useSystemFont: _useSystemFont);
             if (_rotationAngle != 0)
             {
                 var newImage = image.Rotate(_rotationAngle);

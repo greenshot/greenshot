@@ -18,7 +18,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Greenshot.Editor.Drawing;
 using SixLabors.Fonts.Unicode;
 
 namespace Greenshot.Editor.Controls
@@ -87,7 +86,7 @@ namespace Greenshot.Editor.Controls
                    select e;
         }
 
-       private static string m_match_one_string;
+        private static string m_match_one_string;
 
         // FIXME: this could be read directly from emoji-test.txt.gz
         private static List<string> SkinToneComponents = new List<string>
@@ -190,7 +189,7 @@ namespace Greenshot.Editor.Controls
                     var unqualified = text.Replace("\ufe0f", "");
                     if (qualified_lut.ContainsKey(unqualified))
                         continue;
-                    
+
                     // Fix simple fully-qualified emojis
                     if (CodePoint.GetCodePointCount(text.AsSpan()) == 2)
                     {
@@ -242,8 +241,8 @@ namespace Greenshot.Editor.Controls
 
         private static IEnumerable<string> EmojiDescriptionLines()
         {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Greenshot.Editor.Resources.emoji-test.txt");
-            using var streamReader = new StreamReader(stream);
+            using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"Resources\emoji-test.txt"), FileMode.Open, FileAccess.Read);
+            using var streamReader = new StreamReader(fileStream);
             return streamReader.ReadToEnd().Split('\r', '\n');
         }
     }

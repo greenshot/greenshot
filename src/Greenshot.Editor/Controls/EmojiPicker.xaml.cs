@@ -42,6 +42,14 @@ namespace Greenshot.Editor.Controls
 
         public IList<EmojiData.Group> EmojiGroups => EmojiData.AllGroups;
 
+        public static readonly DependencyProperty UseSystemFontProperty = DependencyProperty.Register("UseSystemFont", typeof(bool), typeof(EmojiPicker), new PropertyMetadata(default(bool)));
+
+        public bool UseSystemFont
+        {
+            get { return (bool)GetValue(UseSystemFontProperty); }
+            set { SetValue(UseSystemFontProperty, value); }
+        }
+
         // Backwards compatibility for when the backend was a TextBlock.
         public double FontSize
         {

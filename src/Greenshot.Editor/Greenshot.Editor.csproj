@@ -86,7 +86,14 @@
     <EmbeddedResource Update="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\emoji-test.txt" />
-    <EmbeddedResource Include="Resources\TwemojiMozilla.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\emoji-test.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TwemojiMozilla.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

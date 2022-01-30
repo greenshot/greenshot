@@ -17,7 +17,8 @@
                       BorderThickness="1" Height="Auto" Padding="0" Margin="1"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      MaxWidth="280"> <!-- 6 columns -->
+                      MaxWidth="280">
+                <!-- 6 columns -->
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel/>
@@ -35,7 +36,7 @@
                         <Button Background="Transparent" BorderBrush="Transparent"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40" ToolTip="{Binding Path=Name}">
-                            <controls:EmojiControl Height="24" Emoji="{Binding Path=Text}"/>
+                            <controls:EmojiControl Height="24" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Path=Text}"  />
                         </Button>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -47,7 +48,7 @@
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
                           Click="OnEmojiPicked" Focusable="False" ToolTip="{Binding Path=Name}">
                 <Grid>
-                    <controls:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}"
+                    <controls:EmojiControl Height="24" Margin="4" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
@@ -70,67 +71,73 @@
            StaysOpen="False"
            KeyDown="OnPopupKeyDown" Loaded="OnPopupLoaded"
            AllowsTransparency="True" Margin="0">
-
-        <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
-            <TabControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <controls:EmojiControl Height="24" Emoji="{Binding Icon}">
-                            <Image.ToolTip>
-                                <TextBlock Text="{Binding Name}"/>
-                            </Image.ToolTip>
-                        </controls:EmojiControl>
-                    </Grid>
-                </DataTemplate>
-            </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <ListView Name="EmojiListView" ItemsSource="{Binding EmojiChunkList}"
+        <Border>
+            <StackPanel Orientation="Vertical">
+                <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <controls:EmojiControl Height="24" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Icon}" >
+                                    <Image.ToolTip>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </Image.ToolTip>
+                                </controls:EmojiControl>
+                            </Grid>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <ListView Name="EmojiListView" ItemsSource="{Binding EmojiChunkList}"
                                   BorderThickness="0"
                                   MaxHeight="320" Height="Auto" Padding="0" Margin="1"
                                   VirtualizingStackPanel.IsVirtualizing="True"
                                   VirtualizingStackPanel.VirtualizationMode="Recycling"
                                   ScrollViewer.VerticalScrollBarVisibility="Visible"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}">
-                                    <!-- Get rid of the ugly padding and margin in default ListViewItem -->
-                                    <Setter Property="Padding" Value="0"/>
-                                    <Setter Property="Margin" Value="0"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <!-- Remove the mouse over highlight -->
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                                <ContentPresenter/>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <!-- Now for our actual content -->
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <ItemsControl ItemsSource="{Binding}"
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <!-- Get rid of the ugly padding and margin in default ListViewItem -->
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <!-- Remove the mouse over highlight -->
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                        <ContentPresenter/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <!-- Now for our actual content -->
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <ItemsControl ItemsSource="{Binding}"
                                                   ItemTemplate="{StaticResource ResourceKey=CellTemplate}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-                </DataTemplate>
-            </TabControl.ContentTemplate>
-        </TabControl>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                <CheckBox VerticalContentAlignment="Center" IsChecked="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL}" >
+                    Use system font
+                </CheckBox>
+            </StackPanel>
+        </Border>
     </Popup>
 </StackPanel>
