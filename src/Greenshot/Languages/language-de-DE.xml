@@ -57,8 +57,8 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_donate">Greenshot unterstützen</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>
-		<resource name="contextmenu_openfile">Datei öffnen</resource>
-		<resource name="contextmenu_openrecentcapture">Letzten Screenshot im Explorer anzeigen</resource>
+		<resource name="contextmenu_openfile">Datei öffnen...</resource>
+		<resource name="contextmenu_openrecentcapture">Letzten Speicherort im Explorer öffnen</resource>
 		<resource name="contextmenu_quicksettings">Schnelleinstellungen</resource>
 		<resource name="contextmenu_settings">Einstellungen...</resource>
 		<resource name="destination_exportfailed">Fehler beim Exportieren nach '{0}'. Bitte wiederholen Sie den Vorgang.</resource>
@@ -92,14 +92,14 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_copypathtoclipboard">Pfad in Zwischenablage kopieren</resource>
 		<resource name="editor_copytoclipboard">Kopieren</resource>
 		<resource name="editor_crop">Zuschneiden (C)</resource>
-		<resource name="editor_cursortool">Auswahlwerkzeug (ESC)</resource>
+		<resource name="editor_cursortool">Auswahlwerkzeug (Esc)</resource>
 		<resource name="editor_cuttoclipboard">Ausschneiden</resource>
 		<resource name="editor_deleteelement">Gewähltes Element löschen</resource>
 		<resource name="editor_downonelevel">Eine Ebene nach hinten</resource>
 		<resource name="editor_downtobottom">In den Hintergrund</resource>
 		<resource name="editor_drawarrow">Pfeil zeichnen (A)</resource>
 		<resource name="editor_drawellipse">Ellipse zeichnen (E)</resource>
-		<resource name="editor_drawfreehand">Freihand zeichnen (F)</resource>
+		<resource name="editor_drawfreehand">Frei Hand zeichnen (F)</resource>
 		<resource name="editor_drawhighlighter">Hervorheben (H)</resource>
 		<resource name="editor_drawline">Linie zeichnen (L)</resource>
 		<resource name="editor_drawrectangle">Rechteck zeichnen (R)</resource>
@@ -110,7 +110,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Datei</resource>
 		<resource name="editor_fontsize">Größe</resource>
-		<resource name="editor_forecolor">Rahmenfarbe (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_forecolor">Rahmenfarbe (Num+0-9, Umschalt+0-9)</resource>
 		<resource name="editor_grayscale">Graustufe</resource>
 		<resource name="editor_highlight_area">Bereich hervorheben</resource>
 		<resource name="editor_highlight_grayscale">Graustufen</resource>
@@ -130,7 +130,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_obfuscate_mode">Unkenntlich machen - Modus</resource>
 		<resource name="editor_obfuscate_pixelize">Verpixeln</resource>
 		<resource name="editor_object">Objekt</resource>
-		<resource name="editor_opendirinexplorer">Verzeichnis in Windows Explorer öffnen</resource>
+		<resource name="editor_opendirinexplorer">Verzeichnis im Windows Explorer öffnen</resource>
 		<resource name="editor_pastefromclipboard">Einfügen</resource>
 		<resource name="editor_pixel_size">Pixelgröße</resource>
 		<resource name="editor_preview_quality">Vorschauqualität</resource>
@@ -146,10 +146,10 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_saveas">Speichern unter...</resource>
 		<resource name="editor_selectall">Alle Objekte auswählen</resource>
 		<resource name="editor_senttoprinter">Druckauftrag wurde an '{0}' gesendet.</resource>
-		<resource name="editor_shadow">Schatten An/Aus (/)</resource>
+		<resource name="editor_shadow">Schatten an/aus (/)</resource>
 		<resource name="editor_storedtoclipboard">Bild wurde in Zwischenablage kopiert.</resource>
 		<resource name="editor_thickness">Linienstärke</resource>
-		<resource name="editor_title">Greenshot Editor</resource>
+		<resource name="editor_title">Greenshot - Editor</resource>
 		<resource name="editor_torn_edge">Gerissene Kanten</resource>
 		<resource name="editor_undo">Rückgängig {0}</resource>
 		<resource name="editor_uponelevel">Eine Ebene nach vorne</resource>
@@ -164,12 +164,12 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="error_openfile">Die Datei '{0}' konnte nicht geöffnet werden.</resource>
 		<resource name="error_openlink">Konnte Link '{0}' nicht öffnen.</resource>
 		<resource name="error_save">Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.</resource>
-    <resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateiname-Muster und versuchen Sie es erneut.</resource>
+		<resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateinamensmuster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
 		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder bei weniger als 256 Farben erstellen</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
-		<resource name="expertsettings_counter">Wert für ${NUM} im Dateiname-Muster</resource>
+		<resource name="expertsettings_counter">Wert für ${NUM} im Dateinamensmuster</resource>
 		<resource name="expertsettings_enableexpert">Ich weiß, was ich tue!</resource>
 		<resource name="expertsettings_footerpattern">Fußzeile für Druck</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (auf Kosten der Performance - nicht empfohlen)</resource>
@@ -184,10 +184,10 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="jpegqualitydialog_choosejpegquality">Bitte wählen Sie die Qualität Ihres JPEG-Bildes.</resource>
 		<resource name="OK">OK</resource>
 		<resource name="print_error">Beim Versuch zu drucken ist ein Fehler aufgetreten.</resource>
-		<resource name="printoptions_allowcenter">Ausdruck auf der Seite zentrieren</resource>
-		<resource name="printoptions_allowenlarge">Ausdruck auf Seitengröße vergrößern</resource>
-		<resource name="printoptions_allowrotate">Drehung des Ausdrucks an das Seitenformat anpassen</resource>
-		<resource name="printoptions_allowshrink">Ausdruck auf Seitengröße verkleinern</resource>
+		<resource name="printoptions_allowcenter">Auf der Seite zentrieren</resource>
+		<resource name="printoptions_allowenlarge">Auf Seitengröße vergrößern</resource>
+		<resource name="printoptions_allowrotate">In die Seitenausrichtung drehen</resource>
+		<resource name="printoptions_allowshrink">Auf Seitengröße verkleinern</resource>
 		<resource name="printoptions_colors">Farb-Einstellungen</resource>
 		<resource name="printoptions_dontaskagain">Als Standard speichern und nicht wieder fragen</resource>
 		<resource name="printoptions_inverted">Farben umkehren</resource>
@@ -195,7 +195,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="printoptions_printcolor">Farbdruck</resource>
 		<resource name="printoptions_printgrayscale">Nur in Graustufen ausdrucken</resource>
 		<resource name="printoptions_printmonochrome">Schwarz-Weiß-Druck erzwingen</resource>
-		<resource name="printoptions_timestamp">Datum und Uhrzeit am Ende der Seite einfügen</resource>
+		<resource name="printoptions_timestamp">Datum/Uhrzeit am Seitenende</resource>
 		<resource name="printoptions_title">Greenshot - Druckeinstellungen</resource>
 		<resource name="qualitydialog_dontaskagain">Als Standardqualität speichern und nicht wieder fragen</resource>
 		<resource name="qualitydialog_title">Greenshot - Qualität</resource>
@@ -207,7 +207,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_capture">Abfotografieren</resource>
 		<resource name="settings_capture_mousepointer">Mauszeiger mitfotografieren</resource>
 		<resource name="settings_capture_windows_interactive">Fensterteile einzeln abfotografieren</resource>
-		<resource name="settings_checkperiod">Prüfen auf Updates alle X Tage (0=keine Prüfung)</resource>
+		<resource name="settings_checkperiod">Prüfen auf Updates alle x Tage (0 = keine Prüfung)</resource>
 		<resource name="settings_configureplugin">Konfigurieren...</resource>
 		<resource name="settings_copypathtoclipboard">Dateipfad in die Zwischenablage kopieren, wenn ein Bild gespeichert wird</resource>
 		<resource name="settings_destination">Ziele</resource>
@@ -219,29 +219,29 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_destination_picker">Ziel dynamisch auswählen</resource>
 		<resource name="settings_destination_printer">An Drucker senden</resource>
 		<resource name="settings_editor">Editor</resource>
-		<resource name="settings_filenamepattern">Dateiname-Muster</resource>
+		<resource name="settings_filenamepattern">Dateinamensmuster</resource>
 		<resource name="settings_general">Allgemein</resource>
 		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
 		<resource name="settings_language">Sprache</resource>
 		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
-${YYYY} Jahr, 4-stellig
-${MM} Monat, 2-stellig
-${DD} Tag, 2-stellig
-${hh} Stunde, 2-stellig
-${mm} Minute, 2-stellig
-${ss} Sekunde, 2-stellig
-${NUM} inkrementierende Zahl, 6-stellig
-${title} Fenstertitel
-${user} Windows-Benutzername
-${domain} Windows-Domäne
-${hostname} Computername
+${YYYY}		Jahr, 4-stellig
+${MM}		Monat, 2-stellig
+${DD}		Tag, 2-stellig
+${hh}		Stunde, 2-stellig
+${mm}		Minute, 2-stellig
+${ss}		Sekunde, 2-stellig
+${NUM}		inkrementierende Zahl, 6-stellig
+${title}		Fenstertitel
+${user}		Windows-Benutzername
+${domain}	Windows-Domäne
+${hostname}	Computername
 
 Greenshot kann auch Verzeichnisse dynamisch erstellen.
-Verwenden Sie den Backslash \ um Verzeichnisse vom Dateinamen zu trennen.
-Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format, mit der vorgegebenen Dateiendung ab.
-z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
+Verwenden Sie den Backslash \, um Verzeichnisse vom Dateinamen zu trennen.
+Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format mit der vorgegebenen Dateiendung ab.
+Beispiel: C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_network">Netzwerk und Aktualisierungen</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameraton abspielen</resource>
@@ -254,7 +254,7 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_primaryimageformat">Bildformat</resource>
 		<resource name="settings_printer">Drucker</resource>
 		<resource name="settings_printoptions">Druckeinstellungen</resource>
-		<resource name="settings_qualitysettings">Qualitätseinstellungen</resource>
+		<resource name="settings_qualitysettings">JPEG-Qualitätseinstellungen</resource>
 		<resource name="settings_reducecolors">Maximal 256 Farben verwenden</resource>
 		<resource name="settings_registerhotkeys">Globale Tastenkombinationen aktivieren</resource>
 		<resource name="settings_showflashlight">Blitzlicht anzeigen</resource>
@@ -264,21 +264,21 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_tooltip_filenamepattern">Muster, das beim Speichern von Screenshots zum Generieren von Dateinamen verwendet wird</resource>
 		<resource name="settings_tooltip_language">Sprache der Benutzeroberfläche</resource>
 		<resource name="settings_tooltip_primaryimageformat">Standard-Bildformat</resource>
-		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Druck, Strg + Druck, Alt + Druck beim Betriebssystem zur globalen Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
+		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Druck, Strg+Druck, Alt+Druck beim Betriebssystem zur globalen Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
 		<resource name="settings_tooltip_storagelocation">Standardpfad für Bildschirmausdrucke. Leer lassen für Desktop.</resource>
 		<resource name="settings_usedefaultproxy">Standard-Proxyserver des Betriebssystems verwenden</resource>
 		<resource name="settings_visualization">Effekte</resource>
 		<resource name="settings_waittime">Millisekunden vor dem Abfotografieren warten</resource>
-		<resource name="settings_window_capture_mode">Abfotografiermodus-Fenster</resource>
+		<resource name="settings_window_capture_mode">Aufnahmemodus</resource>
 		<resource name="settings_windowscapture">Fenster abfotografieren</resource>
 		<resource name="settings_zoom">Lupe anzeigen</resource>
 		<resource name="tooltip_firststart">Klicken Sie hier mit der rechten Maustaste oder drücken Sie die Taste {0}.</resource>
 		<resource name="update_found">Eine neuere Greenshot-Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
 		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
-		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
-Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1} reserviert.
-Sie können die Tastenkombination für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
+		<resource name="warning_hotkeys">Die globale Tastenkombination {0} konnte nicht aktiviert werden.
+Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm {1} reserviert.
+Sie können die Tastenkombination für Greenshot ändern oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
 		<resource name="WindowCaptureMode.Aero">Benutzerdefinierte Farbe verwenden</resource>
