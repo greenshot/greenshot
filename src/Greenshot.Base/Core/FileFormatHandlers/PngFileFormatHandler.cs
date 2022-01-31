@@ -19,55 +19,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 
-namespace Greenshot.Editor.Memento
+namespace Greenshot.Base.Core.FileFormatHandlers
 {
-    /// <summary>
-    /// The AddElementMemento makes it possible to undo adding an element
-    /// </summary>
-    public class AddElementsMemento : IMemento
+    public class PngFileFormatHandler : IFileFormatHandler
     {
-        private IDrawableContainerList _containerList;
-        private ISurface _surface;
+        private static readonly string[] SupportedExtensions = { "png" };
 
-        public AddElementsMemento(ISurface surface, IDrawableContainerList containerList)
+        public bool CanDoActionForExtension(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            _surface = surface;
-            _containerList = containerList;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
-                _containerList?.Dispose();
+                return false;
             }
-
-            _containerList = null;
-            _surface = null;
+            return SupportedExtensions.Contains(extension);
         }
 
-        public bool Merge(IMemento otherMemento)
+        public void SaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            return false;
+            throw new NotImplementedException();
         }
 
-        public IMemento Restore()
+        public Bitmap Load(Stream stream, string extension)
         {
-            var oldState = new DeleteElementsMemento(_surface, _containerList);
+            throw new NotImplementedException();
+        }
 
-            _surface.RemoveElements(_containerList, false);
-
-            // After, so everything is gone
-            _surface.Invalidate();
-            return oldState;
+        public IDrawableContainer LoadDrawableFromStream(Stream stream, string extension, ISurface parent)
+        {
+            throw new NotImplementedException();
         }
     }
 }

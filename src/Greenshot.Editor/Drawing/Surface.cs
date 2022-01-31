@@ -294,7 +294,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// all elements on the surface, needed with serialization
         /// </summary>
-        private FieldAggregator _fieldAggregator;
+        private IFieldAggregator _fieldAggregator;
 
         /// <summary>
         /// the cursor container, needed with serialization as we need a direct acces to it.
@@ -355,7 +355,7 @@ namespace Greenshot.Editor.Drawing
         /// The field aggregator is that which is used to have access to all the fields inside the currently selected elements.
         /// e.g. used to decided if and which line thickness is shown when multiple elements are selected.
         /// </summary>
-        public FieldAggregator FieldAggregator
+        public IFieldAggregator FieldAggregator
         {
             get => _fieldAggregator;
             set => _fieldAggregator = value;

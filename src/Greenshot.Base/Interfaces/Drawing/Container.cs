@@ -135,7 +135,7 @@ namespace Greenshot.Base.Interfaces.Drawing
 
     public interface IImageContainer : IDrawableContainer
     {
-        Image Image { get; set; }
+        Image Image { get; }
         void Load(string filename);
     }
 

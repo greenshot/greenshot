@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -55,83 +56,14 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
+        public static readonly IList<IFileFormatHandler> FileFormatHandlers = new List<IFileFormatHandler>();
+
         static ImageHelper()
         {
-            StreamConverters["greenshot"] = (stream, s) =>
-            {
-                var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-                return surface.GetImageForExport();
-            };
-
-            // Add a SVG converter
-            StreamConverters["svg"] = (stream, s) =>
-            {
-                stream.Position = 0;
-                try
-                {
-                    return SvgImage.FromStream(stream).Image;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Can't load SVG", ex);
-                }
-
-                return null;
-            };
-
-            static Image DefaultConverter(Stream stream, string s)
-            {
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                return Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
-
-            // Fallback
-            StreamConverters[string.Empty] = DefaultConverter;
-            StreamConverters["gif"] = DefaultConverter;
-            StreamConverters["bmp"] = DefaultConverter;
-            StreamConverters["jpg"] = DefaultConverter;
-            StreamConverters["jpeg"] = DefaultConverter;
-            StreamConverters["png"] = DefaultConverter;
-            StreamConverters["wmf"] = DefaultConverter;
-
-            StreamConverters["ico"] = (stream, extension) =>
-            {
-                // Icon logic, try to get the Vista icon, else the biggest possible
-                try
-                {
-                    using Image tmpImage = ExtractVistaIcon(stream);
-                    if (tmpImage != null)
-                    {
-                        return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                    }
-                }
-                catch (Exception vistaIconException)
-                {
-                    Log.Warn("Can't read icon", vistaIconException);
-                }
-
-                try
-                {
-                    // No vista icon, try normal icon
-                    stream.Position = 0;
-                    // We create a copy of the bitmap, so everything else can be disposed
-                    using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
-                    using Image tmpImage = tmpIcon.ToBitmap();
-                    return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                }
-                catch (Exception iconException)
-                {
-                    Log.Warn("Can't read icon", iconException);
-                }
-
-                stream.Position = 0;
-                return DefaultConverter(stream, extension);
-            };
+            FileFormatHandlers.Add(new IconFileFormatHandler());
+            FileFormatHandlers.Add(new GreenshotFileFormatHandler());
+            FileFormatHandlers.Add(new DefaultFileFormatHandler());
         }
-
-        public static IDictionary<string, Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Image>>();
 
         /// <summary>
         /// Make sure the image is orientated correctly
@@ -563,8 +495,7 @@ namespace Greenshot.Base.Core
         /// <returns>Changed bitmap</returns>
         public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
         {
-            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution,
-                sourceImage.VerticalResolution);
+            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
                 Random random = new Random();
@@ -1516,10 +1447,10 @@ namespace Greenshot.Base.Core
         /// <param name="height"></param>
         /// <param name="format"></param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
-        /// <param name="horizontalResolution"></param>
-        /// <param name="verticalResolution"></param>
+        /// <param name="horizontalResolution">float</param>
+        /// <param name="verticalResolution">float</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution, float verticalResolution)
+        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
             Bitmap newImage = new Bitmap(width, height, format);
@@ -1777,31 +1708,50 @@ namespace Greenshot.Base.Core
                 extension = extension.Replace(".", string.Empty);
             }
 
+            var startingPosition = stream.Position;
+
             // Make sure we can try multiple times
             if (!stream.CanSeek)
             {
                 var memoryStream = new MemoryStream();
                 stream.CopyTo(memoryStream);
                 stream = memoryStream;
+                // As we are if a different stream, which starts at 0, change the starting position
+                startingPosition = 0;
             }
 
-            Image returnImage = null;
-            if (StreamConverters.TryGetValue(extension ?? string.Empty, out var converter))
+            foreach (var fileFormatHandler in FileFormatHandlers)
             {
-                returnImage = converter(stream, extension);
+                if (!fileFormatHandler.CanDoActionForExtension(FileFormatHandlerActions.Load, extension)) continue;
+
+                stream.Seek(startingPosition, SeekOrigin.Begin);
+                return fileFormatHandler.Load(stream, extension);
             }
 
-            // Fallback
-            if (returnImage == null)
-            {
-                // We create a copy of the bitmap, so everything else can be disposed
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                returnImage = Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
+            return null;
+        }
 
-            return returnImage;
+
+        /// <summary>
+        /// Rotate the image
+        /// </summary>
+        /// <param name="image">Input image</param>
+        /// <param name="rotationAngle">Angle in degrees</param>
+        /// <returns>Rotated image</returns>
+        public static Image Rotate(this Image image, float rotationAngle)
+        {
+            var bitmap = CreateEmptyLike(image, Color.Transparent);
+
+            using var gfx = Graphics.FromImage(bitmap);
+            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            gfx.RotateTransform(rotationAngle);
+            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
+
+            gfx.DrawImage(image, new Point(0, 0));
+
+            return bitmap;
         }
     }
 }

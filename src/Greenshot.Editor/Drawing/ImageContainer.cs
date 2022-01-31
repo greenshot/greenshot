@@ -26,6 +26,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using log4net;
@@ -54,12 +55,12 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         [NonSerialized] private Point _shadowOffset = new Point(-1, -1);
 
-        public ImageContainer(Surface parent, string filename) : this(parent)
+        public ImageContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
         }
 
-        public ImageContainer(Surface parent) : base(parent)
+        public ImageContainer(ISurface parent) : base(parent)
         {
             FieldChanged += BitmapContainer_OnFieldChanged;
             Init();

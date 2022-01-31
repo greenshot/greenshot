@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
 
@@ -39,7 +40,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Icon icon;
 
-        public IconContainer(Surface parent) : base(parent)
+        public IconContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -55,7 +56,7 @@ namespace Greenshot.Editor.Drawing
             CreateDefaultAdorners();
         }
 
-        public IconContainer(Surface parent, string filename) : base(parent)
+        public IconContainer(ISurface parent, string filename) : base(parent)
         {
             Load(filename);
         }

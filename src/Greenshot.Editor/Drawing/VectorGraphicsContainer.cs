@@ -22,26 +22,30 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
+using System.Drawing.Imaging;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using log4net;
 
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Description of CursorContainer.
+    /// This is the base container for vector graphics, these ae graphics which can resize without loss of quality.
+    /// Examples for this are SVG, WMF or EMF, but also graphics based on fonts (e.g. Emoji)
     /// </summary>
     [Serializable]
-    public class CursorContainer : DrawableContainer, ICursorContainer
+    public abstract class VectorGraphicsContainer : DrawableContainer
     {
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
+        protected int RotationAngle;
 
-        protected Cursor cursor;
+        /// <summary>
+        /// This is the cached version of the bitmap, pre-rendered to save performance
+        /// Do not serialized, it can be rebuild with some other information.
+        /// </summary>
+        [NonSerialized] private Image _cachedImage;
 
-        public CursorContainer(ISurface parent) : base(parent)
+        public VectorGraphicsContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -57,73 +61,66 @@ namespace Greenshot.Editor.Drawing
             CreateDefaultAdorners();
         }
 
-        public CursorContainer(ISurface parent, string filename) : this(parent)
-        {
-            Load(filename);
-        }
-
-        public Cursor Cursor
-        {
-            set
-            {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
-
-                // Clone cursor (is this correct??)
-                cursor = new Cursor(value.CopyHandle());
-                Width = value.Size.Width;
-                Height = value.Size.Height;
-            }
-            get { return cursor; }
-        }
-
         /// <summary>
+        /// The bulk of the clean-up code is implemented in Dispose(bool)
         /// This Dispose is called from the Dispose and the Destructor.
         /// When disposing==true all non-managed resources should be freed too!
         /// </summary>
         /// <param name="disposing"></param>
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
+                ResetCachedBitmap();
             }
 
-            cursor = null;
             base.Dispose(disposing);
         }
 
-        public void Load(string filename)
+        public override void Transform(Matrix matrix)
         {
-            if (!File.Exists(filename))
-            {
-                return;
-            }
+            RotationAngle += CalculateAngle(matrix);
+            RotationAngle %= 360;
 
-            using Cursor fileCursor = new Cursor(filename);
-            Cursor = fileCursor;
-            LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+            ResetCachedBitmap();
+
+            base.Transform(matrix);
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-            if (cursor == null)
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            if (_cachedImage != null && _cachedImage.Size != Bounds.Size)
             {
-                return;
+                ResetCachedBitmap();
             }
 
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            graphics.CompositingQuality = CompositingQuality.Default;
-            graphics.PixelOffsetMode = PixelOffsetMode.None;
-            cursor.DrawStretched(graphics, Bounds);
+            _cachedImage ??= ComputeBitmap(); 
+
+            graphics.DrawImage(_cachedImage, Bounds);
         }
 
-        public override Size DefaultSize => cursor?.Size ?? new Size(16, 16);
+        protected virtual Image ComputeBitmap()
+        {
+            var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppRgb, Color.Transparent);
+
+            if (RotationAngle == 0) return image;
+
+            var newImage = image.Rotate(RotationAngle);
+            image.Dispose();
+            return newImage;
+
+        }
+
+        private void ResetCachedBitmap()
+        {
+            _cachedImage?.Dispose();
+            _cachedImage = null;
+        }
     }
 }
