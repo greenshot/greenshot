@@ -23,6 +23,7 @@ using System;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using Greenshot.Editor;
 using Greenshot.Forms;
 
 namespace Greenshot
@@ -65,6 +66,7 @@ namespace Greenshot
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
+            EditorInitialize.Initialize();
             MainForm.Start(args);
         }
     }

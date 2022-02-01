@@ -32,7 +32,7 @@ namespace Greenshot.Base.Interfaces
     public enum FileFormatHandlerActions
     {
         SaveToStream,
-        Load,
+        LoadFromStream,
         LoadDrawableFromStream
     }
 

@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -1135,10 +1136,11 @@ EndSelection:<<<<<<<4
             string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
             if (dropFileNames != null && dropFileNames.Length > 0)
             {
+                var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
                 return dropFileNames
                     .Where(filename => !string.IsNullOrEmpty(filename))
                     .Where(Path.HasExtension)
-                    .Where(filename => ImageHelper.StreamConverters.Keys.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
+                    .Where(filename => supportedExtensions.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
             }
 
             return Enumerable.Empty<string>();

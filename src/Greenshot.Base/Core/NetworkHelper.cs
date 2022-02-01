@@ -24,9 +24,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -94,7 +96,8 @@ namespace Greenshot.Base.Core
         public static Image DownloadImage(string url)
         {
             var extensions = new StringBuilder();
-            foreach (var extension in ImageHelper.StreamConverters.Keys)
+            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
+            foreach (var extension in supportedExtensions)
             {
                 if (string.IsNullOrEmpty(extension))
                 {

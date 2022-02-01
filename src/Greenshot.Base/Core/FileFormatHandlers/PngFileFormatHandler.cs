@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -28,31 +29,55 @@ using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Core.FileFormatHandlers
 {
+    /// <summary>
+    /// This can be an ImageSharp implementation
+    /// </summary>
     public class PngFileFormatHandler : IFileFormatHandler
     {
-        private static readonly string[] SupportedExtensions = { "png" };
+        private static readonly string[] OurExtensions = { "png" };
 
-        public bool CanDoActionForExtension(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        /// <inheritdoc />
+        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        {
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return OurExtensions;
+        }
+
+        /// <inheritdoc />
+        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
                 return false;
             }
-            return SupportedExtensions.Contains(extension);
+
+            return OurExtensions.Contains(extension);
+        }
+        /// <inheritdoc />
+        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            return int.MaxValue;
         }
 
-        public void SaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
+            // TODO: Implement this
             throw new NotImplementedException();
         }
 
-        public Bitmap Load(Stream stream, string extension)
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            throw new NotImplementedException();
+            // TODO: Implement this
+            return false;
         }
 
-        public IDrawableContainer LoadDrawableFromStream(Stream stream, string extension, ISurface parent)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
         {
+            // TODO: Implement this
             throw new NotImplementedException();
         }
     }

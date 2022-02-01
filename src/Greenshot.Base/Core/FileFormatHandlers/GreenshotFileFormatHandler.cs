@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -30,29 +31,51 @@ namespace Greenshot.Base.Core.FileFormatHandlers
 {
     public class GreenshotFileFormatHandler : IFileFormatHandler
     {
-        private static readonly string[] SupportedExtensions = { "greenshot" };
+        private static readonly string[] OurExtensions = { "greenshot" };
 
-        public bool CanDoActionForExtension(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        /// <inheritdoc />
+        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        {
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return OurExtensions;
+        }
+
+        /// <inheritdoc />
+        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
                 return false;
             }
-            return SupportedExtensions.Contains(extension);
+
+            return OurExtensions.Contains(extension);
         }
 
-        public void SaveToStream(Bitmap bitmap, Stream destination, string extension)
+
+        /// <inheritdoc />
+        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            throw new NotImplementedException();
+            return int.MaxValue;
         }
 
-        public Bitmap Load(Stream stream, string extension)
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        {
+            // TODO: Implement this
+            return false;
+        }
+
+        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-            return (Bitmap)surface.GetImageForExport();
+            bitmap = (Bitmap)surface.GetImageForExport();
+            return true;
         }
 
-        public IDrawableContainer LoadDrawableFromStream(Stream stream, string extension, ISurface parent)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
         {
             throw new NotImplementedException();
         }

@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -39,48 +40,67 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class SvgFileFormatHandler : IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
+        private static readonly string[] OurExtensions = { "svg" };
 
-        private static readonly string[] SupportedExtensions = { "svg" };
-
-        public bool CanDoActionForExtension(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        /// <inheritdoc />
+        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return OurExtensions;
+        }
+
+        /// <inheritdoc />
+        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
                 return false;
             }
-            return SupportedExtensions.Contains(extension);
+
+            return OurExtensions.Contains(extension);
+        }
+        /// <inheritdoc />
+        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            return int.MaxValue;
         }
 
-        public void SaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            throw new NotImplementedException();
-        }
-
-        public Bitmap Load(Stream stream, string extension)
-        {
-
             var svgDocument = SvgDocument.Open<SvgDocument>(stream);
             int width = (int)svgDocument.ViewBox.Width;
             int height = (int)svgDocument.ViewBox.Height;
 
             try
             {
-                var result = ImageHelper.CreateEmpty(width, height, PixelFormat.Format32bppArgb, Color.Transparent);
-                svgDocument.Draw(result);
-                return result;
+                bitmap = ImageHelper.CreateEmpty(width, height, PixelFormat.Format32bppArgb, Color.Transparent);
+                svgDocument.Draw(bitmap);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Error("Can't load SVG", ex);
             }
 
-            return null;
+            bitmap = null;
+            return false;
         }
 
-        public IDrawableContainer LoadDrawableFromStream(Stream stream, string extension, ISurface parent)
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        {
+            // TODO: Implement this
+            return false;
+        }
+
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
         {
             var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            return new SvgContainer(svgDocument, parent);
+            drawableContainer = new SvgContainer(svgDocument, parent);
+            return true;
         }
     }
 }

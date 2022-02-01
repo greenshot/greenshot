@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
@@ -56,14 +57,6 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
-        public static readonly IList<IFileFormatHandler> FileFormatHandlers = new List<IFileFormatHandler>();
-
-        static ImageHelper()
-        {
-            FileFormatHandlers.Add(new IconFileFormatHandler());
-            FileFormatHandlers.Add(new GreenshotFileFormatHandler());
-            FileFormatHandlers.Add(new DefaultFileFormatHandler());
-        }
 
         /// <summary>
         /// Make sure the image is orientated correctly
@@ -1720,12 +1713,15 @@ namespace Greenshot.Base.Core
                 startingPosition = 0;
             }
 
-            foreach (var fileFormatHandler in FileFormatHandlers)
+            foreach (var fileFormatHandler in FileFormatHandlerRegistry.FileFormatHandlers
+                         .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                         .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)))
             {
-                if (!fileFormatHandler.CanDoActionForExtension(FileFormatHandlerActions.Load, extension)) continue;
-
                 stream.Seek(startingPosition, SeekOrigin.Begin);
-                return fileFormatHandler.Load(stream, extension);
+                if (fileFormatHandler.TryLoadFromStream(stream, extension, out var bitmap))
+                {
+                    return bitmap;
+                }
             }
 
             return null;
