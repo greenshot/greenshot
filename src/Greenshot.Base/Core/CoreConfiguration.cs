@@ -658,16 +658,6 @@ namespace Greenshot.Base.Core
             {
                 WebRequestReadWriteTimeout = 100;
             }
-
-            // Workaround for the Windows 11 clipboard issue found here: https://github.com/greenshot/greenshot/issues/348
-            if (WindowsVersion.IsWindows11OrLater)
-            {
-                // If the format DIB is used, remove it and replace it with BITMAP.
-                if (ClipboardFormats.Contains(ClipboardFormat.DIB))
-                {
-                    ClipboardFormats = ClipboardFormats.Where(cf => cf != ClipboardFormat.DIB).Append(ClipboardFormat.BITMAP).ToList();
-                }
-            }
         }
 
         /// <summary>

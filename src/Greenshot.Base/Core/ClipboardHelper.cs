@@ -175,7 +175,7 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    // For BUG-1935 this was changed from looping ourselfs, or letting MS retry...
+                    // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
                 }
                 catch (Exception clipboardSetException)
@@ -866,19 +866,13 @@ EndSelection:<<<<<<<4
                 {
                     if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIB))
                     {
-                        using (MemoryStream tmpBmpStream = new MemoryStream())
-                        {
-                            // Save image as BMP
-                            SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
-                            ImageOutput.SaveToStream(imageToSave, null, tmpBmpStream, bmpOutputSettings);
-
-                            dibStream = new MemoryStream();
-                            // Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-                            dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
-                        }
+                        // Create the stream for the clipboard
+                        dibStream = new MemoryStream();
+                        var dibBytes = DibHelper.ConvertToDib(imageToSave);
+                        dibStream.Write(dibBytes,0, dibBytes.Length);
 
                         // Set the DIB to the clipboard DataObject
-                        dataObject.SetData(DataFormats.Dib, true, dibStream);
+                        dataObject.SetData(DataFormats.Dib, false, dibStream);
                     }
                 }
                 catch (Exception dibEx)
