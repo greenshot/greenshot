@@ -332,13 +332,13 @@ namespace Greenshot.Base.Core
                 }
 
                 // Create BITMAPINFOHEADER for CreateDIBSection
-                BITMAPINFOHEADER bmi = new BITMAPINFOHEADER(captureBounds.Width, captureBounds.Height, 24);
+                BITMAPINFOHEADERV5 bmi = new BITMAPINFOHEADERV5(captureBounds.Width, captureBounds.Height, 24);
 
                 // Make sure the last error is set to 0
                 Win32.SetLastError(0);
 
                 // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                using SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDcHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out _, IntPtr.Zero, 0);
+                using SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDcHandle, ref bmi, BITMAPINFOHEADERV5.DIB_RGB_COLORS, out _, IntPtr.Zero, 0);
                 if (safeDibSectionHandle.IsInvalid)
                 {
                     // Get Exception before the error is lost
