@@ -667,8 +667,8 @@ EndSelection:<<<<<<<4
                         if (imageStream != null)
                         {
                             byte[] dibBuffer = new byte[imageStream.Length];
-                            imageStream.Read(dibBuffer, 0, dibBuffer.Length);
-                            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
+                            _ = imageStream.Read(dibBuffer, 0, dibBuffer.Length);
+                            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADERV5>(dibBuffer);
                             if (!infoHeader.IsDibV5)
                             {
                                 Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
@@ -816,8 +816,6 @@ EndSelection:<<<<<<<4
             return sb.ToString();
         }
 
-        private const int BITMAPFILEHEADER_LENGTH = 14;
-
         /// <summary>
         /// Set an Image to the clipboard
         /// This method will place images to the clipboard depending on the ClipboardFormats setting.
@@ -869,7 +867,7 @@ EndSelection:<<<<<<<4
                     {
                         // Create the stream for the clipboard
                         dibStream = new MemoryStream();
-                        var dibBytes = DibHelper.ConvertToDib(imageToSave);
+                        var dibBytes = ((Bitmap)imageToSave).ConvertToDib();
                         dibStream.Write(dibBytes,0, dibBytes.Length);
 
                         // Set the DIB to the clipboard DataObject
@@ -890,7 +888,7 @@ EndSelection:<<<<<<<4
                         dibV5Stream = new MemoryStream();
 
                         // Create the BITMAPINFOHEADER
-                        BITMAPINFOHEADER header = new BITMAPINFOHEADER(imageToSave.Width, imageToSave.Height, 32)
+                        var header = new BITMAPINFOHEADERV5(imageToSave.Width, imageToSave.Height, 32)
                         {
                             // Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
                             biCompression = BI_COMPRESSION.BI_BITFIELDS
@@ -1127,7 +1125,7 @@ EndSelection:<<<<<<<4
         /// <returns></returns>
         public static IEnumerable<string> GetImageFilenames(IDataObject dataObject)
         {
-            string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
+            string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
             if (dropFileNames != null && dropFileNames.Length > 0)
             {
                 var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
