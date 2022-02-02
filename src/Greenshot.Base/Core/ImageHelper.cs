@@ -1421,16 +1421,17 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sourceImage">the source bitmap as the specifications for the new bitmap</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
-        /// <returns></returns>
-        public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor)
+        /// <param name="pixelFormat">PixelFormat</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor, PixelFormat? pixelFormat = null)
         {
-            PixelFormat pixelFormat = sourceImage.PixelFormat;
+            pixelFormat ??= sourceImage.PixelFormat;
             if (backgroundColor.A < 255)
             {
                 pixelFormat = PixelFormat.Format32bppArgb;
             }
 
-            return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+            return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat.Value, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
         }
 
         /// <summary>
