@@ -23,9 +23,12 @@ namespace Greenshot.Base.Core
         /// <returns>The image converted to DIB, in bytes.</returns>
         public static byte[] ConvertToDib(Image image)
         {
-            byte[] bm32bData;
+            byte[] fullImage;
+            int dataLength;
             int width = image.Width;
             int height = image.Height;
+            const int hdrSize = 0x28;
+
             // Ensure image is 32bppARGB by painting it on a new 32bppARGB image.
             using (var bm32b = ImageHelper.CreateEmptyLike(image, Color.Transparent, PixelFormat.Format32bppArgb))
             {
@@ -33,25 +36,39 @@ namespace Greenshot.Base.Core
                 {
                     graphics.DrawImage(image, new Rectangle(0, 0, bm32b.Width, bm32b.Height));
                 }
+
                 // Bitmap format has its lines reversed.
                 bm32b.RotateFlip(RotateFlipType.Rotate180FlipX);
-                bm32bData = GetImageData(bm32b, out var stride);
-            }
-            // BITMAPINFOHEADER struct for DIB.
-            uint hdrSize = 0x28;
-            var fullImage = new byte[hdrSize + 12 + bm32bData.Length];
-            var bitmapInfoHeader = MemoryMarshal.Cast<byte, BITMAPINFOHEADER>(fullImage.AsSpan());
 
+                // Copy bitmap data into a new byte array with additional space for BITMAPINFOHEADER
+                BitmapData bm32bBitmapData = null;
+                try
+                {
+                    bm32bBitmapData = bm32b.LockBits(new Rectangle(0, 0, bm32b.Width, bm32b.Height), ImageLockMode.ReadOnly, bm32b.PixelFormat);
+                    dataLength = bm32bBitmapData.Stride * bm32b.Height;
+                    fullImage = new byte[hdrSize + 12 + dataLength];
+                    Marshal.Copy(bm32bBitmapData.Scan0, fullImage, hdrSize + 12, dataLength);
+                }
+                finally
+                {
+                    if (bm32bBitmapData != null)
+                    {
+                        bm32b.UnlockBits(bm32bBitmapData);
+                    }
+                }
+            }
+
+            // BITMAPINFOHEADER struct for DIB.
+            var bitmapInfoHeader = MemoryMarshal.Cast<byte, BITMAPINFOHEADER>(fullImage.AsSpan());
             bitmapInfoHeader[0].biSize = hdrSize;
             bitmapInfoHeader[0].biWidth = width;
             bitmapInfoHeader[0].biHeight = height;
             bitmapInfoHeader[0].biPlanes = 1;
             bitmapInfoHeader[0].biBitCount = 32;
             bitmapInfoHeader[0].biCompression = BI_COMPRESSION.BI_BITFIELDS;
-            bitmapInfoHeader[0].biSizeImage = (uint)bm32bData.Length;
+            bitmapInfoHeader[0].biSizeImage = (uint)dataLength;
             bitmapInfoHeader[0].biXPelsPerMeter = (int)(image.HorizontalResolution * 39.3701);
             bitmapInfoHeader[0].biYPelsPerMeter = (int)(image.VerticalResolution * 39.3701);
-
 
             // The aforementioned "BITFIELDS": colour masks applied to the Int32 pixel value to get the R, G and B values.
             bitmapInfoHeader[0].bV5RedMask = 0x00FF0000;
@@ -62,24 +79,7 @@ namespace Greenshot.Base.Core
             //Int32 biClrUsed = 0;
             //Int32 biClrImportant = 0;
 
-            Array.Copy(bm32bData, 0, fullImage, hdrSize + 12, bm32bData.Length);
             return fullImage;
-        }
-
-        /// <summary>
-        /// Gets the raw bytes from an image.
-        /// </summary>
-        /// <param name="sourceImage">The image to get the bytes from.</param>
-        /// <param name="stride">Stride of the retrieved image data.</param>
-        /// <returns>The raw bytes of the image</returns>
-        public static byte[] GetImageData(Bitmap sourceImage, out int stride)
-        {
-            BitmapData sourceData = sourceImage.LockBits(new Rectangle(0, 0, sourceImage.Width, sourceImage.Height), ImageLockMode.ReadOnly, sourceImage.PixelFormat);
-            stride = sourceData.Stride;
-            byte[] data = new byte[stride * sourceImage.Height];
-            Marshal.Copy(sourceData.Scan0, data, 0, data.Length);
-            sourceImage.UnlockBits(sourceData);
-            return data;
         }
     }
 }
