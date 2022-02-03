@@ -1,48 +1,100 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
- *
+ * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.UnmanagedHelpers;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Core.FileFormatHandlers
 {
     /// <summary>
-    /// Though Greenshot implements the specs for the DIB image format,
-    /// it seems to cause a lot of issues when using the clipboard.
-    /// There is some research done about the DIB on the clipboard, this code is based upon the information 
-    /// <a href="https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency">here</a>
+    /// This handles creating a DIB (Device Independent Bitmap) on the clipboard
     /// </summary>
-    internal static class DibHelper
+    public class DibFileFormatHandler : IFileFormatHandler
     {
         private const double DpiToPelsPerMeter = 39.3701;
+        private static readonly string [] OurExtensions = { "dib" };
+
+        /// <inheritdoc />
+        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        {
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return OurExtensions;
+        }
+
+        /// <inheritdoc />
+        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            if (string.IsNullOrEmpty(extension) || fileFormatHandlerAction != FileFormatHandlerActions.SaveToStream)
+            {
+                return false;
+            }
+            
+            return OurExtensions.Contains(extension.ToLowerInvariant());
+        }
+
+        /// <inheritdoc />
+        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            return int.MaxValue;
+        }
+
+        /// <inheritdoc />
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        {
+            var dibBytes = ConvertToDib(bitmap);
+            destination.Write(dibBytes, 0, dibBytes.Length);
+            return true;
+        }
+
+        /// <inheritdoc />
+        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface)
+        {
+            throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// Converts the Bitmap to a Device Independent Bitmap format of type BITFIELDS.
         /// </summary>
         /// <param name="sourceBitmap">Bitmap to convert to DIB</param>
         /// <returns>byte{} with the image converted to DIB</returns>
-        public static byte[] ConvertToDib(this Bitmap sourceBitmap)
+        private static byte[] ConvertToDib(Bitmap sourceBitmap)
         {
             if (sourceBitmap == null) throw new ArgumentNullException(nameof(sourceBitmap));
 

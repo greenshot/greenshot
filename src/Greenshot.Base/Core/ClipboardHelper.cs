@@ -867,11 +867,17 @@ EndSelection:<<<<<<<4
                     {
                         // Create the stream for the clipboard
                         dibStream = new MemoryStream();
-                        var dibBytes = ((Bitmap)imageToSave).ConvertToDib();
-                        dibStream.Write(dibBytes,0, dibBytes.Length);
 
-                        // Set the DIB to the clipboard DataObject
-                        dataObject.SetData(DataFormats.Dib, false, dibStream);
+                        if (!FileFormatHandlerRegistry.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
+                        {
+                            dibStream.Dispose();
+                            dibStream = null;
+                        }
+                        else
+                        {
+                            // Set the DIB to the clipboard DataObject
+                            dataObject.SetData(DataFormats.Dib, false, dibStream);
+                        }
                     }
                 }
                 catch (Exception dibEx)

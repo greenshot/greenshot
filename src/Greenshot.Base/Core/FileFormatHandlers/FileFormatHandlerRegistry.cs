@@ -20,6 +20,8 @@
  */
 
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using Greenshot.Base.Interfaces;
 
@@ -27,7 +29,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
 {
     public static class FileFormatHandlerRegistry
     {
-        public static readonly IList<IFileFormatHandler> FileFormatHandlers = new List<IFileFormatHandler>();
+        public static IList<IFileFormatHandler> FileFormatHandlers { get; } = new List<IFileFormatHandler>();
 
         static FileFormatHandlerRegistry()
         {
@@ -39,6 +41,30 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         public static IEnumerable<string> ExtensionsFor(FileFormatHandlerActions fileFormatHandlerAction)
         {
             return FileFormatHandlers.SelectMany(ffh => ffh.SupportedExtensions(fileFormatHandlerAction)).Distinct();
+        }
+
+        /// <summary>
+        /// This wrapper method for TrySaveToStream will do:
+        /// Find all the IFileFormatHandler which support the action for the supplied extension.
+        /// Take the first, to call the TrySaveToStream on.
+        /// </summary>
+        /// <param name="bitmap">Bitmap</param>
+        /// <param name="destination">Stream</param>
+        /// <param name="extension">string</param>
+        /// <returns>bool</returns>
+        public static bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        {
+            var fileFormatHandler = FileFormatHandlers
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
+                .FirstOrDefault();
+
+            if (fileFormatHandler == null)
+            {
+                return false;
+            }
+
+            return fileFormatHandler.TrySaveToStream(bitmap, destination, extension);
         }
     }
 }

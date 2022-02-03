@@ -31,7 +31,7 @@ using Greenshot.Base.Interfaces.Drawing;
 namespace Greenshot.Base.Core.FileFormatHandlers
 {
     /// <summary>
-    /// THis is the default .NET bitmap file format handler
+    /// This is the default .NET bitmap file format handler
     /// </summary>
     public class DefaultFileFormatHandler : IFileFormatHandler
     {
@@ -56,7 +56,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 return false;
             }
 
-            return OurExtensions.Contains(extension);
+            return OurExtensions.Contains(extension?.ToLowerInvariant());
         }
 
         /// <inheritdoc />

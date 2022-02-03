@@ -52,7 +52,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 return false;
             }
 
-            return OurExtensions.Contains(extension);
+            return OurExtensions.Contains(extension?.ToLowerInvariant());
         }
 
 
