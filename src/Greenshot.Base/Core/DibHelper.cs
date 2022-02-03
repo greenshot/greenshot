@@ -35,15 +35,20 @@ namespace Greenshot.Base.Core
     /// </summary>
     internal static class DibHelper
     {
+        private const double DpiToPelsPerMeter = 39.3701;
+
         /// <summary>
         /// Converts the Bitmap to a Device Independent Bitmap format of type BITFIELDS.
         /// </summary>
         /// <param name="sourceBitmap">Bitmap to convert to DIB</param>
-        /// <returns>The image converted to DIB, in bytes.</returns>
+        /// <returns>byte{} with the image converted to DIB</returns>
         public static byte[] ConvertToDib(this Bitmap sourceBitmap)
         {
             if (sourceBitmap == null) throw new ArgumentNullException(nameof(sourceBitmap));
 
+            var area = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+
+            // If the supplied format doesn't match 32bpp, we need to convert it first, and dispose the new bitmap afterwards
             bool needsDisposal = false;
             if (sourceBitmap.PixelFormat != PixelFormat.Format32bppArgb)
             {
@@ -51,22 +56,27 @@ namespace Greenshot.Base.Core
                 var clonedImage = ImageHelper.CreateEmptyLike(sourceBitmap, Color.Transparent, PixelFormat.Format32bppArgb);
                 using (var graphics = Graphics.FromImage(clonedImage))
                 {
-                    graphics.DrawImage(sourceBitmap, new Rectangle(0, 0, clonedImage.Width, clonedImage.Height));
+                    graphics.DrawImage(sourceBitmap, area);
                 }
                 sourceBitmap = clonedImage;
             }
 
+            // All the pixels take this many bytes:
             var bitmapSize = 4 * sourceBitmap.Width * sourceBitmap.Height;
+            // The bitmap info hear takes this many bytes:
             var bitmapInfoHeaderSize = Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+            // The bitmap info size is the header + 3 RGBQUADs
             var bitmapInfoSize = bitmapInfoHeaderSize + 3 * Marshal.SizeOf(typeof(RGBQUAD));
 
-            // Create a byte [] to contain the DIB
+            // Create a byte [] to contain the complete DIB (with .NET 5 and upwards, we could write the pixels directly to a stream)
             var fullBmpBytes = new byte[bitmapInfoSize + bitmapSize];
+            // Get a span for this, this simplifies the code a bit
             var fullBmpSpan = fullBmpBytes.AsSpan();
             // Cast the span to be of type BITMAPINFOHEADER so we can assign values
-            // TODO: in .NET 6 we could do a AsRef
+            // TODO: in .NET 6 we could do a AsRef, and even write to a stream directly
             var bitmapInfoHeader = MemoryMarshal.Cast<byte, BITMAPINFOHEADER>(fullBmpSpan);
 
+            // Fill up the bitmap info header
             bitmapInfoHeader[0].biSize = (uint)bitmapInfoHeaderSize;
             bitmapInfoHeader[0].biWidth = sourceBitmap.Width;
             bitmapInfoHeader[0].biHeight = sourceBitmap.Height;
@@ -74,34 +84,37 @@ namespace Greenshot.Base.Core
             bitmapInfoHeader[0].biBitCount = 32;
             bitmapInfoHeader[0].biCompression = BI_COMPRESSION.BI_BITFIELDS;
             bitmapInfoHeader[0].biSizeImage = (uint)bitmapSize;
-            bitmapInfoHeader[0].biXPelsPerMeter = (int)(sourceBitmap.HorizontalResolution * 39.3701);
-            bitmapInfoHeader[0].biYPelsPerMeter = (int)(sourceBitmap.VerticalResolution * 39.3701);
+            bitmapInfoHeader[0].biXPelsPerMeter = (int)(sourceBitmap.HorizontalResolution * DpiToPelsPerMeter);
+            bitmapInfoHeader[0].biYPelsPerMeter = (int)(sourceBitmap.VerticalResolution * DpiToPelsPerMeter);
 
-            // The aforementioned "BITFIELDS": color masks applied to the Int32 pixel value to get the R, G and B values.
+            // Specify the color masks applied to the Int32 pixel value to get the R, G and B values.
             var rgbQuads = MemoryMarshal.Cast<byte, RGBQUAD>(fullBmpSpan.Slice(Marshal.SizeOf(typeof(BITMAPINFOHEADER))));
             rgbQuads[0].rgbRed = 255;
             rgbQuads[1].rgbGreen = 255;
             rgbQuads[2].rgbBlue = 255;
 
-            // Now copy the lines, in reverse to the byte array
-            var sourceBitmapData = sourceBitmap.LockBits(new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), ImageLockMode.ReadOnly, sourceBitmap.PixelFormat);
+            // Now copy the lines, in reverse (bmp is upside down) to the byte array
+            var sourceBitmapData = sourceBitmap.LockBits(area, ImageLockMode.ReadOnly, sourceBitmap.PixelFormat);
             try
             {
-                // Get a span for the real bitmap bytes, which starts after the header
+                // Get a span for the real bitmap bytes, which starts after the bitmapinfo (header + 3xRGBQuad)
                 var bitmapSpan = fullBmpSpan.Slice(bitmapInfoSize);
-                // Make sure we also have a span to copy from
+                // Make sure we also have a span to copy from, by taking the pointer from the locked bitmap
                 Span<byte> bitmapSourceSpan;
                 unsafe
                 {
                     bitmapSourceSpan = new Span<byte>(sourceBitmapData.Scan0.ToPointer(), sourceBitmapData.Stride * sourceBitmapData.Height);
                 }
 
-                // Loop over all the lines and copy the top line to the bottom (flipping the image)
-                for (int y = 0; y < sourceBitmap.Height; y++)
+                // Loop over all the bitmap lines
+                for (int destinationY = 0; destinationY < sourceBitmap.Height; destinationY++)
                 {
-                    var sourceY = (sourceBitmap.Height - 1) - y;
+                    // Calculate the y coordinate for the bottom up. (flipping the image)
+                    var sourceY = (sourceBitmap.Height - 1) - destinationY;
+                    // Make a Span for the source bitmap pixels
                     var sourceLine = bitmapSourceSpan.Slice(sourceBitmapData.Stride * sourceY, 4 * sourceBitmap.Width);
-                    var destinationLine = bitmapSpan.Slice(y * 4 * sourceBitmap.Width);
+                    // Make a Span for the destination dib pixels
+                    var destinationLine = bitmapSpan.Slice(destinationY * 4 * sourceBitmap.Width);
                     sourceLine.CopyTo(destinationLine);
                 }
             }
@@ -110,6 +123,7 @@ namespace Greenshot.Base.Core
                 sourceBitmap.UnlockBits(sourceBitmapData);
             }
 
+            // If we created a new bitmap, we need to dispose this
             if (needsDisposal)
             {
                 sourceBitmap.Dispose();
