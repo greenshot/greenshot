@@ -817,14 +817,11 @@ namespace Greenshot.Base.Core
         public ICapture CaptureGdiWindow(ICapture capture)
         {
             Image capturedImage = PrintWindow();
-            if (capturedImage != null)
-            {
-                capture.Image = capturedImage;
-                capture.Location = Location;
-                return capture;
-            }
+            if (capturedImage == null) return null;
+            capture.Image = capturedImage;
+            capture.Location = Location;
+            return capture;
 
-            return null;
         }
 
         /// <summary>
@@ -1069,7 +1066,7 @@ namespace Greenshot.Base.Core
             {
                 if (thumbnailHandle != IntPtr.Zero)
                 {
-                    // Unregister (cleanup), as we are finished we don't need the form or the thumbnail anymore
+                    // Un-register (cleanup), as we are finished we don't need the form or the thumbnail anymore
                     DWM.DwmUnregisterThumbnail(thumbnailHandle);
                 }
 
@@ -1081,7 +1078,6 @@ namespace Greenshot.Base.Core
                     }
 
                     tempForm.Dispose();
-                    tempForm = null;
                 }
             }
 

@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.16" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.40" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
     <PackageReference Include="log4net" version="2.0.14" />
     <PackageReference Include="Svg" Version="3.4.0" />
     <Reference Include="Accessibility" />

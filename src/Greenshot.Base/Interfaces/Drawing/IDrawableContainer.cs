@@ -24,26 +24,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
-    public enum RenderMode
-    {
-        EDIT,
-        EXPORT
-    };
-
-    public enum EditStatus
-    {
-        UNDRAWN,
-        DRAWING,
-        MOVING,
-        RESIZING,
-        IDLE
-    };
-
     public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
     {
         ISurface Parent { get; set; }
@@ -67,7 +51,7 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         void ApplyBounds(RectangleF newBounds);
 
-        bool hasFilters { get; }
+        bool HasFilters { get; }
 
         EditStatus Status { get; set; }
         void Invalidate();
@@ -91,63 +75,5 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// </summary>
         /// <param name="dpi">uint</param>
         void AdjustToDpi(uint dpi);
-    }
-
-    public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
-    {
-        Guid ParentID { get; }
-
-        bool Selected { get; set; }
-
-        ISurface Parent { get; set; }
-        EditStatus Status { get; set; }
-        Rectangle DrawingBounds { get; }
-        void MakeBoundsChangeUndoable(bool allowMerge);
-        void Transform(Matrix matrix);
-        void MoveBy(int dx, int dy);
-        bool ClickableAt(int x, int y);
-        IDrawableContainer ClickableElementAt(int x, int y);
-        void OnDoubleClick();
-        bool HasIntersectingFilters(Rectangle clipRectangle);
-        bool IntersectsWith(Rectangle clipRectangle);
-        void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
-        void SetForegroundColor(Color color);
-        void SetBackgroundColor(Color color);
-        int IncreaseLineThickness(int increaseBy);
-        bool FlipShadow();
-        void Invalidate();
-        void PullElementsToTop(IDrawableContainerList elements);
-        bool CanPushDown(IDrawableContainerList elements);
-        void PullElementsUp(IDrawableContainerList elements);
-        bool CanPullUp(IDrawableContainerList elements);
-        void PushElementsDown(IDrawableContainerList elements);
-        void PushElementsToBottom(IDrawableContainerList elements);
-        void ShowContextMenu(MouseEventArgs e, ISurface surface);
-        void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
-        void AdjustToDpi(uint dpi);
-    }
-
-    public interface ITextContainer : IDrawableContainer
-    {
-        string Text { get; set; }
-        void FitToText();
-    }
-
-    public interface IImageContainer : IDrawableContainer
-    {
-        Image Image { get; set; }
-        void Load(string filename);
-    }
-
-    public interface ICursorContainer : IDrawableContainer
-    {
-        Cursor Cursor { get; set; }
-        void Load(string filename);
-    }
-
-    public interface IIconContainer : IDrawableContainer
-    {
-        Icon Icon { get; set; }
-        void Load(string filename);
     }
 }

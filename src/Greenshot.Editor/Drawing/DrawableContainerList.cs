@@ -42,7 +42,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
     {
-        private static readonly ComponentResourceManager EditorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
+        private static readonly ComponentResourceManager EditorFormResources = new(typeof(ImageEditorForm));
 
         public Guid ParentID { get; private set; }
 
@@ -252,7 +252,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var dc in this)
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE)
+                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
                 {
                     return true;
                 }
@@ -711,7 +711,7 @@ namespace Greenshot.Editor.Drawing
 
         public virtual void ShowContextMenu(MouseEventArgs e, ISurface iSurface)
         {
-            if (!(iSurface is Surface surface))
+            if (iSurface is not Surface surface)
             {
                 return;
             }

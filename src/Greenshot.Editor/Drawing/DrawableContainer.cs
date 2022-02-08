@@ -385,7 +385,7 @@ namespace Greenshot.Editor.Drawing
             Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
         }
 
-        public bool hasFilters => Filters.Count > 0;
+        public bool HasFilters => Filters.Count > 0;
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
@@ -465,13 +465,6 @@ namespace Greenshot.Editor.Drawing
                 Width = 1
             };
             g.DrawRectangle(pen, rect);
-        }
-
-
-        public void ResizeTo(int width, int height, int anchorPosition)
-        {
-            Width = width;
-            Height = height;
         }
 
         /// <summary>
