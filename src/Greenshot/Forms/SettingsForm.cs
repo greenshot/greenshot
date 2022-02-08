@@ -37,7 +37,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
-using Greenshot.Destinations;
 using Greenshot.Helpers;
 using log4net;
 
@@ -829,22 +828,19 @@ namespace Greenshot.Forms
     {
         public int Compare(object x, object y)
         {
-            if (!(x is ListViewItem))
+            if (x is not ListViewItem listViewItemX)
             {
                 return 0;
             }
 
-            if (!(y is ListViewItem))
+            if (y is not ListViewItem listViewItemY)
             {
                 return 0;
             }
 
-            ListViewItem l1 = (ListViewItem) x;
-            ListViewItem l2 = (ListViewItem) y;
+            IDestination firstDestination = listViewItemX.Tag as IDestination;
 
-            IDestination firstDestination = l1.Tag as IDestination;
-
-            if (!(l2.Tag is IDestination secondDestination))
+            if (listViewItemY.Tag is not IDestination secondDestination)
             {
                 return 1;
             }

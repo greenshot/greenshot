@@ -817,14 +817,11 @@ namespace Greenshot.Base.Core
         public ICapture CaptureGdiWindow(ICapture capture)
         {
             Image capturedImage = PrintWindow();
-            if (capturedImage != null)
-            {
-                capture.Image = capturedImage;
-                capture.Location = Location;
-                return capture;
-            }
+            if (capturedImage == null) return null;
+            capture.Image = capturedImage;
+            capture.Location = Location;
+            return capture;
 
-            return null;
         }
 
         /// <summary>
@@ -1069,7 +1066,7 @@ namespace Greenshot.Base.Core
             {
                 if (thumbnailHandle != IntPtr.Zero)
                 {
-                    // Unregister (cleanup), as we are finished we don't need the form or the thumbnail anymore
+                    // Un-register (cleanup), as we are finished we don't need the form or the thumbnail anymore
                     DWM.DwmUnregisterThumbnail(thumbnailHandle);
                 }
 
@@ -1081,7 +1078,6 @@ namespace Greenshot.Base.Core
                     }
 
                     tempForm.Dispose();
-                    tempForm = null;
                 }
             }
 
@@ -1392,32 +1388,36 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// Return an Image representing the Window!
-        /// As GDI+ draws it, it will be without Aero borders!
+        /// For Windows 7, as GDI+ draws it, it will be without Aero borders!
+        /// For Windows 10+, there is an option PW_RENDERFULLCONTENT, which makes sure the capture is "as is".
         /// </summary>
         public Image PrintWindow()
         {
             Rectangle windowRect = WindowRectangle;
             // Start the capture
-            Exception exceptionOccured = null;
+            Exception exceptionOccurred = null;
             Image returnImage;
             using (Region region = GetRegion())
             {
+                var backgroundColor = Color.Black;
                 PixelFormat pixelFormat = PixelFormat.Format24bppRgb;
                 // Only use 32 bpp ARGB when the window has a region
                 if (region != null)
                 {
                     pixelFormat = PixelFormat.Format32bppArgb;
+                    backgroundColor = Color.Transparent;
                 }
-
-                returnImage = new Bitmap(windowRect.Width, windowRect.Height, pixelFormat);
+                
+                returnImage = ImageHelper.CreateEmpty(windowRect.Width, windowRect.Height, pixelFormat, backgroundColor, 96,96);
                 using Graphics graphics = Graphics.FromImage(returnImage);
                 using (SafeDeviceContextHandle graphicsDc = graphics.GetSafeDeviceContext())
                 {
-                    bool printSucceeded = User32.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), 0x0);
+                    var pwFlags = WindowsVersion.IsWindows10OrLater ? PrintWindowFlags.PW_RENDERFULLCONTENT : PrintWindowFlags.PW_ENTIREWINDOW;
+                    bool printSucceeded = User32.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), pwFlags);
                     if (!printSucceeded)
                     {
-                        // something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
-                        exceptionOccured = User32.CreateWin32Exception("PrintWindow");
+                        // something went wrong, most likely a "0x80004005" (Access Denied) when using UAC
+                        exceptionOccurred = User32.CreateWin32Exception("PrintWindow");
                     }
                 }
 
@@ -1432,9 +1432,9 @@ namespace Greenshot.Base.Core
             }
 
             // Return null if error
-            if (exceptionOccured != null)
+            if (exceptionOccurred != null)
             {
-                Log.ErrorFormat("Error calling print window: {0}", exceptionOccured.Message);
+                Log.ErrorFormat("Error calling print window: {0}", exceptionOccurred.Message);
                 returnImage.Dispose();
                 return null;
             }

@@ -73,7 +73,7 @@ namespace Greenshot.Base.Core
                 {
                     greenshotVersion = assemblyFileVersion.ToString(3);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Ignore
                 }
@@ -94,7 +94,7 @@ namespace Greenshot.Base.Core
 
         public static string EnvironmentToString(bool newline)
         {
-            StringBuilder environment = new StringBuilder();
+            StringBuilder environment = new();
             environment.Append("Software version: " + GetGreenshotVersion());
             if (IniConfig.IsPortable)
             {
@@ -208,7 +208,7 @@ namespace Greenshot.Base.Core
             if (ex == null)
                 return "null\r\n";
 
-            StringBuilder report = new StringBuilder();
+            StringBuilder report = new();
 
             report.AppendLine("Exception: " + ex.GetType());
             report.AppendLine("Message: " + ex.Message);
@@ -254,7 +254,7 @@ namespace Greenshot.Base.Core
 
         public static string BuildReport(Exception exception)
         {
-            StringBuilder exceptionText = new StringBuilder();
+            StringBuilder exceptionText = new();
             exceptionText.AppendLine(EnvironmentToString(true));
             exceptionText.AppendLine(ExceptionToString(exception));
             exceptionText.AppendLine("Configuration dump:");

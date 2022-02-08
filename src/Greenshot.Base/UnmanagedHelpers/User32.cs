@@ -121,7 +121,7 @@ namespace Greenshot.Base.UnmanagedHelpers
 
         [DllImport("user32", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool PrintWindow(IntPtr hWnd, IntPtr hDc, uint nFlags);
+        public static extern bool PrintWindow(IntPtr hWnd, IntPtr hDc, PrintWindowFlags pwFlags);
 
         [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);

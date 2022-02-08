@@ -1090,7 +1090,7 @@ EndSelection:<<<<<<<4
         public static bool ContainsFormat(IDataObject dataObject, string[] formats)
         {
             bool formatFound = false;
-            List<string> currentFormats = GetFormats(dataObject);
+            var currentFormats = GetFormats(dataObject);
             if (currentFormats == null || currentFormats.Count == 0 || formats == null || formats.Length == 0)
             {
                 return false;
