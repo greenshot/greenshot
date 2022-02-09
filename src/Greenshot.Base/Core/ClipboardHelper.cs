@@ -494,7 +494,7 @@ EndSelection:<<<<<<<4
         {
             IDataObject clipboardData = GetDataObject();
             // Return the first image
-            foreach (Image clipboardImage in GetImages(clipboardData))
+            foreach (var clipboardImage in GetImages(clipboardData))
             {
                 return clipboardImage;
             }
@@ -507,11 +507,89 @@ EndSelection:<<<<<<<4
         /// Returned images must be disposed by the calling code!
         /// </summary>
         /// <param name="dataObject"></param>
-        /// <returns>IEnumerable of Image</returns>
-        public static IEnumerable<IDrawableContainer> GetImages(IDataObject dataObject)
+        /// <returns>IEnumerable of Bitmap</returns>
+        public static IEnumerable<Bitmap> GetImages(IDataObject dataObject)
         {
             // Get single image, this takes the "best" match
-            IDrawableContainer singleImage = GetImage(dataObject);
+            Bitmap singleImage = GetImage(dataObject);
+            if (singleImage != null)
+            {
+                Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
+                yield return singleImage;
+                yield break;
+            }
+
+            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+
+            foreach (var fileData in IterateClipboardContent(dataObject))
+            {
+                var extension = Path.GetExtension(fileData.filename)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                Bitmap bitmap = null;
+
+                try
+                {
+                    if (!FileFormatHandlerRegistry.TryLoadFromStream(fileData.stream, extension, out bitmap))
+                    {
+                        continue;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                finally
+                {
+                    fileData.stream?.Dispose();
+                }
+                // If we get here, there is an image
+                yield return bitmap;
+            }
+
+            // check if files are supplied
+            foreach (string imageFile in GetImageFilenames(dataObject))
+            {
+                var extension = Path.GetExtension(imageFile)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                Bitmap bitmap = null;
+                using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                try
+                {
+                    if (!FileFormatHandlerRegistry.TryLoadFromStream(fileStream, extension, out bitmap))
+                    {
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                // If we get here, there is an image
+                yield return bitmap;
+            }
+        }
+
+        /// <summary>
+        /// Get all images (multiple if file names are available) from the dataObject
+        /// Returned images must be disposed by the calling code!
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>IEnumerable of IDrawableContainer</returns>
+        public static IEnumerable<IDrawableContainer> GetDrawables(IDataObject dataObject)
+        {
+            // Get single image, this takes the "best" match
+            IDrawableContainer singleImage = GetDrawable(dataObject);
             if (singleImage != null)
             {
                 Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
@@ -585,11 +663,11 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="dataObject"></param>
         /// <returns>Image or null</returns>
-        private static IDrawableContainer GetImage(IDataObject dataObject)
+        private static Bitmap GetImage(IDataObject dataObject)
         {
             if (dataObject == null) return null;
 
-            IDrawableContainer returnImage = null;
+            Bitmap returnImage = null;
             IList<string> formats = GetFormats(dataObject);
             string[] retrieveFormats;
 
@@ -636,6 +714,113 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
+        /// Get an IDrawableContainer from the IDataObject, don't check for FileDrop
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>Image or null</returns>
+        private static IDrawableContainer GetDrawable(IDataObject dataObject)
+        {
+            if (dataObject == null) return null;
+
+            IDrawableContainer returnImage = null;
+            IList<string> formats = GetFormats(dataObject);
+            string[] retrieveFormats;
+
+            // Found a weird bug, where PNG's from Outlook 2010 are clipped
+            // So I build some special logic to get the best format:
+            if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            {
+                // Outlook ??
+                Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+                retrieveFormats = new[]
+                {
+                    DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF,
+                    DataFormats.Tiff, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+            else
+            {
+                retrieveFormats = new[]
+                {
+                    FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP,
+                    FORMAT_FILECONTENTS, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+
+            foreach (string currentFormat in retrieveFormats)
+            {
+                if (formats != null && formats.Contains(currentFormat))
+                {
+                    Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
+                    returnImage = GetDrawableForFormat(currentFormat, dataObject);
+                }
+                else
+                {
+                    Log.DebugFormat("Couldn't find format {0}.", currentFormat);
+                }
+
+                if (returnImage != null)
+                {
+                    return returnImage;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Helper method to try to get an Bitmap in the specified format from the dataObject
+        /// the DIB reader should solve some issues
+        /// It also supports Format17/DibV5, by using the following information: https://stackoverflow.com/a/14335591
+        /// </summary>
+        /// <param name="format">string with the format</param>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>Bitmap or null</returns>
+        private static Bitmap GetImageForFormat(string format, IDataObject dataObject)
+        {
+            Bitmap bitmap = null;
+
+            if (format == FORMAT_HTML)
+            {
+                var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+                if (textObject != null)
+                {
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(textObject);
+                    var imgNodes = doc.DocumentNode.SelectNodes("//img");
+                    if (imgNodes != null)
+                    {
+                        foreach (var imgNode in imgNodes)
+                        {
+                            var srcAttribute = imgNode.Attributes["src"];
+                            var imageUrl = srcAttribute.Value;
+                            Log.Debug(imageUrl);
+                            bitmap = NetworkHelper.DownloadImage(imageUrl);
+                            if (bitmap != null)
+                            {
+                                return bitmap;
+                            }
+                        }
+                    }
+                }
+            }
+
+            object clipboardObject = GetFromDataObject(dataObject, format);
+            var imageStream = clipboardObject as MemoryStream;
+            if (!IsValidStream(imageStream))
+            {
+                return clipboardObject as Bitmap;
+            }
+
+            // From here, imageStream is a valid stream
+            if (!FileFormatHandlerRegistry.TryLoadFromStream(imageStream, format, out bitmap))
+            {
+                return bitmap;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Helper method to try to get an IDrawableContainer in the specified format from the dataObject
         /// the DIB reader should solve some issues
         /// It also supports Format17/DibV5, by using the following information: https://stackoverflow.com/a/14335591
@@ -643,7 +828,7 @@ EndSelection:<<<<<<<4
         /// <param name="format">string with the format</param>
         /// <param name="dataObject">IDataObject</param>
         /// <returns>IDrawableContainer or null</returns>
-        private static IDrawableContainer GetImageForFormat(string format, IDataObject dataObject)
+        private static IDrawableContainer GetDrawableForFormat(string format, IDataObject dataObject)
         {
             IDrawableContainer drawableContainer = null;
 

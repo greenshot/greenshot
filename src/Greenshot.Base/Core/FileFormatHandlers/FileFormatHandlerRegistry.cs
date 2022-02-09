@@ -84,5 +84,28 @@ namespace Greenshot.Base.Core.FileFormatHandlers
 
             return fileFormatHandler.TryLoadDrawableFromStream(stream, extension, out drawableContainer, parentSurface);
         }
+
+        /// <summary>
+        /// Try to load a Bitmap from the stream
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="extension">string</param>
+        /// <param name="bitmap">Bitmap out</param>
+        /// <returns>bool true if it was successful</returns>
+        public static bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        {
+            var fileFormatHandler = FileFormatHandlers
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
+                .FirstOrDefault();
+
+            if (fileFormatHandler == null)
+            {
+                bitmap = null;
+                return false;
+            }
+
+            return fileFormatHandler.TryLoadFromStream(stream, extension, out bitmap);
+        }
     }
 }

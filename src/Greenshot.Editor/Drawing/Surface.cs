@@ -935,7 +935,7 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            foreach (var drawableContainer in ClipboardHelper.GetImages(e.Data))
+            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
             {
                 drawableContainer.Left = mouse.X;
                 drawableContainer.Top = mouse.Y;
@@ -987,13 +987,11 @@ namespace Greenshot.Editor.Drawing
         {
             //create a blank bitmap the same size as original
             Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
-            if (newBitmap != null)
-            {
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
-                SetImage(newBitmap, false);
-                Invalidate();
-            }
+            if (newBitmap == null) return;
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
+            SetImage(newBitmap, false);
+            Invalidate();
         }
 
         /// <summary>
@@ -2057,12 +2055,13 @@ namespace Greenshot.Editor.Drawing
             {
                 Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (var drawableContainer in ClipboardHelper.GetImages(clipboard))
+                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
                 {
                     if (drawableContainer == null) continue;
                     DeselectAllElements();
                     drawableContainer.Left = pasteLocation.X;
                     drawableContainer.Top = pasteLocation.Y; 
+                    AddElement(drawableContainer);
                     SelectElement(drawableContainer);
                     pasteLocation.X += 10;
                     pasteLocation.Y += 10;
@@ -2206,24 +2205,23 @@ namespace Greenshot.Editor.Drawing
         /// <param name="generateEvents">false to skip event generation</param>
         public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
         {
-            if (!selectedElements.Contains(container))
-            {
-                selectedElements.Add(container);
-                container.Selected = true;
-                FieldAggregator.BindElement(container);
-                if (generateEvents && _movingElementChanged != null)
-                {
-                    SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
-                    {
-                        Elements = selectedElements
-                    };
-                    _movingElementChanged(this, eventArgs);
-                }
+            if (selectedElements.Contains(container)) return;
 
-                if (invalidate)
+            selectedElements.Add(container);
+            container.Selected = true;
+            FieldAggregator.BindElement(container);
+            if (generateEvents && _movingElementChanged != null)
+            {
+                SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
                 {
-                    container.Invalidate();
-                }
+                    Elements = selectedElements
+                };
+                _movingElementChanged(this, eventArgs);
+            }
+
+            if (invalidate)
+            {
+                container.Invalidate();
             }
         }
 

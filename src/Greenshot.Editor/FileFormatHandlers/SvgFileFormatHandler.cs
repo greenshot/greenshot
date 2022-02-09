@@ -22,10 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -73,20 +71,16 @@ namespace Greenshot.Editor.FileFormatHandlers
         public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            int width = (int)svgDocument.ViewBox.Width;
-            int height = (int)svgDocument.ViewBox.Height;
 
             try
             {
-                bitmap = ImageHelper.CreateEmpty(width, height, PixelFormat.Format32bppArgb, Color.Transparent);
-                svgDocument.Draw(bitmap);
+                bitmap = svgDocument.Draw();
                 return true;
             }
             catch (Exception ex)
             {
                 Log.Error("Can't load SVG", ex);
             }
-
             bitmap = null;
             return false;
         }

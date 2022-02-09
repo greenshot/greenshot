@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -134,6 +133,62 @@ namespace Greenshot.Base.Core
                     if (FileFormatHandlerRegistry.TryLoadDrawableFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
                     {
                         return drawableContainer;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Problem downloading the image from: " + url, e);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Download the uri to create a Bitmap
+        /// </summary>
+        /// <param name="url">Of an image</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap DownloadImage(string url)
+        {
+            var extensions = string.Join("|", FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
+
+            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+            var match = imageUrlRegex.Match(url);
+            try
+            {
+                using var memoryStream = GetAsMemoryStream(url);
+                try
+                {
+                    if (FileFormatHandlerRegistry.TryLoadFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    {
+                        return bitmap;
+                    }
+                }
+                catch (Exception)
+                {
+                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    string content;
+                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
+                    {
+                        content = streamReader.ReadLine();
+                    }
+
+                    if (string.IsNullOrEmpty(content))
+                    {
+                        throw;
+                    }
+
+                    match = imageUrlRegex.Match(content);
+                    if (!match.Success)
+                    {
+                        throw;
+                    }
+
+                    using var memoryStream2 = GetAsMemoryStream(match.Value);
+                    if (FileFormatHandlerRegistry.TryLoadFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    {
+                        return bitmap;
                     }
                 }
             }
