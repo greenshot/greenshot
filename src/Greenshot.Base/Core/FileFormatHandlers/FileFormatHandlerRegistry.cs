@@ -24,19 +24,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Core.FileFormatHandlers
 {
     public static class FileFormatHandlerRegistry
     {
         public static IList<IFileFormatHandler> FileFormatHandlers { get; } = new List<IFileFormatHandler>();
-
-        static FileFormatHandlerRegistry()
-        {
-            FileFormatHandlers.Add(new IconFileFormatHandler());
-            FileFormatHandlers.Add(new GreenshotFileFormatHandler());
-            FileFormatHandlers.Add(new DefaultFileFormatHandler());
-        }
 
         public static IEnumerable<string> ExtensionsFor(FileFormatHandlerActions fileFormatHandlerAction)
         {
@@ -65,6 +59,30 @@ namespace Greenshot.Base.Core.FileFormatHandlers
             }
 
             return fileFormatHandler.TrySaveToStream(bitmap, destination, extension);
+        }
+
+        /// <summary>
+        /// Try to load a drawable container from the stream
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="extension">string</param>
+        /// <param name="drawableContainer">IDrawableContainer out</param>
+        /// <param name="parentSurface">ISurface</param>
+        /// <returns>bool true if it was successful</returns>
+        public static bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
+        {
+            var fileFormatHandler = FileFormatHandlers
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadDrawableFromStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
+                .FirstOrDefault();
+
+            if (fileFormatHandler == null)
+            {
+                drawableContainer = null;
+                return false;
+            }
+
+            return fileFormatHandler.TryLoadDrawableFromStream(stream, extension, out drawableContainer, parentSurface);
         }
     }
 }

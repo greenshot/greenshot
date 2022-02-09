@@ -22,9 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Runtime.Serialization;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 
@@ -78,6 +76,7 @@ namespace Greenshot.Editor.Drawing
             base.Dispose(disposing);
         }
 
+        /// <inheritdoc cref="IDrawableContainer"/>
         public override void Transform(Matrix matrix)
         {
             RotationAngle += CalculateAngle(matrix);
@@ -88,34 +87,26 @@ namespace Greenshot.Editor.Drawing
             base.Transform(matrix);
         }
 
+        /// <inheritdoc cref="IDrawableContainer"/>
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
             if (_cachedImage != null && _cachedImage.Size != Bounds.Size)
             {
                 ResetCachedBitmap();
             }
 
-            _cachedImage ??= ComputeBitmap(); 
+            _cachedImage ??= ComputeBitmap();
+
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
 
             graphics.DrawImage(_cachedImage, Bounds);
         }
 
-        protected virtual Image ComputeBitmap()
-        {
-            var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppRgb, Color.Transparent);
-
-            if (RotationAngle == 0) return image;
-
-            var newImage = image.Rotate(RotationAngle);
-            image.Dispose();
-            return newImage;
-
-        }
+        protected abstract Image ComputeBitmap();
 
         private void ResetCachedBitmap()
         {

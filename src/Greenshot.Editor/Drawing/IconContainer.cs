@@ -61,6 +61,11 @@ namespace Greenshot.Editor.Drawing
             Load(filename);
         }
 
+        public IconContainer(ISurface parent, Stream stream) : base(parent)
+        {
+            Load(stream);
+        }
+
         public Icon Icon
         {
             set
@@ -98,6 +103,18 @@ namespace Greenshot.Editor.Drawing
             using Icon fileIcon = new Icon(filename);
             Icon = fileIcon;
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+        }
+
+        public void Load(Stream iconStream)
+        {
+            if (iconStream == null)
+            {
+                return;
+            }
+
+            using Icon fileIcon = new Icon(iconStream);
+            Icon = fileIcon;
+            Log.Debug("Loaded stream: with resolution: " + Height + "," + Width);
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)

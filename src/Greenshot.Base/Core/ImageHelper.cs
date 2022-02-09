@@ -1320,7 +1320,7 @@ namespace Greenshot.Base.Core
             }
 
             // If no pixelformat is supplied
-            if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat)
+            if (targetFormat is PixelFormat.DontCare or PixelFormat.Undefined)
             {
                 if (SupportsPixelFormat(sourceImage.PixelFormat))
                 {

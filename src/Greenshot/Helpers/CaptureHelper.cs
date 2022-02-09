@@ -389,6 +389,7 @@ namespace Greenshot.Helpers
                     HandleCapture();
                     break;
                 case CaptureMode.Clipboard:
+                    // TODO: Fix getting image vs. drawablecontainer
                     Image clipboardImage = ClipboardHelper.GetImage();
                     if (clipboardImage != null)
                     {

@@ -21,6 +21,8 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Svg;
@@ -31,21 +33,29 @@ namespace Greenshot.Editor.Drawing
     /// This provides a resizable SVG container, redrawing the SVG in the size the container takes.
     /// </summary>
     [Serializable]
-    public class SvgContainer : VectorGraphicsContainer
+    public class MetafileContainer : VectorGraphicsContainer
     {
-        private SvgDocument _svgDocument;
+        private readonly Metafile _metafile;
 
-        public SvgContainer(SvgDocument svgDocument, ISurface parent) : base(parent)
+        public MetafileContainer(Metafile metafile, ISurface parent) : base(parent)
         {
-            _svgDocument = svgDocument;
-            Size = new Size((int)svgDocument.Width, (int)svgDocument.Height);
+            _metafile = metafile;
+            Size = new Size(metafile.Width/4, metafile.Height/4);
         }
         
         protected override Image ComputeBitmap()
         {
-            //var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
-
-            var image = _svgDocument.Draw(Width, Height);
+            var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
+            
+            var dstRect = new Rectangle(0, 0, Width, Height);
+            using (Graphics graphics = Graphics.FromImage(image))
+            {
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.DrawImage(_metafile, dstRect);
+            }
             
             if (RotationAngle == 0) return image;
 
@@ -56,6 +66,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
+        public override Size DefaultSize => new Size(_metafile.Width, _metafile.Height);
     }
 }

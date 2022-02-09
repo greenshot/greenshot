@@ -19,44 +19,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Drawing;
 
-namespace Greenshot.Base.Core.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
     /// This is the default .NET bitmap file format handler
     /// </summary>
-    public class DefaultFileFormatHandler : IFileFormatHandler
+    public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly string [] OurExtensions = { "png", "bmp", "gif", "jpg", "jpeg", "tiff", "tif" };
+        private static readonly string [] OurExtensions = { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
-            {
-                return Enumerable.Empty<string>();
-            }
-
             return OurExtensions;
         }
 
         /// <inheritdoc />
         public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
-            {
-                return false;
-            }
-
-            return OurExtensions.Contains(extension?.ToLowerInvariant());
+            return OurExtensions.Contains(NormalizeExtension(extension));
         }
 
         /// <inheritdoc />
@@ -68,15 +60,15 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <inheritdoc />
         public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            ImageFormat imageFormat = extension?.ToLowerInvariant() switch
+            ImageFormat imageFormat = NormalizeExtension(extension) switch
             {
-                "png" => ImageFormat.Png,
-                "bmp" => ImageFormat.Bmp,
-                "gif" => ImageFormat.Gif,
-                "jpg" => ImageFormat.Jpeg,
-                "jpeg" => ImageFormat.Jpeg,
-                "tiff" => ImageFormat.Tiff,
-                "tif" => ImageFormat.Tiff,
+                ".png" => ImageFormat.Png,
+                ".bmp" => ImageFormat.Bmp,
+                ".gif" => ImageFormat.Gif,
+                ".jpg" => ImageFormat.Jpeg,
+                ".jpeg" => ImageFormat.Jpeg,
+                ".tiff" => ImageFormat.Tiff,
+                ".tif" => ImageFormat.Tiff,
                 _ => null
             };
 
@@ -97,9 +89,20 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
         {
-            throw new NotImplementedException();
+            if (TryLoadFromStream(stream, extension, out var bitmap))
+            {
+                var imageContainer = new ImageContainer(surface)
+                {
+                    Image = bitmap
+                };
+                drawableContainer = imageContainer;
+                return true;
+            }
+
+            drawableContainer = null;
+            return true;
         }
     }
 }

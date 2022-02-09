@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
@@ -89,25 +90,13 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Download the uri to Bitmap
+        /// Download the uri to build an IDrawableContainer
         /// </summary>
         /// <param name="url">Of an image</param>
-        /// <returns>Bitmap</returns>
-        public static Image DownloadImage(string url)
+        /// <returns>IDrawableContainer</returns>
+        public static IDrawableContainer DownloadImageAsDrawableContainer(string url)
         {
-            var extensions = new StringBuilder();
-            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
-            foreach (var extension in supportedExtensions)
-            {
-                if (string.IsNullOrEmpty(extension))
-                {
-                    continue;
-                }
-
-                extensions.AppendFormat(@"\.{0}|", extension);
-            }
-
-            extensions.Length--;
+            var extensions = string.Join("|", FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
             var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
@@ -116,7 +105,10 @@ namespace Greenshot.Base.Core
                 using var memoryStream = GetAsMemoryStream(url);
                 try
                 {
-                    return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+                    if (FileFormatHandlerRegistry.TryLoadDrawableFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+                    {
+                        return drawableContainer;
+                    }
                 }
                 catch (Exception)
                 {
@@ -139,7 +131,10 @@ namespace Greenshot.Base.Core
                     }
 
                     using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
+                    if (FileFormatHandlerRegistry.TryLoadDrawableFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+                    {
+                        return drawableContainer;
+                    }
                 }
             }
             catch (Exception e)

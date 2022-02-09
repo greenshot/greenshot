@@ -19,27 +19,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Drawing;
 
-namespace Greenshot.Base.Core.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// This can be an ImageSharp implementation
+    /// This handles the Windows metafile files
     /// </summary>
-    public class PngFileFormatHandler : IFileFormatHandler
+    public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly string[] OurExtensions = { "png" };
+        private static readonly string [] OurExtensions = { ".wmf", ".emf" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
                 return Enumerable.Empty<string>();
             }
@@ -50,35 +53,56 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <inheritdoc />
         public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
                 return false;
             }
 
-            return OurExtensions.Contains(extension?.ToLowerInvariant());
+            return OurExtensions.Contains(NormalizeExtension(extension));
         }
+
         /// <inheritdoc />
         public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             return int.MaxValue;
         }
 
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
-        {
-            // TODO: Implement this
-            throw new NotImplementedException();
-        }
-
+        /// <inheritdoc />
         public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            // TODO: Implement this
             return false;
         }
 
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
+        /// <inheritdoc />
+        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            // TODO: Implement this
-            throw new NotImplementedException();
+            try
+            {
+                if (Image.FromStream(stream, true, true) is Metafile metaFile)
+                {
+                    bitmap = ImageHelper.Clone(metaFile, PixelFormat.Format32bppArgb);
+                    return true;
+                }
+            }
+            catch
+            {
+                // Ignore
+            }
+            bitmap = null;
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
+        {
+            if (Image.FromStream(stream, true, true) is Metafile metaFile)
+            {
+                drawableContainer = new MetafileContainer(metaFile, surface);
+                return true;
+            }
+
+            drawableContainer = null;
+            return false;
         }
     }
 }

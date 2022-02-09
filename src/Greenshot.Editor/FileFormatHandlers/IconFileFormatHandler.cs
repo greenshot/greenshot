@@ -25,25 +25,28 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Drawing;
 using log4net;
 
-namespace Greenshot.Base.Core.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
     /// THis is the default .NET bitmap file format handler
     /// </summary>
-    public class IconFileFormatHandler : IFileFormatHandler
+    public class IconFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
 
-        private static readonly string[] OurExtensions = { "ico" };
+        private static readonly string[] OurExtensions = { ".ico" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
                 return Enumerable.Empty<string>();
             }
@@ -54,12 +57,12 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <inheritdoc />
         public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
                 return false;
             }
 
-            return OurExtensions.Contains(extension?.ToLowerInvariant());
+            return OurExtensions.Contains(NormalizeExtension(extension));
         }
 
         /// <inheritdoc />
@@ -76,7 +79,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
 
         public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            var startingPosition = stream.Seek(0, SeekOrigin.Current);
+            _ = stream.Seek(0, SeekOrigin.Current);
 
             // Icon logic, try to get the Vista icon, else the biggest possible
             try
@@ -113,10 +116,20 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         }
 
 
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
         {
-            // TODO: Implement this
-            throw new NotImplementedException();
+            if (TryLoadFromStream(stream, extension, out var bitmap))
+            {
+                var imageContainer = new ImageContainer(surface)
+                {
+                    Image = bitmap
+                };
+                drawableContainer = imageContainer;
+                return true;
+            }
+
+            drawableContainer = null;
+            return true;
         }
 
         /// <summary>

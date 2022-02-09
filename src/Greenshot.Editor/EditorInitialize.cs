@@ -29,6 +29,11 @@ namespace Greenshot.Editor
         public static void Initialize()
         {
             FileFormatHandlerRegistry.FileFormatHandlers.Add(new SvgFileFormatHandler());
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DefaultFileFormatHandler());
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DibFileFormatHandler());
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new GreenshotFileFormatHandler());
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new IconFileFormatHandler());
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new MetaFileFormatHandler());
         }
     }
 }

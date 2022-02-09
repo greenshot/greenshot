@@ -22,31 +22,24 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
-using log4net;
-using Svg;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// This handled the loading of SVG images to the editor
+    /// This can be an ImageSharp implementation
     /// </summary>
-    public class SvgFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
+    public class PngFileFormatHandler : IFileFormatHandler
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
-        private static readonly string[] OurExtensions = { ".svg" };
+        private static readonly string[] OurExtensions = { "png" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
                 return Enumerable.Empty<string>();
             }
@@ -57,12 +50,12 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
+            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
             {
                 return false;
             }
 
-            return OurExtensions.Contains(NormalizeExtension(extension));
+            return OurExtensions.Contains(extension?.ToLowerInvariant());
         }
         /// <inheritdoc />
         public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
@@ -72,23 +65,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            int width = (int)svgDocument.ViewBox.Width;
-            int height = (int)svgDocument.ViewBox.Height;
-
-            try
-            {
-                bitmap = ImageHelper.CreateEmpty(width, height, PixelFormat.Format32bppArgb, Color.Transparent);
-                svgDocument.Draw(bitmap);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Can't load SVG", ex);
-            }
-
-            bitmap = null;
-            return false;
+            // TODO: Implement this
+            throw new NotImplementedException();
         }
 
         public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
@@ -97,16 +75,10 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
         {
-            var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            if (svgDocument == null)
-            {
-                drawableContainer = null;
-                return false;
-            }
-            drawableContainer = new SvgContainer(svgDocument, parent);
-            return true;
+            // TODO: Implement this
+            throw new NotImplementedException();
         }
     }
 }

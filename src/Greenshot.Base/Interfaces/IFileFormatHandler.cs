@@ -89,8 +89,8 @@ namespace Greenshot.Base.Interfaces
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
         /// <param name="drawableContainer">IDrawableContainer out</param>
-        /// <param name="parent">ISurface</param>
+        /// <param name="parentSurface">ISurface</param>
         /// <returns>bool true if it was successful</returns>
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent);
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null);
     }
 }

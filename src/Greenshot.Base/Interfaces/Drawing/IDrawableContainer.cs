@@ -30,7 +30,14 @@ namespace Greenshot.Base.Interfaces.Drawing
 {
     public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
     {
+        /// <summary>
+        /// The parent surface where this IDrawableContainer is on
+        /// </summary>
         ISurface Parent { get; set; }
+
+        /// <summary>
+        /// Is this IDrawableContainer selected on the surface
+        /// </summary>
         bool Selected { get; set; }
 
         int Left { get; set; }
@@ -54,15 +61,25 @@ namespace Greenshot.Base.Interfaces.Drawing
         bool HasFilters { get; }
 
         EditStatus Status { get; set; }
+
         void Invalidate();
+
         bool ClickableAt(int x, int y);
+
         void MoveBy(int x, int y);
+
         void Transform(Matrix matrix);
+
         bool HandleMouseDown(int x, int y);
+
         void HandleMouseUp(int x, int y);
+
         bool HandleMouseMove(int x, int y);
+
         bool InitContent();
+
         void MakeBoundsChangeUndoable(bool allowMerge);
+
         EditStatus DefaultEditMode { get; }
 
         /// <summary>

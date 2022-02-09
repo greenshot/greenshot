@@ -26,40 +26,36 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.UnmanagedHelpers;
+using Greenshot.Editor.Drawing;
+using log4net;
 
-namespace Greenshot.Base.Core.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
     /// This handles creating a DIB (Device Independent Bitmap) on the clipboard
     /// </summary>
-    public class DibFileFormatHandler : IFileFormatHandler
+    public class DibFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private const double DpiToPelsPerMeter = 39.3701;
-        private static readonly string [] OurExtensions = { "dib" };
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DibFileFormatHandler));
+        private static readonly string [] OurExtensions = { ".dib", ".format17" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
-            {
-                return Enumerable.Empty<string>();
-            }
-
             return OurExtensions;
         }
 
         /// <inheritdoc />
         public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
-            if (string.IsNullOrEmpty(extension) || fileFormatHandlerAction != FileFormatHandlerActions.SaveToStream)
-            {
-                return false;
-            }
-            
-            return OurExtensions.Contains(extension.ToLowerInvariant());
+            extension = NormalizeExtension(extension);
+            return OurExtensions.Contains(extension);
         }
 
         /// <inheritdoc />
@@ -79,13 +75,79 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <inheritdoc />
         public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            throw new NotImplementedException();
+            byte[] dibBuffer = new byte[stream.Length];
+            _ = stream.Read(dibBuffer, 0, dibBuffer.Length);
+            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADERV5>(dibBuffer);
+            if (!infoHeader.IsDibV5)
+            {
+                Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
+                int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
+                uint infoHeaderSize = infoHeader.biSize;
+                int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+
+                var fileHeader = new BITMAPFILEHEADER
+                {
+                    bfType = BITMAPFILEHEADER.BM,
+                    bfSize = fileSize,
+                    bfReserved1 = 0,
+                    bfReserved2 = 0,
+                    bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4)
+                };
+
+                byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
+
+                using var bitmapStream = new MemoryStream();
+                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+                bitmapStream.Seek(0, SeekOrigin.Begin);
+                bitmap = ImageHelper.FromStream(bitmapStream) as Bitmap;
+                return true;
+            }
+            Log.Info("Using special DIBV5 / Format17 format reader");
+            // CF_DIBV5
+            IntPtr gcHandle = IntPtr.Zero;
+            try
+            {
+                GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
+                gcHandle = GCHandle.ToIntPtr(handle);
+                bitmap = new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
+                        -(int)(infoHeader.biSizeImage / infoHeader.biHeight),
+                        infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
+                        new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
+                                   (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))
+                    );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Problem retrieving Format17 from clipboard.", ex);
+                bitmap = null;
+            }
+            finally
+            {
+                if (gcHandle == IntPtr.Zero)
+                {
+                    GCHandle.FromIntPtr(gcHandle).Free();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc />
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
         {
-            throw new NotImplementedException();
+            if (TryLoadFromStream(stream, extension, out var bitmap))
+            {
+                var imageContainer = new ImageContainer(surface)
+                {
+                    Image = bitmap
+                };
+                drawableContainer = imageContainer;
+                return true;
+            }
+
+            drawableContainer = null;
+            return true;
         }
 
 

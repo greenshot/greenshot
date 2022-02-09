@@ -24,14 +24,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 
-namespace Greenshot.Base.Core.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers
 {
-    public class GreenshotFileFormatHandler : IFileFormatHandler
+    public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly string[] OurExtensions = { "greenshot" };
+        private static readonly string[] OurExtensions = { ".greenshot" };
 
         /// <inheritdoc />
         public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
@@ -51,8 +53,12 @@ namespace Greenshot.Base.Core.FileFormatHandlers
             {
                 return false;
             }
+            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
+            {
+                return false;
+            }
 
-            return OurExtensions.Contains(extension?.ToLowerInvariant());
+            return OurExtensions.Contains(NormalizeExtension(extension));
         }
 
 
@@ -75,7 +81,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
             return true;
         }
 
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent)
+        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
         {
             throw new NotImplementedException();
         }

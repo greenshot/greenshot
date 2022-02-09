@@ -49,7 +49,6 @@ namespace Greenshot.Editor.Drawing
     public sealed class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-        public static int Count;
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
         // Property to identify the Surface ID
@@ -207,7 +206,7 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private IDrawableContainer _undrawnElement;
 
         /// <summary>
-        /// the cropcontainer, when cropping this is set, do not serialize
+        /// the crop container, when cropping this is set, do not serialize
         /// </summary>
         [NonSerialized] private IDrawableContainer _cropContainer;
 
@@ -467,7 +466,6 @@ namespace Greenshot.Editor.Drawing
         public Surface()
         {
             _fieldAggregator = new FieldAggregator(this);
-            Count++;
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
             LOG.Debug("Creating surface!");
@@ -550,7 +548,6 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
-                Count--;
                 LOG.Debug("Disposing surface!");
                 if (_buffer != null)
                 {
@@ -927,20 +924,23 @@ namespace Greenshot.Editor.Drawing
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    using Image image = NetworkHelper.DownloadImage(possibleUrl);
-                    if (image != null)
+                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
+                    if (drawableContainer != null)
                     {
-                        AddImageContainer(image, mouse.X, mouse.Y);
+                        drawableContainer.Left = Location.X;
+                        drawableContainer.Top = Location.Y;
+                        AddElement(drawableContainer);
                         return;
                     }
                 }
             }
 
-            foreach (Image image in ClipboardHelper.GetImages(e.Data))
+            foreach (var drawableContainer in ClipboardHelper.GetImages(e.Data))
             {
-                AddImageContainer(image, mouse.X, mouse.Y);
+                drawableContainer.Left = mouse.X;
+                drawableContainer.Top = mouse.Y;
+                AddElement(drawableContainer);
                 mouse.Offset(10, 10);
-                image.Dispose();
             }
         }
 
@@ -2057,17 +2057,15 @@ namespace Greenshot.Editor.Drawing
             {
                 Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
+                foreach (var drawableContainer in ClipboardHelper.GetImages(clipboard))
                 {
-                    if (clipboardImage != null)
-                    {
-                        DeselectAllElements();
-                        IImageContainer container = AddImageContainer(clipboardImage as Bitmap, pasteLocation.X, pasteLocation.Y);
-                        SelectElement(container);
-                        clipboardImage.Dispose();
-                        pasteLocation.X += 10;
-                        pasteLocation.Y += 10;
-                    }
+                    if (drawableContainer == null) continue;
+                    DeselectAllElements();
+                    drawableContainer.Left = pasteLocation.X;
+                    drawableContainer.Top = pasteLocation.Y; 
+                    SelectElement(drawableContainer);
+                    pasteLocation.X += 10;
+                    pasteLocation.Y += 10;
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))
