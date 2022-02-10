@@ -166,7 +166,7 @@ namespace Greenshot.Base.Controls
                 // if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
                 if (fn.EndsWith(Extension, StringComparison.CurrentCultureIgnoreCase)) return fn;
                 // otherwise we just add the selected filter item's extension
-                else return fn + "." + Extension;
+                return fn + "." + Extension;
             }
             set
             {

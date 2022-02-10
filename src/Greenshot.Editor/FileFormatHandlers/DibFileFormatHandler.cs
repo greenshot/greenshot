@@ -20,18 +20,13 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Editor.Drawing;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -43,29 +38,10 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         private const double DpiToPelsPerMeter = 39.3701;
         private static readonly ILog Log = LogManager.GetLogger(typeof(DibFileFormatHandler));
-        private static readonly string [] OurExtensions = { ".dib", ".format17" };
+        protected override string[] OurExtensions { get; } = { ".dib", ".format17" };
 
         /// <inheritdoc />
-        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
-        {
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            extension = NormalizeExtension(extension);
-            return OurExtensions.Contains(extension);
-        }
-
-        /// <inheritdoc />
-        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return int.MaxValue;
-        }
-
-        /// <inheritdoc />
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
             var dibBytes = ConvertToDib(bitmap);
             destination.Write(dibBytes, 0, dibBytes.Length);
@@ -73,7 +49,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             byte[] dibBuffer = new byte[stream.Length];
             _ = stream.Read(dibBuffer, 0, dibBuffer.Length);
@@ -132,24 +108,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             return true;
         }
-
-        /// <inheritdoc />
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
-        {
-            if (TryLoadFromStream(stream, extension, out var bitmap))
-            {
-                var imageContainer = new ImageContainer(surface)
-                {
-                    Image = bitmap
-                };
-                drawableContainer = imageContainer;
-                return true;
-            }
-
-            drawableContainer = null;
-            return true;
-        }
-
 
         /// <summary>
         /// Converts the Bitmap to a Device Independent Bitmap format of type BITFIELDS.

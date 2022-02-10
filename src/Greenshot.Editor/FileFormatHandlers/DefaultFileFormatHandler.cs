@@ -19,16 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -37,28 +32,10 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly string [] OurExtensions = { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
+        protected override string[] OurExtensions { get; } = { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
 
         /// <inheritdoc />
-        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
-        {
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return OurExtensions.Contains(NormalizeExtension(extension));
-        }
-
-        /// <inheritdoc />
-        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return int.MaxValue;
-        }
-
-        /// <inheritdoc />
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
             ImageFormat imageFormat = NormalizeExtension(extension) switch
             {
@@ -81,27 +58,10 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             using var tmpImage = Image.FromStream(stream, true, true);
             bitmap = ImageHelper.Clone(tmpImage, PixelFormat.Format32bppArgb);
-            return true;
-        }
-
-        /// <inheritdoc />
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
-        {
-            if (TryLoadFromStream(stream, extension, out var bitmap))
-            {
-                var imageContainer = new ImageContainer(surface)
-                {
-                    Image = bitmap
-                };
-                drawableContainer = imageContainer;
-                return true;
-            }
-
-            drawableContainer = null;
             return true;
         }
     }

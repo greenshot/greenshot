@@ -64,6 +64,16 @@ namespace Greenshot.Editor.Drawing
             return newImage;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _metafile?.Dispose();
+            }
+            
+            base.Dispose(disposing);
+        }
+
         public override bool HasDefaultSize => true;
 
         public override Size DefaultSize => new Size(_metafile.Width, _metafile.Height);

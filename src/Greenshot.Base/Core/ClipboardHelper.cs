@@ -65,7 +65,8 @@ namespace Greenshot.Base.Core
         //private static readonly string FORMAT_HTML = "HTML Format";
 
         // Template for the HTML Text on the clipboard
-        // see: https://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
+        // see: https://msdn.microsoft.com/en-us/library/ms649015%28v=v
+        // s.85%29.aspx
         // or:  https://msdn.microsoft.com/en-us/library/Aa767917.aspx
         private const string HtmlClipboardString = @"Version:0.9
 StartHTML:<<<<<<<1

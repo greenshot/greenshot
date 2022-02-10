@@ -26,28 +26,26 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.UnmanagedHelpers;
 using log4net;
+using Brush = System.Drawing.Brush;
+using Color = System.Drawing.Color;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using Pen = System.Drawing.Pen;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace Greenshot.Base.Core
 {
-    internal enum ExifOrientations : byte
-    {
-        Unknown = 0,
-        TopLeft = 1,
-        TopRight = 2,
-        BottomRight = 3,
-        BottomLeft = 4,
-        LeftTop = 5,
-        RightTop = 6,
-        RightBottom = 7,
-        LeftBottom = 8,
-    }
-
     /// <summary>
     /// Description of ImageHelper.
     /// </summary>
@@ -1570,7 +1568,7 @@ namespace Greenshot.Base.Core
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
                     {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
+                        destX = Math.Max(0, System.Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
                     }
                 }
                 else if ((int) nPercentH == 1)
@@ -1578,7 +1576,7 @@ namespace Greenshot.Base.Core
                     nPercentH = nPercentW;
                     if (canvasUseNewSize)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destY = Math.Max(0, System.Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
                     }
                 }
                 else if ((int) nPercentH != 0 && nPercentH < nPercentW)
@@ -1586,7 +1584,7 @@ namespace Greenshot.Base.Core
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
                     {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
+                        destX = Math.Max(0, System.Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
                     }
                 }
                 else
@@ -1594,7 +1592,7 @@ namespace Greenshot.Base.Core
                     nPercentH = nPercentW;
                     if (canvasUseNewSize)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destY = Math.Max(0, System.Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
                     }
                 }
             }
@@ -1739,15 +1737,96 @@ namespace Greenshot.Base.Core
         {
             var bitmap = CreateEmptyLike(image, Color.Transparent);
 
-            using var gfx = Graphics.FromImage(bitmap);
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-            gfx.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
-            gfx.RotateTransform(rotationAngle);
-            gfx.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
+            graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            graphics.RotateTransform(rotationAngle);
+            graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
 
-            gfx.DrawImage(image, new Point(0, 0));
+            graphics.DrawImage(image, new Point(0, 0));
 
+            return bitmap;
+        }
+
+        /// <summary>
+        /// Map a System.Drawing.Imaging.PixelFormat to a System.Windows.Media.PixelFormat
+        /// </summary>
+        /// <param name="pixelFormat">System.Drawing.Imaging.PixelFormat</param>
+        /// <returns>System.Windows.Media.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static System.Windows.Media.PixelFormat Map(this PixelFormat pixelFormat) =>
+            pixelFormat switch
+            {
+                PixelFormat.Format32bppArgb => PixelFormats.Bgra32,
+                PixelFormat.Format24bppRgb => PixelFormats.Bgr24,
+                PixelFormat.Format32bppRgb => PixelFormats.Bgr32,
+                _ => throw new NotSupportedException($"Can't map {pixelFormat}.")
+            };
+
+        /// <summary>
+        /// Map a System.Windows.Media.PixelFormat to a System.Drawing.Imaging.PixelFormat
+        /// </summary>
+        /// <param name="pixelFormat">System.Windows.Media.PixelFormat</param>
+        /// <returns>System.Drawing.Imaging.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static PixelFormat Map(this System.Windows.Media.PixelFormat pixelFormat)
+        {
+            if (pixelFormat == PixelFormats.Bgra32)
+            {
+                return PixelFormat.Format32bppArgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr24)
+            {
+                return PixelFormat.Format24bppRgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr32)
+            {
+                return PixelFormat.Format32bppRgb;
+            }
+
+            throw new NotSupportedException($"Can't map {pixelFormat}.");
+        }
+
+        /// <summary>
+        /// Convert a Bitmap to a BitmapSource
+        /// </summary>
+        /// <param name="bitmap">Bitmap</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+            BitmapSource bitmapSource;
+            try
+            {
+                bitmapSource = BitmapSource.Create(
+                    bitmapData.Width, bitmapData.Height,
+                    bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                    bitmap.PixelFormat.Map(), null,
+                    bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+
+            return bitmapSource;
+        }
+
+        /// <summary>
+        /// Convert a BitmapSource to a Bitmap
+        /// </summary>
+        /// <param name="bitmapSource">BitmapSource</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap ToBitmap(this BitmapSource bitmapSource)
+        {
+            var pixelFormat = bitmapSource.Format.Map();
+
+            Bitmap bitmap = new Bitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, pixelFormat);
+            BitmapData data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), ImageLockMode.WriteOnly, pixelFormat);
+            bitmapSource.CopyPixels(Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
+            bitmap.UnlockBits(data);
             return bitmap;
         }
     }

@@ -20,16 +20,11 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -39,45 +34,18 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class IconFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(IconFileFormatHandler));
 
-        private static readonly string[] OurExtensions = { ".ico" };
+        protected override string[] OurExtensions { get; } = { ".ico" };
 
-        /// <inheritdoc />
-        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return Enumerable.Empty<string>();
-            }
 
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return false;
-            }
-
-            return OurExtensions.Contains(NormalizeExtension(extension));
-        }
-
-        /// <inheritdoc />
-        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return int.MaxValue;
-        }
-
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
             // TODO: Implement this
             return false;
         }
 
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             _ = stream.Seek(0, SeekOrigin.Current);
 
@@ -113,23 +81,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             bitmap = null;
             return false;
-        }
-
-
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
-        {
-            if (TryLoadFromStream(stream, extension, out var bitmap))
-            {
-                var imageContainer = new ImageContainer(surface)
-                {
-                    Image = bitmap
-                };
-                drawableContainer = imageContainer;
-                return true;
-            }
-
-            drawableContainer = null;
-            return true;
         }
 
         /// <summary>

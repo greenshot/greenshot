@@ -28,12 +28,19 @@ namespace Greenshot.Editor
     {
         public static void Initialize()
         {
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new SvgFileFormatHandler());
+            // All generic things, like gif, png, jpg etc.
             FileFormatHandlerRegistry.FileFormatHandlers.Add(new DefaultFileFormatHandler());
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DibFileFormatHandler());
             FileFormatHandlerRegistry.FileFormatHandlers.Add(new GreenshotFileFormatHandler());
+            // For .svg support
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new SvgFileFormatHandler());
+            // For clipboard support
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DibFileFormatHandler());
+            // .ico
             FileFormatHandlerRegistry.FileFormatHandlers.Add(new IconFileFormatHandler());
+            // EMF & WMF
             FileFormatHandlerRegistry.FileFormatHandlers.Add(new MetaFileFormatHandler());
+            // JPG XR
+            FileFormatHandlerRegistry.FileFormatHandlers.Add(new WmpFileFormatHandler());
         }
     }
 }

@@ -25,7 +25,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
@@ -37,10 +36,9 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private static readonly string [] OurExtensions = { ".wmf", ".emf" };
+        protected override string[] OurExtensions { get; } = { ".wmf", ".emf" };
 
-        /// <inheritdoc />
-        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
@@ -51,7 +49,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
@@ -62,19 +60,13 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return int.MaxValue;
-        }
-
-        /// <inheritdoc />
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
             return false;
         }
 
         /// <inheritdoc />
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             try
             {
@@ -93,7 +85,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
+        public override bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface surface = null)
         {
             if (Image.FromStream(stream, true, true) is Metafile metaFile)
             {

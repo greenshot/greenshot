@@ -19,53 +19,48 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using Greenshot.Base.Core;
+using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
-    public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
+    /// <summary>
+    /// This is the default .NET bitmap file format handler
+    /// </summary>
+    public class WmpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        protected override string[] OurExtensions { get; } = { ".greenshot" };
+        protected override string[] OurExtensions { get; } = { ".jxr", ".wdp", ".wmp" };
 
         /// <inheritdoc />
-        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
+            try
             {
-                return Enumerable.Empty<string>();
+                var bitmapSource = bitmap.ToBitmapSource();
+                var bitmapFrame = BitmapFrame.Create(bitmapSource);
+                var jpegXrEncoder = new WmpBitmapEncoder();
+                jpegXrEncoder.Frames.Add(bitmapFrame);
+                // TODO: Support supplying a quality
+                //jpegXrEncoder.ImageQualityLevel = quality / 100f;
+                jpegXrEncoder.Save(destination);
+                return true;
             }
-
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
+            catch
             {
                 return false;
             }
-
-            return OurExtensions.Contains(NormalizeExtension(extension));
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-            bitmap = (Bitmap)surface.GetImageForExport();
+            var decoder = new WmpBitmapDecoder(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
+            var bitmapSource = decoder.Frames[0];
+            bitmap = bitmapSource.ToBitmap();
             return true;
         }
-
     }
 }

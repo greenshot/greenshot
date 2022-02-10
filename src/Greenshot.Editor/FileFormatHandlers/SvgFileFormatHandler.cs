@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
@@ -39,10 +38,10 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class SvgFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
-        private static readonly string[] OurExtensions = { ".svg" };
+        protected override string[] OurExtensions { get; } = { ".svg" };
 
         /// <inheritdoc />
-        public IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
@@ -53,7 +52,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
             {
@@ -62,13 +61,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             return OurExtensions.Contains(NormalizeExtension(extension));
         }
-        /// <inheritdoc />
-        public int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return int.MaxValue;
-        }
 
-        public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             var svgDocument = SvgDocument.Open<SvgDocument>(stream);
 
@@ -85,13 +79,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
             // TODO: Implement this
             return false;
         }
 
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
+        public override bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
         {
             var svgDocument = SvgDocument.Open<SvgDocument>(stream);
             if (svgDocument == null)
