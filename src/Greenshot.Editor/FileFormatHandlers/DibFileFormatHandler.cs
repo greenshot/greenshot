@@ -50,7 +50,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
         {
             var dibBytes = ConvertToDib(bitmap);
             destination.Write(dibBytes, 0, dibBytes.Length);

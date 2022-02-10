@@ -83,7 +83,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <param name="destination">Stream</param>
         /// <param name="extension">string</param>
         /// <returns>bool</returns>
-        public static bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public static bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
         {
             extension = NormalizeExtension(extension);
 
@@ -97,7 +97,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 return false;
             }
 
-            return fileFormatHandler.TrySaveToStream(bitmap, destination, extension);
+            return fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface);
         }
 
         /// <summary>

@@ -923,11 +923,11 @@ namespace Greenshot.Forms
         {
             Hide();
             ShowInTaskbar = false;
-
-
-            using var loProcess = Process.GetCurrentProcess();
-            loProcess.MaxWorkingSet = (IntPtr)750000;
-            loProcess.MinWorkingSet = (IntPtr)300000;
+            
+            // TODO: Do we really need this?
+            //using var loProcess = Process.GetCurrentProcess();
+            //loProcess.MaxWorkingSet = (IntPtr)750000;
+            //loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
         private void CaptureRegion()

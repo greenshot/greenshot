@@ -120,6 +120,7 @@ namespace Greenshot.Base.Controls
 
         private void PrepareFilterOptions()
         {
+            // TODO: Change to the FileFormatHandlerRegistry to look for all the supported extensions
             OutputFormat[] supportedImageFormats = (OutputFormat[]) Enum.GetValues(typeof(OutputFormat));
             _filterOptions = new FilterOption[supportedImageFormats.Length];
             for (int i = 0; i < _filterOptions.Length; i++)

@@ -23,7 +23,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -34,7 +37,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private readonly List<string> _ourExtensions = new() { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
-
+        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         public DefaultFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
@@ -43,7 +46,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
         {
             ImageFormat imageFormat = extension switch
             {
@@ -61,7 +64,41 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            bitmap.Save(destination, imageFormat);
+
+            var imageEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(ie => ie.FilenameExtension.ToLowerInvariant().Contains(extension));
+            if (imageEncoder == null)
+            {
+                return false;
+            }
+            EncoderParameters parameters = new EncoderParameters(1)
+            {
+                Param =
+                {
+                    [0] = new EncoderParameter(Encoder.Quality, CoreConfig.OutputFileJpegQuality)
+                }
+            };
+            // For those images which are with Alpha, but the format doesn't support this, change it to 24bpp
+            if (imageFormat.Guid == ImageFormat.Jpeg.Guid && Image.IsAlphaPixelFormat(bitmap.PixelFormat))
+            {
+                var nonAlphaImage = ImageHelper.Clone(bitmap, PixelFormat.Format24bppRgb) as Bitmap;
+                try
+                {
+                    // Set that this file was written by Greenshot
+                    nonAlphaImage.AddTag();
+                    nonAlphaImage.Save(destination, imageEncoder, parameters);
+                }
+                finally
+                {
+                    nonAlphaImage.Dispose();
+                }
+            }
+            else
+            {
+                // Set that this file was written by Greenshot
+                bitmap.AddTag();
+                bitmap.Save(destination, imageEncoder, parameters);
+            }
+
             return true;
         }
 

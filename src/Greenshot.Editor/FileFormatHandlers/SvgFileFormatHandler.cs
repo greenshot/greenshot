@@ -62,7 +62,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
         {
             // TODO: Implement this
             return false;

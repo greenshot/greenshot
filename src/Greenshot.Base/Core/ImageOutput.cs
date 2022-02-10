@@ -33,11 +33,11 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
-using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace Greenshot.Base.Core
 {
@@ -54,7 +54,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Creates a PropertyItem (Metadata) to store with the image.
         /// For the possible ID's see: https://msdn.microsoft.com/de-de/library/system.drawing.imaging.propertyitem.id(v=vs.80).aspx
-        /// This code uses Reflection to create a PropertyItem, although it's not adviced it's not as stupid as having a image in the project so we can read a PropertyItem from that!
+        /// This code uses Reflection to create a PropertyItem, although it's not advised it's not as stupid as having a image in the project so we can read a PropertyItem from that!
         /// </summary>
         /// <param name="id">ID</param>
         /// <param name="text">Text</param>
@@ -124,102 +124,21 @@ namespace Greenshot.Base.Core
 
             try
             {
-                var imageFormat = outputSettings.Format switch
-                {
-                    OutputFormat.bmp => ImageFormat.Bmp,
-                    OutputFormat.gif => ImageFormat.Gif,
-                    OutputFormat.jpg => ImageFormat.Jpeg,
-                    OutputFormat.tiff => ImageFormat.Tiff,
-                    OutputFormat.ico => ImageFormat.Icon,
-                    _ => ImageFormat.Png
-                };
-                Log.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
-
                 // Check if we want to use a memory stream, to prevent issues with non seakable streams
                 // The save is made to the targetStream, this is directed to either the MemoryStream or the original
                 Stream targetStream = stream;
                 if (!stream.CanSeek)
                 {
                     useMemoryStream = true;
-                    Log.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
+                    Log.Warn("Using a memory stream prevent an issue with saving to a non seekable stream.");
                     memoryStream = new MemoryStream();
                     targetStream = memoryStream;
                 }
 
-                if (Equals(imageFormat, ImageFormat.Jpeg))
+
+                if (!FileFormatHandlerRegistry.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface))
                 {
-                    bool foundEncoder = false;
-                    foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders())
-                    {
-                        if (imageCodec.FormatID == imageFormat.Guid)
-                        {
-                            EncoderParameters parameters = new EncoderParameters(1)
-                            {
-                                Param =
-                                {
-                                    [0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality)
-                                }
-                            };
-                            // Removing transparency if it's not supported in the output
-                            if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
-                            {
-                                Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-                                AddTag(nonAlphaImage);
-                                nonAlphaImage.Save(targetStream, imageCodec, parameters);
-                                nonAlphaImage.Dispose();
-                            }
-                            else
-                            {
-                                AddTag(imageToSave);
-                                imageToSave.Save(targetStream, imageCodec, parameters);
-                            }
-
-                            foundEncoder = true;
-                            break;
-                        }
-                    }
-
-                    if (!foundEncoder)
-                    {
-                        throw new ApplicationException("No JPG encoder found, this should not happen.");
-                    }
-                }
-                else if (Equals(imageFormat, ImageFormat.Icon))
-                {
-                    // FEATURE-916: Added Icon support
-                    IList<Image> images = new List<Image>
-                    {
-                        imageToSave
-                    };
-                    WriteIcon(stream, images);
-                }
-                else
-                {
-                    bool needsDispose = false;
-                    // Removing transparency if it's not supported in the output
-                    if (!Equals(imageFormat, ImageFormat.Png) && Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
-                    {
-                        imageToSave = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-                        needsDispose = true;
-                    }
-
-                    AddTag(imageToSave);
-                    // Added for OptiPNG
-                    bool processed = false;
-                    if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
-                    {
-                        processed = ProcessPngImageExternally(imageToSave, targetStream);
-                    }
-
-                    if (!processed)
-                    {
-                        imageToSave.Save(targetStream, imageFormat);
-                    }
-
-                    if (needsDispose)
-                    {
-                        imageToSave.Dispose();
-                    }
+                    return;
                 }
 
                 // If we used a memory stream, we need to stream the memory stream to the original stream.
@@ -227,21 +146,6 @@ namespace Greenshot.Base.Core
                 {
                     memoryStream.WriteTo(stream);
                 }
-
-                // Output the surface elements, size and marker to the stream
-                if (outputSettings.Format != OutputFormat.greenshot)
-                {
-                    return;
-                }
-
-                using MemoryStream tmpStream = new MemoryStream();
-                long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
-                writer.Write(bytesWritten);
-                Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-                writer.Write(marker);
-                tmpStream.WriteTo(stream);
             }
             finally
             {
@@ -429,20 +333,18 @@ namespace Greenshot.Base.Core
         /// Add the greenshot property!
         /// </summary>
         /// <param name="imageToSave"></param>
-        private static void AddTag(Image imageToSave)
+        public static void AddTag(this Image imageToSave)
         {
             // Create meta-data
             PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-            if (softwareUsedPropertyItem != null)
+            if (softwareUsedPropertyItem == null) return;
+            try
             {
-                try
-                {
-                    imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-                }
-                catch (Exception)
-                {
-                    Log.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
-                }
+                imageToSave.SetPropertyItem(softwareUsedPropertyItem);
+            }
+            catch (Exception)
+            {
+                Log.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
             }
         }
 
@@ -547,27 +449,25 @@ namespace Greenshot.Base.Core
             using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails))
             {
                 DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-                if (dialogResult.Equals(DialogResult.OK))
+                if (!dialogResult.Equals(DialogResult.OK)) return returnValue;
+                try
                 {
-                    try
+                    string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
+                    SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+                    if (CoreConfig.OutputFilePromptQuality)
                     {
-                        string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-                        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-                        if (CoreConfig.OutputFilePromptQuality)
-                        {
-                            QualityDialog qualityDialog = new QualityDialog(outputSettings);
-                            qualityDialog.ShowDialog();
-                        }
+                        QualityDialog qualityDialog = new QualityDialog(outputSettings);
+                        qualityDialog.ShowDialog();
+                    }
 
-                        // TODO: For now we always overwrite, should be changed
-                        Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
-                        returnValue = fileNameWithExtension;
-                        IniConfig.Save();
-                    }
-                    catch (ExternalException)
-                    {
-                        MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
-                    }
+                    // TODO: For now we always overwrite, should be changed
+                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                    returnValue = fileNameWithExtension;
+                    IniConfig.Save();
+                }
+                catch (ExternalException)
+                {
+                    MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
                 }
             }
 

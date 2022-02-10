@@ -22,7 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
+using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
@@ -35,12 +38,21 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
-            //SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null)
         {
-            throw new NotImplementedException();
+            bitmap.Save(stream, ImageFormat.Png);
+            using MemoryStream tmpStream = new MemoryStream();
+            long bytesWritten = surface.SaveElementsToStream(tmpStream);
+            using BinaryWriter writer = new BinaryWriter(tmpStream);
+            writer.Write(bytesWritten);
+            Version v = Assembly.GetExecutingAssembly().GetName().Version;
+            byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
+            writer.Write(marker);
+            tmpStream.WriteTo(stream);
+            return true;
         }
 
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
@@ -49,6 +61,5 @@ namespace Greenshot.Editor.FileFormatHandlers
             bitmap = (Bitmap)surface.GetImageForExport();
             return true;
         }
-
     }
 }
