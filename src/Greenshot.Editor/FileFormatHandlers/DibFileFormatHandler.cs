@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -38,7 +39,15 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         private const double DpiToPelsPerMeter = 39.3701;
         private static readonly ILog Log = LogManager.GetLogger(typeof(DibFileFormatHandler));
-        protected override string[] OurExtensions { get; } = { ".dib", ".format17" };
+
+        private readonly List<string> _ourExtensions = new() { ".dib", ".format17" };
+
+        public DibFileFormatHandler()
+        {
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+        }
 
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)

@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -30,14 +31,19 @@ using log4net;
 namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// THis is the default .NET bitmap file format handler
+    /// THis is the .ico format handler
     /// </summary>
     public class IconFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(IconFileFormatHandler));
 
-        protected override string[] OurExtensions { get; } = { ".ico" };
+        private readonly List<string> _ourExtensions = new() { ".ico" };
 
+        public IconFileFormatHandler()
+        {
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+        }
 
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {

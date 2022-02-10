@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
@@ -28,11 +29,19 @@ using Greenshot.Base.Core;
 namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// This is the default .NET bitmap file format handler
+    /// This is the System.Windows.Media.Imaging (WPF) file format handler
     /// </summary>
     public class WmpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        protected override string[] OurExtensions { get; } = { ".jxr", ".wdp", ".wmp" };
+        private List<string> LoadFromStreamExtensions { get; } = new() { ".jxr", ".wdp", ".wmp", ".heic", ".heif" };
+        private List<string> SaveToStreamExtensions { get; } = new() { ".jxr" };
+        
+        public WmpFileFormatHandler()
+        {
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = SaveToStreamExtensions;
+        }
 
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
@@ -57,8 +66,8 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            var decoder = new WmpBitmapDecoder(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
-            var bitmapSource = decoder.Frames[0];
+            var bitmapDecoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
+            var bitmapSource = bitmapDecoder.Frames[0];
             bitmap = bitmapSource.ToBitmap();
             return true;
         }

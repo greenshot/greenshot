@@ -36,6 +36,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -936,9 +937,11 @@ namespace Greenshot.Forms
 
         private void CaptureFile(IDestination destination = null)
         {
+            var extensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).Select(e => $"*{e}").ToList();
+
             var openFileDialog = new OpenFileDialog
             {
-                Filter = @"Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
+                Filter = @$"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
             };
             if (openFileDialog.ShowDialog() != DialogResult.OK)
             {

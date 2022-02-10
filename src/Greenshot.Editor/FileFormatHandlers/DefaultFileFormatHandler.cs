@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -32,12 +33,19 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        protected override string[] OurExtensions { get; } = { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
+        private readonly List<string> _ourExtensions = new() { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
+
+        public DefaultFileFormatHandler()
+        {
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+        }
 
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
-            ImageFormat imageFormat = NormalizeExtension(extension) switch
+            ImageFormat imageFormat = extension switch
             {
                 ".png" => ImageFormat.Png,
                 ".bmp" => ImageFormat.Bmp,

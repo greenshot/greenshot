@@ -28,13 +28,50 @@ using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Core.FileFormatHandlers
 {
+    /// <summary>
+    /// This is the registry where all IFileFormatHandler are registered and can be used
+    /// </summary>
     public static class FileFormatHandlerRegistry
     {
         public static IList<IFileFormatHandler> FileFormatHandlers { get; } = new List<IFileFormatHandler>();
 
+        /// <summary>
+        /// Make sure we handle the input extension always the same, by "normalizing" it
+        /// </summary>
+        /// <param name="extension">string</param>
+        /// <returns>string</returns>
+        public static  string NormalizeExtension(string extension)
+        {
+            if (string.IsNullOrEmpty(extension))
+            {
+                return null;
+            }
+
+            extension = extension.ToLowerInvariant();
+            return !extension.StartsWith(".") ? $".{extension}" : extension;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileFormatHandlerAction"></param>
+        /// <returns></returns>
         public static IEnumerable<string> ExtensionsFor(FileFormatHandlerActions fileFormatHandlerAction)
         {
-            return FileFormatHandlers.SelectMany(ffh => ffh.SupportedExtensions(fileFormatHandlerAction)).Distinct();
+            return FileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct();
+        }
+
+        /// <summary>
+        /// Extension method to check if a certain IFileFormatHandler supports a certain action with a specific extension
+        /// </summary>
+        /// <param name="fileFormatHandler">IFileFormatHandler</param>
+        /// <param name="fileFormatHandlerAction">FileFormatHandlerActions</param>
+        /// <param name="extension">string</param>
+        /// <returns>bool</returns>
+        public static bool Supports(this IFileFormatHandler fileFormatHandler, FileFormatHandlerActions fileFormatHandlerAction, string extension)
+        {
+            extension = NormalizeExtension(extension);
+            return fileFormatHandler.SupportedExtensions.ContainsKey(fileFormatHandlerAction) && fileFormatHandler.SupportedExtensions[fileFormatHandlerAction].Contains(extension);
         }
 
         /// <summary>
@@ -48,6 +85,8 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <returns>bool</returns>
         public static bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)
         {
+            extension = NormalizeExtension(extension);
+
             var fileFormatHandler = FileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
@@ -71,6 +110,8 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <returns>bool true if it was successful</returns>
         public static bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
         {
+            extension = NormalizeExtension(extension);
+
             var fileFormatHandler = FileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
@@ -94,6 +135,8 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <returns>bool true if it was successful</returns>
         public static bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
+            extension = NormalizeExtension(extension);
+
             var fileFormatHandler = FileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))

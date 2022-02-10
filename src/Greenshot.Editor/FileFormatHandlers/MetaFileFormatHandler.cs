@@ -36,27 +36,12 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        protected override string[] OurExtensions { get; } = { ".wmf", ".emf" };
-
-        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        private readonly List<string> _ourExtensions = new (){ ".wmf", ".emf" };
+        
+        public MetaFileFormatHandler()
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return false;
-            }
-
-            return OurExtensions.Contains(NormalizeExtension(extension));
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
         }
 
         /// <inheritdoc />

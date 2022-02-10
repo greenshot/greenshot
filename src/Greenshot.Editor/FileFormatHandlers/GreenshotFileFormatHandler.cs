@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
@@ -31,28 +30,12 @@ namespace Greenshot.Editor.FileFormatHandlers
 {
     public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        protected override string[] OurExtensions { get; } = { ".greenshot" };
-
-        /// <inheritdoc />
-        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        private readonly List<string> _ourExtensions = new() { ".greenshot" };
+        public GreenshotFileFormatHandler()
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.LoadDrawableFromStream)
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return false;
-            }
-
-            return OurExtensions.Contains(NormalizeExtension(extension));
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            //SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
         }
 
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension)

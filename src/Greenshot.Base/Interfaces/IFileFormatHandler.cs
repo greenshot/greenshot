@@ -42,19 +42,9 @@ namespace Greenshot.Base.Interfaces
     public interface IFileFormatHandler
     {
         /// <summary>
-        /// Delivers the extension that the supplied action supports
+        /// Registry for all the extensions this IFileFormatHandler support
         /// </summary>
-        /// <param name="fileFormatHandlerAction">FileFormatHandlerActions</param>
-        /// <returns>IEnumerable{string}</returns>
-        IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction);
-
-        /// <summary>
-        ///Does this IFileFormatHandler support the specified action for the specified extension?
-        /// </summary>
-        /// <param name="fileFormatHandlerAction">FileFormatHandlerActions</param>
-        /// <param name="extension">string</param>
-        /// <returns>bool true if this IFileFormatHandler can support the action for the extension</returns>
-        public bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension);
+        IDictionary<FileFormatHandlerActions, IList<string>> SupportedExtensions { get; }
 
         /// <summary>
         /// Priority (from high int.MinValue, low int.MaxValue) of this IFileFormatHandler for the specified action and extension

@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
@@ -38,28 +37,12 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class SvgFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
-        protected override string[] OurExtensions { get; } = { ".svg" };
+        private readonly List<string> _ourExtensions = new() { ".svg" };
 
-        /// <inheritdoc />
-        public override IEnumerable<string> SupportedExtensions(FileFormatHandlerActions fileFormatHandlerAction)
+        public SvgFileFormatHandler()
         {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return OurExtensions;
-        }
-
-        /// <inheritdoc />
-        public override bool Supports(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            if (fileFormatHandlerAction == FileFormatHandlerActions.SaveToStream)
-            {
-                return false;
-            }
-
-            return OurExtensions.Contains(NormalizeExtension(extension));
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
         }
 
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
