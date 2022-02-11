@@ -61,9 +61,9 @@ namespace Greenshot.Base.Interfaces
         /// <param name="bitmap">Bitmap</param>
         /// <param name="destination">Stream</param>
         /// <param name="extension">extension</param>
-        /// <param name="surface">ISurface</param>
+        /// <param name="surface">ISurface with the elements for those file types which can store a surface (.greenshot)</param>
         /// <returns>bool true if it was successful</returns>
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface);
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null);
 
         /// <summary>
         /// 

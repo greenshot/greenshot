@@ -19,24 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
+using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// This is the System.Windows.Media.Imaging (WPF) file format handler
+    /// This is the System.Windows.Media.Imaging (WPF) file format handler, which uses WIC
     /// </summary>
-    public class WmpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
+    public class WpfFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(WpfFileFormatHandler));
         private List<string> LoadFromStreamExtensions { get; } = new() { ".jxr", ".wdp", ".wmp", ".heic", ".heif" };
         private List<string> SaveToStreamExtensions { get; } = new() { ".jxr" };
         
-        public WmpFileFormatHandler()
+        public WpfFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
@@ -57,8 +60,9 @@ namespace Greenshot.Editor.FileFormatHandlers
                 jpegXrEncoder.Save(destination);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("Couldn't save image as JPEG XR: ", ex);
                 return false;
             }
         }
@@ -66,10 +70,20 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            var bitmapDecoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
-            var bitmapSource = bitmapDecoder.Frames[0];
-            bitmap = bitmapSource.ToBitmap();
-            return true;
+            try
+            {
+                var bitmapDecoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
+                var bitmapSource = bitmapDecoder.Frames[0];
+                bitmap = bitmapSource.ToBitmap();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't load image: ", ex);
+            }
+
+            bitmap = null;
+            return false;
         }
     }
 }

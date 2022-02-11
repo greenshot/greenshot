@@ -135,8 +135,8 @@ namespace Greenshot.Base.Core
                     targetStream = memoryStream;
                 }
 
-
-                if (!FileFormatHandlerRegistry.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface))
+                var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface))
                 {
                     return;
                 }

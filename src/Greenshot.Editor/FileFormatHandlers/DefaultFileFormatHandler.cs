@@ -19,15 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -36,6 +37,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultFileFormatHandler));
         private readonly List<string> _ourExtensions = new() { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         public DefaultFileFormatHandler()
@@ -85,7 +87,19 @@ namespace Greenshot.Editor.FileFormatHandlers
                 {
                     // Set that this file was written by Greenshot
                     nonAlphaImage.AddTag();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Couldn't set 'software used' tag on image.", ex);
+                }
+
+                try
+                {
                     nonAlphaImage.Save(destination, imageEncoder, parameters);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't save image: ", ex);
                 }
                 finally
                 {
@@ -105,9 +119,20 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            using var tmpImage = Image.FromStream(stream, true, true);
-            bitmap = ImageHelper.Clone(tmpImage, PixelFormat.Format32bppArgb);
-            return true;
+            try
+            {
+                using var tmpImage = Image.FromStream(stream, true, true);
+                bitmap = ImageHelper.Clone(tmpImage, PixelFormat.DontCare);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't load image: ", ex);
+            }
+
+            bitmap = null;
+            return false;
         }
     }
 }

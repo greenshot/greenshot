@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Editor.FileFormatHandlers;
 
 namespace Greenshot.Editor
@@ -28,19 +29,22 @@ namespace Greenshot.Editor
     {
         public static void Initialize()
         {
-            // All generic things, like gif, png, jpg etc.
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DefaultFileFormatHandler());
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new GreenshotFileFormatHandler());
-            // For .svg support
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new SvgFileFormatHandler());
-            // For clipboard support
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new DibFileFormatHandler());
-            // .ico
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new IconFileFormatHandler());
-            // EMF & WMF
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new MetaFileFormatHandler());
-            // JPG XR
-            FileFormatHandlerRegistry.FileFormatHandlers.Add(new WmpFileFormatHandler());
+            SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
+                    // All generic things, like gif, png, jpg etc.
+                    new DefaultFileFormatHandler(),
+                    // Greenshot format
+                    new GreenshotFileFormatHandler(),
+                    // For .svg support
+                    new SvgFileFormatHandler(),
+                    // For clipboard support
+                    new DibFileFormatHandler(),
+                    // .ico
+                    new IconFileFormatHandler(),
+                    // EMF & WMF
+                    new MetaFileFormatHandler(),
+                    // JPG XR
+                    new WpfFileFormatHandler()
+                );
         }
     }
 }

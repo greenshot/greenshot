@@ -301,8 +301,8 @@ EndSelection:<<<<<<<4
             {
                 return true;
             }
-
-            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
             foreach (var fileData in IterateClipboardContent(dataObject))
             {
                 try
@@ -520,7 +520,8 @@ EndSelection:<<<<<<<4
                 yield break;
             }
 
-            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
 
             foreach (var fileData in IterateClipboardContent(dataObject))
             {
@@ -534,7 +535,7 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    if (!FileFormatHandlerRegistry.TryLoadFromStream(fileData.stream, extension, out bitmap))
+                    if (!fileFormatHandlers.TryLoadFromStream(fileData.stream, extension, out bitmap))
                     {
                         continue;
                     }
@@ -566,7 +567,7 @@ EndSelection:<<<<<<<4
                 using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 try
                 {
-                    if (!FileFormatHandlerRegistry.TryLoadFromStream(fileStream, extension, out bitmap))
+                    if (!fileFormatHandlers.TryLoadFromStream(fileStream, extension, out bitmap))
                     {
                         continue;
                     }
@@ -597,8 +598,8 @@ EndSelection:<<<<<<<4
                 yield return singleImage;
                 yield break;
             }
-
-            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
 
             foreach (var fileData in IterateClipboardContent(dataObject))
             {
@@ -612,7 +613,7 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    if (!FileFormatHandlerRegistry.TryLoadDrawableFromStream(fileData.stream, extension, out drawableContainer))
+                    if (!fileFormatHandlers.TryLoadDrawableFromStream(fileData.stream, extension, out drawableContainer))
                     {
                         continue;
                     }
@@ -644,7 +645,7 @@ EndSelection:<<<<<<<4
                 using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 try
                 {
-                    if (!FileFormatHandlerRegistry.TryLoadDrawableFromStream(fileStream, extension, out drawableContainer))
+                    if (!fileFormatHandlers.TryLoadDrawableFromStream(fileStream, extension, out drawableContainer))
                     {
                         continue;
                     }
@@ -812,9 +813,10 @@ EndSelection:<<<<<<<4
             {
                 return clipboardObject as Bitmap;
             }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
             // From here, imageStream is a valid stream
-            if (!FileFormatHandlerRegistry.TryLoadFromStream(imageStream, format, out bitmap))
+            if (!fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap))
             {
                 return bitmap;
             }
@@ -880,8 +882,9 @@ EndSelection:<<<<<<<4
             }
 
             // From here, imageStream is a valid stream
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-            if (!FileFormatHandlerRegistry.TryLoadDrawableFromStream(imageStream, format, out drawableContainer))
+            if (!fileFormatHandlers.TryLoadDrawableFromStream(imageStream, format, out drawableContainer))
             {
                 return drawableContainer;
             }
@@ -995,8 +998,9 @@ EndSelection:<<<<<<<4
                     {
                         // Create the stream for the clipboard
                         dibStream = new MemoryStream();
+                        var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-                        if (!FileFormatHandlerRegistry.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
+                        if (!fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
                         {
                             dibStream.Dispose();
                             dibStream = null;
@@ -1261,8 +1265,9 @@ EndSelection:<<<<<<<4
         {
             string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
             if (dropFileNames is not { Length: > 0 }) return Enumerable.Empty<string>();
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-            var supportedExtensions = FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
             return dropFileNames
                 .Where(filename => !string.IsNullOrEmpty(filename))
                 .Where(Path.HasExtension)

@@ -70,13 +70,20 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
         {
-            var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-            if (svgDocument == null)
+            try
             {
-                drawableContainer = null;
-                return false;
+                var svgDocument = SvgDocument.Open<SvgDocument>(stream);
+                if (svgDocument != null)
+                {
+                    drawableContainer = new SvgContainer(svgDocument, parent);
+                    return true;
+                }
             }
-            drawableContainer = new SvgContainer(svgDocument, parent);
+            catch (Exception ex)
+            {
+                Log.Error("Can't load SVG", ex);
+            }
+            drawableContainer = null;
             return true;
         }
     }

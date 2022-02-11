@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -95,7 +96,8 @@ namespace Greenshot.Base.Core
         /// <returns>IDrawableContainer</returns>
         public static IDrawableContainer DownloadImageAsDrawableContainer(string url)
         {
-            var extensions = string.Join("|", FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
             var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
@@ -104,7 +106,7 @@ namespace Greenshot.Base.Core
                 using var memoryStream = GetAsMemoryStream(url);
                 try
                 {
-                    if (FileFormatHandlerRegistry.TryLoadDrawableFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+                    if (fileFormatHandlers.TryLoadDrawableFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
                     {
                         return drawableContainer;
                     }
@@ -130,7 +132,7 @@ namespace Greenshot.Base.Core
                     }
 
                     using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    if (FileFormatHandlerRegistry.TryLoadDrawableFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+                    if (fileFormatHandlers.TryLoadDrawableFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
                     {
                         return drawableContainer;
                     }
@@ -151,7 +153,9 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap</returns>
         public static Bitmap DownloadImage(string url)
         {
-            var extensions = string.Join("|", FileFormatHandlerRegistry.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+
+            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
             var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
@@ -160,7 +164,7 @@ namespace Greenshot.Base.Core
                 using var memoryStream = GetAsMemoryStream(url);
                 try
                 {
-                    if (FileFormatHandlerRegistry.TryLoadFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    if (fileFormatHandlers.TryLoadFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
                     {
                         return bitmap;
                     }
@@ -186,7 +190,7 @@ namespace Greenshot.Base.Core
                     }
 
                     using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    if (FileFormatHandlerRegistry.TryLoadFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    if (fileFormatHandlers.TryLoadFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
                     {
                         return bitmap;
                     }

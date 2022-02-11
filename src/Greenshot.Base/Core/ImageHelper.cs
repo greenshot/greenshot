@@ -1711,8 +1711,8 @@ namespace Greenshot.Base.Core
                 // As we are if a different stream, which starts at 0, change the starting position
                 startingPosition = 0;
             }
-
-            foreach (var fileFormatHandler in FileFormatHandlerRegistry.FileFormatHandlers
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            foreach (var fileFormatHandler in fileFormatHandlers
                          .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                          .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)))
             {

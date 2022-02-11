@@ -31,10 +31,8 @@ namespace Greenshot.Base.Core.FileFormatHandlers
     /// <summary>
     /// This is the registry where all IFileFormatHandler are registered and can be used
     /// </summary>
-    public static class FileFormatHandlerRegistry
+    public static class FileFormatHandlerExtensions
     {
-        public static IList<IFileFormatHandler> FileFormatHandlers { get; } = new List<IFileFormatHandler>();
-
         /// <summary>
         /// Make sure we handle the input extension always the same, by "normalizing" it
         /// </summary>
@@ -52,13 +50,14 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         }
 
         /// <summary>
-        /// 
+        /// Return the extensions that the provided IFileFormatHandlers can accept for the specified action
         /// </summary>
+        /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="fileFormatHandlerAction"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtensionsFor(FileFormatHandlerActions fileFormatHandlerAction)
+        public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction)
         {
-            return FileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct();
+            return fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct();
         }
 
         /// <summary>
@@ -79,76 +78,87 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// Find all the IFileFormatHandler which support the action for the supplied extension.
         /// Take the first, to call the TrySaveToStream on.
         /// </summary>
+        /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="bitmap">Bitmap</param>
         /// <param name="destination">Stream</param>
         /// <param name="extension">string</param>
+        /// <param name="surface">ISurface</param>
         /// <returns>bool</returns>
-        public static bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public static bool TrySaveToStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
         {
             extension = NormalizeExtension(extension);
 
-            var fileFormatHandler = FileFormatHandlers
+            var saveFileFormatHandlers = fileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
-                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
-                .FirstOrDefault();
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)).ToList();
 
-            if (fileFormatHandler == null)
+            if (!saveFileFormatHandlers.Any())
             {
                 return false;
             }
 
-            return fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface);
+            foreach (var fileFormatHandler in saveFileFormatHandlers)
+            {
+                if (fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Try to load a drawable container from the stream
         /// </summary>
+        /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
         /// <param name="drawableContainer">IDrawableContainer out</param>
         /// <param name="parentSurface">ISurface</param>
         /// <returns>bool true if it was successful</returns>
-        public static bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
+        public static bool TryLoadDrawableFromStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
         {
             extension = NormalizeExtension(extension);
 
-            var fileFormatHandler = FileFormatHandlers
+            var loadfileFormatHandler = fileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .FirstOrDefault();
 
-            if (fileFormatHandler == null)
+            if (loadfileFormatHandler == null)
             {
                 drawableContainer = null;
                 return false;
             }
 
-            return fileFormatHandler.TryLoadDrawableFromStream(stream, extension, out drawableContainer, parentSurface);
+            return loadfileFormatHandler.TryLoadDrawableFromStream(stream, extension, out drawableContainer, parentSurface);
         }
 
         /// <summary>
         /// Try to load a Bitmap from the stream
         /// </summary>
+        /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
         /// <param name="bitmap">Bitmap out</param>
         /// <returns>bool true if it was successful</returns>
-        public static bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        public static bool TryLoadFromStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Stream stream, string extension, out Bitmap bitmap)
         {
             extension = NormalizeExtension(extension);
 
-            var fileFormatHandler = FileFormatHandlers
+            var loadFileFormatHandler = fileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
                 .FirstOrDefault();
 
-            if (fileFormatHandler == null)
+            if (loadFileFormatHandler == null)
             {
                 bitmap = null;
                 return false;
             }
 
-            return fileFormatHandler.TryLoadFromStream(stream, extension, out bitmap);
+            return loadFileFormatHandler.TryLoadFromStream(stream, extension, out bitmap);
         }
     }
 }

@@ -10,22 +10,19 @@ namespace Greenshot.Base.Core
     /// </summary>
     public class SimpleServiceProvider : IServiceLocator
     {
-        private readonly Dictionary<Type, List<object>> _services = new Dictionary<Type, List<object>>();
+        private readonly Dictionary<Type, IList<object>> _services = new();
 
         public static IServiceLocator Current { get; } = new SimpleServiceProvider();
 
-        public IEnumerable<TService> GetAllInstances<TService>()
+        public IReadOnlyList<TService> GetAllInstances<TService>()
         {
             var typeOfService = typeof(TService);
             if (!_services.TryGetValue(typeOfService, out var results))
             {
-                yield break;
+                return Array.Empty<TService>();
             }
 
-            foreach (TService result in results)
-            {
-                yield return result;
-            }
+            return results.Cast<TService>().ToArray();
         }
 
         public TService GetInstance<TService>()

@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
