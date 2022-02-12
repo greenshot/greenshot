@@ -78,6 +78,10 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
+    <PackageReference Include="IDisposableAnalyzers" Version="4.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
@@ -98,9 +102,21 @@
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.64">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="ReflectionAnalyzers" Version="0.3.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.35.0.42613">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300">
       <EmbedInteropTypes>True</EmbedInteropTypes>
