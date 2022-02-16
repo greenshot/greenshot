@@ -24,6 +24,7 @@ using System.Drawing;
 using System.IO;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -31,7 +32,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public abstract class AbstractFileFormatHandler : IFileFormatHandler
     {
         /// <inheritdoc />
-        public IDictionary<FileFormatHandlerActions, IList<string>> SupportedExtensions { get; } = new Dictionary<FileFormatHandlerActions, IList<string>>();
+        public IDictionary<FileFormatHandlerActions, IReadOnlyCollection<string>> SupportedExtensions { get; } = new Dictionary<FileFormatHandlerActions, IReadOnlyCollection<string>>();
 
         /// <inheritdoc />
         public virtual int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
@@ -39,7 +40,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             return 0;
         }
 
-        public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null);
+        public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
@@ -48,23 +49,18 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
-        /// <param name="drawableContainer">IDrawableContainer out</param>
-        /// <param name="parentSurface">ISurface</param>
-        /// <returns>bool</returns>
-        public virtual bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
+        /// <param name="parent">ISurface</param>
+        /// <returns>IEnumerable{IDrawableContainer}</returns>
+        public virtual IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
             if (TryLoadFromStream(stream, extension, out var bitmap))
             {
-                var imageContainer = new ImageContainer(parentSurface)
+                var imageContainer = new ImageContainer(parent)
                 {
                     Image = bitmap
                 };
-                drawableContainer = imageContainer;
-                return true;
+                yield return imageContainer;
             }
-
-            drawableContainer = null;
-            return true;
         }
     }
 }

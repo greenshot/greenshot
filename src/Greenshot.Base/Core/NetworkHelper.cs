@@ -106,7 +106,9 @@ namespace Greenshot.Base.Core
                 using var memoryStream = GetAsMemoryStream(url);
                 try
                 {
-                    if (fileFormatHandlers.TryLoadDrawableFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
+                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream, extension).FirstOrDefault();
+                    if (drawableContainer != null)
                     {
                         return drawableContainer;
                     }
@@ -132,7 +134,10 @@ namespace Greenshot.Base.Core
                     }
 
                     using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    if (fileFormatHandlers.TryLoadDrawableFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var drawableContainer))
+
+                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
+                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream2, extension).FirstOrDefault();
+                    if (drawableContainer != null)
                     {
                         return drawableContainer;
                     }

@@ -21,11 +21,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -36,8 +38,8 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class WpfFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WpfFileFormatHandler));
-        private List<string> LoadFromStreamExtensions { get; } = new() { ".jxr", ".wdp", ".wmp", ".heic", ".heif" };
-        private List<string> SaveToStreamExtensions { get; } = new() { ".jxr" };
+        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new []{ ".jxr", ".wdp", ".wmp", ".heic", ".heif" };
+        private IReadOnlyCollection<string> SaveToStreamExtensions { get; } = new[] { ".jxr" };
         
         public WpfFileFormatHandler()
         {
@@ -47,8 +49,9 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
             try
             {
                 var bitmapSource = bitmap.ToBitmapSource();
@@ -56,7 +59,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 var jpegXrEncoder = new WmpBitmapEncoder();
                 jpegXrEncoder.Frames.Add(bitmapFrame);
                 // TODO: Support supplying a quality
-                //jpegXrEncoder.ImageQualityLevel = quality / 100f;
+                jpegXrEncoder.ImageQualityLevel = surfaceOutputSettings.JPGQuality / 100f;
                 jpegXrEncoder.Save(destination);
                 return true;
             }

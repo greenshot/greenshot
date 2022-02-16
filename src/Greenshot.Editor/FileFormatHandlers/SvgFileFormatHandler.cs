@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
 using log4net;
 using Svg;
@@ -37,7 +38,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class SvgFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
-        private readonly List<string> _ourExtensions = new() { ".svg" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".svg" };
 
         public SvgFileFormatHandler()
         {
@@ -62,29 +63,27 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             // TODO: Implement this
             return false;
         }
 
-        public override bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parent = null)
+        public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
+            SvgDocument svgDocument = null;
             try
             {
-                var svgDocument = SvgDocument.Open<SvgDocument>(stream);
-                if (svgDocument != null)
-                {
-                    drawableContainer = new SvgContainer(svgDocument, parent);
-                    return true;
-                }
+                svgDocument = SvgDocument.Open<SvgDocument>(stream);
             }
             catch (Exception ex)
             {
                 Log.Error("Can't load SVG", ex);
             }
-            drawableContainer = null;
-            return true;
+            if (svgDocument != null)
+            {
+                yield return new SvgContainer(svgDocument, parent);
+            }
         }
     }
 }

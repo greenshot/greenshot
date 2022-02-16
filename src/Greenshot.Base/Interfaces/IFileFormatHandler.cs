@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Registry for all the extensions this IFileFormatHandler support
         /// </summary>
-        IDictionary<FileFormatHandlerActions, IList<string>> SupportedExtensions { get; }
+        IDictionary<FileFormatHandlerActions, IReadOnlyCollection<string>> SupportedExtensions { get; }
 
         /// <summary>
         /// Priority (from high int.MinValue, low int.MaxValue) of this IFileFormatHandler for the specified action and extension
@@ -62,8 +63,9 @@ namespace Greenshot.Base.Interfaces
         /// <param name="destination">Stream</param>
         /// <param name="extension">extension</param>
         /// <param name="surface">ISurface with the elements for those file types which can store a surface (.greenshot)</param>
+        /// <param name="surfaceOutputSettings">SurfaceOutputSettings</param>
         /// <returns>bool true if it was successful</returns>
-        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null);
+        public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 
         /// <summary>
         /// 
@@ -79,9 +81,8 @@ namespace Greenshot.Base.Interfaces
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
-        /// <param name="drawableContainer">IDrawableContainer out</param>
         /// <param name="parentSurface">ISurface</param>
-        /// <returns>bool true if it was successful</returns>
-        public bool TryLoadDrawableFromStream(Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null);
+        /// <returns>IEnumerable{IDrawableContainer}</returns>
+        public IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parentSurface = null);
     }
 }

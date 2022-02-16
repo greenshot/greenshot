@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -35,7 +36,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
-        private readonly List<string> _ourExtensions = new() { ".greenshot" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new [] { ".greenshot" };
         public GreenshotFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
@@ -43,7 +44,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             if (surface == null)
             {
@@ -112,11 +113,11 @@ namespace Greenshot.Editor.FileFormatHandlers
                 }
 
                 Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int filesizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
+                const int fileSizeLocation = 8 + markerSize;
+                surfaceFileStream.Seek(-fileSizeLocation, SeekOrigin.End);
                 using BinaryReader reader = new BinaryReader(surfaceFileStream);
                 long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
+                surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
                 returnSurface.LoadElementsFromStream(surfaceFileStream);
             }
 

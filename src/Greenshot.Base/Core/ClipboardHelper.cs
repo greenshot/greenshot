@@ -303,11 +303,11 @@ EndSelection:<<<<<<<4
             }
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
-            foreach (var fileData in IterateClipboardContent(dataObject))
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
                 try
                 {
-                    var extension = Path.GetExtension(fileData.filename)?.ToLowerInvariant();
+                    var extension = Path.GetExtension(filename)?.ToLowerInvariant();
                     if (supportedExtensions.Contains(extension))
                     {
                         return true;
@@ -319,7 +319,7 @@ EndSelection:<<<<<<<4
                 }
                 finally
                 {
-                    fileData.stream?.Dispose();
+                    stream?.Dispose();
                 }
             }
 
@@ -609,15 +609,10 @@ EndSelection:<<<<<<<4
                     continue;
                 }
 
-                IDrawableContainer drawableContainer = null;
-
+                IEnumerable<IDrawableContainer> drawableContainers;
                 try
                 {
-                    if (!fileFormatHandlers.TryLoadDrawableFromStream(fileData.stream, extension, out drawableContainer))
-                    {
-                        continue;
-                    }
-
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(fileData.stream, extension);
                 }
                 catch (Exception ex)
                 {
@@ -629,7 +624,10 @@ EndSelection:<<<<<<<4
                     fileData.stream?.Dispose();
                 }
                 // If we get here, there is an image
-                yield return drawableContainer;
+                foreach (var container in drawableContainers)
+                {
+                    yield return container;
+                }
             }
 
             // check if files are supplied
@@ -643,12 +641,10 @@ EndSelection:<<<<<<<4
 
                 IDrawableContainer drawableContainer = null;
                 using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                IEnumerable<IDrawableContainer> drawableContainers;
                 try
                 {
-                    if (!fileFormatHandlers.TryLoadDrawableFromStream(fileStream, extension, out drawableContainer))
-                    {
-                        continue;
-                    }
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(fileStream, extension);
                 }
                 catch (Exception ex)
                 {
@@ -656,7 +652,10 @@ EndSelection:<<<<<<<4
                     continue;
                 }
                 // If we get here, there is an image
-                yield return drawableContainer;
+                foreach (var container in drawableContainers)
+                {
+                    yield return container;
+                }
             }
         }
 
@@ -884,11 +883,7 @@ EndSelection:<<<<<<<4
             // From here, imageStream is a valid stream
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-            if (!fileFormatHandlers.TryLoadDrawableFromStream(imageStream, format, out drawableContainer))
-            {
-                return drawableContainer;
-            }
-            return null;
+            return fileFormatHandlers.LoadDrawablesFromStream(imageStream, format).FirstOrDefault();
         }
 
         /// <summary>

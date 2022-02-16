@@ -27,6 +27,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
@@ -40,7 +41,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         private const double DpiToPelsPerMeter = 39.3701;
         private static readonly ILog Log = LogManager.GetLogger(typeof(DibFileFormatHandler));
 
-        private readonly List<string> _ourExtensions = new() { ".dib", ".format17" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".dib", ".format17" };
 
         public DibFileFormatHandler()
         {
@@ -50,7 +51,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             var dibBytes = ConvertToDib(bitmap);
             destination.Write(dibBytes, 0, dibBytes.Length);

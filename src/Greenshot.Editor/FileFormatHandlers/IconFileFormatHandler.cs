@@ -26,6 +26,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -37,7 +38,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(IconFileFormatHandler));
 
-        private readonly List<string> _ourExtensions = new() { ".ico" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".ico" };
 
         public IconFileFormatHandler()
         {
@@ -46,7 +47,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             IList<Image> images = new List<Image>
             {

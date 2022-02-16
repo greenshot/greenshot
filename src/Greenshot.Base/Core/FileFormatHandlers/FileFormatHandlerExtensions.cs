@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Core.FileFormatHandlers
 {
@@ -84,7 +85,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <param name="extension">string</param>
         /// <param name="surface">ISurface</param>
         /// <returns>bool</returns>
-        public static bool TrySaveToStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public static bool TrySaveToStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             extension = NormalizeExtension(extension);
 
@@ -114,10 +115,9 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
-        /// <param name="drawableContainer">IDrawableContainer out</param>
         /// <param name="parentSurface">ISurface</param>
-        /// <returns>bool true if it was successful</returns>
-        public static bool TryLoadDrawableFromStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Stream stream, string extension, out IDrawableContainer drawableContainer, ISurface parentSurface = null)
+        /// <returns>IEnumerable{IDrawableContainer}</returns>
+        public static IEnumerable<IDrawableContainer> LoadDrawablesFromStream(this IEnumerable<IFileFormatHandler> fileFormatHandlers, Stream stream, string extension, ISurface parentSurface = null)
         {
             extension = NormalizeExtension(extension);
 
@@ -126,13 +126,12 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .FirstOrDefault();
 
-            if (loadfileFormatHandler == null)
+            if (loadfileFormatHandler != null)
             {
-                drawableContainer = null;
-                return false;
+                return loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface);
             }
 
-            return loadfileFormatHandler.TryLoadDrawableFromStream(stream, extension, out drawableContainer, parentSurface);
+            return Enumerable.Empty<IDrawableContainer>();
         }
 
         /// <summary>

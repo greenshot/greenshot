@@ -20,8 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -124,7 +122,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                // Check if we want to use a memory stream, to prevent issues with non seakable streams
+                // Check if we want to use a memory stream, to prevent issues with non seekable streams
                 // The save is made to the targetStream, this is directed to either the MemoryStream or the original
                 Stream targetStream = stream;
                 if (!stream.CanSeek)
@@ -136,7 +134,7 @@ namespace Greenshot.Base.Core
                 }
 
                 var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface))
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface, outputSettings))
                 {
                     return;
                 }
@@ -151,89 +149,6 @@ namespace Greenshot.Base.Core
             {
                 memoryStream?.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Write the passed Image to a tmp-file and call an external process, than read the file back and write it to the targetStream
-        /// </summary>
-        /// <param name="imageToProcess">Image to pass to the external process</param>
-        /// <param name="targetStream">stream to write the processed image to</param>
-        /// <returns></returns>
-        private static bool ProcessPngImageExternally(Image imageToProcess, Stream targetStream)
-        {
-            if (string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
-            {
-                return false;
-            }
-
-            if (!File.Exists(CoreConfig.OptimizePNGCommand))
-            {
-                Log.WarnFormat("Can't find 'OptimizePNGCommand' {0}", CoreConfig.OptimizePNGCommand);
-                return false;
-            }
-
-            string tmpFileName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
-            try
-            {
-                using (FileStream tmpStream = File.Create(tmpFileName))
-                {
-                    Log.DebugFormat("Writing png to tmp file: {0}", tmpFileName);
-                    imageToProcess.Save(tmpStream, ImageFormat.Png);
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("File size before processing {0}", new FileInfo(tmpFileName).Length);
-                    }
-                }
-
-                if (Log.IsDebugEnabled)
-                {
-                    Log.DebugFormat("Starting : {0}", CoreConfig.OptimizePNGCommand);
-                }
-
-                ProcessStartInfo processStartInfo = new ProcessStartInfo(CoreConfig.OptimizePNGCommand)
-                {
-                    Arguments = string.Format(CoreConfig.OptimizePNGCommandArguments, tmpFileName),
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false
-                };
-                using Process process = Process.Start(processStartInfo);
-                if (process != null)
-                {
-                    process.WaitForExit();
-                    if (process.ExitCode == 0)
-                    {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
-                            Log.DebugFormat("Reading back tmp file: {0}", tmpFileName);
-                        }
-
-                        byte[] processedImage = File.ReadAllBytes(tmpFileName);
-                        targetStream.Write(processedImage, 0, processedImage.Length);
-                        return true;
-                    }
-
-                    Log.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
-                    Log.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
-                    Log.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error while processing PNG image: ", e);
-            }
-            finally
-            {
-                if (File.Exists(tmpFileName))
-                {
-                    Log.DebugFormat("Cleaning up tmp file: {0}", tmpFileName);
-                    File.Delete(tmpFileName);
-                }
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -605,94 +520,6 @@ namespace Greenshot.Base.Core
             {
                 Log.DebugFormat("Removing expired file {0}", path);
                 File.Delete(path);
-            }
-        }
-
-        /// <summary>
-        /// Write the images to the stream as icon
-        /// Every image is resized to 256x256 (but the content maintains the aspect ratio)
-        /// </summary>
-        /// <param name="stream">Stream to write to</param>
-        /// <param name="images">List of images</param>
-        public static void WriteIcon(Stream stream, IList<Image> images)
-        {
-            var binaryWriter = new BinaryWriter(stream);
-            //
-            // ICONDIR structure
-            //
-            binaryWriter.Write((short) 0); // reserved
-            binaryWriter.Write((short) 1); // image type (icon)
-            binaryWriter.Write((short) images.Count); // number of images
-
-            IList<Size> imageSizes = new List<Size>();
-            IList<MemoryStream> encodedImages = new List<MemoryStream>();
-            foreach (var image in images)
-            {
-                // Pick the best fit
-                var sizes = new[]
-                {
-                    16, 32, 48
-                };
-                int size = 256;
-                foreach (var possibleSize in sizes)
-                {
-                    if (image.Width <= possibleSize && image.Height <= possibleSize)
-                    {
-                        size = possibleSize;
-                        break;
-                    }
-                }
-
-                var imageStream = new MemoryStream();
-                if (image.Width == size && image.Height == size)
-                {
-                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-                    clonedImage.Save(imageStream, ImageFormat.Png);
-                    imageSizes.Add(new Size(size, size));
-                }
-                else
-                {
-                    // Resize to the specified size, first make sure the image is 32bpp
-                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-                    using var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null);
-                    resizedImage.Save(imageStream, ImageFormat.Png);
-                    imageSizes.Add(resizedImage.Size);
-                }
-
-                imageStream.Seek(0, SeekOrigin.Begin);
-                encodedImages.Add(imageStream);
-            }
-
-            //
-            // ICONDIRENTRY structure
-            //
-            const int iconDirSize = 6;
-            const int iconDirEntrySize = 16;
-
-            var offset = iconDirSize + (images.Count * iconDirEntrySize);
-            for (int i = 0; i < images.Count; i++)
-            {
-                var imageSize = imageSizes[i];
-                // Write the width / height, 0 means 256
-                binaryWriter.Write(imageSize.Width == 256 ? (byte) 0 : (byte) imageSize.Width);
-                binaryWriter.Write(imageSize.Height == 256 ? (byte) 0 : (byte) imageSize.Height);
-                binaryWriter.Write((byte) 0); // no pallete
-                binaryWriter.Write((byte) 0); // reserved
-                binaryWriter.Write((short) 0); // no color planes
-                binaryWriter.Write((short) 32); // 32 bpp
-                binaryWriter.Write((int) encodedImages[i].Length); // image data length
-                binaryWriter.Write(offset);
-                offset += (int) encodedImages[i].Length;
-            }
-
-            binaryWriter.Flush();
-            //
-            // Write image data
-            //
-            foreach (var encodedImage in encodedImages)
-            {
-                encodedImage.WriteTo(stream);
-                encodedImage.Dispose();
             }
         }
     }

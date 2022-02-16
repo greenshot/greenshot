@@ -28,6 +28,7 @@ using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -38,7 +39,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class DefaultFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultFileFormatHandler));
-        private readonly List<string> _ourExtensions = new() { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         public DefaultFileFormatHandler()
         {
@@ -48,7 +49,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null)
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             ImageFormat imageFormat = extension switch
             {
@@ -66,7 +67,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
             var imageEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(ie => ie.FilenameExtension.ToLowerInvariant().Contains(extension));
             if (imageEncoder == null)
             {
@@ -76,7 +77,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 Param =
                 {
-                    [0] = new EncoderParameter(Encoder.Quality, CoreConfig.OutputFileJpegQuality)
+                    [0] = new EncoderParameter(Encoder.Quality, surfaceOutputSettings.JPGQuality)
                 }
             };
             // For those images which are with Alpha, but the format doesn't support this, change it to 24bpp
