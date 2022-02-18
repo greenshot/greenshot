@@ -21,14 +21,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
+using Microsoft.Win32;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -38,14 +39,65 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class WpfFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WpfFileFormatHandler));
-        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new []{ ".jxr", ".wdp", ".wmp", ".heic", ".heif" };
+        private const string HeifDecoder = "{E9A4A80A-44FE-4DE4-8971-7150B10A5199}";
+        private const string WicDecoderCategory = "{7ED96837-96F0-4812-B211-F13C24117ED3}";
+
+        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
         private IReadOnlyCollection<string> SaveToStreamExtensions { get; } = new[] { ".jxr" };
         
         public WpfFileFormatHandler()
         {
+            LoadFromStreamExtensions = LoadFromStreamExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
+
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = SaveToStreamExtensions;
+        }
+
+        /// <summary>
+        /// Detect all the formats WIC supports
+        /// </summary>
+        /// <returns>IEnumerable{string}</returns>
+        private IEnumerable<string> RetrieveSupportedExtensions()
+        {
+            string baseKeyPath;
+            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
+            {
+                baseKeyPath = "Wow6432Node\\CLSID";
+            }
+            else
+            {
+                baseKeyPath = "CLSID";
+            }
+
+            using RegistryKey baseKey = Registry.ClassesRoot.OpenSubKey(baseKeyPath, false);
+            if (baseKey == null) yield break;
+
+            var wicDecoderCategoryPath = Path.Combine(baseKeyPath, WicDecoderCategory, "instance");
+            using RegistryKey categoryKey = Registry.ClassesRoot.OpenSubKey(wicDecoderCategoryPath, false);
+            if (categoryKey == null)
+            {
+                yield break;
+            }
+            foreach (var codecGuid in categoryKey.GetSubKeyNames())
+            {
+                // Read the properties of the single registered decoder
+                using var codecKey = baseKey.OpenSubKey(codecGuid);
+                if (codecKey == null) continue;
+
+                var fileExtensions = Convert.ToString(codecKey.GetValue("FileExtensions", "")).ToLowerInvariant();
+                foreach (var fileExtension in fileExtensions.Split(','))
+                {
+                    yield return fileExtension;
+                }
+            }
+            var heifDecoderPath = Path.Combine(baseKeyPath, HeifDecoder);
+
+            using RegistryKey heifKey = Registry.ClassesRoot.OpenSubKey(heifDecoderPath, false);
+            if (heifKey == null) yield break;
+
+            yield return ".heic";
+            yield return ".heif";
         }
 
         /// <inheritdoc />

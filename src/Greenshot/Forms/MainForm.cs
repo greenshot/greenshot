@@ -44,6 +44,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
+using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
@@ -163,7 +164,7 @@ namespace Greenshot.Forms
 
                     if (argument.ToLower().Equals("/exit"))
                     {
-                        // unregister application on uninstall (allow uninstall)
+                        // un-register application on uninstall (allow uninstall)
                         try
                         {
                             LOG.Info("Sending all instances the exit command.");
@@ -387,6 +388,8 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
 
             _instance = this;
+
+            EditorInitialize.Initialize();
 
             // Factory for surface objects
             ISurface SurfaceFactory() => new Surface();

@@ -58,7 +58,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <returns></returns>
         public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction)
         {
-            return fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct();
+            return fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct().OrderBy(e => e);
         }
 
         /// <summary>

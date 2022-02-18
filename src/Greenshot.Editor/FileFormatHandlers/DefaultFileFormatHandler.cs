@@ -26,7 +26,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -40,7 +39,6 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultFileFormatHandler));
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif" };
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         public DefaultFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;

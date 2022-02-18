@@ -523,9 +523,9 @@ EndSelection:<<<<<<<4
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
 
-            foreach (var fileData in IterateClipboardContent(dataObject))
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
-                var extension = Path.GetExtension(fileData.filename)?.ToLowerInvariant();
+                var extension = Path.GetExtension(filename)?.ToLowerInvariant();
                 if (!supportedExtensions.Contains(extension))
                 {
                     continue;
@@ -535,7 +535,7 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    if (!fileFormatHandlers.TryLoadFromStream(fileData.stream, extension, out bitmap))
+                    if (!fileFormatHandlers.TryLoadFromStream(stream, extension, out bitmap))
                     {
                         continue;
                     }
@@ -548,7 +548,7 @@ EndSelection:<<<<<<<4
                 }
                 finally
                 {
-                    fileData.stream?.Dispose();
+                    stream?.Dispose();
                 }
                 // If we get here, there is an image
                 yield return bitmap;
@@ -601,9 +601,9 @@ EndSelection:<<<<<<<4
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
 
-            foreach (var fileData in IterateClipboardContent(dataObject))
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
-                var extension = Path.GetExtension(fileData.filename)?.ToLowerInvariant();
+                var extension = Path.GetExtension(filename)?.ToLowerInvariant();
                 if (!supportedExtensions.Contains(extension))
                 {
                     continue;
@@ -612,7 +612,7 @@ EndSelection:<<<<<<<4
                 IEnumerable<IDrawableContainer> drawableContainers;
                 try
                 {
-                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(fileData.stream, extension);
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(stream, extension);
                 }
                 catch (Exception ex)
                 {
@@ -621,7 +621,7 @@ EndSelection:<<<<<<<4
                 }
                 finally
                 {
-                    fileData.stream?.Dispose();
+                    stream?.Dispose();
                 }
                 // If we get here, there is an image
                 foreach (var container in drawableContainers)
