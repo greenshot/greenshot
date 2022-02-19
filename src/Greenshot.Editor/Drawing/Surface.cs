@@ -911,6 +911,27 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// This will help to fit the container to the surface
+        /// </summary>
+        /// <param name="drawableContainer">IDrawableContainer</param>
+        private void FitContainer(IDrawableContainer drawableContainer)
+        {
+            double factor = 1;
+            if (drawableContainer.Width > this.Width)
+            {
+                factor = drawableContainer.Width / (double)Width;
+            }
+            if (drawableContainer.Height > this.Height)
+            {
+                var otherFactor = drawableContainer.Height / (double)Height;
+                factor = Math.Max(factor, otherFactor);
+            }
+
+            drawableContainer.Width = (int)(drawableContainer.Width / factor);
+            drawableContainer.Height = (int)(drawableContainer.Height / factor);
+        }
+
+        /// <summary>
         /// Handle the drag/drop
         /// </summary>
         /// <param name="sender"></param>
@@ -929,6 +950,7 @@ namespace Greenshot.Editor.Drawing
                     {
                         drawableContainer.Left = Location.X;
                         drawableContainer.Top = Location.Y;
+                        FitContainer(drawableContainer);
                         AddElement(drawableContainer);
                         return;
                     }
@@ -939,6 +961,7 @@ namespace Greenshot.Editor.Drawing
             {
                 drawableContainer.Left = mouse.X;
                 drawableContainer.Top = mouse.Y;
+                FitContainer(drawableContainer);
                 AddElement(drawableContainer);
                 mouse.Offset(10, 10);
             }
