@@ -319,7 +319,7 @@ namespace Greenshot.Forms
                 combobox_language.SelectedValue = Language.CurrentLanguage;
             }
 
-            // Delaying the SelectedIndexChanged events untill all is initiated
+            // Delaying the SelectedIndexChanged events until all is initiated
             combobox_language.SelectedIndexChanged += Combobox_languageSelectedIndexChanged;
             UpdateDestinationDescriptions();
             UpdateClipboardFormatDescriptions();
