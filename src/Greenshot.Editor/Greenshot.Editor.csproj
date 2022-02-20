@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

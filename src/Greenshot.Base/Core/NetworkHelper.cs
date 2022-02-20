@@ -24,11 +24,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
@@ -87,24 +90,14 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Download the uri to Bitmap
+        /// Download the uri to build an IDrawableContainer
         /// </summary>
         /// <param name="url">Of an image</param>
-        /// <returns>Bitmap</returns>
-        public static Image DownloadImage(string url)
+        /// <returns>IDrawableContainer</returns>
+        public static IDrawableContainer DownloadImageAsDrawableContainer(string url)
         {
-            var extensions = new StringBuilder();
-            foreach (var extension in ImageHelper.StreamConverters.Keys)
-            {
-                if (string.IsNullOrEmpty(extension))
-                {
-                    continue;
-                }
-
-                extensions.AppendFormat(@"\.{0}|", extension);
-            }
-
-            extensions.Length--;
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
             var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
@@ -113,7 +106,12 @@ namespace Greenshot.Base.Core
                 using var memoryStream = GetAsMemoryStream(url);
                 try
                 {
-                    return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
+                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream, extension).FirstOrDefault();
+                    if (drawableContainer != null)
+                    {
+                        return drawableContainer;
+                    }
                 }
                 catch (Exception)
                 {
@@ -136,7 +134,71 @@ namespace Greenshot.Base.Core
                     }
 
                     using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
+
+                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
+                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream2, extension).FirstOrDefault();
+                    if (drawableContainer != null)
+                    {
+                        return drawableContainer;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Problem downloading the image from: " + url, e);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Download the uri to create a Bitmap
+        /// </summary>
+        /// <param name="url">Of an image</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap DownloadImage(string url)
+        {
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+
+            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
+
+            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+            var match = imageUrlRegex.Match(url);
+            try
+            {
+                using var memoryStream = GetAsMemoryStream(url);
+                try
+                {
+                    if (fileFormatHandlers.TryLoadFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    {
+                        return bitmap;
+                    }
+                }
+                catch (Exception)
+                {
+                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    string content;
+                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
+                    {
+                        content = streamReader.ReadLine();
+                    }
+
+                    if (string.IsNullOrEmpty(content))
+                    {
+                        throw;
+                    }
+
+                    match = imageUrlRegex.Match(content);
+                    if (!match.Success)
+                    {
+                        throw;
+                    }
+
+                    using var memoryStream2 = GetAsMemoryStream(match.Value);
+                    if (fileFormatHandlers.TryLoadFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
+                    {
+                        return bitmap;
+                    }
                 }
             }
             catch (Exception e)
@@ -670,7 +732,7 @@ namespace Greenshot.Base.Core
         public string ToBase64String(Base64FormattingOptions formattingOptions)
         {
             using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            ImageIO.SaveToStream(_surface, stream, _outputSettings);
             return Convert.ToBase64String(stream.GetBuffer(), 0, (int) stream.Length, formattingOptions);
         }
 
@@ -682,7 +744,7 @@ namespace Greenshot.Base.Core
         public byte[] ToByteArray()
         {
             using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            ImageIO.SaveToStream(_surface, stream, _outputSettings);
             return stream.ToArray();
         }
 
@@ -698,7 +760,7 @@ namespace Greenshot.Base.Core
             string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
 
             formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-            ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);
+            ImageIO.SaveToStream(_surface, formDataStream, _outputSettings);
         }
 
         /// <summary>
@@ -708,7 +770,7 @@ namespace Greenshot.Base.Core
         public void WriteToStream(Stream dataStream)
         {
             // Write the file data directly to the Stream, rather than serializing it to a string.
-            ImageOutput.SaveToStream(_surface, dataStream, _outputSettings);
+            ImageIO.SaveToStream(_surface, dataStream, _outputSettings);
         }
 
         /// <summary>

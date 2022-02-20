@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
 
@@ -40,7 +41,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Cursor cursor;
 
-        public CursorContainer(Surface parent) : base(parent)
+        public CursorContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -56,7 +57,7 @@ namespace Greenshot.Editor.Drawing
             CreateDefaultAdorners();
         }
 
-        public CursorContainer(Surface parent, string filename) : this(parent)
+        public CursorContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
         }

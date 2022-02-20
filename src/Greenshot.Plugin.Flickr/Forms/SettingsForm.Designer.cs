@@ -93,7 +93,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(174, 6);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.PropertyName = nameof(FlickrConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "Flickr";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(251, 21);
 			this.combobox_uploadimageformat.TabIndex = 1;
@@ -111,7 +111,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxPublic.LanguageKey = "flickr.public";
 			this.checkBoxPublic.Location = new System.Drawing.Point(174, 88);
 			this.checkBoxPublic.Name = "checkBoxPublic";
-			this.checkBoxPublic.PropertyName = "flickrIsPublic";
+			this.checkBoxPublic.PropertyName = nameof(FlickrConfiguration.IsPublic);
 			this.checkBoxPublic.SectionName = "Flickr";
 			this.checkBoxPublic.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxPublic.TabIndex = 4;
@@ -122,7 +122,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxFamily.LanguageKey = "flickr.family";
 			this.checkBoxFamily.Location = new System.Drawing.Point(265, 88);
 			this.checkBoxFamily.Name = "checkBoxFamily";
-			this.checkBoxFamily.PropertyName = "flickrIsFamily";
+			this.checkBoxFamily.PropertyName = nameof(FlickrConfiguration.IsFamily);
 			this.checkBoxFamily.SectionName = "Flickr";
 			this.checkBoxFamily.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxFamily.TabIndex = 5;
@@ -133,7 +133,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxFriend.LanguageKey = "flickr.friend";
 			this.checkBoxFriend.Location = new System.Drawing.Point(350, 88);
 			this.checkBoxFriend.Name = "checkBoxFriend";
-			this.checkBoxFriend.PropertyName = "flickrIsFriend";
+			this.checkBoxFriend.PropertyName = nameof(FlickrConfiguration.IsFriend);
 			this.checkBoxFriend.SectionName = "Flickr";
 			this.checkBoxFriend.Size = new System.Drawing.Size(55, 17);
 			this.checkBoxFriend.TabIndex = 6;
@@ -155,7 +155,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.combobox_safetyLevel.FormattingEnabled = true;
 			this.combobox_safetyLevel.Location = new System.Drawing.Point(174, 33);
 			this.combobox_safetyLevel.Name = "combobox_safetyLevel";
-			this.combobox_safetyLevel.PropertyName = "SafetyLevel";
+			this.combobox_safetyLevel.PropertyName = nameof(FlickrConfiguration.SafetyLevel);
 			this.combobox_safetyLevel.SectionName = "Flickr";
 			this.combobox_safetyLevel.Size = new System.Drawing.Size(251, 21);
 			this.combobox_safetyLevel.TabIndex = 2;
@@ -173,7 +173,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "flickr.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(173, 116);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = "AfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(FlickrConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Flickr";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 7;
@@ -184,7 +184,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBox_hiddenfromsearch.LanguageKey = "flickr.label_HiddenFromSearch";
 			this.checkBox_hiddenfromsearch.Location = new System.Drawing.Point(174, 60);
 			this.checkBox_hiddenfromsearch.Name = "checkBox_hiddenfromsearch";
-			this.checkBox_hiddenfromsearch.PropertyName = "HiddenFromSearch";
+			this.checkBox_hiddenfromsearch.PropertyName = nameof(FlickrConfiguration.HiddenFromSearch);
 			this.checkBox_hiddenfromsearch.SectionName = "Flickr";
 			this.checkBox_hiddenfromsearch.Size = new System.Drawing.Size(118, 17);
 			this.checkBox_hiddenfromsearch.TabIndex = 3;

@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -64,8 +65,7 @@ namespace Greenshot.Editor.Drawing
             InitAdorner(Color.Green, _storedTargetGripperLocation);
         }
 
-        public SpeechbubbleContainer(Surface parent)
-            : base(parent)
+        public SpeechbubbleContainer(ISurface parent) : base(parent)
         {
         }
 

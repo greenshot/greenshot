@@ -127,7 +127,7 @@ namespace Greenshot.Base.UnmanagedHelpers
         public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
-        public static extern int GetWindowLong(IntPtr hWnd, int index);
+        public static extern IntPtr GetWindowLong(IntPtr hWnd, int index);
 
         [DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
         public static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
@@ -276,16 +276,14 @@ namespace Greenshot.Base.UnmanagedHelpers
         /// <param name="hWnd"></param>
         /// <param name="nIndex"></param>
         /// <returns></returns>
-        public static long GetWindowLongWrapper(IntPtr hWnd, int nIndex)
+        public static IntPtr GetWindowLongWrapper(IntPtr hWnd, int nIndex)
         {
             if (IntPtr.Size == 8)
             {
-                return GetWindowLongPtr(hWnd, nIndex).ToInt64();
+                return GetWindowLongPtr(hWnd, nIndex);
             }
-            else
-            {
-                return GetWindowLong(hWnd, nIndex);
-            }
+
+            return GetWindowLong(hWnd, nIndex);
         }
 
         /// <summary>

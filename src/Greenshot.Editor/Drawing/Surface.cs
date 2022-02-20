@@ -49,7 +49,6 @@ namespace Greenshot.Editor.Drawing
     public sealed class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-        public static int Count;
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
         // Property to identify the Surface ID
@@ -207,7 +206,7 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private IDrawableContainer _undrawnElement;
 
         /// <summary>
-        /// the cropcontainer, when cropping this is set, do not serialize
+        /// the crop container, when cropping this is set, do not serialize
         /// </summary>
         [NonSerialized] private IDrawableContainer _cropContainer;
 
@@ -294,7 +293,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// all elements on the surface, needed with serialization
         /// </summary>
-        private FieldAggregator _fieldAggregator;
+        private IFieldAggregator _fieldAggregator;
 
         /// <summary>
         /// the cursor container, needed with serialization as we need a direct acces to it.
@@ -355,7 +354,7 @@ namespace Greenshot.Editor.Drawing
         /// The field aggregator is that which is used to have access to all the fields inside the currently selected elements.
         /// e.g. used to decided if and which line thickness is shown when multiple elements are selected.
         /// </summary>
-        public FieldAggregator FieldAggregator
+        public IFieldAggregator FieldAggregator
         {
             get => _fieldAggregator;
             set => _fieldAggregator = value;
@@ -467,7 +466,6 @@ namespace Greenshot.Editor.Drawing
         public Surface()
         {
             _fieldAggregator = new FieldAggregator(this);
-            Count++;
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
             LOG.Debug("Creating surface!");
@@ -550,7 +548,6 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
-                Count--;
                 LOG.Debug("Disposing surface!");
                 if (_buffer != null)
                 {
@@ -914,6 +911,27 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// This will help to fit the container to the surface
+        /// </summary>
+        /// <param name="drawableContainer">IDrawableContainer</param>
+        private void FitContainer(IDrawableContainer drawableContainer)
+        {
+            double factor = 1;
+            if (drawableContainer.Width > this.Width)
+            {
+                factor = drawableContainer.Width / (double)Width;
+            }
+            if (drawableContainer.Height > this.Height)
+            {
+                var otherFactor = drawableContainer.Height / (double)Height;
+                factor = Math.Max(factor, otherFactor);
+            }
+
+            drawableContainer.Width = (int)(drawableContainer.Width / factor);
+            drawableContainer.Height = (int)(drawableContainer.Height / factor);
+        }
+
+        /// <summary>
         /// Handle the drag/drop
         /// </summary>
         /// <param name="sender"></param>
@@ -927,20 +945,25 @@ namespace Greenshot.Editor.Drawing
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    using Image image = NetworkHelper.DownloadImage(possibleUrl);
-                    if (image != null)
+                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
+                    if (drawableContainer != null)
                     {
-                        AddImageContainer(image, mouse.X, mouse.Y);
+                        drawableContainer.Left = Location.X;
+                        drawableContainer.Top = Location.Y;
+                        FitContainer(drawableContainer);
+                        AddElement(drawableContainer);
                         return;
                     }
                 }
             }
 
-            foreach (Image image in ClipboardHelper.GetImages(e.Data))
+            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
             {
-                AddImageContainer(image, mouse.X, mouse.Y);
+                drawableContainer.Left = mouse.X;
+                drawableContainer.Top = mouse.Y;
+                FitContainer(drawableContainer);
+                AddElement(drawableContainer);
                 mouse.Offset(10, 10);
-                image.Dispose();
             }
         }
 
@@ -987,13 +1010,11 @@ namespace Greenshot.Editor.Drawing
         {
             //create a blank bitmap the same size as original
             Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
-            if (newBitmap != null)
-            {
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
-                SetImage(newBitmap, false);
-                Invalidate();
-            }
+            if (newBitmap == null) return;
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
+            SetImage(newBitmap, false);
+            Invalidate();
         }
 
         /// <summary>
@@ -2057,17 +2078,16 @@ namespace Greenshot.Editor.Drawing
             {
                 Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
+                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
                 {
-                    if (clipboardImage != null)
-                    {
-                        DeselectAllElements();
-                        IImageContainer container = AddImageContainer(clipboardImage as Bitmap, pasteLocation.X, pasteLocation.Y);
-                        SelectElement(container);
-                        clipboardImage.Dispose();
-                        pasteLocation.X += 10;
-                        pasteLocation.Y += 10;
-                    }
+                    if (drawableContainer == null) continue;
+                    DeselectAllElements();
+                    drawableContainer.Left = pasteLocation.X;
+                    drawableContainer.Top = pasteLocation.Y; 
+                    AddElement(drawableContainer);
+                    SelectElement(drawableContainer);
+                    pasteLocation.X += 10;
+                    pasteLocation.Y += 10;
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))
@@ -2208,24 +2228,23 @@ namespace Greenshot.Editor.Drawing
         /// <param name="generateEvents">false to skip event generation</param>
         public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
         {
-            if (!selectedElements.Contains(container))
-            {
-                selectedElements.Add(container);
-                container.Selected = true;
-                FieldAggregator.BindElement(container);
-                if (generateEvents && _movingElementChanged != null)
-                {
-                    SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
-                    {
-                        Elements = selectedElements
-                    };
-                    _movingElementChanged(this, eventArgs);
-                }
+            if (selectedElements.Contains(container)) return;
 
-                if (invalidate)
+            selectedElements.Add(container);
+            container.Selected = true;
+            FieldAggregator.BindElement(container);
+            if (generateEvents && _movingElementChanged != null)
+            {
+                SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
                 {
-                    container.Invalidate();
-                }
+                    Elements = selectedElements
+                };
+                _movingElementChanged(this, eventArgs);
+            }
+
+            if (invalidate)
+            {
+                container.Invalidate();
             }
         }
 

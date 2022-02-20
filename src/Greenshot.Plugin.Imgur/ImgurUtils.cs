@@ -179,7 +179,7 @@ namespace Greenshot.Plugin.Imgur
                 {
                     using (var requestStream = webRequest.GetRequestStream())
                     {
-                        ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
+                        ImageIO.SaveToStream(surfaceToUpload, requestStream, outputSettings);
                     }
 
                     using WebResponse response = webRequest.GetResponse();
@@ -265,7 +265,8 @@ namespace Greenshot.Plugin.Imgur
             Stream responseStream = response.GetResponseStream();
             if (responseStream != null)
             {
-                imgurInfo.Image = ImageHelper.FromStream(responseStream);
+                // TODO: Replace with some other code, like the file format handler
+                imgurInfo.Image = ImageIO.FromStream(responseStream);
             }
         }
 

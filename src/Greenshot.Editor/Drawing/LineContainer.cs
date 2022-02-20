@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Fields;
@@ -36,7 +37,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class LineContainer : DrawableContainer
     {
-        public LineContainer(Surface parent) : base(parent)
+        public LineContainer(ISurface parent) : base(parent)
         {
             Init();
         }

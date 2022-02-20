@@ -36,6 +36,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -43,6 +44,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
+using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
@@ -162,7 +164,7 @@ namespace Greenshot.Forms
 
                     if (argument.ToLower().Equals("/exit"))
                     {
-                        // unregister application on uninstall (allow uninstall)
+                        // un-register application on uninstall (allow uninstall)
                         try
                         {
                             LOG.Info("Sending all instances the exit command.");
@@ -386,6 +388,8 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
 
             _instance = this;
+
+            EditorInitialize.Initialize();
 
             // Factory for surface objects
             ISurface SurfaceFactory() => new Surface();
@@ -922,11 +926,11 @@ namespace Greenshot.Forms
         {
             Hide();
             ShowInTaskbar = false;
-
-
-            using var loProcess = Process.GetCurrentProcess();
-            loProcess.MaxWorkingSet = (IntPtr)750000;
-            loProcess.MinWorkingSet = (IntPtr)300000;
+            
+            // TODO: Do we really need this?
+            //using var loProcess = Process.GetCurrentProcess();
+            //loProcess.MaxWorkingSet = (IntPtr)750000;
+            //loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
         private void CaptureRegion()
@@ -936,9 +940,12 @@ namespace Greenshot.Forms
 
         private void CaptureFile(IDestination destination = null)
         {
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).Select(e => $"*{e}").ToList();
+
             var openFileDialog = new OpenFileDialog
             {
-                Filter = @"Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
+                Filter = @$"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
             };
             if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
@@ -1904,7 +1911,7 @@ namespace Greenshot.Forms
                 LOG.Error("Error closing application!", e);
             }
 
-            ImageOutput.RemoveTmpFiles();
+            ImageIO.RemoveTmpFiles();
 
             // Store any open configuration changes
             try

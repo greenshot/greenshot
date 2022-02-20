@@ -31,6 +31,7 @@ namespace Greenshot.Base.Core.Enums
         jpg,
         png,
         tiff,
+        jxr,
         greenshot,
         ico
     }

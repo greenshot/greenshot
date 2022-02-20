@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -41,9 +42,9 @@ namespace Greenshot.Editor.Drawing
 
         private readonly bool _drawAsRectangle = false;
 
-        public StepLabelContainer(Surface parent) : base(parent)
+        public StepLabelContainer(ISurface parent) : base(parent)
         {
-            parent.AddStepLabel(this);
+            InternalParent?.AddStepLabel(this);
             InitContent();
             Init();
         }
@@ -72,11 +73,10 @@ namespace Greenshot.Editor.Drawing
         [OnSerializing]
         private void SetValuesOnSerializing(StreamingContext context)
         {
-            if (Parent != null)
-            {
-                Number = ((Surface) Parent).CountStepLabels(this);
-                _counterStart = ((Surface) Parent).CounterStart;
-            }
+            if (InternalParent == null) return;
+
+            Number = InternalParent.CountStepLabels(this);
+            _counterStart = InternalParent.CounterStart;
         }
 
         /// <summary>
@@ -97,23 +97,23 @@ namespace Greenshot.Editor.Drawing
         /// Add the StepLabel to the parent
         /// </summary>
         /// <param name="newParent"></param>
-        protected override void SwitchParent(Surface newParent)
+        protected override void SwitchParent(ISurface newParent)
         {
             if (newParent == Parent)
             {
                 return;
             }
 
-            ((Surface) Parent)?.RemoveStepLabel(this);
-            base.SwitchParent(newParent);
-            if (newParent == null)
+            if (newParent is not Surface newParentSurface)
             {
                 return;
             }
+            InternalParent?.RemoveStepLabel(this);
+            base.SwitchParent(newParent);
 
             // Make sure the counter start is restored (this unfortunately happens multiple times... -> hack)
-            newParent.CounterStart = _counterStart;
-            newParent.AddStepLabel(this);
+            newParentSurface.CounterStart = _counterStart;
+            newParentSurface.AddStepLabel(this);
         }
 
         public override Size DefaultSize => new Size(30, 30);
@@ -204,7 +204,7 @@ namespace Greenshot.Editor.Drawing
                 EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
             }
 
-            float fontSize = Math.Min(Width, Height) / 1.4f;
+            float fontSize = Math.Min(Math.Abs(Width), Math.Abs(Height)) / 1.4f;
             using FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name);
             using Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);

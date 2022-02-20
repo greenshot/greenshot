@@ -87,7 +87,7 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(208, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "Box";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(215, 21);
 			this.combobox_uploadimageformat.TabIndex = 5;
@@ -115,7 +115,7 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(208, 45);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = "AfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;

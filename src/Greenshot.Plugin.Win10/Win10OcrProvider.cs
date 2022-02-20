@@ -97,7 +97,7 @@ namespace Greenshot.Plugin.Win10
                     IEffect effect = new ResizeCanvasEffect(addedWidth, addedWidth, addedHeight, addedHeight);
                     outputSettings.Effects.Add(effect);
                 }
-                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+                ImageIO.SaveToStream(surface, imageStream, outputSettings);
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
@@ -117,7 +117,7 @@ namespace Greenshot.Plugin.Win10
             OcrInformation result;
             using (var imageStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
+                ImageIO.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 

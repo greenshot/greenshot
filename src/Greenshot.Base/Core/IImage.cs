@@ -61,7 +61,7 @@ namespace Greenshot.Base.Core
         float HorizontalResolution { get; }
 
         /// <summary>
-        /// Unterlying image, or an on demand rendered version with different attributes as the original
+        /// Underlying image, or an on demand rendered version with different attributes as the original
         /// </summary>
         Image Image { get; }
     }

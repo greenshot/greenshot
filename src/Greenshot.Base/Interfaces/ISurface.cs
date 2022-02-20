@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
@@ -201,5 +202,14 @@ namespace Greenshot.Base.Interfaces
         Rectangle ToImageCoordinates(Rectangle rc);
 
         void MakeUndoable(IMemento memento, bool allowMerge);
+
+        IFieldAggregator FieldAggregator { get; }
+
+        /// <summary>
+        /// This reverses a change of the background image
+        /// </summary>
+        /// <param name="previous">Image</param>
+        /// <param name="matrix">Matrix</param>
+        void UndoBackgroundChange(Image previous, Matrix matrix);
     }
 }
