@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -50,7 +51,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Constructor
         /// </summary>
-        public FreehandContainer(Surface parent) : base(parent)
+        public FreehandContainer(ISurface parent) : base(parent)
         {
             Width = parent.Image.Width;
             Height = parent.Image.Height;

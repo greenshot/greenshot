@@ -20,12 +20,11 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -33,20 +32,21 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.UnmanagedHelpers;
 using log4net;
-using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
     /// Description of ImageOutput.
     /// </summary>
-    public static class ImageOutput
+    public static class ImageIO
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageOutput));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
         private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
@@ -54,7 +54,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Creates a PropertyItem (Metadata) to store with the image.
         /// For the possible ID's see: https://msdn.microsoft.com/de-de/library/system.drawing.imaging.propertyitem.id(v=vs.80).aspx
-        /// This code uses Reflection to create a PropertyItem, although it's not adviced it's not as stupid as having a image in the project so we can read a PropertyItem from that!
+        /// This code uses Reflection to create a PropertyItem, although it's not advised it's not as stupid as having a image in the project so we can read a PropertyItem from that!
         /// </summary>
         /// <param name="id">ID</param>
         /// <param name="text">Text</param>
@@ -124,102 +124,21 @@ namespace Greenshot.Base.Core
 
             try
             {
-                var imageFormat = outputSettings.Format switch
-                {
-                    OutputFormat.bmp => ImageFormat.Bmp,
-                    OutputFormat.gif => ImageFormat.Gif,
-                    OutputFormat.jpg => ImageFormat.Jpeg,
-                    OutputFormat.tiff => ImageFormat.Tiff,
-                    OutputFormat.ico => ImageFormat.Icon,
-                    _ => ImageFormat.Png
-                };
-                Log.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
-
-                // Check if we want to use a memory stream, to prevent issues with non seakable streams
+                // Check if we want to use a memory stream, to prevent issues with non seekable streams
                 // The save is made to the targetStream, this is directed to either the MemoryStream or the original
                 Stream targetStream = stream;
                 if (!stream.CanSeek)
                 {
                     useMemoryStream = true;
-                    Log.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
+                    Log.Warn("Using a memory stream prevent an issue with saving to a non seekable stream.");
                     memoryStream = new MemoryStream();
                     targetStream = memoryStream;
                 }
 
-                if (Equals(imageFormat, ImageFormat.Jpeg))
+                var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface, outputSettings))
                 {
-                    bool foundEncoder = false;
-                    foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders())
-                    {
-                        if (imageCodec.FormatID == imageFormat.Guid)
-                        {
-                            EncoderParameters parameters = new EncoderParameters(1)
-                            {
-                                Param =
-                                {
-                                    [0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality)
-                                }
-                            };
-                            // Removing transparency if it's not supported in the output
-                            if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
-                            {
-                                Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-                                AddTag(nonAlphaImage);
-                                nonAlphaImage.Save(targetStream, imageCodec, parameters);
-                                nonAlphaImage.Dispose();
-                            }
-                            else
-                            {
-                                AddTag(imageToSave);
-                                imageToSave.Save(targetStream, imageCodec, parameters);
-                            }
-
-                            foundEncoder = true;
-                            break;
-                        }
-                    }
-
-                    if (!foundEncoder)
-                    {
-                        throw new ApplicationException("No JPG encoder found, this should not happen.");
-                    }
-                }
-                else if (Equals(imageFormat, ImageFormat.Icon))
-                {
-                    // FEATURE-916: Added Icon support
-                    IList<Image> images = new List<Image>
-                    {
-                        imageToSave
-                    };
-                    WriteIcon(stream, images);
-                }
-                else
-                {
-                    bool needsDispose = false;
-                    // Removing transparency if it's not supported in the output
-                    if (!Equals(imageFormat, ImageFormat.Png) && Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
-                    {
-                        imageToSave = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
-                        needsDispose = true;
-                    }
-
-                    AddTag(imageToSave);
-                    // Added for OptiPNG
-                    bool processed = false;
-                    if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
-                    {
-                        processed = ProcessPngImageExternally(imageToSave, targetStream);
-                    }
-
-                    if (!processed)
-                    {
-                        imageToSave.Save(targetStream, imageFormat);
-                    }
-
-                    if (needsDispose)
-                    {
-                        imageToSave.Dispose();
-                    }
+                    return;
                 }
 
                 // If we used a memory stream, we need to stream the memory stream to the original stream.
@@ -227,109 +146,11 @@ namespace Greenshot.Base.Core
                 {
                     memoryStream.WriteTo(stream);
                 }
-
-                // Output the surface elements, size and marker to the stream
-                if (outputSettings.Format != OutputFormat.greenshot)
-                {
-                    return;
-                }
-
-                using MemoryStream tmpStream = new MemoryStream();
-                long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
-                writer.Write(bytesWritten);
-                Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-                writer.Write(marker);
-                tmpStream.WriteTo(stream);
             }
             finally
             {
                 memoryStream?.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Write the passed Image to a tmp-file and call an external process, than read the file back and write it to the targetStream
-        /// </summary>
-        /// <param name="imageToProcess">Image to pass to the external process</param>
-        /// <param name="targetStream">stream to write the processed image to</param>
-        /// <returns></returns>
-        private static bool ProcessPngImageExternally(Image imageToProcess, Stream targetStream)
-        {
-            if (string.IsNullOrEmpty(CoreConfig.OptimizePNGCommand))
-            {
-                return false;
-            }
-
-            if (!File.Exists(CoreConfig.OptimizePNGCommand))
-            {
-                Log.WarnFormat("Can't find 'OptimizePNGCommand' {0}", CoreConfig.OptimizePNGCommand);
-                return false;
-            }
-
-            string tmpFileName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
-            try
-            {
-                using (FileStream tmpStream = File.Create(tmpFileName))
-                {
-                    Log.DebugFormat("Writing png to tmp file: {0}", tmpFileName);
-                    imageToProcess.Save(tmpStream, ImageFormat.Png);
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("File size before processing {0}", new FileInfo(tmpFileName).Length);
-                    }
-                }
-
-                if (Log.IsDebugEnabled)
-                {
-                    Log.DebugFormat("Starting : {0}", CoreConfig.OptimizePNGCommand);
-                }
-
-                ProcessStartInfo processStartInfo = new ProcessStartInfo(CoreConfig.OptimizePNGCommand)
-                {
-                    Arguments = string.Format(CoreConfig.OptimizePNGCommandArguments, tmpFileName),
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false
-                };
-                using Process process = Process.Start(processStartInfo);
-                if (process != null)
-                {
-                    process.WaitForExit();
-                    if (process.ExitCode == 0)
-                    {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
-                            Log.DebugFormat("Reading back tmp file: {0}", tmpFileName);
-                        }
-
-                        byte[] processedImage = File.ReadAllBytes(tmpFileName);
-                        targetStream.Write(processedImage, 0, processedImage.Length);
-                        return true;
-                    }
-
-                    Log.ErrorFormat("Error while processing PNG image: {0}", process.ExitCode);
-                    Log.ErrorFormat("Output: {0}", process.StandardOutput.ReadToEnd());
-                    Log.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error while processing PNG image: ", e);
-            }
-            finally
-            {
-                if (File.Exists(tmpFileName))
-                {
-                    Log.DebugFormat("Cleaning up tmp file: {0}", tmpFileName);
-                    File.Delete(tmpFileName);
-                }
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -429,20 +250,18 @@ namespace Greenshot.Base.Core
         /// Add the greenshot property!
         /// </summary>
         /// <param name="imageToSave"></param>
-        private static void AddTag(Image imageToSave)
+        public static void AddTag(this Image imageToSave)
         {
             // Create meta-data
             PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-            if (softwareUsedPropertyItem != null)
+            if (softwareUsedPropertyItem == null) return;
+            try
             {
-                try
-                {
-                    imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-                }
-                catch (Exception)
-                {
-                    Log.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
-                }
+                imageToSave.SetPropertyItem(softwareUsedPropertyItem);
+            }
+            catch (Exception)
+            {
+                Log.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
             }
         }
 
@@ -463,7 +282,7 @@ namespace Greenshot.Base.Core
             // Fixed lock problem Bug #3431881
             using (Stream surfaceFileStream = File.OpenRead(fullPath))
             {
-                returnSurface = ImageHelper.LoadGreenshotSurface(surfaceFileStream, returnSurface);
+                returnSurface = LoadGreenshotSurface(surfaceFileStream, returnSurface);
             }
 
             if (returnSurface != null)
@@ -547,27 +366,25 @@ namespace Greenshot.Base.Core
             using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails))
             {
                 DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-                if (dialogResult.Equals(DialogResult.OK))
+                if (!dialogResult.Equals(DialogResult.OK)) return returnValue;
+                try
                 {
-                    try
+                    string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
+                    SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+                    if (CoreConfig.OutputFilePromptQuality)
                     {
-                        string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-                        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-                        if (CoreConfig.OutputFilePromptQuality)
-                        {
-                            QualityDialog qualityDialog = new QualityDialog(outputSettings);
-                            qualityDialog.ShowDialog();
-                        }
+                        QualityDialog qualityDialog = new QualityDialog(outputSettings);
+                        qualityDialog.ShowDialog();
+                    }
 
-                        // TODO: For now we always overwrite, should be changed
-                        Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
-                        returnValue = fileNameWithExtension;
-                        IniConfig.Save();
-                    }
-                    catch (ExternalException)
-                    {
-                        MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
-                    }
+                    // TODO: For now we always overwrite, should be changed
+                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                    returnValue = fileNameWithExtension;
+                    IniConfig.Save();
+                }
+                catch (ExternalException)
+                {
+                    MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
                 }
             }
 
@@ -709,91 +526,218 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Write the images to the stream as icon
-        /// Every image is resized to 256x256 (but the content maintains the aspect ratio)
+        /// Load an image from file
         /// </summary>
-        /// <param name="stream">Stream to write to</param>
-        /// <param name="images">List of images</param>
-        public static void WriteIcon(Stream stream, IList<Image> images)
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static Image LoadImage(string filename)
         {
-            var binaryWriter = new BinaryWriter(stream);
-            //
-            // ICONDIR structure
-            //
-            binaryWriter.Write((short) 0); // reserved
-            binaryWriter.Write((short) 1); // image type (icon)
-            binaryWriter.Write((short) images.Count); // number of images
-
-            IList<Size> imageSizes = new List<Size>();
-            IList<MemoryStream> encodedImages = new List<MemoryStream>();
-            foreach (var image in images)
+            if (string.IsNullOrEmpty(filename))
             {
-                // Pick the best fit
-                var sizes = new[]
+                return null;
+            }
+
+            if (!File.Exists(filename))
+            {
+                return null;
+            }
+
+            Image fileImage;
+            Log.InfoFormat("Loading image from file {0}", filename);
+            // Fixed lock problem Bug #3431881
+            using (Stream imageFileStream = File.OpenRead(filename))
+            {
+                fileImage = FromStream(imageFileStream, Path.GetExtension(filename));
+            }
+
+            if (fileImage != null)
+            {
+                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
+            }
+
+            return fileImage;
+        }
+
+        /// <summary>
+        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
+        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
+        /// </summary>
+        /// <param name="iconStream">Stream with the icon information</param>
+        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
+        private static Bitmap ExtractVistaIcon(Stream iconStream)
+        {
+            const int sizeIconDir = 6;
+            const int sizeIconDirEntry = 16;
+            Bitmap bmpPngExtracted = null;
+            try
+            {
+                byte[] srcBuf = new byte[iconStream.Length];
+                iconStream.Read(srcBuf, 0, (int)iconStream.Length);
+                int iCount = BitConverter.ToInt16(srcBuf, 4);
+                for (int iIndex = 0; iIndex < iCount; iIndex++)
                 {
-                    16, 32, 48
-                };
-                int size = 256;
-                foreach (var possibleSize in sizes)
-                {
-                    if (image.Width <= possibleSize && image.Height <= possibleSize)
+                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
+                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
+                    if (iWidth == 0 && iHeight == 0)
                     {
-                        size = possibleSize;
+                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
+                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
+                        using MemoryStream destStream = new MemoryStream();
+                        destStream.Write(srcBuf, iImageOffset, iImageSize);
+                        destStream.Seek(0, SeekOrigin.Begin);
+                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
                         break;
                     }
                 }
-
-                var imageStream = new MemoryStream();
-                if (image.Width == size && image.Height == size)
-                {
-                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-                    clonedImage.Save(imageStream, ImageFormat.Png);
-                    imageSizes.Add(new Size(size, size));
-                }
-                else
-                {
-                    // Resize to the specified size, first make sure the image is 32bpp
-                    using var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-                    using var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null);
-                    resizedImage.Save(imageStream, ImageFormat.Png);
-                    imageSizes.Add(resizedImage.Size);
-                }
-
-                imageStream.Seek(0, SeekOrigin.Begin);
-                encodedImages.Add(imageStream);
             }
-
-            //
-            // ICONDIRENTRY structure
-            //
-            const int iconDirSize = 6;
-            const int iconDirEntrySize = 16;
-
-            var offset = iconDirSize + (images.Count * iconDirEntrySize);
-            for (int i = 0; i < images.Count; i++)
+            catch
             {
-                var imageSize = imageSizes[i];
-                // Write the width / height, 0 means 256
-                binaryWriter.Write(imageSize.Width == 256 ? (byte) 0 : (byte) imageSize.Width);
-                binaryWriter.Write(imageSize.Height == 256 ? (byte) 0 : (byte) imageSize.Height);
-                binaryWriter.Write((byte) 0); // no pallete
-                binaryWriter.Write((byte) 0); // reserved
-                binaryWriter.Write((short) 0); // no color planes
-                binaryWriter.Write((short) 32); // 32 bpp
-                binaryWriter.Write((int) encodedImages[i].Length); // image data length
-                binaryWriter.Write(offset);
-                offset += (int) encodedImages[i].Length;
+                return null;
             }
 
-            binaryWriter.Flush();
-            //
-            // Write image data
-            //
-            foreach (var encodedImage in encodedImages)
+            return bmpPngExtracted;
+        }
+
+        /// <summary>
+        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
+        /// </summary>
+        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
+        /// <param name="index">Index of the icon</param>
+        /// <param name="takeLarge">true if the large icon is wanted</param>
+        /// <returns>Icon</returns>
+        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
+        {
+            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
+            Icon returnIcon = null;
+            bool isLarge = false;
+            bool isSmall = false;
+            try
             {
-                encodedImage.WriteTo(stream);
-                encodedImage.Dispose();
+                if (takeLarge && !IntPtr.Zero.Equals(large))
+                {
+                    returnIcon = Icon.FromHandle(large);
+                    isLarge = true;
+                }
+                else if (!IntPtr.Zero.Equals(small))
+                {
+                    returnIcon = Icon.FromHandle(small);
+                    isSmall = true;
+                }
+                else if (!IntPtr.Zero.Equals(large))
+                {
+                    returnIcon = Icon.FromHandle(large);
+                    isLarge = true;
+                }
             }
+            finally
+            {
+                if (isLarge && !IntPtr.Zero.Equals(small))
+                {
+                    User32.DestroyIcon(small);
+                }
+
+                if (isSmall && !IntPtr.Zero.Equals(large))
+                {
+                    User32.DestroyIcon(large);
+                }
+            }
+
+            return returnIcon;
+        }
+
+        /// <summary>
+        /// Create an image from a stream, if an extension is supplied more formats are supported.
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="extension"></param>
+        /// <returns>Image</returns>
+        public static Image FromStream(Stream stream, string extension = null)
+        {
+            if (stream == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(extension))
+            {
+                extension = extension.Replace(".", string.Empty);
+            }
+
+            var startingPosition = stream.Position;
+
+            // Make sure we can try multiple times
+            if (!stream.CanSeek)
+            {
+                var memoryStream = new MemoryStream();
+                stream.CopyTo(memoryStream);
+                stream = memoryStream;
+                // As we are if a different stream, which starts at 0, change the starting position
+                startingPosition = 0;
+            }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            foreach (var fileFormatHandler in fileFormatHandlers
+                         .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                         .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)))
+            {
+                stream.Seek(startingPosition, SeekOrigin.Begin);
+                if (fileFormatHandler.TryLoadFromStream(stream, extension, out var bitmap))
+                {
+                    return bitmap;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Load a Greenshot surface from a stream
+        /// </summary>
+        /// <param name="surfaceFileStream">Stream</param>
+        /// <param name="returnSurface"></param>
+        /// <returns>ISurface</returns>
+        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
+        {
+            Image fileImage;
+            // Fixed problem that the bitmap stream is disposed... by Cloning the image
+            // This also ensures the bitmap is correctly created
+
+            // We create a copy of the bitmap, so everything else can be disposed
+            surfaceFileStream.Position = 0;
+            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
+            {
+                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+                fileImage = ImageHelper.Clone(tmpImage);
+            }
+
+            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
+            const int markerSize = 14;
+            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
+            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
+            {
+                var greenshotMarker = streamReader.ReadToEnd();
+                if (!greenshotMarker.StartsWith("Greenshot"))
+                {
+                    throw new ArgumentException("Stream is not a Greenshot file!");
+                }
+
+                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
+                const int filesizeLocation = 8 + markerSize;
+                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
+                using BinaryReader reader = new BinaryReader(surfaceFileStream);
+                long bytesWritten = reader.ReadInt64();
+                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
+                returnSurface.LoadElementsFromStream(surfaceFileStream);
+            }
+
+            if (fileImage != null)
+            {
+                returnSurface.Image = fileImage;
+                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
+            }
+
+            return returnSurface;
         }
     }
 }

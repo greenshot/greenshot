@@ -32,7 +32,7 @@ namespace Greenshot.Base.UnmanagedHelpers.Enums
     public enum WindowStyleFlags : int
     {
         //WS_OVERLAPPED       = 0x00000000,
-        WS_POPUP = -2147483648,
+        WS_POPUP = -2147483648, // 0x80000000
         WS_CHILD = 0x40000000,
         WS_MINIMIZE = 0x20000000,
         WS_VISIBLE = 0x10000000,

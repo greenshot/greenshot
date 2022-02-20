@@ -56,13 +56,13 @@ namespace Greenshot.Editor.Forms
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
-        private static readonly List<string> IgnoreDestinations = new List<string>
+        private static readonly List<string> IgnoreDestinations = new()
         {
             nameof(WellKnownDestinations.Picker),
             EditorDestination.DESIGNATION
         };
 
-        private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
+        private static readonly List<IImageEditor> EditorList = new();
 
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
@@ -78,7 +78,7 @@ namespace Greenshot.Editor.Forms
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
 
-        // Used for tracking the mouse scrollwheel changes
+        // Used for tracking the mouse scroll wheel changes
         private DateTime _zoomStartTime = DateTime.Now;
 
         /// <summary>
@@ -180,6 +180,20 @@ namespace Greenshot.Editor.Forms
             _surface.Modified = !outputMade;
 
             UpdateUi();
+
+            // Use best fit, for those capture modes where we can get huge images
+            bool useBestFit = _surface.CaptureDetails.CaptureMode switch
+            {
+                CaptureMode.File => true,
+                CaptureMode.Clipboard => true,
+                CaptureMode.IE => true,
+                _ => false
+            };
+
+            if (useBestFit)
+            {
+                ZoomBestFitMenuItemClick(this, EventArgs.Empty);
+            }
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
@@ -1290,7 +1304,7 @@ namespace Greenshot.Editor.Forms
             propertiesToolStrip.SuspendLayout();
             if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
             {
-                FieldAggregator props = _surface.FieldAggregator;
+                var props = (FieldAggregator)_surface.FieldAggregator;
                 btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
                 btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
@@ -1350,7 +1364,7 @@ namespace Greenshot.Editor.Forms
             btnStepLabel.Image = icon;
             addCounterToolStripMenuItem.Image = icon;
 
-            FieldAggregator props = _surface.FieldAggregator;
+            FieldAggregator props = (FieldAggregator)_surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
             // since we demand confirmation or cancel for confirmable element
             if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)

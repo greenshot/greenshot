@@ -158,7 +158,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons))
+                using (Icon appIcon = ImageIO.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons))
                 {
                     if (appIcon != null)
                     {

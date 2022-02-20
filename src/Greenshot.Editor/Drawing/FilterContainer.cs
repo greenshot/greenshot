@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -51,7 +52,7 @@ namespace Greenshot.Editor.Drawing
             MAGNIFICATION
         };
 
-        public FilterContainer(Surface parent) : base(parent)
+        public FilterContainer(ISurface parent) : base(parent)
         {
             Init();
         }

@@ -28,6 +28,7 @@ using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -83,7 +84,7 @@ namespace Greenshot.Editor.Drawing
             OnPropertyChanged("Text");
         }
 
-        public TextContainer(Surface parent) : base(parent)
+        public TextContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -154,17 +155,17 @@ namespace Greenshot.Editor.Drawing
             FieldChanged += TextContainer_FieldChanged;
         }
 
-        protected override void SwitchParent(Surface newParent)
+        protected override void SwitchParent(ISurface newParent)
         {
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.SizeChanged -= Parent_SizeChanged;
+                InternalParent.SizeChanged -= Parent_SizeChanged;
             }
 
             base.SwitchParent(newParent);
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.SizeChanged += Parent_SizeChanged;
+                InternalParent.SizeChanged += Parent_SizeChanged;
             }
         }
 
@@ -221,10 +222,10 @@ namespace Greenshot.Editor.Drawing
                 {
                     ShowTextBox();
                 }
-                else if (_parent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible)
+                else if (InternalParent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible)
                 {
                     // Fix (workaround) for BUG-1698
-                    _parent.KeysLocked = true;
+                    InternalParent.KeysLocked = true;
                 }
             }
 
@@ -295,10 +296,10 @@ namespace Greenshot.Editor.Drawing
 
         private void ShowTextBox()
         {
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.KeysLocked = true;
-                _parent.Controls.Add(_textBox);
+                InternalParent.KeysLocked = true;
+                InternalParent.Controls.Add(_textBox);
             }
 
             EnsureTextBoxContrast();
@@ -332,15 +333,15 @@ namespace Greenshot.Editor.Drawing
 
         private void HideTextBox()
         {
-            _parent?.Focus();
+            InternalParent?.Focus();
             _textBox?.Hide();
-            if (_parent == null)
+            if (InternalParent == null)
             {
                 return;
             }
 
-            _parent.KeysLocked = false;
-            _parent.Controls.Remove(_textBox);
+            InternalParent.KeysLocked = false;
+            InternalParent.Controls.Remove(_textBox);
         }
 
         /// <summary>

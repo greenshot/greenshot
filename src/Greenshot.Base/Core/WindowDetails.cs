@@ -782,7 +782,9 @@ namespace Greenshot.Base.Core
         /// </summary>
         public WindowStyleFlags WindowStyle
         {
-            get => (WindowStyleFlags) User32.GetWindowLongWrapper(Handle, (int) WindowLongIndex.GWL_STYLE);
+            get => unchecked(
+                (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE).ToInt64()
+            );
             set => User32.SetWindowLongWrapper(Handle, (int) WindowLongIndex.GWL_STYLE, new IntPtr((long) value));
         }
 

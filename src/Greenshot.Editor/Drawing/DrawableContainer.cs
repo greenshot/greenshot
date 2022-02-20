@@ -126,12 +126,17 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        [NonSerialized] internal Surface _parent;
+        [NonSerialized] internal ISurface _parent;
 
         public ISurface Parent
         {
             get => _parent;
-            set => SwitchParent((Surface) value);
+            set => SwitchParent(value);
+        }
+
+        protected Surface InternalParent
+        {
+            get => (Surface)_parent;
         }
 
         [NonSerialized] private TargetAdorner _targetAdorner;
@@ -277,7 +282,7 @@ namespace Greenshot.Editor.Drawing
             Height = Round(newBounds.Height);
         }
 
-        public DrawableContainer(Surface parent)
+        public DrawableContainer(ISurface parent)
         {
             InitializeFields();
             _parent = parent;
@@ -505,7 +510,7 @@ namespace Greenshot.Editor.Drawing
         {
             Invalidate();
 
-            // reset "workrbench" rectangle to current bounds
+            // reset "workbench" rectangle to current bounds
             _boundsAfterResize.X = _boundsBeforeResize.Left;
             _boundsAfterResize.Y = _boundsBeforeResize.Top;
             _boundsAfterResize.Width = x - _boundsAfterResize.Left;
@@ -529,7 +534,7 @@ namespace Greenshot.Editor.Drawing
         {
         }
 
-        protected virtual void SwitchParent(Surface newParent)
+        protected virtual void SwitchParent(ISurface newParent)
         {
             if (newParent == Parent)
             {

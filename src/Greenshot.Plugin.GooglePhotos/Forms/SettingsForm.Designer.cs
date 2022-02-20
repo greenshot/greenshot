@@ -86,7 +86,7 @@ namespace Greenshot.Plugin.GooglePhotos.Forms {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(197, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.PropertyName = nameof(GooglePhotosConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "GooglePhotos";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(225, 21);
 			this.combobox_uploadimageformat.TabIndex = 1;
@@ -114,7 +114,7 @@ namespace Greenshot.Plugin.GooglePhotos.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "googlephotos.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(197, 50);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = "AfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(GooglePhotosConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "GooglePhotos";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;

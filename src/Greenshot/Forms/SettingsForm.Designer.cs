@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 
 namespace Greenshot.Forms {
@@ -235,7 +237,7 @@ namespace Greenshot.Forms {
 			// 
 			this.textbox_screenshotname.Location = new System.Drawing.Point(138, 41);
 			this.textbox_screenshotname.Name = "textbox_screenshotname";
-			this.textbox_screenshotname.PropertyName = "OutputFileFilenamePattern";
+			this.textbox_screenshotname.PropertyName = nameof(CoreConfiguration.OutputFileFilenamePattern);
 			this.textbox_screenshotname.Size = new System.Drawing.Size(233, 20);
 			this.textbox_screenshotname.TabIndex = 3;
 			this.textbox_screenshotname.TextChanged += new System.EventHandler(this.FilenamePatternChanged);
@@ -264,7 +266,7 @@ namespace Greenshot.Forms {
 			this.combobox_primaryimageformat.FormattingEnabled = true;
 			this.combobox_primaryimageformat.Location = new System.Drawing.Point(138, 64);
 			this.combobox_primaryimageformat.Name = "combobox_primaryimageformat";
-			this.combobox_primaryimageformat.PropertyName = "OutputFileFormat";
+			this.combobox_primaryimageformat.PropertyName = nameof(CoreConfiguration.OutputFileFormat);
 			this.combobox_primaryimageformat.Size = new System.Drawing.Size(268, 21);
 			this.combobox_primaryimageformat.TabIndex = 5;
 			// 
@@ -309,7 +311,7 @@ namespace Greenshot.Forms {
 			this.checkbox_copypathtoclipboard.LanguageKey = "settings_copypathtoclipboard";
 			this.checkbox_copypathtoclipboard.Location = new System.Drawing.Point(12, 89);
 			this.checkbox_copypathtoclipboard.Name = "checkbox_copypathtoclipboard";
-			this.checkbox_copypathtoclipboard.PropertyName = "OutputFileCopyPathToClipboard";
+			this.checkbox_copypathtoclipboard.PropertyName = nameof(CoreConfiguration.OutputFileCopyPathToClipboard);
 			this.checkbox_copypathtoclipboard.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_copypathtoclipboard.TabIndex = 6;
 			this.checkbox_copypathtoclipboard.UseVisualStyleBackColor = true;
@@ -374,7 +376,7 @@ namespace Greenshot.Forms {
 			this.checkbox_reducecolors.LanguageKey = "settings_reducecolors";
 			this.checkbox_reducecolors.Location = new System.Drawing.Point(12, 72);
 			this.checkbox_reducecolors.Name = "checkbox_reducecolors";
-			this.checkbox_reducecolors.PropertyName = "OutputFileReduceColors";
+			this.checkbox_reducecolors.PropertyName = nameof(CoreConfiguration.OutputFileReduceColors);
 			this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
 			this.checkbox_reducecolors.TabIndex = 10;
 			this.checkbox_reducecolors.UseVisualStyleBackColor = true;
@@ -384,7 +386,7 @@ namespace Greenshot.Forms {
 			this.checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowqualitydialog";
 			this.checkbox_alwaysshowqualitydialog.Location = new System.Drawing.Point(12, 50);
 			this.checkbox_alwaysshowqualitydialog.Name = "checkbox_alwaysshowqualitydialog";
-			this.checkbox_alwaysshowqualitydialog.PropertyName = "OutputFilePromptQuality";
+			this.checkbox_alwaysshowqualitydialog.PropertyName = nameof(CoreConfiguration.OutputFilePromptQuality);
 			this.checkbox_alwaysshowqualitydialog.Size = new System.Drawing.Size(394, 25);
 			this.checkbox_alwaysshowqualitydialog.TabIndex = 9;
 			this.checkbox_alwaysshowqualitydialog.UseVisualStyleBackColor = true;
@@ -526,7 +528,7 @@ namespace Greenshot.Forms {
 			this.checkbox_usedefaultproxy.LanguageKey = "settings_usedefaultproxy";
 			this.checkbox_usedefaultproxy.Location = new System.Drawing.Point(7, 11);
 			this.checkbox_usedefaultproxy.Name = "checkbox_usedefaultproxy";
-			this.checkbox_usedefaultproxy.PropertyName = "UseProxy";
+			this.checkbox_usedefaultproxy.PropertyName = nameof(CoreConfiguration.UseProxy);
 			this.checkbox_usedefaultproxy.Size = new System.Drawing.Size(397, 25);
 			this.checkbox_usedefaultproxy.TabIndex = 7;
 			this.checkbox_usedefaultproxy.UseVisualStyleBackColor = true;
@@ -564,7 +566,7 @@ namespace Greenshot.Forms {
 			this.lastregion_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
 			this.lastregion_hotkeyControl.Location = new System.Drawing.Point(224, 94);
 			this.lastregion_hotkeyControl.Name = "lastregion_hotkeyControl";
-			this.lastregion_hotkeyControl.PropertyName = "LastregionHotkey";
+			this.lastregion_hotkeyControl.PropertyName = nameof(CoreConfiguration.LastregionHotkey);
 			this.lastregion_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.lastregion_hotkeyControl.TabIndex = 5;
 			// 
@@ -582,7 +584,7 @@ namespace Greenshot.Forms {
 			this.ie_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
 			this.ie_hotkeyControl.Location = new System.Drawing.Point(224, 120);
 			this.ie_hotkeyControl.Name = "ie_hotkeyControl";
-			this.ie_hotkeyControl.PropertyName = "IEHotkey";
+			this.ie_hotkeyControl.PropertyName = nameof(CoreConfiguration.IEHotkey);
 			this.ie_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.ie_hotkeyControl.TabIndex = 6;
 			// 
@@ -616,7 +618,7 @@ namespace Greenshot.Forms {
 			this.region_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
 			this.region_hotkeyControl.Location = new System.Drawing.Point(224, 68);
 			this.region_hotkeyControl.Name = "region_hotkeyControl";
-			this.region_hotkeyControl.PropertyName = "RegionHotkey";
+			this.region_hotkeyControl.PropertyName = nameof(CoreConfiguration.RegionHotkey);
 			this.region_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.region_hotkeyControl.TabIndex = 4;
 			// 
@@ -626,7 +628,7 @@ namespace Greenshot.Forms {
 			this.window_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
 			this.window_hotkeyControl.Location = new System.Drawing.Point(224, 42);
 			this.window_hotkeyControl.Name = "window_hotkeyControl";
-			this.window_hotkeyControl.PropertyName = "WindowHotkey";
+			this.window_hotkeyControl.PropertyName = nameof(CoreConfiguration.WindowHotkey);
 			this.window_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.window_hotkeyControl.TabIndex = 3;
 			// 
@@ -636,7 +638,7 @@ namespace Greenshot.Forms {
 			this.fullscreen_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
 			this.fullscreen_hotkeyControl.Location = new System.Drawing.Point(224, 16);
 			this.fullscreen_hotkeyControl.Name = "fullscreen_hotkeyControl";
-			this.fullscreen_hotkeyControl.PropertyName = "FullscreenHotkey";
+			this.fullscreen_hotkeyControl.PropertyName = nameof(CoreConfiguration.FullscreenHotkey);
 			this.fullscreen_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.fullscreen_hotkeyControl.TabIndex = 2;
 			// 
@@ -668,7 +670,7 @@ namespace Greenshot.Forms {
 			this.checkbox_editor_match_capture_size.LanguageKey = "editor_match_capture_size";
 			this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(6, 19);
 			this.checkbox_editor_match_capture_size.Name = "checkbox_editor_match_capture_size";
-			this.checkbox_editor_match_capture_size.PropertyName = "MatchSizeToCapture";
+			this.checkbox_editor_match_capture_size.PropertyName = nameof(EditorConfiguration.MatchSizeToCapture);
 			this.checkbox_editor_match_capture_size.SectionName = "Editor";
 			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
 			this.checkbox_editor_match_capture_size.TabIndex = 11;
@@ -689,7 +691,7 @@ namespace Greenshot.Forms {
 			this.checkbox_ie_capture.LanguageKey = "settings_iecapture";
 			this.checkbox_ie_capture.Location = new System.Drawing.Point(6, 19);
 			this.checkbox_ie_capture.Name = "checkbox_ie_capture";
-			this.checkbox_ie_capture.PropertyName = "IECapture";
+			this.checkbox_ie_capture.PropertyName = nameof(CoreConfiguration.IECapture);
 			this.checkbox_ie_capture.Size = new System.Drawing.Size(404, 24);
 			this.checkbox_ie_capture.TabIndex = 10;
 			this.checkbox_ie_capture.UseVisualStyleBackColor = true;
@@ -732,7 +734,7 @@ namespace Greenshot.Forms {
 			this.radiobuttonInteractiveCapture.LanguageKey = "settings_capture_windows_interactive";
 			this.radiobuttonInteractiveCapture.Location = new System.Drawing.Point(11, 20);
 			this.radiobuttonInteractiveCapture.Name = "radiobuttonInteractiveCapture";
-			this.radiobuttonInteractiveCapture.PropertyName = "CaptureWindowsInteractive";
+			this.radiobuttonInteractiveCapture.PropertyName = nameof(CoreConfiguration.CaptureWindowsInteractive);
 			this.radiobuttonInteractiveCapture.Size = new System.Drawing.Size(203, 17);
 			this.radiobuttonInteractiveCapture.TabIndex = 6;
 			this.radiobuttonInteractiveCapture.TabStop = true;
@@ -770,7 +772,7 @@ namespace Greenshot.Forms {
             this.checkbox_zoomer.LanguageKey = "settings_zoom";
             this.checkbox_zoomer.Location = new System.Drawing.Point(11, 79);
             this.checkbox_zoomer.Name = "checkbox_zoomer";
-            this.checkbox_zoomer.PropertyName = "ZoomerEnabled";
+            this.checkbox_zoomer.PropertyName = nameof(CoreConfiguration.ZoomerEnabled);
             this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
             this.checkbox_zoomer.TabIndex = 4;
             this.checkbox_zoomer.UseVisualStyleBackColor = true;
@@ -780,7 +782,7 @@ namespace Greenshot.Forms {
 			this.checkbox_notifications.LanguageKey = "settings_shownotify";
 			this.checkbox_notifications.Location = new System.Drawing.Point(11, 59);
 			this.checkbox_notifications.Name = "checkbox_notifications";
-			this.checkbox_notifications.PropertyName = "ShowTrayNotification";
+			this.checkbox_notifications.PropertyName = nameof(CoreConfiguration.ShowTrayNotification);
 			this.checkbox_notifications.Size = new System.Drawing.Size(399, 24);
 			this.checkbox_notifications.TabIndex = 3;
 			this.checkbox_notifications.UseVisualStyleBackColor = true;
@@ -790,7 +792,7 @@ namespace Greenshot.Forms {
 			this.checkbox_playsound.LanguageKey = "settings_playsound";
 			this.checkbox_playsound.Location = new System.Drawing.Point(11, 39);
 			this.checkbox_playsound.Name = "checkbox_playsound";
-			this.checkbox_playsound.PropertyName = "PlayCameraSound";
+			this.checkbox_playsound.PropertyName = nameof(CoreConfiguration.PlayCameraSound);
 			this.checkbox_playsound.Size = new System.Drawing.Size(399, 24);
 			this.checkbox_playsound.TabIndex = 2;
 			this.checkbox_playsound.UseVisualStyleBackColor = true;
@@ -800,7 +802,7 @@ namespace Greenshot.Forms {
 			this.checkbox_capture_mousepointer.LanguageKey = "settings_capture_mousepointer";
 			this.checkbox_capture_mousepointer.Location = new System.Drawing.Point(11, 19);
 			this.checkbox_capture_mousepointer.Name = "checkbox_capture_mousepointer";
-			this.checkbox_capture_mousepointer.PropertyName = "CaptureMousepointer";
+			this.checkbox_capture_mousepointer.PropertyName = nameof(CoreConfiguration.CaptureMousepointer);
 			this.checkbox_capture_mousepointer.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_capture_mousepointer.TabIndex = 1;
 			this.checkbox_capture_mousepointer.UseVisualStyleBackColor = true;
@@ -887,7 +889,7 @@ namespace Greenshot.Forms {
 			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
 			this.checkboxPrintInverted.Location = new System.Drawing.Point(13, 88);
 			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
-			this.checkboxPrintInverted.PropertyName = "OutputPrintInverted";
+			this.checkboxPrintInverted.PropertyName = nameof(CoreConfiguration.OutputPrintInverted);
 			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
 			this.checkboxPrintInverted.TabIndex = 14;
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -900,7 +902,6 @@ namespace Greenshot.Forms {
 			this.radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
 			this.radioBtnColorPrint.Location = new System.Drawing.Point(13, 19);
 			this.radioBtnColorPrint.Name = "radioBtnColorPrint";
-			this.radioBtnColorPrint.PropertyName = "OutputPrintColor";
 			this.radioBtnColorPrint.Size = new System.Drawing.Size(90, 17);
 			this.radioBtnColorPrint.TabIndex = 11;
 			this.radioBtnColorPrint.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -913,7 +914,7 @@ namespace Greenshot.Forms {
 			this.radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
 			this.radioBtnGrayScale.Location = new System.Drawing.Point(13, 42);
 			this.radioBtnGrayScale.Name = "radioBtnGrayScale";
-			this.radioBtnGrayScale.PropertyName = "OutputPrintGrayscale";
+			this.radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
 			this.radioBtnGrayScale.Size = new System.Drawing.Size(137, 17);
 			this.radioBtnGrayScale.TabIndex = 12;
 			this.radioBtnGrayScale.Text = "Force grayscale printing";
@@ -927,7 +928,7 @@ namespace Greenshot.Forms {
 			this.radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
 			this.radioBtnMonochrome.Location = new System.Drawing.Point(13, 65);
 			this.radioBtnMonochrome.Name = "radioBtnMonochrome";
-			this.radioBtnMonochrome.PropertyName = "OutputPrintMonochrome";
+			this.radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
 			this.radioBtnMonochrome.Size = new System.Drawing.Size(148, 17);
 			this.radioBtnMonochrome.TabIndex = 13;
 			this.radioBtnMonochrome.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -954,7 +955,7 @@ namespace Greenshot.Forms {
 			this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
 			this.checkboxDateTime.Location = new System.Drawing.Point(13, 115);
 			this.checkboxDateTime.Name = "checkboxDateTime";
-			this.checkboxDateTime.PropertyName = "OutputPrintFooter";
+			this.checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
 			this.checkboxDateTime.Size = new System.Drawing.Size(187, 17);
 			this.checkboxDateTime.TabIndex = 6;
 			this.checkboxDateTime.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -967,7 +968,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
 			this.checkboxAllowShrink.Location = new System.Drawing.Point(13, 23);
 			this.checkboxAllowShrink.Name = "checkboxAllowShrink";
-			this.checkboxAllowShrink.PropertyName = "OutputPrintAllowShrink";
+			this.checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
 			this.checkboxAllowShrink.Size = new System.Drawing.Size(168, 17);
 			this.checkboxAllowShrink.TabIndex = 2;
 			this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -980,7 +981,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
 			this.checkboxAllowEnlarge.Location = new System.Drawing.Point(13, 46);
 			this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
-			this.checkboxAllowEnlarge.PropertyName = "OutputPrintAllowEnlarge";
+			this.checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
 			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(174, 17);
 			this.checkboxAllowEnlarge.TabIndex = 3;
 			this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -993,7 +994,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
 			this.checkboxAllowRotate.Location = new System.Drawing.Point(13, 69);
 			this.checkboxAllowRotate.Name = "checkboxAllowRotate";
-			this.checkboxAllowRotate.PropertyName = "OutputPrintAllowRotate";
+			this.checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
 			this.checkboxAllowRotate.Size = new System.Drawing.Size(187, 17);
 			this.checkboxAllowRotate.TabIndex = 4;
 			this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -1006,7 +1007,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
 			this.checkboxAllowCenter.Location = new System.Drawing.Point(13, 92);
 			this.checkboxAllowCenter.Name = "checkboxAllowCenter";
-			this.checkboxAllowCenter.PropertyName = "OutputPrintCenter";
+			this.checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
 			this.checkboxAllowCenter.Size = new System.Drawing.Size(137, 17);
 			this.checkboxAllowCenter.TabIndex = 5;
 			this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -1017,7 +1018,7 @@ namespace Greenshot.Forms {
 			this.checkbox_alwaysshowprintoptionsdialog.LanguageKey = "settings_alwaysshowprintoptionsdialog";
 			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(19, 293);
 			this.checkbox_alwaysshowprintoptionsdialog.Name = "checkbox_alwaysshowprintoptionsdialog";
-			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = "OutputPrintPromptOptions";
+			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(coreConfiguration.OutputPrintPromptOptions);
 			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 20);
 			this.checkbox_alwaysshowprintoptionsdialog.TabIndex = 15;
 			this.checkbox_alwaysshowprintoptionsdialog.Text = "Show print options dialog every time an image is printed";
@@ -1114,7 +1115,7 @@ namespace Greenshot.Forms {
 			this.checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
 			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 225);
 			this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
-			this.checkbox_reuseeditor.PropertyName = "ReuseEditor";
+			this.checkbox_reuseeditor.PropertyName = nameof(EditorConfiguration.ReuseEditor);
 			this.checkbox_reuseeditor.SectionName = "Editor";
 			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_reuseeditor.TabIndex = 9;
@@ -1125,7 +1126,7 @@ namespace Greenshot.Forms {
 			this.checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
 			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 206);
 			this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
-			this.checkbox_minimizememoryfootprint.PropertyName = "MinimizeWorkingSetSize";
+			this.checkbox_minimizememoryfootprint.PropertyName = nameof(coreConfiguration.MinimizeWorkingSetSize);
 			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_minimizememoryfootprint.TabIndex = 8;
 			this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
@@ -1135,7 +1136,7 @@ namespace Greenshot.Forms {
 			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
 			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 187);
 			this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
-			this.checkbox_checkunstableupdates.PropertyName = "CheckForUnstable";
+			this.checkbox_checkunstableupdates.PropertyName = nameof(coreConfiguration.CheckForUnstable);
 			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_checkunstableupdates.TabIndex = 7;
 			this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
@@ -1145,7 +1146,7 @@ namespace Greenshot.Forms {
 			this.checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
 			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 168);
 			this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
-			this.checkbox_suppresssavedialogatclose.PropertyName = "SuppressSaveDialogAtClose";
+			this.checkbox_suppresssavedialogatclose.PropertyName = nameof(EditorConfiguration.SuppressSaveDialogAtClose);
 			this.checkbox_suppresssavedialogatclose.SectionName = "Editor";
 			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_suppresssavedialogatclose.TabIndex = 6;
@@ -1163,7 +1164,7 @@ namespace Greenshot.Forms {
 			// 
 			this.textbox_counter.Location = new System.Drawing.Point(259, 282);
 			this.textbox_counter.Name = "textbox_counter";
-			this.textbox_counter.PropertyName = "OutputFileIncrementingNumber";
+			this.textbox_counter.PropertyName = nameof(coreConfiguration.OutputFileIncrementingNumber);
 			this.textbox_counter.Size = new System.Drawing.Size(141, 20);
 			this.textbox_counter.TabIndex = 11;
 			// 
@@ -1180,7 +1181,7 @@ namespace Greenshot.Forms {
 			// 
 			this.textbox_footerpattern.Location = new System.Drawing.Point(138, 256);
 			this.textbox_footerpattern.Name = "textbox_footerpattern";
-			this.textbox_footerpattern.PropertyName = "OutputPrintFooterPattern";
+			this.textbox_footerpattern.PropertyName = nameof(coreConfiguration.OutputPrintFooterPattern);
 			this.textbox_footerpattern.Size = new System.Drawing.Size(262, 20);
 			this.textbox_footerpattern.TabIndex = 10;
 			// 
@@ -1189,7 +1190,7 @@ namespace Greenshot.Forms {
 			this.checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
 			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 149);
 			this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
-			this.checkbox_thumbnailpreview.PropertyName = "ThumnailPreview";
+			this.checkbox_thumbnailpreview.PropertyName = nameof(coreConfiguration.ThumnailPreview);
 			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_thumbnailpreview.TabIndex = 5;
 			this.checkbox_thumbnailpreview.UseVisualStyleBackColor = true;
@@ -1199,7 +1200,7 @@ namespace Greenshot.Forms {
 			this.checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
 			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 130);
 			this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
-			this.checkbox_optimizeforrdp.PropertyName = "OptimizeForRDP";
+			this.checkbox_optimizeforrdp.PropertyName = nameof(coreConfiguration.OptimizeForRDP);
 			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
 			this.checkbox_optimizeforrdp.TabIndex = 4;
 			this.checkbox_optimizeforrdp.UseVisualStyleBackColor = true;
@@ -1209,7 +1210,7 @@ namespace Greenshot.Forms {
 			this.checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
 			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 111);
 			this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
-			this.checkbox_autoreducecolors.PropertyName = "OutputFileAutoReduceColors";
+			this.checkbox_autoreducecolors.PropertyName = nameof(coreConfiguration.OutputFileAutoReduceColors);
 			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(408, 24);
 			this.checkbox_autoreducecolors.TabIndex = 3;
 			this.checkbox_autoreducecolors.UseVisualStyleBackColor = true;
@@ -1257,7 +1258,7 @@ namespace Greenshot.Forms {
 			// 
 			// SettingsForm
 			// 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(451, 431);
 			this.Controls.Add(this.tabcontrol);

@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 
@@ -43,7 +44,7 @@ namespace Greenshot.Editor.Drawing
 
         private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
-        public ArrowContainer(Surface parent) : base(parent)
+        public ArrowContainer(ISurface parent) : base(parent)
         {
         }
 

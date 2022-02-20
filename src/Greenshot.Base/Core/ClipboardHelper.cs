@@ -31,8 +31,10 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
 using log4net;
@@ -63,7 +65,8 @@ namespace Greenshot.Base.Core
         //private static readonly string FORMAT_HTML = "HTML Format";
 
         // Template for the HTML Text on the clipboard
-        // see: https://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
+        // see: https://msdn.microsoft.com/en-us/library/ms649015%28v=v
+        // s.85%29.aspx
         // or:  https://msdn.microsoft.com/en-us/library/Aa767917.aspx
         private const string HtmlClipboardString = @"Version:0.9
 StartHTML:<<<<<<<1
@@ -298,14 +301,15 @@ EndSelection:<<<<<<<4
             {
                 return true;
             }
-
-            foreach (var fileData in IterateClipboardContent(dataObject))
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
                 try
                 {
-                    using (ImageHelper.FromStream(fileData))
+                    var extension = Path.GetExtension(filename)?.ToLowerInvariant();
+                    if (supportedExtensions.Contains(extension))
                     {
-                        // If we get here, there is an image
                         return true;
                     }
                 }
@@ -315,7 +319,7 @@ EndSelection:<<<<<<<4
                 }
                 finally
                 {
-                    fileData?.Dispose();
+                    stream?.Dispose();
                 }
             }
 
@@ -327,7 +331,8 @@ EndSelection:<<<<<<<4
                     var imageStream = clipboardContent as MemoryStream;
                     if (IsValidStream(imageStream))
                     {
-                        using (ImageHelper.FromStream(imageStream))
+                        // TODO: How to check if we support "just a stream"?
+                        using (ImageIO.FromStream(imageStream))
                         {
                             // If we get here, there is an image
                             return true;
@@ -373,8 +378,8 @@ EndSelection:<<<<<<<4
         /// Iterate the clipboard content
         /// </summary>
         /// <param name="dataObject">IDataObject</param>
-        /// <returns>IEnumerable{MemoryStream}</returns>
-        private static IEnumerable<MemoryStream> IterateClipboardContent(IDataObject dataObject)
+        /// <returns>IEnumerable{(MemoryStream,string)}</returns>
+        private static IEnumerable<(MemoryStream stream,string filename)> IterateClipboardContent(IDataObject dataObject)
         {
             var fileDescriptors = AvailableFileDescriptors(dataObject);
             if (fileDescriptors == null) yield break;
@@ -413,8 +418,8 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="fileDescriptors">IEnumerable{FileDescriptor}</param>
         /// <param name="dataObject">IDataObject</param>
-        /// <returns>IEnumerable{MemoryStream}</returns>
-        private static IEnumerable<MemoryStream> IterateFileDescriptors(IEnumerable<FileDescriptor> fileDescriptors, IDataObject dataObject)
+        /// <returns>IEnumerable{(MemoryStream stream, string filename)}</returns>
+        private static IEnumerable<(MemoryStream stream, string filename)> IterateFileDescriptors(IEnumerable<FileDescriptor> fileDescriptors, IDataObject dataObject)
         {
             if (fileDescriptors == null)
             {
@@ -445,7 +450,7 @@ EndSelection:<<<<<<<4
                 if (fileData?.Length > 0)
                 {
                     fileData.Position = 0;
-                    yield return fileData;
+                    yield return (fileData, fileDescriptor.FileName);
                 }
 
                 fileIndex++;
@@ -490,7 +495,7 @@ EndSelection:<<<<<<<4
         {
             IDataObject clipboardData = GetDataObject();
             // Return the first image
-            foreach (Image clipboardImage in GetImages(clipboardData))
+            foreach (var clipboardImage in GetImages(clipboardData))
             {
                 return clipboardImage;
             }
@@ -503,56 +508,153 @@ EndSelection:<<<<<<<4
         /// Returned images must be disposed by the calling code!
         /// </summary>
         /// <param name="dataObject"></param>
-        /// <returns>IEnumerable of Image</returns>
-        public static IEnumerable<Image> GetImages(IDataObject dataObject)
+        /// <returns>IEnumerable of Bitmap</returns>
+        public static IEnumerable<Bitmap> GetImages(IDataObject dataObject)
         {
             // Get single image, this takes the "best" match
-            Image singleImage = GetImage(dataObject);
+            Bitmap singleImage = GetImage(dataObject);
             if (singleImage != null)
             {
-                Log.InfoFormat("Got image from clipboard with size {0} and format {1}", singleImage.Size, singleImage.PixelFormat);
+                Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
                 yield return singleImage;
+                yield break;
             }
-            else
+
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
-                foreach (var fileData in IterateClipboardContent(dataObject))
+                var extension = Path.GetExtension(filename)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
                 {
-                    Image image; 
-                    try
-                    {
-                        image = ImageHelper.FromStream(fileData);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Couldn't read file contents", ex);
-                        continue;
-                    }
-                    finally
-                    {
-                        fileData?.Dispose();
-                    }
-                    // If we get here, there is an image
-                    yield return image;
+                    continue;
                 }
 
-                // check if files are supplied
-                foreach (string imageFile in GetImageFilenames(dataObject))
+                Bitmap bitmap = null;
+
+                try
                 {
-                    Image returnImage = null;
-                    try
+                    if (!fileFormatHandlers.TryLoadFromStream(stream, extension, out bitmap))
                     {
-                        returnImage = ImageHelper.LoadImage(imageFile);
-                    }
-                    catch (Exception streamImageEx)
-                    {
-                        Log.Error("Problem retrieving Image from clipboard.", streamImageEx);
+                        continue;
                     }
 
-                    if (returnImage != null)
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                finally
+                {
+                    stream?.Dispose();
+                }
+                // If we get here, there is an image
+                yield return bitmap;
+            }
+
+            // check if files are supplied
+            foreach (string imageFile in GetImageFilenames(dataObject))
+            {
+                var extension = Path.GetExtension(imageFile)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                Bitmap bitmap = null;
+                using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                try
+                {
+                    if (!fileFormatHandlers.TryLoadFromStream(fileStream, extension, out bitmap))
                     {
-                        Log.InfoFormat("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
-                        yield return returnImage;
+                        continue;
                     }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                // If we get here, there is an image
+                yield return bitmap;
+            }
+        }
+
+        /// <summary>
+        /// Get all images (multiple if file names are available) from the dataObject
+        /// Returned images must be disposed by the calling code!
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>IEnumerable of IDrawableContainer</returns>
+        public static IEnumerable<IDrawableContainer> GetDrawables(IDataObject dataObject)
+        {
+            // Get single image, this takes the "best" match
+            IDrawableContainer singleImage = GetDrawable(dataObject);
+            if (singleImage != null)
+            {
+                Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
+                yield return singleImage;
+                yield break;
+            }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+
+            foreach (var (stream, filename) in IterateClipboardContent(dataObject))
+            {
+                var extension = Path.GetExtension(filename)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                IEnumerable<IDrawableContainer> drawableContainers;
+                try
+                {
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(stream, extension);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                finally
+                {
+                    stream?.Dispose();
+                }
+                // If we get here, there is an image
+                foreach (var container in drawableContainers)
+                {
+                    yield return container;
+                }
+            }
+
+            // check if files are supplied
+            foreach (string imageFile in GetImageFilenames(dataObject))
+            {
+                var extension = Path.GetExtension(imageFile)?.ToLowerInvariant();
+                if (!supportedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                IDrawableContainer drawableContainer = null;
+                using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                IEnumerable<IDrawableContainer> drawableContainers;
+                try
+                {
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(fileStream, extension);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Couldn't read file contents", ex);
+                    continue;
+                }
+                // If we get here, there is an image
+                foreach (var container in drawableContainers)
+                {
+                    yield return container;
                 }
             }
         }
@@ -562,51 +664,50 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="dataObject"></param>
         /// <returns>Image or null</returns>
-        private static Image GetImage(IDataObject dataObject)
+        private static Bitmap GetImage(IDataObject dataObject)
         {
-            Image returnImage = null;
-            if (dataObject != null)
-            {
-                IList<string> formats = GetFormats(dataObject);
-                string[] retrieveFormats;
+            if (dataObject == null) return null;
 
-                // Found a weird bug, where PNG's from Outlook 2010 are clipped
-                // So I build some special logic to get the best format:
-                if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            Bitmap returnImage = null;
+            IList<string> formats = GetFormats(dataObject);
+            string[] retrieveFormats;
+
+            // Found a weird bug, where PNG's from Outlook 2010 are clipped
+            // So I build some special logic to get the best format:
+            if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            {
+                // Outlook ??
+                Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+                retrieveFormats = new[]
                 {
-                    // Outlook ??
-                    Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
-                    retrieveFormats = new[]
-                    {
-                        DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF,
-                        DataFormats.Tiff, FORMAT_GIF, FORMAT_HTML
-                    };
+                    DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF,
+                    DataFormats.Tiff, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+            else
+            {
+                retrieveFormats = new[]
+                {
+                    FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP,
+                    FORMAT_FILECONTENTS, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+
+            foreach (string currentFormat in retrieveFormats)
+            {
+                if (formats != null && formats.Contains(currentFormat))
+                {
+                    Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
+                    returnImage = GetImageForFormat(currentFormat, dataObject);
                 }
                 else
                 {
-                    retrieveFormats = new[]
-                    {
-                        FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP,
-                        FORMAT_FILECONTENTS, FORMAT_GIF, FORMAT_HTML
-                    };
+                    Log.DebugFormat("Couldn't find format {0}.", currentFormat);
                 }
 
-                foreach (string currentFormat in retrieveFormats)
+                if (returnImage != null)
                 {
-                    if (formats != null && formats.Contains(currentFormat))
-                    {
-                        Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
-                        returnImage = GetImageForFormat(currentFormat, dataObject);
-                    }
-                    else
-                    {
-                        Log.DebugFormat("Couldn't find format {0}.", currentFormat);
-                    }
-
-                    if (returnImage != null)
-                    {
-                        return returnImage;
-                    }
+                    return returnImage;
                 }
             }
 
@@ -614,15 +715,72 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// Helper method to try to get an image in the specified format from the dataObject
+        /// Get an IDrawableContainer from the IDataObject, don't check for FileDrop
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>Image or null</returns>
+        private static IDrawableContainer GetDrawable(IDataObject dataObject)
+        {
+            if (dataObject == null) return null;
+
+            IDrawableContainer returnImage = null;
+            IList<string> formats = GetFormats(dataObject);
+            string[] retrieveFormats;
+
+            // Found a weird bug, where PNG's from Outlook 2010 are clipped
+            // So I build some special logic to get the best format:
+            if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            {
+                // Outlook ??
+                Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+                retrieveFormats = new[]
+                {
+                    DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF,
+                    DataFormats.Tiff, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+            else
+            {
+                retrieveFormats = new[]
+                {
+                    FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JPEG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP,
+                    FORMAT_FILECONTENTS, FORMAT_GIF, FORMAT_HTML
+                };
+            }
+
+            foreach (string currentFormat in retrieveFormats)
+            {
+                if (formats != null && formats.Contains(currentFormat))
+                {
+                    Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
+                    returnImage = GetDrawableForFormat(currentFormat, dataObject);
+                }
+                else
+                {
+                    Log.DebugFormat("Couldn't find format {0}.", currentFormat);
+                }
+
+                if (returnImage != null)
+                {
+                    return returnImage;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Helper method to try to get an Bitmap in the specified format from the dataObject
         /// the DIB reader should solve some issues
         /// It also supports Format17/DibV5, by using the following information: https://stackoverflow.com/a/14335591
         /// </summary>
         /// <param name="format">string with the format</param>
         /// <param name="dataObject">IDataObject</param>
-        /// <returns>Image or null</returns>
-        private static Image GetImageForFormat(string format, IDataObject dataObject)
+        /// <returns>Bitmap or null</returns>
+        private static Bitmap GetImageForFormat(string format, IDataObject dataObject)
         {
+            Bitmap bitmap = null;
+
             if (format == FORMAT_HTML)
             {
                 var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
@@ -638,10 +796,10 @@ EndSelection:<<<<<<<4
                             var srcAttribute = imgNode.Attributes["src"];
                             var imageUrl = srcAttribute.Value;
                             Log.Debug(imageUrl);
-                            var image = NetworkHelper.DownloadImage(imageUrl);
-                            if (image != null)
+                            bitmap = NetworkHelper.DownloadImage(imageUrl);
+                            if (bitmap != null)
                             {
-                                return image;
+                                return bitmap;
                             }
                         }
                     }
@@ -652,111 +810,80 @@ EndSelection:<<<<<<<4
             var imageStream = clipboardObject as MemoryStream;
             if (!IsValidStream(imageStream))
             {
-                // TODO: add "HTML Format" support here...
-                return clipboardObject as Image;
+                return clipboardObject as Bitmap;
             }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-            if (CoreConfig.EnableSpecialDIBClipboardReader)
+            // From here, imageStream is a valid stream
+            if (!fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap))
             {
-                if (format == FORMAT_17 || format == DataFormats.Dib)
+                return bitmap;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Helper method to try to get an IDrawableContainer in the specified format from the dataObject
+        /// the DIB reader should solve some issues
+        /// It also supports Format17/DibV5, by using the following information: https://stackoverflow.com/a/14335591
+        /// </summary>
+        /// <param name="format">string with the format</param>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>IDrawableContainer or null</returns>
+        private static IDrawableContainer GetDrawableForFormat(string format, IDataObject dataObject)
+        {
+            IDrawableContainer drawableContainer = null;
+
+            if (format == FORMAT_HTML)
+            {
+                var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+                if (textObject != null)
                 {
-                    Log.Info("Found DIB stream, trying to process it.");
-                    try
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(textObject);
+                    var imgNodes = doc.DocumentNode.SelectNodes("//img");
+                    if (imgNodes != null)
                     {
-                        if (imageStream != null)
+                        foreach (var imgNode in imgNodes)
                         {
-                            byte[] dibBuffer = new byte[imageStream.Length];
-                            _ = imageStream.Read(dibBuffer, 0, dibBuffer.Length);
-                            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADERV5>(dibBuffer);
-                            if (!infoHeader.IsDibV5)
+                            var srcAttribute = imgNode.Attributes["src"];
+                            var imageUrl = srcAttribute.Value;
+                            Log.Debug(imageUrl);
+                            drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(imageUrl);
+                            if (drawableContainer != null)
                             {
-                                Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
-                                int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
-                                uint infoHeaderSize = infoHeader.biSize;
-                                int fileSize = (int) (fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
-
-                                var fileHeader = new BITMAPFILEHEADER
-                                {
-                                    bfType = BITMAPFILEHEADER.BM,
-                                    bfSize = fileSize,
-                                    bfReserved1 = 0,
-                                    bfReserved2 = 0,
-                                    bfOffBits = (int) (fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4)
-                                };
-
-                                byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
-
-                                using var bitmapStream = new MemoryStream();
-                                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-                                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-                                bitmapStream.Seek(0, SeekOrigin.Begin);
-                                var image = ImageHelper.FromStream(bitmapStream);
-                                if (image != null)
-                                {
-                                    return image;
-                                }
-                            }
-                            else
-                            {
-                                Log.Info("Using special DIBV5 / Format17 format reader");
-                                // CF_DIBV5
-                                IntPtr gcHandle = IntPtr.Zero;
-                                try
-                                {
-                                    GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
-                                    gcHandle = GCHandle.ToIntPtr(handle);
-                                    return
-                                        new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
-                                            -(int) (infoHeader.biSizeImage / infoHeader.biHeight),
-                                            infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                                            new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
-                                                       (infoHeader.biHeight - 1) * (int) (infoHeader.biSizeImage / infoHeader.biHeight))
-                                        );
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Error("Problem retrieving Format17 from clipboard.", ex);
-                                }
-                                finally
-                                {
-                                    if (gcHandle == IntPtr.Zero)
-                                    {
-                                        GCHandle.FromIntPtr(gcHandle).Free();
-                                    }
-                                }
+                                return drawableContainer;
                             }
                         }
                     }
-                    catch (Exception dibEx)
-                    {
-                        Log.Error("Problem retrieving DIB from clipboard.", dibEx);
-                    }
                 }
             }
-            else
-            {
-                Log.Info("Skipping special DIB format reader as it's disabled in the configuration.");
-            }
 
-            try
+            object clipboardObject = GetFromDataObject(dataObject, format);
+            var imageStream = clipboardObject as MemoryStream;
+            if (!IsValidStream(imageStream))
             {
-                if (imageStream != null)
+                // TODO: add text based, like "HTML Format" support here...
+                // TODO: solve the issue that we do not have a factory for the ImageContainer
+                /*var image = clipboardObject as Image;
+                if (image != null)
                 {
-                    imageStream.Seek(0, SeekOrigin.Begin);
-                    var tmpImage = ImageHelper.FromStream(imageStream);
-                    if (tmpImage != null)
+                    return new ImageContainer(this)
                     {
-                        Log.InfoFormat("Got image with clipboard format {0} from the clipboard.", format);
-                        return tmpImage;
-                    }
+                        Image = image,
+                        Left = x,
+                        Top = y
+                    };
                 }
-            }
-            catch (Exception streamImageEx)
-            {
-                Log.Error($"Problem retrieving {format} from clipboard.", streamImageEx);
+                return clipboardObject as Image;
+*/
+                return null;
             }
 
-            return null;
+            // From here, imageStream is a valid stream
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+
+            return fileFormatHandlers.LoadDrawablesFromStream(imageStream, format).FirstOrDefault();
         }
 
         /// <summary>
@@ -840,7 +967,7 @@ EndSelection:<<<<<<<4
             {
                 SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
                 // Create the image which is going to be saved so we don't create it multiple times
-                disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
+                disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out imageToSave);
                 try
                 {
                     // Create PNG stream
@@ -849,7 +976,7 @@ EndSelection:<<<<<<<4
                         pngStream = new MemoryStream();
                         // PNG works for e.g. Powerpoint
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-                        ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
+                        ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
                         pngStream.Seek(0, SeekOrigin.Begin);
                         // Set the PNG stream
                         dataObject.SetData(FORMAT_PNG, false, pngStream);
@@ -866,11 +993,18 @@ EndSelection:<<<<<<<4
                     {
                         // Create the stream for the clipboard
                         dibStream = new MemoryStream();
-                        var dibBytes = ((Bitmap)imageToSave).ConvertToDib();
-                        dibStream.Write(dibBytes,0, dibBytes.Length);
+                        var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-                        // Set the DIB to the clipboard DataObject
-                        dataObject.SetData(DataFormats.Dib, false, dibStream);
+                        if (!fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
+                        {
+                            dibStream.Dispose();
+                            dibStream = null;
+                        }
+                        else
+                        {
+                            // Set the DIB to the clipboard DataObject
+                            dataObject.SetData(DataFormats.Dib, false, dibStream);
+                        }
                     }
                 }
                 catch (Exception dibEx)
@@ -924,7 +1058,7 @@ EndSelection:<<<<<<<4
                 // Set the HTML
                 if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
                 {
-                    string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+                    string tmpFile = ImageIO.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
@@ -942,11 +1076,11 @@ EndSelection:<<<<<<<4
                         // Check if we can use the previously used image
                         if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
                         {
-                            ImageOutput.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
+                            ImageIO.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
                         }
                         else
                         {
-                            ImageOutput.SaveToStream(surface, tmpPngStream, pngOutputSettings);
+                            ImageIO.SaveToStream(surface, tmpPngStream, pngOutputSettings);
                         }
 
                         html = GetHtmlDataUrlString(surface, tmpPngStream);
@@ -1125,15 +1259,15 @@ EndSelection:<<<<<<<4
         public static IEnumerable<string> GetImageFilenames(IDataObject dataObject)
         {
             string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
-            if (dropFileNames != null && dropFileNames.Length > 0)
-            {
-                return dropFileNames
-                    .Where(filename => !string.IsNullOrEmpty(filename))
-                    .Where(Path.HasExtension)
-                    .Where(filename => ImageHelper.StreamConverters.Keys.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
-            }
+            if (dropFileNames is not { Length: > 0 }) return Enumerable.Empty<string>();
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
-            return Enumerable.Empty<string>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).ToList();
+            return dropFileNames
+                .Where(filename => !string.IsNullOrEmpty(filename))
+                .Where(Path.HasExtension)
+                .Where(filename => supportedExtensions.Contains(Path.GetExtension(filename)));
+
         }
 
         /// <summary>

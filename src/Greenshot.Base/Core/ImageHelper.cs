@@ -24,28 +24,24 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.UnmanagedHelpers;
 using log4net;
+using Brush = System.Drawing.Brush;
+using Color = System.Drawing.Color;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using Pen = System.Drawing.Pen;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace Greenshot.Base.Core
 {
-    internal enum ExifOrientations : byte
-    {
-        Unknown = 0,
-        TopLeft = 1,
-        TopRight = 2,
-        BottomRight = 3,
-        BottomLeft = 4,
-        LeftTop = 5,
-        RightTop = 6,
-        RightBottom = 7,
-        LeftBottom = 8,
-    }
-
     /// <summary>
     /// Description of ImageHelper.
     /// </summary>
@@ -55,83 +51,6 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
-        static ImageHelper()
-        {
-            StreamConverters["greenshot"] = (stream, s) =>
-            {
-                var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-                return surface.GetImageForExport();
-            };
-
-            // Add a SVG converter
-            StreamConverters["svg"] = (stream, s) =>
-            {
-                stream.Position = 0;
-                try
-                {
-                    return SvgImage.FromStream(stream).Image;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Can't load SVG", ex);
-                }
-
-                return null;
-            };
-
-            static Image DefaultConverter(Stream stream, string s)
-            {
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                return Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
-
-            // Fallback
-            StreamConverters[string.Empty] = DefaultConverter;
-            StreamConverters["gif"] = DefaultConverter;
-            StreamConverters["bmp"] = DefaultConverter;
-            StreamConverters["jpg"] = DefaultConverter;
-            StreamConverters["jpeg"] = DefaultConverter;
-            StreamConverters["png"] = DefaultConverter;
-            StreamConverters["wmf"] = DefaultConverter;
-
-            StreamConverters["ico"] = (stream, extension) =>
-            {
-                // Icon logic, try to get the Vista icon, else the biggest possible
-                try
-                {
-                    using Image tmpImage = ExtractVistaIcon(stream);
-                    if (tmpImage != null)
-                    {
-                        return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                    }
-                }
-                catch (Exception vistaIconException)
-                {
-                    Log.Warn("Can't read icon", vistaIconException);
-                }
-
-                try
-                {
-                    // No vista icon, try normal icon
-                    stream.Position = 0;
-                    // We create a copy of the bitmap, so everything else can be disposed
-                    using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
-                    using Image tmpImage = tmpIcon.ToBitmap();
-                    return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                }
-                catch (Exception iconException)
-                {
-                    Log.Warn("Can't read icon", iconException);
-                }
-
-                stream.Position = 0;
-                return DefaultConverter(stream, extension);
-            };
-        }
-
-        public static IDictionary<string, Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Image>>();
 
         /// <summary>
         /// Make sure the image is orientated correctly
@@ -372,127 +291,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Load an image from file
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        public static Image LoadImage(string filename)
-        {
-            if (string.IsNullOrEmpty(filename))
-            {
-                return null;
-            }
-
-            if (!File.Exists(filename))
-            {
-                return null;
-            }
-
-            Image fileImage;
-            Log.InfoFormat("Loading image from file {0}", filename);
-            // Fixed lock problem Bug #3431881
-            using (Stream imageFileStream = File.OpenRead(filename))
-            {
-                fileImage = FromStream(imageFileStream, Path.GetExtension(filename));
-            }
-
-            if (fileImage != null)
-            {
-                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return fileImage;
-        }
-
-        /// <summary>
-        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
-        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
-        /// </summary>
-        /// <param name="iconStream">Stream with the icon information</param>
-        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
-        private static Bitmap ExtractVistaIcon(Stream iconStream)
-        {
-            const int sizeIconDir = 6;
-            const int sizeIconDirEntry = 16;
-            Bitmap bmpPngExtracted = null;
-            try
-            {
-                byte[] srcBuf = new byte[iconStream.Length];
-                iconStream.Read(srcBuf, 0, (int) iconStream.Length);
-                int iCount = BitConverter.ToInt16(srcBuf, 4);
-                for (int iIndex = 0; iIndex < iCount; iIndex++)
-                {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-                    if (iWidth == 0 && iHeight == 0)
-                    {
-                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                        using MemoryStream destStream = new MemoryStream();
-                        destStream.Write(srcBuf, iImageOffset, iImageSize);
-                        destStream.Seek(0, SeekOrigin.Begin);
-                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return bmpPngExtracted;
-        }
-
-        /// <summary>
-        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
-        /// </summary>
-        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
-        /// <param name="index">Index of the icon</param>
-        /// <param name="takeLarge">true if the large icon is wanted</param>
-        /// <returns>Icon</returns>
-        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
-        {
-            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
-            Icon returnIcon = null;
-            bool isLarge = false;
-            bool isSmall = false;
-            try
-            {
-                if (takeLarge && !IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-                else if (!IntPtr.Zero.Equals(small))
-                {
-                    returnIcon = Icon.FromHandle(small);
-                    isSmall = true;
-                }
-                else if (!IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-            }
-            finally
-            {
-                if (isLarge && !IntPtr.Zero.Equals(small))
-                {
-                    User32.DestroyIcon(small);
-                }
-
-                if (isSmall && !IntPtr.Zero.Equals(large))
-                {
-                    User32.DestroyIcon(large);
-                }
-            }
-
-            return returnIcon;
-        }
-
-        /// <summary>
         /// Apply the effect to the bitmap
         /// </summary>
         /// <param name="sourceImage">Bitmap</param>
@@ -563,8 +361,7 @@ namespace Greenshot.Base.Core
         /// <returns>Changed bitmap</returns>
         public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
         {
-            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution,
-                sourceImage.VerticalResolution);
+            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
                 Random random = new Random();
@@ -1396,7 +1193,7 @@ namespace Greenshot.Base.Core
             }
 
             // If no pixelformat is supplied
-            if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat)
+            if (targetFormat is PixelFormat.DontCare or PixelFormat.Undefined)
             {
                 if (SupportsPixelFormat(sourceImage.PixelFormat))
                 {
@@ -1517,10 +1314,10 @@ namespace Greenshot.Base.Core
         /// <param name="height"></param>
         /// <param name="format"></param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
-        /// <param name="horizontalResolution"></param>
-        /// <param name="verticalResolution"></param>
+        /// <param name="horizontalResolution">float</param>
+        /// <param name="verticalResolution">float</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution, float verticalResolution)
+        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
             Bitmap newImage = new Bitmap(width, height, format);
@@ -1709,100 +1506,108 @@ namespace Greenshot.Base.Core
 
             return newImage;
         }
-
+        
         /// <summary>
-        /// Load a Greenshot surface from a stream
+        /// Rotate the image
         /// </summary>
-        /// <param name="surfaceFileStream">Stream</param>
-        /// <param name="returnSurface"></param>
-        /// <returns>ISurface</returns>
-        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
+        /// <param name="image">Input image</param>
+        /// <param name="rotationAngle">Angle in degrees</param>
+        /// <returns>Rotated image</returns>
+        public static Image Rotate(this Image image, float rotationAngle)
         {
-            Image fileImage;
-            // Fixed problem that the bitmap stream is disposed... by Cloning the image
-            // This also ensures the bitmap is correctly created
+            var bitmap = CreateEmptyLike(image, Color.Transparent);
 
-            // We create a copy of the bitmap, so everything else can be disposed
-            surfaceFileStream.Position = 0;
-            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
-            {
-                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                fileImage = Clone(tmpImage);
-            }
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
-            {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
+            graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            graphics.RotateTransform(rotationAngle);
+            graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
 
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int filesizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
-            }
+            graphics.DrawImage(image, new Point(0, 0));
 
-            if (fileImage != null)
-            {
-                returnSurface.Image = fileImage;
-                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return returnSurface;
+            return bitmap;
         }
 
         /// <summary>
-        /// Create an image from a stream, if an extension is supplied more formats are supported.
+        /// Map a System.Drawing.Imaging.PixelFormat to a System.Windows.Media.PixelFormat
         /// </summary>
-        /// <param name="stream">Stream</param>
-        /// <param name="extension"></param>
-        /// <returns>Image</returns>
-        public static Image FromStream(Stream stream, string extension = null)
+        /// <param name="pixelFormat">System.Drawing.Imaging.PixelFormat</param>
+        /// <returns>System.Windows.Media.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static System.Windows.Media.PixelFormat Map(this PixelFormat pixelFormat) =>
+            pixelFormat switch
+            {
+                PixelFormat.Format32bppArgb => PixelFormats.Bgra32,
+                PixelFormat.Format24bppRgb => PixelFormats.Bgr24,
+                PixelFormat.Format32bppRgb => PixelFormats.Bgr32,
+                _ => throw new NotSupportedException($"Can't map {pixelFormat}.")
+            };
+
+        /// <summary>
+        /// Map a System.Windows.Media.PixelFormat to a System.Drawing.Imaging.PixelFormat
+        /// </summary>
+        /// <param name="pixelFormat">System.Windows.Media.PixelFormat</param>
+        /// <returns>System.Drawing.Imaging.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static PixelFormat Map(this System.Windows.Media.PixelFormat pixelFormat)
         {
-            if (stream == null)
+            if (pixelFormat == PixelFormats.Bgra32)
             {
-                return null;
+                return PixelFormat.Format32bppArgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr24)
+            {
+                return PixelFormat.Format24bppRgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr32)
+            {
+                return PixelFormat.Format32bppRgb;
             }
 
-            if (!string.IsNullOrEmpty(extension))
+            throw new NotSupportedException($"Can't map {pixelFormat}.");
+        }
+
+        /// <summary>
+        /// Convert a Bitmap to a BitmapSource
+        /// </summary>
+        /// <param name="bitmap">Bitmap</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+            BitmapSource bitmapSource;
+            try
             {
-                extension = extension.Replace(".", string.Empty);
+                bitmapSource = BitmapSource.Create(
+                    bitmapData.Width, bitmapData.Height,
+                    bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                    bitmap.PixelFormat.Map(), null,
+                    bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
             }
 
-            // Make sure we can try multiple times
-            if (!stream.CanSeek)
-            {
-                var memoryStream = new MemoryStream();
-                stream.CopyTo(memoryStream);
-                stream = memoryStream;
-            }
+            return bitmapSource;
+        }
 
-            Image returnImage = null;
-            if (StreamConverters.TryGetValue(extension ?? string.Empty, out var converter))
-            {
-                returnImage = converter(stream, extension);
-            }
+        /// <summary>
+        /// Convert a BitmapSource to a Bitmap
+        /// </summary>
+        /// <param name="bitmapSource">BitmapSource</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap ToBitmap(this BitmapSource bitmapSource)
+        {
+            var pixelFormat = bitmapSource.Format.Map();
 
-            // Fallback
-            if (returnImage == null)
-            {
-                // We create a copy of the bitmap, so everything else can be disposed
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                returnImage = Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
-
-            return returnImage;
+            Bitmap bitmap = new Bitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, pixelFormat);
+            BitmapData data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), ImageLockMode.WriteOnly, pixelFormat);
+            bitmapSource.CopyPixels(Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
+            bitmap.UnlockBits(data);
+            return bitmap;
         }
     }
 }

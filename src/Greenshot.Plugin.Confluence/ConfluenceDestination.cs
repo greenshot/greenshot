@@ -54,8 +54,8 @@ namespace Greenshot.Plugin.Confluence
                 Uri confluenceIconUri = new Uri("/Greenshot.Plugin.Confluence;component/Images/Confluence.ico", UriKind.Relative);
                 using (Stream iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
                 {
-                    // TODO: Check what to do with the IImage
-                    ConfluenceIcon = ImageHelper.FromStream(iconStream);
+                    // TODO: Replace with FileFormatHandler
+                    ConfluenceIcon = ImageIO.FromStream(iconStream);
                 }
 
                 IsInitialized = true;

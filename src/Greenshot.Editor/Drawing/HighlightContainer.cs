@@ -21,6 +21,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
@@ -33,7 +34,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class HighlightContainer : FilterContainer
     {
-        public HighlightContainer(Surface parent) : base(parent)
+        public HighlightContainer(ISurface parent) : base(parent)
         {
             Init();
         }

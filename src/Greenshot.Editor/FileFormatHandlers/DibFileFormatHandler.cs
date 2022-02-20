@@ -1,48 +1,131 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
- *
+ * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.UnmanagedHelpers;
+using log4net;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// Though Greenshot implements the specs for the DIB image format,
-    /// it seems to cause a lot of issues when using the clipboard.
-    /// There is some research done about the DIB on the clipboard, this code is based upon the information 
-    /// <a href="https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency">here</a>
+    /// This handles creating a DIB (Device Independent Bitmap) on the clipboard
     /// </summary>
-    internal static class DibHelper
+    public class DibFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private const double DpiToPelsPerMeter = 39.3701;
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DibFileFormatHandler));
+
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".dib", ".format17" };
+
+        public DibFileFormatHandler()
+        {
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+        }
+
+        /// <inheritdoc />
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
+        {
+            var dibBytes = ConvertToDib(bitmap);
+            destination.Write(dibBytes, 0, dibBytes.Length);
+            return true;
+        }
+
+        /// <inheritdoc />
+        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        {
+            byte[] dibBuffer = new byte[stream.Length];
+            _ = stream.Read(dibBuffer, 0, dibBuffer.Length);
+            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADERV5>(dibBuffer);
+            if (!infoHeader.IsDibV5)
+            {
+                Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
+                int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
+                uint infoHeaderSize = infoHeader.biSize;
+                int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+
+                var fileHeader = new BITMAPFILEHEADER
+                {
+                    bfType = BITMAPFILEHEADER.BM,
+                    bfSize = fileSize,
+                    bfReserved1 = 0,
+                    bfReserved2 = 0,
+                    bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4)
+                };
+
+                byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
+
+                using var bitmapStream = new MemoryStream();
+                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+                bitmapStream.Seek(0, SeekOrigin.Begin);
+                // TODO: Replace with a FileFormatHandler
+                bitmap = ImageIO.FromStream(bitmapStream) as Bitmap;
+                return true;
+            }
+            Log.Info("Using special DIBV5 / Format17 format reader");
+            // CF_DIBV5
+            IntPtr gcHandle = IntPtr.Zero;
+            try
+            {
+                GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
+                gcHandle = GCHandle.ToIntPtr(handle);
+                bitmap = new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
+                        -(int)(infoHeader.biSizeImage / infoHeader.biHeight),
+                        infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
+                        new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
+                                   (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))
+                    );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Problem retrieving Format17 from clipboard.", ex);
+                bitmap = null;
+            }
+            finally
+            {
+                if (gcHandle == IntPtr.Zero)
+                {
+                    GCHandle.FromIntPtr(gcHandle).Free();
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Converts the Bitmap to a Device Independent Bitmap format of type BITFIELDS.
         /// </summary>
         /// <param name="sourceBitmap">Bitmap to convert to DIB</param>
         /// <returns>byte{} with the image converted to DIB</returns>
-        public static byte[] ConvertToDib(this Bitmap sourceBitmap)
+        private static byte[] ConvertToDib(Bitmap sourceBitmap)
         {
             if (sourceBitmap == null) throw new ArgumentNullException(nameof(sourceBitmap));
 

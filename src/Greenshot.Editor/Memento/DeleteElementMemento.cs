@@ -20,8 +20,8 @@
  */
 
 using System;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Memento
 {
@@ -31,9 +31,9 @@ namespace Greenshot.Editor.Memento
     public class DeleteElementMemento : IMemento
     {
         private IDrawableContainer _drawableContainer;
-        private readonly Surface _surface;
+        private readonly ISurface _surface;
 
-        public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer)
+        public DeleteElementMemento(ISurface surface, IDrawableContainer drawableContainer)
         {
             _surface = surface;
             _drawableContainer = drawableContainer;
