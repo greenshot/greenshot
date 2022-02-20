@@ -431,12 +431,13 @@ namespace Greenshot.Helpers
 
                     if (!string.IsNullOrEmpty(filename))
                     {
+                        // TODO: Fix that the Greenshot format needs a separate code path
                         try
                         {
                             if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
                             {
                                 ISurface surface = new Surface();
-                                surface = ImageOutput.LoadGreenshotSurface(filename, surface);
+                                surface = ImageIO.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
                                 DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
                                 break;
@@ -448,9 +449,10 @@ namespace Greenshot.Helpers
                             MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
                         }
 
+                        // TODO: Remove Image loading for here
                         try
                         {
-                            fileImage = ImageHelper.LoadImage(filename);
+                            fileImage = ImageIO.LoadImage(filename);
                         }
                         catch (Exception e)
                         {

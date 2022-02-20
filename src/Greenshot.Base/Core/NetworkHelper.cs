@@ -732,7 +732,7 @@ namespace Greenshot.Base.Core
         public string ToBase64String(Base64FormattingOptions formattingOptions)
         {
             using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            ImageIO.SaveToStream(_surface, stream, _outputSettings);
             return Convert.ToBase64String(stream.GetBuffer(), 0, (int) stream.Length, formattingOptions);
         }
 
@@ -744,7 +744,7 @@ namespace Greenshot.Base.Core
         public byte[] ToByteArray()
         {
             using MemoryStream stream = new MemoryStream();
-            ImageOutput.SaveToStream(_surface, stream, _outputSettings);
+            ImageIO.SaveToStream(_surface, stream, _outputSettings);
             return stream.ToArray();
         }
 
@@ -760,7 +760,7 @@ namespace Greenshot.Base.Core
             string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
 
             formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-            ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);
+            ImageIO.SaveToStream(_surface, formDataStream, _outputSettings);
         }
 
         /// <summary>
@@ -770,7 +770,7 @@ namespace Greenshot.Base.Core
         public void WriteToStream(Stream dataStream)
         {
             // Write the file data directly to the Stream, rather than serializing it to a string.
-            ImageOutput.SaveToStream(_surface, dataStream, _outputSettings);
+            ImageIO.SaveToStream(_surface, dataStream, _outputSettings);
         }
 
         /// <summary>

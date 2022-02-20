@@ -151,7 +151,7 @@ namespace Greenshot.Plugin.Win10.Destinations
             outputSettings.PreventGreenshotFormat();
 
             // Create capture for export
-            ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+            ImageIO.SaveToStream(surface, imageStream, outputSettings);
             imageStream.Position = 0;
             Log.Debug("Created RandomAccessStreamReference for the image");
             var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
@@ -161,7 +161,7 @@ namespace Greenshot.Plugin.Win10.Destinations
             using (var tmpImageForThumbnail = surface.GetImageForExport())
             using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
             {
-                ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
+                ImageIO.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
                 thumbnailStream.Position = 0;
                 thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
                 Log.Debug("Created RandomAccessStreamReference for the thumbnail");
@@ -172,7 +172,7 @@ namespace Greenshot.Plugin.Win10.Destinations
             using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
             using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
             {
-                ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
+                ImageIO.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
                 logoStream.Position = 0;
                 logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
                 Log.Info("Created RandomAccessStreamReference for the logo");

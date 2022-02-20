@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -35,6 +36,7 @@ using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -42,9 +44,9 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Description of ImageOutput.
     /// </summary>
-    public static class ImageOutput
+    public static class ImageIO
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageOutput));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
         private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
@@ -280,7 +282,7 @@ namespace Greenshot.Base.Core
             // Fixed lock problem Bug #3431881
             using (Stream surfaceFileStream = File.OpenRead(fullPath))
             {
-                returnSurface = ImageHelper.LoadGreenshotSurface(surfaceFileStream, returnSurface);
+                returnSurface = LoadGreenshotSurface(surfaceFileStream, returnSurface);
             }
 
             if (returnSurface != null)
@@ -521,6 +523,221 @@ namespace Greenshot.Base.Core
                 Log.DebugFormat("Removing expired file {0}", path);
                 File.Delete(path);
             }
+        }
+
+        /// <summary>
+        /// Load an image from file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static Image LoadImage(string filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return null;
+            }
+
+            if (!File.Exists(filename))
+            {
+                return null;
+            }
+
+            Image fileImage;
+            Log.InfoFormat("Loading image from file {0}", filename);
+            // Fixed lock problem Bug #3431881
+            using (Stream imageFileStream = File.OpenRead(filename))
+            {
+                fileImage = FromStream(imageFileStream, Path.GetExtension(filename));
+            }
+
+            if (fileImage != null)
+            {
+                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
+            }
+
+            return fileImage;
+        }
+
+        /// <summary>
+        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
+        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
+        /// </summary>
+        /// <param name="iconStream">Stream with the icon information</param>
+        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
+        private static Bitmap ExtractVistaIcon(Stream iconStream)
+        {
+            const int sizeIconDir = 6;
+            const int sizeIconDirEntry = 16;
+            Bitmap bmpPngExtracted = null;
+            try
+            {
+                byte[] srcBuf = new byte[iconStream.Length];
+                iconStream.Read(srcBuf, 0, (int)iconStream.Length);
+                int iCount = BitConverter.ToInt16(srcBuf, 4);
+                for (int iIndex = 0; iIndex < iCount; iIndex++)
+                {
+                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
+                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
+                    if (iWidth == 0 && iHeight == 0)
+                    {
+                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
+                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
+                        using MemoryStream destStream = new MemoryStream();
+                        destStream.Write(srcBuf, iImageOffset, iImageSize);
+                        destStream.Seek(0, SeekOrigin.Begin);
+                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return bmpPngExtracted;
+        }
+
+        /// <summary>
+        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
+        /// </summary>
+        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
+        /// <param name="index">Index of the icon</param>
+        /// <param name="takeLarge">true if the large icon is wanted</param>
+        /// <returns>Icon</returns>
+        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
+        {
+            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
+            Icon returnIcon = null;
+            bool isLarge = false;
+            bool isSmall = false;
+            try
+            {
+                if (takeLarge && !IntPtr.Zero.Equals(large))
+                {
+                    returnIcon = Icon.FromHandle(large);
+                    isLarge = true;
+                }
+                else if (!IntPtr.Zero.Equals(small))
+                {
+                    returnIcon = Icon.FromHandle(small);
+                    isSmall = true;
+                }
+                else if (!IntPtr.Zero.Equals(large))
+                {
+                    returnIcon = Icon.FromHandle(large);
+                    isLarge = true;
+                }
+            }
+            finally
+            {
+                if (isLarge && !IntPtr.Zero.Equals(small))
+                {
+                    User32.DestroyIcon(small);
+                }
+
+                if (isSmall && !IntPtr.Zero.Equals(large))
+                {
+                    User32.DestroyIcon(large);
+                }
+            }
+
+            return returnIcon;
+        }
+
+        /// <summary>
+        /// Create an image from a stream, if an extension is supplied more formats are supported.
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="extension"></param>
+        /// <returns>Image</returns>
+        public static Image FromStream(Stream stream, string extension = null)
+        {
+            if (stream == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(extension))
+            {
+                extension = extension.Replace(".", string.Empty);
+            }
+
+            var startingPosition = stream.Position;
+
+            // Make sure we can try multiple times
+            if (!stream.CanSeek)
+            {
+                var memoryStream = new MemoryStream();
+                stream.CopyTo(memoryStream);
+                stream = memoryStream;
+                // As we are if a different stream, which starts at 0, change the starting position
+                startingPosition = 0;
+            }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            foreach (var fileFormatHandler in fileFormatHandlers
+                         .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                         .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)))
+            {
+                stream.Seek(startingPosition, SeekOrigin.Begin);
+                if (fileFormatHandler.TryLoadFromStream(stream, extension, out var bitmap))
+                {
+                    return bitmap;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Load a Greenshot surface from a stream
+        /// </summary>
+        /// <param name="surfaceFileStream">Stream</param>
+        /// <param name="returnSurface"></param>
+        /// <returns>ISurface</returns>
+        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
+        {
+            Image fileImage;
+            // Fixed problem that the bitmap stream is disposed... by Cloning the image
+            // This also ensures the bitmap is correctly created
+
+            // We create a copy of the bitmap, so everything else can be disposed
+            surfaceFileStream.Position = 0;
+            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
+            {
+                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+                fileImage = ImageHelper.Clone(tmpImage);
+            }
+
+            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
+            const int markerSize = 14;
+            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
+            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
+            {
+                var greenshotMarker = streamReader.ReadToEnd();
+                if (!greenshotMarker.StartsWith("Greenshot"))
+                {
+                    throw new ArgumentException("Stream is not a Greenshot file!");
+                }
+
+                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
+                const int filesizeLocation = 8 + markerSize;
+                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
+                using BinaryReader reader = new BinaryReader(surfaceFileStream);
+                long bytesWritten = reader.ReadInt64();
+                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
+                returnSurface.LoadElementsFromStream(surfaceFileStream);
+            }
+
+            if (fileImage != null)
+            {
+                returnSurface.Image = fileImage;
+                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
+            }
+
+            return returnSurface;
         }
     }
 }

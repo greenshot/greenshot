@@ -1911,7 +1911,7 @@ namespace Greenshot.Forms
                 LOG.Error("Error closing application!", e);
             }
 
-            ImageOutput.RemoveTmpFiles();
+            ImageIO.RemoveTmpFiles();
 
             // Store any open configuration changes
             try

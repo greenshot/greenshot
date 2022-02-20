@@ -332,7 +332,7 @@ EndSelection:<<<<<<<4
                     if (IsValidStream(imageStream))
                     {
                         // TODO: How to check if we support "just a stream"?
-                        using (ImageHelper.FromStream(imageStream))
+                        using (ImageIO.FromStream(imageStream))
                         {
                             // If we get here, there is an image
                             return true;
@@ -967,7 +967,7 @@ EndSelection:<<<<<<<4
             {
                 SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
                 // Create the image which is going to be saved so we don't create it multiple times
-                disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
+                disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out imageToSave);
                 try
                 {
                     // Create PNG stream
@@ -976,7 +976,7 @@ EndSelection:<<<<<<<4
                         pngStream = new MemoryStream();
                         // PNG works for e.g. Powerpoint
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-                        ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
+                        ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
                         pngStream.Seek(0, SeekOrigin.Begin);
                         // Set the PNG stream
                         dataObject.SetData(FORMAT_PNG, false, pngStream);
@@ -1058,7 +1058,7 @@ EndSelection:<<<<<<<4
                 // Set the HTML
                 if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
                 {
-                    string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+                    string tmpFile = ImageIO.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
@@ -1076,11 +1076,11 @@ EndSelection:<<<<<<<4
                         // Check if we can use the previously used image
                         if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
                         {
-                            ImageOutput.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
+                            ImageIO.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
                         }
                         else
                         {
-                            ImageOutput.SaveToStream(surface, tmpPngStream, pngOutputSettings);
+                            ImageIO.SaveToStream(surface, tmpPngStream, pngOutputSettings);
                         }
 
                         html = GetHtmlDataUrlString(surface, tmpPngStream);
