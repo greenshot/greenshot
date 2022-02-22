@@ -727,7 +727,20 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCropClick(object sender, EventArgs e)
         {
-            _surface.DrawingMode = DrawingModes.Crop;
+            if (_surface.DrawingMode == DrawingModes.Crop)
+            {
+                //intercept repeated click event
+                //rotate through crop styles
+                _surface.FieldAggregator.GetField(FieldType.CROPSTYLE).Value = CropContainer.GetNextStyle((string)_surface.FieldAggregator.GetField(FieldType.CROPSTYLE).Value);
+                _surface.RemoveCropContainer();
+
+                //reinitialize crop modus              
+                _surface.DrawingMode = DrawingModes.Crop;
+            }
+            else
+            {
+                _surface.DrawingMode = DrawingModes.Crop;
+            }
             RefreshFieldControls();
         }
 
@@ -1379,6 +1392,11 @@ namespace Greenshot.Editor.Forms
                     ToolStripItemEndisabler.Enable(helpToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(aboutToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(preferencesToolStripMenuItem);
+                    if (_surface.DrawingMode == DrawingModes.Crop)
+                    {
+                        //While cropping, enable the button to change crop style
+                        btnCrop.Enabled = true;
+                    }
                     _controlsDisabledDueToConfirmable = true;
                 }
             }

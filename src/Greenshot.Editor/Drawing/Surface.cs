@@ -1184,7 +1184,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Crop the surface
         /// </summary>
-        /// <param name="cropRectangle"></param>
+        /// <param name="cropRectangle">rectangle that remains</param>
         /// <returns></returns>
         public bool ApplyCrop(Rectangle cropRectangle)
         {
@@ -1215,6 +1215,112 @@ namespace Greenshot.Editor.Drawing
                 SetImage(tmpImage, false);
                 _elements.Transform(matrix);
                 if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
+                {
+                    _surfaceSizeChanged(this, null);
+                }
+
+                Invalidate();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Crop out the surface
+        /// Splits the image in 3 parts(top, middle, bottom). Crop out the middle and joins top and bottom. 
+        /// </summary>
+        /// <param name="cropRectangle">rectangle of the middle part</param>
+        /// <returns></returns>
+        public bool ApplyHorizontalCrop(Rectangle cropRectangle)
+        {
+            if (IsCropPossible(ref cropRectangle))
+            {
+                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+                Bitmap tmpNewimage, tmpImageTop, tmpImageBottom;
+                // Make sure we have information, this this fails
+                try
+                {
+                    tmpNewimage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
+                    tmpImageTop = ImageHelper.CloneArea(Image, new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top), PixelFormat.DontCare);
+                    tmpImageBottom = ImageHelper.CloneArea(Image, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height), PixelFormat.DontCare);            
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add("CropRectangle", cropRectangle);
+                    ex.Data.Add("Width", Image.Width);
+                    ex.Data.Add("Height", Image.Height);
+                    ex.Data.Add("Pixelformat", Image.PixelFormat);
+                    throw;
+                }
+                using Graphics g = Graphics.FromImage(tmpNewimage);
+                g.DrawImage(tmpImageTop, new Point(0, 0));
+                g.DrawImage(tmpImageBottom, new Point(0, tmpImageTop.Height));
+                
+
+                Matrix matrix = new Matrix();
+                matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
+                // Make undoable
+                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+                // Do not dispose otherwise we can't undo the image!
+                SetImage(tmpNewimage, false);
+
+                _elements.Transform(matrix);
+                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
+                {
+                    _surfaceSizeChanged(this, null);
+                }
+
+                Invalidate();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Crop out the surface
+        /// Splits the image in 3 parts(left, middle, right). Crop out the middle and joins top and bottom.
+        /// </summary>
+        /// <param name="cropRectangle">rectangle of the middle part</param>
+        /// <returns></returns>
+        public bool ApplyVerticalCrop(Rectangle cropRectangle)
+        {
+            if (IsCropPossible(ref cropRectangle))
+            {
+                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+                Bitmap tmpNewimage, tmpImageLeft, tmpImageRight;
+                // Make sure we have information, this this fails
+                try
+                {
+                    tmpNewimage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
+
+                    tmpImageLeft = ImageHelper.CloneArea(Image, new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
+                    tmpImageRight = ImageHelper.CloneArea(Image, new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add("CropRectangle", cropRectangle);
+                    ex.Data.Add("Width", Image.Width);
+                    ex.Data.Add("Height", Image.Height);
+                    ex.Data.Add("Pixelformat", Image.PixelFormat);
+                    throw;
+                }
+                using Graphics g = Graphics.FromImage(tmpNewimage);
+                g.DrawImage(tmpImageLeft, new Point(0, 0));
+                g.DrawImage(tmpImageRight, new Point(tmpImageLeft.Width, 0));
+
+                Matrix matrix = new Matrix();
+                matrix.Translate(- cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
+                // Make undoable
+                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+                // Do not dispose otherwise we can't undo the image!
+                SetImage(tmpNewimage, false);
+
+                _elements.Transform(matrix);
+                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
                 {
                     _surfaceSizeChanged(this, null);
                 }
@@ -1961,7 +2067,31 @@ namespace Greenshot.Editor.Drawing
                     RemoveElement(_cropContainer, false);
                     if (confirm)
                     {
-                        ApplyCrop(_cropContainer.Bounds);
+                        if (dc is CropContainer e)
+                        {
+                            switch (e.GetFieldValueAsString(FieldType.CROPSTYLE))
+                            {
+                                case var s when s.Equals(CropContainer.HorizontalCropOutStyle):
+                                    {
+                                        ApplyHorizontalCrop(_cropContainer.Bounds);
+                                        break;
+                                    }
+                                case var s when s.Equals(CropContainer.VerticalCropOutStyle):
+                                    {
+                                        ApplyVerticalCrop(_cropContainer.Bounds);
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        ApplyCrop(_cropContainer.Bounds);
+                                        break;
+                                    }
+                            }
+                        }
+                        else
+                        {
+                            ApplyCrop(_cropContainer.Bounds);
+                        }
                     }
 
                     _cropContainer.Dispose();
@@ -1971,6 +2101,15 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        public void RemoveCropContainer()
+        {
+            if (_cropContainer != null)
+            {
+                RemoveElement(_cropContainer, false);
+                _cropContainer.Dispose();
+                _cropContainer = null;
+            }
+        }
         /// <summary>
         /// Paste all the elements that are on the clipboard
         /// </summary>
