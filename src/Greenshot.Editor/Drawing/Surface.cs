@@ -2069,14 +2069,14 @@ namespace Greenshot.Editor.Drawing
                     {
                         if (dc is CropContainer e)
                         {
-                            switch (e.GetFieldValueAsString(FieldType.CROPSTYLE))
+                            switch (e.GetFieldValue(FieldType.CROPMODE))
                             {
-                                case var s when s.Equals(CropContainer.HorizontalCropOutStyle):
+                                case CropContainer.CropMode.Horizontal:
                                     {
                                         ApplyHorizontalCrop(_cropContainer.Bounds);
                                         break;
                                     }
-                                case var s when s.Equals(CropContainer.VerticalCropOutStyle):
+                                case CropContainer.CropMode.Vertical:
                                     {
                                         ApplyVerticalCrop(_cropContainer.Bounds);
                                         break;

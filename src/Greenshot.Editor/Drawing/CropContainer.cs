@@ -35,10 +35,28 @@ namespace Greenshot.Editor.Drawing
     /// </summary>
     public class CropContainer : DrawableContainer
     {
-        //awailable Styles
-        public static readonly string DefaultCropStyle = nameof(DefaultCropStyle);
-        public static readonly string VerticalCropOutStyle = nameof(VerticalCropOutStyle);
-        public static readonly string HorizontalCropOutStyle = nameof(HorizontalCropOutStyle);
+        /// <summary>
+        /// awailable modes
+        /// </summary>
+        public enum CropMode
+        {
+            /// <summary>
+            ///  crop all outside the selection rectangle
+            /// </summary>
+            Default,
+            /// <summary>
+            /// like default, but initially creates the selection rectangle
+            /// </summary>
+            AutoCrop,
+            /// <summary>
+            /// crop all inside the selection, anchors the selection to the top and bottom edges
+            /// </summary>
+            Vertical,
+            /// <summary>
+            /// crop all inside the selection, anchors the selection to the left and right edges
+            /// </summary>
+            Horizontal
+        }
 
         public CropContainer(ISurface parent) : base(parent)
         {
@@ -53,14 +71,14 @@ namespace Greenshot.Editor.Drawing
 
         private void Init()
         {
-            switch (GetFieldValueAsString(FieldType.CROPSTYLE))
+            switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case string s when s.Equals(HorizontalCropOutStyle):
+                case CropMode.Horizontal:
                     {
                         InitHorizontalCropOutStyle();
                         break;
                     }
-                case string s when s.Equals(VerticalCropOutStyle):
+                case CropMode.Vertical:
                     {
                         InitVerticalCropOutStyle();
                         break;
@@ -71,21 +89,6 @@ namespace Greenshot.Editor.Drawing
                         break;
                     }
             }
-        }
-
-        /// <summary>
-        /// rotate through all awailable Styles
-        /// </summary>
-        /// <param name="style"></param>
-        /// <returns></returns>
-        public static string GetNextStyle(string style)
-        {
-            return style switch
-            {
-                var s when s.Equals(HorizontalCropOutStyle) => VerticalCropOutStyle,
-                var s when s.Equals(VerticalCropOutStyle) => DefaultCropStyle,
-                _ => HorizontalCropOutStyle,
-            };
         }
 
         private void InitCropStyle()
@@ -130,7 +133,7 @@ namespace Greenshot.Editor.Drawing
         protected override void InitializeFields()
         {
             AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
-            AddField(GetType(), FieldType.CROPSTYLE, DefaultCropStyle);
+            AddField(GetType(), FieldType.CROPMODE, CropMode.Default);
         }
 
         public override void Invalidate()
@@ -170,10 +173,10 @@ namespace Greenshot.Editor.Drawing
 
             DrawSelectionBorder(g, selectionRect);
 
-            switch (GetFieldValueAsString(FieldType.CROPSTYLE))
+            switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case var s when s.Equals(HorizontalCropOutStyle):
-                case var t when t.Equals(VerticalCropOutStyle):
+                case CropMode.Horizontal:
+                case CropMode.Vertical:
                     {
                         //draw inside
                         g.FillRectangle(cropBrush, cropRectangle);
@@ -204,12 +207,12 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HandleMouseDown(int x, int y)
         {
-            return GetFieldValueAsString(FieldType.CROPSTYLE) switch
+            return GetFieldValue(FieldType.CROPMODE) switch
             {
                 //force horizontal crop to left edge
-                var s when s.Equals(HorizontalCropOutStyle) => base.HandleMouseDown(0, y),
+                CropMode.Horizontal => base.HandleMouseDown(0, y),
                 //force vertical crop to top edge
-                var s when s.Equals(VerticalCropOutStyle) => base.HandleMouseDown(x, 0),
+                CropMode.Vertical => base.HandleMouseDown(x, 0),
                 _ => base.HandleMouseDown(x, y),
             };
         }
@@ -218,9 +221,9 @@ namespace Greenshot.Editor.Drawing
         {
             Invalidate();
 
-            switch (GetFieldValueAsString(FieldType.CROPSTYLE))
+            switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case var s when s.Equals(HorizontalCropOutStyle):
+                case CropMode.Horizontal:
                     {
                         //stick on left and right
                         //allow only horizontal changes
@@ -233,7 +236,7 @@ namespace Greenshot.Editor.Drawing
                         }
                         break;
                     }
-                case var s when s.Equals(VerticalCropOutStyle):
+                case CropMode.Vertical:
                     {
                         //stick on top and bottom
                         //allow only vertical changes

@@ -76,8 +76,9 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_arrowheads_end">Endpunkt</resource>
 		<resource name="editor_arrowheads_none">Keine</resource>
 		<resource name="editor_arrowheads_start">Anfangspunkt</resource>
-		<resource name="editor_autocrop">Automatisch zuschneiden</resource>
-		<resource name="editor_backcolor">Hintergrundfarbe (0-9)</resource>
+    <resource name="editor_autocrop">Automatisch zuschneiden</resource>
+    <resource name="editor_autocrop_not_possible">Automatisches Zuschneiden nicht möglich</resource>
+    <resource name="editor_backcolor">Hintergrundfarbe (0-9)</resource>
 		<resource name="editor_blur_radius">Weichzeichner-Radius</resource>
 		<resource name="editor_bold">Fett</resource>
 		<resource name="editor_border">Rand</resource>
@@ -91,7 +92,12 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_copyimagetoclipboard">Grafik in die Zwischenablage kopieren</resource>
 		<resource name="editor_copypathtoclipboard">Pfad in Zwischenablage kopieren</resource>
 		<resource name="editor_copytoclipboard">Kopieren</resource>
-		<resource name="editor_crop">Zuschneiden (C)</resource>
+    <resource name="editor_crop">Zuschneiden (C)</resource>
+    <resource name="editor_crop_mode">Zuschneiden - Modus</resource>
+    <resource name="editor_cropmode_default">Zuschneiden</resource>
+    <resource name="editor_cropmode_vertical">Vertikal ausschneiden</resource>
+    <resource name="editor_cropmode_horizontal">Horizontal ausschneiden</resource>
+    <resource name="editor_cropmode_auto">Automatisch zuschneiden</resource>
 		<resource name="editor_cursortool">Auswahlwerkzeug (Esc)</resource>
 		<resource name="editor_cuttoclipboard">Ausschneiden</resource>
 		<resource name="editor_deleteelement">Gewähltes Element löschen</resource>

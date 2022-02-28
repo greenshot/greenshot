@@ -284,6 +284,7 @@ namespace Greenshot.Editor.Forms
 
             obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
             highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
+            cropModeButton.DropDownItemClicked += CropStyleDropDownItemClicked;
 
             _toolbarButtons = new[]
             {
@@ -727,21 +728,12 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCropClick(object sender, EventArgs e)
         {
-            if (_surface.DrawingMode == DrawingModes.Crop)
-            {
-                //intercept repeated click event
-                //rotate through crop styles
-                _surface.FieldAggregator.GetField(FieldType.CROPSTYLE).Value = CropContainer.GetNextStyle((string)_surface.FieldAggregator.GetField(FieldType.CROPSTYLE).Value);
-                _surface.RemoveCropContainer();
-
-                //reinitialize crop modus              
-                _surface.DrawingMode = DrawingModes.Crop;
-            }
-            else
+            if (_surface.DrawingMode != DrawingModes.Crop)
             {
                 _surface.DrawingMode = DrawingModes.Crop;
+                InitCropMode((CropContainer.CropMode)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
+                RefreshFieldControls();
             }
-            RefreshFieldControls();
         }
 
         private void BtnHighlightClick(object sender, EventArgs e)
@@ -1305,6 +1297,7 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
+            new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
             new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
@@ -1340,6 +1333,7 @@ namespace Greenshot.Editor.Forms
                                                          && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+                cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -1392,11 +1386,6 @@ namespace Greenshot.Editor.Forms
                     ToolStripItemEndisabler.Enable(helpToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(aboutToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(preferencesToolStripMenuItem);
-                    if (_surface.DrawingMode == DrawingModes.Crop)
-                    {
-                        //While cropping, enable the button to change crop style
-                        btnCrop.Enabled = true;
-                    }
                     _controlsDisabledDueToConfirmable = true;
                 }
             }
@@ -1600,6 +1589,37 @@ namespace Greenshot.Editor.Forms
             Invalidate(true);
         }
 
+        protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {      
+            InitCropMode((CropContainer.CropMode)e.ClickedItem.Tag);
+         
+            RefreshFieldControls();
+            Invalidate(true);
+        }
+
+        private void InitCropMode(CropContainer.CropMode mode)
+        {
+            _surface.DrawingMode = DrawingModes.None;
+            _surface.RemoveCropContainer();
+
+            if (mode == CropContainer.CropMode.AutoCrop)
+            {
+                if (!_surface.AutoCrop())
+                {
+                    //not AutoCrop possible automatic switch to default crop mode
+                    _surface.DrawingMode = DrawingModes.Crop;
+                    _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropMode.Default;
+                    this.cropModeButton.SelectedTag = CropContainer.CropMode.Default;
+                    this.statusLabel.Text = Language.GetString(LangKey.editor_autocrop_not_possible);
+                }
+            }
+            else
+            {
+                _surface.DrawingMode = DrawingModes.Crop;
+            }
+
+        }
+
         private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             _surface.SelectAllElements();
@@ -1658,14 +1678,6 @@ namespace Greenshot.Editor.Forms
             catch (Exception exception)
             {
                 Log.Error(exception);
-            }
-        }
-
-        private void AutoCropToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            if (_surface.AutoCrop())
-            {
-                RefreshFieldControls();
             }
         }
 
