@@ -1188,42 +1188,39 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyCrop(Rectangle cropRectangle)
         {
-            if (IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle)) return false;
+
+            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            Bitmap tmpImage;
+            // Make sure we have information, this this fails
+            try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-                Bitmap tmpImage;
-                // Make sure we have information, this this fails
-                try
-                {
-                    tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("CropRectangle", cropRectangle);
-                    ex.Data.Add("Width", Image.Width);
-                    ex.Data.Add("Height", Image.Height);
-                    ex.Data.Add("Pixelformat", Image.PixelFormat);
-                    throw;
-                }
-
-                Matrix matrix = new Matrix();
-                matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-
-                // Do not dispose otherwise we can't undo the image!
-                SetImage(tmpImage, false);
-                _elements.Transform(matrix);
-                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
-                {
-                    _surfaceSizeChanged(this, null);
-                }
-
-                Invalidate();
-                return true;
+                tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
             }
 
-            return false;
+            Matrix matrix = new Matrix();
+            matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(tmpImage, false);
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
+            }
+
+            Invalidate();
+            return true;
         }
 
         /// <summary>
@@ -1234,49 +1231,48 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyHorizontalCrop(Rectangle cropRectangle)
         {
-            if (IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle)) return false;
+
+            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            Bitmap tmpNewimage, tmpImageTop, tmpImageBottom;
+            // Make sure we have information, this this fails
+            try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-                Bitmap tmpNewimage, tmpImageTop, tmpImageBottom;
-                // Make sure we have information, this this fails
-                try
-                {
-                    tmpNewimage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
-                    tmpImageTop = ImageHelper.CloneArea(Image, new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top), PixelFormat.DontCare);
-                    tmpImageBottom = ImageHelper.CloneArea(Image, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height), PixelFormat.DontCare);            
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("CropRectangle", cropRectangle);
-                    ex.Data.Add("Width", Image.Width);
-                    ex.Data.Add("Height", Image.Height);
-                    ex.Data.Add("Pixelformat", Image.PixelFormat);
-                    throw;
-                }
-                using Graphics g = Graphics.FromImage(tmpNewimage);
-                g.DrawImage(tmpImageTop, new Point(0, 0));
-                g.DrawImage(tmpImageBottom, new Point(0, tmpImageTop.Height));
-                
+                tmpNewimage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
+                tmpImageTop = ImageHelper.CloneArea(Image, new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top), PixelFormat.DontCare);
+                tmpImageBottom = ImageHelper.CloneArea(Image, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height), PixelFormat.DontCare);
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
+            }
+            using Graphics g = Graphics.FromImage(tmpNewimage);
+            g.DrawImage(tmpImageTop, new Point(0, 0));
+            g.DrawImage(tmpImageBottom, new Point(0, tmpImageTop.Height));
 
-                Matrix matrix = new Matrix();
-                matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            tmpImageTop.Dispose();
+            tmpImageBottom.Dispose();
 
-                // Do not dispose otherwise we can't undo the image!
-                SetImage(tmpNewimage, false);
+            Matrix matrix = new Matrix();
+            matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-                _elements.Transform(matrix);
-                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
-                {
-                    _surfaceSizeChanged(this, null);
-                }
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(tmpNewimage, false);
 
-                Invalidate();
-                return true;
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
             }
 
-            return false;
+            Invalidate();
+            return true;
         }
 
         /// <summary>
@@ -1287,49 +1283,49 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyVerticalCrop(Rectangle cropRectangle)
         {
-            if (IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle)) return false;
+
+            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            Bitmap tmpNewimage, tmpImageLeft, tmpImageRight;
+            // Make sure we have information, this this fails
+            try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-                Bitmap tmpNewimage, tmpImageLeft, tmpImageRight;
-                // Make sure we have information, this this fails
-                try
-                {
-                    tmpNewimage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
+                tmpNewimage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
 
-                    tmpImageLeft = ImageHelper.CloneArea(Image, new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
-                    tmpImageRight = ImageHelper.CloneArea(Image, new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("CropRectangle", cropRectangle);
-                    ex.Data.Add("Width", Image.Width);
-                    ex.Data.Add("Height", Image.Height);
-                    ex.Data.Add("Pixelformat", Image.PixelFormat);
-                    throw;
-                }
-                using Graphics g = Graphics.FromImage(tmpNewimage);
-                g.DrawImage(tmpImageLeft, new Point(0, 0));
-                g.DrawImage(tmpImageRight, new Point(tmpImageLeft.Width, 0));
+                tmpImageLeft = ImageHelper.CloneArea(Image, new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
+                tmpImageRight = ImageHelper.CloneArea(Image, new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
+            }
+            using Graphics g = Graphics.FromImage(tmpNewimage);
+            g.DrawImage(tmpImageLeft, new Point(0, 0));
+            g.DrawImage(tmpImageRight, new Point(tmpImageLeft.Width, 0));
 
-                Matrix matrix = new Matrix();
-                matrix.Translate(- cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            tmpImageLeft.Dispose();
+            tmpImageRight.Dispose();
 
-                // Do not dispose otherwise we can't undo the image!
-                SetImage(tmpNewimage, false);
+            Matrix matrix = new Matrix();
+            matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-                _elements.Transform(matrix);
-                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
-                {
-                    _surfaceSizeChanged(this, null);
-                }
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(tmpNewimage, false);
 
-                Invalidate();
-                return true;
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpNewimage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
             }
 
-            return false;
+            Invalidate();
+            return true;
         }
 
         /// <summary>
@@ -2103,13 +2099,13 @@ namespace Greenshot.Editor.Drawing
 
         public void RemoveCropContainer()
         {
-            if (_cropContainer != null)
-            {
-                RemoveElement(_cropContainer, false);
-                _cropContainer.Dispose();
-                _cropContainer = null;
-            }
+            if (_cropContainer == null) return;
+
+            RemoveElement(_cropContainer, false);
+            _cropContainer.Dispose();
+            _cropContainer = null;
         }
+
         /// <summary>
         /// Paste all the elements that are on the clipboard
         /// </summary>

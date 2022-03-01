@@ -728,12 +728,11 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCropClick(object sender, EventArgs e)
         {
-            if (_surface.DrawingMode != DrawingModes.Crop)
-            {
-                _surface.DrawingMode = DrawingModes.Crop;
-                InitCropMode((CropContainer.CropMode)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
-                RefreshFieldControls();
-            }
+            if (_surface.DrawingMode == DrawingModes.Crop) return;
+
+            _surface.DrawingMode = DrawingModes.Crop;
+            InitCropMode((CropContainer.CropMode)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
+            RefreshFieldControls();
         }
 
         private void BtnHighlightClick(object sender, EventArgs e)

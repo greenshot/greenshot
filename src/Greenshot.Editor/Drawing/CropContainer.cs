@@ -85,20 +85,15 @@ namespace Greenshot.Editor.Drawing
                     }
                 default:
                     {
-                        InitCropStyle();
+                        CreateDefaultAdorners();
                         break;
                     }
             }
         }
 
-        private void InitCropStyle()
-        {
-            CreateDefaultAdorners();
-        }
-
         private void InitHorizontalCropOutStyle()
         {
-            var defaultHeight = 25;
+            const int defaultHeight = 25;
 
             if (_parent?.Image is { } image)
             {
@@ -109,7 +104,7 @@ namespace Greenshot.Editor.Drawing
 
         private void InitVerticalCropOutStyle()
         {
-            var defaultWidth = 25;
+            const int defaultWidth = 25;
 
             if (_parent?.Image is { } image)
             {

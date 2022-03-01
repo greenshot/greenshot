@@ -141,15 +141,15 @@ namespace Greenshot.Editor.Forms {
 			this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHelp = new GreenshotToolStripButton();
 			this.propertiesToolStrip = new ToolStripEx();
-            this.obfuscateModeButton = new BindableToolStripDropDownButton();
-            this.cropModeButton = new BindableToolStripDropDownButton();
-            this.pixelizeToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.obfuscateModeButton = new BindableToolStripDropDownButton();
+			this.cropModeButton = new BindableToolStripDropDownButton();
+			this.pixelizeToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.blurToolStripMenuItem = new GreenshotToolStripMenuItem();
-            this.defaultCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
-            this.verticalCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
-            this.horizontalCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
-            this.autoCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
-            this.highlightModeButton = new BindableToolStripDropDownButton();
+			this.defaultCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.verticalCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.horizontalCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.autoCropModeToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.highlightModeButton = new BindableToolStripDropDownButton();
 			this.textHighlightMenuItem = new GreenshotToolStripMenuItem();
 			this.areaHighlightMenuItem = new GreenshotToolStripMenuItem();
 			this.grayscaleHighlightMenuItem = new GreenshotToolStripMenuItem();
@@ -1073,7 +1073,7 @@ namespace Greenshot.Editor.Forms {
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel,
-                                    this.cropModeButton,
+									this.cropModeButton,
 									this.counterLabel,
 									this.counterUpDown});
 			// 
@@ -1103,60 +1103,60 @@ namespace Greenshot.Editor.Forms {
 			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
-           
-            // 
-            // cropModeButton
-            // 
-            this.cropModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.cropModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                                    this.defaultCropModeToolStripMenuItem,
-                                    this.verticalCropModeToolStripMenuItem,
-                                    this.horizontalCropModeToolStripMenuItem,
-                                    this.autoCropModeToolStripMenuItem});
-            this.cropModeButton.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
-            this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            //TODO translate
-            this.cropModeButton.LanguageKey = "editor_crop_mode";
-            this.cropModeButton.Name = "cropModeButton";
-            this.cropModeButton.SelectedTag = CropContainer.CropMode.Default;
-            this.cropModeButton.Tag = CropContainer.CropMode.Default;
 
-            // 
-            // defaultCropStyleToolStripMenuItem
-            // 
-            this.defaultCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
-            this.defaultCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_default";
-            this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
-            this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Default;
+			// 
+			// cropModeButton
+			// 
+			this.cropModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.cropModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.defaultCropModeToolStripMenuItem,
+									this.verticalCropModeToolStripMenuItem,
+									this.horizontalCropModeToolStripMenuItem,
+									this.autoCropModeToolStripMenuItem});
+			this.cropModeButton.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			//TODO translate
+			this.cropModeButton.LanguageKey = "editor_crop_mode";
+			this.cropModeButton.Name = "cropModeButton";
+			this.cropModeButton.SelectedTag = CropContainer.CropMode.Default;
+			this.cropModeButton.Tag = CropContainer.CropMode.Default;
 
-            // 
-            // verticalCropStyleToolStripMenuItem
-            // 
-            this.verticalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropVertical.Image")));
-            this.verticalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_vertical";
-            this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
-            this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Vertical;
+			// 
+			// defaultCropStyleToolStripMenuItem
+			// 
+			this.defaultCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.defaultCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_default";
+			this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
+			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Default;
 
-            // 
-            // horizontalCropStyleToolStripMenuItem
-            // 
-            this.horizontalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropHorizontal.Image")));
-            this.horizontalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_horizontal";
-            this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
-            this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Horizontal;
+			// 
+			// verticalCropStyleToolStripMenuItem
+			// 
+			this.verticalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropVertical.Image")));
+			this.verticalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_vertical";
+			this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
+			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Vertical;
 
-            // 
-            // horizontalCropStyleToolStripMenuItem
-            // 
-            this.autoCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("AutoCrop.Image")));
-            this.autoCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_auto";
-            this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
-            this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropMode.AutoCrop;
+			// 
+			// horizontalCropStyleToolStripMenuItem
+			// 
+			this.horizontalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropHorizontal.Image")));
+			this.horizontalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_horizontal";
+			this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
+			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Horizontal;
 
-            // 
-            // highlightModeButton
-            // 
-            this.highlightModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			// 
+			// horizontalCropStyleToolStripMenuItem
+			// 
+			this.autoCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("AutoCrop.Image")));
+			this.autoCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_auto";
+			this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
+			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropMode.AutoCrop;
+
+			// 
+			// highlightModeButton
+			// 
+			this.highlightModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.highlightModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.textHighlightMenuItem,
 									this.areaHighlightMenuItem,
@@ -1914,13 +1914,13 @@ namespace Greenshot.Editor.Forms {
 		private BindableToolStripButton btnCancel;
 		private BindableToolStripButton btnConfirm;
 		private GreenshotToolStripMenuItem selectAllToolStripMenuItem;
-        private BindableToolStripDropDownButton highlightModeButton;
-        private BindableToolStripDropDownButton cropModeButton;
-        private GreenshotToolStripMenuItem defaultCropModeToolStripMenuItem;
-        private GreenshotToolStripMenuItem verticalCropModeToolStripMenuItem;
-        private GreenshotToolStripMenuItem horizontalCropModeToolStripMenuItem;
-        private GreenshotToolStripMenuItem autoCropModeToolStripMenuItem;
-        private GreenshotToolStripMenuItem pixelizeToolStripMenuItem;
+		private BindableToolStripDropDownButton highlightModeButton;
+		private BindableToolStripDropDownButton cropModeButton;
+		private GreenshotToolStripMenuItem defaultCropModeToolStripMenuItem;
+		private GreenshotToolStripMenuItem verticalCropModeToolStripMenuItem;
+		private GreenshotToolStripMenuItem horizontalCropModeToolStripMenuItem;
+		private GreenshotToolStripMenuItem autoCropModeToolStripMenuItem;
+		private GreenshotToolStripMenuItem pixelizeToolStripMenuItem;
 		private GreenshotToolStripMenuItem blurToolStripMenuItem;
 		private BindableToolStripDropDownButton obfuscateModeButton;
 		private GreenshotToolStripButton btnHighlight;
