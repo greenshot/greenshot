@@ -469,6 +469,9 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="editor_crop">
 		Beskær (C)
 	</resource>
+	<resource name="editor_cropmode_default">
+		Beskær
+	</resource>
 	<resource name="contextmenu_captureclipboard">
 		Åbn billede fra udklipsholder
 	</resource>

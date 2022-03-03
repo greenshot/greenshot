@@ -93,6 +93,8 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_copytoclipboard">Nɣel</resource>
 		<resource name="editor_counter">Rnu Amesmiḍan</resource>
 		<resource name="editor_crop">Seggem (C)</resource>
+		<resource name="editor_cropmode_default">Seggem</resource>
+		<resource name="editor_cropmode_auto">Aseggem awurman</resource>
 		<resource name="editor_cursortool">Afecku n ufran (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Gzem</resource>
 		<resource name="editor_deleteelement">Kkes</resource>

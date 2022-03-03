@@ -61,6 +61,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_copypathtoclipboard">Kopijuoti pilną failo vardą</resource>
 		<resource name="editor_copytoclipboard">Коpijuoti</resource>
 		<resource name="editor_crop">Iškirpti (C)</resource>
+		<resource name="editor_cropmode_default">Iškirpti</resource>
 		<resource name="editor_cursortool">Objektų pasirinkimas (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Apkirpti</resource>
 		<resource name="editor_deleteelement">Naikinti</resource>

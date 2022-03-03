@@ -471,6 +471,9 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="editor_crop">
 		Taie (C)
 	</resource>
+	<resource name="editor_cropmode_default">
+		Taie
+	</resource>
 	<resource name="contextmenu_captureclipboard">
 		Deschide imaginea din clipboard
 	</resource>

@@ -92,6 +92,8 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_copypathtoclipboard">Copia el camí al porta-retalls</resource>
 		<resource name="editor_copytoclipboard">Copia</resource>
 		<resource name="editor_crop">Retalla(C)</resource>
+		<resource name="editor_cropmode_default">Retalla</resource>
+		<resource name="editor_cropmode_auto">Autorretalla</resource>
 		<resource name="editor_cursortool">Eina de selecció (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Retalla</resource>
 		<resource name="editor_deleteelement">Esborra</resource>

@@ -98,6 +98,8 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_copypathtoclipboard">Copia percorso negli appunti</resource>
         <resource name="editor_copytoclipboard">Copia</resource>
         <resource name="editor_crop">Ritaglia (C)</resource>
+        <resource name="editor_cropmode_default">Ritaglia</resource>
+        <resource name="editor_cropmode_auto">Ritaglia Automaticamente</resource>
         <resource name="editor_cursortool">Strumento di selezione (ESC)</resource>
         <resource name="editor_cuttoclipboard">Taglia</resource>
         <resource name="editor_deleteelement">Elimina</resource>

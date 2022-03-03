@@ -93,6 +93,8 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_copypathtoclipboard">Kopiera sökväg till urklipp</resource>
 		<resource name="editor_copytoclipboard">Kopiera</resource>
 		<resource name="editor_crop">Beskär (C)</resource>
+		<resource name="editor_cropmode_default">Beskär</resource>
+		<resource name="editor_cropmode_auto">Autobeskärning</resource>
 		<resource name="editor_cursortool">Markeringsverktyg (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Klipp ut</resource>
 		<resource name="editor_deleteelement">Radera</resource>

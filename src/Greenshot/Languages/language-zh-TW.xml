@@ -93,6 +93,8 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="editor_copypathtoclipboard">複製路徑到剪貼簿</resource>
 		<resource name="editor_copytoclipboard">複製</resource>
 		<resource name="editor_crop">裁剪 (C)</resource>
+		<resource name="editor_cropmode_default">裁剪</resource>
+		<resource name="editor_cropmode_auto">自動裁剪</resource>
 		<resource name="editor_cursortool">選取工具 (ESC)</resource>
 		<resource name="editor_cuttoclipboard">剪下</resource>
 		<resource name="editor_deleteelement">刪除</resource>

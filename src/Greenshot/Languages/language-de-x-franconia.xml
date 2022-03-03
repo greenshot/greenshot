@@ -88,6 +88,8 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_copypathtoclipboard">Bfad in däi Zwischnblach nei</resource>
 		<resource name="editor_copytoclipboard">Kobiern</resource>
 		<resource name="editor_crop">Zamschneidn (C)</resource>
+		<resource name="editor_cropmode_default">Zamschneidn</resource>
+		<resource name="editor_cropmode_auto">Audomadisch zamschneidn</resource>
 		<resource name="editor_cursortool">Angriffln (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Ausschneidn</resource>
 		<resource name="editor_deleteelement">Wech mid dem Ding!</resource>

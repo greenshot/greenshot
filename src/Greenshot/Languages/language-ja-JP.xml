@@ -92,6 +92,8 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_copytoclipboard">コピー</resource>
 		<resource name="editor_counter">カウンターを挿入する (I)</resource>
 		<resource name="editor_crop">切り抜き (C)</resource>
+		<resource name="editor_cropmode_default">切り抜き</resource>
+		<resource name="editor_cropmode_auto">自動切り抜き</resource>
 		<resource name="editor_cursortool">選択ツール (ESC)</resource>
 		<resource name="editor_cuttoclipboard">切り取り</resource>
 		<resource name="editor_deleteelement">削除</resource>

@@ -80,6 +80,8 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_copypathtoclipboard">Copiar ruta al portapapeles</resource>
 		<resource name="editor_copytoclipboard">Copiar</resource>
 		<resource name="editor_crop">Recortar(C)</resource>
+		<resource name="editor_cropmode_default">Recortar</resource>
+		<resource name="editor_cropmode_auto">Autorrecortar</resource>
 		<resource name="editor_cursortool">Herramienta de selección (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cortar</resource>
 		<resource name="editor_deleteelement">Borrar</resource>
