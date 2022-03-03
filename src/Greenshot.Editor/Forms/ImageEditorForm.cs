@@ -1710,7 +1710,7 @@ namespace Greenshot.Editor.Forms
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
             }
 
-            if (_surface.IsCropPossible(ref cropRectangle))
+            if (_surface.IsCropPossible(ref cropRectangle, CropContainer.CropMode.AutoCrop))
             {
                 _surface.ApplyCrop(cropRectangle);
                 UpdateUndoRedoSurfaceDependencies();

@@ -981,7 +981,7 @@ namespace Greenshot.Editor.Drawing
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
             }
 
-            if (!IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.AutoCrop))
             {
                 return false;
             }
@@ -1060,11 +1060,13 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// check if a crop is possible
         /// </summary>
-        /// <param name="cropRectangle"></param>
+        /// <param name="cropRectangle">Rectangle adapted to the dimensions of the image</param>
+        /// <param name="cropMode"></param>
         /// <returns>true if this is possible</returns>
-        public bool IsCropPossible(ref Rectangle cropRectangle)
+        public bool IsCropPossible(ref Rectangle cropRectangle, CropContainer.CropMode cropMode)
         {
             cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+            //Fitting the rectangle to the dimensions of the image
             if (cropRectangle.Left < 0)
             {
                 cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
@@ -1085,6 +1087,21 @@ namespace Greenshot.Editor.Drawing
                 cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
             }
 
+            // special condition for vertical 
+            if(cropMode == CropContainer.CropMode.Vertical && cropRectangle.Width == Image.Width)
+            {
+                //crop out the hole imgage is not allowed
+                return false;
+            }
+
+            // special condition for vertical 
+            if (cropMode == CropContainer.CropMode.Horizontal && cropRectangle.Height == Image.Height)
+            {
+                //crop out the hole imgage is not allowed
+                return false;
+            }
+
+            //condition for all other crop modes
             if (cropRectangle.Height > 0 && cropRectangle.Width > 0)
             {
                 return true;
@@ -1188,7 +1205,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Default)) return false;
 
             Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
             Bitmap tmpImage;
@@ -1231,16 +1248,28 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyHorizontalCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Horizontal)) return false;
 
-            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-            Bitmap tmpNewimage, tmpImageTop, tmpImageBottom;
+            var imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            var topRectangle = new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top);
+            var bottomRectangle = new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
+
+            Bitmap tmpNewimage;
+            List<Bitmap> imageParts = new List<Bitmap>();
             // Make sure we have information, this this fails
             try
             {
                 tmpNewimage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
-                tmpImageTop = ImageHelper.CloneArea(Image, new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top), PixelFormat.DontCare);
-                tmpImageBottom = ImageHelper.CloneArea(Image, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height), PixelFormat.DontCare);
+
+                if (topRectangle.Height > 0)
+                {
+                    imageParts.Add( ImageHelper.CloneArea(Image, topRectangle, PixelFormat.DontCare));
+                }
+
+                if (bottomRectangle.Height > 0)
+                {
+                    imageParts.Add(ImageHelper.CloneArea(Image, bottomRectangle, PixelFormat.DontCare));
+                }
             }
             catch (Exception ex)
             {
@@ -1251,11 +1280,14 @@ namespace Greenshot.Editor.Drawing
                 throw;
             }
             using Graphics g = Graphics.FromImage(tmpNewimage);
-            g.DrawImage(tmpImageTop, new Point(0, 0));
-            g.DrawImage(tmpImageBottom, new Point(0, tmpImageTop.Height));
 
-            tmpImageTop.Dispose();
-            tmpImageBottom.Dispose();
+            var insertPositionTop = 0;
+            foreach (var image in imageParts)
+            {
+                g.DrawImage(image, new Point(0, insertPositionTop));
+                insertPositionTop += image.Height;
+                image.Dispose();
+            }
 
             Matrix matrix = new Matrix();
             matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
@@ -1283,17 +1315,27 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyVerticalCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Vertical)) return false;
 
-            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-            Bitmap tmpNewimage, tmpImageLeft, tmpImageRight;
+            var imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            var leftRectangle = new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height);
+            var rightRectangle = new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
+            Bitmap tmpNewimage;
+            List<Bitmap> imageParts = new List<Bitmap>();
             // Make sure we have information, this this fails
             try
             {
                 tmpNewimage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
 
-                tmpImageLeft = ImageHelper.CloneArea(Image, new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
-                tmpImageRight = ImageHelper.CloneArea(Image, new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height), PixelFormat.DontCare);
+                if (leftRectangle.Width > 0)
+                {
+                    imageParts.Add(ImageHelper.CloneArea(Image, leftRectangle, PixelFormat.DontCare));
+                }
+
+                if (rightRectangle.Width > 0)
+                { 
+                    imageParts.Add(ImageHelper.CloneArea(Image, rightRectangle, PixelFormat.DontCare)); 
+                }
             }
             catch (Exception ex)
             {
@@ -1304,11 +1346,15 @@ namespace Greenshot.Editor.Drawing
                 throw;
             }
             using Graphics g = Graphics.FromImage(tmpNewimage);
-            g.DrawImage(tmpImageLeft, new Point(0, 0));
-            g.DrawImage(tmpImageRight, new Point(tmpImageLeft.Width, 0));
 
-            tmpImageLeft.Dispose();
-            tmpImageRight.Dispose();
+            var insertPositionLeft = 0;
+            foreach (var image in imageParts)
+            {
+                g.DrawImage(image, new Point(insertPositionLeft, 0));
+                insertPositionLeft += image.Width;
+                image.Dispose();
+            }
+            
 
             Matrix matrix = new Matrix();
             matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
