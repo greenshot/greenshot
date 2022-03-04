@@ -1091,14 +1091,14 @@ namespace Greenshot.Editor.Drawing
             // special condition for vertical 
             if(cropMode == CropContainer.CropModes.Vertical && cropRectangle.Width == Image.Width)
             {
-                //crop out the hole imgage is not allowed
+                //crop out the hole image is not allowed
                 return false;
             }
 
             // special condition for vertical 
             if (cropMode == CropContainer.CropModes.Horizontal && cropRectangle.Height == Image.Height)
             {
-                //crop out the hole imgage is not allowed
+                //crop out the hole image is not allowed
                 return false;
             }
 
@@ -1251,20 +1251,21 @@ namespace Greenshot.Editor.Drawing
             var bottomRectangle = new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
 
             Bitmap newImage;
-            var imageParts = new List<Bitmap>();
-            // Make sure we have information, this this fails
             try
             {
                 newImage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
 
+                using var graphics = Graphics.FromImage(newImage);
+
+                var insertPositionTop = 0;
                 if (topRectangle.Height > 0)
                 {
-                    imageParts.Add( ImageHelper.CloneArea(Image, topRectangle, PixelFormat.DontCare));
+                    graphics.DrawImage(Image, new Rectangle(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
+                    insertPositionTop += topRectangle.Height;
                 }
-
                 if (bottomRectangle.Height > 0)
                 {
-                    imageParts.Add(ImageHelper.CloneArea(Image, bottomRectangle, PixelFormat.DontCare));
+                    graphics.DrawImage(Image, new Rectangle(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
                 }
             }
             catch (Exception ex)
@@ -1275,16 +1276,6 @@ namespace Greenshot.Editor.Drawing
                 ex.Data.Add("Pixelformat", Image.PixelFormat);
                 throw;
             }
-            using Graphics g = Graphics.FromImage(newImage);
-
-            var insertPositionTop = 0;
-            foreach (var image in imageParts)
-            {
-                g.DrawImage(image, new Point(0, insertPositionTop));
-                insertPositionTop += image.Height;
-                image.Dispose();
-            }
-
             var matrix = new Matrix();
             matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
             // Make undoable
@@ -1317,20 +1308,22 @@ namespace Greenshot.Editor.Drawing
             var leftRectangle = new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height);
             var rightRectangle = new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
             Bitmap newImage;
-            var imageParts = new List<Bitmap>();
-            // Make sure we have information, this this fails
             try
             {
                 newImage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
 
+                using var graphics = Graphics.FromImage(newImage);
+
+                var insertPositionLeft = 0;
                 if (leftRectangle.Width > 0)
                 {
-                    imageParts.Add(ImageHelper.CloneArea(Image, leftRectangle, PixelFormat.DontCare));
+                    graphics.DrawImage(Image, new Rectangle(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
+                    insertPositionLeft += leftRectangle.Width;
                 }
-
+                
                 if (rightRectangle.Width > 0)
-                { 
-                    imageParts.Add(ImageHelper.CloneArea(Image, rightRectangle, PixelFormat.DontCare)); 
+                {
+                    graphics.DrawImage(Image, new Rectangle(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
                 }
             }
             catch (Exception ex)
@@ -1341,16 +1334,6 @@ namespace Greenshot.Editor.Drawing
                 ex.Data.Add("Pixelformat", Image.PixelFormat);
                 throw;
             }
-            using Graphics g = Graphics.FromImage(newImage);
-
-            var insertPositionLeft = 0;
-            foreach (var image in imageParts)
-            {
-                g.DrawImage(image, new Point(insertPositionLeft, 0));
-                insertPositionLeft += image.Width;
-                image.Dispose();
-            }
-
             var matrix = new Matrix();
             matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
             // Make undoable
