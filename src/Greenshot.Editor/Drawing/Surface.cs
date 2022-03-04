@@ -2139,6 +2139,12 @@ namespace Greenshot.Editor.Drawing
                 _cropContainer = null;
                 break;
             }
+
+            // maybe the undo button has to be enabled
+            if (_movingElementChanged != null)
+            {
+                _movingElementChanged(this, new SurfaceElementEventArgs());
+            }
         }
 
         public void RemoveCropContainer()
