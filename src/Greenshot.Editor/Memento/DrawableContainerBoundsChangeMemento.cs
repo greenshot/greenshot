@@ -34,30 +34,30 @@ namespace Greenshot.Editor.Memento
     {
         private readonly List<Point> _points = new();
         private readonly List<Size> _sizes = new();
-        private IDrawableContainerList _listOfdrawableContainer;
+        private IDrawableContainerList _listOfDrawableContainer;
 
         private void StoreBounds()
         {
-            foreach (IDrawableContainer drawableContainer in _listOfdrawableContainer)
+            foreach (IDrawableContainer drawableContainer in _listOfDrawableContainer)
             {
                 _points.Add(drawableContainer.Location);
                 _sizes.Add(drawableContainer.Size);
             }
         }
 
-        public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfdrawableContainer)
+        public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfDrawableContainer)
         {
-            _listOfdrawableContainer = listOfdrawableContainer;
+            _listOfDrawableContainer = listOfDrawableContainer;
             StoreBounds();
         }
 
         public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer)
         {
-            _listOfdrawableContainer = new DrawableContainerList
+            _listOfDrawableContainer = new DrawableContainerList
             {
                 drawableContainer
             };
-            _listOfdrawableContainer.Parent = drawableContainer.Parent;
+            _listOfDrawableContainer.Parent = drawableContainer.Parent;
             StoreBounds();
         }
 
@@ -66,21 +66,21 @@ namespace Greenshot.Editor.Memento
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _listOfdrawableContainer?.Dispose();
+                _listOfDrawableContainer?.Dispose();
             }
 
-            _listOfdrawableContainer = null;
+            _listOfDrawableContainer = null;
         }
 
         public bool Merge(IMemento otherMemento)
         {
             if (otherMemento is not DrawableContainerBoundsChangeMemento other) return false;
 
-            if (ObjectExtensions.CompareLists(_listOfdrawableContainer, other._listOfdrawableContainer))
+            if (ObjectExtensions.CompareLists(_listOfDrawableContainer, other._listOfDrawableContainer))
             {
                 // Lists are equal, as we have the state already we can ignore the new memento
                 return true;
@@ -91,10 +91,10 @@ namespace Greenshot.Editor.Memento
 
         public IMemento Restore()
         {
-            var oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer);
-            for (int index = 0; index < _listOfdrawableContainer.Count; index++)
+            var oldState = new DrawableContainerBoundsChangeMemento(_listOfDrawableContainer);
+            for (int index = 0; index < _listOfDrawableContainer.Count; index++)
             {
-                IDrawableContainer drawableContainer = _listOfdrawableContainer[index];
+                IDrawableContainer drawableContainer = _listOfDrawableContainer[index];
                 // Before
                 drawableContainer.Invalidate();
                 drawableContainer.Left = _points[index].X;

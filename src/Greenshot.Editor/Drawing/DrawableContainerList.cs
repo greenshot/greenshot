@@ -136,7 +136,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Make a following bounds change on this containerlist undoable!
+        /// Make a following bounds change on this DrawableContainerList undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>
         public void MakeBoundsChangeUndoable(bool allowMerge)
@@ -301,16 +301,14 @@ namespace Greenshot.Editor.Drawing
                 {
                     return Rectangle.Empty;
                 }
-                else
-                {
-                    var result = this[0].DrawingBounds;
-                    for (int i = 1; i < Count; i++)
-                    {
-                        result = Rectangle.Union(result, this[i].DrawingBounds);
-                    }
 
-                    return result;
+                var result = this[0].DrawingBounds;
+                for (int i = 1; i < Count; i++)
+                {
+                    result = Rectangle.Union(result, this[i].DrawingBounds);
                 }
+
+                return result;
             }
         }
 
@@ -319,7 +317,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="g">the to the bitmap related Graphics object</param>
         /// <param name="bitmap">Bitmap to draw</param>
-        /// <param name="renderMode">the rendermode in which the element is to be drawn</param>
+        /// <param name="renderMode">the RenderMode in which the element is to be drawn</param>
         /// <param name="clipRectangle"></param>
         public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle)
         {
@@ -584,9 +582,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            var dc = this[index1];
-            this[index1] = this[index2];
-            this[index2] = dc;
+            (this[index1], this[index2]) = (this[index2], this[index1]);
             Parent.Modified = true;
         }
 

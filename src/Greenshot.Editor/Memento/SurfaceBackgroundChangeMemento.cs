@@ -52,7 +52,7 @@ namespace Greenshot.Editor.Memento
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing) return;
 
