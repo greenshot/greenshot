@@ -36,9 +36,9 @@ namespace Greenshot.Editor.Drawing
     public class CropContainer : DrawableContainer
     {
         /// <summary>
-        /// awailable modes
+        /// Available Crop modes
         /// </summary>
-        public enum CropMode
+        public enum CropModes
         {
             /// <summary>
             ///  crop all outside the selection rectangle
@@ -73,12 +73,12 @@ namespace Greenshot.Editor.Drawing
         {
             switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case CropMode.Horizontal:
+                case CropModes.Horizontal:
                     {
                         InitHorizontalCropOutStyle();
                         break;
                     }
-                case CropMode.Vertical:
+                case CropModes.Vertical:
                     {
                         InitVerticalCropOutStyle();
                         break;
@@ -119,6 +119,7 @@ namespace Greenshot.Editor.Drawing
             Adorners.Add(new ResizeAdorner(this, Positions.TopCenter));
             Adorners.Add(new ResizeAdorner(this, Positions.BottomCenter));
         }
+
         private void CreateLeftRightAdorners()
         {
             Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
@@ -128,7 +129,7 @@ namespace Greenshot.Editor.Drawing
         protected override void InitializeFields()
         {
             AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
-            AddField(GetType(), FieldType.CROPMODE, CropMode.Default);
+            AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
         }
 
         public override void Invalidate()
@@ -170,8 +171,8 @@ namespace Greenshot.Editor.Drawing
 
             switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case CropMode.Horizontal:
-                case CropMode.Vertical:
+                case CropModes.Horizontal:
+                case CropModes.Vertical:
                     {
                         //draw inside
                         g.FillRectangle(cropBrush, cropRectangle);
@@ -205,9 +206,9 @@ namespace Greenshot.Editor.Drawing
             return GetFieldValue(FieldType.CROPMODE) switch
             {
                 //force horizontal crop to left edge
-                CropMode.Horizontal => base.HandleMouseDown(0, y),
+                CropModes.Horizontal => base.HandleMouseDown(0, y),
                 //force vertical crop to top edge
-                CropMode.Vertical => base.HandleMouseDown(x, 0),
+                CropModes.Vertical => base.HandleMouseDown(x, 0),
                 _ => base.HandleMouseDown(x, y),
             };
         }
@@ -218,7 +219,7 @@ namespace Greenshot.Editor.Drawing
 
             switch (GetFieldValue(FieldType.CROPMODE))
             {
-                case CropMode.Horizontal:
+                case CropModes.Horizontal:
                     {
                         //stick on left and right
                         //allow only horizontal changes
@@ -231,7 +232,7 @@ namespace Greenshot.Editor.Drawing
                         }
                         break;
                     }
-                case CropMode.Vertical:
+                case CropModes.Vertical:
                     {
                         //stick on top and bottom
                         //allow only vertical changes
@@ -263,5 +264,9 @@ namespace Greenshot.Editor.Drawing
             Invalidate();
             return true;
         }
+
+        /// <inheritdoc cref="IDrawableContainer"/>
+        /// Make sure this container is not undoable
+        public override bool IsUndoable => false;
     }
 }

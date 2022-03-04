@@ -21,6 +21,9 @@
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
+    /// <summary>
+    /// The IFieldAggregator defines the connections between fields and containers
+    /// </summary>
     public interface IFieldAggregator
     {
         void UnbindElement(IDrawableContainer dc);

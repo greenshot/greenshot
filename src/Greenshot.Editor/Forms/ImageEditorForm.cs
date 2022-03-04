@@ -731,7 +731,7 @@ namespace Greenshot.Editor.Forms
             if (_surface.DrawingMode == DrawingModes.Crop) return;
 
             _surface.DrawingMode = DrawingModes.Crop;
-            InitCropMode((CropContainer.CropMode)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
+            InitCropMode((CropContainer.CropModes)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
             RefreshFieldControls();
         }
 
@@ -1590,25 +1590,25 @@ namespace Greenshot.Editor.Forms
 
         protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {      
-            InitCropMode((CropContainer.CropMode)e.ClickedItem.Tag);
+            InitCropMode((CropContainer.CropModes)e.ClickedItem.Tag);
          
             RefreshFieldControls();
             Invalidate(true);
         }
 
-        private void InitCropMode(CropContainer.CropMode mode)
+        private void InitCropMode(CropContainer.CropModes mode)
         {
             _surface.DrawingMode = DrawingModes.None;
             _surface.RemoveCropContainer();
 
-            if (mode == CropContainer.CropMode.AutoCrop)
+            if (mode == CropContainer.CropModes.AutoCrop)
             {
                 if (!_surface.AutoCrop())
                 {
                     //not AutoCrop possible automatic switch to default crop mode
                     _surface.DrawingMode = DrawingModes.Crop;
-                    _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropMode.Default;
-                    this.cropModeButton.SelectedTag = CropContainer.CropMode.Default;
+                    _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
+                    this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
                     this.statusLabel.Text = Language.GetString(LangKey.editor_autocrop_not_possible);
                 }
             }
@@ -1710,7 +1710,7 @@ namespace Greenshot.Editor.Forms
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
             }
 
-            if (_surface.IsCropPossible(ref cropRectangle, CropContainer.CropMode.AutoCrop))
+            if (_surface.IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
             {
                 _surface.ApplyCrop(cropRectangle);
                 UpdateUndoRedoSurfaceDependencies();

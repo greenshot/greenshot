@@ -78,6 +78,11 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         bool InitContent();
 
+        /// <summary>
+        /// Defines if the drawable container participates in undo / redo
+        /// </summary>
+        bool IsUndoable { get; }
+
         void MakeBoundsChangeUndoable(bool allowMerge);
 
         EditStatus DefaultEditMode { get; }

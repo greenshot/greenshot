@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
@@ -981,7 +982,7 @@ namespace Greenshot.Editor.Drawing
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
             }
 
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.AutoCrop))
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
             {
                 return false;
             }
@@ -1063,7 +1064,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="cropRectangle">Rectangle adapted to the dimensions of the image</param>
         /// <param name="cropMode"></param>
         /// <returns>true if this is possible</returns>
-        public bool IsCropPossible(ref Rectangle cropRectangle, CropContainer.CropMode cropMode)
+        public bool IsCropPossible(ref Rectangle cropRectangle, CropContainer.CropModes cropMode)
         {
             cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
             //Fitting the rectangle to the dimensions of the image
@@ -1088,14 +1089,14 @@ namespace Greenshot.Editor.Drawing
             }
 
             // special condition for vertical 
-            if(cropMode == CropContainer.CropMode.Vertical && cropRectangle.Width == Image.Width)
+            if(cropMode == CropContainer.CropModes.Vertical && cropRectangle.Width == Image.Width)
             {
                 //crop out the hole imgage is not allowed
                 return false;
             }
 
             // special condition for vertical 
-            if (cropMode == CropContainer.CropMode.Horizontal && cropRectangle.Height == Image.Height)
+            if (cropMode == CropContainer.CropModes.Horizontal && cropRectangle.Height == Image.Height)
             {
                 //crop out the hole imgage is not allowed
                 return false;
@@ -1205,7 +1206,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Default)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Default)) return false;
 
             Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
             Bitmap tmpImage;
@@ -1248,7 +1249,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyHorizontalCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Horizontal)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Horizontal)) return false;
 
             var imageRectangle = new Rectangle(Point.Empty, Image.Size);
             var topRectangle = new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top);
@@ -1315,7 +1316,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool ApplyVerticalCrop(Rectangle cropRectangle)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropMode.Vertical)) return false;
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Vertical)) return false;
 
             var imageRectangle = new Rectangle(Point.Empty, Image.Size);
             var leftRectangle = new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height);
@@ -1943,7 +1944,7 @@ namespace Greenshot.Editor.Drawing
                 element.Invalidate();
             }
 
-            if (makeUndoable)
+            if (makeUndoable && element.IsUndoable)
             {
                 MakeUndoable(new AddElementMemento(this, element), false);
             }
@@ -1959,11 +1960,17 @@ namespace Greenshot.Editor.Drawing
         public void RemoveElements(IDrawableContainerList elementsToRemove, bool makeUndoable = true)
         {
             // fix potential issues with iterating a changing list
-            DrawableContainerList cloned = new DrawableContainerList();
-            cloned.AddRange(elementsToRemove);
+            DrawableContainerList cloned = new DrawableContainerList(elementsToRemove);
+
             if (makeUndoable)
             {
-                MakeUndoable(new DeleteElementsMemento(this, cloned), false);
+                // Take all containers to make undoable
+                var undoableContainers = elementsToRemove.Where(c => c.IsUndoable).ToList();
+                if (undoableContainers.Any())
+                {
+                    var undoableContainerList = new DrawableContainerList(undoableContainers);
+                    MakeUndoable(new DeleteElementsMemento(this, undoableContainerList), false);
+                }
             }
 
             SuspendLayout();
@@ -2011,7 +2018,7 @@ namespace Greenshot.Editor.Drawing
                 Invalidate();
             }
 
-            if (makeUndoable)
+            if (makeUndoable && elementToRemove.IsUndoable)
             {
                 MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
             }
@@ -2027,11 +2034,16 @@ namespace Greenshot.Editor.Drawing
         public void AddElements(IDrawableContainerList elementsToAdd, bool makeUndoable = true)
         {
             // fix potential issues with iterating a changing list
-            DrawableContainerList cloned = new DrawableContainerList();
-            cloned.AddRange(elementsToAdd);
+            DrawableContainerList cloned = new DrawableContainerList(elementsToAdd);
             if (makeUndoable)
             {
-                MakeUndoable(new AddElementsMemento(this, cloned), false);
+                // Take all containers to make undoable
+                var undoableContainers = elementsToAdd.Where(c => c.IsUndoable).ToList();
+                if (undoableContainers.Any())
+                {
+                    var undoableContainerList = new DrawableContainerList(undoableContainers);
+                    MakeUndoable(new AddElementsMemento(this, undoableContainerList), false);
+                }
             }
 
             SuspendLayout();
@@ -2113,12 +2125,12 @@ namespace Greenshot.Editor.Drawing
                         {
                             switch (e.GetFieldValue(FieldType.CROPMODE))
                             {
-                                case CropContainer.CropMode.Horizontal:
+                                case CropContainer.CropModes.Horizontal:
                                     {
                                         ApplyHorizontalCrop(_cropContainer.Bounds);
                                         break;
                                     }
-                                case CropContainer.CropMode.Vertical:
+                                case CropContainer.CropModes.Vertical:
                                     {
                                         ApplyVerticalCrop(_cropContainer.Bounds);
                                         break;

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
@@ -48,6 +49,11 @@ namespace Greenshot.Editor.Drawing
 
         public DrawableContainerList()
         {
+        }
+
+        public DrawableContainerList(IEnumerable<IDrawableContainer> elements)
+        {
+            AddRange(elements);
         }
 
         public DrawableContainerList(Guid parentId)
@@ -135,12 +141,16 @@ namespace Greenshot.Editor.Drawing
         /// <param name="allowMerge">true means allow the moves to be merged</param>
         public void MakeBoundsChangeUndoable(bool allowMerge)
         {
-            if (Count > 0 && Parent != null)
+            if (Count <= 0 || Parent == null) return;
+            // Take all containers to make undoable
+            var containersToClone = this.Where(c => c.IsUndoable).ToList();
+            if (!containersToClone.Any())
             {
-                var clone = new DrawableContainerList();
-                clone.AddRange(this);
-                Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
+                return;
             }
+            var clone = new DrawableContainerList();
+            clone.AddRange(containersToClone);
+            Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
         }
 
         /// <summary>

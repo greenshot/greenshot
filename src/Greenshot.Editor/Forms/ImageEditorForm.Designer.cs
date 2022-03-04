@@ -1118,8 +1118,8 @@ namespace Greenshot.Editor.Forms {
 			//TODO translate
 			this.cropModeButton.LanguageKey = "editor_crop_mode";
 			this.cropModeButton.Name = "cropModeButton";
-			this.cropModeButton.SelectedTag = CropContainer.CropMode.Default;
-			this.cropModeButton.Tag = CropContainer.CropMode.Default;
+			this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
+			this.cropModeButton.Tag = CropContainer.CropModes.Default;
 
 			// 
 			// defaultCropStyleToolStripMenuItem
@@ -1127,7 +1127,7 @@ namespace Greenshot.Editor.Forms {
 			this.defaultCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
 			this.defaultCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_default";
 			this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
-			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Default;
+			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Default;
 
 			// 
 			// verticalCropStyleToolStripMenuItem
@@ -1135,7 +1135,7 @@ namespace Greenshot.Editor.Forms {
 			this.verticalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropVertical.Image")));
 			this.verticalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_vertical";
 			this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
-			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Vertical;
+			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Vertical;
 
 			// 
 			// horizontalCropStyleToolStripMenuItem
@@ -1143,7 +1143,7 @@ namespace Greenshot.Editor.Forms {
 			this.horizontalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropHorizontal.Image")));
 			this.horizontalCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_horizontal";
 			this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
-			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropMode.Horizontal;
+			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Horizontal;
 
 			// 
 			// horizontalCropStyleToolStripMenuItem
@@ -1151,7 +1151,7 @@ namespace Greenshot.Editor.Forms {
 			this.autoCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("AutoCrop.Image")));
 			this.autoCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_auto";
 			this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
-			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropMode.AutoCrop;
+			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropModes.AutoCrop;
 
 			// 
 			// highlightModeButton
