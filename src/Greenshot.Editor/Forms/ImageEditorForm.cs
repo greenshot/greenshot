@@ -1616,7 +1616,7 @@ namespace Greenshot.Editor.Forms
             {
                 _surface.DrawingMode = DrawingModes.Crop;
             }
-
+            RefreshEditorControls();
         }
 
         private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
@@ -1628,13 +1628,13 @@ namespace Greenshot.Editor.Forms
         private void BtnConfirmClick(object sender, EventArgs e)
         {
             _surface.ConfirmSelectedConfirmableElements(true);
-            RefreshFieldControls();
+            RefreshEditorControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
         {
             _surface.ConfirmSelectedConfirmableElements(false);
-            RefreshFieldControls();
+            RefreshEditorControls();
         }
 
         private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
