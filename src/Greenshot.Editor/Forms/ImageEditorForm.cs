@@ -1627,13 +1627,13 @@ namespace Greenshot.Editor.Forms
 
         private void BtnConfirmClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(true);
+            _surface.Confirm(true);
             RefreshEditorControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(false);
+            _surface.Confirm(false);
             RefreshEditorControls();
         }
 

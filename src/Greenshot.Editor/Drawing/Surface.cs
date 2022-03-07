@@ -2075,8 +2075,28 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// This method is called to confirm/cancel "confirmable" elements, like the crop-container.
+        /// This method is called to confirm/cancel.
         /// Called when pressing enter or using the "check" in the editor.
+        /// redirects to the specialized confirm/cancel method
+        /// </summary>
+        /// <param name="confirm">bool</param>
+        public void Confirm(bool confirm)
+        {
+            if (DrawingMode == DrawingModes.Crop)
+            {
+                ConfirmCrop(confirm);
+            }
+            else
+            {
+                ConfirmSelectedConfirmableElements(confirm);
+            }
+        }
+
+        /// <summary>
+        /// This method is called to confirm/cancel "confirmable" elements
+        /// Called when pressing enter or using the "check" in the editor.
+        /// <br/>
+        /// For crop-container there is a dedicated method <see cref="ConfirmCrop(bool)"/>.
         /// </summary>
         /// <param name="confirm">bool</param>
         public void ConfirmSelectedConfirmableElements(bool confirm)
@@ -2084,44 +2104,47 @@ namespace Greenshot.Editor.Drawing
             // create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
             List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
             foreach (IDrawableContainer dc in selectedDCs)
+            {                
+                throw new NotImplementedException($"No confirm/cancel defined for Container type {dc.GetType()}");               
+            }
+
+            // maybe the undo button has to be enabled
+            if (_movingElementChanged != null)
             {
-                if (!dc.Equals(_cropContainer)) continue;
-                DrawingMode = DrawingModes.None;
+                _movingElementChanged(this, new SurfaceElementEventArgs());
+            }
+        }
+
+        /// <summary>
+        /// This method is called to confirm/cancel the crop-container.
+        /// Called when pressing enter or using the "check" in the editor.
+        /// </summary>
+        /// <param name="confirm">bool</param>
+        public void ConfirmCrop(bool confirm)
+        {
+            if (_cropContainer is not CropContainer e) return;
+                    
+            if (confirm && selectedElements.Count > 0)
+            {
                 // No undo memento for the cropcontainer itself, only for the effect
                 RemoveElement(_cropContainer, false);
-                if (confirm)
+
+                _ = e.GetFieldValue(FieldType.CROPMODE) switch
                 {
-                    if (dc is CropContainer e)
-                    {
-                        switch (e.GetFieldValue(FieldType.CROPMODE))
-                        {
-                            case CropContainer.CropModes.Horizontal:
-                            {
-                                ApplyHorizontalCrop(_cropContainer.Bounds);
-                                break;
-                            }
-                            case CropContainer.CropModes.Vertical:
-                            {
-                                ApplyVerticalCrop(_cropContainer.Bounds);
-                                break;
-                            }
-                            default:
-                            {
-                                ApplyCrop(_cropContainer.Bounds);
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ApplyCrop(_cropContainer.Bounds);
-                    }
-                }
+                    CropContainer.CropModes.Horizontal => ApplyHorizontalCrop(_cropContainer.Bounds),
+                    CropContainer.CropModes.Vertical => ApplyVerticalCrop(_cropContainer.Bounds),
+                    _ => ApplyCrop(_cropContainer.Bounds)
+                };
 
                 _cropContainer.Dispose();
                 _cropContainer = null;
-                break;
             }
+            else
+            {
+                RemoveCropContainer();
+            }
+
+            DrawingMode = DrawingModes.None;
 
             // maybe the undo button has to be enabled
             if (_movingElementChanged != null)
@@ -2457,7 +2480,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
-            if (selectedElements.Count <= 0) return false;
+            if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
             int px = shiftModifier ? 10 : 1;
@@ -2493,10 +2516,10 @@ namespace Greenshot.Editor.Drawing
                     PushElementsToBottom();
                     break;
                 case Keys.Enter:
-                    ConfirmSelectedConfirmableElements(true);
+                    Confirm(true);
                     break;
                 case Keys.Escape:
-                    ConfirmSelectedConfirmableElements(false);
+                    Confirm(false);
                     break;
                 case Keys.D0 | Keys.Control:
                 case Keys.D0 | Keys.Shift | Keys.Control:
