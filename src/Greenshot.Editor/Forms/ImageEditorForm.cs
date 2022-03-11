@@ -1326,10 +1326,10 @@ namespace Greenshot.Editor.Forms
                 textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                               && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
-                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                         && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+
+                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
+                btnConfirm.Enabled = _surface.HasSelectedElements;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
                 cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
