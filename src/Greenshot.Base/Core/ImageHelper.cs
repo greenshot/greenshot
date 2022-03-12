@@ -190,12 +190,14 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Private helper method for the FindAutoCropRectangle
         /// </summary>
-        /// <param name="fastBitmap"></param>
-        /// <param name="colorPoint"></param>
-        /// <param name="cropDifference"></param>
+        /// <param name="fastBitmap">IFastBitmap</param>
+        /// <param name="colorPoint">Point</param>
+        /// <param name="cropDifference">int</param>
+        /// <param name="area">Rectangle with optional area to scan in</param>
         /// <returns>Rectangle</returns>
-        private static Rectangle FindAutoCropRectangle(IFastBitmap fastBitmap, Point colorPoint, int cropDifference)
+        private static Rectangle FindAutoCropRectangle(IFastBitmap fastBitmap, Point colorPoint, int cropDifference, Rectangle? area = null)
         {
+            area ??= new Rectangle(0, 0, fastBitmap.Width, fastBitmap.Height);
             Rectangle cropRectangle = Rectangle.Empty;
             Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
             Point min = new Point(int.MaxValue, int.MaxValue);
@@ -203,9 +205,9 @@ namespace Greenshot.Base.Core
 
             if (cropDifference > 0)
             {
-                for (int y = 0; y < fastBitmap.Height; y++)
+                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
                 {
-                    for (int x = 0; x < fastBitmap.Width; x++)
+                    for (int x = area.Value.Left; x < area.Value.Right; x++)
                     {
                         Color currentColor = fastBitmap.GetColorAt(x, y);
                         int diffR = Math.Abs(currentColor.R - referenceColor.R);
@@ -225,9 +227,9 @@ namespace Greenshot.Base.Core
             }
             else
             {
-                for (int y = 0; y < fastBitmap.Height; y++)
+                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
                 {
-                    for (int x = 0; x < fastBitmap.Width; x++)
+                    for (int x = area.Value.Left; x < area.Value.Right; x++)
                     {
                         Color currentColor = fastBitmap.GetColorAt(x, y);
                         if (!referenceColor.Equals(currentColor))
@@ -243,7 +245,7 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            if (!(Point.Empty.Equals(min) && max.Equals(new Point(fastBitmap.Width - 1, fastBitmap.Height - 1))))
+            if (!(Point.Empty.Equals(min) && max.Equals(new Point(area.Value.Width - 1, area.Value.Height - 1))))
             {
                 if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
                 {
@@ -257,18 +259,20 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Get a rectangle for the image which crops the image of all colors equal to that on 0,0
         /// </summary>
-        /// <param name="image"></param>
-        /// <param name="cropDifference"></param>
+        /// <param name="image">Image</param>
+        /// <param name="cropDifference">int</param>
+        /// <param name="area">Rectangle with optional area</param>
         /// <returns>Rectangle</returns>
-        public static Rectangle FindAutoCropRectangle(Image image, int cropDifference)
+        public static Rectangle FindAutoCropRectangle(Image image, int cropDifference, Rectangle? area = null)
         {
+            area ??= new Rectangle(0, 0, image.Width, image.Height);
             Rectangle cropRectangle = Rectangle.Empty;
             var checkPoints = new List<Point>
             {
-                new Point(0, 0),
-                new Point(0, image.Height - 1),
-                new Point(image.Width - 1, 0),
-                new Point(image.Width - 1, image.Height - 1)
+                new Point(area.Value.Left, area.Value.Top),
+                new Point(area.Value.Left, area.Value.Bottom - 1),
+                new Point(area.Value.Right - 1, area.Value.Top),
+                new Point(area.Value.Right - 1, area.Value.Bottom - 1)
             };
             // Top Left
             // Bottom Left
@@ -279,7 +283,7 @@ namespace Greenshot.Base.Core
                 // find biggest area
                 foreach (Point checkPoint in checkPoints)
                 {
-                    var currentRectangle = FindAutoCropRectangle(fastBitmap, checkPoint, cropDifference);
+                    var currentRectangle = FindAutoCropRectangle(fastBitmap, checkPoint, cropDifference, area);
                     if (currentRectangle.Width * currentRectangle.Height > cropRectangle.Width * cropRectangle.Height)
                     {
                         cropRectangle = currentRectangle;
@@ -295,7 +299,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sourceImage">Bitmap</param>
         /// <param name="effect">IEffect</param>
-        /// <param name="matrix"></param>
+        /// <param name="matrix">Matrix</param>
         /// <returns>Bitmap</returns>
         public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix)
         {

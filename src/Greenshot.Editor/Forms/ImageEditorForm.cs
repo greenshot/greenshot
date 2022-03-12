@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base;
@@ -1598,12 +1599,14 @@ namespace Greenshot.Editor.Forms
 
         private void InitCropMode(CropContainer.CropModes mode)
         {
+            var cropArea = _surface.Elements.FirstOrDefault(c => c is CropContainer)?.Bounds;
+
             _surface.DrawingMode = DrawingModes.None;
             _surface.RemoveCropContainer();
 
             if (mode == CropContainer.CropModes.AutoCrop)
             {
-                if (!_surface.AutoCrop())
+                if (!_surface.AutoCrop(cropArea))
                 {
                     //not AutoCrop possible automatic switch to default crop mode
                     _surface.DrawingMode = DrawingModes.Crop;

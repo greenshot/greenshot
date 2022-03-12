@@ -973,13 +973,14 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Auto crop the image
         /// </summary>
+        /// <param name="cropArea">Rectangle with optional area to find a crop region</param>
         /// <returns>true if cropped</returns>
-        public bool AutoCrop()
+        public bool AutoCrop(Rectangle? cropArea = null)
         {
             Rectangle cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
-                cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
+                cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference, cropArea);
             }
 
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
@@ -1062,7 +1063,7 @@ namespace Greenshot.Editor.Drawing
         /// check if a crop is possible
         /// </summary>
         /// <param name="cropRectangle">Rectangle adapted to the dimensions of the image</param>
-        /// <param name="cropMode"></param>
+        /// <param name="cropMode">CropModes</param>
         /// <returns>true if this is possible</returns>
         public bool IsCropPossible(ref Rectangle cropRectangle, CropContainer.CropModes cropMode)
         {
