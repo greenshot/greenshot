@@ -182,6 +182,9 @@ namespace Greenshot.Editor.Forms
 
             UpdateUi();
 
+            // Workaround: for the MouseWheel event which doesn't get to the panel
+            MouseWheel += PanelMouseWheel;
+
             // Use best fit, for those capture modes where we can get huge images
             bool useBestFit = _surface.CaptureDetails.CaptureMode switch
             {
@@ -281,12 +284,6 @@ namespace Greenshot.Editor.Forms
             // a smaller size than the initial panel size (as set by the forms designer)
             panel1.Height = 10;
 
-            fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
-
-            obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-            highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-            cropModeButton.DropDownItemClicked += CropStyleDropDownItemClicked;
-
             _toolbarButtons = new[]
             {
                 btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
@@ -294,9 +291,6 @@ namespace Greenshot.Editor.Forms
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-
-            // Workaround: for the MouseWheel event which doesn't get to the panel
-            MouseWheel += PanelMouseWheel;
 
             // Make sure the value is set correctly when starting
             if (Surface != null)

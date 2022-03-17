@@ -1090,6 +1090,7 @@ namespace Greenshot.Editor.Forms {
 			this.obfuscateModeButton.SelectedTag = FilterContainer.PreparedFilter.BLUR;
 			this.obfuscateModeButton.Tag = FilterContainer.PreparedFilter.BLUR;
 			// 
+			this.obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			// pixelizeToolStripMenuItem
 			// 
 			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
@@ -1115,12 +1116,11 @@ namespace Greenshot.Editor.Forms {
 									this.autoCropModeToolStripMenuItem});
 			this.cropModeButton.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
 			this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			//TODO translate
 			this.cropModeButton.LanguageKey = "editor_crop_mode";
 			this.cropModeButton.Name = "cropModeButton";
 			this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
 			this.cropModeButton.Tag = CropContainer.CropModes.Default;
-
+            this.cropModeButton.DropDownItemClicked += CropStyleDropDownItemClicked;
 			// 
 			// defaultCropStyleToolStripMenuItem
 			// 
@@ -1146,7 +1146,7 @@ namespace Greenshot.Editor.Forms {
 			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Horizontal;
 
 			// 
-			// horizontalCropStyleToolStripMenuItem
+			// autoCropModeToolStripMenuItem
 			// 
 			this.autoCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("AutoCrop.Image")));
 			this.autoCropModeToolStripMenuItem.LanguageKey = "editor_cropmode_auto";
@@ -1168,6 +1168,7 @@ namespace Greenshot.Editor.Forms {
 			this.highlightModeButton.Name = "highlightModeButton";
 			this.highlightModeButton.SelectedTag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			this.highlightModeButton.Tag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
+            this.highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			// 
 			// textHighlightMenuItem
 			// 
@@ -1275,6 +1276,7 @@ namespace Greenshot.Editor.Forms {
 			this.fontFamilyComboBox.Padding = new System.Windows.Forms.Padding(2,0,0,2);
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+            this.fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
 			// 
 			// fontSizeLabel
 			// 
