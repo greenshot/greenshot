@@ -21,7 +21,6 @@
 
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -162,33 +161,25 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+
+            using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
             Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
             Size imageSize = _parent.Image.Size;
-            var foreColor = Color.FromArgb(80, 100, 100, 100);
-            var backColor = Color.FromArgb(100, 150, 150, 100);
 
             DrawSelectionBorder(g, selectionRect);
 
             switch (GetFieldValue(FieldType.CROPMODE))
             {
                 case CropModes.Horizontal:
-                    {
-                        using HatchBrush hBrush = new HatchBrush(HatchStyle.Horizontal, foreColor, backColor);
-                        //draw inside
-                        g.FillRectangle(hBrush, cropRectangle);
-                        break;
-                    }
                 case CropModes.Vertical:
                     {
-                        using HatchBrush hBrush = new HatchBrush(HatchStyle.Vertical, foreColor, backColor);
                         //draw inside
-                        g.FillRectangle(hBrush, cropRectangle);
+                        g.FillRectangle(cropBrush, cropRectangle);
                         break;
                     }
                 default:
                     {
-                        using Brush cropBrush = new HatchBrush(HatchStyle.Cross, foreColor, backColor);
                         //draw outside
                         // top
                         g.FillRectangle(cropBrush, new Rectangle(0, 0, imageSize.Width, cropRectangle.Top));
