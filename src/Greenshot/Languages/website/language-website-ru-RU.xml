@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Russian" ietf="ru-RU" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="home_downloads">Скачать</resource>
+		<resource name="home_headline">Greenshot — бесплатный инструмент для создания скриншотов, оптимизированный для продуктивности</resource>
+		<resource name="home_opensource">Greenshot бесплатен и имеет открытый исходный код</resource>
+		<resource name="home_opensource_donate">Если вы поймете что Greenshot экономит вам много времени и/или денег, вы можете &lt;a href="/support/"&gt;помочь разработке&lt;/a&gt; этой программы для создания скриншотов.</resource>
+		<resource name="home_opensource_gpl">Greenshot был опубликован под &lt;a href="https://ru.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt;, т. е. это программное обеспечение можно загрузить и использовать бесплатно даже в коммерческой среде.</resource>
+		<resource name="home_seemore">Хотите увидеть больше?</resource>
+		<resource name="home_seemore_screenshots">Конечно, Greenshot может сделать для вас больше. Посмотрите на &lt;a title="Screenshots of Greenshot in action" href="/screenshots/"&gt;скриншоты&lt;/a&gt; Greenshot в действии или попробуйте &lt;a title="Download the latest stable version of Greenshot" href="/downloads/"&gt;последнюю версию&lt;/a&gt;.</resource>
+		<resource name="home_whatis">Что такое Greenshot?</resource>
+		<resource name="home_whatis_create">Быстро создавайте скриншоты выбранной области, окна или всего экрана; вы также можете полностью захватывать (прокручиванием) веб-страницы из Internet Explorer.</resource>
+		<resource name="home_whatis_edit">Легко комментируйте, высветляйте или затемняйте участки скриншота.</resource>
+		<resource name="home_whatis_intro">Greenshot — это легкий программный инструмент для создания скриншотов в Windows со следующими ключевыми функциями:</resource>
+		<resource name="home_whatis_more">...и множество других возможностей, которые упрощают ежедневное создание снимков экрана и работу с ними.</resource>
+		<resource name="home_whatis_send">Экспортируйте снимок экрана различными способами: сохраните в файл, отправьте на принтер, скопируйте в буфер обмена, прикрепите к электронной почте, отправьте в офисные программы или загрузите на сайты с фотографиями, такие как Flickr или Picasa и другие.</resource>
+		<resource name="home_whatis_usage">Будучи простым для понимания и настройки, Greenshot является эффективным инструментом для менеджеров проектов, разработчиков программного обеспечения, технических писателей, тестировщиков и всех, кто создает скриншоты.</resource>
+	</resources>
+</language>
