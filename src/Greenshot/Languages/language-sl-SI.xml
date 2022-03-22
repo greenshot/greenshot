@@ -78,6 +78,8 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_copypathtoclipboard">Kopiraj pot na odložišče</resource>
 		<resource name="editor_copytoclipboard">Kopiraj</resource>
 		<resource name="editor_crop">Obreži (C)</resource>
+		<resource name="editor_cropmode_default">Obreži</resource>
+		<resource name="editor_cropmode_auto">Samodejno obreži</resource>
 		<resource name="editor_cursortool">Orodje za izbor (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Kopiraj</resource>
 		<resource name="editor_deleteelement">Briši</resource>

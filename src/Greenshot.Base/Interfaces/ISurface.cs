@@ -201,8 +201,16 @@ namespace Greenshot.Base.Interfaces
         /// <param name="rc">A rectangle in the coordinate space of the surface.</param>
         Rectangle ToImageCoordinates(Rectangle rc);
 
+        /// <summary>
+        /// Make it possible to undo the specified IMemento 
+        /// </summary>
+        /// <param name="memento">IMemento</param>
+        /// <param name="allowMerge">bool to specify if the action can be merged, e.g. we do not want an undo for every part of a resize</param>
         void MakeUndoable(IMemento memento, bool allowMerge);
 
+        /// <summary>
+        /// The IFieldAggregator 
+        /// </summary>
         IFieldAggregator FieldAggregator { get; }
 
         /// <summary>

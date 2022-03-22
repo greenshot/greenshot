@@ -93,6 +93,8 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_copypathtoclipboard">Locatie naar klembord kopiëren</resource>
 		<resource name="editor_copytoclipboard">Kopiëren</resource>
 		<resource name="editor_crop">Bijsnijden (C)</resource>
+		<resource name="editor_cropmode_default">Bijsnijden</resource>
+		<resource name="editor_cropmode_auto">Automatisch bijsnijden</resource>
 		<resource name="editor_cursortool">Selectiegereedschap (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Knippen</resource>
 		<resource name="editor_deleteelement">Verwijderen</resource>

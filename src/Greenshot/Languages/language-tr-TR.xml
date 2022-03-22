@@ -78,6 +78,8 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_copypathtoclipboard">Yolu panoya kopyala</resource>
 		<resource name="editor_copytoclipboard">Kopyala</resource>
 		<resource name="editor_crop">Kırp (C)</resource>
+		<resource name="editor_cropmode_default">Kırp</resource>
+		<resource name="editor_cropmode_auto">Otomatik kırpma</resource>
 		<resource name="editor_cursortool">Seçim Aracı (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Kes</resource>
 		<resource name="editor_deleteelement">Sil</resource>

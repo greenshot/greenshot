@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base;
@@ -181,6 +182,9 @@ namespace Greenshot.Editor.Forms
 
             UpdateUi();
 
+            // Workaround: for the MouseWheel event which doesn't get to the panel
+            MouseWheel += PanelMouseWheel;
+
             // Use best fit, for those capture modes where we can get huge images
             bool useBestFit = _surface.CaptureDetails.CaptureMode switch
             {
@@ -280,11 +284,6 @@ namespace Greenshot.Editor.Forms
             // a smaller size than the initial panel size (as set by the forms designer)
             panel1.Height = 10;
 
-            fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
-
-            obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-            highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-
             _toolbarButtons = new[]
             {
                 btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
@@ -292,9 +291,6 @@ namespace Greenshot.Editor.Forms
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-
-            // Workaround: for the MouseWheel event which doesn't get to the panel
-            MouseWheel += PanelMouseWheel;
 
             // Make sure the value is set correctly when starting
             if (Surface != null)
@@ -727,7 +723,10 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCropClick(object sender, EventArgs e)
         {
+            if (_surface.DrawingMode == DrawingModes.Crop) return;
+
             _surface.DrawingMode = DrawingModes.Crop;
+            InitCropMode((CropContainer.CropModes)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
             RefreshFieldControls();
         }
 
@@ -1292,6 +1291,7 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
+            new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
             new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
@@ -1321,12 +1321,13 @@ namespace Greenshot.Editor.Forms
                 textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                               && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
-                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                         && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+
+                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
+                btnConfirm.Enabled = _surface.HasSelectedElements;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+                cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -1582,6 +1583,39 @@ namespace Greenshot.Editor.Forms
             Invalidate(true);
         }
 
+        protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {      
+            InitCropMode((CropContainer.CropModes)e.ClickedItem.Tag);
+         
+            RefreshFieldControls();
+            Invalidate(true);
+        }
+
+        private void InitCropMode(CropContainer.CropModes mode)
+        {
+            var cropArea = _surface.Elements.FirstOrDefault(c => c is CropContainer)?.Bounds;
+
+            _surface.DrawingMode = DrawingModes.None;
+            _surface.RemoveCropContainer();
+
+            if (mode == CropContainer.CropModes.AutoCrop)
+            {
+                if (!_surface.AutoCrop(cropArea))
+                {
+                    //not AutoCrop possible automatic switch to default crop mode
+                    _surface.DrawingMode = DrawingModes.Crop;
+                    _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
+                    this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
+                    this.statusLabel.Text = Language.GetString(LangKey.editor_autocrop_not_possible);
+                }
+            }
+            else
+            {
+                _surface.DrawingMode = DrawingModes.Crop;
+            }
+            RefreshEditorControls();
+        }
+
         private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             _surface.SelectAllElements();
@@ -1590,14 +1624,14 @@ namespace Greenshot.Editor.Forms
 
         private void BtnConfirmClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(true);
-            RefreshFieldControls();
+            _surface.Confirm(true);
+            RefreshEditorControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(false);
-            RefreshFieldControls();
+            _surface.Confirm(false);
+            RefreshEditorControls();
         }
 
         private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
@@ -1643,14 +1677,6 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void AutoCropToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            if (_surface.AutoCrop())
-            {
-                RefreshFieldControls();
-            }
-        }
-
         private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
         {
             _surface.ApplyBitmapEffect(new BorderEffect());
@@ -1681,7 +1707,7 @@ namespace Greenshot.Editor.Forms
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
             }
 
-            if (_surface.IsCropPossible(ref cropRectangle))
+            if (_surface.IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
             {
                 _surface.ApplyCrop(cropRectangle);
                 UpdateUndoRedoSurfaceDependencies();

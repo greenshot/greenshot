@@ -19,10 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 using System.Drawing;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 
@@ -33,6 +35,29 @@ namespace Greenshot.Editor.Drawing
     /// </summary>
     public class CropContainer : DrawableContainer
     {
+        /// <summary>
+        /// Available Crop modes
+        /// </summary>
+        public enum CropModes
+        {
+            /// <summary>
+            ///  crop all outside the selection rectangle
+            /// </summary>
+            Default,
+            /// <summary>
+            /// like default, but initially creates the selection rectangle
+            /// </summary>
+            AutoCrop,
+            /// <summary>
+            /// crop all inside the selection, anchors the selection to the top and bottom edges
+            /// </summary>
+            Vertical,
+            /// <summary>
+            /// crop all inside the selection, anchors the selection to the left and right edges
+            /// </summary>
+            Horizontal
+        }
+
         public CropContainer(ISurface parent) : base(parent)
         {
             Init();
@@ -46,12 +71,65 @@ namespace Greenshot.Editor.Drawing
 
         private void Init()
         {
-            CreateDefaultAdorners();
+            switch (GetFieldValue(FieldType.CROPMODE))
+            {
+                case CropModes.Horizontal:
+                    {
+                        InitHorizontalCropOutStyle();
+                        break;
+                    }
+                case CropModes.Vertical:
+                    {
+                        InitVerticalCropOutStyle();
+                        break;
+                    }
+                default:
+                    {
+                        CreateDefaultAdorners();
+                        break;
+                    }
+            }
+        }
+
+        private void InitHorizontalCropOutStyle()
+        {
+            const int defaultHeight = 25;
+
+            if (_parent?.Image is { } image)
+            {
+                Size = new Size(image.Width, defaultHeight);
+            }
+            CreateTopBottomAdorners();
+        }
+
+        private void InitVerticalCropOutStyle()
+        {
+            const int defaultWidth = 25;
+
+            if (_parent?.Image is { } image)
+            {
+                Size = new Size(defaultWidth, image.Height);
+            }
+
+            CreateLeftRightAdorners();
+        }
+
+        private void CreateTopBottomAdorners()
+        {
+            Adorners.Add(new ResizeAdorner(this, Positions.TopCenter));
+            Adorners.Add(new ResizeAdorner(this, Positions.BottomCenter));
+        }
+
+        private void CreateLeftRightAdorners()
+        {
+            Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
+            Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
         }
 
         protected override void InitializeFields()
         {
             AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
+            AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
         }
 
         public override void Invalidate()
@@ -83,6 +161,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
             Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
             Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
@@ -90,20 +169,104 @@ namespace Greenshot.Editor.Drawing
 
             DrawSelectionBorder(g, selectionRect);
 
-            // top
-            g.FillRectangle(cropBrush, new Rectangle(0, 0, imageSize.Width, cropRectangle.Top));
-            // left
-            g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
-            // right
-            g.FillRectangle(cropBrush,
-                new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, imageSize.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
-            // bottom
-            g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, imageSize.Width, imageSize.Height - (cropRectangle.Top + cropRectangle.Height)));
+            switch (GetFieldValue(FieldType.CROPMODE))
+            {
+                case CropModes.Horizontal:
+                case CropModes.Vertical:
+                    {
+                        //draw inside
+                        g.FillRectangle(cropBrush, cropRectangle);
+                        break;
+                    }
+                default:
+                    {
+                        //draw outside
+                        // top
+                        g.FillRectangle(cropBrush, new Rectangle(0, 0, imageSize.Width, cropRectangle.Top));
+                        // left
+                        g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
+                        // right
+                        g.FillRectangle(cropBrush, new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, imageSize.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
+                        // bottom
+                        g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, imageSize.Width, imageSize.Height - (cropRectangle.Top + cropRectangle.Height)));
+                        break;
+                    }
+            }
+
+
         }
 
         /// <summary>
         /// No context menu for the CropContainer
         /// </summary>
         public override bool HasContextMenu => false;
+
+        public override bool HandleMouseDown(int x, int y)
+        {
+            return GetFieldValue(FieldType.CROPMODE) switch
+            {
+                //force horizontal crop to left edge
+                CropModes.Horizontal => base.HandleMouseDown(0, y),
+                //force vertical crop to top edge
+                CropModes.Vertical => base.HandleMouseDown(x, 0),
+                _ => base.HandleMouseDown(x, y),
+            };
+        }
+  
+        public override bool HandleMouseMove(int x, int y)
+        {
+            Invalidate();
+
+            switch (GetFieldValue(FieldType.CROPMODE))
+            {
+                case CropModes.Horizontal:
+                    {
+                        //stick on left and right
+                        //allow only horizontal changes
+                        if (_parent?.Image is { } image)
+                        {
+                            _boundsAfterResize.X = 0;
+                            _boundsAfterResize.Y = _boundsBeforeResize.Top;
+                            _boundsAfterResize.Width = image.Width;
+                            _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                        }
+                        break;
+                    }
+                case CropModes.Vertical:
+                    {
+                        //stick on top and bottom
+                        //allow only vertical changes
+                        if (_parent?.Image is { } image)
+                        {
+                            _boundsAfterResize.X = _boundsBeforeResize.Left;
+                            _boundsAfterResize.Y = 0;
+                            _boundsAfterResize.Width = x - _boundsAfterResize.Left;
+                            _boundsAfterResize.Height = image.Height;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        // reset "workbench" rectangle to current bounds
+                        _boundsAfterResize.X = _boundsBeforeResize.Left;
+                        _boundsAfterResize.Y = _boundsBeforeResize.Top;
+                        _boundsAfterResize.Width = x - _boundsAfterResize.Left;
+                        _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                        break;
+                    }
+
+            }
+            ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
+
+            // apply scaled bounds to this DrawableContainer
+            ApplyBounds(_boundsAfterResize);
+
+            Invalidate();
+            return true;
+        }
+
+        /// <inheritdoc cref="IDrawableContainer"/>
+        /// Make sure this container is not undoable
+        public override bool IsUndoable => false;
     }
 }

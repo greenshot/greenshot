@@ -45,7 +45,7 @@ namespace Greenshot.Editor.Memento
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing) return;
 

@@ -63,6 +63,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_copypathtoclipboard">Másolja a vágólapra</resource>
 		<resource name="editor_copytoclipboard">Másolás</resource>
 		<resource name="editor_crop">Vágás eszköz (C)</resource>
+		<resource name="editor_cropmode_default">Vágás eszköz</resource>
 		<resource name="editor_cursortool">Kiválasztó eszköz (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Kivágás</resource>
 		<resource name="editor_deleteelement">Törlés</resource>

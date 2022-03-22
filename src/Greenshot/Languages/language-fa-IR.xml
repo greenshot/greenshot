@@ -67,6 +67,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_copytoclipboard">رونویس</resource>
 		<resource name="editor_crop">چیدن		
 (C دکمه)</resource>
+		<resource name="editor_cropmode_default">چیدن</resource>
 		<resource name="editor_cursortool">انتخابگر 
 (ESC دکمه)</resource>
 		<resource name="editor_cuttoclipboard">برش</resource>

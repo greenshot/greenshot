@@ -472,13 +472,20 @@ namespace Greenshot.Editor.Drawing
             g.DrawRectangle(pen, rect);
         }
 
+        /// <inheritdoc cref="IDrawableContainer"/>
+        public virtual bool IsUndoable => true;
+
         /// <summary>
         /// Make a following bounds change on this drawablecontainer undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>
-        public void MakeBoundsChangeUndoable(bool allowMerge)
+        public virtual void MakeBoundsChangeUndoable(bool allowMerge)
         {
-            _parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+            if (!IsUndoable)
+            {
+                return;
+            }
+            _parent?.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
         }
 
         public void MoveBy(int dx, int dy)
@@ -552,11 +559,10 @@ namespace Greenshot.Editor.Drawing
 
         protected void OnPropertyChanged(string propertyName)
         {
-            if (_propertyChanged != null)
-            {
-                _propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                Invalidate();
-            }
+            if (_propertyChanged == null) return;
+
+            _propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            Invalidate();
         }
 
         /// <summary>
@@ -567,7 +573,10 @@ namespace Greenshot.Editor.Drawing
         /// <param name="newValue">The new value</param>
         public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue)
         {
-            _parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+            if (IsUndoable)
+            {
+                _parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+            }
             Invalidate();
         }
 

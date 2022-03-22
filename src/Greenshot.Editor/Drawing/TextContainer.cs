@@ -74,7 +74,7 @@ namespace Greenshot.Editor.Drawing
         {
             if ((text != null || newText == null) && string.Equals(text, newText)) return;
 
-            if (makeUndoable && allowUndoable)
+            if (makeUndoable && allowUndoable && IsUndoable)
             {
                 makeUndoable = false;
                 _parent.MakeUndoable(new TextChangeMemento(this), false);

@@ -93,6 +93,8 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_copytoclipboard">Kopi</resource>
 		<resource name="editor_counter">Buat penomor</resource>
 		<resource name="editor_crop">Potong (C)</resource>
+		<resource name="editor_cropmode_default">Potong</resource>
+		<resource name="editor_cropmode_auto">Auto potong</resource>
 		<resource name="editor_cursortool">Alat seleksi (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Gunting</resource>
 		<resource name="editor_deleteelement">Hapus</resource>

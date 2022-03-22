@@ -62,6 +62,7 @@
 		<resource name="editor_copypathtoclipboard">انسخ المسار الي الذاكرة</resource>
 		<resource name="editor_copytoclipboard">نسخ</resource>
 		<resource name="editor_crop">قص (C)</resource>
+		<resource name="editor_cropmode_default">قص</resource>
 		<resource name="editor_cursortool">اداة التحديد (ESC)</resource>
 		<resource name="editor_cuttoclipboard">قص</resource>
 		<resource name="editor_deleteelement">احذف</resource>

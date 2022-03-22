@@ -92,6 +92,8 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_copypathtoclipboard">Kopeerige asukoht lõikelauale</resource>
 		<resource name="editor_copytoclipboard">Kopeeri</resource>
 		<resource name="editor_crop">Lõika (C)</resource>
+		<resource name="editor_cropmode_default">Lõika</resource>
+		<resource name="editor_cropmode_auto">Automaatne lõikus</resource>
 		<resource name="editor_cursortool">Valiku tööriist (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Lõika</resource>
 		<resource name="editor_deleteelement">Kustuta</resource>

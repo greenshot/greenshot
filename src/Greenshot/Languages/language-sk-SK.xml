@@ -80,6 +80,8 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_copypathtoclipboard">Kopírovať cestu do schránky</resource>
 		<resource name="editor_copytoclipboard">Kopírovať</resource>
 		<resource name="editor_crop">Orezať (C)</resource>
+		<resource name="editor_cropmode_default">Orezať</resource>
+		<resource name="editor_cropmode_auto">Automatické orezanie</resource>
 		<resource name="editor_cursortool">Nástroj pre výber (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Vystrihnúť</resource>
 		<resource name="editor_deleteelement">Zmazať</resource>

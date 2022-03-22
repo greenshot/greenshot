@@ -92,6 +92,8 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_copypathtoclipboard">Copiar atalho para a Área de transferência</resource>
 		<resource name="editor_copytoclipboard">Copiar</resource>
 		<resource name="editor_crop">Recortar (C)</resource>
+		<resource name="editor_cropmode_default">Recortar</resource>
+		<resource name="editor_cropmode_auto">Recortar auto</resource>
 		<resource name="editor_cursortool">Ferramenta de Selecção (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cortar</resource>
 		<resource name="editor_deleteelement">Eliminar</resource>
