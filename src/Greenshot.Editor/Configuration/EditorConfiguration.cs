@@ -64,10 +64,7 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
         public bool ReuseEditor { get; set; }
 
-        [IniProperty("FreehandSensitivity",
-            Description =
-                "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.",
-            DefaultValue = "3")]
+        [IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 2147483647.", DefaultValue = "3")]
         public int FreehandSensitivity { get; set; }
 
         [IniProperty("SuppressSaveDialogAtClose", Description = "Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue = "False")]
@@ -86,9 +83,11 @@ namespace Greenshot.Editor.Configuration
         public override void AfterLoad()
         {
             base.AfterLoad();
-            if (RecentColors == null)
+            RecentColors ??= new List<Color>();
+
+            if (FreehandSensitivity < 1)
             {
-                RecentColors = new List<Color>();
+                FreehandSensitivity = 1;
             }
         }
 
@@ -137,10 +136,7 @@ namespace Greenshot.Editor.Configuration
         {
             string requestedField = field.Scope + "." + field.FieldType.Name;
             // Check if the configuration exists
-            if (LastUsedFieldValues == null)
-            {
-                LastUsedFieldValues = new Dictionary<string, object>();
-            }
+            LastUsedFieldValues ??= new Dictionary<string, object>();
 
             // check if settings for the requesting type exist, if not create!
             if (LastUsedFieldValues.ContainsKey(requestedField))
