@@ -81,7 +81,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             // For those images which are with Alpha, but the format doesn't support this, change it to 24bpp
             if (imageFormat.Guid == ImageFormat.Jpeg.Guid && Image.IsAlphaPixelFormat(bitmap.PixelFormat))
             {
-                var nonAlphaImage = ImageHelper.Clone(bitmap, PixelFormat.Format24bppRgb) as Bitmap;
+                var nonAlphaImage = ImageHelper.Clone(bitmap, PixelFormat.Format24bppRgb);
                 try
                 {
                     // Set that this file was written by Greenshot
