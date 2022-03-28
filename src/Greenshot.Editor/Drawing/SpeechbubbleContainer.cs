@@ -62,7 +62,7 @@ namespace Greenshot.Editor.Drawing
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
             base.OnDeserialized(streamingContext);
-            InitAdorner(Color.Green, _storedTargetGripperLocation);
+            InitTargetAdorner(_storedTargetGripperLocation);
         }
 
         public SpeechbubbleContainer(ISurface parent) : base(parent)
@@ -95,7 +95,7 @@ namespace Greenshot.Editor.Drawing
             if (TargetAdorner == null)
             {
                 _initialGripperPoint = new Point(mouseX, mouseY);
-                InitAdorner(Color.Green, new Point(mouseX, mouseY));
+                InitTargetAdorner(new Point(mouseX, mouseY));
             }
 
             return base.HandleMouseDown(mouseX, mouseY);

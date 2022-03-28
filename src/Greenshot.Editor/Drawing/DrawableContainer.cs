@@ -363,7 +363,8 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Initialize a target gripper
         /// </summary>
-        protected void InitAdorner(Color gripperColor, Point location)
+        /// <param name="location">Point</param>
+        protected void InitTargetAdorner(Point location)
         {
             _targetAdorner = new TargetAdorner(this, location);
             Adorners.Add(_targetAdorner);

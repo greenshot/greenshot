@@ -137,12 +137,36 @@ namespace Greenshot.Editor.Drawing.Adorners
             _size = DpiHelper.ScaleWithDpi(DefaultSize, dpi);
         }
 
+        public Color OutlineColor { get; set; } = Color.White;
+        public Color FillColor { get; set; } = Color.Black;
+
         /// <summary>
         /// Draw the adorner
         /// </summary>
         /// <param name="paintEventArgs">PaintEventArgs</param>
         public virtual void Paint(PaintEventArgs paintEventArgs)
         {
+            Graphics targetGraphics = paintEventArgs.Graphics;
+
+            var bounds = BoundsOnSurface;
+            GraphicsState state = targetGraphics.Save();
+
+            targetGraphics.CompositingMode = CompositingMode.SourceCopy;
+
+            try
+            {
+                using var fillBrush = new SolidBrush(FillColor);
+                targetGraphics.FillRectangle(fillBrush, bounds);
+                using var lineBrush = new SolidBrush(OutlineColor);
+                using var pen = new Pen(lineBrush);
+                targetGraphics.DrawRectangle(pen, bounds);
+            }
+            catch
+            {
+                // Ignore, BUG-2065
+            }
+
+            targetGraphics.Restore(state);
         }
 
         /// <summary>

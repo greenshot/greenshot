@@ -98,5 +98,15 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// </summary>
         /// <param name="dpi"></param>
         void AdjustToDpi(uint dpi);
+
+        /// <summary>
+        /// The color of the lines around the adorner
+        /// </summary>
+        Color OutlineColor { get; set; }
+
+        /// <summary>
+        /// The color of the fill of the adorner
+        /// </summary>
+        Color FillColor { get; set; }
     }
 }

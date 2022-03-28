@@ -29,11 +29,13 @@ namespace Greenshot.Editor.Drawing.Adorners
     /// <summary>
     /// This implements the special "gripper" for the Speech-Bubble tail
     /// </summary>
-    public class TargetAdorner : AbstractAdorner
+    public sealed class TargetAdorner : AbstractAdorner
     {
-        public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
+        public TargetAdorner(IDrawableContainer owner, Point location, Color? fillColor = null, Color? outlineColor = null) : base(owner)
         {
             Location = location;
+            FillColor = fillColor ?? Color.Green;
+            OutlineColor = outlineColor ?? Color.White;
         }
 
         /// <summary>
@@ -88,19 +90,6 @@ namespace Greenshot.Editor.Drawing.Adorners
 
             Location = newGripperLocation;
             Owner.Invalidate();
-        }
-
-        /// <summary>
-        /// Draw the adorner
-        /// </summary>
-        /// <param name="paintEventArgs">PaintEventArgs</param>
-        public override void Paint(PaintEventArgs paintEventArgs)
-        {
-            Graphics targetGraphics = paintEventArgs.Graphics;
-
-            var bounds = BoundsOnSurface;
-            targetGraphics.FillRectangle(Brushes.Green, bounds);
-            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
         }
 
         /// <summary>

@@ -164,23 +164,5 @@ namespace Greenshot.Editor.Drawing.Adorners
                 return new Point(x, y);
             }
         }
-
-        /// <summary>
-        /// Draw the adorner
-        /// </summary>
-        /// <param name="paintEventArgs">PaintEventArgs</param>
-        public override void Paint(PaintEventArgs paintEventArgs)
-        {
-            Graphics targetGraphics = paintEventArgs.Graphics;
-
-            var bounds = BoundsOnSurface;
-            GraphicsState state = targetGraphics.Save();
-
-            targetGraphics.CompositingMode = CompositingMode.SourceCopy;
-
-            targetGraphics.FillRectangle(Brushes.Black, bounds);
-            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
-            targetGraphics.Restore(state);
-        }
     }
 }
