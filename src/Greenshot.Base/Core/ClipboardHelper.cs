@@ -815,7 +815,7 @@ EndSelection:<<<<<<<4
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
             // From here, imageStream is a valid stream
-            if (!fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap))
+            if (fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap))
             {
                 return bitmap;
             }
