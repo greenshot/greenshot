@@ -87,8 +87,9 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
                 // TODO: Replace with a FileFormatHandler
-                bitmap = ImageIO.FromStream(bitmapStream) as Bitmap;
-                return true;
+                using var beforeCloneImage = Image.FromStream(bitmapStream);
+                bitmap = ImageHelper.Clone(beforeCloneImage) as Bitmap;
+                return bitmap != null;
             }
             Log.Info("Using special DIBV5 / Format17 format reader");
             // CF_DIBV5
