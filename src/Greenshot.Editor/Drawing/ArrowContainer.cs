@@ -66,44 +66,40 @@ namespace Greenshot.Editor.Drawing
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
-            if (lineThickness > 0)
+            if (lineThickness <= 0) return;
+            
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.None;
+            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
+            if (shadow)
             {
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.None;
-                Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-                ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
-                if (lineThickness > 0)
+                //draw shadow first
+                int basealpha = 100;
+                int alpha = basealpha;
+                int steps = 5;
+                int currentStep = 1;
+                while (currentStep <= steps)
                 {
-                    if (shadow)
-                    {
-                        //draw shadow first
-                        int basealpha = 100;
-                        int alpha = basealpha;
-                        int steps = 5;
-                        int currentStep = 1;
-                        while (currentStep <= steps)
-                        {
-                            using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                            SetArrowHeads(heads, shadowCapPen);
+                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    SetArrowHeads(heads, shadowCapPen);
 
-                            graphics.DrawLine(shadowCapPen,
-                                Left + currentStep,
-                                Top + currentStep,
-                                Left + currentStep + Width,
-                                Top + currentStep + Height);
+                    graphics.DrawLine(shadowCapPen,
+                        Left + currentStep,
+                        Top + currentStep,
+                        Left + currentStep + Width,
+                        Top + currentStep + Height);
 
-                            currentStep++;
-                            alpha -= basealpha / steps;
-                        }
-                    }
-
-                    using Pen pen = new Pen(lineColor, lineThickness);
-                    SetArrowHeads(heads, pen);
-                    graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+                    currentStep++;
+                    alpha -= basealpha / steps;
                 }
             }
+
+            using Pen pen = new Pen(lineColor, lineThickness);
+            SetArrowHeads(heads, pen);
+            graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
 
         private void SetArrowHeads(ArrowHeadCombination heads, Pen pen)

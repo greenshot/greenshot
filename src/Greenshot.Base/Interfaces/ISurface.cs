@@ -101,13 +101,49 @@ namespace Greenshot.Base.Interfaces
         long SaveElementsToStream(Stream stream);
         void LoadElementsFromStream(Stream stream);
 
+        /// <summary>
+        /// Provides the selected elements
+        /// </summary>
+        IDrawableContainerList SelectedElements { get; }
+
+        /// <summary>
+        /// Is there an element selected on the surface?
+        /// </summary>
         bool HasSelectedElements { get; }
+
+        /// <summary>
+        /// Remove all selected elements
+        /// </summary>
         void RemoveSelectedElements();
+
+        /// <summary>
+        /// Cut the selected elements to the clipboard
+        /// </summary>
         void CutSelectedElements();
+
+        /// <summary>
+        /// Copy the selected elements to the clipboard
+        /// </summary>
         void CopySelectedElements();
+
+        /// <summary>
+        /// Paste the elements from the clipboard
+        /// </summary>
         void PasteElementFromClipboard();
+
+        /// <summary>
+        /// Duplicate the selected elements
+        /// </summary>
         void DuplicateSelectedElements();
+
+        /// <summary>
+        /// Deselected the specified element
+        /// </summary>
         void DeselectElement(IDrawableContainer container, bool generateEvents = true);
+
+        /// <summary>
+        /// Deselected all elements
+        /// </summary>
         void DeselectAllElements();
 
         /// <summary>

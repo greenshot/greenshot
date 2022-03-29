@@ -108,5 +108,10 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// The color of the fill of the adorner
         /// </summary>
         Color FillColor { get; set; }
+
+        /// <summary>
+        /// This is to TAG the adorner so we know the type
+        /// </summary>
+        string Tag { get; set; }
     }
 }

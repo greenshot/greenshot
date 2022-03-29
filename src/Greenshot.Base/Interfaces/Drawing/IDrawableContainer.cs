@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Base.Interfaces.Drawing
@@ -97,5 +98,13 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// </summary>
         /// <param name="dpi">uint</param>
         void AdjustToDpi(uint dpi);
+
+        /// <summary>
+        /// Enable a way for elements to add a context menu entry
+        /// </summary>
+        /// <param name="menu">ContextMenuStrip</param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
+        void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs);
     }
 }

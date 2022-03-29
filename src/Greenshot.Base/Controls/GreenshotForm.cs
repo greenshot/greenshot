@@ -350,7 +350,7 @@ namespace Greenshot.Base.Controls
             {
                 if (!Language.TryGetString(languageKey, out langString))
                 {
-                    LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
+                    LOG.DebugFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
                     return;
                 }
 

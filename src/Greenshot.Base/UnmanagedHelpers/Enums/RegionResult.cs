@@ -28,5 +28,7 @@ namespace Greenshot.Base.UnmanagedHelpers.Enums
     {
         REGION_ERROR = 0,
         REGION_NULLREGION = 1,
+        SIMPLEREGION = 2,
+        COMPLEXREGION = 3
     }
 }

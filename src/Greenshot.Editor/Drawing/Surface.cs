@@ -2036,23 +2036,27 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Returns if this surface has selected elements
         /// </summary>
-        /// <returns></returns>
-        public bool HasSelectedElements => (selectedElements != null && selectedElements.Count > 0);
+        /// <returns>bool</returns>
+        public bool HasSelectedElements => selectedElements is { Count: > 0 };
+
+        /// <summary>
+        /// Provides the selected elements
+        /// </summary>
+        public IDrawableContainerList SelectedElements => selectedElements;
 
         /// <summary>
         /// Remove all the selected elements
         /// </summary>
         public void RemoveSelectedElements()
         {
-            if (HasSelectedElements)
+            if (!HasSelectedElements) return;
+
+            // As RemoveElement will remove the element from the selectedElements list we need to copy the element to another list.
+            RemoveElements(selectedElements);
+            if (_movingElementChanged != null)
             {
-                // As RemoveElement will remove the element from the selectedElements list we need to copy the element to another list.
-                RemoveElements(selectedElements);
-                if (_movingElementChanged != null)
-                {
-                    SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-                    _movingElementChanged(this, eventArgs);
-                }
+                SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+                _movingElementChanged(this, eventArgs);
             }
         }
 

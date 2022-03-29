@@ -27,7 +27,7 @@ using Greenshot.Base.Interfaces.Drawing;
 namespace Greenshot.Editor.Drawing.Adorners
 {
     /// <summary>
-    /// This implements the special "gripper" for the Speech-Bubble tail
+    /// This implements the special target "gripper", e.g. used for the Speech-Bubble tail
     /// </summary>
     public sealed class TargetAdorner : AbstractAdorner
     {
@@ -41,8 +41,8 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Handle the mouse down
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="mouseEventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
         {
             EditStatus = EditStatus.MOVING;
@@ -51,8 +51,8 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Handle the mouse move
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="mouseEventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
         public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
         {
             if (EditStatus != EditStatus.MOVING)

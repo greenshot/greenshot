@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Windows.Forms;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -446,6 +447,12 @@ namespace Greenshot.Editor.Drawing
             {
                 adorner.AdjustToDpi(dpi);
             }
+        }
+
+        /// <inheritdoc cref="IDrawableContainer"/>
+        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // Empty as we do not want to add something to the context menu for every element
         }
 
         public virtual bool Contains(int x, int y)

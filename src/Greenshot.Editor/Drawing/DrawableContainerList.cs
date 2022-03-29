@@ -589,9 +589,10 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Add items to a context menu for the selected item
         /// </summary>
-        /// <param name="menu"></param>
-        /// <param name="surface"></param>
-        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface)
+        /// <param name="menu">ContextMenuStrip</param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
+        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
         {
             bool push = surface.Elements.CanPushDown(this);
             bool pull = surface.Elements.CanPullUp(this);
@@ -678,15 +679,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Reset
-            bool canReset = false;
-            foreach (var drawableContainer in this)
-            {
-                var container = (DrawableContainer) drawableContainer;
-                if (container.HasDefaultSize)
-                {
-                    canReset = true;
-                }
-            }
+            bool canReset = this.Cast<DrawableContainer>().Any(container => container.HasDefaultSize);
 
             if (canReset)
             {
@@ -713,48 +706,40 @@ namespace Greenshot.Editor.Drawing
                 };
                 menu.Items.Add(item);
             }
+
+            // "ask" the containers to add to the context menu
+            foreach (var surfaceElement in surface.Elements)
+            {
+                surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
+            }
         }
 
-        public virtual void ShowContextMenu(MouseEventArgs e, ISurface iSurface)
+        public virtual void ShowContextMenu(MouseEventArgs mouseEventArgs, ISurface iSurface)
         {
             if (iSurface is not Surface surface)
             {
                 return;
             }
 
-            bool hasMenu = false;
-            foreach (var drawableContainer in this)
+            bool hasMenu = this.Cast<DrawableContainer>().Any(container => container.HasContextMenu);
+
+            if (!hasMenu) return;
+            
+            ContextMenuStrip menu = new ContextMenuStrip();
+            AddContextMenuItems(menu, surface, mouseEventArgs);
+            if (menu.Items.Count <= 0) return;
+            menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
+            while (true)
             {
-                var container = (DrawableContainer) drawableContainer;
-                if (!container.HasContextMenu)
+                if (menu.Visible)
                 {
-                    continue;
+                    Application.DoEvents();
+                    Thread.Sleep(100);
                 }
-
-                hasMenu = true;
-                break;
-            }
-
-            if (hasMenu)
-            {
-                ContextMenuStrip menu = new ContextMenuStrip();
-                AddContextMenuItems(menu, surface);
-                if (menu.Items.Count > 0)
+                else
                 {
-                    menu.Show(surface, surface.ToSurfaceCoordinates(e.Location));
-                    while (true)
-                    {
-                        if (menu.Visible)
-                        {
-                            Application.DoEvents();
-                            Thread.Sleep(100);
-                        }
-                        else
-                        {
-                            menu.Dispose();
-                            break;
-                        }
-                    }
+                    menu.Dispose();
+                    break;
                 }
             }
         }
@@ -763,18 +748,16 @@ namespace Greenshot.Editor.Drawing
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue) return;
+            if (disposing)
             {
-                if (disposing)
+                foreach (var drawableContainer in this)
                 {
-                    foreach (var drawableContainer in this)
-                    {
-                        drawableContainer.Dispose();
-                    }
+                    drawableContainer.Dispose();
                 }
-
-                _disposedValue = true;
             }
+
+            _disposedValue = true;
         }
 
         // This code added to correctly implement the disposable pattern.

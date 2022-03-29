@@ -176,5 +176,10 @@ namespace Greenshot.Editor.Drawing.Adorners
         public virtual void Transform(Matrix matrix)
         {
         }
+
+        /// <summary>
+        /// This is to TAG the adorner so we know the type
+        /// </summary>
+        public string Tag { get; set; }
     }
 }
