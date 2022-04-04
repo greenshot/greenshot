@@ -32,6 +32,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Kernel32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -116,11 +118,11 @@ namespace Greenshot.Forms
                     if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
                     {
                         // Try to attach to the console
-                        bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+                        bool attachedToConsole = Kernel32Api.AttachConsole();
                         // If attach didn't work, open a console
                         if (!attachedToConsole)
                         {
-                            Kernel32.AllocConsole();
+                            Kernel32Api.AllocConsole();
                         }
 
                         var helpOutput = new StringBuilder();
@@ -250,7 +252,7 @@ namespace Greenshot.Forms
                         {
                             try
                             {
-                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
+                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32Api.GetProcessPath(greenshotProcess.Id));
                                 if (currentProcessId == greenshotProcess.Id)
                                 {
                                     matchedThisProcess = true;
@@ -267,7 +269,7 @@ namespace Greenshot.Forms
                         if (!matchedThisProcess)
                         {
                             using Process currentProcess = Process.GetCurrentProcess();
-                            instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
+                            instanceInfo.Append(index + ": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
                         }
 
                         // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
@@ -503,7 +505,7 @@ namespace Greenshot.Forms
             // Make Greenshot use less memory after startup
             if (_conf.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -528,7 +530,7 @@ namespace Greenshot.Forms
                 int len = 250;
                 var stringBuilder = new StringBuilder(len);
                 using var proc = Process.GetCurrentProcess();
-                var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
+                var err = Kernel32Api.GetPackageFullName(proc.Handle, ref len, stringBuilder);
                 if (err != 0)
                 {
                     useEditor = true;
@@ -1237,7 +1239,7 @@ namespace Greenshot.Forms
         {
             menuItem.DropDownItems.Clear();
             // check if thumbnailPreview is enabled and DWM is enabled
-            bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled;
+            bool thumbnailPreview = _conf.ThumnailPreview && DwmApi.IsDwmEnabled;
 
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {

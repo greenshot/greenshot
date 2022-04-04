@@ -30,19 +30,19 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Description of ImageOutput.
+    /// This contains all io related logic for image
     /// </summary>
     public static class ImageIO
     {
@@ -608,7 +608,7 @@ namespace Greenshot.Base.Core
         /// <returns>Icon</returns>
         public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
         {
-            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
+            NativeIconMethods.ExtractIconEx(location, index, out var large, out var small, 1);
             Icon returnIcon = null;
             bool isLarge = false;
             bool isSmall = false;
@@ -634,12 +634,12 @@ namespace Greenshot.Base.Core
             {
                 if (isLarge && !IntPtr.Zero.Equals(small))
                 {
-                    User32.DestroyIcon(small);
+                    NativeIconMethods.DestroyIcon(small);
                 }
 
                 if (isSmall && !IntPtr.Zero.Equals(large))
                 {
-                    User32.DestroyIcon(large);
+                    NativeIconMethods.DestroyIcon(large);
                 }
             }
 

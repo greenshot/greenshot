@@ -25,14 +25,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.IEInterop;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interop;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using log4net;
@@ -205,7 +207,7 @@ namespace Greenshot.Helpers
                 return null;
             }
 
-            uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
+            uint windowMessage = WindowsMessage.RegisterWindowsMessage("WM_HTML_GETOBJECT");
             if (windowMessage == 0)
             {
                 Log.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
@@ -213,7 +215,7 @@ namespace Greenshot.Helpers
             }
 
             Log.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
-            User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out var response);
+            User32Api.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out UIntPtr response);
             IHTMLDocument2 document2;
             if (response != UIntPtr.Zero)
             {
@@ -738,8 +740,8 @@ namespace Greenshot.Helpers
                     targetOffset.Y = documentContainer.ScrollTop;
 
                     // Draw the captured fragment to the target, but "crop" the scrollbars etc while capturing 
-                    Size viewPortSize = new Size(viewportWidth, viewportHeight);
-                    Rectangle clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
+                    NativeSize viewPortSize = new NativeSize(viewportWidth, viewportHeight);
+                    NativeRect clientRectangle = new NativeRect(documentContainer.SourceLocation, viewPortSize);
                     Image fragment = contentWindowDetails.PrintWindow();
                     if (fragment != null)
                     {
@@ -747,7 +749,7 @@ namespace Greenshot.Helpers
                         try
                         {
                             // cut all junk, due to IE "border" we need to remove some parts
-                            Rectangle viewportRect = documentContainer.ViewportRectangle;
+                            NativeRect viewportRect = documentContainer.ViewportRectangle;
                             if (!viewportRect.IsEmpty)
                             {
                                 Log.DebugFormat("Cropping to viewport: {0}", viewportRect);

@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -280,19 +281,19 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Implementation of the RectangleAnimator
     /// </summary>
-    public class RectangleAnimator : AnimatorBase<Rectangle>
+    public class RectangleAnimator : AnimatorBase<NativeRect>
     {
-        public RectangleAnimator(Rectangle first, Rectangle last, int frames)
+        public RectangleAnimator(NativeRect first, NativeRect last, int frames)
             : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
         {
         }
 
-        public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType)
+        public RectangleAnimator(NativeRect first, NativeRect last, int frames, EasingType easingType)
             : base(first, last, frames, easingType, EasingMode.EaseIn)
         {
         }
 
-        public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType, EasingMode easingMode)
+        public RectangleAnimator(NativeRect first, NativeRect last, int frames, EasingType easingType, EasingMode easingMode)
             : base(first, last, frames, easingType, easingMode)
         {
         }
@@ -300,8 +301,8 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Calculate the next frame object
         /// </summary>
-        /// <returns>Rectangle</returns>
-        public override Rectangle Next()
+        /// <returns>NativeRect</returns>
+        public override NativeRect Next()
         {
             if (!NextFrame)
             {
@@ -317,7 +318,7 @@ namespace Greenshot.Base.Core
             double dh = Last.Height - First.Height;
             int width = First.Width + (int) (easingValue * dw);
             int height = First.Height + (int) (easingValue * dh);
-            Current = new Rectangle(x, y, width, height);
+            Current = new NativeRect(x, y, width, height);
 
             return Current;
         }
@@ -326,19 +327,19 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Implementation of the PointAnimator
     /// </summary>
-    public class PointAnimator : AnimatorBase<Point>
+    public class PointAnimator : AnimatorBase<NativePoint>
     {
-        public PointAnimator(Point first, Point last, int frames)
+        public PointAnimator(NativePoint first, NativePoint last, int frames)
             : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
         {
         }
 
-        public PointAnimator(Point first, Point last, int frames, EasingType easingType)
+        public PointAnimator(NativePoint first, NativePoint last, int frames, EasingType easingType)
             : base(first, last, frames, easingType, EasingMode.EaseIn)
         {
         }
 
-        public PointAnimator(Point first, Point last, int frames, EasingType easingType, EasingMode easingMode)
+        public PointAnimator(NativePoint first, NativePoint last, int frames, EasingType easingType, EasingMode easingMode)
             : base(first, last, frames, easingType, easingMode)
         {
         }
@@ -347,7 +348,7 @@ namespace Greenshot.Base.Core
         /// Calculate the next frame value
         /// </summary>
         /// <returns>Point</returns>
-        public override Point Next()
+        public override NativePoint Next()
         {
             if (NextFrame)
             {
@@ -357,7 +358,7 @@ namespace Greenshot.Base.Core
 
                 int x = First.X + (int) (easingValue * dx);
                 int y = First.Y + (int) (easingValue * dy);
-                Current = new Point(x, y);
+                Current = new NativePoint(x, y);
             }
 
             return Current;
@@ -367,19 +368,19 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Implementation of the SizeAnimator
     /// </summary>
-    public class SizeAnimator : AnimatorBase<Size>
+    public class SizeAnimator : AnimatorBase<NativeSize>
     {
-        public SizeAnimator(Size first, Size last, int frames)
+        public SizeAnimator(NativeSize first, NativeSize last, int frames)
             : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
         {
         }
 
-        public SizeAnimator(Size first, Size last, int frames, EasingType easingType)
+        public SizeAnimator(NativeSize first, NativeSize last, int frames, EasingType easingType)
             : base(first, last, frames, easingType, EasingMode.EaseIn)
         {
         }
 
-        public SizeAnimator(Size first, Size last, int frames, EasingType easingType, EasingMode easingMode)
+        public SizeAnimator(NativeSize first, NativeSize last, int frames, EasingType easingType, EasingMode easingMode)
             : base(first, last, frames, easingType, easingMode)
         {
         }
@@ -388,7 +389,7 @@ namespace Greenshot.Base.Core
         /// Calculate the next frame values
         /// </summary>
         /// <returns>Size</returns>
-        public override Size Next()
+        public override NativeSize Next()
         {
             if (NextFrame)
             {
@@ -397,7 +398,7 @@ namespace Greenshot.Base.Core
                 double dh = Last.Height - First.Height;
                 int width = First.Width + (int) (easingValue * dw);
                 int height = First.Height + (int) (easingValue * dh);
-                Current = new Size(width, height);
+                Current = new NativeSize(width, height);
             }
 
             return Current;

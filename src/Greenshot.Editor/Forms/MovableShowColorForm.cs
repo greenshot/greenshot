@@ -22,7 +22,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Base.UnmanagedHelpers;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Gdi32.SafeHandles;
 
 namespace Greenshot.Editor.Forms
 {
@@ -104,7 +105,7 @@ namespace Greenshot.Editor.Forms
             using SafeWindowDcHandle screenDC = SafeWindowDcHandle.FromDesktop();
             try
             {
-                uint pixel = GDI32.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
+                uint pixel = Gdi32Api.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
                 Color color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
                 return color;
             }

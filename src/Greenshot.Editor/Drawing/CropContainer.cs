@@ -22,6 +22,8 @@
 
 using System.Drawing;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
@@ -141,16 +143,16 @@ namespace Greenshot.Editor.Drawing
         /// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
         /// (we create a transparent brown over the complete picture)
         /// </summary>
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
                 if (_parent?.Image is { } image)
                 {
-                    return new Rectangle(0, 0, image.Width, image.Height);
+                    return new NativeRect(0, 0, image.Width, image.Height);
                 }
 
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
         }
 
@@ -163,8 +165,8 @@ namespace Greenshot.Editor.Drawing
 
 
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
-            Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
+            var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+            var selectionRect = new NativeRect(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
             Size imageSize = _parent.Image.Size;
 
             DrawSelectionBorder(g, selectionRect);

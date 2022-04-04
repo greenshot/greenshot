@@ -25,8 +25,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.Enums;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
 
@@ -158,7 +159,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                using (Icon appIcon = ImageIO.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons))
+                using (Icon appIcon = IconHelper.ExtractAssociatedIcon<Icon>(path, index, CoreConfig.UseLargeIcons))
                 {
                     if (appIcon != null)
                     {
@@ -166,7 +167,7 @@ namespace Greenshot.Base.Core
                     }
                 }
 
-                using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfig.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
+                using (Icon appIcon = IconHelper.GetFileExtensionIcon<Icon>(path, CoreConfig.UseLargeIcons ? IconSize.Large : IconSize.Small, false))
                 {
                     if (appIcon != null)
                     {

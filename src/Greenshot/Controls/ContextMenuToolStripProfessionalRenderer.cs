@@ -21,6 +21,7 @@
 
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 
@@ -42,8 +43,8 @@ namespace Greenshot.Controls
                 _scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, null);
             }
 
-            Rectangle old = e.ImageRectangle;
-            ToolStripItemImageRenderEventArgs clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));
+            NativeRect old = e.ImageRectangle;
+            ToolStripItemImageRenderEventArgs clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new NativeRect(old.X, 0, old.Width, old.Height));
             base.OnRenderItemCheck(clone);
         }
     }

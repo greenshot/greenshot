@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -256,26 +257,24 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Get the bounds in which we have something drawn, plus safety margin, these are not the normal bounds...
         /// </summary>
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
                 if (!myBounds.IsEmpty)
                 {
                     int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
-                    int safetymargin = 10;
-                    return new Rectangle(myBounds.Left + Left - (safetymargin + lineThickness), myBounds.Top + Top - (safetymargin + lineThickness),
-                        myBounds.Width + 2 * (lineThickness + safetymargin), myBounds.Height + 2 * (lineThickness + safetymargin));
+                    int safetyMargin = 10;
+                    return new NativeRect(myBounds.Left + Left - (safetyMargin + lineThickness), myBounds.Top + Top - (safetyMargin + lineThickness),
+                        myBounds.Width + 2 * (lineThickness + safetyMargin), myBounds.Height + 2 * (lineThickness + safetyMargin));
                 }
 
                 if (_parent?.Image is Image image)
                 {
-                    return new Rectangle(0, 0, image.Width, image.Height);
+                    return new NativeRect(0, 0, image.Width, image.Height);
                 }
-                else
-                {
-                    return Rectangle.Empty;
-                }
+
+                return NativeRect.Empty;
             }
         }
 

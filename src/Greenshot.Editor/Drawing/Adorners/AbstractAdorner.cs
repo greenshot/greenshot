@@ -22,6 +22,8 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -54,12 +56,11 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Test if the point is inside the adorner
         /// </summary>
-        /// <param name="point"></param>
-        /// <returns></returns>
-        public virtual bool HitTest(Point point)
+        /// <param name="point">NativePoint</param>
+        /// <returns>bool</returns>
+        public virtual bool HitTest(NativePoint point)
         {
-            Rectangle hitBounds = Bounds;
-            hitBounds.Inflate(3, 3);
+            NativeRect hitBounds = Bounds.Inflate(3, 3);
             return hitBounds.Contains(point);
         }
 
@@ -99,12 +100,12 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the bounds of the Adorner
         /// </summary>
-        public virtual Rectangle Bounds
+        public virtual NativeRect Bounds
         {
             get
             {
-                Point location = Location;
-                return new Rectangle(location.X - (_size.Width / 2), location.Y - (_size.Height / 2), _size.Width, _size.Height);
+                NativePoint location = Location;
+                return new NativeRect(location.X - (_size.Width / 2), location.Y - (_size.Height / 2), _size.Width, _size.Height);
             }
         }
 

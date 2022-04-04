@@ -22,9 +22,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Drawing.Filters
@@ -66,9 +66,9 @@ namespace Greenshot.Editor.Drawing.Filters
                 graphics.ExcludeClip(rect);
             }
 
-            if (GDIplus.IsBlurPossible(blurRadius))
+            if (GdiPlusApi.IsBlurPossible(blurRadius))
             {
-                GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
+                GdiPlusApi.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
             }
             else
             {

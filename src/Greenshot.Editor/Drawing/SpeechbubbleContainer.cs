@@ -24,6 +24,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -134,23 +136,27 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// The DrawingBound should be so close as possible to the shape, so we don't invalidate to much.
         /// </summary>
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
-                if (Status != EditStatus.UNDRAWN)
-                {
-                    int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-                    Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-                    bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-                    using Pen pen = new Pen(lineColor, lineThickness);
-                    int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
-                    using GraphicsPath tailPath = CreateTail();
-                    return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)),
-                        inflateValue, inflateValue);
-                }
+                if (Status == EditStatus.UNDRAWN) return NativeRect.Empty;
 
-                return Rectangle.Empty;
+                int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+                Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+                bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+                using Pen pen = new Pen(lineColor, lineThickness);
+                int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
+                using GraphicsPath tailPath = CreateTail();
+         
+                var bubbleBounds = new NativeRect(Left, Top, Width, Height).Normalize();
+                using var matrix = new Matrix();
+
+                var tailBounds = Rectangle.Round(tailPath.GetBounds(matrix, pen));
+
+                var drawingBoundsWithoutSafety = bubbleBounds.Union(tailBounds);
+                return drawingBoundsWithoutSafety.Inflate(inflateValue, inflateValue);
+
             }
         }
 
@@ -162,9 +168,9 @@ namespace Greenshot.Editor.Drawing
         private GraphicsPath CreateBubble(int lineThickness)
         {
             GraphicsPath bubble = new GraphicsPath();
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
-            Rectangle bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height);
+            var bubbleRect = new NativeRect(0, 0, rect.Width, rect.Height).Normalize();
             // adapt corner radius to small rectangle dimensions
             int smallerSideLength = Math.Min(bubbleRect.Width, bubbleRect.Height);
             int cornerRadius = Math.Min(30, smallerSideLength / 2 - lineThickness);
@@ -196,7 +202,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         private GraphicsPath CreateTail()
         {
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
             int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
@@ -246,7 +252,7 @@ namespace Greenshot.Editor.Drawing
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
             bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             if (Selected && renderMode == RenderMode.EDIT)
             {

@@ -5,10 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.16" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="1.0.18" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="1.0.13" />
+    <PackageReference Include="Dapplo.Windows.Gdi32" Version="1.0.13" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="1.0.13" />
+    <PackageReference Include="Dapplo.Windows.Kernel32" Version="1.0.13" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="1.0.13" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
     <PackageReference Include="log4net" version="2.0.14" />
-    <PackageReference Include="Svg" Version="3.4.0" />
+    <PackageReference Include="Svg" Version="3.4.1" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

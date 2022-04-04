@@ -22,12 +22,15 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.DesktopWindowsManager.Structs;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 
 namespace Greenshot.Base.Controls
 {
@@ -70,7 +73,7 @@ namespace Greenshot.Base.Controls
         {
             if (_thumbnailHandle == IntPtr.Zero) return;
 
-            DWM.DwmUnregisterThumbnail(_thumbnailHandle);
+            DwmApi.DwmUnregisterThumbnail(_thumbnailHandle);
             _thumbnailHandle = IntPtr.Zero;
         }
 
@@ -83,19 +86,19 @@ namespace Greenshot.Base.Controls
         {
             UnregisterThumbnail();
 
-            DWM.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
+            DwmApi.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
             if (_thumbnailHandle == IntPtr.Zero) return;
 
-            var result = DWM.DwmQueryThumbnailSourceSize(_thumbnailHandle, out var sourceSize);
+            var result = DwmApi.DwmQueryThumbnailSourceSize(_thumbnailHandle, out var sourceSize);
             if (result.Failed())
             {
-                DWM.DwmUnregisterThumbnail(_thumbnailHandle);
+                DwmApi.DwmUnregisterThumbnail(_thumbnailHandle);
                 return;
             }
 
             if (sourceSize.IsEmpty)
             {
-                DWM.DwmUnregisterThumbnail(_thumbnailHandle);
+                DwmApi.DwmUnregisterThumbnail(_thumbnailHandle);
                 return;
             }
 
@@ -110,17 +113,17 @@ namespace Greenshot.Base.Controls
             Width = thumbnailWidth;
             Height = thumbnailHeight;
             // Prepare the displaying of the Thumbnail
-            var dwmThumbnailProperties = new DWM_THUMBNAIL_PROPERTIES
+            var dwmThumbnailProperties = new DwmThumbnailProperties()
             {
                 Opacity = 255,
                 Visible = true,
                 SourceClientAreaOnly = false,
-                Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight)
+                Destination = new NativeRect(0, 0, thumbnailWidth, thumbnailHeight)
             };
-            result = DWM.DwmUpdateThumbnailProperties(_thumbnailHandle, ref dwmThumbnailProperties);
+            result = DwmApi.DwmUpdateThumbnailProperties(_thumbnailHandle, ref dwmThumbnailProperties);
             if (result.Failed())
             {
-                DWM.DwmUnregisterThumbnail(_thumbnailHandle);
+                DwmApi.DwmUnregisterThumbnail(_thumbnailHandle);
                 return;
             }
 
@@ -137,7 +140,7 @@ namespace Greenshot.Base.Controls
             // Make sure it's on "top"!
             if (parentControl != null)
             {
-                User32.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
+                User32Api.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
             }
         }
 

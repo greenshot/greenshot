@@ -23,6 +23,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -70,7 +72,7 @@ namespace Greenshot.Editor.Drawing
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.Red);
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
         }
@@ -106,11 +108,11 @@ namespace Greenshot.Editor.Drawing
                     {
                         Width = lineVisible ? lineThickness : 1
                     };
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
+                    var shadowRect = new NativeRect(
                         rect.Left + currentStep,
                         rect.Top + currentStep,
                         rect.Width,
-                        rect.Height);
+                        rect.Height).Normalize();
                     graphics.DrawRectangle(shadowPen, shadowRect);
                     currentStep++;
                     alpha -= basealpha / steps;
@@ -134,13 +136,12 @@ namespace Greenshot.Editor.Drawing
 
         public override bool ClickableAt(int x, int y)
         {
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 
             return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
         }
-
 
         public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
         {

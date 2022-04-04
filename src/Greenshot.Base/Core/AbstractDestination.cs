@@ -24,9 +24,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -312,21 +314,21 @@ namespace Greenshot.Base.Core
         private static void ShowMenuAtCursor(ContextMenuStrip menu)
         {
             // find a suitable location
-            Point location = Cursor.Position;
-            Rectangle menuRectangle = new Rectangle(location, menu.Size);
+            NativePoint location = Cursor.Position;
+            NativeRect menuRectangle = new NativeRect(location, menu.Size);
 
-            menuRectangle.Intersect(WindowCapture.GetScreenBounds());
+            menuRectangle = menuRectangle.Intersect(WindowCapture.GetScreenBounds());
             if (menuRectangle.Height < menu.Height)
             {
-                location.Offset(-40, -(menuRectangle.Height - menu.Height));
+                location = location.Offset(-40, -(menuRectangle.Height - menu.Height));
             }
             else
             {
-                location.Offset(-40, -10);
+                location = location.Offset(-40, -10);
             }
 
             // This prevents the problem that the context menu shows in the task-bar
-            User32.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
+            User32Api.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
             menu.Show(location);
             menu.Focus();
 

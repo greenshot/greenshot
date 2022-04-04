@@ -22,6 +22,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -115,7 +117,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
@@ -130,12 +132,11 @@ namespace Greenshot.Editor.Drawing
                     using GraphicsPath path = new GraphicsPath();
                     path.AddLine(Left, Top, Left + Width, Top + Height);
                     using Matrix matrix = new Matrix();
-                    Rectangle drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-                    drawingBounds.Inflate(2, 2);
-                    return drawingBounds;
+                    NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
+                    return drawingBounds.Inflate(2, 2);
                 }
 
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
         }
 

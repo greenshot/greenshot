@@ -28,6 +28,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -976,7 +980,7 @@ namespace Greenshot.Editor.Forms
             GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -1972,9 +1976,8 @@ namespace Greenshot.Editor.Forms
             var size = surface.Size;
             if (value > Surface.ZoomFactor) // being smart on zoom-in
             {
-                var selection = surface.GetSelectionRectangle();
-                selection.Intersect(rc);
-                if (selection != Rectangle.Empty)
+                var selection = surface.GetSelectionRectangle().Intersect(rc);
+                if (selection != NativeRect.Empty)
                 {
                     rc = selection; // zoom to visible part of selection
                 }
@@ -1984,12 +1987,12 @@ namespace Greenshot.Editor.Forms
                     // - prefer top left corner to zoom-in as less disorienting for screenshots
                     if (size.Width < rc.Width)
                     {
-                        rc.Width = 0;
+                        rc = rc.ChangeWidth(0);
                     }
 
                     if (size.Height < rc.Height)
                     {
-                        rc.Height = 0;
+                        rc = rc.ChangeHeight(0);
                     }
                 }
             }

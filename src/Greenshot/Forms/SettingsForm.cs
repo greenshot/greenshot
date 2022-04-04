@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.DesktopWindowsManager;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -35,7 +36,6 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using log4net;
@@ -224,7 +224,7 @@ namespace Greenshot.Forms
         private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode)
         {
             WindowCaptureMode[] availableModes;
-            if (!DWM.IsDwmEnabled)
+            if (!DwmApi.IsDwmEnabled)
             {
                 // Remove DWM from configuration, as DWM is disabled!
                 if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent)

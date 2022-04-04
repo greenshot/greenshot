@@ -23,6 +23,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -71,7 +73,7 @@ namespace Greenshot.Editor.Drawing
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
         }
 
@@ -101,7 +103,7 @@ namespace Greenshot.Editor.Drawing
                     {
                         Width = lineVisible ? lineThickness : 1
                     };
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+                    var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
                     graphics.DrawEllipse(shadowPen, shadowRect);
                     currentStep++;
                     alpha -= basealpha / steps;
@@ -146,7 +148,7 @@ namespace Greenshot.Editor.Drawing
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
         }
 

@@ -23,6 +23,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -79,37 +81,36 @@ namespace Greenshot.Editor.Drawing
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
             bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-            if (lineVisible)
-            {
-                graphics.SmoothingMode = SmoothingMode.HighSpeed;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.None;
-                //draw shadow first
-                if (shadow)
-                {
-                    int basealpha = 100;
-                    int alpha = basealpha;
-                    int steps = 5;
-                    int currentStep = lineVisible ? 1 : 0;
-                    while (currentStep <= steps)
-                    {
-                        using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                        Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
-                        graphics.DrawRectangle(shadowPen, shadowRect);
-                        currentStep++;
-                        alpha -= basealpha / steps;
-                    }
-                }
+            if (!lineVisible) return;
+            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
-                Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-                if (lineThickness > 0)
+            graphics.SmoothingMode = SmoothingMode.HighSpeed;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.None;
+            //draw shadow first
+            if (shadow)
+            {
+                int basealpha = 100;
+                int alpha = basealpha;
+                int steps = 5;
+                int currentStep = lineVisible ? 1 : 0;
+                while (currentStep <= steps)
                 {
-                    using Pen pen = new Pen(lineColor, lineThickness);
-                    graphics.DrawRectangle(pen, rect);
+                    using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    var shadowRect = new NativeRect(Left + currentStep, Top + currentStep, Width, Height).Normalize();
+                    graphics.DrawRectangle(shadowPen, shadowRect);
+                    currentStep++;
+                    alpha -= basealpha / steps;
                 }
+            }
+
+            if (lineThickness > 0)
+            {
+                var rect = new NativeRect(Left, Top, Width, Height).Normalize();
+                using Pen pen = new Pen(lineColor, lineThickness);
+                graphics.DrawRectangle(pen, rect);
             }
         }
     }

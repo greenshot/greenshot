@@ -24,10 +24,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -192,7 +193,7 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             string text = ((Surface) Parent).CountStepLabels(this).ToString();
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
             if (_drawAsRectangle)
@@ -212,7 +213,7 @@ namespace Greenshot.Editor.Drawing
 
         public override bool ClickableAt(int x, int y)
         {
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             if (_drawAsRectangle)
             {

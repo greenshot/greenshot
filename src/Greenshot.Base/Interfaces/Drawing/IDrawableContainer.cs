@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Base.Interfaces.Drawing
@@ -49,13 +50,13 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         int Height { get; set; }
 
-        Point Location { get; }
+        NativePoint Location { get; }
 
-        Size Size { get; }
+        NativeSize Size { get; }
 
-        Rectangle Bounds { get; }
+        NativeRect Bounds { get; }
 
-        Rectangle DrawingBounds { get; }
+        NativeRect DrawingBounds { get; }
 
         void ApplyBounds(RectangleF newBounds);
 

@@ -20,12 +20,16 @@
  */
 
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Enums;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Gdi32.Enums;
+using Dapplo.Windows.Gdi32.SafeHandles;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -85,7 +89,7 @@ namespace Greenshot.Base.Core
         /// <param name="dpi">current dpi, normal is 96.</param>
         /// <param name="scaleModifier">A function which can modify the scale factor</param>
         /// <returns>NativeSize scaled</returns>
-        public static Size ScaleWithDpi(Size size, uint dpi, Func<float, float> scaleModifier = null)
+        public static NativeSize ScaleWithDpi(NativeSize size, uint dpi, Func<float, float> scaleModifier = null)
         {
             var dpiScaleFactor = DpiScaleFactor(dpi);
             if (scaleModifier != null)
@@ -93,7 +97,7 @@ namespace Greenshot.Base.Core
                 dpiScaleFactor = scaleModifier(dpiScaleFactor);
             }
 
-            return new Size((int) (dpiScaleFactor * size.Width), (int) (dpiScaleFactor * size.Height));
+            return new NativeSize((int) (dpiScaleFactor * size.Width), (int) (dpiScaleFactor * size.Height));
         }
 
         /// <summary>
@@ -102,7 +106,7 @@ namespace Greenshot.Base.Core
         /// <param name="size">NativeSize to scale</param>
         /// <param name="scaleModifier">A function which can modify the scale factor</param>
         /// <returns>NativeSize scaled</returns>
-        public static Size ScaleWithCurrentDpi(Size size, Func<float, float> scaleModifier = null)
+        public static NativeSize ScaleWithCurrentDpi(NativeSize size, Func<float, float> scaleModifier = null)
         {
             return ScaleWithDpi(size, Dpi, scaleModifier);
         }
@@ -110,16 +114,16 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Return the DPI for the screen which the location is located on
         /// </summary>
-        /// <param name="location">POINT</param>
+        /// <param name="location">NativePoint</param>
         /// <returns>uint</returns>
-        public static uint GetDpi(POINT location)
+        public static uint GetDpi(NativePoint location)
         {
             if (!WindowsVersion.IsWindows81OrLater)
             {
                 return DefaultScreenDpi;
             }
-            RECT rect = new RECT(location.X, location.Y, 1, 1);
-            IntPtr hMonitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONEAREST);
+            NativeRect rect = new NativeRect(location.X, location.Y, 1, 1);
+            IntPtr hMonitor = User32Api.MonitorFromRect(ref rect, MonitorFrom.DefaultToNearest);
             var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
             if (result.Succeeded())
             {
@@ -137,7 +141,7 @@ namespace Greenshot.Base.Core
         /// <returns>dpi value</returns>
         public static uint GetDpi(IntPtr hWnd)
         {
-            if (!User32.IsWindow(hWnd))
+            if (!User32Api.IsWindow(hWnd))
             {
                 return DefaultScreenDpi;
             }
@@ -151,7 +155,7 @@ namespace Greenshot.Base.Core
             // Use the second easiest method, but this only works for Windows 8.1 or later
             if (WindowsVersion.IsWindows81OrLater)
             {
-                var hMonitor = User32.MonitorFromWindow(hWnd, MonitorFrom.DefaultToNearest);
+                var hMonitor = User32Api.MonitorFromWindow(hWnd, MonitorFrom.DefaultToNearest);
                 // ReSharper disable once UnusedVariable
                 var result = GetDpiForMonitor(hMonitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY);
                 if (result.Succeeded())
@@ -167,7 +171,7 @@ namespace Greenshot.Base.Core
                 return DefaultScreenDpi;
             }
 
-            return (uint) GDI32.GetDeviceCaps(hdc, DeviceCaps.LOGPIXELSX);
+            return (uint) Gdi32Api.GetDeviceCaps(hdc, DeviceCaps.LOGPIXELSX);
         }
 
         /// <summary>

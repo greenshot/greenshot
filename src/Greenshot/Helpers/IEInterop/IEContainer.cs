@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.IEInterop;
 using log4net;
@@ -40,10 +42,10 @@ namespace Greenshot.Helpers.IEInterop
         private static int _counter;
         private IHTMLDocument2 _document2;
         private IHTMLDocument3 _document3;
-        private Point _sourceLocation;
-        private Point _destinationLocation;
-        private Point _startLocation = Point.Empty;
-        private Rectangle _viewportRectangle = Rectangle.Empty;
+        private NativePoint _sourceLocation;
+        private NativePoint _destinationLocation;
+        private NativePoint _startLocation = NativePoint.Empty;
+        private NativeRect _viewportRectangle = NativeRect.Empty;
         private bool _isDtd;
         private DocumentContainer _parent;
         private WindowDetails _contentWindow;
@@ -425,7 +427,7 @@ namespace Greenshot.Helpers.IEInterop
             }
         }
 
-        public Rectangle ViewportRectangle => _viewportRectangle;
+        public NativeRect ViewportRectangle => _viewportRectangle;
 
         public WindowDetails ContentWindow => _contentWindow;
 
@@ -546,13 +548,13 @@ namespace Greenshot.Helpers.IEInterop
         public int DestinationLeft
         {
             get { return _destinationLocation.X; }
-            set { _destinationLocation.X = value; }
+            set { _destinationLocation = _destinationLocation.ChangeX(value); }
         }
 
         public int DestinationTop
         {
             get { return _destinationLocation.Y; }
-            set { _destinationLocation.Y = value; }
+            set { _destinationLocation = _destinationLocation.ChangeY(value); }
         }
 
         public int DestinationRight => _destinationLocation.X + ScrollWidth;

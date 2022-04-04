@@ -27,11 +27,12 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 
 namespace Greenshot.Editor.Drawing
@@ -341,7 +342,10 @@ namespace Greenshot.Editor.Drawing
             }
 
             InternalParent.KeysLocked = false;
-            InternalParent.Controls.Remove(_textBox);
+            if (_textBox != null)
+            {
+                InternalParent.Controls.Remove(_textBox);
+            }
         }
 
         /// <summary>
@@ -350,12 +354,12 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             int pixelsBefore = rect.Width * rect.Height;
 
             // Transform this container
             base.Transform(matrix);
-            rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             int pixelsAfter = rect.Width * rect.Height;
             float factor = pixelsAfter / (float) pixelsBefore;
@@ -505,7 +509,7 @@ namespace Greenshot.Editor.Drawing
                 correction = -1;
             }
 
-            Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            Rectangle absRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
             Rectangle displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _textBox.Left = displayRectangle.X + lineWidth;
             _textBox.Top = displayRectangle.Y + lineWidth;
@@ -598,7 +602,7 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            Rectangle rect = new NativeRect(Left, Top, Width, Height).Normalize();
             if (Selected && rm == RenderMode.EDIT)
             {
                 DrawSelectionBorder(graphics, rect);
@@ -630,7 +634,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="stringFormat"></param>
         /// <param name="text"></param>
         /// <param name="font"></param>
-        public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
+        public static void DrawText(Graphics graphics, NativeRect drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
             Font font)
         {
 #if DEBUG
@@ -652,10 +656,10 @@ namespace Greenshot.Editor.Drawing
                 while (currentStep <= steps)
                 {
                     int offset = currentStep;
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
+                    NativeRect shadowRect = new NativeRect(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height).Normalize();
                     if (lineThickness > 0)
                     {
-                        shadowRect.Inflate(-textOffset, -textOffset);
+                        shadowRect = shadowRect.Inflate(-textOffset, -textOffset);
                     }
                     using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
                     graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
@@ -667,7 +671,7 @@ namespace Greenshot.Editor.Drawing
 
             if (lineThickness > 0)
             {
-                drawingRectange.Inflate(-textOffset, -textOffset);
+                drawingRectange = drawingRectange.Inflate(-textOffset, -textOffset);
             }
             using (Brush fontBrush = new SolidBrush(fontColor))
             {
@@ -684,8 +688,7 @@ namespace Greenshot.Editor.Drawing
 
         public override bool ClickableAt(int x, int y)
         {
-            Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            r.Inflate(5, 5);
+            var r = new NativeRect(Left, Top, Width, Height).Normalize().Inflate(5, 5);
             return r.Contains(x, y);
         }
     }
