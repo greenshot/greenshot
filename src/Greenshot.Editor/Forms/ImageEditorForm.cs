@@ -30,6 +30,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
@@ -41,8 +42,6 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
@@ -114,19 +113,17 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Adjust the icons etc to the supplied DPI settings
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
-        private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
+        /// <param name="oldDpi"></param>
+        /// <param name="newDpi"></param>
+        protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var dpi = DpiHelper.GetDpi(Handle);
-            var newSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, dpi);
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
             toolsToolStrip.ImageScalingSize = newSize;
             menuStrip1.ImageScalingSize = newSize;
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-
-            _surface?.AdjustToDpi(dpi);
+            _surface?.AdjustToDpi(newDpi);
             UpdateUi();
         }
 
@@ -152,7 +149,6 @@ namespace Greenshot.Editor.Forms
             ManualLanguageApply = true;
             InitializeComponent();
             // Make sure we change the icon size depending on the scaling
-            DpiChanged += AdjustToDpi;
             Load += delegate
             {
                 var thread = new Thread(AddDestinations)
@@ -161,7 +157,7 @@ namespace Greenshot.Editor.Forms
                 };
                 thread.Start();
 
-                AdjustToDpi(null, null);
+                DpiChangedHandler(96, DeviceDpi);
             };
 
             // Make sure the editor is placed on the same location as the last editor was on close
@@ -174,7 +170,7 @@ namespace Greenshot.Editor.Forms
             }
 
             // ReSharper disable once UnusedVariable
-            WindowDetails thisForm = new WindowDetails(Handle)
+            WindowDetails thisForm = new(Handle)
             {
                 WindowPlacement = EditorConfiguration.GetEditorPlacement()
             };
@@ -317,9 +313,8 @@ namespace Greenshot.Editor.Forms
             // Loop over all items in the propertiesToolStrip
             foreach (ToolStripItem item in propertiesToolStrip.Items)
             {
-                var cb = item as ToolStripComboBox;
                 // Only ToolStripComboBox that are visible
-                if (cb == null || !cb.Visible)
+                if (item is not ToolStripComboBox { Visible: true } cb)
                 {
                     continue;
                 }
@@ -376,7 +371,7 @@ namespace Greenshot.Editor.Forms
         {
             if (toolstripDestination.IsDynamic)
             {
-                ToolStripSplitButton destinationButton = new ToolStripSplitButton
+                ToolStripSplitButton destinationButton = new()
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
@@ -1960,8 +1955,7 @@ namespace Greenshot.Editor.Forms
         private void ZoomSetValue(Fraction value)
         {
             var surface = Surface as Surface;
-            var panel = surface?.Parent as Panel;
-            if (panel == null)
+            if (surface?.Parent is not Panel panel)
             {
                 return;
             }

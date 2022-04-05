@@ -25,7 +25,6 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Svg;
 
 namespace Greenshot.Editor.Drawing
 {

@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -43,7 +44,6 @@ using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Editor;
@@ -60,7 +60,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper
+    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
     {
         private static ILog LOG;
         private static ResourceMutex _applicationMutex;
@@ -380,8 +380,7 @@ namespace Greenshot.Forms
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
-            DpiChanged += (e, o) => ApplyDpiScaling();
-
+ 
             // The most important form is this
             SimpleServiceProvider.Current.AddService<Form>(this);
             // Also as itself
@@ -746,7 +745,7 @@ namespace Greenshot.Forms
                 return;
             }
 
-            ApplyDpiScaling();
+            DpiChangedHandler(96, DeviceDpi);
             string ieExePath = PluginUtils.GetExePath("iexplore.exe");
             if (!string.IsNullOrEmpty(ieExePath))
             {
@@ -757,10 +756,10 @@ namespace Greenshot.Forms
         /// <summary>
         /// Modify the DPI settings depending in the current value
         /// </summary>
-        private void ApplyDpiScaling()
+        protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
-            contextMenu.ImageScalingSize = scaledIconSize;
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
+            contextMenu.ImageScalingSize = newSize;
         }
 
         /// <summary>
@@ -1501,7 +1500,7 @@ namespace Greenshot.Forms
             if (!_conf.Values["Destinations"].IsFixed)
             {
                 // screenshot destination
-                selectList = new ToolStripMenuSelectList("destinations", true)
+                selectList = new ToolStripMenuSelectList("destinations", true, this)
                 {
                     Text = Language.GetString(LangKey.settings_destination)
                 };
@@ -1518,7 +1517,7 @@ namespace Greenshot.Forms
             if (!_conf.Values["WindowCaptureMode"].IsFixed)
             {
                 // Capture Modes
-                selectList = new ToolStripMenuSelectList("capturemodes", false)
+                selectList = new ToolStripMenuSelectList("capturemodes", false, this)
                 {
                     Text = Language.GetString(LangKey.settings_window_capture_mode)
                 };
@@ -1533,7 +1532,7 @@ namespace Greenshot.Forms
             }
 
             // print options
-            selectList = new ToolStripMenuSelectList("printoptions", true)
+            selectList = new ToolStripMenuSelectList("printoptions", true, this)
             {
                 Text = Language.GetString(LangKey.settings_printoptions)
             };
@@ -1558,7 +1557,7 @@ namespace Greenshot.Forms
             }
 
             // effects
-            selectList = new ToolStripMenuSelectList("effects", true)
+            selectList = new ToolStripMenuSelectList("effects", true, this)
             {
                 Text = Language.GetString(LangKey.settings_visualization)
             };

@@ -98,7 +98,7 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi"></param>
-        void AdjustToDpi(uint dpi);
+        void AdjustToDpi(int dpi);
 
         /// <summary>
         /// The color of the lines around the adorner

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
@@ -173,7 +174,7 @@ namespace Greenshot.Plugin.Jira.Forms
                         jiraListView.Columns.Add(translation);
                     }
 
-                    var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, DpiHelper.GetDpi(Handle));
+                    var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, NativeDpiMethods.GetDpi(Handle));
                     var imageList = new ImageList
                     {
                         ImageSize = scaledIconSize

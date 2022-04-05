@@ -23,7 +23,6 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Windows.Common.Extensions;
-using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Win10.Native
 {

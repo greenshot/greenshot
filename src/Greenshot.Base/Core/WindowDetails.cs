@@ -1020,7 +1020,7 @@ namespace Greenshot.Base.Core
                         {
                             var colorizationColor = DwmApi.ColorizationColor;
                             // Modify by losing the transparency and increasing the intensity (as if the background color is white)
-                            tempForm.BackColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1); ;
+                            tempForm.BackColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
                         }
 
                         // Make sure everything is visible
@@ -1451,7 +1451,7 @@ namespace Greenshot.Base.Core
 
             if (!HasParent && Maximised)
             {
-                Log.Debug("Correcting for maximalization");
+                Log.Debug("Correcting for maximized window");
                 GetBorderSize(out var borderSize);
                 NativeRect borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
                 ImageHelper.Crop(ref returnImage, ref borderRectangle);

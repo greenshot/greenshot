@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -420,7 +421,7 @@ namespace Greenshot.Forms
             checkbox_picker.Checked = false;
 
             listview_destinations.Items.Clear();
-            var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
+            var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
             listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
             ImageList imageList = new ImageList
             {

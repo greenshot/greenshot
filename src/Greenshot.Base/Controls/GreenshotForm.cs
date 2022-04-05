@@ -102,6 +102,20 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
+        protected GreenshotForm()
+        {
+            DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
+        }
+
+        /// <summary>
+        /// This is the basic DpiChangedHandler responsible for all the DPI relative changes
+        /// </summary>
+        /// <param name="oldDpi"></param>
+        /// <param name="newDpi"></param>
+        protected virtual void DpiChangedHandler(int oldDpi, int newDpi)
+        {
+        }
+
 #if DEBUG
         /// <summary>
         /// Code to initialize the language etc during design time
@@ -530,7 +544,7 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Fill all GreenshotControls with the values from the configuration
         /// </summary>
-        protected void FillFields()
+        private void FillFields()
         {
             foreach (FieldInfo field in GetCachedFields(GetType()))
             {

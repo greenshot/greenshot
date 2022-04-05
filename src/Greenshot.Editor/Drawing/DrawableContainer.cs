@@ -442,7 +442,7 @@ namespace Greenshot.Editor.Drawing
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi">uint with dpi value</param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
             foreach (var adorner in Adorners)
             {

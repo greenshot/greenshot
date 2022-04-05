@@ -24,7 +24,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
@@ -39,7 +39,7 @@ namespace Greenshot.Editor.Drawing.Adorners
 
         public AbstractAdorner(IDrawableContainer owner)
         {
-            _size = DpiHelper.ScaleWithDpi(DefaultSize, 0);
+            _size = DpiCalculator.ScaleWithDpi(DefaultSize, 0);
             Owner = owner;
         }
 
@@ -133,9 +133,9 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi">uint</param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
-            _size = DpiHelper.ScaleWithDpi(DefaultSize, dpi);
+            _size = DpiCalculator.ScaleWithDpi(DefaultSize, dpi);
         }
 
         public Color OutlineColor { get; set; } = Color.White;

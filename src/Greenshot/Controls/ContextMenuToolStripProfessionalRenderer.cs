@@ -22,8 +22,10 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Controls
 {
@@ -32,15 +34,21 @@ namespace Greenshot.Controls
     /// </summary>
     public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
     {
+        private readonly IProvideDeviceDpi _provideDeviceDpi;
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static Image _scaledCheckbox;
 
+        public ContextMenuToolStripProfessionalRenderer(IProvideDeviceDpi provideDeviceDpi)
+        {
+            _provideDeviceDpi = provideDeviceDpi;
+        }
         protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
         {
-            if (_scaledCheckbox == null || _scaledCheckbox.Size != CoreConfig.ScaledIconSize)
+            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);
+            if (_scaledCheckbox == null || _scaledCheckbox.Size != newSize)
             {
                 _scaledCheckbox?.Dispose();
-                _scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, null);
+                _scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, newSize.Width, newSize.Height, null);
             }
 
             NativeRect old = e.ImageRectangle;

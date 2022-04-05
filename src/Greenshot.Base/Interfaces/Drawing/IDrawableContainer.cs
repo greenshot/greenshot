@@ -97,8 +97,8 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// <summary>
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
-        /// <param name="dpi">uint</param>
-        void AdjustToDpi(uint dpi);
+        /// <param name="dpi">int</param>
+        void AdjustToDpi(int dpi);
 
         /// <summary>
         /// Enable a way for elements to add a context menu entry

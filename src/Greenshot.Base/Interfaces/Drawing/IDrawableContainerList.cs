@@ -59,6 +59,6 @@ namespace Greenshot.Base.Interfaces.Drawing
         void PushElementsToBottom(IDrawableContainerList elements);
         void ShowContextMenu(MouseEventArgs e, ISurface surface);
         void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
-        void AdjustToDpi(uint dpi);
+        void AdjustToDpi(int dpi);
     }
 }
