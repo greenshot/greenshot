@@ -2030,8 +2030,6 @@ namespace Greenshot.Editor.Forms {
 		private NonJumpingPanel panel1;
 		private ToolStripColorButton btnFillColor;
 		private ToolStripColorButton btnLineColor;
-		private GreenshotToolStripMenuItem autoCropToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator17;
 		private System.Windows.Forms.ContextMenuStrip zoomMenuStrip;
 		private System.Windows.Forms.ToolStripMenuItem zoomInMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoomOutMenuItem;

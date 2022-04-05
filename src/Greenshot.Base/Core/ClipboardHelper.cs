@@ -639,8 +639,6 @@ EndSelection:<<<<<<<4
                 {
                     continue;
                 }
-
-                IDrawableContainer drawableContainer = null;
                 using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 IEnumerable<IDrawableContainer> drawableContainers;
                 try
