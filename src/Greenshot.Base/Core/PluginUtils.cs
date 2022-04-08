@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -160,8 +159,11 @@ namespace Greenshot.Base.Core
             try
             {
                 var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.UseLargeIcons);
-                Debug.Assert(appIcon != null && (appIcon.Width*appIcon.Height > 0), "Invalid icon");
-                Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
+                if (appIcon != null)
+                {
+                    Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
+                    return appIcon;
+                }
                 return appIcon;
             }
             catch (Exception exIcon)

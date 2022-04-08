@@ -26,7 +26,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Common.TypeConverters;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Greenshot.Base.Core;

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 
