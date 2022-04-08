@@ -715,7 +715,10 @@ namespace Greenshot.Helpers
                         textResult.AppendLine();
                     }
 
-                    Clipboard.SetText(textResult.ToString());
+                    if (textResult.Length > 0)
+                    {
+                        Clipboard.SetText(textResult.ToString());
+                    }
                 }
 
                 // Disable capturing
