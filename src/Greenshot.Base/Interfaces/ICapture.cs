@@ -73,7 +73,7 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Crops the capture to the specified rectangle (with Bitmap coordinates!)
         /// </summary>
-        /// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
+        /// <param name="cropRectangle">NativeRect with bitmap coordinates</param>
         bool Crop(NativeRect cropRectangle);
 
         /// <summary>

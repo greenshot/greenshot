@@ -87,7 +87,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="lineColor"></param>
         /// <param name="fillColor"></param>
         /// <param name="shadow"></param>
-        public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+        public static void DrawEllipse(NativeRect rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
         {
             bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
             // draw shadow before anything else
@@ -152,7 +152,7 @@ namespace Greenshot.Editor.Drawing
             return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
         }
 
-        public static bool EllipseClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
+        public static bool EllipseClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
             if (!Color.Transparent.Equals(fillColor))

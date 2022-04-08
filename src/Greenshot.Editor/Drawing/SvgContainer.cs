@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Svg;
@@ -56,6 +57,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
+        public override NativeSize DefaultSize => new NativeSize((int)_svgDocument.Width, (int)_svgDocument.Height);
     }
 }

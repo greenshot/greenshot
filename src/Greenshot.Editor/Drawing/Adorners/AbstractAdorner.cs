@@ -34,8 +34,8 @@ namespace Greenshot.Editor.Drawing.Adorners
     {
         public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-        private static readonly Size DefaultSize = new Size(6, 6);
-        protected Size _size;
+        private static readonly NativeSize DefaultSize = new NativeSize(6, 6);
+        protected NativeSize _size;
 
         public AbstractAdorner(IDrawableContainer owner)
         {
@@ -95,7 +95,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the location of the adorner
         /// </summary>
-        public virtual Point Location { get; set; }
+        public virtual NativePoint Location { get; set; }
 
         /// <summary>
         /// Return the bounds of the Adorner
@@ -112,12 +112,12 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the bounds of the Adorner as displayed on the parent Surface
         /// </summary>
-        protected virtual Rectangle BoundsOnSurface
+        protected virtual NativeRect BoundsOnSurface
         {
             get
             {
-                Point displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
-                return new Rectangle(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
+                NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
+                return new NativeRect(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
             }
         }
 

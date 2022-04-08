@@ -316,9 +316,9 @@ namespace Greenshot.Base.Core
         {
             // find a suitable location
             NativePoint location = Cursor.Position;
-            NativeRect menuRectangle = new NativeRect(location, menu.Size);
+            var menuRectangle = new NativeRect(location, menu.Size);
 
-            menuRectangle = menuRectangle.Intersect(WindowCapture.GetScreenBounds());
+            menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);
             if (menuRectangle.Height < menu.Height)
             {
                 location = location.Offset(-40, -(menuRectangle.Height - menu.Height));

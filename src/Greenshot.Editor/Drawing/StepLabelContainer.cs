@@ -117,7 +117,7 @@ namespace Greenshot.Editor.Drawing
             newParentSurface.AddStepLabel(this);
         }
 
-        public override Size DefaultSize => new Size(30, 30);
+        public override NativeSize DefaultSize => new NativeSize(30, 30);
 
         public override bool InitContent()
         {

@@ -22,8 +22,11 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
+using Dapplo.Windows.User32;
 
 namespace Greenshot.Editor.Forms
 {
@@ -46,8 +49,8 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Move the MovableShowColorForm to the specified location and display the color under the (current mouse) coordinates
         /// </summary>
-        /// <param name="screenCoordinates">Coordinates</param>
-        public void MoveTo(Point screenCoordinates)
+        /// <param name="screenCoordinates">NativePoint with Coordinates</param>
+        public void MoveTo(NativePoint screenCoordinates)
         {
             Color c = GetPixelColor(screenCoordinates);
             preview.BackColor = c;
@@ -57,38 +60,36 @@ namespace Greenshot.Editor.Forms
             green.Text = string.Empty + c.G;
             alpha.Text = string.Empty + c.A;
 
-            Size cursorSize = Cursor.Current.Size;
-            Point hotspot = Cursor.Current.HotSpot;
+            NativeSize cursorSize = Cursor.Current.Size;
+            NativePoint hotspot = Cursor.Current.HotSpot;
 
-            Point zoomerLocation = new Point(screenCoordinates.X, screenCoordinates.Y);
-            zoomerLocation.X += cursorSize.Width + 5 - hotspot.X;
-            zoomerLocation.Y += cursorSize.Height + 5 - hotspot.Y;
+            var zoomerLocation = new NativePoint(screenCoordinates.X, screenCoordinates.Y)
+                .Offset(cursorSize.Width + 5 - hotspot.X, cursorSize.Height + 5 - hotspot.Y);
 
-            foreach (Screen screen in Screen.AllScreens)
+            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
             {
-                Rectangle screenRectangle = screen.Bounds;
-                if (screen.Bounds.Contains(screenCoordinates))
+                NativeRect screenRectangle = displayInfo.Bounds;
+                if (!displayInfo.Bounds.Contains(screenCoordinates)) continue;
+
+                if (zoomerLocation.X < screenRectangle.X)
                 {
-                    if (zoomerLocation.X < screenRectangle.X)
-                    {
-                        zoomerLocation.X = screenRectangle.X;
-                    }
-                    else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width)
-                    {
-                        zoomerLocation.X = screenCoordinates.X - Width - 5 - hotspot.X;
-                    }
-
-                    if (zoomerLocation.Y < screenRectangle.Y)
-                    {
-                        zoomerLocation.Y = screenRectangle.Y;
-                    }
-                    else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height)
-                    {
-                        zoomerLocation.Y = screenCoordinates.Y - Height - 5 - hotspot.Y;
-                    }
-
-                    break;
+                    zoomerLocation = zoomerLocation.ChangeX(screenRectangle.X);
                 }
+                else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width)
+                {
+                    zoomerLocation = zoomerLocation.ChangeX(screenCoordinates.X - Width - 5 - hotspot.X);
+                }
+
+                if (zoomerLocation.Y < screenRectangle.Y)
+                {
+                    zoomerLocation = zoomerLocation.ChangeY(screenRectangle.Y);
+                }
+                else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height)
+                {
+                    zoomerLocation = zoomerLocation.ChangeY(screenCoordinates.Y - Height - 5 - hotspot.Y);
+                }
+
+                break;
             }
 
             Location = zoomerLocation;
@@ -102,10 +103,10 @@ namespace Greenshot.Editor.Forms
         /// <returns>Color at the specified screenCoordinates</returns>
         private static Color GetPixelColor(Point screenCoordinates)
         {
-            using SafeWindowDcHandle screenDC = SafeWindowDcHandle.FromDesktop();
+            using SafeWindowDcHandle safeWindowDcHandle = SafeWindowDcHandle.FromDesktop();
             try
             {
-                uint pixel = Gdi32Api.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
+                uint pixel = Gdi32Api.GetPixel(safeWindowDcHandle, screenCoordinates.X, screenCoordinates.Y);
                 Color color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
                 return color;
             }

@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Filters
@@ -28,7 +29,7 @@ namespace Greenshot.Editor.Drawing.Filters
     public interface IFilter : INotifyPropertyChanged, IFieldHolder
     {
         DrawableContainer Parent { get; set; }
-        void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
+        void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
         DrawableContainer GetParent();
         bool Invert { get; set; }
     }

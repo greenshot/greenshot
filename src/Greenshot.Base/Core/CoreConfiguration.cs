@@ -322,7 +322,7 @@ namespace Greenshot.Base.Core
         public bool ProcessEXIFOrientation { get; set; }
 
         [IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-        public Rectangle LastCapturedRegion { get; set; }
+        public NativeRect LastCapturedRegion { get; set; }
 
         [IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
         public NativeSize Win10BorderCrop { get; set; }

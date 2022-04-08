@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
@@ -1121,7 +1122,7 @@ EndSelection:<<<<<<<4
         private static byte[] BitmapToByteArray(Bitmap bitmap)
         {
             // Lock the bitmap's bits.  
-            Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
             BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
             int absStride = Math.Abs(bmpData.Stride);

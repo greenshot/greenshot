@@ -176,7 +176,7 @@ namespace Greenshot.Editor.Drawing
             UpdateTextBoxFont();
         }
 
-        public override void ApplyBounds(RectangleF newBounds)
+        public override void ApplyBounds(NativeRectFloat newBounds)
         {
             base.ApplyBounds(newBounds);
             UpdateTextBoxPosition();
@@ -509,8 +509,8 @@ namespace Greenshot.Editor.Drawing
                 correction = -1;
             }
 
-            Rectangle absRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
-            Rectangle displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
+            var absRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+            var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _textBox.Left = displayRectangle.X + lineWidth;
             _textBox.Top = displayRectangle.Y + lineWidth;
             if (lineThickness <= 1)
@@ -602,7 +602,7 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
-            Rectangle rect = new NativeRect(Left, Top, Width, Height).Normalize();
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             if (Selected && rm == RenderMode.EDIT)
             {
                 DrawSelectionBorder(graphics, rect);

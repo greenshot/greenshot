@@ -263,7 +263,7 @@ namespace Greenshot.Editor.Drawing
 
         [NonSerialized]
         // "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
-        protected RectangleF _boundsAfterResize = RectangleF.Empty;
+        protected NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
         public NativeRect Bounds
         {
@@ -277,7 +277,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual void ApplyBounds(RectangleF newBounds)
+        public virtual void ApplyBounds(NativeRectFloat newBounds)
         {
             Left = Round(newBounds.Left);
             Top = Round(newBounds.Top);
@@ -528,10 +528,7 @@ namespace Greenshot.Editor.Drawing
             Invalidate();
 
             // reset "workbench" rectangle to current bounds
-            _boundsAfterResize.X = _boundsBeforeResize.Left;
-            _boundsAfterResize.Y = _boundsBeforeResize.Top;
-            _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-            _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+            _boundsAfterResize = _boundsBeforeResize;
 
             ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
 
@@ -675,7 +672,7 @@ namespace Greenshot.Editor.Drawing
 
         public virtual bool HasDefaultSize => false;
 
-        public virtual Size DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
+        public virtual NativeSize DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
 
         /// <summary>
         /// Allows to override the initializing of the fields, so we can actually have our own defaults

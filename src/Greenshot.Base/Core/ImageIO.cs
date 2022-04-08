@@ -598,54 +598,7 @@ namespace Greenshot.Base.Core
 
             return bmpPngExtracted;
         }
-
-        /// <summary>
-        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
-        /// </summary>
-        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
-        /// <param name="index">Index of the icon</param>
-        /// <param name="takeLarge">true if the large icon is wanted</param>
-        /// <returns>Icon</returns>
-        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
-        {
-            NativeIconMethods.ExtractIconEx(location, index, out var large, out var small, 1);
-            Icon returnIcon = null;
-            bool isLarge = false;
-            bool isSmall = false;
-            try
-            {
-                if (takeLarge && !IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-                else if (!IntPtr.Zero.Equals(small))
-                {
-                    returnIcon = Icon.FromHandle(small);
-                    isSmall = true;
-                }
-                else if (!IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-            }
-            finally
-            {
-                if (isLarge && !IntPtr.Zero.Equals(small))
-                {
-                    NativeIconMethods.DestroyIcon(small);
-                }
-
-                if (isSmall && !IntPtr.Zero.Equals(large))
-                {
-                    NativeIconMethods.DestroyIcon(large);
-                }
-            }
-
-            return returnIcon;
-        }
-
+        
         /// <summary>
         /// Create an image from a stream, if an extension is supplied more formats are supported.
         /// </summary>

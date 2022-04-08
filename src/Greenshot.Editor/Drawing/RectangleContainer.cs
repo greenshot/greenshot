@@ -80,14 +80,14 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// This method can also be used from other containers, if the right values are passed!
         /// </summary>
-        /// <param name="rect"></param>
+        /// <param name="rect">NativeRect</param>
         /// <param name="graphics"></param>
         /// <param name="rm"></param>
         /// <param name="lineThickness"></param>
         /// <param name="lineColor"></param>
         /// <param name="fillColor"></param>
         /// <param name="shadow"></param>
-        public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+        public static void DrawRectangle(NativeRect rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow)
         {
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -143,7 +143,7 @@ namespace Greenshot.Editor.Drawing
             return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
         }
 
-        public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
+        public static bool RectangleClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
             if (!Color.Transparent.Equals(fillColor))

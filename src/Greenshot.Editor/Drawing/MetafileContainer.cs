@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
@@ -39,14 +40,14 @@ namespace Greenshot.Editor.Drawing
         public MetafileContainer(Metafile metafile, ISurface parent) : base(parent)
         {
             _metafile = metafile;
-            Size = new Size(metafile.Width/4, metafile.Height/4);
+            Size = new NativeSize(metafile.Width/4, metafile.Height/4);
         }
         
         protected override Image ComputeBitmap()
         {
             var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
             
-            var dstRect = new Rectangle(0, 0, Width, Height);
+            var dstRect = new NativeRect(0, 0, Width, Height);
             using (Graphics graphics = Graphics.FromImage(image))
             {
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -75,6 +76,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => new Size(_metafile.Width, _metafile.Height);
+        public override NativeSize DefaultSize => new NativeSize(_metafile.Width, _metafile.Height);
     }
 }

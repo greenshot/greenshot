@@ -146,7 +146,7 @@ namespace Greenshot.Base.Controls
 
         public void AlignToControl(Control alignTo)
         {
-            var screenBounds = WindowCapture.GetScreenBounds();
+            var screenBounds = DisplayInfo.ScreenBounds;
             if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height))
             {
                 Location = new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Top - Height);

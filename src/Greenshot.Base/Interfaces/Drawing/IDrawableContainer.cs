@@ -58,7 +58,7 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         NativeRect DrawingBounds { get; }
 
-        void ApplyBounds(RectangleF newBounds);
+        void ApplyBounds(NativeRectFloat newBounds);
 
         bool HasFilters { get; }
 

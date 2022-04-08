@@ -23,13 +23,14 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
     /// <summary>
-    /// Description of GrayscaleFilter.
+    /// GrayscaleFilter makes the image grey
     /// </summary>
     [Serializable()]
     public class GrayscaleFilter : AbstractFilter
@@ -38,9 +39,9 @@ namespace Greenshot.Editor.Drawing.Filters
         {
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
-            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
             if (applyRect.Width == 0 || applyRect.Height == 0)
             {

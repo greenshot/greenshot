@@ -32,9 +32,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -1003,7 +1005,7 @@ namespace Greenshot.Forms
             var factor = DeviceDpi / 96f;
             contextMenu.Scale(new SizeF(factor, factor));
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
-            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
+            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // IE context menu code
             try
@@ -1125,51 +1127,50 @@ namespace Greenshot.Forms
         {
             ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem) sender;
             captureScreenMenuItem.DropDownItems.Clear();
-            if (Screen.AllScreens.Length > 1)
-            {
-                Rectangle allScreensBounds = WindowCapture.GetScreenBounds();
+            if (DisplayInfo.AllDisplayInfos.Length <= 1) return;
 
-                var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-                captureScreenItem.Click += delegate {
-                    BeginInvoke((MethodInvoker) delegate {
-                        CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+            var allScreensBounds = DisplayInfo.ScreenBounds;
+
+            var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+            captureScreenItem.Click += delegate {
+                BeginInvoke((MethodInvoker) delegate {
+                    CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+                });
+            };
+
+            captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+            {
+                var displayToCapture = displayInfo;
+                string deviceAlignment = displayToCapture.DeviceName;
+                    
+                if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+                }
+                else if (displayInfo.Bounds.Top != allScreensBounds.Top && displayInfo.Bounds.Bottom == allScreensBounds.Bottom)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+                }
+
+                if (displayInfo.Bounds.Left == allScreensBounds.Left && displayInfo.Bounds.Right != allScreensBounds.Right)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+                }
+                else if (displayInfo.Bounds.Left != allScreensBounds.Left && displayInfo.Bounds.Right == allScreensBounds.Right)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+                }
+
+                captureScreenItem = new ToolStripMenuItem(deviceAlignment);
+                captureScreenItem.Click += delegate
+                {
+                    BeginInvoke((MethodInvoker) delegate
+                    {
+                        CaptureHelper.CaptureRegion(false, displayToCapture.Bounds);
                     });
                 };
-
                 captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    Screen screenToCapture = screen;
-                    string deviceAlignment = screenToCapture.DeviceName;
-                    
-                    if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
-                    }
-                    else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
-                    }
-
-                    if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
-                    }
-                    else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
-                    }
-
-                    captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-                    captureScreenItem.Click += delegate
-                    {
-                        BeginInvoke((MethodInvoker) delegate
-                        {
-                            CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
-                        });
-                    };
-                    captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-                }
             }
         }
 

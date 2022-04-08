@@ -498,15 +498,11 @@ namespace Greenshot.Base.Core
                 {
                     if (Visible)
                     {
-                        Rectangle windowRectangle = WindowRectangle;
-                        foreach (var screen in Screen.AllScreens)
+                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
-                            if (screen.Bounds.Contains(windowRectangle))
+                            if (WindowRectangle.Equals(displayInfo.Bounds))
                             {
-                                if (windowRectangle.Equals(screen.Bounds))
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
@@ -552,32 +548,31 @@ namespace Greenshot.Base.Core
 
                 if (IsApp)
                 {
-                    Rectangle windowRectangle = WindowRectangle;
-                    foreach (Screen screen in Screen.AllScreens)
+                    var windowRectangle = WindowRectangle;
+
+                    foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                     {
-                        if (screen.Bounds.Contains(windowRectangle))
+                        if (!displayInfo.Bounds.Contains(windowRectangle)) continue;
+                        if (windowRectangle.Equals(displayInfo.Bounds))
                         {
-                            if (windowRectangle.Equals(screen.Bounds))
+                            // Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
+                            // Although it might be the other App, this is not "very" important
+                            NativeRect rect = displayInfo.Bounds;
+                            IntPtr monitor = User32Api.MonitorFromRect(ref rect, MonitorFrom.DefaultToNull);
+                            if (monitor != IntPtr.Zero)
                             {
-                                // Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
-                                // Although it might be the other App, this is not "very" important
-                                NativeRect rect = screen.Bounds;
-                                IntPtr monitor = User32Api.MonitorFromRect(ref rect, MonitorFrom.DefaultToNull);
-                                if (monitor != IntPtr.Zero)
+                                MONITOR_APP_VISIBILITY? monitorAppVisibility = AppVisibility?.GetAppVisibilityOnMonitor(monitor);
+                                //LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
+                                if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE)
                                 {
-                                    MONITOR_APP_VISIBILITY? monitorAppVisibility = AppVisibility?.GetAppVisibilityOnMonitor(monitor);
-                                    //LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
-                                    if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE)
-                                    {
-                                        return true;
-                                    }
+                                    return true;
                                 }
                             }
-                            else
-                            {
-                                // Is only partly on the screen, when this happens the app is always visible!
-                                return true;
-                            }
+                        }
+                        else
+                        {
+                            // Is only partly on the screen, when this happens the app is always visible!
+                            return true;
                         }
                     }
 
@@ -635,7 +630,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private Rectangle _previousWindowRectangle = Rectangle.Empty;
+        private NativeRect _previousWindowRectangle = NativeRect.Empty;
         private long _lastWindowRectangleRetrieveTime;
         private const long CacheTime = TimeSpan.TicksPerSecond * 2;
 
@@ -694,13 +689,13 @@ namespace Greenshot.Base.Core
                         // Only if the border size can be retrieved
                         if (GetBorderSize(out var size))
                         {
-                            windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width),
+                            windowRect = new NativeRect(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width),
                                 windowRect.Height - (2 * size.Height));
                         }
                     }
 
                     _lastWindowRectangleRetrieveTime = now;
-                    // Try to return something valid, by getting returning the previous size if the window doesn't have a Rectangle anymore
+                    // Try to return something valid, by getting returning the previous size if the window doesn't have a NativeRect anymore
                     if (windowRect.IsEmpty)
                     {
                         return _previousWindowRectangle;
@@ -717,31 +712,23 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Gets the location of the window relative to the screen.
         /// </summary>
-        public Point Location
+        public NativePoint Location
         {
-            get
-            {
-                Rectangle tmpRectangle = WindowRectangle;
-                return new Point(tmpRectangle.Left, tmpRectangle.Top);
-            }
+            get => WindowRectangle.Location;
         }
 
         /// <summary>
         /// Gets the size of the window.
         /// </summary>
-        public Size Size
+        public NativeSize Size
         {
-            get
-            {
-                Rectangle tmpRectangle = WindowRectangle;
-                return new Size(tmpRectangle.Right - tmpRectangle.Left, tmpRectangle.Bottom - tmpRectangle.Top);
-            }
+            get => WindowRectangle.Size;
         }
 
         /// <summary>
         /// Get the client rectangle, this is the part of the window inside the borders (drawable area)
         /// </summary>
-        public Rectangle ClientRectangle
+        public NativeRect ClientRectangle
         {
             get
             {
@@ -760,7 +747,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="p">Point with the coordinates to check</param>
         /// <returns>true if the point lies within</returns>
-        public bool Contains(Point p)
+        public bool Contains(NativePoint p)
         {
             return WindowRectangle.Contains(p);
         }
@@ -891,12 +878,13 @@ namespace Greenshot.Base.Core
                     if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
                     {
                         // If none found we find the biggest screen
-                        foreach (Screen screen in Screen.AllScreens)
+
+                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
-                            Rectangle newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
+                            var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
                             if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
                             {
-                                formLocation = screen.Bounds.Location;
+                                formLocation = displayInfo.Bounds.Location;
                                 doesCaptureFit = true;
                                 break;
                             }
@@ -1169,7 +1157,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Helper method to get the window size for DWM Windows
         /// </summary>
-        /// <param name="rectangle">out Rectangle</param>
+        /// <param name="rectangle">out NativeRect</param>
         /// <returns>bool true if it worked</returns>
         private bool GetExtendedFrameBounds(out NativeRect rectangle)
         {
@@ -1180,7 +1168,7 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            rectangle = Rectangle.Empty;
+            rectangle = NativeRect.Empty;
             return false;
         }
 
@@ -1194,7 +1182,7 @@ namespace Greenshot.Base.Core
             var windowInfo = new WindowInfo();
             // Get the Window Info for this window
             bool result = User32Api.GetWindowInfo(Handle, ref windowInfo);
-            rectangle = result ? windowInfo.ClientBounds : Rectangle.Empty;
+            rectangle = result ? windowInfo.ClientBounds : NativeRect.Empty;
             return result;
         }
 
@@ -1208,7 +1196,7 @@ namespace Greenshot.Base.Core
             var windowInfo = new WindowInfo();
             // Get the Window Info for this window
             bool result = User32Api.GetWindowInfo(Handle, ref windowInfo);
-            rectangle = result ? windowInfo.Bounds : Rectangle.Empty;
+            rectangle = result ? windowInfo.Bounds : NativeRect.Empty;
             return result;
         }
 
@@ -1222,7 +1210,7 @@ namespace Greenshot.Base.Core
             var windowInfo = new WindowInfo();
             // Get the Window Info for this window
             bool result = User32Api.GetWindowInfo(Handle, ref windowInfo);
-            size = result ? windowInfo.BorderSize : Size.Empty;
+            size = result ? windowInfo.BorderSize : NativeSize.Empty;
             return result;
         }
 
@@ -1403,7 +1391,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public Image PrintWindow()
         {
-            Rectangle windowRect = WindowRectangle;
+            NativeRect windowRect = WindowRectangle;
             // Start the capture
             Exception exceptionOccurred = null;
             Image returnImage;
@@ -1561,7 +1549,7 @@ namespace Greenshot.Base.Core
         /// <param name="window"></param>
         /// <param name="screenBounds"></param>
         /// <returns></returns>
-        private static bool IsVisible(WindowDetails window, Rectangle screenBounds)
+        private static bool IsVisible(WindowDetails window, NativeRect screenBounds)
         {
             // Ignore invisible
             if (!window.Visible)
@@ -1603,7 +1591,7 @@ namespace Greenshot.Base.Core
         /// <returns>List WindowDetails with all the visible top level windows</returns>
         public static IEnumerable<WindowDetails> GetVisibleWindows()
         {
-            Rectangle screenBounds = WindowCapture.GetScreenBounds();
+            var screenBounds = DisplayInfo.ScreenBounds;
             foreach (var window in GetAppWindows())
             {
                 if (IsVisible(window, screenBounds))

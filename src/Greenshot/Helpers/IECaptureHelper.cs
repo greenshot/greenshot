@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
@@ -760,9 +761,9 @@ namespace Greenshot.Helpers
                             // Crop to clientRectangle
                             if (ImageHelper.Crop(ref fragment, ref clientRectangle))
                             {
-                                Point targetLocation = new Point(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
+                                NativePoint targetLocation = new NativePoint(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
                                 Log.DebugFormat("Fragment targetLocation is {0}", targetLocation);
-                                targetLocation.Offset(targetOffset);
+                                targetLocation = targetLocation.Offset(targetOffset);
                                 Log.DebugFormat("After offsetting the fragment targetLocation is {0}", targetLocation);
                                 Log.DebugFormat("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
                                 graphicsTarget.DrawImage(fragment, targetLocation);

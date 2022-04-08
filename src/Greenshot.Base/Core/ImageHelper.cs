@@ -173,7 +173,7 @@ namespace Greenshot.Base.Core
         {
             if (image is Bitmap && (image.Width * image.Height > 0))
             {
-                cropNativeRect.Intersect(new NativeRect(0, 0, image.Width, image.Height));
+                cropNativeRect = cropNativeRect.Intersect(new NativeRect(0, 0, image.Width, image.Height));
                 if (cropNativeRect.Width != 0 || cropNativeRect.Height != 0)
                 {
                     Image returnImage = CloneArea(image, cropNativeRect, PixelFormat.DontCare);
@@ -769,7 +769,7 @@ namespace Greenshot.Base.Core
         /// <param name="applySize"></param>
         /// <param name="rect"></param>
         /// <param name="invert"></param>
-        /// <returns></returns>
+        /// <returns>NativeRect</returns>
         public static NativeRect CreateIntersectRectangle(NativeSize applySize, NativeRect rect, bool invert)
         {
             NativeRect myRect;

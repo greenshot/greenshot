@@ -44,8 +44,8 @@ namespace Greenshot.Editor.Drawing
         };
 
         [NonSerialized] private GraphicsPath freehandPath = new GraphicsPath();
-        private Rectangle myBounds = Rectangle.Empty;
-        private Point lastMouse = Point.Empty;
+        private NativeRect myBounds = NativeRect.Empty;
+        private NativePoint lastMouse = NativePoint.Empty;
         private readonly List<Point> capturePoints = new List<Point>();
         private bool isRecalculated;
 

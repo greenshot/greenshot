@@ -73,40 +73,40 @@ namespace Greenshot.Forms
         private readonly List<NativePoint> _gSpots = new List<NativePoint>
         {
             // Top row
-            new NativePoint(P2, P1), // 0
-            new NativePoint(P3, P1), // 1
-            new NativePoint(P4, P1), // 2
-            new NativePoint(P5, P1), // 3
-            new NativePoint(P6, P1), // 4
+            new(P2, P1), // 0
+            new(P3, P1), // 1
+            new(P4, P1), // 2
+            new(P5, P1), // 3
+            new(P6, P1), // 4
 
             // Second row
-            new NativePoint(P1, P2), // 5
-            new NativePoint(P2, P2), // 6
+            new(P1, P2), // 5
+            new(P2, P2), // 6
 
             // Third row
-            new NativePoint(P1, P3), // 7
-            new NativePoint(P2, P3), // 8
+            new(P1, P3), // 7
+            new(P2, P3), // 8
 
             // Fourth row
-            new NativePoint(P1, P4), // 9
-            new NativePoint(P2, P4), // 10
-            new NativePoint(P5, P4), // 11
-            new NativePoint(P6, P4), // 12
-            new NativePoint(P7, P4), // 13
+            new(P1, P4), // 9
+            new(P2, P4), // 10
+            new(P5, P4), // 11
+            new(P6, P4), // 12
+            new(P7, P4), // 13
 
             // Fifth row
-            new NativePoint(P1, P5), // 14
-            new NativePoint(P2, P5), // 15
-            new NativePoint(P6, P5), // 16
-            new NativePoint(P7, P5), // 17
+            new(P1, P5), // 14
+            new(P2, P5), // 15
+            new(P6, P5), // 16
+            new(P7, P5), // 17
 
             // Sixth row
-            new NativePoint(P1, P6), // 18
-            new NativePoint(P2, P6), // 19
-            new NativePoint(P3, P6), // 20
-            new NativePoint(P4, P6), // 21
-            new NativePoint(P5, P6), // 22
-            new NativePoint(P6, P6) // 23
+            new(P1, P6), // 18
+            new(P2, P6), // 19
+            new(P3, P6), // 20
+            new(P4, P6), // 21
+            new(P5, P6), // 22
+            new(P6, P6) // 23
         };
 
         //     0  1  2  3  4
@@ -166,7 +166,7 @@ namespace Greenshot.Forms
             for (int index = 0; index < _gSpots.Count; index++)
             {
                 // Read the pixels in the order of the flow
-                Point gSpot = _gSpots[_flowOrder[index]];
+                NativePoint gSpot = _gSpots[_flowOrder[index]];
                 // Create the animation, first we do nothing (on the final destination)
                 RectangleAnimator pixelAnimation;
 

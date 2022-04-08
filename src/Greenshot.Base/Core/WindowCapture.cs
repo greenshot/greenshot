@@ -53,26 +53,6 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
         /// <summary>
-        /// Get the bounds of all screens combined.
-        /// </summary>
-        /// <returns>A Rectangle of the bounds of the entire display area.</returns>
-        public static NativeRect GetScreenBounds()
-        {
-            int left = 0, top = 0, bottom = 0, right = 0;
-            foreach (Screen screen in Screen.AllScreens)
-            {
-                left = Math.Min(left, screen.Bounds.X);
-                top = Math.Min(top, screen.Bounds.Y);
-                int screenAbsRight = screen.Bounds.X + screen.Bounds.Width;
-                int screenAbsBottom = screen.Bounds.Y + screen.Bounds.Height;
-                right = Math.Max(right, screenAbsRight);
-                bottom = Math.Max(bottom, screenAbsBottom);
-            }
-
-            return new Rectangle(left, top, (right + Math.Abs(left)), (bottom + Math.Abs(top)));
-        }
-
-        /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
         /// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
         /// </summary>
@@ -93,10 +73,8 @@ namespace Greenshot.Base.Core
         /// <returns>Point</returns>
         public static NativePoint GetLocationRelativeToScreenBounds(NativePoint locationRelativeToScreenOrigin)
         {
-            NativePoint ret = locationRelativeToScreenOrigin;
-            NativeRect bounds = GetScreenBounds();
-            ret.Offset(-bounds.X, -bounds.Y);
-            return ret;
+            NativeRect bounds = DisplayInfo.ScreenBounds;
+            return locationRelativeToScreenOrigin.Offset(-bounds.X, -bounds.Y);
         }
 
         /// <summary>
@@ -152,9 +130,9 @@ namespace Greenshot.Base.Core
         /// Helper method to create an exception that might explain what is wrong while capturing
         /// </summary>
         /// <param name="method">string with current method</param>
-        /// <param name="captureBounds">Rectangle of what we want to capture</param>
+        /// <param name="captureBounds">NativeRect of what we want to capture</param>
         /// <returns></returns>
-        private static Exception CreateCaptureException(string method, Rectangle captureBounds)
+        private static Exception CreateCaptureException(string method, NativeRect captureBounds)
         {
             Exception exceptionToThrow = User32Api.CreateWin32Exception(method);
             if (!captureBounds.IsEmpty)
@@ -224,9 +202,9 @@ namespace Greenshot.Base.Core
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangle(ICapture capture, Rectangle captureBounds)
+        public static ICapture CaptureRectangle(ICapture capture, NativeRect captureBounds)
         {
             if (capture == null)
             {
@@ -262,9 +240,9 @@ namespace Greenshot.Base.Core
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, Rectangle captureBounds)
+        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, NativeRect captureBounds)
         {
             if (capture == null)
             {
@@ -279,9 +257,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>Bitmap which is captured from the screen at the location specified by the captureBounds</returns>
-        public static Bitmap CaptureRectangle(Rectangle captureBounds)
+        public static Bitmap CaptureRectangle(NativeRect captureBounds)
         {
             Bitmap returnBitmap = null;
             if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
@@ -388,17 +366,16 @@ namespace Greenshot.Base.Core
                         {
                             using Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
                             // Create a new bitmap which has a transparent background
-                            returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent,
-                                tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+                            returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
                             // Content will be copied here
                             using Graphics graphics = Graphics.FromImage(returnBitmap);
                             // For all screens copy the content to the new bitmap
-                            foreach (Screen screen in Screen.AllScreens)
+
+                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                             {
-                                Rectangle screenBounds = screen.Bounds;
-                                // Make sure the bounds are offsetted to the capture bounds
-                                screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
-                                graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
+                                // Make sure the bounds are offset to the capture bounds
+                                var displayBounds = displayInfo.Bounds.Offset(-captureBounds.X, -captureBounds.Y);
+                                graphics.DrawImage(tmpBitmap, displayBounds, displayBounds.X, displayBounds.Y, displayBounds.Width, displayBounds.Height, GraphicsUnit.Pixel);
                             }
                         }
                         else

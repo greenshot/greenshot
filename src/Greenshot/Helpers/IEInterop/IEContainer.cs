@@ -150,7 +150,7 @@ namespace Greenshot.Helpers.IEInterop
             // Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
             //Marshal.ReleaseComObject(document5);
 
-            Rectangle clientRectangle = contentWindow.WindowRectangle;
+            NativeRect clientRectangle = contentWindow.WindowRectangle;
             try
             {
                 IHTMLWindow2 window2 = document2.parentWindow;
@@ -184,9 +184,9 @@ namespace Greenshot.Helpers.IEInterop
                     // If there is a border AND a scrollbar the diff == 20
                     if ((diffX == 4 || diffX >= 20) && (diffY == 4 || diffY >= 20))
                     {
-                        Point viewportOffset = new Point(2, 2);
-                        Size viewportSize = new Size(ClientWidth, ClientHeight);
-                        _viewportRectangle = new Rectangle(viewportOffset, viewportSize);
+                        var viewportOffset = new NativePoint(2, 2);
+                        var viewportSize = new NativeSize(ClientWidth, ClientHeight);
+                        _viewportRectangle = new NativeRect(viewportOffset, viewportSize);
                         LOG.DebugFormat("viewportRect {0}", _viewportRectangle);
                     }
                 }
@@ -517,15 +517,15 @@ namespace Greenshot.Helpers.IEInterop
 
         public int ScrollHeight => ScaleY(GetAttributeAsInt("scrollHeight"));
 
-        public Point SourceLocation
+        public NativePoint SourceLocation
         {
             get { return _sourceLocation; }
             set { _sourceLocation = value; }
         }
 
-        public Size SourceSize => new Size(ClientWidth, ClientHeight);
+        public NativeSize SourceSize => new NativeSize(ClientWidth, ClientHeight);
 
-        public Rectangle SourceRectangle => new Rectangle(SourceLocation, SourceSize);
+        public NativeRect SourceRectangle => new NativeRect(SourceLocation, SourceSize);
 
         public int SourceLeft => _sourceLocation.X;
 
@@ -535,15 +535,15 @@ namespace Greenshot.Helpers.IEInterop
 
         public int SourceBottom => _sourceLocation.Y + ClientHeight;
 
-        public Point DestinationLocation
+        public NativePoint DestinationLocation
         {
             get { return _destinationLocation; }
             set { _destinationLocation = value; }
         }
 
-        public Size DestinationSize => new Size(ScrollWidth, ScrollHeight);
+        public NativeSize DestinationSize => new NativeSize(ScrollWidth, ScrollHeight);
 
-        public Rectangle DestinationRectangle => new Rectangle(DestinationLocation, DestinationSize);
+        public NativeRect DestinationRectangle => new NativeRect(DestinationLocation, DestinationSize);
 
         public int DestinationLeft
         {

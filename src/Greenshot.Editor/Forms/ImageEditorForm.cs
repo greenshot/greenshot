@@ -32,6 +32,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -53,7 +54,7 @@ using log4net;
 namespace Greenshot.Editor.Forms
 {
     /// <summary>
-    /// Description of ImageEditorForm.
+    /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
     public partial class ImageEditorForm : EditorForm, IImageEditor
     {
@@ -156,14 +157,12 @@ namespace Greenshot.Editor.Forms
                     Name = "add destinations"
                 };
                 thread.Start();
-
-                DpiChangedHandler(96, DeviceDpi);
             };
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
             WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
-            Rectangle screenBounds = WindowCapture.GetScreenBounds();
+            NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
             {
                 EditorConfiguration.ResetEditorPlacement();
@@ -322,7 +321,7 @@ namespace Greenshot.Editor.Forms
                 if (cb.ComboBox == null) continue;
 
                 // Calculate the rectangle
-                Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+                var r = new NativeRect(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
                 // Draw the rectangle
                 e.Graphics.DrawRectangle(cbBorderPen, r);
@@ -1700,7 +1699,7 @@ namespace Greenshot.Editor.Forms
         /// <param name="e"></param>
         private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);

@@ -58,12 +58,12 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <summary>
         /// Calculate the bounds of the words
         /// </summary>
-        /// <returns>Rectangle</returns>
+        /// <returns>NativeRect</returns>
         private NativeRect CalculateBounds()
         {
             if (Words.Length == 0)
             {
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
 
             var result = Words[0].Bounds;
@@ -92,9 +92,7 @@ namespace Greenshot.Base.Interfaces.Ocr
         {
             foreach (var word in Words)
             {
-                var location = word.Bounds;
-                location.Offset(x, y);
-                word.Bounds = location;
+                word.Bounds = word.Bounds.Offset(x, y);
             }
 
             _calculatedBounds = null;

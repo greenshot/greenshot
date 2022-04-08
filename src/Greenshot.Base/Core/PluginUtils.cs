@@ -22,11 +22,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Icons;
-using Dapplo.Windows.Icons.Enums;
 using Greenshot.Base.IniFile;
 using log4net;
 using Microsoft.Win32;
@@ -159,21 +159,10 @@ namespace Greenshot.Base.Core
 
             try
             {
-                using (Icon appIcon = IconHelper.ExtractAssociatedIcon<Icon>(path, index, CoreConfig.UseLargeIcons))
-                {
-                    if (appIcon != null)
-                    {
-                        return appIcon.ToBitmap();
-                    }
-                }
-
-                using (Icon appIcon = IconHelper.GetFileExtensionIcon<Icon>(path, CoreConfig.UseLargeIcons ? IconSize.Large : IconSize.Small, false))
-                {
-                    if (appIcon != null)
-                    {
-                        return appIcon.ToBitmap();
-                    }
-                }
+                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.UseLargeIcons);
+                Debug.Assert(appIcon != null && (appIcon.Width*appIcon.Height > 0), "Invalid icon");
+                Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
+                return appIcon;
             }
             catch (Exception exIcon)
             {
@@ -196,27 +185,25 @@ namespace Greenshot.Base.Core
             // Try to find a separator, so we insert ourselves after it 
             for (int i = 0; i < contextMenu.Items.Count; i++)
             {
-                if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator))
+                if (contextMenu.Items[i].GetType() != typeof(ToolStripSeparator)) continue;
+                // Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
+                if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
                 {
-                    // Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
-                    if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
+                    var separator = new ToolStripSeparator
                     {
-                        var separator = new ToolStripSeparator
-                        {
-                            Tag = "PluginsAreAddedAfter",
-                            Size = new Size(305, 6)
-                        };
-                        contextMenu.Items.Insert(i, separator);
-                    }
-                    else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
-                    {
-                        continue;
-                    }
-
-                    contextMenu.Items.Insert(i + 1, item);
-                    addedItem = true;
-                    break;
+                        Tag = "PluginsAreAddedAfter",
+                        Size = new Size(305, 6)
+                    };
+                    contextMenu.Items.Insert(i, separator);
                 }
+                else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
+                {
+                    continue;
+                }
+
+                contextMenu.Items.Insert(i + 1, item);
+                addedItem = true;
+                break;
             }
 
             // If we didn't insert the item, we just add it...

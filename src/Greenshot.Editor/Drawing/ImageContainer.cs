@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
@@ -264,6 +265,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => _image?.Size ?? new Size(32, 32);
+        public override NativeSize DefaultSize => _image?.Size ?? new NativeSize(32, 32);
     }
 }

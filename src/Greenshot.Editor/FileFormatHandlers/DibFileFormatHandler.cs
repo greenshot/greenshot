@@ -25,6 +25,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Common.TypeConverters;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Greenshot.Base.Core;
@@ -128,7 +130,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             if (sourceBitmap == null) throw new ArgumentNullException(nameof(sourceBitmap));
 
-            var area = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+            var area = new NativeRect(0, 0, sourceBitmap.Width, sourceBitmap.Height);
 
             // If the supplied format doesn't match 32bpp, we need to convert it first, and dispose the new bitmap afterwards
             bool needsDisposal = false;

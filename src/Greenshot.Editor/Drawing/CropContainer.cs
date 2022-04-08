@@ -227,10 +227,7 @@ namespace Greenshot.Editor.Drawing
                         //allow only horizontal changes
                         if (_parent?.Image is { } image)
                         {
-                            _boundsAfterResize.X = 0;
-                            _boundsAfterResize.Y = _boundsBeforeResize.Top;
-                            _boundsAfterResize.Width = image.Width;
-                            _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                            _boundsAfterResize = new NativeRectFloat(0, _boundsBeforeResize.Top, image.Width, y - _boundsAfterResize.Top);
                         }
                         break;
                     }
@@ -240,23 +237,18 @@ namespace Greenshot.Editor.Drawing
                         //allow only vertical changes
                         if (_parent?.Image is { } image)
                         {
-                            _boundsAfterResize.X = _boundsBeforeResize.Left;
-                            _boundsAfterResize.Y = 0;
-                            _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-                            _boundsAfterResize.Height = image.Height;
+                            _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, 0, x - _boundsAfterResize.Left, image.Height);
                         }
                         break;
                     }
                 default:
                     {
                         // reset "workbench" rectangle to current bounds
-                        _boundsAfterResize.X = _boundsBeforeResize.Left;
-                        _boundsAfterResize.Y = _boundsBeforeResize.Top;
-                        _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-                        _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                        _boundsAfterResize = new NativeRectFloat(
+                            _boundsBeforeResize.Left, _boundsBeforeResize.Top,
+                            x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
                         break;
                     }
-
             }
             ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
 

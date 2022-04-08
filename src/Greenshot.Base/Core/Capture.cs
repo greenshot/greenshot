@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using log4net;
@@ -49,7 +50,7 @@ namespace Greenshot.Base.Core
             {
                 if (_screenBounds.IsEmpty)
                 {
-                    _screenBounds = WindowCapture.GetScreenBounds();
+                    _screenBounds = DisplayInfo.ScreenBounds;
                 }
 
                 return _screenBounds;
@@ -164,7 +165,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public Capture()
         {
-            _screenBounds = WindowCapture.GetScreenBounds();
+            _screenBounds = DisplayInfo.ScreenBounds;
             _captureDetails = new CaptureDetails();
         }
 
@@ -263,7 +264,7 @@ namespace Greenshot.Base.Core
 
         //private void MoveElements(List<ICaptureElement> listOfElements, int x, int y) {
         //    foreach(ICaptureElement childElement in listOfElements) {
-        //        Rectangle bounds = childElement.Bounds;
+        //        NativeRect bounds = childElement.Bounds;
         //        bounds.Offset(x, y);
         //        childElement.Bounds = bounds;
         //        MoveElements(childElement.Children, x, y);

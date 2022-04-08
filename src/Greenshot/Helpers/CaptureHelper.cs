@@ -363,8 +363,7 @@ namespace Greenshot.Helpers
                                     _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
                                     captureTaken = true;
                                     // As the screen shot might be on a different monitor we need to correct the mouse location
-                                    var correctedCursorLocation = _capture.CursorLocation;
-                                    correctedCursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                                    var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
                                     _capture.CursorLocation = correctedCursorLocation;
                                     break;
                                 }
@@ -877,7 +876,7 @@ namespace Greenshot.Helpers
         /// <returns>WindowDetails with the target Window OR a replacement</returns>
         public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
         {
-            Rectangle windowRectangle = windowToCapture.WindowRectangle;
+            NativeRect windowRectangle = windowToCapture.WindowRectangle;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
                 Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -1220,8 +1219,7 @@ namespace Greenshot.Helpers
 
                 // save for re-capturing later and show recapture context menu option
                 // Important here is that the location needs to be offsetted back to screen coordinates!
-                Rectangle tmpRectangle = _captureRect;
-                tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+                NativeRect tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
                 CoreConfig.LastCapturedRegion = tmpRectangle;
             }
 
