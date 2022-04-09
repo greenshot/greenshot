@@ -284,6 +284,9 @@ EndSelection:<<<<<<<4
         {
             if (dataObject == null) return false;
 
+            IList<string> formats = GetFormats(dataObject);
+            Log.DebugFormat("Found formats: {0}", string.Join(",", formats));
+
             if (dataObject.GetDataPresent(DataFormats.Bitmap)
                 || dataObject.GetDataPresent(DataFormats.Dib)
                 || dataObject.GetDataPresent(DataFormats.Tiff)

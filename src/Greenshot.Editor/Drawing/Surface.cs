@@ -1012,7 +1012,7 @@ namespace Greenshot.Editor.Drawing
         public void Clear(Color newColor)
         {
             //create a blank bitmap the same size as original
-            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
+            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, newColor);
             if (newBitmap == null) return;
             // Make undoable
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
@@ -2112,10 +2112,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // maybe the undo button has to be enabled
-            if (_movingElementChanged != null)
-            {
-                _movingElementChanged(this, new SurfaceElementEventArgs());
-            }
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
 
         /// <summary>
@@ -2150,10 +2147,7 @@ namespace Greenshot.Editor.Drawing
             DrawingMode = DrawingModes.None;
 
             // maybe the undo button has to be enabled
-            if (_movingElementChanged != null)
-            {
-                _movingElementChanged(this, new SurfaceElementEventArgs());
-            }
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
 
         public void RemoveCropContainer()
@@ -2195,7 +2189,7 @@ namespace Greenshot.Editor.Drawing
                     // Make element(s) only move 10,10 if the surface is the same
                     bool isSameSurface = (dcs.ParentID == _uniqueId);
                     dcs.Parent = this;
-                    var moveOffset = isSameSurface ? new Point(10, 10) : Point.Empty;
+                    var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
                     // Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
                     NativeRect drawableContainerListBounds = NativeRect.Empty;
                     foreach (var element in dcs)
@@ -2485,24 +2479,24 @@ namespace Greenshot.Editor.Drawing
 
             bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
             int px = shiftModifier ? 10 : 1;
-            Point moveBy = Point.Empty;
+            NativePoint moveBy = NativePoint.Empty;
             switch (k)
             {
                 case Keys.Left:
                 case Keys.Left | Keys.Shift:
-                    moveBy = new Point(-px, 0);
+                    moveBy = new NativePoint(-px, 0);
                     break;
                 case Keys.Up:
                 case Keys.Up | Keys.Shift:
-                    moveBy = new Point(0, -px);
+                    moveBy = new NativePoint(0, -px);
                     break;
                 case Keys.Right:
                 case Keys.Right | Keys.Shift:
-                    moveBy = new Point(px, 0);
+                    moveBy = new NativePoint(px, 0);
                     break;
                 case Keys.Down:
                 case Keys.Down | Keys.Shift:
-                    moveBy = new Point(0, px);
+                    moveBy = new NativePoint(0, px);
                     break;
                 case Keys.PageUp:
                     PullElementsUp();
@@ -2580,7 +2574,7 @@ namespace Greenshot.Editor.Drawing
                     return false;
             }
 
-            if (!Point.Empty.Equals(moveBy))
+            if (moveBy != NativePoint.Empty)
             {
                 selectedElements.MakeBoundsChangeUndoable(true);
                 selectedElements.MoveBy(moveBy.X, moveBy.Y);

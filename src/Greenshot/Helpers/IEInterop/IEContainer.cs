@@ -40,11 +40,11 @@ namespace Greenshot.Helpers.IEInterop
         private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
         private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
         private static int _counter;
+        private readonly NativePoint _startLocation = NativePoint.Empty;
         private IHTMLDocument2 _document2;
         private IHTMLDocument3 _document3;
         private NativePoint _sourceLocation;
         private NativePoint _destinationLocation;
-        private NativePoint _startLocation = NativePoint.Empty;
         private NativeRect _viewportRectangle = NativeRect.Empty;
         private bool _isDtd;
         private DocumentContainer _parent;
@@ -90,15 +90,15 @@ namespace Greenshot.Helpers.IEInterop
             // Calculate startLocation for the frames
             IHTMLWindow2 window2 = document2.parentWindow;
             IHTMLWindow3 window3 = (IHTMLWindow3) window2;
-            Point contentWindowLocation = contentWindow.WindowRectangle.Location;
+            NativePoint contentWindowLocation = contentWindow.WindowRectangle.Location;
             int x = window3.screenLeft - contentWindowLocation.X;
             int y = window3.screenTop - contentWindowLocation.Y;
 
             // Release IHTMLWindow 2+3 com objects
-            releaseCom(window2);
-            releaseCom(window3);
+            ReleaseCom(window2);
+            ReleaseCom(window3);
 
-            _startLocation = new Point(x, y);
+            _startLocation = new NativePoint(x, y);
             Init(document2, contentWindow);
         }
 
@@ -112,7 +112,7 @@ namespace Greenshot.Helpers.IEInterop
         /// Helper method to release com objects
         /// </summary>
         /// <param name="comObject"></param>
-        private void releaseCom(object comObject)
+        private void ReleaseCom(object comObject)
         {
             if (comObject != null)
             {
@@ -182,7 +182,7 @@ namespace Greenshot.Helpers.IEInterop
                     int diffY = clientRectangle.Height - ClientHeight;
                     // If there is a border around the inner window, the diff == 4
                     // If there is a border AND a scrollbar the diff == 20
-                    if ((diffX == 4 || diffX >= 20) && (diffY == 4 || diffY >= 20))
+                    if (diffX is 4 or >= 20 && diffY is 4 or >= 20)
                     {
                         var viewportOffset = new NativePoint(2, 2);
                         var viewportSize = new NativeSize(ClientWidth, ClientHeight);
@@ -193,9 +193,9 @@ namespace Greenshot.Helpers.IEInterop
 
                 LOG.DebugFormat("Zoomlevel {0}, {1}", _zoomLevelX, _zoomLevelY);
                 // Release com objects
-                releaseCom(window2);
-                releaseCom(screen);
-                releaseCom(screen2);
+                ReleaseCom(window2);
+                ReleaseCom(screen);
+                ReleaseCom(screen2);
             }
             catch (Exception e)
             {
@@ -225,8 +225,8 @@ namespace Greenshot.Helpers.IEInterop
                 LOG.Warn("Problem while trying to get document url!", e);
             }
 
-            _sourceLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
-            _destinationLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+            _sourceLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+            _destinationLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 
             if (_parent != null)
             {
@@ -254,7 +254,7 @@ namespace Greenshot.Helpers.IEInterop
                         }
 
                         // Clean up frameWindow
-                        releaseCom(frameWindow);
+                        ReleaseCom(frameWindow);
                     }
                     catch (Exception e)
                     {
@@ -263,7 +263,7 @@ namespace Greenshot.Helpers.IEInterop
                 }
 
                 // Clean up collection
-                releaseCom(frameCollection);
+                ReleaseCom(frameCollection);
             }
             catch (Exception ex)
             {
@@ -279,7 +279,7 @@ namespace Greenshot.Helpers.IEInterop
                     {
                         CorrectFrameLocations(frameElement);
                         // Clean up frameElement
-                        releaseCom(frameElement);
+                        ReleaseCom(frameElement);
                     }
                     catch (Exception e)
                     {
@@ -294,7 +294,7 @@ namespace Greenshot.Helpers.IEInterop
         }
 
         /// <summary>
-        /// Corrent the frame locations with the information
+        /// Correct the frame locations with the information
         /// </summary>
         /// <param name="frameElement"></param>
         private void CorrectFrameLocations(IHTMLElement frameElement)
@@ -311,22 +311,22 @@ namespace Greenshot.Helpers.IEInterop
                 // Release element, but prevent the frameElement to be released
                 if (oldElement != null)
                 {
-                    releaseCom(oldElement);
+                    ReleaseCom(oldElement);
                 }
 
                 oldElement = element;
             } while (element != null);
 
-            Point elementLocation = new Point((int) x, (int) y);
+            var elementLocation = new NativePoint((int) x, (int) y);
             IHTMLElement2 element2 = (IHTMLElement2) frameElement;
             IHTMLRect rec = element2.getBoundingClientRect();
-            Point elementBoundingLocation = new Point(rec.left, rec.top);
+            var elementBoundingLocation = new NativePoint(rec.left, rec.top);
             // Release IHTMLRect
-            releaseCom(rec);
+            ReleaseCom(rec);
             LOG.DebugFormat("Looking for iframe to correct at {0}", elementBoundingLocation);
             foreach (DocumentContainer foundFrame in _frames)
             {
-                Point frameLocation = foundFrame.SourceLocation;
+                NativePoint frameLocation = foundFrame.SourceLocation;
                 if (frameLocation.Equals(elementBoundingLocation))
                 {
                     // Match found, correcting location
@@ -475,7 +475,7 @@ namespace Greenshot.Helpers.IEInterop
             var element = !_isDtd ? _document2.body : _document3.documentElement;
             element.setAttribute(attribute, value, 1);
             // Release IHTMLElement com object
-            releaseCom(element);
+            ReleaseCom(element);
         }
 
         /// <summary>
@@ -488,7 +488,7 @@ namespace Greenshot.Helpers.IEInterop
             var element = !_isDtd ? _document2.body : _document3.documentElement;
             var retVal = element.getAttribute(attribute, 1);
             // Release IHTMLElement com object
-            releaseCom(element);
+            ReleaseCom(element);
             return retVal;
         }
 

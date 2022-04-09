@@ -559,46 +559,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
-        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
-        /// </summary>
-        /// <param name="iconStream">Stream with the icon information</param>
-        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
-        private static Bitmap ExtractVistaIcon(Stream iconStream)
-        {
-            const int sizeIconDir = 6;
-            const int sizeIconDirEntry = 16;
-            Bitmap bmpPngExtracted = null;
-            try
-            {
-                byte[] srcBuf = new byte[iconStream.Length];
-                iconStream.Read(srcBuf, 0, (int)iconStream.Length);
-                int iCount = BitConverter.ToInt16(srcBuf, 4);
-                for (int iIndex = 0; iIndex < iCount; iIndex++)
-                {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-                    if (iWidth == 0 && iHeight == 0)
-                    {
-                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                        using MemoryStream destStream = new MemoryStream();
-                        destStream.Write(srcBuf, iImageOffset, iImageSize);
-                        destStream.Seek(0, SeekOrigin.Begin);
-                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return bmpPngExtracted;
-        }
-        
-        /// <summary>
         /// Create an image from a stream, if an extension is supplied more formats are supported.
         /// </summary>
         /// <param name="stream">Stream</param>

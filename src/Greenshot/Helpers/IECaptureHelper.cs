@@ -722,14 +722,14 @@ namespace Greenshot.Helpers
             int horizontalPage = 0;
 
             // The location of the browser, used as the destination into the bitmap target
-            Point targetOffset = new Point();
+            NativePoint targetOffset = NativePoint.Empty;
 
             // Loop of the pages and make a copy of the visible viewport
             while (horizontalPage * viewportWidth < pageWidth)
             {
                 // Scroll to location
                 documentContainer.ScrollLeft = viewportWidth * horizontalPage;
-                targetOffset.X = documentContainer.ScrollLeft;
+                targetOffset = targetOffset.ChangeX(documentContainer.ScrollLeft);
 
                 // Variable used for looping vertically
                 int verticalPage = 0;
@@ -738,7 +738,7 @@ namespace Greenshot.Helpers
                     // Scroll to location
                     documentContainer.ScrollTop = viewportHeight * verticalPage;
                     //Shoot visible window
-                    targetOffset.Y = documentContainer.ScrollTop;
+                    targetOffset = targetOffset.ChangeY(documentContainer.ScrollTop);
 
                     // Draw the captured fragment to the target, but "crop" the scrollbars etc while capturing 
                     NativeSize viewPortSize = new NativeSize(viewportWidth, viewportHeight);

@@ -96,12 +96,12 @@ namespace Greenshot.Base.Core
             using SafeIconHandle safeIcon = NativeIconMethods.CopyIcon(cursorInfo.CursorHandle);
             if (!NativeIconMethods.GetIconInfo(safeIcon, out var iconInfo)) return capture;
 
-            Point cursorLocation = User32Api.GetCursorLocation();
+            NativePoint cursorLocation = User32Api.GetCursorLocation();
             // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
             var x = cursorLocation.X - iconInfo.Hotspot.X - capture.ScreenBounds.X;
             var y = cursorLocation.Y - iconInfo.Hotspot.Y - capture.ScreenBounds.Y;
             // Set the location
-            capture.CursorLocation = new Point(x, y);
+            capture.CursorLocation = new NativePoint(x, y);
 
             using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle()))
             {

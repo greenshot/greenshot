@@ -219,7 +219,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!(sender is LinkLabel linkLabel)) return;
+            if (sender is not LinkLabel linkLabel) return;
             var link = linkLabel.Tag?.ToString() ?? linkLabel.Text;
             try
             {

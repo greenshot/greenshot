@@ -291,7 +291,7 @@ namespace Greenshot.Editor.Drawing
             };
 
             _textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
-            _textBox.LostFocus += textBox_LostFocus;
+            _textBox.LostFocus += TextBox_LostFocus;
             _textBox.KeyDown += textBox_KeyDown;
         }
 
@@ -585,7 +585,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        private void textBox_LostFocus(object sender, EventArgs e)
+        private void TextBox_LostFocus(object sender, EventArgs e)
         {
             // next change will be made undoable
             makeUndoable = true;

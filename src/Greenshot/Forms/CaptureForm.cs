@@ -73,7 +73,7 @@ namespace Greenshot.Forms
 
         private int _mX;
         private int _mY;
-        private NativePoint _mouseMovePos = Point.Empty;
+        private NativePoint _mouseMovePos = NativePoint.Empty;
         private NativePoint _cursorPos;
         private CaptureMode _captureMode;
         private readonly List<WindowDetails> _windows;
@@ -404,7 +404,7 @@ namespace Greenshot.Forms
 
         private void HandleMouseDown()
         {
-            Point tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+            NativePoint tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
             _mX = tmpCursorLocation.X;
             _mY = tmpCursorLocation.Y;
             _mouseDown = true;
@@ -508,11 +508,11 @@ namespace Greenshot.Forms
             }
             else if (_fixMode == FixMode.Vertical)
             {
-                currentMouse = new Point(currentMouse.X, _previousMousePos.Y);
+                currentMouse = new NativePoint(currentMouse.X, _previousMousePos.Y);
             }
             else if (_fixMode == FixMode.Horizontal)
             {
-                currentMouse = new Point(_previousMousePos.X, currentMouse.Y);
+                currentMouse = new NativePoint(_previousMousePos.X, currentMouse.Y);
             }
 
             _previousMousePos = currentMouse;
@@ -551,7 +551,7 @@ namespace Greenshot.Forms
         /// </summary>
         protected override void Animate()
         {
-            Point lastPos = _cursorPos;
+            NativePoint lastPos = _cursorPos;
             _cursorPos = _mouseMovePos;
 
             if (_selectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !IsAnimating(_zoomAnimator) && !IsAnimating(_windowAnimator))
@@ -579,7 +579,7 @@ namespace Greenshot.Forms
             }
 
             // Iterate over the found windows and check if the current location is inside a window
-            Point cursorPosition = Cursor.Position;
+            NativePoint cursorPosition = Cursor.Position;
             _selectedCaptureWindow = null;
             lock (_windows)
             {
@@ -789,7 +789,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="pos">preferred destination location for the zoom area</param>
         /// <param name="allowZoomOverCaptureRect">false to try to find a location which is neither out of screen bounds nor intersects with the selected rectangle</param>
-        private void VerifyZoomAnimation(Point pos, bool allowZoomOverCaptureRect)
+        private void VerifyZoomAnimation(NativePoint pos, bool allowZoomOverCaptureRect)
         {
             NativeRect screenBounds = DisplayInfo.GetBounds(MousePosition);
             // convert to be relative to top left corner of all screen bounds

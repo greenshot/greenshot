@@ -113,7 +113,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
-        /// <returns>Bitmap with the icon or null if something happended</returns>
+        /// <returns>Bitmap with the icon or null if something happened</returns>
         public static Image GetCachedExeIcon(string path, int index)
         {
             string cacheKey = $"{path}:{index}";
@@ -148,7 +148,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
-        /// <returns>Bitmap with the icon or null if something happended</returns>
+        /// <returns>Bitmap with the icon or null if something happened</returns>
         private static Bitmap GetExeIcon(string path, int index)
         {
             if (!File.Exists(path))
@@ -164,7 +164,6 @@ namespace Greenshot.Base.Core
                     Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
                     return appIcon;
                 }
-                return appIcon;
             }
             catch (Exception exIcon)
             {

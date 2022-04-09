@@ -44,7 +44,7 @@ namespace Greenshot.Base.Core
 
         public virtual int CompareTo(object obj)
         {
-            if (!(obj is IDestination other))
+            if (obj is not IDestination other)
             {
                 return 1;
             }

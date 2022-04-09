@@ -1515,9 +1515,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Recursive "find children which"
         /// </summary>
-        /// <param name="point">point to check for</param>
-        /// <returns></returns>
-        public WindowDetails FindChildUnderPoint(Point point)
+        /// <param name="point">NativePoint to check for</param>
+        /// <returns>WindowDetails</returns>
+        public WindowDetails FindChildUnderPoint(NativePoint point)
         {
             if (!Contains(point))
             {

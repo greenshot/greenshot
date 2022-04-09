@@ -384,7 +384,7 @@ namespace Greenshot.Base.Core
         protected FastBitmap(Bitmap bitmap, NativeRect area)
         {
             Bitmap = bitmap;
-            var bitmapArea = new NativeRect(Point.Empty, bitmap.Size);
+            var bitmapArea = new NativeRect(NativePoint.Empty, bitmap.Size);
             if (area != NativeRect.Empty)
             {
                 area = area.Intersect(bitmapArea);

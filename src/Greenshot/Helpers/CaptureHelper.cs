@@ -507,14 +507,12 @@ namespace Greenshot.Helpers
                         // Set capture title, fixing bug #3569703
                         foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
                         {
-                            Point estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
+                            NativePoint estimatedLocation = new NativePoint(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
                                 CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
-                            if (window.Contains(estimatedLocation))
-                            {
-                                _selectedCaptureWindow = window;
-                                _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-                                break;
-                            }
+                            if (!window.Contains(estimatedLocation)) continue;
+                            _selectedCaptureWindow = window;
+                            _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+                            break;
                         }
 
                         // Move cursor, fixing bug #3569703

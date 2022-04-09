@@ -34,7 +34,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class SvgContainer : VectorGraphicsContainer
     {
-        private SvgDocument _svgDocument;
+        private readonly SvgDocument _svgDocument;
 
         public SvgContainer(SvgDocument svgDocument, ISurface parent) : base(parent)
         {

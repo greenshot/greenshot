@@ -36,7 +36,7 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class MovableShowColorForm : Form
     {
-        public Color color
+        public Color Color
         {
             get { return preview.BackColor; }
         }
@@ -99,9 +99,9 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Get the color from the pixel on the screen at "x,y"
         /// </summary>
-        /// <param name="screenCoordinates">Point with the coordinates</param>
+        /// <param name="screenCoordinates">NativePoint with the coordinates</param>
         /// <returns>Color at the specified screenCoordinates</returns>
-        private static Color GetPixelColor(Point screenCoordinates)
+        private static Color GetPixelColor(NativePoint screenCoordinates)
         {
             using SafeWindowDcHandle safeWindowDcHandle = SafeWindowDcHandle.FromDesktop();
             try

@@ -191,7 +191,7 @@ namespace Greenshot.Base.Core
         /// Private helper method for the FindAutoCropNativeRect
         /// </summary>
         /// <param name="fastBitmap">IFastBitmap</param>
-        /// <param name="colorPoint">Point</param>
+        /// <param name="colorPoint">NativePoint</param>
         /// <param name="cropDifference">int</param>
         /// <param name="area">NativeRect with optional area to scan in</param>
         /// <returns>NativeRect</returns>

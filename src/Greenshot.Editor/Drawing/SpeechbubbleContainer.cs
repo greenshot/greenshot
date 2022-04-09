@@ -42,7 +42,7 @@ namespace Greenshot.Editor.Drawing
         private NativePoint _initialGripperPoint;
 
         // Only used for serializing the TargetGripper location
-        private Point _storedTargetGripperLocation;
+        private NativePoint _storedTargetGripperLocation;
 
         /// <summary>
         /// Store the current location of the target gripper
@@ -96,8 +96,8 @@ namespace Greenshot.Editor.Drawing
         {
             if (TargetAdorner == null)
             {
-                _initialGripperPoint = new Point(mouseX, mouseY);
-                InitTargetAdorner(new Point(mouseX, mouseY));
+                _initialGripperPoint = new NativePoint(mouseX, mouseY);
+                InitTargetAdorner(_initialGripperPoint);
             }
 
             return base.HandleMouseDown(mouseX, mouseY);

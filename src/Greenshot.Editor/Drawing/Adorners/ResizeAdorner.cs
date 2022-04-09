@@ -55,23 +55,18 @@ namespace Greenshot.Editor.Drawing.Adorners
                     isNotSwitched = !isNotSwitched;
                 }
 
-                switch (Position)
+                return Position switch
                 {
-                    case Positions.TopLeft:
-                    case Positions.BottomRight:
-                        return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
-                    case Positions.TopRight:
-                    case Positions.BottomLeft:
-                        return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
-                    case Positions.MiddleLeft:
-                    case Positions.MiddleRight:
-                        return Cursors.SizeWE;
-                    case Positions.TopCenter:
-                    case Positions.BottomCenter:
-                        return Cursors.SizeNS;
-                    default:
-                        return Cursors.SizeAll;
-                }
+                    Positions.TopLeft => isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW,
+                    Positions.BottomRight => isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW,
+                    Positions.TopRight => isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE,
+                    Positions.BottomLeft => isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE,
+                    Positions.MiddleLeft => Cursors.SizeWE,
+                    Positions.MiddleRight => Cursors.SizeWE,
+                    Positions.TopCenter => Cursors.SizeNS,
+                    Positions.BottomCenter => Cursors.SizeNS,
+                    _ => Cursors.SizeAll
+                };
             }
         }
 
