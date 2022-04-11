@@ -264,9 +264,18 @@ namespace Greenshot.Editor.Drawing
             Invalidate();
             return true;
         }
-
-        /// <inheritdoc cref="IDrawableContainer"/>
+        /// <summary>
+        /// <inheritdoc />
+        /// <para/>
         /// Make sure this container is not undoable
+        /// </summary>
         public override bool IsUndoable => false;
+
+        /// <summary>
+        /// <inheritdoc />
+        /// <para/>
+        /// See dedicated confirm method <see cref="Surface.ConfirmCrop(bool)"/>
+        /// </summary>
+        public override bool IsConfirmable => true;
     }
 }

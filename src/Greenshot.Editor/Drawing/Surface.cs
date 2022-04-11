@@ -2108,7 +2108,7 @@ namespace Greenshot.Editor.Drawing
         {
             // create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
             List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
-            foreach (IDrawableContainer dc in selectedDCs)
+            foreach (IDrawableContainer dc in selectedDCs.Where(c => c.IsConfirmable))
             {                
                 throw new NotImplementedException($"No confirm/cancel defined for Container type {dc.GetType()}");               
             }

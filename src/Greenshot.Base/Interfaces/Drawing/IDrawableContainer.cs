@@ -94,6 +94,11 @@ namespace Greenshot.Base.Interfaces.Drawing
         IList<IAdorner> Adorners { get; }
 
         /// <summary>
+        /// Is confirm/cancel possible for this container
+        /// </summary>
+        bool IsConfirmable { get; }
+
+        /// <summary>
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi">uint</param>
