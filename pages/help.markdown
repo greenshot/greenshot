@@ -163,7 +163,7 @@ comments: []
 		line color, fill color). You can change the options for an existing element after<br />
 		selecting it, but also for the next element to be drawn after selecting a drawing tool.
 	</p>
-	<p class="hint">
+<p class="hint">
 		To select a color at the color picker with the pipette, press the pipette and move the mouse around while still holding down the left mouse button. That way you can select a color somewhere from the whole screen, not only Greenshot.
 	</p>
 <p class="hint">
@@ -247,7 +247,7 @@ comments: []
 		simply choose <em>Auto-Crop</em> from the <em>Edit</em> menu and Greenshot will automatically<br />
 		select the area for cropping.
 	</p>
-	<a name="editor-enlarge"></a>
+<p>	<a name="editor-enlarge"></a>
 	<h3>Enlarge screenshot</h3>
 	<p>
 		In order to enlarge the screenshot, hit <kbd>Shift</kbd> + <kbd>+</kbd>, which will add 25 pixels to all four sides.
