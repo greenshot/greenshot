@@ -34,12 +34,17 @@ namespace Greenshot.Editor.Drawing.Adorners
     {
         public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-        private static readonly NativeSize DefaultSize = new NativeSize(6, 6);
-        protected NativeSize _size;
+        private static readonly NativeSize DefaultSize = new(6, 6);
+
+        protected NativeSize Size
+        {
+            get;
+            set;
+        }
 
         public AbstractAdorner(IDrawableContainer owner)
         {
-            _size = DpiCalculator.ScaleWithDpi(DefaultSize, 0);
+            Size = DpiCalculator.ScaleWithDpi(DefaultSize, owner?.Parent?.CurrentDpi ?? 96);
             Owner = owner;
         }
 
@@ -51,7 +56,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             get { return Cursors.SizeAll; }
         }
 
-        public virtual IDrawableContainer Owner { get; set; }
+        public IDrawableContainer Owner { get; set; }
 
         /// <summary>
         /// Test if the point is inside the adorner
@@ -105,7 +110,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             get
             {
                 NativePoint location = Location;
-                return new NativeRect(location.X - (_size.Width / 2), location.Y - (_size.Height / 2), _size.Width, _size.Height);
+                return new NativeRect(location.X - (Size.Width / 2), location.Y - (Size.Height / 2), Size.Width, Size.Height);
             }
         }
 
@@ -117,7 +122,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             get
             {
                 NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
-                return new NativeRect(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
+                return new NativeRect(displayLocation.X - Size.Width / 2, displayLocation.Y - Size.Height / 2, Size.Width, Size.Height);
             }
         }
 
@@ -135,7 +140,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <param name="dpi">uint</param>
         public void AdjustToDpi(int dpi)
         {
-            _size = DpiCalculator.ScaleWithDpi(DefaultSize, dpi);
+            Size = DpiCalculator.ScaleWithDpi(DefaultSize, dpi);
         }
 
         public Color OutlineColor { get; set; } = Color.White;

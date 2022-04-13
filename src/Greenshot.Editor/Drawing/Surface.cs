@@ -145,6 +145,17 @@ namespace Greenshot.Editor.Drawing
             remove => _shadowChanged -= value;
         }
 
+
+        [NonSerialized] private int _currentDpi = 96;
+        /// <summary>
+        /// The most recent DPI value that was used
+        /// </summary>
+        public int CurrentDpi
+        {
+            get => _currentDpi;
+            set => _currentDpi = value;
+        }
+
         /// <summary>
         /// inUndoRedo makes sure we don't undo/redo while in a undo/redo action
         /// </summary>
@@ -456,6 +467,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="dpi"></param>
         public void AdjustToDpi(int dpi)
         {
+            CurrentDpi = dpi;
             foreach (var element in this._elements)
             {
                 element.AdjustToDpi(dpi);

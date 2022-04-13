@@ -256,5 +256,13 @@ namespace Greenshot.Base.Interfaces
         /// <param name="previous">Image</param>
         /// <param name="matrix">Matrix</param>
         void UndoBackgroundChange(Image previous, Matrix matrix);
+
+        /// <summary>
+        /// The most recent DPI value that was used
+        /// </summary>
+        public int CurrentDpi
+        {
+            get;
+        }
     }
 }
