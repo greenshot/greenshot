@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Drawing
     /// Description of EmojiContainer.
     /// </summary>
     [Serializable]
-    public class EmojiContainer : DrawableContainer, IEmojiContainer, IHasScaleOptions
+    public class EmojiContainer : DrawableContainer, IEmojiContainer, IHaveScaleOptions
     {
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
@@ -97,7 +97,7 @@ namespace Greenshot.Editor.Drawing
 
             GetOrCreatePickerControl();
 
-            var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var absRectangle = Bounds;
             var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _emojiPickerHost.Width = 0; // Trick to hide the picker's button
             _emojiPickerHost.Height = displayRectangle.Height;
@@ -111,24 +111,24 @@ namespace Greenshot.Editor.Drawing
         private void GetOrCreatePickerControl()
         {
             // Create one picker control by surface
+            // TODO: This is not ideal, replace with a different solution.
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
-            if (_emojiPickerHost == null)
+            if (_emojiPickerHost != null) return;
+
+            _emojiPicker = new EmojiPicker();
+            _emojiPicker.Picked += (_, args) =>
             {
-                _emojiPicker = new EmojiPicker();
-                _emojiPicker.Picked += (_, args) =>
-                {
-                    _currentContainer.Emoji = args.Emoji;
-                    _currentContainer.UseSystemFont = _emojiPicker.UseSystemFont;
-                    _currentContainer.Invalidate();
-                };
+                _currentContainer.Emoji = args.Emoji;
+                _currentContainer.UseSystemFont = _emojiPicker.UseSystemFont;
+                _currentContainer.Invalidate();
+            };
 
-                _emojiPickerHost = new ElementHost();
-                _emojiPickerHost.Dock = DockStyle.None;
-                _emojiPickerHost.Child = _emojiPicker;
-                _emojiPickerHost.Name = "EmojiPickerHost";
+            _emojiPickerHost = new ElementHost();
+            _emojiPickerHost.Dock = DockStyle.None;
+            _emojiPickerHost.Child = _emojiPicker;
+            _emojiPickerHost.Name = "EmojiPickerHost";
 
-                _parent.Controls.Add(_emojiPickerHost);
-            }
+            _parent.Controls.Add(_emojiPickerHost);
         }
 
         private void HideEmojiPicker()
@@ -196,25 +196,23 @@ namespace Greenshot.Editor.Drawing
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-            var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = Bounds;
 
             var iconSize = Math.Min(rect.Width, rect.Height);
-            if (iconSize > 0)
+            if (iconSize <= 0) return;
+            if (_cachedImage == null)
             {
-                if (_cachedImage == null)
-                {
-                    //  First draw or cache was invalidated
-                    _cachedImage = ComputeBitmap(iconSize);
-                }
-                else if (iconSize != _cachedImage.Width)
-                {
-                    // The elements was resized => recompute
-                    _cachedImage.Dispose();
-                    _cachedImage = ComputeBitmap(iconSize);
-                }
-
-                graphics.DrawImage(_cachedImage, Bounds);
+                //  First draw or cache was invalidated
+                _cachedImage = ComputeBitmap(iconSize);
             }
+            else if (iconSize != _cachedImage.Width)
+            {
+                // The elements was resized => recompute
+                _cachedImage.Dispose();
+                _cachedImage = ComputeBitmap(iconSize);
+            }
+
+            graphics.DrawImage(_cachedImage, Bounds);
         }
 
         private Image ComputeBitmap(int iconSize)

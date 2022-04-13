@@ -78,6 +78,8 @@
 		<resource name="editor_copypathtoclipboard">Умножи путању</resource>
 		<resource name="editor_copytoclipboard">Умножи</resource>
 		<resource name="editor_crop">Опсеци (C)</resource>
+		<resource name="editor_cropmode_default">Опсеци</resource>
+		<resource name="editor_cropmode_auto">Аутоматско опсецање</resource>
 		<resource name="editor_cursortool">Алатка за одабир (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Исеци</resource>
 		<resource name="editor_deleteelement">Обриши</resource>

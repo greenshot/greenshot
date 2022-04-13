@@ -23,8 +23,10 @@ using System;
 using System.Collections;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Forms
 {
@@ -35,6 +37,7 @@ namespace Greenshot.Forms
     {
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private readonly bool _multiCheckAllowed;
+        private readonly IProvideDeviceDpi _provideDeviceDpi;
         private bool _updateInProgress;
         private static Image _defaultImage;
 
@@ -45,23 +48,27 @@ namespace Greenshot.Forms
 
         public object Identifier { get; private set; }
 
-        public ToolStripMenuSelectList(object identifier, bool allowMultiCheck)
+        public ToolStripMenuSelectList(object identifier, bool allowMultiCheck, IProvideDeviceDpi provideDeviceDpi)
         {
             Identifier = identifier;
             CheckOnClick = false;
             _multiCheckAllowed = allowMultiCheck;
-            if (_defaultImage == null || _defaultImage.Size != CoreConfig.ScaledIconSize)
+            _provideDeviceDpi = provideDeviceDpi;
+            UpdateImage();
+        }
+
+
+        private void UpdateImage()
+        {
+            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);
+            if (_defaultImage == null || _defaultImage.Size != newSize)
             {
                 _defaultImage?.Dispose();
-                _defaultImage = ImageHelper.CreateEmpty(CoreConfig.ScaledIconSize.Width, CoreConfig.ScaledIconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                _defaultImage = ImageHelper.CreateEmpty(newSize.Width, newSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
                     Color.Transparent, 96f, 96f);
             }
 
             Image = _defaultImage;
-        }
-
-        public ToolStripMenuSelectList() : this(null, false)
-        {
         }
 
         private void ItemCheckStateChanged(object sender, EventArgs e)

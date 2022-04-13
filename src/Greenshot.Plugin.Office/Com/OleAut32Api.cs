@@ -3,8 +3,8 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
+using Dapplo.Windows.Common.Enums;
+using Dapplo.Windows.Common.Extensions;
 
 namespace Greenshot.Plugin.Office.Com
 {

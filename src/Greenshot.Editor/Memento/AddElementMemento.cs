@@ -20,9 +20,8 @@
  */
 
 using System;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
-
 namespace Greenshot.Editor.Memento
 {
     /// <summary>
@@ -31,9 +30,9 @@ namespace Greenshot.Editor.Memento
     public class AddElementMemento : IMemento
     {
         private IDrawableContainer _drawableContainer;
-        private Surface _surface;
+        private ISurface _surface;
 
-        public AddElementMemento(Surface surface, IDrawableContainer drawableContainer)
+        public AddElementMemento(ISurface surface, IDrawableContainer drawableContainer)
         {
             _surface = surface;
             _drawableContainer = drawableContainer;
@@ -45,7 +44,7 @@ namespace Greenshot.Editor.Memento
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             //if (disposing) { }
             _drawableContainer = null;

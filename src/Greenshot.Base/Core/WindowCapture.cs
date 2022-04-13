@@ -26,10 +26,20 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Gdi32.Enums;
+using Dapplo.Windows.Gdi32.SafeHandles;
+using Dapplo.Windows.Gdi32.Structs;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.SafeHandles;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -43,44 +53,15 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
         /// <summary>
-        /// Used to cleanup the unmanaged resource in the iconInfo for the CaptureCursor method
-        /// </summary>
-        /// <param name="hObject"></param>
-        /// <returns></returns>
-        [DllImport("gdi32", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteObject(IntPtr hObject);
-
-        /// <summary>
-        /// Get the bounds of all screens combined.
-        /// </summary>
-        /// <returns>A Rectangle of the bounds of the entire display area.</returns>
-        public static Rectangle GetScreenBounds()
-        {
-            int left = 0, top = 0, bottom = 0, right = 0;
-            foreach (Screen screen in Screen.AllScreens)
-            {
-                left = Math.Min(left, screen.Bounds.X);
-                top = Math.Min(top, screen.Bounds.Y);
-                int screenAbsRight = screen.Bounds.X + screen.Bounds.Width;
-                int screenAbsBottom = screen.Bounds.Y + screen.Bounds.Height;
-                right = Math.Max(right, screenAbsRight);
-                bottom = Math.Max(bottom, screenAbsBottom);
-            }
-
-            return new Rectangle(left, top, (right + Math.Abs(left)), (bottom + Math.Abs(top)));
-        }
-
-        /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
         /// can conveniently be used when the cursor location is needed to deal with a fullscreen bitmap.
         /// </summary>
         /// <returns>
         /// Point with cursor location, relative to the top left corner of the monitor setup (which itself might actually not be on any screen)
         /// </returns>
-        public static Point GetCursorLocationRelativeToScreenBounds()
+        public static NativePoint GetCursorLocationRelativeToScreenBounds()
         {
-            return GetLocationRelativeToScreenBounds(User32.GetCursorLocation());
+            return GetLocationRelativeToScreenBounds(User32Api.GetCursorLocation());
         }
 
         /// <summary>
@@ -90,12 +71,10 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="locationRelativeToScreenOrigin"></param>
         /// <returns>Point</returns>
-        public static Point GetLocationRelativeToScreenBounds(Point locationRelativeToScreenOrigin)
+        public static NativePoint GetLocationRelativeToScreenBounds(NativePoint locationRelativeToScreenOrigin)
         {
-            Point ret = locationRelativeToScreenOrigin;
-            Rectangle bounds = GetScreenBounds();
-            ret.Offset(-bounds.X, -bounds.Y);
-            return ret;
+            NativeRect bounds = DisplayInfo.ScreenBounds;
+            return locationRelativeToScreenOrigin.Offset(-bounds.X, -bounds.Y);
         }
 
         /// <summary>
@@ -110,36 +89,26 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            var cursorInfo = new CursorInfo();
-            cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
-            if (!User32.GetCursorInfo(out cursorInfo)) return capture;
-            if (cursorInfo.flags != User32.CURSOR_SHOWING) return capture;
+            var cursorInfo = CursorInfo.Create();
+            if (!NativeCursorMethods.GetCursorInfo(ref cursorInfo)) return capture;
+            if (cursorInfo.Flags != CursorInfoFlags.Showing) return capture;
 
-            using SafeIconHandle safeIcon = User32.CopyIcon(cursorInfo.hCursor);
-            if (!User32.GetIconInfo(safeIcon, out var iconInfo)) return capture;
+            using SafeIconHandle safeIcon = NativeIconMethods.CopyIcon(cursorInfo.CursorHandle);
+            if (!NativeIconMethods.GetIconInfo(safeIcon, out var iconInfo)) return capture;
 
-            Point cursorLocation = User32.GetCursorLocation();
+            NativePoint cursorLocation = User32Api.GetCursorLocation();
             // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-            var x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
-            var y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
+            var x = cursorLocation.X - iconInfo.Hotspot.X - capture.ScreenBounds.X;
+            var y = cursorLocation.Y - iconInfo.Hotspot.Y - capture.ScreenBounds.Y;
             // Set the location
-            capture.CursorLocation = new Point(x, y);
+            capture.CursorLocation = new NativePoint(x, y);
 
             using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle()))
             {
                 capture.Cursor = icon;
             }
-
-            if (iconInfo.hbmMask != IntPtr.Zero)
-            {
-                DeleteObject(iconInfo.hbmMask);
-            }
-
-            if (iconInfo.hbmColor != IntPtr.Zero)
-            {
-                DeleteObject(iconInfo.hbmColor);
-            }
-
+            iconInfo.BitmaskBitmapHandle.Dispose();
+            iconInfo.ColorBitmapHandle.Dispose();
             return capture;
         }
 
@@ -161,11 +130,11 @@ namespace Greenshot.Base.Core
         /// Helper method to create an exception that might explain what is wrong while capturing
         /// </summary>
         /// <param name="method">string with current method</param>
-        /// <param name="captureBounds">Rectangle of what we want to capture</param>
+        /// <param name="captureBounds">NativeRect of what we want to capture</param>
         /// <returns></returns>
-        private static Exception CreateCaptureException(string method, Rectangle captureBounds)
+        private static Exception CreateCaptureException(string method, NativeRect captureBounds)
         {
-            Exception exceptionToThrow = User32.CreateWin32Exception(method);
+            Exception exceptionToThrow = User32Api.CreateWin32Exception(method);
             if (!captureBounds.IsEmpty)
             {
                 exceptionToThrow.Data.Add("Height", captureBounds.Height);
@@ -233,9 +202,9 @@ namespace Greenshot.Base.Core
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangle(ICapture capture, Rectangle captureBounds)
+        public static ICapture CaptureRectangle(ICapture capture, NativeRect captureBounds)
         {
             if (capture == null)
             {
@@ -271,9 +240,9 @@ namespace Greenshot.Base.Core
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, Rectangle captureBounds)
+        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, NativeRect captureBounds)
         {
             if (capture == null)
             {
@@ -288,9 +257,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
-        /// <param name="captureBounds">Rectangle with the bounds to capture</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>Bitmap which is captured from the screen at the location specified by the captureBounds</returns>
-        public static Bitmap CaptureRectangle(Rectangle captureBounds)
+        public static Bitmap CaptureRectangle(NativeRect captureBounds)
         {
             Bitmap returnBitmap = null;
             if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
@@ -321,7 +290,7 @@ namespace Greenshot.Base.Core
                 }
 
                 // create a device context we can copy to
-                using SafeCompatibleDCHandle safeCompatibleDcHandle = GDI32.CreateCompatibleDC(desktopDcHandle);
+                using SafeCompatibleDcHandle safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle);
                 // Check if the device context is there, if not throw an error with as much info as possible!
                 if (safeCompatibleDcHandle.IsInvalid)
                 {
@@ -332,13 +301,13 @@ namespace Greenshot.Base.Core
                 }
 
                 // Create BITMAPINFOHEADER for CreateDIBSection
-                BITMAPINFOHEADER bmi = new BITMAPINFOHEADER(captureBounds.Width, captureBounds.Height, 24);
+                var bitmapInfoHeader = BitmapV5Header.Create(captureBounds.Width, captureBounds.Height, 24);
 
                 // Make sure the last error is set to 0
-                Win32.SetLastError(0);
+                Kernel32Api.SetLastError(0);
 
                 // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                using SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDcHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out _, IntPtr.Zero, 0);
+                using SafeDibSectionHandle safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bitmapInfoHeader, DibColors.RgbColors, out _, IntPtr.Zero, 0);
                 if (safeDibSectionHandle.IsInvalid)
                 {
                     // Get Exception before the error is lost
@@ -355,8 +324,8 @@ namespace Greenshot.Base.Core
                 {
                     // bitblt over (make copy)
                     // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-                    GDI32.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
-                        CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+                    Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
+                        RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
                 }
 
                 // get a .NET image object for it
@@ -388,7 +357,7 @@ namespace Greenshot.Base.Core
                             }
 
                             // If the region is not empty, we have "offscreenContent"
-                            using Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow());
+                            using Graphics screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow());
                             offscreenContent = !captureRegion.IsEmpty(screenGraphics);
                         }
 
@@ -397,17 +366,16 @@ namespace Greenshot.Base.Core
                         {
                             using Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
                             // Create a new bitmap which has a transparent background
-                            returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent,
-                                tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+                            returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
                             // Content will be copied here
                             using Graphics graphics = Graphics.FromImage(returnBitmap);
                             // For all screens copy the content to the new bitmap
-                            foreach (Screen screen in Screen.AllScreens)
+
+                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                             {
-                                Rectangle screenBounds = screen.Bounds;
-                                // Make sure the bounds are offsetted to the capture bounds
-                                screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
-                                graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);
+                                // Make sure the bounds are offset to the capture bounds
+                                var displayBounds = displayInfo.Bounds.Offset(-captureBounds.X, -captureBounds.Y);
+                                graphics.DrawImage(tmpBitmap, displayBounds, displayBounds.X, displayBounds.Y, displayBounds.Width, displayBounds.Height, GraphicsUnit.Pixel);
                             }
                         }
                         else

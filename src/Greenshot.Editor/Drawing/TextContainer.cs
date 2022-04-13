@@ -27,10 +27,12 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 
 namespace Greenshot.Editor.Drawing
@@ -73,7 +75,7 @@ namespace Greenshot.Editor.Drawing
         {
             if ((text != null || newText == null) && string.Equals(text, newText)) return;
 
-            if (makeUndoable && allowUndoable)
+            if (makeUndoable && allowUndoable && IsUndoable)
             {
                 makeUndoable = false;
                 _parent.MakeUndoable(new TextChangeMemento(this), false);
@@ -83,7 +85,7 @@ namespace Greenshot.Editor.Drawing
             OnPropertyChanged("Text");
         }
 
-        public TextContainer(Surface parent) : base(parent)
+        public TextContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -154,17 +156,17 @@ namespace Greenshot.Editor.Drawing
             FieldChanged += TextContainer_FieldChanged;
         }
 
-        protected override void SwitchParent(Surface newParent)
+        protected override void SwitchParent(ISurface newParent)
         {
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.SizeChanged -= Parent_SizeChanged;
+                InternalParent.SizeChanged -= Parent_SizeChanged;
             }
 
             base.SwitchParent(newParent);
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.SizeChanged += Parent_SizeChanged;
+                InternalParent.SizeChanged += Parent_SizeChanged;
             }
         }
 
@@ -174,7 +176,7 @@ namespace Greenshot.Editor.Drawing
             UpdateTextBoxFont();
         }
 
-        public override void ApplyBounds(RectangleF newBounds)
+        public override void ApplyBounds(NativeRectFloat newBounds)
         {
             base.ApplyBounds(newBounds);
             UpdateTextBoxPosition();
@@ -221,10 +223,10 @@ namespace Greenshot.Editor.Drawing
                 {
                     ShowTextBox();
                 }
-                else if (_parent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible)
+                else if (InternalParent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible)
                 {
                     // Fix (workaround) for BUG-1698
-                    _parent.KeysLocked = true;
+                    InternalParent.KeysLocked = true;
                 }
             }
 
@@ -289,16 +291,16 @@ namespace Greenshot.Editor.Drawing
             };
 
             _textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
-            _textBox.LostFocus += textBox_LostFocus;
+            _textBox.LostFocus += TextBox_LostFocus;
             _textBox.KeyDown += textBox_KeyDown;
         }
 
         private void ShowTextBox()
         {
-            if (_parent != null)
+            if (InternalParent != null)
             {
-                _parent.KeysLocked = true;
-                _parent.Controls.Add(_textBox);
+                InternalParent.KeysLocked = true;
+                InternalParent.Controls.Add(_textBox);
             }
 
             EnsureTextBoxContrast();
@@ -332,15 +334,18 @@ namespace Greenshot.Editor.Drawing
 
         private void HideTextBox()
         {
-            _parent?.Focus();
+            InternalParent?.Focus();
             _textBox?.Hide();
-            if (_parent == null)
+            if (InternalParent == null)
             {
                 return;
             }
 
-            _parent.KeysLocked = false;
-            _parent.Controls.Remove(_textBox);
+            InternalParent.KeysLocked = false;
+            if (_textBox != null)
+            {
+                InternalParent.Controls.Remove(_textBox);
+            }
         }
 
         /// <summary>
@@ -349,12 +354,12 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             int pixelsBefore = rect.Width * rect.Height;
 
             // Transform this container
             base.Transform(matrix);
-            rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             int pixelsAfter = rect.Width * rect.Height;
             float factor = pixelsAfter / (float) pixelsBefore;
@@ -504,8 +509,8 @@ namespace Greenshot.Editor.Drawing
                 correction = -1;
             }
 
-            Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            Rectangle displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
+            var absRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+            var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
             _textBox.Left = displayRectangle.X + lineWidth;
             _textBox.Top = displayRectangle.Y + lineWidth;
             if (lineThickness <= 1)
@@ -580,7 +585,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        private void textBox_LostFocus(object sender, EventArgs e)
+        private void TextBox_LostFocus(object sender, EventArgs e)
         {
             // next change will be made undoable
             makeUndoable = true;
@@ -597,7 +602,7 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             if (Selected && rm == RenderMode.EDIT)
             {
                 DrawSelectionBorder(graphics, rect);
@@ -629,7 +634,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="stringFormat"></param>
         /// <param name="text"></param>
         /// <param name="font"></param>
-        public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
+        public static void DrawText(Graphics graphics, NativeRect drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
             Font font)
         {
 #if DEBUG
@@ -651,10 +656,10 @@ namespace Greenshot.Editor.Drawing
                 while (currentStep <= steps)
                 {
                     int offset = currentStep;
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
+                    NativeRect shadowRect = new NativeRect(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height).Normalize();
                     if (lineThickness > 0)
                     {
-                        shadowRect.Inflate(-textOffset, -textOffset);
+                        shadowRect = shadowRect.Inflate(-textOffset, -textOffset);
                     }
                     using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
                     graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
@@ -666,7 +671,7 @@ namespace Greenshot.Editor.Drawing
 
             if (lineThickness > 0)
             {
-                drawingRectange.Inflate(-textOffset, -textOffset);
+                drawingRectange = drawingRectange.Inflate(-textOffset, -textOffset);
             }
             using (Brush fontBrush = new SolidBrush(fontColor))
             {
@@ -683,8 +688,7 @@ namespace Greenshot.Editor.Drawing
 
         public override bool ClickableAt(int x, int y)
         {
-            Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            r.Inflate(5, 5);
+            var r = new NativeRect(Left, Top, Width, Height).Normalize().Inflate(5, 5);
             return r.Contains(x, y);
         }
     }

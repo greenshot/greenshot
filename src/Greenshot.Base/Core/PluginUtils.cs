@@ -25,8 +25,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
 
@@ -113,7 +113,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
-        /// <returns>Bitmap with the icon or null if something happended</returns>
+        /// <returns>Bitmap with the icon or null if something happened</returns>
         public static Image GetCachedExeIcon(string path, int index)
         {
             string cacheKey = $"{path}:{index}";
@@ -148,7 +148,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
-        /// <returns>Bitmap with the icon or null if something happended</returns>
+        /// <returns>Bitmap with the icon or null if something happened</returns>
         private static Bitmap GetExeIcon(string path, int index)
         {
             if (!File.Exists(path))
@@ -158,20 +158,11 @@ namespace Greenshot.Base.Core
 
             try
             {
-                using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons))
+                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.UseLargeIcons);
+                if (appIcon != null)
                 {
-                    if (appIcon != null)
-                    {
-                        return appIcon.ToBitmap();
-                    }
-                }
-
-                using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfig.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
-                {
-                    if (appIcon != null)
-                    {
-                        return appIcon.ToBitmap();
-                    }
+                    Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
+                    return appIcon;
                 }
             }
             catch (Exception exIcon)
@@ -195,27 +186,25 @@ namespace Greenshot.Base.Core
             // Try to find a separator, so we insert ourselves after it 
             for (int i = 0; i < contextMenu.Items.Count; i++)
             {
-                if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator))
+                if (contextMenu.Items[i].GetType() != typeof(ToolStripSeparator)) continue;
+                // Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
+                if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
                 {
-                    // Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
-                    if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
+                    var separator = new ToolStripSeparator
                     {
-                        var separator = new ToolStripSeparator
-                        {
-                            Tag = "PluginsAreAddedAfter",
-                            Size = new Size(305, 6)
-                        };
-                        contextMenu.Items.Insert(i, separator);
-                    }
-                    else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
-                    {
-                        continue;
-                    }
-
-                    contextMenu.Items.Insert(i + 1, item);
-                    addedItem = true;
-                    break;
+                        Tag = "PluginsAreAddedAfter",
+                        Size = new Size(305, 6)
+                    };
+                    contextMenu.Items.Insert(i, separator);
                 }
+                else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
+                {
+                    continue;
+                }
+
+                contextMenu.Items.Insert(i + 1, item);
+                addedItem = true;
+                break;
             }
 
             // If we didn't insert the item, we just add it...

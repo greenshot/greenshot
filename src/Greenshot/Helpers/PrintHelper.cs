@@ -187,7 +187,7 @@ namespace Greenshot.Helpers
 
             ApplyEffects(printOutputSettings);
 
-            bool disposeImage = ImageOutput.CreateImageFromSurface(_surface, printOutputSettings, out var image);
+            bool disposeImage = ImageIO.CreateImageFromSurface(_surface, printOutputSettings, out var image);
             try
             {
                 ContentAlignment alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;

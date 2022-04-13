@@ -24,8 +24,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using log4net;
@@ -40,7 +42,7 @@ namespace Greenshot.Editor.Drawing
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
 
-        private Image image;
+        private Image _image;
 
         /// <summary>
         /// This is the shadow version of the bitmap, rendered once to save performance
@@ -52,14 +54,14 @@ namespace Greenshot.Editor.Drawing
         /// This is the offset for the shadow version of the bitmap
         /// Do not serialize, as the offset is recreated
         /// </summary>
-        [NonSerialized] private Point _shadowOffset = new Point(-1, -1);
+        [NonSerialized] private NativePoint _shadowOffset = new NativePoint(-1, -1);
 
-        public ImageContainer(Surface parent, string filename) : this(parent)
+        public ImageContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
         }
 
-        public ImageContainer(Surface parent) : base(parent)
+        public ImageContainer(ISurface parent) : base(parent)
         {
             FieldChanged += BitmapContainer_OnFieldChanged;
             Init();
@@ -107,8 +109,8 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                Width = image.Width;
-                Height = image.Height;
+                Width = _image.Width;
+                Height = _image.Height;
                 if (_shadowBitmap != null)
                 {
                     Left += _shadowOffset.X;
@@ -124,13 +126,13 @@ namespace Greenshot.Editor.Drawing
                 // Remove all current bitmaps
                 DisposeImage();
                 DisposeShadow();
-                image = ImageHelper.Clone(value);
+                _image = ImageHelper.Clone(value);
                 bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
                 CheckShadow(shadow);
                 if (!shadow)
                 {
-                    Width = image.Width;
-                    Height = image.Height;
+                    Width = _image.Width;
+                    Height = _image.Height;
                 }
                 else
                 {
@@ -140,7 +142,7 @@ namespace Greenshot.Editor.Drawing
                     Top -= _shadowOffset.Y;
                 }
             }
-            get { return image; }
+            get { return _image; }
         }
 
         /// <summary>
@@ -162,8 +164,8 @@ namespace Greenshot.Editor.Drawing
 
         private void DisposeImage()
         {
-            image?.Dispose();
-            image = null;
+            _image?.Dispose();
+            _image = null;
         }
 
         private void DisposeShadow()
@@ -179,7 +181,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
-            if (image == null)
+            if (_image == null)
             {
                 base.Transform(matrix);
                 return;
@@ -192,9 +194,9 @@ namespace Greenshot.Editor.Drawing
                 Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
                 DisposeShadow();
                 using var tmpMatrix = new Matrix();
-                using (image)
+                using (_image)
                 {
-                    image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+                    _image = ImageHelper.ApplyEffect(_image, new RotateEffect(rotateAngle), tmpMatrix);
                 }
             }
 
@@ -214,7 +216,8 @@ namespace Greenshot.Editor.Drawing
 
             // Always make sure ImageHelper.LoadBitmap results are disposed some time,
             // as we close the bitmap internally, we need to do it afterwards
-            using (var tmpImage = ImageHelper.LoadImage(filename))
+            // TODO: Replace with some other code, like the file format handler, or move it completely outside of this class
+            using (var tmpImage = ImageIO.LoadImage(filename))
             {
                 Image = tmpImage;
             }
@@ -234,7 +237,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             using var matrix = new Matrix();
-            _shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
+            _shadowBitmap = ImageHelper.ApplyEffect(_image, new DropShadowEffect(), matrix);
         }
 
         /// <summary>
@@ -244,7 +247,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="rm"></param>
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-            if (image == null)
+            if (_image == null)
             {
                 return;
             }
@@ -262,12 +265,12 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                graphics.DrawImage(image, Bounds);
+                graphics.DrawImage(_image, Bounds);
             }
         }
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => image?.Size ?? new Size(32, 32);
+        public override NativeSize DefaultSize => _image?.Size ?? new NativeSize(32, 32);
     }
 }

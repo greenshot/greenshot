@@ -24,12 +24,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -41,12 +45,17 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
     {
-        private static readonly ComponentResourceManager EditorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
+        private static readonly ComponentResourceManager EditorFormResources = new(typeof(ImageEditorForm));
 
         public Guid ParentID { get; private set; }
 
         public DrawableContainerList()
         {
+        }
+
+        public DrawableContainerList(IEnumerable<IDrawableContainer> elements)
+        {
+            AddRange(elements);
         }
 
         public DrawableContainerList(Guid parentId)
@@ -129,17 +138,21 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Make a following bounds change on this containerlist undoable!
+        /// Make a following bounds change on this DrawableContainerList undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>
         public void MakeBoundsChangeUndoable(bool allowMerge)
         {
-            if (Count > 0 && Parent != null)
+            if (Count <= 0 || Parent == null) return;
+            // Take all containers to make undoable
+            var containersToClone = this.Where(c => c.IsUndoable).ToList();
+            if (!containersToClone.Any())
             {
-                var clone = new DrawableContainerList();
-                clone.AddRange(this);
-                Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
+                return;
             }
+            var clone = new DrawableContainerList();
+            clone.AddRange(containersToClone);
+            Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
         }
 
         /// <summary>
@@ -247,11 +260,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="clipRectangle"></param>
         /// <returns>true if an filter intersects</returns>
-        public bool HasIntersectingFilters(Rectangle clipRectangle)
+        public bool HasIntersectingFilters(NativeRect clipRectangle)
         {
             foreach (var dc in this)
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE)
+                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
                 {
                     return true;
                 }
@@ -263,9 +276,9 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Check if any of the drawableContainers are inside the rectangle
         /// </summary>
-        /// <param name="clipRectangle"></param>
+        /// <param name="clipRectangle">NativeRect</param>
         /// <returns></returns>
-        public bool IntersectsWith(Rectangle clipRectangle)
+        public bool IntersectsWith(NativeRect clipRectangle)
         {
             foreach (var dc in this)
             {
@@ -282,24 +295,22 @@ namespace Greenshot.Editor.Drawing
         /// A rectangle containing DrawingBounds of all drawableContainers in this list,
         /// or empty rectangle if nothing is there.
         /// </summary>
-        public Rectangle DrawingBounds
+        public NativeRect DrawingBounds
         {
             get
             {
                 if (Count == 0)
                 {
-                    return Rectangle.Empty;
+                    return NativeRect.Empty;
                 }
-                else
-                {
-                    var result = this[0].DrawingBounds;
-                    for (int i = 1; i < Count; i++)
-                    {
-                        result = Rectangle.Union(result, this[i].DrawingBounds);
-                    }
 
-                    return result;
+                var result = this[0].DrawingBounds;
+                for (int i = 1; i < Count; i++)
+                {
+                    result = result.Union(this[i].DrawingBounds);
                 }
+
+                return result;
             }
         }
 
@@ -308,9 +319,9 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="g">the to the bitmap related Graphics object</param>
         /// <param name="bitmap">Bitmap to draw</param>
-        /// <param name="renderMode">the rendermode in which the element is to be drawn</param>
-        /// <param name="clipRectangle"></param>
-        public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle)
+        /// <param name="renderMode">the RenderMode in which the element is to be drawn</param>
+        /// <param name="clipRectangle">NativeRect</param>
+        public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle)
         {
             if (Parent == null)
             {
@@ -356,10 +367,10 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Rectangle region = Rectangle.Empty;
+            NativeRect region = NativeRect.Empty;
             foreach (var dc in this)
             {
-                region = Rectangle.Union(region, dc.DrawingBounds);
+                region = region.Union(dc.DrawingBounds);
             }
 
             Parent.InvalidateElements(region);
@@ -428,6 +439,70 @@ namespace Greenshot.Editor.Drawing
                 Add(dc);
                 Parent.Modified = true;
             }
+        }
+
+        public void SetForegroundColor(Color color)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.LINE_COLOR;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+		        
+		        fh.SetFieldValue(field, color);
+	        }
+        }
+
+        public void SetBackgroundColor(Color color)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.FILL_COLOR;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        fh.SetFieldValue(field, color);
+	        }
+        }
+
+        public int IncreaseLineThickness(int increaseBy)
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.LINE_THICKNESS;
+	        var lastThickness = 0;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        var currentThickness = (int)fh.GetFieldValue(field);
+		        var thickness = Math.Max(0, currentThickness + increaseBy);
+		        fh.SetFieldValue(field, thickness);
+		        lastThickness = thickness;
+	        }
+
+	        return lastThickness;
+        }
+
+        public bool FlipShadow()
+        {
+	        var dcs = ToArray();
+	        var field = FieldType.SHADOW;
+	        var lastShadow = false;
+	        foreach (var dc in dcs)
+	        {
+		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
+		        if (!fh.HasField(field)) continue;
+
+		        var currentShadow = (bool)fh.GetFieldValue(field);
+		        var shadow = !currentShadow;
+		        fh.SetFieldValue(field, shadow);
+		        lastShadow = shadow;
+	        }
+
+	        return lastShadow;
         }
 
         /// <summary>
@@ -509,18 +584,17 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            var dc = this[index1];
-            this[index1] = this[index2];
-            this[index2] = dc;
+            (this[index1], this[index2]) = (this[index2], this[index1]);
             Parent.Modified = true;
         }
 
         /// <summary>
         /// Add items to a context menu for the selected item
         /// </summary>
-        /// <param name="menu"></param>
-        /// <param name="surface"></param>
-        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface)
+        /// <param name="menu">ContextMenuStrip</param>
+        /// <param name="surface">ISurface</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
+        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
         {
             bool push = surface.Elements.CanPushDown(this);
             bool pull = surface.Elements.CanPullUp(this);
@@ -607,15 +681,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Reset
-            bool canReset = false;
-            foreach (var drawableContainer in this)
-            {
-                var container = (DrawableContainer) drawableContainer;
-                if (container.HasDefaultSize)
-                {
-                    canReset = true;
-                }
-            }
+            bool canReset = this.Cast<DrawableContainer>().Any(container => container.HasDefaultSize);
 
             if (canReset)
             {
@@ -642,48 +708,40 @@ namespace Greenshot.Editor.Drawing
                 };
                 menu.Items.Add(item);
             }
+
+            // "ask" the containers to add to the context menu
+            foreach (var surfaceElement in surface.Elements)
+            {
+                surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
+            }
         }
 
-        public virtual void ShowContextMenu(MouseEventArgs e, ISurface iSurface)
+        public virtual void ShowContextMenu(MouseEventArgs mouseEventArgs, ISurface iSurface)
         {
-            if (!(iSurface is Surface surface))
+            if (iSurface is not Surface surface)
             {
                 return;
             }
 
-            bool hasMenu = false;
-            foreach (var drawableContainer in this)
+            bool hasMenu = this.Cast<DrawableContainer>().Any(container => container.HasContextMenu);
+
+            if (!hasMenu) return;
+            
+            ContextMenuStrip menu = new ContextMenuStrip();
+            AddContextMenuItems(menu, surface, mouseEventArgs);
+            if (menu.Items.Count <= 0) return;
+            menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
+            while (true)
             {
-                var container = (DrawableContainer) drawableContainer;
-                if (!container.HasContextMenu)
+                if (menu.Visible)
                 {
-                    continue;
+                    Application.DoEvents();
+                    Thread.Sleep(100);
                 }
-
-                hasMenu = true;
-                break;
-            }
-
-            if (hasMenu)
-            {
-                ContextMenuStrip menu = new ContextMenuStrip();
-                AddContextMenuItems(menu, surface);
-                if (menu.Items.Count > 0)
+                else
                 {
-                    menu.Show(surface, surface.ToSurfaceCoordinates(e.Location));
-                    while (true)
-                    {
-                        if (menu.Visible)
-                        {
-                            Application.DoEvents();
-                            Thread.Sleep(100);
-                        }
-                        else
-                        {
-                            menu.Dispose();
-                            break;
-                        }
-                    }
+                    menu.Dispose();
+                    break;
                 }
             }
         }
@@ -692,18 +750,16 @@ namespace Greenshot.Editor.Drawing
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue) return;
+            if (disposing)
             {
-                if (disposing)
+                foreach (var drawableContainer in this)
                 {
-                    foreach (var drawableContainer in this)
-                    {
-                        drawableContainer.Dispose();
-                    }
+                    drawableContainer.Dispose();
                 }
-
-                _disposedValue = true;
             }
+
+            _disposedValue = true;
         }
 
         // This code added to correctly implement the disposable pattern.
@@ -716,8 +772,8 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
-        /// <param name="dpi"></param>
-        public void AdjustToDpi(uint dpi)
+        /// <param name="dpi">int</param>
+        public void AdjustToDpi(int dpi)
         {
             foreach (var drawableContainer in this)
             {

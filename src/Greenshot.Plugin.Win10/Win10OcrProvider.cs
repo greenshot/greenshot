@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
@@ -97,7 +98,7 @@ namespace Greenshot.Plugin.Win10
                     IEffect effect = new ResizeCanvasEffect(addedWidth, addedWidth, addedHeight, addedHeight);
                     outputSettings.Effects.Add(effect);
                 }
-                ImageOutput.SaveToStream(surface, imageStream, outputSettings);
+                ImageIO.SaveToStream(surface, imageStream, outputSettings);
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
@@ -117,7 +118,7 @@ namespace Greenshot.Plugin.Win10
             OcrInformation result;
             using (var imageStream = new MemoryStream())
             {
-                ImageOutput.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
+                ImageIO.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
@@ -169,7 +170,7 @@ namespace Greenshot.Plugin.Win10
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var location = new Rectangle((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
+                    var location = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
                         (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
 
                     var word = line.Words[index];

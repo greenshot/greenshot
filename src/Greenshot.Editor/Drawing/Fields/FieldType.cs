@@ -31,31 +31,33 @@ namespace Greenshot.Editor.Drawing.Fields
     [Serializable]
     public class FieldType : IFieldType
     {
-        public static readonly IFieldType ARROWHEADS = new FieldType("ARROWHEADS");
-        public static readonly IFieldType BLUR_RADIUS = new FieldType("BLUR_RADIUS");
-        public static readonly IFieldType BRIGHTNESS = new FieldType("BRIGHTNESS");
-        public static readonly IFieldType FILL_COLOR = new FieldType("FILL_COLOR");
-        public static readonly IFieldType FONT_BOLD = new FieldType("FONT_BOLD");
-        public static readonly IFieldType FONT_FAMILY = new FieldType("FONT_FAMILY");
-        public static readonly IFieldType FONT_ITALIC = new FieldType("FONT_ITALIC");
-        public static readonly IFieldType FONT_SIZE = new FieldType("FONT_SIZE");
-        public static readonly IFieldType TEXT_HORIZONTAL_ALIGNMENT = new FieldType("TEXT_HORIZONTAL_ALIGNMENT");
-        public static readonly IFieldType TEXT_VERTICAL_ALIGNMENT = new FieldType("TEXT_VERTICAL_ALIGNMENT");
-        public static readonly IFieldType HIGHLIGHT_COLOR = new FieldType("HIGHLIGHT_COLOR");
-        public static readonly IFieldType LINE_COLOR = new FieldType("LINE_COLOR");
-        public static readonly IFieldType LINE_THICKNESS = new FieldType("LINE_THICKNESS");
-        public static readonly IFieldType MAGNIFICATION_FACTOR = new FieldType("MAGNIFICATION_FACTOR");
-        public static readonly IFieldType PIXEL_SIZE = new FieldType("PIXEL_SIZE");
-        public static readonly IFieldType PREVIEW_QUALITY = new FieldType("PREVIEW_QUALITY");
-        public static readonly IFieldType SHADOW = new FieldType("SHADOW");
-        public static readonly IFieldType PREPARED_FILTER_OBFUSCATE = new FieldType("PREPARED_FILTER_OBFUSCATE");
-        public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType("PREPARED_FILTER_HIGHLIGHT");
-        public static readonly IFieldType FLAGS = new FieldType("FLAGS");
+        public static readonly IFieldType ARROWHEADS = new FieldType(nameof(ARROWHEADS));
+        public static readonly IFieldType BLUR_RADIUS = new FieldType(nameof(BLUR_RADIUS));
+        public static readonly IFieldType BRIGHTNESS = new FieldType(nameof(BRIGHTNESS));
+        public static readonly IFieldType FILL_COLOR = new FieldType(nameof(FILL_COLOR));
+        public static readonly IFieldType FONT_BOLD = new FieldType(nameof(FONT_BOLD));
+        public static readonly IFieldType FONT_FAMILY = new FieldType(nameof(FONT_FAMILY));
+        public static readonly IFieldType FONT_ITALIC = new FieldType(nameof(FONT_ITALIC));
+        public static readonly IFieldType FONT_SIZE = new FieldType(nameof(FONT_SIZE));
+        public static readonly IFieldType TEXT_HORIZONTAL_ALIGNMENT = new FieldType(nameof(TEXT_HORIZONTAL_ALIGNMENT));
+        public static readonly IFieldType TEXT_VERTICAL_ALIGNMENT = new FieldType(nameof(TEXT_VERTICAL_ALIGNMENT));
+        public static readonly IFieldType HIGHLIGHT_COLOR = new FieldType(nameof(HIGHLIGHT_COLOR));
+        public static readonly IFieldType LINE_COLOR = new FieldType(nameof(LINE_COLOR));
+        public static readonly IFieldType LINE_THICKNESS = new FieldType(nameof(LINE_THICKNESS));
+        public static readonly IFieldType MAGNIFICATION_FACTOR = new FieldType(nameof(MAGNIFICATION_FACTOR));
+        public static readonly IFieldType PIXEL_SIZE = new FieldType(nameof(PIXEL_SIZE));
+        public static readonly IFieldType PREVIEW_QUALITY = new FieldType(nameof(PREVIEW_QUALITY));
+        public static readonly IFieldType SHADOW = new FieldType(nameof(SHADOW));
+        public static readonly IFieldType PREPARED_FILTER_OBFUSCATE = new FieldType(nameof(PREPARED_FILTER_OBFUSCATE));
+        public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType(nameof(PREPARED_FILTER_HIGHLIGHT));
+        public static readonly IFieldType FLAGS = new FieldType(nameof(FLAGS));
+        public static readonly IFieldType CROPMODE = new FieldType(nameof(CROPMODE));
+
 
         public static IFieldType[] Values =
         {
             ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR,
-            LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS
+            LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS, CROPMODE
         };
 
         public string Name { get; set; }

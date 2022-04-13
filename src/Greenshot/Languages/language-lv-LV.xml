@@ -92,6 +92,8 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_copypathtoclipboard">Ievietot ceļu starpliktuvē</resource>
 		<resource name="editor_copytoclipboard">Kopēt</resource>
 		<resource name="editor_crop">Apcirst (C)</resource>
+		<resource name="editor_cropmode_default">Apcirst</resource>
+		<resource name="editor_cropmode_auto">Automātiski apcirst</resource>
 		<resource name="editor_cursortool">Atlases rīks (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Izgriezt</resource>
 		<resource name="editor_deleteelement">Izdzēst</resource>

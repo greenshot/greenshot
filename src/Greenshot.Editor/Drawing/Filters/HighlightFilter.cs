@@ -22,12 +22,16 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
+    /// <summary>
+    /// This filter highlights an area
+    /// </summary>
     [Serializable()]
     public class HighlightFilter : AbstractFilter
     {
@@ -41,11 +45,11 @@ namespace Greenshot.Editor.Drawing.Filters
         /// </summary>
         /// <param name="graphics"></param>
         /// <param name="applyBitmap"></param>
-        /// <param name="rect"></param>
+        /// <param name="rect">NativeRect</param>
         /// <param name="renderMode"></param>
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
-            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
             if (applyRect.Width == 0 || applyRect.Height == 0)
             {

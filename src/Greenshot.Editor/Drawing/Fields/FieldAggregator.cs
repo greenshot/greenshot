@@ -42,7 +42,7 @@ namespace Greenshot.Editor.Drawing.Fields
     ///    If the property values of the selected elements differ, the value of the last bound element wins.
     /// </summary>
     [Serializable]
-    public sealed class FieldAggregator : AbstractFieldHolder
+    public sealed class FieldAggregator : AbstractFieldHolder, IFieldAggregator
     {
         private readonly IDrawableContainerList _boundContainers;
         private bool _internalUpdateRunning;
@@ -117,11 +117,10 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void UnbindElement(IDrawableContainer dc)
         {
-            if (_boundContainers.Contains(dc))
-            {
-                _boundContainers.Remove(dc);
-                UpdateFromBoundElements();
-            }
+            if (!_boundContainers.Contains(dc)) return;
+
+            _boundContainers.Remove(dc);
+            UpdateFromBoundElements();
         }
 
         public void Clear()

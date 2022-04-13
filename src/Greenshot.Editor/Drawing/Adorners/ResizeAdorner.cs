@@ -20,8 +20,8 @@
  */
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
 
@@ -32,8 +32,8 @@ namespace Greenshot.Editor.Drawing.Adorners
     /// </summary>
     public class ResizeAdorner : AbstractAdorner
     {
-        private Rectangle _boundsBeforeResize = Rectangle.Empty;
-        private RectangleF _boundsAfterResize = RectangleF.Empty;
+        private NativeRect _boundsBeforeResize = NativeRect.Empty;
+        private NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
         public Positions Position { get; private set; }
 
@@ -55,23 +55,18 @@ namespace Greenshot.Editor.Drawing.Adorners
                     isNotSwitched = !isNotSwitched;
                 }
 
-                switch (Position)
+                return Position switch
                 {
-                    case Positions.TopLeft:
-                    case Positions.BottomRight:
-                        return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
-                    case Positions.TopRight:
-                    case Positions.BottomLeft:
-                        return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
-                    case Positions.MiddleLeft:
-                    case Positions.MiddleRight:
-                        return Cursors.SizeWE;
-                    case Positions.TopCenter:
-                    case Positions.BottomCenter:
-                        return Cursors.SizeNS;
-                    default:
-                        return Cursors.SizeAll;
-                }
+                    Positions.TopLeft => isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW,
+                    Positions.BottomRight => isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW,
+                    Positions.TopRight => isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE,
+                    Positions.BottomLeft => isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE,
+                    Positions.MiddleLeft => Cursors.SizeWE,
+                    Positions.MiddleRight => Cursors.SizeWE,
+                    Positions.TopCenter => Cursors.SizeNS,
+                    Positions.BottomCenter => Cursors.SizeNS,
+                    _ => Cursors.SizeAll
+                };
             }
         }
 
@@ -83,7 +78,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
         {
             EditStatus = EditStatus.RESIZING;
-            _boundsBeforeResize = new Rectangle(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
+            _boundsBeforeResize = new NativeRect(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
             _boundsAfterResize = _boundsBeforeResize;
         }
 
@@ -103,14 +98,12 @@ namespace Greenshot.Editor.Drawing.Adorners
             Owner.MakeBoundsChangeUndoable(false);
 
             // reset "workbench" rectangle to current bounds
-            _boundsAfterResize.X = _boundsBeforeResize.X;
-            _boundsAfterResize.Y = _boundsBeforeResize.Y;
-            _boundsAfterResize.Width = _boundsBeforeResize.Width;
-            _boundsAfterResize.Height = _boundsBeforeResize.Height;
+            _boundsAfterResize = _boundsBeforeResize;
+
+            var scaleOptions = (Owner as IHaveScaleOptions)?.GetScaleOptions();
 
             // calculate scaled rectangle
-            var scaleOptions = (Owner as IHasScaleOptions)?.GetScaleOptions() ?? ScaleHelper.GetScaleOptions();
-            ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), scaleOptions);
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             Owner.ApplyBounds(_boundsAfterResize);
@@ -121,7 +114,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the location of the adorner
         /// </summary>
-        public override Point Location
+        public override NativePoint Location
         {
             get
             {
@@ -164,24 +157,6 @@ namespace Greenshot.Editor.Drawing.Adorners
 
                 return new Point(x, y);
             }
-        }
-
-        /// <summary>
-        /// Draw the adorner
-        /// </summary>
-        /// <param name="paintEventArgs">PaintEventArgs</param>
-        public override void Paint(PaintEventArgs paintEventArgs)
-        {
-            Graphics targetGraphics = paintEventArgs.Graphics;
-
-            var bounds = BoundsOnSurface;
-            GraphicsState state = targetGraphics.Save();
-
-            targetGraphics.CompositingMode = CompositingMode.SourceCopy;
-
-            targetGraphics.FillRectangle(Brushes.Black, bounds);
-            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
-            targetGraphics.Restore(state);
         }
     }
 }

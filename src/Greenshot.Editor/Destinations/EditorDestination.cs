@@ -64,7 +64,7 @@ namespace Greenshot.Editor.Destinations
                     return Language.GetString(LangKey.settings_destination_editor);
                 }
 
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
+                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
             }
         }
 

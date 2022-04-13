@@ -94,7 +94,7 @@ namespace Greenshot.Plugin.Jira.Forms {
 			this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxUrl.Location = new System.Drawing.Point(164, 21);
 			this.textBoxUrl.Name = "textBoxUrl";
-			this.textBoxUrl.PropertyName = "Url";
+			this.textBoxUrl.PropertyName = nameof(JiraConfiguration.Url);
 			this.textBoxUrl.SectionName = "Jira";
 			this.textBoxUrl.Size = new System.Drawing.Size(214, 20);
 			this.textBoxUrl.TabIndex = 6;
@@ -105,7 +105,7 @@ namespace Greenshot.Plugin.Jira.Forms {
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(164, 47);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.PropertyName = nameof(JiraConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "Jira";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(214, 21);
 			this.combobox_uploadimageformat.TabIndex = 8;

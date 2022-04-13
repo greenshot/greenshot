@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Memento
 {
@@ -30,9 +30,9 @@ namespace Greenshot.Editor.Memento
     public class DeleteElementsMemento : IMemento
     {
         private IDrawableContainerList _containerList;
-        private Surface _surface;
+        private ISurface _surface;
 
-        public DeleteElementsMemento(Surface surface, IDrawableContainerList containerList)
+        public DeleteElementsMemento(ISurface surface, IDrawableContainerList containerList)
         {
             _surface = surface;
             _containerList = containerList;
@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Memento
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {

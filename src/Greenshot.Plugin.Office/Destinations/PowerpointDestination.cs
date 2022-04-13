@@ -114,7 +114,7 @@ namespace Greenshot.Plugin.Office.Destinations
             Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
-                tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
                 imageSize = surface.Image.Size;
             }
 

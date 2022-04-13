@@ -22,6 +22,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using log4net;
@@ -36,18 +39,18 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Capture));
 
-        private Rectangle _screenBounds;
+        private NativeRect _screenBounds;
 
         /// <summary>
         /// Get/Set the screen bounds
         /// </summary>
-        public Rectangle ScreenBounds
+        public NativeRect ScreenBounds
         {
             get
             {
-                if (_screenBounds == Rectangle.Empty)
+                if (_screenBounds.IsEmpty)
                 {
-                    _screenBounds = WindowCapture.GetScreenBounds();
+                    _screenBounds = DisplayInfo.ScreenBounds;
                 }
 
                 return _screenBounds;
@@ -124,23 +127,23 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool CursorVisible { get; set; }
 
-        private Point _cursorLocation = Point.Empty;
+        private NativePoint _cursorLocation = NativePoint.Empty;
 
         /// <summary>
         /// Get/Set the CursorLocation
         /// </summary>
-        public Point CursorLocation
+        public NativePoint CursorLocation
         {
             get => _cursorLocation;
             set => _cursorLocation = value;
         }
 
-        private Point _location = Point.Empty;
+        private NativePoint _location = NativePoint.Empty;
 
         /// <summary>
         /// Get/set the Location
         /// </summary>
-        public Point Location
+        public NativePoint Location
         {
             get => _location;
             set => _location = value;
@@ -162,7 +165,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public Capture()
         {
-            _screenBounds = WindowCapture.GetScreenBounds();
+            _screenBounds = DisplayInfo.ScreenBounds;
             _captureDetails = new CaptureDetails();
         }
 
@@ -214,8 +217,8 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Crops the capture to the specified rectangle (with Bitmap coordinates!)
         /// </summary>
-        /// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-        public bool Crop(Rectangle cropRectangle)
+        /// <param name="cropRectangle">NativeRect with bitmap coordinates</param>
+        public bool Crop(NativeRect cropRectangle)
         {
             Log.Debug("Cropping to: " + cropRectangle);
             if (!ImageHelper.Crop(ref _image, ref cropRectangle))
@@ -245,7 +248,7 @@ namespace Greenshot.Base.Core
         /// <param name="y">y coordinates to move the mouse</param>
         public void MoveMouseLocation(int x, int y)
         {
-            _cursorLocation.Offset(x, y);
+            _cursorLocation = _cursorLocation.Offset(x, y);
         }
 
         // TODO: Enable when the elements are usable again.
@@ -261,7 +264,7 @@ namespace Greenshot.Base.Core
 
         //private void MoveElements(List<ICaptureElement> listOfElements, int x, int y) {
         //    foreach(ICaptureElement childElement in listOfElements) {
-        //        Rectangle bounds = childElement.Bounds;
+        //        NativeRect bounds = childElement.Bounds;
         //        bounds.Offset(x, y);
         //        childElement.Bounds = bounds;
         //        MoveElements(childElement.Children, x, y);

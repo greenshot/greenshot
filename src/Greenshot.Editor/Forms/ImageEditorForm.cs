@@ -29,6 +29,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -38,8 +44,6 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Destinations;
@@ -52,20 +56,20 @@ using log4net;
 namespace Greenshot.Editor.Forms
 {
     /// <summary>
-    /// Description of ImageEditorForm.
+    /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
     public partial class ImageEditorForm : EditorForm, IImageEditor
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
-        private static readonly List<string> IgnoreDestinations = new List<string>
+        private static readonly List<string> IgnoreDestinations = new()
         {
             nameof(WellKnownDestinations.Picker),
             EditorDestination.DESIGNATION
         };
 
-        private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
+        private static readonly List<IImageEditor> EditorList = new();
 
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
@@ -81,7 +85,7 @@ namespace Greenshot.Editor.Forms
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
 
-        // Used for tracking the mouse scrollwheel changes
+        // Used for tracking the mouse scroll wheel changes
         private DateTime _zoomStartTime = DateTime.Now;
 
         /// <summary>
@@ -112,19 +116,17 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Adjust the icons etc to the supplied DPI settings
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
-        private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
+        /// <param name="oldDpi"></param>
+        /// <param name="newDpi"></param>
+        protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var dpi = DpiHelper.GetDpi(Handle);
-            var newSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, dpi);
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
             toolsToolStrip.ImageScalingSize = newSize;
             menuStrip1.ImageScalingSize = newSize;
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-
-            _surface?.AdjustToDpi(dpi);
+            _surface?.AdjustToDpi(newDpi);
             UpdateUi();
         }
 
@@ -153,7 +155,6 @@ namespace Greenshot.Editor.Forms
             ManualLanguageApply = true;
             InitializeComponent();
             // Make sure we change the icon size depending on the scaling
-            DpiChanged += AdjustToDpi;
             Load += delegate
             {
                 var thread = new Thread(AddDestinations)
@@ -161,21 +162,19 @@ namespace Greenshot.Editor.Forms
                     Name = "add destinations"
                 };
                 thread.Start();
-
-                AdjustToDpi(null, null);
             };
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
             WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
-            Rectangle screenBounds = WindowCapture.GetScreenBounds();
+            NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
             {
                 EditorConfiguration.ResetEditorPlacement();
             }
 
             // ReSharper disable once UnusedVariable
-            WindowDetails thisForm = new WindowDetails(Handle)
+            WindowDetails thisForm = new(Handle)
             {
                 WindowPlacement = EditorConfiguration.GetEditorPlacement()
             };
@@ -186,6 +185,23 @@ namespace Greenshot.Editor.Forms
             _surface.Modified = !outputMade;
 
             UpdateUi();
+
+            // Workaround: for the MouseWheel event which doesn't get to the panel
+            MouseWheel += PanelMouseWheel;
+
+            // Use best fit, for those capture modes where we can get huge images
+            bool useBestFit = _surface.CaptureDetails.CaptureMode switch
+            {
+                CaptureMode.File => true,
+                CaptureMode.Clipboard => true,
+                CaptureMode.IE => true,
+                _ => false
+            };
+
+            if (useBestFit)
+            {
+                ZoomBestFitMenuItemClick(this, EventArgs.Empty);
+            }
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
@@ -236,6 +252,10 @@ namespace Greenshot.Editor.Forms
                 _surface.DrawingModeChanged += Surface_DrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
                 _surface.SurfaceMessage += SurfaceMessageReceived;
+                _surface.ForegroundColorChanged += ForegroundColorChanged;
+                _surface.BackgroundColorChanged += BackgroundColorChanged;
+                _surface.LineThicknessChanged += LineThicknessChanged;
+                _surface.ShadowChanged += ShadowChanged;
                 _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
                 SurfaceSizeChanged(Surface, null);
 
@@ -268,11 +288,6 @@ namespace Greenshot.Editor.Forms
             // a smaller size than the initial panel size (as set by the forms designer)
             panel1.Height = 10;
 
-            fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
-
-            obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-            highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
-
             _toolbarButtons = new[]
             {
                 btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
@@ -280,9 +295,6 @@ namespace Greenshot.Editor.Forms
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-
-            // Workaround: for the MouseWheel event which doesn't get to the panel
-            MouseWheel += PanelMouseWheel;
 
             // Make sure the value is set correctly when starting
             if (Surface != null)
@@ -305,9 +317,8 @@ namespace Greenshot.Editor.Forms
             // Loop over all items in the propertiesToolStrip
             foreach (ToolStripItem item in propertiesToolStrip.Items)
             {
-                var cb = item as ToolStripComboBox;
                 // Only ToolStripComboBox that are visible
-                if (cb == null || !cb.Visible)
+                if (item is not ToolStripComboBox { Visible: true } cb)
                 {
                     continue;
                 }
@@ -315,7 +326,7 @@ namespace Greenshot.Editor.Forms
                 if (cb.ComboBox == null) continue;
 
                 // Calculate the rectangle
-                Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+                var r = new NativeRect(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
                 // Draw the rectangle
                 e.Graphics.DrawRectangle(cbBorderPen, r);
@@ -364,7 +375,7 @@ namespace Greenshot.Editor.Forms
         {
             if (toolstripDestination.IsDynamic)
             {
-                ToolStripSplitButton destinationButton = new ToolStripSplitButton
+                ToolStripSplitButton destinationButton = new()
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
@@ -473,7 +484,7 @@ namespace Greenshot.Editor.Forms
         private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
 
         /// <summary>
-        /// This is the SufraceMessageEvent receiver which display a message in the status bar if the
+        /// This is the SurfaceMessageEvent receiver which display a message in the status bar if the
         /// surface is exported. It also updates the title to represent the filename, if there is one.
         /// </summary>
         /// <param name="sender"></param>
@@ -502,6 +513,46 @@ namespace Greenshot.Editor.Forms
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// This is called when the foreground color of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
+        private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
+        {
+            _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
+        }
+        
+        /// <summary>
+        /// This is called when the background color of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
+        private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
+        {
+            _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
+        }
+        
+        /// <summary>
+        /// This is called when the line thickness of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceLineThicknessEventArgs</param>
+        private void LineThicknessChanged(object sender, SurfaceLineThicknessEventArgs eventArgs)
+        {
+            _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS).Value = eventArgs.Thickness;
+        }
+        
+        /// <summary>
+        /// This is called when the shadow of the select element chances, used for shortcuts
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="eventArgs">SurfaceShadowEventArgs</param>
+        private void ShadowChanged(object sender, SurfaceShadowEventArgs eventArgs)
+        {
+            _surface.FieldAggregator.GetField(FieldType.SHADOW).Value = eventArgs.HasShadow;
         }
 
         /// <summary>
@@ -684,7 +735,10 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCropClick(object sender, EventArgs e)
         {
+            if (_surface.DrawingMode == DrawingModes.Crop) return;
+
             _surface.DrawingMode = DrawingModes.Crop;
+            InitCropMode((CropContainer.CropModes)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value);
             RefreshFieldControls();
         }
 
@@ -934,7 +988,7 @@ namespace Greenshot.Editor.Forms
             GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -1059,13 +1113,8 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// This is a "work-around" for the MouseWheel event which doesn't get to the panel
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <summary>
-        /// This is a "work-around" for the MouseWheel event which doesn't get to the panel
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">object</param>
+        /// <param name="e">MouseEventArgs</param>
         private void PanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))
@@ -1252,6 +1301,7 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
+            new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
             new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
@@ -1264,7 +1314,7 @@ namespace Greenshot.Editor.Forms
             propertiesToolStrip.SuspendLayout();
             if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
             {
-                FieldAggregator props = _surface.FieldAggregator;
+                var props = (FieldAggregator)_surface.FieldAggregator;
                 btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
                 btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
@@ -1281,12 +1331,13 @@ namespace Greenshot.Editor.Forms
                 textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                               && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
-                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-                                                         && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+
+                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
+                btnConfirm.Enabled = _surface.HasSelectedElements;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+                cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -1324,7 +1375,7 @@ namespace Greenshot.Editor.Forms
             btnStepLabel.Image = icon;
             addCounterToolStripMenuItem.Image = icon;
 
-            FieldAggregator props = _surface.FieldAggregator;
+            FieldAggregator props = (FieldAggregator)_surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
             // since we demand confirmation or cancel for confirmable element
             if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
@@ -1542,6 +1593,39 @@ namespace Greenshot.Editor.Forms
             Invalidate(true);
         }
 
+        protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {      
+            InitCropMode((CropContainer.CropModes)e.ClickedItem.Tag);
+         
+            RefreshFieldControls();
+            Invalidate(true);
+        }
+
+        private void InitCropMode(CropContainer.CropModes mode)
+        {
+            var cropArea = _surface.Elements.FirstOrDefault(c => c is CropContainer)?.Bounds;
+
+            _surface.DrawingMode = DrawingModes.None;
+            _surface.RemoveCropContainer();
+
+            if (mode == CropContainer.CropModes.AutoCrop)
+            {
+                if (!_surface.AutoCrop(cropArea))
+                {
+                    //not AutoCrop possible automatic switch to default crop mode
+                    _surface.DrawingMode = DrawingModes.Crop;
+                    _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
+                    this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
+                    this.statusLabel.Text = Language.GetString(LangKey.editor_autocrop_not_possible);
+                }
+            }
+            else
+            {
+                _surface.DrawingMode = DrawingModes.Crop;
+            }
+            RefreshEditorControls();
+        }
+
         private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             _surface.SelectAllElements();
@@ -1550,14 +1634,14 @@ namespace Greenshot.Editor.Forms
 
         private void BtnConfirmClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(true);
-            RefreshFieldControls();
+            _surface.Confirm(true);
+            RefreshEditorControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
         {
-            _surface.ConfirmSelectedConfirmableElements(false);
-            RefreshFieldControls();
+            _surface.Confirm(false);
+            RefreshEditorControls();
         }
 
         private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
@@ -1603,14 +1687,6 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void AutoCropToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            if (_surface.AutoCrop())
-            {
-                RefreshFieldControls();
-            }
-        }
-
         private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
         {
             _surface.ApplyBitmapEffect(new BorderEffect());
@@ -1635,13 +1711,13 @@ namespace Greenshot.Editor.Forms
         /// <param name="e"></param>
         private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
             }
 
-            if (_surface.IsCropPossible(ref cropRectangle))
+            if (_surface.IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
             {
                 _surface.ApplyCrop(cropRectangle);
                 UpdateUndoRedoSurfaceDependencies();
@@ -1890,8 +1966,7 @@ namespace Greenshot.Editor.Forms
         private void ZoomSetValue(Fraction value)
         {
             var surface = Surface as Surface;
-            var panel = surface?.Parent as Panel;
-            if (panel == null)
+            if (surface?.Parent is not Panel panel)
             {
                 return;
             }
@@ -1906,9 +1981,8 @@ namespace Greenshot.Editor.Forms
             var size = surface.Size;
             if (value > Surface.ZoomFactor) // being smart on zoom-in
             {
-                var selection = surface.GetSelectionRectangle();
-                selection.Intersect(rc);
-                if (selection != Rectangle.Empty)
+                var selection = surface.GetSelectionRectangle().Intersect(rc);
+                if (selection != NativeRect.Empty)
                 {
                     rc = selection; // zoom to visible part of selection
                 }
@@ -1918,12 +1992,12 @@ namespace Greenshot.Editor.Forms
                     // - prefer top left corner to zoom-in as less disorienting for screenshots
                     if (size.Width < rc.Width)
                     {
-                        rc.Width = 0;
+                        rc = rc.ChangeWidth(0);
                     }
 
                     if (size.Height < rc.Height)
                     {
-                        rc.Height = 0;
+                        rc = rc.ChangeHeight(0);
                     }
                 }
             }

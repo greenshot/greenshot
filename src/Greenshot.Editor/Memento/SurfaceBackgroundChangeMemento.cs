@@ -21,8 +21,8 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Memento
 {
@@ -32,10 +32,10 @@ namespace Greenshot.Editor.Memento
     public class SurfaceBackgroundChangeMemento : IMemento
     {
         private Image _image;
-        private Surface _surface;
+        private ISurface _surface;
         private Matrix _matrix;
 
-        public SurfaceBackgroundChangeMemento(Surface surface, Matrix matrix)
+        public SurfaceBackgroundChangeMemento(ISurface surface, Matrix matrix)
         {
             _surface = surface;
             _image = surface.Image;
@@ -52,7 +52,7 @@ namespace Greenshot.Editor.Memento
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing) return;
 

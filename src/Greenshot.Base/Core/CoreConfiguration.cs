@@ -26,6 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -321,17 +322,17 @@ namespace Greenshot.Base.Core
         public bool ProcessEXIFOrientation { get; set; }
 
         [IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-        public Rectangle LastCapturedRegion { get; set; }
+        public NativeRect LastCapturedRegion { get; set; }
 
         [IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
-        public Size Win10BorderCrop { get; set; }
+        public NativeSize Win10BorderCrop { get; set; }
 
-        private Size _iconSize;
+        private NativeSize _iconSize;
 
         [IniProperty("BaseIconSize",
             Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI",
             DefaultValue = "16,16")]
-        public Size IconSize
+        public NativeSize IconSize
         {
             get { return _iconSize; }
             set
@@ -368,13 +369,11 @@ namespace Greenshot.Base.Core
                 }
             }
         }
-
-        public Size ScaledIconSize => DpiHelper.ScaleWithCurrentDpi(_iconSize);
-
-        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        
+        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
 
-        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestReadWriteTimeout { get; set; }
 
         public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
@@ -386,7 +385,7 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public bool IsExperimentalFeatureEnabled(string experimentalFeature)
         {
-            return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
+            return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
         /// <summary>
@@ -398,17 +397,17 @@ namespace Greenshot.Base.Core
         {
             switch (property)
             {
-                case "PluginWhitelist":
-                case "PluginBacklist":
+                case nameof(ExcludePlugins):
+                case nameof(IncludePlugins):
                     return new List<string>();
-                case "OutputFileAsFullpath":
+                case nameof(OutputFileAsFullpath):
                     if (IniConfig.IsPortable)
                     {
                         return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
                     }
 
                     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-                case "OutputFilePath":
+                case nameof(OutputFilePath):
                     if (IniConfig.IsPortable)
                     {
                         string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
@@ -432,16 +431,16 @@ namespace Greenshot.Base.Core
                     }
 
                     return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                case "DWMBackgroundColor":
+                case nameof(DWMBackgroundColor):
                     return Color.Transparent;
-                case "ActiveTitleFixes":
+                case nameof(ActiveTitleFixes):
                     return new List<string>
                     {
                         "Firefox",
                         "IE",
                         "Chrome"
                     };
-                case "TitleFixMatcher":
+                case nameof(TitleFixMatcher):
                     return new Dictionary<string, string>
                     {
                         {
@@ -454,7 +453,7 @@ namespace Greenshot.Base.Core
                             "Chrome", " - Google Chrome.*"
                         }
                     };
-                case "TitleFixReplacer":
+                case nameof(TitleFixReplacer):
                     return new Dictionary<string, string>
                     {
                         {
@@ -509,7 +508,7 @@ namespace Greenshot.Base.Core
             try
             {
                 // Store version, this can be used later to fix settings after an update
-                LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
             }
             catch
             {
@@ -530,7 +529,7 @@ namespace Greenshot.Base.Core
                 try
                 {
                     // Store version, this can be used later to fix settings after an update
-                    LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                    LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
                 }
                 catch
                 {

@@ -23,8 +23,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.SafeHandles;
+using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.User32;
 using Greenshot.Editor.Forms;
 using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
 
@@ -65,11 +68,10 @@ namespace Greenshot.Editor.Controls
         private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
         {
             using SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon());
-            User32.GetIconInfo(iconHandle, out var iconInfo);
-            iconInfo.xHotspot = hotspotX;
-            iconInfo.yHotspot = hotspotY;
-            iconInfo.fIcon = false;
-            var icon = User32.CreateIconIndirect(ref iconInfo);
+            NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
+            iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
+            iconInfo.IsIcon = false;
+            var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
             return new Cursor(icon);
         }
 
@@ -110,7 +112,7 @@ namespace Greenshot.Editor.Controls
         {
             if (e.Button == MouseButtons.Left)
             {
-                User32.SetCapture(Handle);
+                User32Api.SetCapture(Handle);
                 _movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
             }
 
@@ -126,8 +128,8 @@ namespace Greenshot.Editor.Controls
             if (e.Button == MouseButtons.Left)
             {
                 //Release Capture should consume MouseUp when canceled with the escape key 
-                User32.ReleaseCapture();
-                PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.color));
+                User32Api.ReleaseCapture();
+                PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.Color));
             }
 
             base.OnMouseUp(e);
@@ -183,7 +185,7 @@ namespace Greenshot.Editor.Controls
                 {
                     if ((int) m.WParam == VkEsc)
                     {
-                        User32.ReleaseCapture();
+                        User32Api.ReleaseCapture();
                     }
                 }
             }

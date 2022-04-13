@@ -93,6 +93,8 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_copypathtoclipboard">Kopiuj ścieżkę do schowka</resource>
 		<resource name="editor_copytoclipboard">Kopiuj</resource>
 		<resource name="editor_crop">Przytnij (C)</resource>
+		<resource name="editor_cropmode_default">Przytnij (C)</resource>
+		<resource name="editor_cropmode_auto">Przytnij automatycznie</resource>
 		<resource name="editor_cursortool">Narzędzie wyboru (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Wytnij</resource>
 		<resource name="editor_deleteelement">Usuń</resource>

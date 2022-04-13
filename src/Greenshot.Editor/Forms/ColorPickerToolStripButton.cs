@@ -20,10 +20,11 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Editor.Forms
 {
@@ -32,7 +33,7 @@ namespace Greenshot.Editor.Forms
     public class ColorPickerToolStripButton : ToolStripButton
     {
         private Color _color;
-        public Point Offset = new Point(0, 0);
+        public NativePoint Offset = new NativePoint(0, 0);
         public event ColorPickerEventHandler ColorPicked;
         private readonly ColorDialog _cd;
 
@@ -56,29 +57,24 @@ namespace Greenshot.Editor.Forms
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (_color != null)
+            if (_color == null) return;
+            // replace transparent color with selected color
+            Graphics g = e.Graphics;
+            ColorMap[] colorMap = new ColorMap[1];
+            colorMap[0] = new ColorMap
             {
-                // replace transparent color with selected color
-                Graphics g = e.Graphics;
-                //Graphics g = Graphics.FromImage(Image);
-                ColorMap[] colorMap = new ColorMap[1];
-                colorMap[0] = new ColorMap
-                {
-                    OldColor = Color.Magenta, //this.ImageTransparentColor;
-                    NewColor = _color
-                };
-                ImageAttributes attr = new ImageAttributes();
-                attr.SetRemapTable(colorMap);
-                Rectangle rect = new Rectangle(0, 0, Image.Width, Image.Height);
-                // todo find a way to retrieve transparency offset automatically
-                // for now, we use the public variable Offset to define this manually
-                rect.Offset(Offset.X, Offset.Y);
-                //Image.
-                Debug.WriteLine("paint!" + Text + ": " + _color);
-                //ssif(color.Equals(Color.Transparent)) ((Bitmap)Image).MakeTransparent(Color.Magenta);
-                g.DrawImage(Image, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
-                //this.Image.In
-            }
+                OldColor = Color.Magenta, //this.ImageTransparentColor;
+                NewColor = _color
+            };
+            ImageAttributes attr = new ImageAttributes();
+            attr.SetRemapTable(colorMap);
+            var rect = new NativeRect(0, 0, Image.Width, Image.Height);
+            // todo find a way to retrieve transparency offset automatically
+            // for now, we use the public variable Offset to define this manually
+            rect = rect.Offset(Offset.X, Offset.Y);
+            //ssif(color.Equals(Color.Transparent)) ((Bitmap)Image).MakeTransparent(Color.Magenta);
+            g.DrawImage(Image, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
+            //this.Image.In
         }
 
         void ToolStripButton1Click(object sender, EventArgs e)

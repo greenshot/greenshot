@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 }
 
                 bool runInBackground = config.RunInbackground[_presetCommand];
-                string fullPath = captureDetails.Filename ?? ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+                string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 
                 string output;
                 string error;

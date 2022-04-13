@@ -93,6 +93,8 @@
 		<resource name="editor_copypathtoclipboard">Αντιγραφή της θέσης του αρχείου στο πρόχειρο</resource>
 		<resource name="editor_copytoclipboard">Αντιγραφή</resource>
 		<resource name="editor_crop">Περικοπή (C)</resource>
+		<resource name="editor_cropmode_default">Περικοπή</resource>
+		<resource name="editor_cropmode_auto">Αυτόματη Περικοπή</resource>
 		<resource name="editor_cursortool">Εργαλείο Επιλογής (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Αποκοπή</resource>
 		<resource name="editor_deleteelement">Διαγραφή</resource>

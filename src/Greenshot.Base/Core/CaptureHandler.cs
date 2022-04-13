@@ -20,15 +20,16 @@
  */
 
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
     /// This is the method signature which is used to capture a rectangle from the screen.
     /// </summary>
-    /// <param name="captureBounds"></param>
+    /// <param name="captureBounds">NativeRect</param>
     /// <returns>Captured Bitmap</returns>
-    public delegate Bitmap CaptureScreenRectangleHandler(Rectangle captureBounds);
+    public delegate Bitmap CaptureScreenRectangleHandler(NativeRect captureBounds);
 
     /// <summary>
     /// This is a hack to experiment with different screen capture routines

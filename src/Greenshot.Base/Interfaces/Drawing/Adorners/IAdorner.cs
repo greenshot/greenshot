@@ -22,6 +22,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Drawing.Adorners
 {
@@ -35,7 +36,7 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// <summary>
         /// These are the bounds of the adorner
         /// </summary>
-        Rectangle Bounds { get; }
+        NativeRect Bounds { get; }
 
         /// <summary>
         /// The current edit status, this is needed to locate the adorner to send events to
@@ -53,7 +54,7 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// </summary>
         /// <param name="point">Point to test</param>
         /// <returns>true if so</returns>
-        bool HitTest(Point point);
+        bool HitTest(NativePoint point);
 
         /// <summary>
         /// Handle the MouseDown event
@@ -97,6 +98,21 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi"></param>
-        void AdjustToDpi(uint dpi);
+        void AdjustToDpi(int dpi);
+
+        /// <summary>
+        /// The color of the lines around the adorner
+        /// </summary>
+        Color OutlineColor { get; set; }
+
+        /// <summary>
+        /// The color of the fill of the adorner
+        /// </summary>
+        Color FillColor { get; set; }
+
+        /// <summary>
+        /// This is to TAG the adorner so we know the type
+        /// </summary>
+        string Tag { get; set; }
     }
 }

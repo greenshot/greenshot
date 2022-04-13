@@ -106,7 +106,7 @@ namespace Greenshot.Forms {
 			this.contextMenu.Name = "contextMenu";
 			this.contextMenu.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuClosing);
 			this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpening);
-			this.contextMenu.Renderer = new Greenshot.Controls.ContextMenuToolStripProfessionalRenderer();
+			this.contextMenu.Renderer = new Greenshot.Controls.ContextMenuToolStripProfessionalRenderer(this);
 			// 
 			// contextmenu_capturearea
 			// 
@@ -204,7 +204,7 @@ namespace Greenshot.Forms {
 			// contextmenu_quicksettings
 			// 
 			this.contextmenu_quicksettings.Name = "contextmenu_quicksettings";
-			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.ScaledIconSize.Height + 8);
+			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
 			// 
 			// contextmenu_settings
 			// 

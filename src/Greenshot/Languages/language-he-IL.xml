@@ -63,6 +63,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_copypathtoclipboard">העתק נתיב אל הלוח</resource>
 		<resource name="editor_copytoclipboard">העתקה</resource>
 		<resource name="editor_crop">חתוך (C)</resource>
+		<resource name="editor_cropmode_default">חתוך</resource>
 		<resource name="editor_cursortool">כלי בחירה (ESC)</resource>
 		<resource name="editor_cuttoclipboard">חיתוך</resource>
 		<resource name="editor_deleteelement">מחיקה</resource>

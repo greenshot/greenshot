@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
 
 namespace Greenshot.Editor.Forms
@@ -51,7 +52,7 @@ namespace Greenshot.Editor.Forms
         private void ButtonOK_Click(object sender, EventArgs e)
         {
             _effect.Darkness = trackBar1.Value / (float) 40;
-            _effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+            _effect.ShadowOffset = new NativePoint((int) offsetX.Value, (int) offsetY.Value);
             _effect.ShadowSize = (int) thickness.Value;
             DialogResult = DialogResult.OK;
         }

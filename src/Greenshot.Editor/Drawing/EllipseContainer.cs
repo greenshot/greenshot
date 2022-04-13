@@ -23,6 +23,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -35,7 +38,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class EllipseContainer : DrawableContainer
     {
-        public EllipseContainer(Surface parent) : base(parent)
+        public EllipseContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -70,7 +73,7 @@ namespace Greenshot.Editor.Drawing
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
         }
 
@@ -84,7 +87,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="lineColor"></param>
         /// <param name="fillColor"></param>
         /// <param name="shadow"></param>
-        public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+        public static void DrawEllipse(NativeRect rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
         {
             bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
             // draw shadow before anything else
@@ -100,7 +103,7 @@ namespace Greenshot.Editor.Drawing
                     {
                         Width = lineVisible ? lineThickness : 1
                     };
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+                    var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
                     graphics.DrawEllipse(shadowPen, shadowRect);
                     currentStep++;
                     alpha -= basealpha / steps;
@@ -145,11 +148,11 @@ namespace Greenshot.Editor.Drawing
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-            Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
         }
 
-        public static bool EllipseClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
+        public static bool EllipseClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
             if (!Color.Transparent.Equals(fillColor))

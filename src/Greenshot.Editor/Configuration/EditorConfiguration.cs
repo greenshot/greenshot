@@ -22,11 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32.Enums;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.UnmanagedHelpers.Enums;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Configuration
@@ -50,24 +51,21 @@ namespace Greenshot.Editor.Configuration
         public WindowPlacementFlags WindowPlacementFlags { get; set; }
 
         [IniProperty("WindowShowCommand", Description = "Show command", DefaultValue = "Normal")]
-        public ShowWindowCommand ShowWindowCommand { get; set; }
+        public ShowWindowCommands ShowWindowCommand { get; set; }
 
         [IniProperty("WindowMinPosition", Description = "Position of minimized window", DefaultValue = "-1,-1")]
-        public Point WindowMinPosition { get; set; }
+        public NativePoint WindowMinPosition { get; set; }
 
         [IniProperty("WindowMaxPosition", Description = "Position of maximized window", DefaultValue = "-1,-1")]
-        public Point WindowMaxPosition { get; set; }
+        public NativePoint WindowMaxPosition { get; set; }
 
         [IniProperty("WindowNormalPosition", Description = "Position of normal window", DefaultValue = "100,100,400,400")]
-        public Rectangle WindowNormalPosition { get; set; }
+        public NativeRect WindowNormalPosition { get; set; }
 
         [IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
         public bool ReuseEditor { get; set; }
 
-        [IniProperty("FreehandSensitivity",
-            Description =
-                "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.",
-            DefaultValue = "3")]
+        [IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 2147483647.", DefaultValue = "3")]
         public int FreehandSensitivity { get; set; }
 
         [IniProperty("SuppressSaveDialogAtClose", Description = "Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue = "False")]
@@ -80,15 +78,17 @@ namespace Greenshot.Editor.Configuration
         public TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
-        public Size DefaultEditorSize { get; set; }
+        public NativeSize DefaultEditorSize { get; set; }
 
 
         public override void AfterLoad()
         {
             base.AfterLoad();
-            if (RecentColors == null)
+            RecentColors ??= new List<Color>();
+
+            if (FreehandSensitivity < 1)
             {
-                RecentColors = new List<Color>();
+                FreehandSensitivity = 1;
             }
         }
 
@@ -137,10 +137,7 @@ namespace Greenshot.Editor.Configuration
         {
             string requestedField = field.Scope + "." + field.FieldType.Name;
             // Check if the configuration exists
-            if (LastUsedFieldValues == null)
-            {
-                LastUsedFieldValues = new Dictionary<string, object>();
-            }
+            LastUsedFieldValues ??= new Dictionary<string, object>();
 
             // check if settings for the requesting type exist, if not create!
             if (LastUsedFieldValues.ContainsKey(requestedField))
@@ -155,19 +152,19 @@ namespace Greenshot.Editor.Configuration
 
         public void ResetEditorPlacement()
         {
-            WindowNormalPosition = new Rectangle(100, 100, 400, 400);
-            WindowMaxPosition = new Point(-1, -1);
-            WindowMinPosition = new Point(-1, -1);
+            WindowNormalPosition = new NativeRect(100, 100, 400, 400);
+            WindowMaxPosition = new NativePoint(-1, -1);
+            WindowMinPosition = new NativePoint(-1, -1);
             WindowPlacementFlags = 0;
-            ShowWindowCommand = ShowWindowCommand.Normal;
+            ShowWindowCommand = ShowWindowCommands.Normal;
         }
 
         public WindowPlacement GetEditorPlacement()
         {
-            WindowPlacement placement = WindowPlacement.Default;
-            placement.NormalPosition = new RECT(WindowNormalPosition);
-            placement.MaxPosition = new POINT(WindowMaxPosition);
-            placement.MinPosition = new POINT(WindowMinPosition);
+            WindowPlacement placement = WindowPlacement.Create();
+            placement.NormalPosition = WindowNormalPosition;
+            placement.MaxPosition = WindowMaxPosition;
+            placement.MinPosition = WindowMinPosition;
             placement.ShowCmd = ShowWindowCommand;
             placement.Flags = WindowPlacementFlags;
             return placement;
@@ -175,9 +172,9 @@ namespace Greenshot.Editor.Configuration
 
         public void SetEditorPlacement(WindowPlacement placement)
         {
-            WindowNormalPosition = placement.NormalPosition.ToRectangle();
-            WindowMaxPosition = placement.MaxPosition.ToPoint();
-            WindowMinPosition = placement.MinPosition.ToPoint();
+            WindowNormalPosition = placement.NormalPosition;
+            WindowMaxPosition = placement.MaxPosition;
+            WindowMinPosition = placement.MinPosition;
             ShowWindowCommand = placement.ShowCmd;
             WindowPlacementFlags = placement.Flags;
         }

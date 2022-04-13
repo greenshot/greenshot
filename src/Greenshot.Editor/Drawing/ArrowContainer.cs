@@ -22,6 +22,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 
@@ -43,7 +46,7 @@ namespace Greenshot.Editor.Drawing
 
         private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
-        public ArrowContainer(Surface parent) : base(parent)
+        public ArrowContainer(ISurface parent) : base(parent)
         {
         }
 
@@ -65,44 +68,40 @@ namespace Greenshot.Editor.Drawing
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
-            if (lineThickness > 0)
+            if (lineThickness <= 0) return;
+            
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.None;
+            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
+            if (shadow)
             {
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.None;
-                Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-                ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
-                if (lineThickness > 0)
+                //draw shadow first
+                int basealpha = 100;
+                int alpha = basealpha;
+                int steps = 5;
+                int currentStep = 1;
+                while (currentStep <= steps)
                 {
-                    if (shadow)
-                    {
-                        //draw shadow first
-                        int basealpha = 100;
-                        int alpha = basealpha;
-                        int steps = 5;
-                        int currentStep = 1;
-                        while (currentStep <= steps)
-                        {
-                            using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                            SetArrowHeads(heads, shadowCapPen);
+                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    SetArrowHeads(heads, shadowCapPen);
 
-                            graphics.DrawLine(shadowCapPen,
-                                Left + currentStep,
-                                Top + currentStep,
-                                Left + currentStep + Width,
-                                Top + currentStep + Height);
+                    graphics.DrawLine(shadowCapPen,
+                        Left + currentStep,
+                        Top + currentStep,
+                        Left + currentStep + Width,
+                        Top + currentStep + Height);
 
-                            currentStep++;
-                            alpha -= basealpha / steps;
-                        }
-                    }
-
-                    using Pen pen = new Pen(lineColor, lineThickness);
-                    SetArrowHeads(heads, pen);
-                    graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+                    currentStep++;
+                    alpha -= basealpha / steps;
                 }
             }
+
+            using Pen pen = new Pen(lineColor, lineThickness);
+            SetArrowHeads(heads, pen);
+            graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
 
         private void SetArrowHeads(ArrowHeadCombination heads, Pen pen)
@@ -118,7 +117,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
@@ -133,12 +132,11 @@ namespace Greenshot.Editor.Drawing
                     using GraphicsPath path = new GraphicsPath();
                     path.AddLine(Left, Top, Left + Width, Top + Height);
                     using Matrix matrix = new Matrix();
-                    Rectangle drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-                    drawingBounds.Inflate(2, 2);
-                    return drawingBounds;
+                    NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
+                    return drawingBounds.Inflate(2, 2);
                 }
 
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
         }
 

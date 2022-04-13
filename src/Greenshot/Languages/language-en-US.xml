@@ -78,7 +78,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_arrowheads_none">None</resource>
 		<resource name="editor_arrowheads_start">Start point</resource>
 		<resource name="editor_autocrop">Auto crop</resource>
-		<resource name="editor_backcolor">Fill color</resource>
+		<resource name="editor_autocrop_not_possible">Auto crop not possible</resource>
+		<resource name="editor_backcolor">Fill color (0-9)</resource>
 		<resource name="editor_blur_radius">Blur radius</resource>
 		<resource name="editor_bold">Bold</resource>
 		<resource name="editor_border">Border</resource>
@@ -93,6 +94,11 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_copypathtoclipboard">Copy path to clipboard</resource>
 		<resource name="editor_copytoclipboard">Copy</resource>
 		<resource name="editor_crop">Crop (C)</resource>
+		<resource name="editor_crop_mode">Crop mode</resource>
+		<resource name="editor_cropmode_default">Crop</resource>
+		<resource name="editor_cropmode_vertical">Crop out vertically</resource>
+		<resource name="editor_cropmode_horizontal">Crop out horizontally</resource>
+		<resource name="editor_cropmode_auto">Auto crop</resource>
 		<resource name="editor_cursortool">Selection Tool (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cut</resource>
 		<resource name="editor_deleteelement">Delete</resource>
@@ -111,7 +117,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">File</resource>
 		<resource name="editor_fontsize">Size</resource>
-		<resource name="editor_forecolor">Line color</resource>
+		<resource name="editor_forecolor">Line color (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Grayscale</resource>
 		<resource name="editor_highlight_area">Highlight area</resource>
 		<resource name="editor_highlight_grayscale">Grayscale</resource>
@@ -147,7 +153,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_saveas">Save as...</resource>
 		<resource name="editor_selectall">Select all</resource>
 		<resource name="editor_senttoprinter">Print job was sent to '{0}'.</resource>
-		<resource name="editor_shadow">Drop shadow</resource>
+		<resource name="editor_shadow">Drop shadow (/)</resource>
 		<resource name="editor_storedtoclipboard">Image stored to clipboard.</resource>
 		<resource name="editor_thickness">Line thickness</resource>
 		<resource name="editor_title">Greenshot image editor</resource>

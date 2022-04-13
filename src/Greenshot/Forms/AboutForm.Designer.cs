@@ -69,8 +69,10 @@ namespace Greenshot.Forms {
 			// 
 			// lblTitle
 			// 
-			this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblTitle.Location = new System.Drawing.Point(108, 12);
+            var fontsize = (this.DeviceDpi / 96) * lblTitle.Font.Size;
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTitle.Location = new System.Drawing.Point(108, 12);
 			this.lblTitle.Name = "lblTitle";
 			this.lblTitle.Size = new System.Drawing.Size(263, 19);
 			this.lblTitle.TabIndex = 2;
@@ -119,8 +121,9 @@ namespace Greenshot.Forms {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "https://getgreenshot.org/tickets/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
-			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
+			this.linkLblBugs.Text = "https://getgreenshot.org/tickets";
+            this.linkLblBugs.Tag = "https://getgreenshot.org/tickets/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+            this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
 			// 
@@ -137,8 +140,9 @@ namespace Greenshot.Forms {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
-			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
+			this.linkLblDonations.Text = "https://getgreenshot.org/support";
+            this.linkLblDonations.Tag = "https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+            this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations
 			// 
@@ -173,9 +177,10 @@ namespace Greenshot.Forms {
 			this.linkLabel1.Size = new System.Drawing.Size(130, 23);
 			this.linkLabel1.TabIndex = 13;
 			this.linkLabel1.TabStop = true;
-			this.linkLabel1.Text = "https://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+			this.linkLabel1.Text = "https://getgreenshot.org";
 			this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopRight;
-			this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
+            this.linkLabel1.Tag = "https://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// pictureBox1
 			// 
@@ -197,10 +202,10 @@ namespace Greenshot.Forms {
 			// 
 			// AboutForm
 			// 
-            //this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			//this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96, 96);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            //this.AutoScaleDimensions = new System.Drawing.SizeF(96, 96);
+            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 
 			this.ClientSize = new System.Drawing.Size(530, 293);
 			this.Controls.Add(this.lblTranslation);

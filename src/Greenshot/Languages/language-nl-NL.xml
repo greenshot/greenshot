@@ -78,7 +78,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_arrowheads_none">Geen</resource>
 		<resource name="editor_arrowheads_start">Startpunt</resource>
 		<resource name="editor_autocrop">Automatisch bijsnijden</resource>
-		<resource name="editor_backcolor">Vulkleur</resource>
+		<resource name="editor_backcolor">Vulkleur (0-9)</resource>
 		<resource name="editor_blur_radius">Vervagingsradius</resource>
 		<resource name="editor_bold">Vet</resource>
 		<resource name="editor_border">Rand</resource>
@@ -93,6 +93,8 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_copypathtoclipboard">Locatie naar klembord kopiëren</resource>
 		<resource name="editor_copytoclipboard">Kopiëren</resource>
 		<resource name="editor_crop">Bijsnijden (C)</resource>
+		<resource name="editor_cropmode_default">Bijsnijden</resource>
+		<resource name="editor_cropmode_auto">Automatisch bijsnijden</resource>
 		<resource name="editor_cursortool">Selectiegereedschap (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Knippen</resource>
 		<resource name="editor_deleteelement">Verwijderen</resource>
@@ -111,7 +113,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_email">E-mail</resource>
 		<resource name="editor_file">Bestand</resource>
 		<resource name="editor_fontsize">Grootte</resource>
-		<resource name="editor_forecolor">Lijnkleur</resource>
+		<resource name="editor_forecolor">Lijnkleur (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Grijstinten</resource>
 		<resource name="editor_highlight_area">Gebied markeren</resource>
 		<resource name="editor_highlight_grayscale">Grijstinten</resource>
@@ -147,7 +149,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_saveas">Opslaan als…</resource>
 		<resource name="editor_selectall">Alles selecteren</resource>
 		<resource name="editor_senttoprinter">Afdruktaak verzonden naar '{0}'.</resource>
-		<resource name="editor_shadow">Schaduw</resource>
+		<resource name="editor_shadow">Schaduw (/)</resource>
 		<resource name="editor_storedtoclipboard">Afbeelding opgeslagen op het klembord.</resource>
 		<resource name="editor_thickness">Lijndikte</resource>
 		<resource name="editor_title">Greenshot beeldbewerker</resource>

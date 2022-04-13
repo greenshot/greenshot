@@ -22,6 +22,12 @@ namespace Greenshot.Base.Core
         public static bool IsWindows10 { get; } = WinVersion.Major == 10;
 
         /// <summary>
+        ///     Test if the current OS is Windows 11 or later
+        /// </summary>
+        /// <returns>true if we are running on Windows 11 or later</returns>
+        public static bool IsWindows11OrLater { get; } = WinVersion.Major == 10 && WinVersion.Build >= 22000;
+
+        /// <summary>
         ///     Test if the current OS is Windows 10 or later
         /// </summary>
         /// <returns>true if we are running on Windows 10 or later</returns>
