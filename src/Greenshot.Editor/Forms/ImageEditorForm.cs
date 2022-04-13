@@ -1096,13 +1096,8 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// This is a "work-around" for the MouseWheel event which doesn't get to the panel
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <summary>
-        /// This is a "work-around" for the MouseWheel event which doesn't get to the panel
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">object</param>
+        /// <param name="e">MouseEventArgs</param>
         private void PanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))

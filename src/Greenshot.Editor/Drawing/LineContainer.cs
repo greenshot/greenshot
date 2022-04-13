@@ -117,7 +117,7 @@ namespace Greenshot.Editor.Drawing
 
         protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
         {
-            return ScaleHelper.LineAngleRoundBehavior.Instance;
+            return ScaleHelper.LineAngleRoundBehavior.INSTANCE;
         }
     }
 }

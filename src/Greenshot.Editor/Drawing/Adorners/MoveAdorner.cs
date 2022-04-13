@@ -78,7 +78,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             _boundsAfterResize = _boundsBeforeResize;
 
             // calculate scaled rectangle
-            ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
 
             // apply scaled bounds to this DrawableContainer
             Owner.ApplyBounds(_boundsAfterResize);

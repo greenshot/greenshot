@@ -59,13 +59,13 @@ namespace Greenshot.Editor.Helpers
         /// <param name="targetSize">the target size of the element</param>
         /// <param name="crop">in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)</param>
         /// <returns>a new SizeF object indicating the width and height the element should be scaled to</returns>
-        public static SizeF GetScaledSize(SizeF currentSize, SizeF targetSize, bool crop)
+        public static NativeSizeFloat GetScaledSize(NativeSizeFloat currentSize, NativeSizeFloat targetSize, bool crop)
         {
             float wFactor = targetSize.Width / currentSize.Width;
             float hFactor = targetSize.Height / currentSize.Height;
 
             float factor = crop ? Math.Max(wFactor, hFactor) : Math.Min(wFactor, hFactor);
-            return new SizeF(currentSize.Width * factor, currentSize.Height * factor);
+            return new NativeSizeFloat(currentSize.Width * factor, currentSize.Height * factor);
         }
 
         /// <summary>
@@ -75,58 +75,39 @@ namespace Greenshot.Editor.Helpers
         /// <param name="targetRect">the rectangle reference for alignment of the element</param>
         /// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
         /// <returns>a new RectangleF object with Location aligned aligned to targetRect</returns>
-        public static RectangleF GetAlignedRectangle(RectangleF currentRect, RectangleF targetRect, ContentAlignment alignment)
+        public static NativeRectFloat GetAlignedRectangle(NativeRectFloat currentRect, NativeRectFloat targetRect, ContentAlignment alignment)
         {
-            RectangleF newRect = new RectangleF(targetRect.Location, currentRect.Size);
-            switch (alignment)
+            var newRect = new NativeRectFloat(targetRect.Location, currentRect.Size);
+            return alignment switch
             {
-                case ContentAlignment.TopCenter:
-                    newRect.X = (targetRect.Width - currentRect.Width) / 2;
-                    break;
-                case ContentAlignment.TopRight:
-                    newRect.X = targetRect.Width - currentRect.Width;
-                    break;
-                case ContentAlignment.MiddleLeft:
-                    newRect.Y = (targetRect.Height - currentRect.Height) / 2;
-                    break;
-                case ContentAlignment.MiddleCenter:
-                    newRect.Y = (targetRect.Height - currentRect.Height) / 2;
-                    newRect.X = (targetRect.Width - currentRect.Width) / 2;
-                    break;
-                case ContentAlignment.MiddleRight:
-                    newRect.Y = (targetRect.Height - currentRect.Height) / 2;
-                    newRect.X = targetRect.Width - currentRect.Width;
-                    break;
-                case ContentAlignment.BottomLeft:
-                    newRect.Y = targetRect.Height - currentRect.Height;
-                    break;
-                case ContentAlignment.BottomCenter:
-                    newRect.Y = targetRect.Height - currentRect.Height;
-                    newRect.X = (targetRect.Width - currentRect.Width) / 2;
-                    break;
-                case ContentAlignment.BottomRight:
-                    newRect.Y = targetRect.Height - currentRect.Height;
-                    newRect.X = targetRect.Width - currentRect.Width;
-                    break;
-            }
-
-            return newRect;
+                // TODO: Can ContentAlignment be replaced with Positions?
+                ContentAlignment.TopCenter => newRect.ChangeX((targetRect.Width - currentRect.Width) / 2),
+                ContentAlignment.TopRight => newRect.ChangeX(targetRect.Width - currentRect.Width),
+                ContentAlignment.MiddleLeft => newRect.ChangeY((targetRect.Height - currentRect.Height) / 2),
+                ContentAlignment.MiddleCenter => newRect.ChangeY((targetRect.Height - currentRect.Height) / 2).ChangeX((targetRect.Width - currentRect.Width) / 2),
+                ContentAlignment.MiddleRight => newRect.ChangeY((targetRect.Height - currentRect.Height) / 2).ChangeX(targetRect.Width - currentRect.Width),
+                ContentAlignment.BottomLeft => newRect.ChangeY(targetRect.Height - currentRect.Height),
+                ContentAlignment.BottomCenter => newRect.ChangeY(targetRect.Height - currentRect.Height).ChangeX((targetRect.Width - currentRect.Width) / 2),
+                ContentAlignment.BottomRight => newRect.ChangeY(targetRect.Height - currentRect.Height).ChangeX(targetRect.Width - currentRect.Width),
+                _ => newRect
+            };
         }
 
         /// <summary>
         /// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
         /// </summary>
-        /// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
+        /// <param name="originalRectangle">bounds of the current rectangle</param>
         /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
         /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
         /// <param name="options">ScaleOptions to use when scaling</param>
-        public static void Scale(ref NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords, ScaleOptions? options)
+        /// <returns>NativeRectFloat scaled originalRectangle</returns>
+        public static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords, ScaleOptions? options)
         {
             options ??= GetScaleOptions();
 
             if ((options & ScaleOptions.Rational) == ScaleOptions.Rational)
             {
-                AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
+                resizeHandleCoords = AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, resizeHandleCoords);
             }
 
             if ((options & ScaleOptions.Centered) == ScaleOptions.Centered)
@@ -135,96 +116,40 @@ namespace Greenshot.Editor.Helpers
                 float rectCenterX = originalRectangle.Left + originalRectangle.Width / 2;
                 float rectCenterY = originalRectangle.Top + originalRectangle.Height / 2;
                 // scale rectangle using handle coordinates
-                Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+                originalRectangle = Scale(originalRectangle, resizeHandlePosition, resizeHandleCoords);
                 // mirror handle coordinates via rectangle center coordinates
                 resizeHandleCoords = resizeHandleCoords.Offset(-2 * (resizeHandleCoords.X - rectCenterX), -2 * (resizeHandleCoords.Y - rectCenterY));
                 // scale again with opposing handle and mirrored coordinates
                 resizeHandlePosition = (Positions) ((((int) resizeHandlePosition) + 4) % 8);
-                Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+                originalRectangle = Scale(originalRectangle, resizeHandlePosition, resizeHandleCoords);
             }
             else
             {
-                Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+                originalRectangle = Scale(originalRectangle, resizeHandlePosition, resizeHandleCoords);
             }
+
+            return originalRectangle;
         }
 
         /// <summary>
         /// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
         /// </summary>
-        /// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
+        /// <param name="originalRectangle">bounds of the current rectangle</param>
         /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
         /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
-        private static void Scale(ref NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
+        /// <returns>NativeRectFloat with the scaled originalRectangle</returns>
+        private static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
         {
-            switch (resizeHandlePosition)
+            return resizeHandlePosition switch
             {
-                case Positions.TopLeft:
-                    originalRectangle = new NativeRectFloat(
-                        resizeHandleCoords.X,
-                        resizeHandleCoords.Y,
-                        originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X,
-                        originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y);
-                    break;
-
-                case Positions.TopCenter:
-                    originalRectangle = new NativeRectFloat(
-                        originalRectangle.X,
-                        resizeHandleCoords.Y,
-                        originalRectangle.Width,
-                        originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y);
-                    break;
-
-                case Positions.TopRight:
-                    originalRectangle = new NativeRectFloat(
-                        originalRectangle.X,
-                        resizeHandleCoords.Y,
-                        resizeHandleCoords.X - originalRectangle.Left,
-                        originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y);
-                    break;
-
-                case Positions.MiddleLeft:
-                    originalRectangle = new NativeRectFloat(
-                        resizeHandleCoords.X,
-                        originalRectangle.Y,
-                        originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X,
-                        originalRectangle.Height);
-                    break;
-
-                case Positions.MiddleRight:
-                    originalRectangle = new NativeRectFloat(
-                        originalRectangle.X,
-                        originalRectangle.Y,
-                        resizeHandleCoords.X - originalRectangle.Left,
-                        originalRectangle.Height);
-                    break;
-
-                case Positions.BottomLeft:
-                    originalRectangle = new NativeRectFloat(
-                        resizeHandleCoords.X,
-                        originalRectangle.Y,
-                        originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X,
-                        resizeHandleCoords.Y - originalRectangle.Top);
-                    break;
-
-                case Positions.BottomCenter:
-                    originalRectangle = new NativeRectFloat(
-                        originalRectangle.X,
-                        originalRectangle.Y, 
-                        originalRectangle.Width,
-                        resizeHandleCoords.Y - originalRectangle.Top);
-                    break;
-
-                case Positions.BottomRight:
-                    originalRectangle = new NativeRectFloat(
-                        originalRectangle.X,
-                        originalRectangle.Y,
-                        resizeHandleCoords.X - originalRectangle.Left,
-                        resizeHandleCoords.Y - originalRectangle.Top);
-                    break;
-
-                default:
-                    throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition);
-            }
+                Positions.TopLeft => new NativeRectFloat(resizeHandleCoords.X, resizeHandleCoords.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+                Positions.TopCenter => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, originalRectangle.Width, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+                Positions.TopRight => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+                Positions.MiddleLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Height),
+                Positions.MiddleRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Height), Positions.BottomLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top),
+                Positions.BottomCenter => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, originalRectangle.Width, resizeHandleCoords.Y - originalRectangle.Top), Positions.BottomRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top),
+                _ => throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition)
+            };
         }
 
         /// <summary>
@@ -235,37 +160,40 @@ namespace Greenshot.Editor.Helpers
         /// </summary>
         /// <param name="originalRectangle">bounds of the current rectangle</param>
         /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see Position</param>
-        /// <param name="resizeHandleCoords">coordinates of the used handle/gripper, adjusted coordinates will be written to this reference</param>
-        private static void AdjustCoordsForRationalScale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, ref NativePointFloat resizeHandleCoords)
+        /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
+        /// <returns>NativePointFloat with the adjusted coordinates</returns>
+        private static NativePointFloat AdjustCoordsForRationalScale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
         {
-            SizeF selectedRectangle, newSize;
+            NativeSizeFloat selectedRectangle, newSize;
 
             switch (resizeHandlePosition)
             {
                 case Positions.TopLeft:
-                    selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, originalRectangle.Bottom - resizeHandleCoords.Y);
+                    selectedRectangle = new NativeSizeFloat(originalRectangle.Right - resizeHandleCoords.X, originalRectangle.Bottom - resizeHandleCoords.Y);
                     newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
                     resizeHandleCoords = new NativePointFloat(originalRectangle.Right - newSize.Width, originalRectangle.Bottom - newSize.Height);
                     break;
 
                 case Positions.TopRight:
-                    selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Bottom - resizeHandleCoords.Y);
+                    selectedRectangle = new NativeSizeFloat(resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Bottom - resizeHandleCoords.Y);
                     newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
                     resizeHandleCoords = new NativePointFloat(originalRectangle.Left + newSize.Width, originalRectangle.Bottom - newSize.Height);
                     break;
 
                 case Positions.BottomLeft:
-                    selectedRectangle = new SizeF(originalRectangle.Right - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top);
+                    selectedRectangle = new NativeSizeFloat(originalRectangle.Right - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top);
                     newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
                     resizeHandleCoords = new NativePointFloat(originalRectangle.Right - newSize.Width, originalRectangle.Top + newSize.Height);
                     break;
 
                 case Positions.BottomRight:
-                    selectedRectangle = new SizeF(resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top);
+                    selectedRectangle = new NativeSizeFloat(resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top);
                     newSize = GetNewSizeForRationalScale(originalRectangle.Size, selectedRectangle);
                     resizeHandleCoords = new NativePointFloat(originalRectangle.Left + newSize.Width, originalRectangle.Top + newSize.Height);
                     break;
             }
+
+            return resizeHandleCoords;
         }
 
         /// <summary>
@@ -299,21 +227,21 @@ namespace Greenshot.Editor.Helpers
             return newSize;
         }
 
-        public static void Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, ref NativeRectFloat boundsAfterResize)
+        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY)
         {
-            Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null);
+            return Scale(boundsBeforeResize, cursorX, cursorY, null);
         }
 
-        public static void Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, ref NativeRectFloat boundsAfterResize, IDoubleProcessor angleRoundBehavior)
+        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior)
         {
-            Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, ref boundsAfterResize, angleRoundBehavior);
+            return Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, angleRoundBehavior);
         }
 
-        public static void Scale(NativeRect boundsBeforeResize, Positions gripperPosition, int cursorX, int cursorY, ref NativeRectFloat boundsAfterResize,
-            IDoubleProcessor angleRoundBehavior)
+        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, Positions gripperPosition, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior)
         {
             ScaleOptions opts = GetScaleOptions();
 
+            NativeRectFloat result = boundsBeforeResize;
             bool rationalScale = (opts & ScaleOptions.Rational) == ScaleOptions.Rational;
             bool centeredScale = (opts & ScaleOptions.Centered) == ScaleOptions.Centered;
 
@@ -328,17 +256,19 @@ namespace Greenshot.Editor.Helpers
 
                 int dist = GeometryHelper.Distance2D(boundsBeforeResize.X, boundsBeforeResize.Y, cursorX, cursorY);
 
-                boundsAfterResize = boundsAfterResize
+                result = result
                     .ChangeWidth((int)Math.Round(dist * Math.Cos(angle / 180 * Math.PI)))
                     .ChangeHeight((int) Math.Round(dist * Math.Sin(angle / 180 * Math.PI)));
             }
 
             if (centeredScale)
             {
-                float wdiff = boundsAfterResize.Width - boundsBeforeResize.Width;
-                float hdiff = boundsAfterResize.Height - boundsBeforeResize.Height;
-                boundsAfterResize = boundsAfterResize.Inflate(wdiff, hdiff);
+                float wdiff = result.Width - result.Width;
+                float hdiff = result.Height - result.Height;
+                result = result.Inflate(wdiff, hdiff);
             }
+
+            return result;
         }
 
         /// <returns>the current ScaleOptions depending on modifier keys held down</returns>
@@ -359,7 +289,7 @@ namespace Greenshot.Editor.Helpers
 
         public class ShapeAngleRoundBehavior : IDoubleProcessor
         {
-            public static ShapeAngleRoundBehavior Instance = new();
+            public static readonly ShapeAngleRoundBehavior INSTANCE = new();
 
             private ShapeAngleRoundBehavior()
             {
@@ -373,7 +303,7 @@ namespace Greenshot.Editor.Helpers
 
         public class LineAngleRoundBehavior : IDoubleProcessor
         {
-            public static LineAngleRoundBehavior Instance = new();
+            public static readonly LineAngleRoundBehavior INSTANCE = new();
 
             private LineAngleRoundBehavior()
             {

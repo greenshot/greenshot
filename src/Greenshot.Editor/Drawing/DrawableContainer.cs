@@ -488,7 +488,7 @@ namespace Greenshot.Editor.Drawing
         public virtual bool IsConfirmable => false;
 
         /// <summary>
-        /// Make a following bounds change on this drawablecontainer undoable!
+        /// Make a following bounds change on this DrawableContainer undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>
         public virtual void MakeBoundsChangeUndoable(bool allowMerge)
@@ -514,7 +514,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true if the event is handled, false if the surface needs to handle it</returns>
         public virtual bool HandleMouseDown(int x, int y)
         {
-            _boundsBeforeResize = _boundsBeforeResize.MoveTo(x, y);
+            _boundsBeforeResize = Bounds.MoveTo(x, y);
             Left =  x;
             Top = y;
             return true;
@@ -531,9 +531,9 @@ namespace Greenshot.Editor.Drawing
             Invalidate();
 
             // reset "workbench" rectangle to current bounds
-            _boundsAfterResize = _boundsBeforeResize;
+            _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, _boundsBeforeResize.Top, x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-            ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor());
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);
@@ -668,7 +668,7 @@ namespace Greenshot.Editor.Drawing
 
         protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
         {
-            return ScaleHelper.ShapeAngleRoundBehavior.Instance;
+            return ScaleHelper.ShapeAngleRoundBehavior.INSTANCE;
         }
 
         public virtual bool HasContextMenu => true;
