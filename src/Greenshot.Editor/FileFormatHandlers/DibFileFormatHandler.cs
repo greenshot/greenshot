@@ -25,10 +25,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32.Enums;
+using Dapplo.Windows.Gdi32.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -63,27 +65,16 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             byte[] dibBuffer = new byte[stream.Length];
             _ = stream.Read(dibBuffer, 0, dibBuffer.Length);
-            var infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADERV5>(dibBuffer);
+            var infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
             if (!infoHeader.IsDibV5)
             {
-                Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
-                int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
-                uint infoHeaderSize = infoHeader.biSize;
-                int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
-
-                var fileHeader = new BITMAPFILEHEADER
-                {
-                    bfType = BITMAPFILEHEADER.BM,
-                    bfSize = fileSize,
-                    bfReserved1 = 0,
-                    bfReserved2 = 0,
-                    bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4)
-                };
+                Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.Compression);
+                var fileHeader = BitmapFileHeader.Create(infoHeader);
 
                 byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
                 using var bitmapStream = new MemoryStream();
-                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+                bitmapStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
                 bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
                 bitmapStream.Seek(0, SeekOrigin.Begin);
                 try
@@ -106,11 +97,11 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
                 gcHandle = GCHandle.ToIntPtr(handle);
-                bitmap = new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
-                        -(int)(infoHeader.biSizeImage / infoHeader.biHeight),
-                        infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
+                bitmap = new Bitmap(infoHeader.Width, infoHeader.Height,
+                        -(int)(infoHeader.SizeImage / infoHeader.Height),
+                        infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
                         new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
-                                   (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))
+                                   (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
                     );
             }
             catch (Exception ex)
@@ -138,7 +129,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             if (sourceBitmap == null) throw new ArgumentNullException(nameof(sourceBitmap));
 
-            var area = new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height);
+            var area = new NativeRect(0, 0, sourceBitmap.Width, sourceBitmap.Height);
 
             // If the supplied format doesn't match 32bpp, we need to convert it first, and dispose the new bitmap afterwards
             bool needsDisposal = false;
@@ -156,9 +147,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             // All the pixels take this many bytes:
             var bitmapSize = 4 * sourceBitmap.Width * sourceBitmap.Height;
             // The bitmap info hear takes this many bytes:
-            var bitmapInfoHeaderSize = Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+            var bitmapInfoHeaderSize = Marshal.SizeOf(typeof(BitmapInfoHeader));
             // The bitmap info size is the header + 3 RGBQUADs
-            var bitmapInfoSize = bitmapInfoHeaderSize + 3 * Marshal.SizeOf(typeof(RGBQUAD));
+            var bitmapInfoSize = bitmapInfoHeaderSize + 3 * Marshal.SizeOf(typeof(RgbQuad));
 
             // Create a byte [] to contain the complete DIB (with .NET 5 and upwards, we could write the pixels directly to a stream)
             var fullBmpBytes = new byte[bitmapInfoSize + bitmapSize];
@@ -166,24 +157,24 @@ namespace Greenshot.Editor.FileFormatHandlers
             var fullBmpSpan = fullBmpBytes.AsSpan();
             // Cast the span to be of type BITMAPINFOHEADER so we can assign values
             // TODO: in .NET 6 we could do a AsRef, and even write to a stream directly
-            var bitmapInfoHeader = MemoryMarshal.Cast<byte, BITMAPINFOHEADER>(fullBmpSpan);
+            var bitmapInfoHeader = MemoryMarshal.Cast<byte, BitmapInfoHeader>(fullBmpSpan);
 
             // Fill up the bitmap info header
-            bitmapInfoHeader[0].biSize = (uint)bitmapInfoHeaderSize;
-            bitmapInfoHeader[0].biWidth = sourceBitmap.Width;
-            bitmapInfoHeader[0].biHeight = sourceBitmap.Height;
-            bitmapInfoHeader[0].biPlanes = 1;
-            bitmapInfoHeader[0].biBitCount = 32;
-            bitmapInfoHeader[0].biCompression = BI_COMPRESSION.BI_BITFIELDS;
-            bitmapInfoHeader[0].biSizeImage = (uint)bitmapSize;
-            bitmapInfoHeader[0].biXPelsPerMeter = (int)(sourceBitmap.HorizontalResolution * DpiToPelsPerMeter);
-            bitmapInfoHeader[0].biYPelsPerMeter = (int)(sourceBitmap.VerticalResolution * DpiToPelsPerMeter);
+            bitmapInfoHeader[0].Size = (uint)bitmapInfoHeaderSize;
+            bitmapInfoHeader[0].Width = sourceBitmap.Width;
+            bitmapInfoHeader[0].Height = sourceBitmap.Height;
+            bitmapInfoHeader[0].Planes = 1;
+            bitmapInfoHeader[0].BitCount = 32;
+            bitmapInfoHeader[0].Compression = BitmapCompressionMethods.BI_BITFIELDS;
+            bitmapInfoHeader[0].SizeImage = (uint)bitmapSize;
+            bitmapInfoHeader[0].XPelsPerMeter = (int)(sourceBitmap.HorizontalResolution * DpiToPelsPerMeter);
+            bitmapInfoHeader[0].YPelsPerMeter = (int)(sourceBitmap.VerticalResolution * DpiToPelsPerMeter);
 
             // Specify the color masks applied to the Int32 pixel value to get the R, G and B values.
-            var rgbQuads = MemoryMarshal.Cast<byte, RGBQUAD>(fullBmpSpan.Slice(Marshal.SizeOf(typeof(BITMAPINFOHEADER))));
-            rgbQuads[0].rgbRed = 255;
-            rgbQuads[1].rgbGreen = 255;
-            rgbQuads[2].rgbBlue = 255;
+            var rgbQuads = MemoryMarshal.Cast<byte, RgbQuad>(fullBmpSpan.Slice(Marshal.SizeOf(typeof(BitmapInfoHeader))));
+            rgbQuads[0].Red = 255;
+            rgbQuads[1].Green = 255;
+            rgbQuads[2].Blue = 255;
 
             // Now copy the lines, in reverse (bmp is upside down) to the byte array
             var sourceBitmapData = sourceBitmap.LockBits(area, ImageLockMode.ReadOnly, sourceBitmap.PixelFormat);

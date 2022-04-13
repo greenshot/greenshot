@@ -30,13 +30,17 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32.Enums;
+using Dapplo.Windows.Gdi32.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
@@ -115,12 +119,12 @@ EndSelection:<<<<<<<4
             string owner = null;
             try
             {
-                IntPtr hWnd = User32.GetClipboardOwner();
+                IntPtr hWnd = ClipboardNative.CurrentOwner;
                 if (hWnd != IntPtr.Zero)
                 {
                     try
                     {
-                        User32.GetWindowThreadProcessId(hWnd, out var pid);
+                        User32Api.GetWindowThreadProcessId(hWnd, out var pid);
                         using Process me = Process.GetCurrentProcess();
                         using Process ownerProcess = Process.GetProcessById(pid);
                         // Exclude myself
@@ -142,9 +146,7 @@ EndSelection:<<<<<<<4
                     catch (Exception e)
                     {
                         Log.Warn("Non critical error: Couldn't get clipboard process, trying to use the title.", e);
-                        var title = new StringBuilder(260, 260);
-                        User32.GetWindowText(hWnd, title, title.Capacity);
-                        owner = title.ToString();
+                        owner = User32Api.GetText(hWnd);
                     }
                 }
             }
@@ -281,6 +283,9 @@ EndSelection:<<<<<<<4
         public static bool ContainsImage(IDataObject dataObject)
         {
             if (dataObject == null) return false;
+
+            IList<string> formats = GetFormats(dataObject);
+            Log.DebugFormat("Found formats: {0}", string.Join(",", formats));
 
             if (dataObject.GetDataPresent(DataFormats.Bitmap)
                 || dataObject.GetDataPresent(DataFormats.Dib)
@@ -638,8 +643,6 @@ EndSelection:<<<<<<<4
                 {
                     continue;
                 }
-
-                IDrawableContainer drawableContainer = null;
                 using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 IEnumerable<IDrawableContainer> drawableContainers;
                 try
@@ -1021,20 +1024,17 @@ EndSelection:<<<<<<<4
                         dibV5Stream = new MemoryStream();
 
                         // Create the BITMAPINFOHEADER
-                        var header = new BITMAPINFOHEADERV5(imageToSave.Width, imageToSave.Height, 32)
-                        {
-                            // Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-                            biCompression = BI_COMPRESSION.BI_BITFIELDS
-                        };
+                        var header = BitmapV5Header.Create(imageToSave.Width, imageToSave.Height, 32);
+                        // Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
+                        header.Compression = BitmapCompressionMethods.BI_BITFIELDS;
                         // Create a byte[] to write
                         byte[] headerBytes = BinaryStructHelper.ToByteArray(header);
                         // Write the BITMAPINFOHEADER to the stream
                         dibV5Stream.Write(headerBytes, 0, headerBytes.Length);
 
                         // As we have specified BI_COMPRESSION.BI_BITFIELDS, the BitfieldColorMask needs to be added
+                        // This also makes sure the default values are set
                         BitfieldColorMask colorMask = new BitfieldColorMask();
-                        // Make sure the values are set
-                        colorMask.InitValues();
                         // Create the byte[] from the struct
                         byte[] colorMaskBytes = BinaryStructHelper.ToByteArray(colorMask);
                         Array.Reverse(colorMaskBytes);
@@ -1125,7 +1125,7 @@ EndSelection:<<<<<<<4
         private static byte[] BitmapToByteArray(Bitmap bitmap)
         {
             // Lock the bitmap's bits.  
-            Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
             BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
             int absStride = Math.Abs(bmpData.Stride);

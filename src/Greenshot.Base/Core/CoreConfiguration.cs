@@ -24,9 +24,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -322,17 +322,17 @@ namespace Greenshot.Base.Core
         public bool ProcessEXIFOrientation { get; set; }
 
         [IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-        public Rectangle LastCapturedRegion { get; set; }
+        public NativeRect LastCapturedRegion { get; set; }
 
         [IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
-        public Size Win10BorderCrop { get; set; }
+        public NativeSize Win10BorderCrop { get; set; }
 
-        private Size _iconSize;
+        private NativeSize _iconSize;
 
         [IniProperty("BaseIconSize",
             Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI",
             DefaultValue = "16,16")]
-        public Size IconSize
+        public NativeSize IconSize
         {
             get { return _iconSize; }
             set
@@ -369,13 +369,11 @@ namespace Greenshot.Base.Core
                 }
             }
         }
-
-        public Size ScaledIconSize => DpiHelper.ScaleWithCurrentDpi(_iconSize);
-
-        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        
+        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
 
-        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestReadWriteTimeout { get; set; }
 
         public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;

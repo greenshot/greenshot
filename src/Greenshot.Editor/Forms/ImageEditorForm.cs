@@ -28,6 +28,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -37,8 +43,6 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
@@ -50,7 +54,7 @@ using log4net;
 namespace Greenshot.Editor.Forms
 {
     /// <summary>
-    /// Description of ImageEditorForm.
+    /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
     public partial class ImageEditorForm : EditorForm, IImageEditor
     {
@@ -110,19 +114,17 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Adjust the icons etc to the supplied DPI settings
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
-        private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
+        /// <param name="oldDpi"></param>
+        /// <param name="newDpi"></param>
+        protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var dpi = DpiHelper.GetDpi(Handle);
-            var newSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, dpi);
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
             toolsToolStrip.ImageScalingSize = newSize;
             menuStrip1.ImageScalingSize = newSize;
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-
-            _surface?.AdjustToDpi(dpi);
+            _surface?.AdjustToDpi(newDpi);
             UpdateUi();
         }
 
@@ -148,7 +150,6 @@ namespace Greenshot.Editor.Forms
             ManualLanguageApply = true;
             InitializeComponent();
             // Make sure we change the icon size depending on the scaling
-            DpiChanged += AdjustToDpi;
             Load += delegate
             {
                 var thread = new Thread(AddDestinations)
@@ -156,21 +157,19 @@ namespace Greenshot.Editor.Forms
                     Name = "add destinations"
                 };
                 thread.Start();
-
-                AdjustToDpi(null, null);
             };
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
             WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
-            Rectangle screenBounds = WindowCapture.GetScreenBounds();
+            NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
             {
                 EditorConfiguration.ResetEditorPlacement();
             }
 
             // ReSharper disable once UnusedVariable
-            WindowDetails thisForm = new WindowDetails(Handle)
+            WindowDetails thisForm = new(Handle)
             {
                 WindowPlacement = EditorConfiguration.GetEditorPlacement()
             };
@@ -313,9 +312,8 @@ namespace Greenshot.Editor.Forms
             // Loop over all items in the propertiesToolStrip
             foreach (ToolStripItem item in propertiesToolStrip.Items)
             {
-                var cb = item as ToolStripComboBox;
                 // Only ToolStripComboBox that are visible
-                if (cb == null || !cb.Visible)
+                if (item is not ToolStripComboBox { Visible: true } cb)
                 {
                     continue;
                 }
@@ -323,7 +321,7 @@ namespace Greenshot.Editor.Forms
                 if (cb.ComboBox == null) continue;
 
                 // Calculate the rectangle
-                Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+                var r = new NativeRect(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
                 // Draw the rectangle
                 e.Graphics.DrawRectangle(cbBorderPen, r);
@@ -372,7 +370,7 @@ namespace Greenshot.Editor.Forms
         {
             if (toolstripDestination.IsDynamic)
             {
-                ToolStripSplitButton destinationButton = new ToolStripSplitButton
+                ToolStripSplitButton destinationButton = new()
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
@@ -976,7 +974,7 @@ namespace Greenshot.Editor.Forms
             GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -1701,7 +1699,7 @@ namespace Greenshot.Editor.Forms
         /// <param name="e"></param>
         private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
@@ -1956,8 +1954,7 @@ namespace Greenshot.Editor.Forms
         private void ZoomSetValue(Fraction value)
         {
             var surface = Surface as Surface;
-            var panel = surface?.Parent as Panel;
-            if (panel == null)
+            if (surface?.Parent is not Panel panel)
             {
                 return;
             }
@@ -1972,9 +1969,8 @@ namespace Greenshot.Editor.Forms
             var size = surface.Size;
             if (value > Surface.ZoomFactor) // being smart on zoom-in
             {
-                var selection = surface.GetSelectionRectangle();
-                selection.Intersect(rc);
-                if (selection != Rectangle.Empty)
+                var selection = surface.GetSelectionRectangle().Intersect(rc);
+                if (selection != NativeRect.Empty)
                 {
                     rc = selection; // zoom to visible part of selection
                 }
@@ -1984,12 +1980,12 @@ namespace Greenshot.Editor.Forms
                     // - prefer top left corner to zoom-in as less disorienting for screenshots
                     if (size.Width < rc.Width)
                     {
-                        rc.Width = 0;
+                        rc = rc.ChangeWidth(0);
                     }
 
                     if (size.Height < rc.Height)
                     {
-                        rc.Height = 0;
+                        rc = rc.ChangeHeight(0);
                     }
                 }
             }

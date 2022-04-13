@@ -24,15 +24,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
+using Dapplo.Windows.User32;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Description of AbstractDestination.
+    /// The AbstractDestination is a default implementation of IDestination
     /// </summary>
     public abstract class AbstractDestination : IDestination
     {
@@ -41,7 +44,7 @@ namespace Greenshot.Base.Core
 
         public virtual int CompareTo(object obj)
         {
-            if (!(obj is IDestination other))
+            if (obj is not IDestination other)
             {
                 return 1;
             }
@@ -176,7 +179,7 @@ namespace Greenshot.Base.Core
             ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
             var menu = new ContextMenuStrip
             {
-                ImageScalingSize = CoreConfig.ScaledIconSize,
+                ImageScalingSize = CoreConfig.IconSize,
                 Tag = null,
                 TopLevel = true
             };
@@ -184,10 +187,10 @@ namespace Greenshot.Base.Core
             menu.Opening += (sender, args) =>
             {
                 // find the DPI settings for the screen where this is going to land
-                var screenDpi = DpiHelper.GetDpi(menu.Location);
-                var scaledIconSize = DpiHelper.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
+                var screenDpi = NativeDpiMethods.GetDpi(menu.Location);
+                var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
                 menu.SuspendLayout();
-                var fontSize = DpiHelper.ScaleWithDpi(12f, screenDpi);
+                var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
                 menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
                 menu.ImageScalingSize = scaledIconSize;
                 menu.ResumeLayout();
@@ -304,7 +307,7 @@ namespace Greenshot.Base.Core
             ShowMenuAtCursor(menu);
             return exportInformation;
         }
-
+        
         /// <summary>
         /// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
         /// </summary>
@@ -312,21 +315,21 @@ namespace Greenshot.Base.Core
         private static void ShowMenuAtCursor(ContextMenuStrip menu)
         {
             // find a suitable location
-            Point location = Cursor.Position;
-            Rectangle menuRectangle = new Rectangle(location, menu.Size);
+            NativePoint location = Cursor.Position;
+            var menuRectangle = new NativeRect(location, menu.Size);
 
-            menuRectangle.Intersect(WindowCapture.GetScreenBounds());
+            menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);
             if (menuRectangle.Height < menu.Height)
             {
-                location.Offset(-40, -(menuRectangle.Height - menu.Height));
+                location = location.Offset(-40, -(menuRectangle.Height - menu.Height));
             }
             else
             {
-                location.Offset(-40, -10);
+                location = location.Offset(-40, -10);
             }
 
             // This prevents the problem that the context menu shows in the task-bar
-            User32.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
+            User32Api.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
             menu.Show(location);
             menu.Focus();
 

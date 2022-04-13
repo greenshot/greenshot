@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
@@ -124,6 +125,6 @@ namespace Greenshot.Editor.Drawing
             cursor.DrawStretched(graphics, Bounds);
         }
 
-        public override Size DefaultSize => cursor?.Size ?? new Size(16, 16);
+        public override NativeSize DefaultSize => cursor?.Size ?? new NativeSize(16, 16);
     }
 }

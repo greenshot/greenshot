@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -47,7 +48,7 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Bounds on the screen from which the capture comes
         /// </summary>
-        Rectangle ScreenBounds { get; set; }
+        NativeRect ScreenBounds { get; set; }
 
         /// <summary>
         /// The cursor
@@ -62,18 +63,18 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Location of the cursor
         /// </summary>
-        Point CursorLocation { get; set; }
+        NativePoint CursorLocation { get; set; }
 
         /// <summary>
         /// Location of the capture
         /// </summary>
-        Point Location { get; set; }
+        NativePoint Location { get; set; }
 
         /// <summary>
         /// Crops the capture to the specified rectangle (with Bitmap coordinates!)
         /// </summary>
-        /// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-        bool Crop(Rectangle cropRectangle);
+        /// <param name="cropRectangle">NativeRect with bitmap coordinates</param>
+        bool Crop(NativeRect cropRectangle);
 
         /// <summary>
         /// Apply a translate to the mouse location. e.g. needed for crop

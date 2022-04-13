@@ -22,11 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32.Enums;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.UnmanagedHelpers.Enums;
-using Greenshot.Base.UnmanagedHelpers.Structs;
 using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Configuration
@@ -50,16 +51,16 @@ namespace Greenshot.Editor.Configuration
         public WindowPlacementFlags WindowPlacementFlags { get; set; }
 
         [IniProperty("WindowShowCommand", Description = "Show command", DefaultValue = "Normal")]
-        public ShowWindowCommand ShowWindowCommand { get; set; }
+        public ShowWindowCommands ShowWindowCommand { get; set; }
 
         [IniProperty("WindowMinPosition", Description = "Position of minimized window", DefaultValue = "-1,-1")]
-        public Point WindowMinPosition { get; set; }
+        public NativePoint WindowMinPosition { get; set; }
 
         [IniProperty("WindowMaxPosition", Description = "Position of maximized window", DefaultValue = "-1,-1")]
-        public Point WindowMaxPosition { get; set; }
+        public NativePoint WindowMaxPosition { get; set; }
 
         [IniProperty("WindowNormalPosition", Description = "Position of normal window", DefaultValue = "100,100,400,400")]
-        public Rectangle WindowNormalPosition { get; set; }
+        public NativeRect WindowNormalPosition { get; set; }
 
         [IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
         public bool ReuseEditor { get; set; }
@@ -77,7 +78,7 @@ namespace Greenshot.Editor.Configuration
         public TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
-        public Size DefaultEditorSize { get; set; }
+        public NativeSize DefaultEditorSize { get; set; }
 
 
         public override void AfterLoad()
@@ -151,19 +152,19 @@ namespace Greenshot.Editor.Configuration
 
         public void ResetEditorPlacement()
         {
-            WindowNormalPosition = new Rectangle(100, 100, 400, 400);
-            WindowMaxPosition = new Point(-1, -1);
-            WindowMinPosition = new Point(-1, -1);
+            WindowNormalPosition = new NativeRect(100, 100, 400, 400);
+            WindowMaxPosition = new NativePoint(-1, -1);
+            WindowMinPosition = new NativePoint(-1, -1);
             WindowPlacementFlags = 0;
-            ShowWindowCommand = ShowWindowCommand.Normal;
+            ShowWindowCommand = ShowWindowCommands.Normal;
         }
 
         public WindowPlacement GetEditorPlacement()
         {
-            WindowPlacement placement = WindowPlacement.Default;
-            placement.NormalPosition = new RECT(WindowNormalPosition);
-            placement.MaxPosition = new POINT(WindowMaxPosition);
-            placement.MinPosition = new POINT(WindowMinPosition);
+            WindowPlacement placement = WindowPlacement.Create();
+            placement.NormalPosition = WindowNormalPosition;
+            placement.MaxPosition = WindowMaxPosition;
+            placement.MinPosition = WindowMinPosition;
             placement.ShowCmd = ShowWindowCommand;
             placement.Flags = WindowPlacementFlags;
             return placement;
@@ -171,9 +172,9 @@ namespace Greenshot.Editor.Configuration
 
         public void SetEditorPlacement(WindowPlacement placement)
         {
-            WindowNormalPosition = placement.NormalPosition.ToRectangle();
-            WindowMaxPosition = placement.MaxPosition.ToPoint();
-            WindowMinPosition = placement.MinPosition.ToPoint();
+            WindowNormalPosition = placement.NormalPosition;
+            WindowMaxPosition = placement.MaxPosition;
+            WindowMinPosition = placement.MinPosition;
             ShowWindowCommand = placement.ShowCmd;
             WindowPlacementFlags = placement.Flags;
         }

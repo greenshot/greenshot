@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
@@ -133,6 +134,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => icon?.Size ?? new Size(16, 16);
+        public override NativeSize DefaultSize => icon?.Size ?? new NativeSize(16, 16);
     }
 }

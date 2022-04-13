@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Effects
@@ -42,7 +43,7 @@ namespace Greenshot.Base.Effects
 
         public int ShadowSize { get; set; }
 
-        public Point ShadowOffset { get; set; }
+        public NativePoint ShadowOffset { get; set; }
 
         public virtual void Reset()
         {

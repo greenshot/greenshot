@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 
 namespace Greenshot.Base.Interfaces
 {

@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Base.Interfaces.Drawing
@@ -49,15 +49,15 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         int Height { get; set; }
 
-        Point Location { get; }
+        NativePoint Location { get; }
 
-        Size Size { get; }
+        NativeSize Size { get; }
 
-        Rectangle Bounds { get; }
+        NativeRect Bounds { get; }
 
-        Rectangle DrawingBounds { get; }
+        NativeRect DrawingBounds { get; }
 
-        void ApplyBounds(RectangleF newBounds);
+        void ApplyBounds(NativeRectFloat newBounds);
 
         bool HasFilters { get; }
 
@@ -101,8 +101,8 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// <summary>
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
-        /// <param name="dpi">uint</param>
-        void AdjustToDpi(uint dpi);
+        /// <param name="dpi">int</param>
+        void AdjustToDpi(int dpi);
 
         /// <summary>
         /// Enable a way for elements to add a context menu entry

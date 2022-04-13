@@ -21,8 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Greenshot.Base.UnmanagedHelpers;
+using Dapplo.Windows.User32;
 
 namespace Greenshot.Base.Core
 {
@@ -44,15 +43,13 @@ namespace Greenshot.Base.Core
         public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname)
         {
             Items = new List<WindowDetails>();
-            User32.EnumChildWindows(hWndParent, WindowEnum, IntPtr.Zero);
+            User32Api.EnumChildWindows(hWndParent, OnWindowEnum, IntPtr.Zero);
 
             bool hasParent = !IntPtr.Zero.Equals(hWndParent);
             string parentText = null;
             if (hasParent)
             {
-                var title = new StringBuilder(260, 260);
-                User32.GetWindowText(hWndParent, title, title.Capacity);
-                parentText = title.ToString();
+                parentText = User32Api.GetText(hWndParent);
             }
 
             var windows = new List<WindowDetails>();
@@ -75,17 +72,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The enum Windows callback.
-        /// </summary>
-        /// <param name="hWnd">Window Handle</param>
-        /// <param name="lParam">Application defined value</param>
-        /// <returns>1 to continue enumeration, 0 to stop</returns>
-        private int WindowEnum(IntPtr hWnd, int lParam)
-        {
-            return OnWindowEnum(hWnd) ? 1 : 0;
-        }
-
-        /// <summary>
         /// Called whenever a new window is about to be added
         /// by the Window enumeration called from GetWindows.
         /// If overriding this function, return true to continue
@@ -94,8 +80,9 @@ namespace Greenshot.Base.Core
         /// be empty.
         /// </summary>
         /// <param name="hWnd">Window handle to add</param>
+        /// <param name="lParam"></param>
         /// <returns>True to continue enumeration, False to stop</returns>
-        private bool OnWindowEnum(IntPtr hWnd)
+        private bool OnWindowEnum(IntPtr hWnd, IntPtr lParam)
         {
             if (!WindowDetails.IsIgnoreHandle(hWnd))
             {

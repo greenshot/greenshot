@@ -22,7 +22,9 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 
@@ -32,12 +34,12 @@ namespace Greenshot.Editor.Drawing.Adorners
     {
         public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-        private static readonly Size DefaultSize = new Size(6, 6);
-        protected Size _size;
+        private static readonly NativeSize DefaultSize = new NativeSize(6, 6);
+        protected NativeSize _size;
 
         public AbstractAdorner(IDrawableContainer owner)
         {
-            _size = DpiHelper.ScaleWithDpi(DefaultSize, 0);
+            _size = DpiCalculator.ScaleWithDpi(DefaultSize, 0);
             Owner = owner;
         }
 
@@ -54,12 +56,11 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Test if the point is inside the adorner
         /// </summary>
-        /// <param name="point"></param>
-        /// <returns></returns>
-        public virtual bool HitTest(Point point)
+        /// <param name="point">NativePoint</param>
+        /// <returns>bool</returns>
+        public virtual bool HitTest(NativePoint point)
         {
-            Rectangle hitBounds = Bounds;
-            hitBounds.Inflate(3, 3);
+            NativeRect hitBounds = Bounds.Inflate(3, 3);
             return hitBounds.Contains(point);
         }
 
@@ -94,29 +95,29 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the location of the adorner
         /// </summary>
-        public virtual Point Location { get; set; }
+        public virtual NativePoint Location { get; set; }
 
         /// <summary>
         /// Return the bounds of the Adorner
         /// </summary>
-        public virtual Rectangle Bounds
+        public virtual NativeRect Bounds
         {
             get
             {
-                Point location = Location;
-                return new Rectangle(location.X - (_size.Width / 2), location.Y - (_size.Height / 2), _size.Width, _size.Height);
+                NativePoint location = Location;
+                return new NativeRect(location.X - (_size.Width / 2), location.Y - (_size.Height / 2), _size.Width, _size.Height);
             }
         }
 
         /// <summary>
         /// Return the bounds of the Adorner as displayed on the parent Surface
         /// </summary>
-        protected virtual Rectangle BoundsOnSurface
+        protected virtual NativeRect BoundsOnSurface
         {
             get
             {
-                Point displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
-                return new Rectangle(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
+                NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
+                return new NativeRect(displayLocation.X - _size.Width / 2, displayLocation.Y - _size.Height / 2, _size.Width, _size.Height);
             }
         }
 
@@ -132,9 +133,9 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi">uint</param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
-            _size = DpiHelper.ScaleWithDpi(DefaultSize, dpi);
+            _size = DpiCalculator.ScaleWithDpi(DefaultSize, dpi);
         }
 
         public Color OutlineColor { get; set; } = Color.White;

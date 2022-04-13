@@ -32,6 +32,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dpi;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -41,7 +46,6 @@ using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Editor;
@@ -58,7 +62,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper
+    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
     {
         private static ILog LOG;
         private static ResourceMutex _applicationMutex;
@@ -116,11 +120,11 @@ namespace Greenshot.Forms
                     if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
                     {
                         // Try to attach to the console
-                        bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+                        bool attachedToConsole = Kernel32Api.AttachConsole();
                         // If attach didn't work, open a console
                         if (!attachedToConsole)
                         {
-                            Kernel32.AllocConsole();
+                            Kernel32Api.AllocConsole();
                         }
 
                         var helpOutput = new StringBuilder();
@@ -250,7 +254,7 @@ namespace Greenshot.Forms
                         {
                             try
                             {
-                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
+                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32Api.GetProcessPath(greenshotProcess.Id));
                                 if (currentProcessId == greenshotProcess.Id)
                                 {
                                     matchedThisProcess = true;
@@ -267,7 +271,7 @@ namespace Greenshot.Forms
                         if (!matchedThisProcess)
                         {
                             using Process currentProcess = Process.GetCurrentProcess();
-                            instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
+                            instanceInfo.Append(index + ": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
                         }
 
                         // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
@@ -378,8 +382,7 @@ namespace Greenshot.Forms
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
-            DpiChanged += (e, o) => ApplyDpiScaling();
-
+ 
             // The most important form is this
             SimpleServiceProvider.Current.AddService<Form>(this);
             // Also as itself
@@ -503,7 +506,7 @@ namespace Greenshot.Forms
             // Make Greenshot use less memory after startup
             if (_conf.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -528,7 +531,7 @@ namespace Greenshot.Forms
                 int len = 250;
                 var stringBuilder = new StringBuilder(len);
                 using var proc = Process.GetCurrentProcess();
-                var err = Kernel32.GetPackageFullName(proc.Handle, ref len, stringBuilder);
+                var err = Kernel32Api.GetPackageFullName(proc.Handle, ref len, stringBuilder);
                 if (err != 0)
                 {
                     useEditor = true;
@@ -744,7 +747,7 @@ namespace Greenshot.Forms
                 return;
             }
 
-            ApplyDpiScaling();
+            DpiChangedHandler(96, DeviceDpi);
             string ieExePath = PluginUtils.GetExePath("iexplore.exe");
             if (!string.IsNullOrEmpty(ieExePath))
             {
@@ -755,10 +758,10 @@ namespace Greenshot.Forms
         /// <summary>
         /// Modify the DPI settings depending in the current value
         /// </summary>
-        private void ApplyDpiScaling()
+        protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
-            contextMenu.ImageScalingSize = scaledIconSize;
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
+            contextMenu.ImageScalingSize = newSize;
         }
 
         /// <summary>
@@ -1002,7 +1005,7 @@ namespace Greenshot.Forms
             var factor = DeviceDpi / 96f;
             contextMenu.Scale(new SizeF(factor, factor));
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
-            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
+            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // IE context menu code
             try
@@ -1124,51 +1127,50 @@ namespace Greenshot.Forms
         {
             ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem) sender;
             captureScreenMenuItem.DropDownItems.Clear();
-            if (Screen.AllScreens.Length > 1)
-            {
-                Rectangle allScreensBounds = WindowCapture.GetScreenBounds();
+            if (DisplayInfo.AllDisplayInfos.Length <= 1) return;
 
-                var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-                captureScreenItem.Click += delegate {
-                    BeginInvoke((MethodInvoker) delegate {
-                        CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+            var allScreensBounds = DisplayInfo.ScreenBounds;
+
+            var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+            captureScreenItem.Click += delegate {
+                BeginInvoke((MethodInvoker) delegate {
+                    CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
+                });
+            };
+
+            captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+            {
+                var displayToCapture = displayInfo;
+                string deviceAlignment = displayToCapture.DeviceName;
+                    
+                if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+                }
+                else if (displayInfo.Bounds.Top != allScreensBounds.Top && displayInfo.Bounds.Bottom == allScreensBounds.Bottom)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+                }
+
+                if (displayInfo.Bounds.Left == allScreensBounds.Left && displayInfo.Bounds.Right != allScreensBounds.Right)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+                }
+                else if (displayInfo.Bounds.Left != allScreensBounds.Left && displayInfo.Bounds.Right == allScreensBounds.Right)
+                {
+                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+                }
+
+                captureScreenItem = new ToolStripMenuItem(deviceAlignment);
+                captureScreenItem.Click += delegate
+                {
+                    BeginInvoke((MethodInvoker) delegate
+                    {
+                        CaptureHelper.CaptureRegion(false, displayToCapture.Bounds);
                     });
                 };
-
                 captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    Screen screenToCapture = screen;
-                    string deviceAlignment = screenToCapture.DeviceName;
-                    
-                    if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
-                    }
-                    else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
-                    }
-
-                    if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
-                    }
-                    else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
-                    {
-                        deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
-                    }
-
-                    captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-                    captureScreenItem.Click += delegate
-                    {
-                        BeginInvoke((MethodInvoker) delegate
-                        {
-                            CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
-                        });
-                    };
-                    captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-                }
             }
         }
 
@@ -1237,7 +1239,7 @@ namespace Greenshot.Forms
         {
             menuItem.DropDownItems.Clear();
             // check if thumbnailPreview is enabled and DWM is enabled
-            bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled;
+            bool thumbnailPreview = _conf.ThumnailPreview && DwmApi.IsDwmEnabled;
 
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {
@@ -1499,7 +1501,7 @@ namespace Greenshot.Forms
             if (!_conf.Values["Destinations"].IsFixed)
             {
                 // screenshot destination
-                selectList = new ToolStripMenuSelectList("destinations", true)
+                selectList = new ToolStripMenuSelectList("destinations", true, this)
                 {
                     Text = Language.GetString(LangKey.settings_destination)
                 };
@@ -1516,7 +1518,7 @@ namespace Greenshot.Forms
             if (!_conf.Values["WindowCaptureMode"].IsFixed)
             {
                 // Capture Modes
-                selectList = new ToolStripMenuSelectList("capturemodes", false)
+                selectList = new ToolStripMenuSelectList("capturemodes", false, this)
                 {
                     Text = Language.GetString(LangKey.settings_window_capture_mode)
                 };
@@ -1531,7 +1533,7 @@ namespace Greenshot.Forms
             }
 
             // print options
-            selectList = new ToolStripMenuSelectList("printoptions", true)
+            selectList = new ToolStripMenuSelectList("printoptions", true, this)
             {
                 Text = Language.GetString(LangKey.settings_printoptions)
             };
@@ -1556,7 +1558,7 @@ namespace Greenshot.Forms
             }
 
             // effects
-            selectList = new ToolStripMenuSelectList("effects", true)
+            selectList = new ToolStripMenuSelectList("effects", true, this)
             {
                 Text = Language.GetString(LangKey.settings_visualization)
             };

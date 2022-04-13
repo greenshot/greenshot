@@ -29,9 +29,11 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Hooking;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Win10.Internal;
@@ -82,24 +84,22 @@ namespace Greenshot.Plugin.Win10.Destinations
 
                 triggerWindow.Show();
 
-                var focusMonitor = new WindowsOpenCloseMonitor();
                 var windowHandle = new WindowInteropHelper(triggerWindow).Handle;
 
                 // This is a bad trick, but don't know how else to do it.
                 // Wait for the focus to return, and depending on the state close the window!
-                focusMonitor.WindowOpenCloseChangeEvent += e =>
+                var createDestroyMonitor = WinEventHook.WindowTitleChangeObservable().Subscribe(wei =>
                 {
-                    if (e.IsOpen)
+                    if (wei.WinEvent == WinEvents.EVENT_OBJECT_CREATE)
                     {
-                        if ("Windows Shell Experience Host" == e.Title)
+                        var windowTitle = User32Api.GetText(wei.Handle);
+                        if ("Windows Shell Experience Host" == windowTitle)
                         {
-                            shareInfo.SharingHwnd = e.HWnd;
+                            shareInfo.SharingHwnd = wei.Handle;
                         }
-
                         return;
                     }
-
-                    if (e.HWnd == shareInfo.SharingHwnd)
+                    if (wei.Handle == shareInfo.SharingHwnd)
                     {
                         if (shareInfo.ApplicationName != null)
                         {
@@ -108,12 +108,12 @@ namespace Greenshot.Plugin.Win10.Destinations
 
                         shareInfo.ShareTask.TrySetResult(false);
                     }
-                };
+                });
 
                 Share(shareInfo, windowHandle, surface, captureDetails).GetAwaiter().GetResult();
                 Log.Debug("Sharing finished, closing window.");
                 triggerWindow.Close();
-                focusMonitor.Dispose();
+                createDestroyMonitor.Dispose();
                 if (string.IsNullOrWhiteSpace(shareInfo.ApplicationName))
                 {
                     exportInformation.ExportMade = false;

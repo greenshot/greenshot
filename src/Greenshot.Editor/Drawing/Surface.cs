@@ -29,6 +29,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -38,7 +40,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
 
@@ -453,7 +454,7 @@ namespace Greenshot.Editor.Drawing
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi"></param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
             foreach (var element in this._elements)
             {
@@ -529,8 +530,8 @@ namespace Greenshot.Editor.Drawing
             // check if cursor is captured, and visible
             if (capture.Cursor != null && capture.CursorVisible)
             {
-                Rectangle cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
-                Rectangle captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+                var cursorRect = new NativeRect(capture.CursorLocation, capture.Cursor.Size);
+                var captureRect = new NativeRect(NativePoint.Empty, capture.Image.Size);
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
@@ -939,7 +940,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void OnDragDrop(object sender, DragEventArgs e)
         {
-            Point mouse = PointToClient(new Point(e.X, e.Y));
+            NativePoint mouse = PointToClient(new NativePoint(e.X, e.Y));
             if (e.Data.GetDataPresent("Text"))
             {
                 string possibleUrl = ClipboardHelper.GetText(e.Data);
@@ -964,7 +965,7 @@ namespace Greenshot.Editor.Drawing
                 drawableContainer.Top = mouse.Y;
                 FitContainer(drawableContainer);
                 AddElement(drawableContainer);
-                mouse.Offset(10, 10);
+                mouse = mouse.Offset(10, 10);
             }
         }
 
@@ -973,11 +974,11 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Auto crop the image
         /// </summary>
-        /// <param name="cropArea">Rectangle with optional area to find a crop region</param>
+        /// <param name="cropArea">NativeRect with optional area to find a crop region</param>
         /// <returns>true if cropped</returns>
-        public bool AutoCrop(Rectangle? cropArea = null)
+        public bool AutoCrop(NativeRect? cropArea = null)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference, cropArea);
@@ -1011,7 +1012,7 @@ namespace Greenshot.Editor.Drawing
         public void Clear(Color newColor)
         {
             //create a blank bitmap the same size as original
-            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
+            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, newColor);
             if (newBitmap == null) return;
             // Make undoable
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
@@ -1030,7 +1031,7 @@ namespace Greenshot.Editor.Drawing
             Application.DoEvents();
             try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+                var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
                 Matrix matrix = new Matrix();
                 Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
                 if (newImage != null)
@@ -1041,7 +1042,7 @@ namespace Greenshot.Editor.Drawing
                     MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
                     SetImage(newImage, false);
                     Invalidate();
-                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size)))
+                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
                     {
                         _surfaceSizeChanged(this, null);
                     }
@@ -1065,28 +1066,28 @@ namespace Greenshot.Editor.Drawing
         /// <param name="cropRectangle">Rectangle adapted to the dimensions of the image</param>
         /// <param name="cropMode">CropModes</param>
         /// <returns>true if this is possible</returns>
-        public bool IsCropPossible(ref Rectangle cropRectangle, CropContainer.CropModes cropMode)
+        public bool IsCropPossible(ref NativeRect cropRectangle, CropContainer.CropModes cropMode)
         {
-            cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+            cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height).Normalize();
             //Fitting the rectangle to the dimensions of the image
             if (cropRectangle.Left < 0)
             {
-                cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
+                cropRectangle = new NativeRect(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
             }
 
             if (cropRectangle.Top < 0)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
+                cropRectangle = new NativeRect(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
             }
 
             if (cropRectangle.Left + cropRectangle.Width > Image.Width)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
+                cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
             }
 
             if (cropRectangle.Top + cropRectangle.Height > Image.Height)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
+                cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
             }
 
             // special condition for vertical 
@@ -1198,13 +1199,13 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Crop the surface
         /// </summary>
-        /// <param name="cropRectangle">rectangle that remains</param>
+        /// <param name="cropRectangle">NativeRect that remains</param>
         /// <returns>bool</returns>
-        public bool ApplyCrop(Rectangle cropRectangle)
+        public bool ApplyCrop(NativeRect cropRectangle)
         {
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Default)) return false;
 
-            Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
             Bitmap tmpImage;
             // Make sure we have information, this this fails
             try
@@ -1228,7 +1229,7 @@ namespace Greenshot.Editor.Drawing
             // Do not dispose otherwise we can't undo the image!
             SetImage(tmpImage, false);
             _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, tmpImage.Size)))
             {
                 _surfaceSizeChanged(this, null);
             }
@@ -1241,15 +1242,15 @@ namespace Greenshot.Editor.Drawing
         /// Crop out the surface
         /// Splits the image in 3 parts(top, middle, bottom). Crop out the middle and joins top and bottom. 
         /// </summary>
-        /// <param name="cropRectangle">rectangle of the middle part</param>
+        /// <param name="cropRectangle">NativeRect of the middle part</param>
         /// <returns>bool</returns>
-        private bool ApplyHorizontalCrop(Rectangle cropRectangle)
+        private bool ApplyHorizontalCrop(NativeRect cropRectangle)
         {
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Horizontal)) return false;
 
-            var imageRectangle = new Rectangle(Point.Empty, Image.Size);
-            var topRectangle = new Rectangle(0, 0, Image.Size.Width, cropRectangle.Top);
-            var bottomRectangle = new Rectangle(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            var topRectangle = new NativeRect(0, 0, Image.Size.Width, cropRectangle.Top);
+            var bottomRectangle = new NativeRect(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
 
             Bitmap newImage;
             try
@@ -1261,12 +1262,12 @@ namespace Greenshot.Editor.Drawing
                 var insertPositionTop = 0;
                 if (topRectangle.Height > 0)
                 {
-                    graphics.DrawImage(Image, new Rectangle(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
+                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
                     insertPositionTop += topRectangle.Height;
                 }
                 if (bottomRectangle.Height > 0)
                 {
-                    graphics.DrawImage(Image, new Rectangle(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
+                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
                 }
             }
             catch (Exception ex)
@@ -1286,7 +1287,7 @@ namespace Greenshot.Editor.Drawing
             SetImage(newImage, false);
 
             _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size)))
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
             {
                 _surfaceSizeChanged(this, null);
             }
@@ -1299,15 +1300,15 @@ namespace Greenshot.Editor.Drawing
         /// Crop out the surface
         /// Splits the image in 3 parts(left, middle, right). Crop out the middle and joins top and bottom.
         /// </summary>
-        /// <param name="cropRectangle">rectangle of the middle part</param>
+        /// <param name="cropRectangle">NativeRect of the middle part</param>
         /// <returns>bool</returns>
-        private bool ApplyVerticalCrop(Rectangle cropRectangle)
+        private bool ApplyVerticalCrop(NativeRect cropRectangle)
         {
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Vertical)) return false;
 
-            var imageRectangle = new Rectangle(Point.Empty, Image.Size);
-            var leftRectangle = new Rectangle(0, 0, cropRectangle.Left, Image.Size.Height);
-            var rightRectangle = new Rectangle(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            var leftRectangle = new NativeRect(0, 0, cropRectangle.Left, Image.Size.Height);
+            var rightRectangle = new NativeRect(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
             Bitmap newImage;
             try
             {
@@ -1318,13 +1319,13 @@ namespace Greenshot.Editor.Drawing
                 var insertPositionLeft = 0;
                 if (leftRectangle.Width > 0)
                 {
-                    graphics.DrawImage(Image, new Rectangle(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
+                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
                     insertPositionLeft += leftRectangle.Width;
                 }
                 
                 if (rightRectangle.Width > 0)
                 {
-                    graphics.DrawImage(Image, new Rectangle(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
+                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
                 }
             }
             catch (Exception ex)
@@ -1344,7 +1345,7 @@ namespace Greenshot.Editor.Drawing
             SetImage(newImage, false);
 
             _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size)))
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
             {
                 _surfaceSizeChanged(this, null);
             }
@@ -1707,9 +1708,9 @@ namespace Greenshot.Editor.Drawing
             return GetImage(RenderMode.EXPORT);
         }
 
-        private static Rectangle ZoomClipRectangle(Rectangle rc, double scale, int inflateAmount = 0)
+        private static NativeRect ZoomClipRectangle(NativeRect rc, double scale, int inflateAmount = 0)
         {
-            rc = new Rectangle(
+            rc = new NativeRect(
                 (int) (rc.X * scale),
                 (int) (rc.Y * scale),
                 (int) (rc.Width * scale) + 1,
@@ -1720,11 +1721,10 @@ namespace Greenshot.Editor.Drawing
                 inflateAmount = (int) (inflateAmount * scale);
             }
 
-            rc.Inflate(inflateAmount, inflateAmount);
-            return rc;
+            return rc.Inflate(inflateAmount, inflateAmount);
         }
 
-        public void InvalidateElements(Rectangle rc)
+        public void InvalidateElements(NativeRect rc)
             => Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
 
         /// <summary>
@@ -1735,8 +1735,8 @@ namespace Greenshot.Editor.Drawing
         private void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
         {
             Graphics targetGraphics = paintEventArgs.Graphics;
-            Rectangle targetClipRectangle = paintEventArgs.ClipRectangle;
-            if (Rectangle.Empty.Equals(targetClipRectangle))
+            NativeRect targetClipRectangle = paintEventArgs.ClipRectangle;
+            if (targetClipRectangle.IsEmpty)
             {
                 LOG.Debug("Empty cliprectangle??");
                 return;
@@ -1750,18 +1750,16 @@ namespace Greenshot.Editor.Drawing
                 int verticalCorrection = targetClipRectangle.Top % (int) _zoomFactor.Numerator;
                 if (horizontalCorrection != 0)
                 {
-                    targetClipRectangle.X -= horizontalCorrection;
-                    targetClipRectangle.Width += horizontalCorrection;
+                    targetClipRectangle = targetClipRectangle.ChangeX(-horizontalCorrection).ChangeWidth(horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
-                    targetClipRectangle.Y -= verticalCorrection;
-                    targetClipRectangle.Height += verticalCorrection;
+                    targetClipRectangle = targetClipRectangle.ChangeY(-verticalCorrection).ChangeHeight(verticalCorrection);
                 }
             }
 
-            Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
+            NativeRect imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
 
             if (_elements.HasIntersectingFilters(imageClipRectangle) || _zoomFactor > Fraction.Identity)
             {
@@ -1842,7 +1840,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        private void DrawSmoothImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+        private void DrawSmoothImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
             var state = targetGraphics.Save();
             targetGraphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -1855,7 +1853,7 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.Restore(state);
         }
 
-        private void DrawSharpImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+        private void DrawSharpImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
             var state = targetGraphics.Save();
             targetGraphics.SmoothingMode = SmoothingMode.None;
@@ -1868,7 +1866,7 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.Restore(state);
         }
 
-        private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle)
+        private void DrawBackground(Graphics targetGraphics, NativeRect clipRectangle)
         {
             // check if we need to draw the checkerboard
             if (Image.IsAlphaPixelFormat(Image.PixelFormat) && _transparencyBackgroundBrush != null)
@@ -2114,10 +2112,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // maybe the undo button has to be enabled
-            if (_movingElementChanged != null)
-            {
-                _movingElementChanged(this, new SurfaceElementEventArgs());
-            }
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
 
         /// <summary>
@@ -2152,10 +2147,7 @@ namespace Greenshot.Editor.Drawing
             DrawingMode = DrawingModes.None;
 
             // maybe the undo button has to be enabled
-            if (_movingElementChanged != null)
-            {
-                _movingElementChanged(this, new SurfaceElementEventArgs());
-            }
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
 
         public void RemoveCropContainer()
@@ -2197,34 +2189,33 @@ namespace Greenshot.Editor.Drawing
                     // Make element(s) only move 10,10 if the surface is the same
                     bool isSameSurface = (dcs.ParentID == _uniqueId);
                     dcs.Parent = this;
-                    var moveOffset = isSameSurface ? new Point(10, 10) : Point.Empty;
+                    var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
                     // Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
-                    Rectangle drawableContainerListBounds = Rectangle.Empty;
+                    NativeRect drawableContainerListBounds = NativeRect.Empty;
                     foreach (var element in dcs)
                     {
-                        drawableContainerListBounds = drawableContainerListBounds == Rectangle.Empty
+                        drawableContainerListBounds = drawableContainerListBounds == NativeRect.Empty
                             ? element.DrawingBounds
-                            : Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
+                            : drawableContainerListBounds.Union(element.DrawingBounds);
                     }
 
                     // And find a location inside the target surface to paste to
                     bool containersCanFit = drawableContainerListBounds.Width < Bounds.Width && drawableContainerListBounds.Height < Bounds.Height;
                     if (!containersCanFit)
                     {
-                        Point containersLocation = drawableContainerListBounds.Location;
+                        NativePoint containersLocation = drawableContainerListBounds.Location;
                         containersLocation.Offset(moveOffset);
                         if (!Bounds.Contains(containersLocation))
                         {
                             // Easy fix for same surface
                             moveOffset = isSameSurface
-                                ? new Point(-10, -10)
-                                : new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
+                                ? new NativePoint(-10, -10)
+                                : new NativePoint(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
                         }
                     }
                     else
                     {
-                        Rectangle moveContainerListBounds = drawableContainerListBounds;
-                        moveContainerListBounds.Offset(moveOffset);
+                        NativeRect moveContainerListBounds = drawableContainerListBounds.Offset(moveOffset);
                         // check if the element is inside
                         if (!Bounds.Contains(moveContainerListBounds))
                         {
@@ -2272,7 +2263,7 @@ namespace Greenshot.Editor.Drawing
             }
             else if (ClipboardHelper.ContainsImage(clipboard))
             {
-                Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
+                NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
                 foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
                 {
@@ -2282,13 +2273,12 @@ namespace Greenshot.Editor.Drawing
                     drawableContainer.Top = pasteLocation.Y; 
                     AddElement(drawableContainer);
                     SelectElement(drawableContainer);
-                    pasteLocation.X += 10;
-                    pasteLocation.Y += 10;
+                    pasteLocation = pasteLocation.Offset(10, 10);
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))
             {
-                Point pasteLocation = GetPasteLocation(0.4f, 0.4f);
+                NativePoint pasteLocation = GetPasteLocation(0.4f, 0.4f);
 
                 string text = ClipboardHelper.GetText(clipboard);
                 if (text != null)
@@ -2308,13 +2298,13 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="horizontalRatio">0.0f for the left edge of visible area, 1.0f for the right edge of visible area.</param>
         /// <param name="verticalRatio">0.0f for the top edge of visible area, 1.0f for the bottom edge of visible area.</param>
-        private Point GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
+        private NativePoint GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
         {
             var point = PointToClient(MousePosition);
             var rc = GetVisibleRectangle();
             if (!rc.Contains(point))
             {
-                point = new Point(
+                point = new NativePoint(
                     rc.Left + (int) (rc.Width * horizontalRatio),
                     rc.Top + (int) (rc.Height * verticalRatio)
                 );
@@ -2326,11 +2316,11 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Get the rectangle bounding the part of this Surface currently visible in the editor (in surface coordinate space).
         /// </summary>
-        public Rectangle GetVisibleRectangle()
+        public NativeRect GetVisibleRectangle()
         {
             var bounds = Bounds;
             var clientArea = Parent.ClientRectangle;
-            return new Rectangle(
+            return new NativeRect(
                 Math.Max(0, -bounds.Left),
                 Math.Max(0, -bounds.Top),
                 clientArea.Width,
@@ -2342,7 +2332,7 @@ namespace Greenshot.Editor.Drawing
         /// Get the rectangle bounding all selected elements (in surface coordinates space),
         /// or empty rectangle if nothing is selected.
         /// </summary>
-        public Rectangle GetSelectionRectangle()
+        public NativeRect GetSelectionRectangle()
             => ToSurfaceCoordinates(selectedElements.DrawingBounds);
 
         /// <summary>
@@ -2489,24 +2479,24 @@ namespace Greenshot.Editor.Drawing
 
             bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
             int px = shiftModifier ? 10 : 1;
-            Point moveBy = Point.Empty;
+            NativePoint moveBy = NativePoint.Empty;
             switch (k)
             {
                 case Keys.Left:
                 case Keys.Left | Keys.Shift:
-                    moveBy = new Point(-px, 0);
+                    moveBy = new NativePoint(-px, 0);
                     break;
                 case Keys.Up:
                 case Keys.Up | Keys.Shift:
-                    moveBy = new Point(0, -px);
+                    moveBy = new NativePoint(0, -px);
                     break;
                 case Keys.Right:
                 case Keys.Right | Keys.Shift:
-                    moveBy = new Point(px, 0);
+                    moveBy = new NativePoint(px, 0);
                     break;
                 case Keys.Down:
                 case Keys.Down | Keys.Shift:
-                    moveBy = new Point(0, px);
+                    moveBy = new NativePoint(0, px);
                     break;
                 case Keys.PageUp:
                     PullElementsUp();
@@ -2584,7 +2574,7 @@ namespace Greenshot.Editor.Drawing
                     return false;
             }
 
-            if (!Point.Empty.Equals(moveBy))
+            if (moveBy != NativePoint.Empty)
             {
                 selectedElements.MakeBoundsChangeUndoable(true);
                 selectedElements.MoveBy(moveBy.X, moveBy.Y);
@@ -2693,7 +2683,7 @@ namespace Greenshot.Editor.Drawing
             return _elements.Contains(container);
         }
 
-        public Point ToSurfaceCoordinates(Point point)
+        public NativePoint ToSurfaceCoordinates(NativePoint point)
         {
             Point[] points =
             {
@@ -2703,29 +2693,27 @@ namespace Greenshot.Editor.Drawing
             return points[0];
         }
 
-        public Rectangle ToSurfaceCoordinates(Rectangle rc)
+        public NativeRect ToSurfaceCoordinates(NativeRect rc)
         {
             if (_zoomMatrix.IsIdentity)
             {
                 return rc;
             }
-            else
+
+            Point[] points =
             {
-                Point[] points =
-                {
-                    rc.Location, rc.Location + rc.Size
-                };
-                _zoomMatrix.TransformPoints(points);
-                return new Rectangle(
-                    points[0].X,
-                    points[0].Y,
-                    points[1].X - points[0].X,
-                    points[1].Y - points[0].Y
-                );
-            }
+                rc.Location, rc.Location.Offset(rc.Size.Width, rc.Size.Height)
+            };
+            _zoomMatrix.TransformPoints(points);
+            return new NativeRect(
+                points[0].X,
+                points[0].Y,
+                points[1].X - points[0].X,
+                points[1].Y - points[0].Y
+            );
         }
 
-        public Point ToImageCoordinates(Point point)
+        public NativePoint ToImageCoordinates(NativePoint point)
         {
             Point[] points =
             {
@@ -2735,7 +2723,7 @@ namespace Greenshot.Editor.Drawing
             return points[0];
         }
 
-        public Rectangle ToImageCoordinates(Rectangle rc)
+        public NativeRect ToImageCoordinates(NativeRect rc)
         {
             if (_inverseZoomMatrix.IsIdentity)
             {
@@ -2744,10 +2732,10 @@ namespace Greenshot.Editor.Drawing
 
             Point[] points =
             {
-                rc.Location, rc.Location + rc.Size
+                rc.Location, rc.Location.Offset(rc.Size.Width, rc.Size.Height)
             };
             _inverseZoomMatrix.TransformPoints(points);
-            return new Rectangle(
+            return new NativeRect(
                 points[0].X,
                 points[0].Y,
                 points[1].X - points[0].X,

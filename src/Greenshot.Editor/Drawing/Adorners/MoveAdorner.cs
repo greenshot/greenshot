@@ -20,8 +20,8 @@
  */
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Helpers;
 
@@ -32,8 +32,8 @@ namespace Greenshot.Editor.Drawing.Adorners
     /// </summary>
     public class MoveAdorner : AbstractAdorner
     {
-        private Rectangle _boundsBeforeResize = Rectangle.Empty;
-        private RectangleF _boundsAfterResize = RectangleF.Empty;
+        private NativeRect _boundsBeforeResize = NativeRect.Empty;
+        private NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
         public Positions Position { get; private set; }
 
@@ -55,7 +55,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
         {
             EditStatus = EditStatus.RESIZING;
-            _boundsBeforeResize = new Rectangle(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
+            _boundsBeforeResize = new NativeRect(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
             _boundsAfterResize = _boundsBeforeResize;
         }
 
@@ -75,10 +75,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             Owner.MakeBoundsChangeUndoable(false);
 
             // reset "workbench" rectangle to current bounds
-            _boundsAfterResize.X = _boundsBeforeResize.X;
-            _boundsAfterResize.Y = _boundsBeforeResize.Y;
-            _boundsAfterResize.Width = _boundsBeforeResize.Width;
-            _boundsAfterResize.Height = _boundsBeforeResize.Height;
+            _boundsAfterResize = _boundsBeforeResize;
 
             // calculate scaled rectangle
             ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
@@ -92,7 +89,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Return the location of the adorner
         /// </summary>
-        public override Point Location
+        public override NativePoint Location
         {
             get
             {
@@ -133,7 +130,7 @@ namespace Greenshot.Editor.Drawing.Adorners
                         break;
                 }
 
-                return new Point(x, y);
+                return new NativePoint(x, y);
             }
         }
     }

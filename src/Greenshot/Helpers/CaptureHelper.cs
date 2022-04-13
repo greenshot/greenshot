@@ -28,12 +28,16 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
@@ -52,7 +56,7 @@ namespace Greenshot.Helpers
         
         private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
-        private Rectangle _captureRect = Rectangle.Empty;
+        private NativeRect _captureRect = NativeRect.Empty;
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private CaptureMode _captureMode;
@@ -89,7 +93,7 @@ namespace Greenshot.Helpers
             // Empty working set after capturing
             if (CoreConfig.MinimizeWorkingSetSize)
             {
-                PsAPI.EmptyWorkingSet();
+                PsApi.EmptyWorkingSet();
             }
         }
 
@@ -116,7 +120,7 @@ namespace Greenshot.Helpers
             captureHelper.MakeCapture();
         }
 
-        public static void CaptureRegion(bool captureMouse, Rectangle region)
+        public static void CaptureRegion(bool captureMouse, NativeRect region)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse);
             captureHelper.MakeCapture(region);
@@ -243,8 +247,8 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Make Capture for region
         /// </summary>
-        /// <param name="region">Rectangle</param>
-        private void MakeCapture(Rectangle region)
+        /// <param name="region">NativeRect</param>
+        private void MakeCapture(NativeRect region)
         {
             _captureRect = region;
             MakeCapture();
@@ -276,7 +280,7 @@ namespace Greenshot.Helpers
             {
                 case CaptureMode.Region:
                     // Check if a region is pre-supplied!
-                    if (Rectangle.Empty.Equals(_captureRect))
+                    if (_captureRect.IsEmpty)
                     {
                         retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
                     }
@@ -351,7 +355,7 @@ namespace Greenshot.Helpers
                     switch (_screenCaptureMode)
                     {
                         case ScreenCaptureMode.Auto:
-                            Point mouseLocation = User32.GetCursorLocation();
+                            NativePoint mouseLocation = User32Api.GetCursorLocation();
                             foreach (Screen screen in Screen.AllScreens)
                             {
                                 if (screen.Bounds.Contains(mouseLocation))
@@ -359,8 +363,7 @@ namespace Greenshot.Helpers
                                     _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
                                     captureTaken = true;
                                     // As the screen shot might be on a different monitor we need to correct the mouse location
-                                    var correctedCursorLocation = _capture.CursorLocation;
-                                    correctedCursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                                    var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
                                     _capture.CursorLocation = correctedCursorLocation;
                                     break;
                                 }
@@ -504,14 +507,12 @@ namespace Greenshot.Helpers
                         // Set capture title, fixing bug #3569703
                         foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
                         {
-                            Point estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
+                            NativePoint estimatedLocation = new NativePoint(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
                                 CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
-                            if (window.Contains(estimatedLocation))
-                            {
-                                _selectedCaptureWindow = window;
-                                _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-                                break;
-                            }
+                            if (!window.Contains(estimatedLocation)) continue;
+                            _selectedCaptureWindow = window;
+                            _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+                            break;
                         }
 
                         // Move cursor, fixing bug #3569703
@@ -526,7 +527,7 @@ namespace Greenshot.Helpers
                     break;
                 case CaptureMode.Region:
                     // Check if a region is pre-supplied!
-                    if (Rectangle.Empty.Equals(_captureRect))
+                    if (_captureRect.IsEmpty)
                     {
                         _capture = WindowCapture.CaptureScreen(_capture);
                         _capture.CaptureDetails.AddMetaData("source", "screen");
@@ -685,7 +686,7 @@ namespace Greenshot.Helpers
 
             if (_capture.CaptureDetails.CaptureMode == CaptureMode.Text)
             {
-                var selectionRectangle = new Rectangle(Point.Empty, _capture.Image.Size);
+                var selectionRectangle = new NativeRect(NativePoint.Empty, _capture.Image.Size);
                 var ocrInfo = _capture.CaptureDetails.OcrInformation;
                 if (ocrInfo != null)
                 {
@@ -712,7 +713,10 @@ namespace Greenshot.Helpers
                         textResult.AppendLine();
                     }
 
-                    Clipboard.SetText(textResult.ToString());
+                    if (textResult.Length > 0)
+                    {
+                        Clipboard.SetText(textResult.ToString());
+                    }
                 }
 
                 // Disable capturing
@@ -873,7 +877,7 @@ namespace Greenshot.Helpers
         /// <returns>WindowDetails with the target Window OR a replacement</returns>
         public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
         {
-            Rectangle windowRectangle = windowToCapture.WindowRectangle;
+            NativeRect windowRectangle = windowToCapture.WindowRectangle;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
                 Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -939,10 +943,10 @@ namespace Greenshot.Helpers
                 captureForWindow = new Capture();
             }
 
-            Rectangle windowRectangle = windowToCapture.WindowRectangle;
+            NativeRect windowRectangle = windowToCapture.WindowRectangle;
 
             // When Vista & DWM (Aero) enabled
-            bool dwmEnabled = DWM.IsDwmEnabled;
+            bool dwmEnabled = DwmApi.IsDwmEnabled;
             // get process name to be able to exclude certain processes from certain capture modes
             using (Process process = windowToCapture.Process)
             {
@@ -1024,7 +1028,7 @@ namespace Greenshot.Helpers
 
                 Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
                 bool captureTaken = false;
-                windowRectangle.Intersect(captureForWindow.ScreenBounds);
+                windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
                 // Try to capture
                 while (!captureTaken)
                 {
@@ -1216,8 +1220,7 @@ namespace Greenshot.Helpers
 
                 // save for re-capturing later and show recapture context menu option
                 // Important here is that the location needs to be offsetted back to screen coordinates!
-                Rectangle tmpRectangle = _captureRect;
-                tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+                NativeRect tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
                 CoreConfig.LastCapturedRegion = tmpRectangle;
             }
 

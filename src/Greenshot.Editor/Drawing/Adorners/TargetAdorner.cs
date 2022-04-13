@@ -22,6 +22,8 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Adorners
@@ -61,30 +63,30 @@ namespace Greenshot.Editor.Drawing.Adorners
             }
 
             Owner.Invalidate();
-            Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-            Rectangle imageBounds = new Rectangle(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
+            NativePoint newGripperLocation = new NativePoint(mouseEventArgs.X, mouseEventArgs.Y);
+            NativeRect imageBounds = new NativeRect(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
             // Check if gripper inside the parent (surface), if not we need to move it inside
             // This was made for BUG-1682
             if (!imageBounds.Contains(newGripperLocation))
             {
                 if (newGripperLocation.X > imageBounds.Right)
                 {
-                    newGripperLocation.X = imageBounds.Right - 5;
+                    newGripperLocation = newGripperLocation.ChangeX(imageBounds.Right - 5);
                 }
 
                 if (newGripperLocation.X < imageBounds.Left)
                 {
-                    newGripperLocation.X = imageBounds.Left;
+                    newGripperLocation = newGripperLocation.ChangeX(imageBounds.Left);
                 }
 
                 if (newGripperLocation.Y > imageBounds.Bottom)
                 {
-                    newGripperLocation.Y = imageBounds.Bottom - 5;
+                    newGripperLocation = newGripperLocation.ChangeY(imageBounds.Bottom - 5);
                 }
 
                 if (newGripperLocation.Y < imageBounds.Top)
                 {
-                    newGripperLocation.Y = imageBounds.Top;
+                    newGripperLocation = newGripperLocation.ChangeY(imageBounds.Top);
                 }
             }
 
@@ -103,7 +105,7 @@ namespace Greenshot.Editor.Drawing.Adorners
                 return;
             }
 
-            Point[] points = new[]
+            Point[] points = new Point[]
             {
                 Location
             };

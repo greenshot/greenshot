@@ -36,13 +36,12 @@ using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Description of ImageOutput.
+    /// This contains all io related logic for image
     /// </summary>
     public static class ImageIO
     {
@@ -557,93 +556,6 @@ namespace Greenshot.Base.Core
             }
 
             return fileImage;
-        }
-
-        /// <summary>
-        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
-        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
-        /// </summary>
-        /// <param name="iconStream">Stream with the icon information</param>
-        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
-        private static Bitmap ExtractVistaIcon(Stream iconStream)
-        {
-            const int sizeIconDir = 6;
-            const int sizeIconDirEntry = 16;
-            Bitmap bmpPngExtracted = null;
-            try
-            {
-                byte[] srcBuf = new byte[iconStream.Length];
-                iconStream.Read(srcBuf, 0, (int)iconStream.Length);
-                int iCount = BitConverter.ToInt16(srcBuf, 4);
-                for (int iIndex = 0; iIndex < iCount; iIndex++)
-                {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-                    if (iWidth == 0 && iHeight == 0)
-                    {
-                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                        using MemoryStream destStream = new MemoryStream();
-                        destStream.Write(srcBuf, iImageOffset, iImageSize);
-                        destStream.Seek(0, SeekOrigin.Begin);
-                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return bmpPngExtracted;
-        }
-
-        /// <summary>
-        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
-        /// </summary>
-        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
-        /// <param name="index">Index of the icon</param>
-        /// <param name="takeLarge">true if the large icon is wanted</param>
-        /// <returns>Icon</returns>
-        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
-        {
-            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
-            Icon returnIcon = null;
-            bool isLarge = false;
-            bool isSmall = false;
-            try
-            {
-                if (takeLarge && !IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-                else if (!IntPtr.Zero.Equals(small))
-                {
-                    returnIcon = Icon.FromHandle(small);
-                    isSmall = true;
-                }
-                else if (!IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-            }
-            finally
-            {
-                if (isLarge && !IntPtr.Zero.Equals(small))
-                {
-                    User32.DestroyIcon(small);
-                }
-
-                if (isSmall && !IntPtr.Zero.Equals(large))
-                {
-                    User32.DestroyIcon(large);
-                }
-            }
-
-            return returnIcon;
         }
 
         /// <summary>

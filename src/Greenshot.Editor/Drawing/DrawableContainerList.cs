@@ -27,6 +27,8 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -258,7 +260,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="clipRectangle"></param>
         /// <returns>true if an filter intersects</returns>
-        public bool HasIntersectingFilters(Rectangle clipRectangle)
+        public bool HasIntersectingFilters(NativeRect clipRectangle)
         {
             foreach (var dc in this)
             {
@@ -274,9 +276,9 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Check if any of the drawableContainers are inside the rectangle
         /// </summary>
-        /// <param name="clipRectangle"></param>
+        /// <param name="clipRectangle">NativeRect</param>
         /// <returns></returns>
-        public bool IntersectsWith(Rectangle clipRectangle)
+        public bool IntersectsWith(NativeRect clipRectangle)
         {
             foreach (var dc in this)
             {
@@ -293,19 +295,19 @@ namespace Greenshot.Editor.Drawing
         /// A rectangle containing DrawingBounds of all drawableContainers in this list,
         /// or empty rectangle if nothing is there.
         /// </summary>
-        public Rectangle DrawingBounds
+        public NativeRect DrawingBounds
         {
             get
             {
                 if (Count == 0)
                 {
-                    return Rectangle.Empty;
+                    return NativeRect.Empty;
                 }
 
                 var result = this[0].DrawingBounds;
                 for (int i = 1; i < Count; i++)
                 {
-                    result = Rectangle.Union(result, this[i].DrawingBounds);
+                    result = result.Union(this[i].DrawingBounds);
                 }
 
                 return result;
@@ -318,8 +320,8 @@ namespace Greenshot.Editor.Drawing
         /// <param name="g">the to the bitmap related Graphics object</param>
         /// <param name="bitmap">Bitmap to draw</param>
         /// <param name="renderMode">the RenderMode in which the element is to be drawn</param>
-        /// <param name="clipRectangle"></param>
-        public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle)
+        /// <param name="clipRectangle">NativeRect</param>
+        public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle)
         {
             if (Parent == null)
             {
@@ -365,10 +367,10 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Rectangle region = Rectangle.Empty;
+            NativeRect region = NativeRect.Empty;
             foreach (var dc in this)
             {
-                region = Rectangle.Union(region, dc.DrawingBounds);
+                region = region.Union(dc.DrawingBounds);
             }
 
             Parent.InvalidateElements(region);
@@ -770,8 +772,8 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
-        /// <param name="dpi"></param>
-        public void AdjustToDpi(uint dpi)
+        /// <param name="dpi">int</param>
+        public void AdjustToDpi(int dpi)
         {
             foreach (var drawableContainer in this)
             {

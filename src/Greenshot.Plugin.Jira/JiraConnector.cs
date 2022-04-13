@@ -63,8 +63,8 @@ namespace Greenshot.Plugin.Jira
                     var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
                     jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration
                     {
-                        Width = CoreConfig.ScaledIconSize.Width,
-                        Height = CoreConfig.ScaledIconSize.Height
+                        Width = CoreConfig.IconSize.Width,
+                        Height = CoreConfig.IconSize.Height
                     });
                 }
             };
@@ -112,8 +112,8 @@ namespace Greenshot.Plugin.Jira
             _jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
             _jiraClient.Behaviour.SetConfig(new SvgConfiguration
             {
-                Width = CoreConfig.ScaledIconSize.Width,
-                Height = CoreConfig.ScaledIconSize.Height
+                Width = CoreConfig.IconSize.Width,
+                Height = CoreConfig.IconSize.Height
             });
             _jiraClient.SetBasicAuthentication(user, password);
 

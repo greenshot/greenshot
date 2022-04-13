@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces.Drawing;
@@ -185,8 +186,8 @@ namespace Greenshot.Base.Interfaces
         /// Invalidates the specified region of the Surface.
         /// Takes care of the Surface zoom level, accepts rectangle in the coordinate space of the Image.
         /// </summary>
-        /// <param name="rectangleToInvalidate">Bounding rectangle for updated elements, in the coordinate space of the Image.</param>
-        void InvalidateElements(Rectangle rectangleToInvalidate);
+        /// <param name="rectangleToInvalidate">NativeRect Bounding rectangle for updated elements, in the coordinate space of the Image.</param>
+        void InvalidateElements(NativeRect rectangleToInvalidate);
 
         bool Modified { get; set; }
         string LastSaveFullPath { get; set; }
@@ -214,28 +215,28 @@ namespace Greenshot.Base.Interfaces
         Fraction ZoomFactor { get; set; }
 
         /// <summary>
-        /// Translate a point from image coorditate space to surface coordinate space.
+        /// Translate a point from image coordinate space to surface coordinate space.
         /// </summary>
         /// <param name="point">A point in the coordinate space of the image.</param>
-        Point ToSurfaceCoordinates(Point point);
+        NativePoint ToSurfaceCoordinates(NativePoint point);
 
         /// <summary>
-        /// Translate a rectangle from image coorditate space to surface coordinate space.
+        /// Translate a rectangle from image coordinate space to surface coordinate space.
         /// </summary>
-        /// <param name="rc">A rectangle in the coordinate space of the image.</param>
-        Rectangle ToSurfaceCoordinates(Rectangle rc);
+        /// <param name="rc">NativeRect in the coordinate space of the image.</param>
+        NativeRect ToSurfaceCoordinates(NativeRect rc);
 
         /// <summary>
-        /// Translate a point from surface coorditate space to image coordinate space.
+        /// Translate a point from surface coordinate space to image coordinate space.
         /// </summary>
-        /// <param name="point">A point in the coordinate space of the surface.</param>
-        Point ToImageCoordinates(Point point);
+        /// <param name="point">NativePoint in the coordinate space of the surface.</param>
+        NativePoint ToImageCoordinates(NativePoint point);
 
         /// <summary>
-        /// Translate a rectangle from surface coorditate space to image coordinate space.
+        /// Translate a NativeRect from surface coordinate space to image coordinate space.
         /// </summary>
-        /// <param name="rc">A rectangle in the coordinate space of the surface.</param>
-        Rectangle ToImageCoordinates(Rectangle rc);
+        /// <param name="rc">NativeRect in the coordinate space of the surface.</param>
+        NativeRect ToImageCoordinates(NativeRect rc);
 
         /// <summary>
         /// Make it possible to undo the specified IMemento 

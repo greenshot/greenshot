@@ -102,6 +102,20 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
+        protected GreenshotForm()
+        {
+            DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
+        }
+
+        /// <summary>
+        /// This is the basic DpiChangedHandler responsible for all the DPI relative changes
+        /// </summary>
+        /// <param name="oldDpi"></param>
+        /// <param name="newDpi"></param>
+        protected virtual void DpiChangedHandler(int oldDpi, int newDpi)
+        {
+        }
+
 #if DEBUG
         /// <summary>
         /// Code to initialize the language etc during design time
@@ -382,10 +396,10 @@ namespace Greenshot.Base.Controls
 
         protected void ApplyLanguage(Control applyTo)
         {
-            if (!(applyTo is IGreenshotLanguageBindable languageBindable))
+            if (applyTo is not IGreenshotLanguageBindable languageBindable)
             {
                 // check if it's a menu!
-                if (!(applyTo is ToolStrip toolStrip))
+                if (applyTo is not ToolStrip toolStrip)
                 {
                     return;
                 }
@@ -402,20 +416,14 @@ namespace Greenshot.Base.Controls
             ApplyLanguage(applyTo, languageBindable.LanguageKey);
 
             // Repopulate the combox boxes
-            if (applyTo is IGreenshotConfigBindable configBindable && applyTo is GreenshotComboBox comboxBox)
-            {
-                if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName))
-                {
-                    IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
-                    if (section != null)
-                    {
-                        // Only update the language, so get the actual value and than repopulate
-                        Enum currentValue = comboxBox.GetSelectedEnum();
-                        comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
-                        comboxBox.SetValue(currentValue);
-                    }
-                }
-            }
+            if (applyTo is not (IGreenshotConfigBindable configBindable and GreenshotComboBox comboxBox)) return;
+            if (string.IsNullOrEmpty(configBindable.SectionName) || string.IsNullOrEmpty(configBindable.PropertyName)) return;
+            IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
+            if (section == null) return;
+            // Only update the language, so get the actual value and than repopulate
+            Enum currentValue = comboxBox.GetSelectedEnum();
+            comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
+            comboxBox.SetValue(currentValue);
         }
 
         /// <summary>
@@ -458,10 +466,9 @@ namespace Greenshot.Base.Controls
                         continue;
                     }
 
-                    if (!(controlObject is Control applyToControl))
+                    if (controlObject is not Control applyToControl)
                     {
-                        ToolStripItem applyToItem = controlObject as ToolStripItem;
-                        if (applyToItem == null)
+                        if (controlObject is not ToolStripItem applyToItem)
                         {
                             LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
                             continue;
@@ -530,7 +537,7 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Fill all GreenshotControls with the values from the configuration
         /// </summary>
-        protected void FillFields()
+        private void FillFields()
         {
             foreach (FieldInfo field in GetCachedFields(GetType()))
             {

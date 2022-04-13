@@ -19,21 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Greenshot.Base.UnmanagedHelpers.Enums
+namespace Greenshot.Base.Interfaces
 {
     /// <summary>
-    /// See: https://msdn.microsoft.com/en-us/library/aa909766.aspx
+    /// IProvideDeviceDpi can provide the current DPI for a component
     /// </summary>
-    [Flags]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum SoundFlags
+    public interface IProvideDeviceDpi
     {
-        SND_ASYNC = 0x0001, // play asynchronously
-        SND_MEMORY = 0x0004, // pszSound points to a memory file
-        SND_NOSTOP = 0x0010, // don't stop any currently playing sound
-        SND_NOWAIT = 0x00002000, // don't wait if the driver is busy
+        /// <summary>
+        /// A simple getter for the current DPI
+        /// </summary>
+        int DeviceDpi { get; }
     }
 }

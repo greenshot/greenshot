@@ -22,6 +22,8 @@
 
 using System.Drawing;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
@@ -141,16 +143,16 @@ namespace Greenshot.Editor.Drawing
         /// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
         /// (we create a transparent brown over the complete picture)
         /// </summary>
-        public override Rectangle DrawingBounds
+        public override NativeRect DrawingBounds
         {
             get
             {
                 if (_parent?.Image is { } image)
                 {
-                    return new Rectangle(0, 0, image.Width, image.Height);
+                    return new NativeRect(0, 0, image.Width, image.Height);
                 }
 
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
         }
 
@@ -163,8 +165,8 @@ namespace Greenshot.Editor.Drawing
 
 
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
-            Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
+            var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+            var selectionRect = new NativeRect(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
             Size imageSize = _parent.Image.Size;
 
             DrawSelectionBorder(g, selectionRect);
@@ -225,10 +227,7 @@ namespace Greenshot.Editor.Drawing
                         //allow only horizontal changes
                         if (_parent?.Image is { } image)
                         {
-                            _boundsAfterResize.X = 0;
-                            _boundsAfterResize.Y = _boundsBeforeResize.Top;
-                            _boundsAfterResize.Width = image.Width;
-                            _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                            _boundsAfterResize = new NativeRectFloat(0, _boundsBeforeResize.Top, image.Width, y - _boundsAfterResize.Top);
                         }
                         break;
                     }
@@ -238,23 +237,18 @@ namespace Greenshot.Editor.Drawing
                         //allow only vertical changes
                         if (_parent?.Image is { } image)
                         {
-                            _boundsAfterResize.X = _boundsBeforeResize.Left;
-                            _boundsAfterResize.Y = 0;
-                            _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-                            _boundsAfterResize.Height = image.Height;
+                            _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, 0, x - _boundsAfterResize.Left, image.Height);
                         }
                         break;
                     }
                 default:
                     {
                         // reset "workbench" rectangle to current bounds
-                        _boundsAfterResize.X = _boundsBeforeResize.Left;
-                        _boundsAfterResize.Y = _boundsBeforeResize.Top;
-                        _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-                        _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+                        _boundsAfterResize = new NativeRectFloat(
+                            _boundsBeforeResize.Left, _boundsBeforeResize.Top,
+                            x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
                         break;
                     }
-
             }
             ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
 

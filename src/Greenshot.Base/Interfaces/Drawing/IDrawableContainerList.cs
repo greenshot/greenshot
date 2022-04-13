@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
@@ -35,16 +36,16 @@ namespace Greenshot.Base.Interfaces.Drawing
 
         ISurface Parent { get; set; }
         EditStatus Status { get; set; }
-        Rectangle DrawingBounds { get; }
+        NativeRect DrawingBounds { get; }
         void MakeBoundsChangeUndoable(bool allowMerge);
         void Transform(Matrix matrix);
         void MoveBy(int dx, int dy);
         bool ClickableAt(int x, int y);
         IDrawableContainer ClickableElementAt(int x, int y);
         void OnDoubleClick();
-        bool HasIntersectingFilters(Rectangle clipRectangle);
-        bool IntersectsWith(Rectangle clipRectangle);
-        void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+        bool HasIntersectingFilters(NativeRect clipRectangle);
+        bool IntersectsWith(NativeRect clipRectangle);
+        void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle);
         void SetForegroundColor(Color color);
         void SetBackgroundColor(Color color);
         int IncreaseLineThickness(int increaseBy);
@@ -58,6 +59,6 @@ namespace Greenshot.Base.Interfaces.Drawing
         void PushElementsToBottom(IDrawableContainerList elements);
         void ShowContextMenu(MouseEventArgs e, ISurface surface);
         void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
-        void AdjustToDpi(uint dpi);
+        void AdjustToDpi(int dpi);
     }
 }

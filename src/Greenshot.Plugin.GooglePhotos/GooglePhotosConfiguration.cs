@@ -20,7 +20,6 @@
 
 using System;
 using System.Windows.Forms;
-using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.GooglePhotos.Forms;
