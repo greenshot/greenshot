@@ -480,8 +480,11 @@ namespace Greenshot.Editor.Drawing
             g.DrawRectangle(pen, rect);
         }
 
-        /// <inheritdoc cref="IDrawableContainer"/>
+        /// <inheritdoc/>
         public virtual bool IsUndoable => true;
+
+        /// <inheritdoc/>
+        public virtual bool IsConfirmable => false;
 
         /// <summary>
         /// Make a following bounds change on this drawablecontainer undoable!
