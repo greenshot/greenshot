@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Drawing.Adorners;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -35,28 +36,54 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public abstract class VectorGraphicsContainer : DrawableContainer
     {
-        protected int RotationAngle;
+        private int _rotationAngle;
+        protected int RotationAngle
+        {
+            get => _rotationAngle;
+            set => _rotationAngle = value;
+        }
 
         /// <summary>
         /// This is the cached version of the bitmap, pre-rendered to save performance
-        /// Do not serialized, it can be rebuild with some other information.
+        /// Do not serialized, it can be rebuild with other information.
         /// </summary>
         [NonSerialized] private Image _cachedImage;
 
+        /// <summary>
+        /// Constructor takes care of calling Init 
+        /// </summary>
+        /// <param name="parent">ISurface</param>
         public VectorGraphicsContainer(ISurface parent) : base(parent)
         {
             Init();
         }
 
+        /// <summary>
+        /// Make sure Init is called after deserializing
+        /// </summary>
+        /// <param name="streamingContext">StreamingContext</param>
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
             base.OnDeserialized(streamingContext);
             Init();
         }
 
-        private void Init()
+        /// <summary>
+        /// Init is called after creating the instance, and from OnDeserialized
+        /// This is the place to generate your adorners
+        /// </summary>
+        protected virtual void Init()
         {
-            CreateDefaultAdorners();
+            // Check if the adorners are already defined!
+            if (Adorners.Count > 0)
+            {
+                return;
+            }
+
+            Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
+            Adorners.Add(new ResizeAdorner(this, Positions.TopRight));
+            Adorners.Add(new ResizeAdorner(this, Positions.BottomLeft));
+            Adorners.Add(new ResizeAdorner(this, Positions.BottomRight));
         }
 
         /// <summary>
@@ -96,7 +123,10 @@ namespace Greenshot.Editor.Drawing
             }
 
             _cachedImage ??= ComputeBitmap();
-
+            if (_cachedImage == null)
+            {
+                return;
+            }
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -106,9 +136,16 @@ namespace Greenshot.Editor.Drawing
             graphics.DrawImage(_cachedImage, Bounds);
         }
 
+        /// <summary>
+        /// Implement this to compute the new bitmap according to the size of the container
+        /// </summary>
+        /// <returns>Image</returns>
         protected abstract Image ComputeBitmap();
 
-        private void ResetCachedBitmap()
+        /// <summary>
+        /// Dispose of the cached bitmap, forcing the code to regenerate it
+        /// </summary>
+        protected void ResetCachedBitmap()
         {
             _cachedImage?.Dispose();
             _cachedImage = null;

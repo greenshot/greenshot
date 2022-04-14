@@ -58,7 +58,7 @@ namespace Greenshot.Editor.Helpers
         /// <param name="currentSize">the size of the element to be resized</param>
         /// <param name="targetSize">the target size of the element</param>
         /// <param name="crop">in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)</param>
-        /// <returns>a new SizeF object indicating the width and height the element should be scaled to</returns>
+        /// <returns>NativeSizeFloat object indicating the width and height the element should be scaled to</returns>
         public static NativeSizeFloat GetScaledSize(NativeSizeFloat currentSize, NativeSizeFloat targetSize, bool crop)
         {
             float wFactor = targetSize.Width / currentSize.Width;
@@ -71,10 +71,10 @@ namespace Greenshot.Editor.Helpers
         /// <summary>
         /// calculates the position of an element depending on the desired alignment within a RectangleF
         /// </summary>
-        /// <param name="currentRect">the bounds of the element to be aligned</param>
-        /// <param name="targetRect">the rectangle reference for alignment of the element</param>
+        /// <param name="currentRect">NativeRectFloat the bounds of the element to be aligned</param>
+        /// <param name="targetRect">NativeRectFloat with the rectangle for alignment of the element</param>
         /// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
-        /// <returns>a new RectangleF object with Location aligned aligned to targetRect</returns>
+        /// <returns>NativeRectFloat object with Location aligned aligned to targetRect</returns>
         public static NativeRectFloat GetAlignedRectangle(NativeRectFloat currentRect, NativeRectFloat targetRect, ContentAlignment alignment)
         {
             var newRect = new NativeRectFloat(targetRect.Location, currentRect.Size);
@@ -96,9 +96,9 @@ namespace Greenshot.Editor.Helpers
         /// <summary>
         /// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
         /// </summary>
-        /// <param name="originalRectangle">bounds of the current rectangle</param>
-        /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
-        /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
+        /// <param name="originalRectangle">NativeRectFloat bounds of the current rectangle</param>
+        /// <param name="resizeHandlePosition">Positions with the position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
+        /// <param name="resizeHandleCoords">NativePointFloat coordinates of the used handle/gripper</param>
         /// <param name="options">ScaleOptions to use when scaling</param>
         /// <returns>NativeRectFloat scaled originalRectangle</returns>
         public static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords, ScaleOptions? options)
@@ -134,9 +134,9 @@ namespace Greenshot.Editor.Helpers
         /// <summary>
         /// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
         /// </summary>
-        /// <param name="originalRectangle">bounds of the current rectangle</param>
-        /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
-        /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
+        /// <param name="originalRectangle">NativeRectFloat bounds of the current rectangle</param>
+        /// <param name="resizeHandlePosition">Positions with the position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
+        /// <param name="resizeHandleCoords">NativePointFloat with coordinates of the used handle/gripper</param>
         /// <returns>NativeRectFloat with the scaled originalRectangle</returns>
         private static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
         {
@@ -158,9 +158,9 @@ namespace Greenshot.Editor.Helpers
         /// To avoid objects growing near infinity unexpectedly in certain combinations, the adjustment will choose the
         /// option resulting in the smaller rectangle.
         /// </summary>
-        /// <param name="originalRectangle">bounds of the current rectangle</param>
-        /// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see Position</param>
-        /// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
+        /// <param name="originalRectangle">NativeRectFloat with the bounds of the current rectangle</param>
+        /// <param name="resizeHandlePosition">Positions with the position of the handle/gripper being used for resized, see Position</param>
+        /// <param name="resizeHandleCoords">NativePointFloat with coordinates of the used handle/gripper</param>
         /// <returns>NativePointFloat with the adjusted coordinates</returns>
         private static NativePointFloat AdjustCoordsForRationalScale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
         {
@@ -203,7 +203,7 @@ namespace Greenshot.Editor.Helpers
         /// </summary>
         /// <param name="originalSize">NativeSizeFloat to be considered for keeping aspect ratio</param>
         /// <param name="selectedSize">NativeSizeFloat selection size (i.e. the size we'd produce if we wouldn't keep aspect ratio)</param>
-        /// <returns></returns>
+        /// <returns>NativeSizeFloat</returns>
         private static NativeSizeFloat GetNewSizeForRationalScale(NativeSizeFloat originalSize, NativeSizeFloat selectedSize)
         {
             NativeSizeFloat newSize = selectedSize;
@@ -227,16 +227,15 @@ namespace Greenshot.Editor.Helpers
             return newSize;
         }
 
-        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY)
-        {
-            return Scale(boundsBeforeResize, cursorX, cursorY, null);
-        }
-
-        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior)
-        {
-            return Scale(boundsBeforeResize, Positions.TopLeft, cursorX, cursorY, angleRoundBehavior);
-        }
-
+        /// <summary>
+        /// Scale the boundsBeforeResize with the specified position and new location, using the angle angleRoundBehavior
+        /// </summary>
+        /// <param name="boundsBeforeResize">NativeRect</param>
+        /// <param name="gripperPosition">Positions</param>
+        /// <param name="cursorX">int</param>
+        /// <param name="cursorY">int</param>
+        /// <param name="angleRoundBehavior">IDoubleProcessor</param>
+        /// <returns>NativeRectFloat</returns>
         public static NativeRectFloat Scale(NativeRect boundsBeforeResize, Positions gripperPosition, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior)
         {
             ScaleOptions opts = GetScaleOptions();

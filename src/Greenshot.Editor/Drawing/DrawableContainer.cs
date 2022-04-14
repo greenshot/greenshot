@@ -533,7 +533,7 @@ namespace Greenshot.Editor.Drawing
             // reset "workbench" rectangle to current bounds
             _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, _boundsBeforeResize.Top, x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor());
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Positions.TopLeft, x, y, GetAngleRoundProcessor());
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);
