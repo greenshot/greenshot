@@ -250,8 +250,7 @@ namespace Greenshot.Editor.Drawing
                         break;
                     }
             }
-            var scaleOptions = (this as IHaveScaleOptions)?.GetScaleOptions();
-            _boundsAfterResize = ScaleHelper.Scale(_boundsBeforeResize, x, y, GetAngleRoundProcessor(), scaleOptions);
+            _boundsAfterResize = ScaleHelper.Scale(_boundsBeforeResize, Positions.TopLeft, x, y, GetAngleRoundProcessor());
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);

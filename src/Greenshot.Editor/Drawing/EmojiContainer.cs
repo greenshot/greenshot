@@ -20,11 +20,9 @@
  */
 
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Greenshot.Base.Core;
@@ -33,7 +31,6 @@ using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
-using Matrix = System.Drawing.Drawing2D.Matrix;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -41,17 +38,15 @@ namespace Greenshot.Editor.Drawing
     /// Description of EmojiContainer.
     /// </summary>
     [Serializable]
-    public class EmojiContainer : DrawableContainer, IEmojiContainer, IHaveScaleOptions
+    public class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
     {
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
         [NonSerialized] private static EmojiPicker _emojiPicker;
 
         [NonSerialized] private bool _justCreated = true;
-        [NonSerialized] private Image _cachedImage = null;
 
         private string _emoji;
-        private int _rotationAngle;
         private bool _useSystemFont;
 
         public string Emoji
@@ -111,7 +106,7 @@ namespace Greenshot.Editor.Drawing
         private void GetOrCreatePickerControl()
         {
             // Create one picker control by surface
-            // TODO: This is not ideal, replace with a different solution.
+            // TODO: This is not ideal, as we need to controls from the surface, should replace this with a different solution.
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
             if (_emojiPickerHost != null) return;
 
@@ -123,10 +118,12 @@ namespace Greenshot.Editor.Drawing
                 _currentContainer.Invalidate();
             };
 
-            _emojiPickerHost = new ElementHost();
-            _emojiPickerHost.Dock = DockStyle.None;
-            _emojiPickerHost.Child = _emojiPicker;
-            _emojiPickerHost.Name = "EmojiPickerHost";
+            _emojiPickerHost = new ElementHost
+            {
+                Dock = DockStyle.None,
+                Child = _emojiPicker,
+                Name = "EmojiPickerHost"
+            };
 
             _parent.Controls.Add(_emojiPickerHost);
         }
@@ -136,91 +133,46 @@ namespace Greenshot.Editor.Drawing
             _emojiPicker?.ShowPopup(false);
         }
 
-        protected override void OnDeserialized(StreamingContext streamingContext)
+        /// <summary>
+        /// Make sure we register the property changed, to manage the state of the picker
+        /// </summary>
+        protected override void Init()
         {
-            base.OnDeserialized(streamingContext);
-            Init();
-        }
-
-        private void Init()
-        {
-            Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
-            Adorners.Add(new ResizeAdorner(this, Positions.TopRight));
-            Adorners.Add(new ResizeAdorner(this, Positions.BottomLeft));
-            Adorners.Add(new ResizeAdorner(this, Positions.BottomRight));
-
+            base.Init();
             PropertyChanged += OnPropertyChanged;
         }
 
-        protected override void Dispose(bool disposing)
+
+        /// <summary>
+        /// Handle the state of the Emoji Picker
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="e">PropertyChangedEventArgs</param>
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (disposing)
+            if (!e.PropertyName.Equals(nameof(Selected))) return;
+
+            if (!Selected)
             {
-                ResetCachedBitmap();
+                HideEmojiPicker();
             }
-
-            base.Dispose(disposing);
-        }
-
-        public override void Transform(Matrix matrix)
-        {
-            _rotationAngle += CalculateAngle(matrix);
-            _rotationAngle %= 360;
-
-            ResetCachedBitmap();
-
-            base.Transform(matrix);
-        }
-
-        private void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals(nameof(Selected)))
+            else if (Status == EditStatus.IDLE && _justCreated)
             {
-                if (!Selected)
-                {
-                    HideEmojiPicker();
-                }
-                else if (Status == EditStatus.IDLE && _justCreated)
-                {
-                    // Show picker just after creation
-                    ShowEmojiPicker();
-                    _justCreated = false;
-                }
+                // Show picker just after creation
+                ShowEmojiPicker();
+                _justCreated = false;
             }
         }
 
-        public override void Draw(Graphics graphics, RenderMode rm)
+        protected override Image ComputeBitmap()
         {
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            var iconSize = Math.Min(Bounds.Width, Bounds.Height);
+            if (iconSize <= 0) return null;
 
-            var rect = Bounds;
-
-            var iconSize = Math.Min(rect.Width, rect.Height);
-            if (iconSize <= 0) return;
-            if (_cachedImage == null)
-            {
-                //  First draw or cache was invalidated
-                _cachedImage = ComputeBitmap(iconSize);
-            }
-            else if (iconSize != _cachedImage.Width)
-            {
-                // The elements was resized => recompute
-                _cachedImage.Dispose();
-                _cachedImage = ComputeBitmap(iconSize);
-            }
-
-            graphics.DrawImage(_cachedImage, Bounds);
-        }
-
-        private Image ComputeBitmap(int iconSize)
-        {
             var image = EmojiRenderer.GetBitmap(Emoji, iconSize, useSystemFont: _useSystemFont);
-            if (_rotationAngle != 0)
+            if (RotationAngle != 0)
             {
-                var newImage = image.Rotate(_rotationAngle);
+                var newImage = image.Rotate(RotationAngle);
                 image.Dispose();
                 return newImage;
             }
@@ -228,29 +180,9 @@ namespace Greenshot.Editor.Drawing
             return image;
         }
 
-        private void ResetCachedBitmap()
-        {
-            _cachedImage?.Dispose();
-            _cachedImage = null;
-        }
-
         public ScaleHelper.ScaleOptions GetScaleOptions()
         {
             return ScaleHelper.ScaleOptions.Rational;
-        }
-    }
-
-    internal static class PickerExtensions
-    {
-        public static void ShowPopup(this EmojiPicker emojiPicker, bool show)
-        {
-            foreach (var child in emojiPicker.Children)
-            {
-                if (child is ToggleButton button)
-                {
-                    button.IsChecked = show;
-                }
-            }
         }
     }
 }

@@ -534,7 +534,7 @@ namespace Greenshot.Editor.Drawing
             _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, _boundsBeforeResize.Top, x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
             var scaleOptions = (this as IHaveScaleOptions)?.GetScaleOptions();
-            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor(), scaleOptions);
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Positions.TopLeft, x, y,GetAngleRoundProcessor(), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);

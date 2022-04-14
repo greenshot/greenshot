@@ -20,6 +20,9 @@ using System.Windows.Input;
 
 namespace Greenshot.Editor.Controls
 {
+    /// <summary>
+    /// The event which is created when the emoji is picked
+    /// </summary>
     public class EmojiPickedEventArgs : EventArgs
     {
         public EmojiPickedEventArgs() { }
@@ -61,8 +64,7 @@ namespace Greenshot.Editor.Controls
 
         public event EmojiPickedEventHandler Picked;
 
-        private static void OnSelectionPropertyChanged(DependencyObject source,
-                                                       DependencyPropertyChangedEventArgs e)
+        private static void OnSelectionPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             (source as EmojiPicker)?.OnSelectionChanged(e.NewValue as string);
         }
@@ -75,24 +77,21 @@ namespace Greenshot.Editor.Controls
 
         private void OnSelectionChanged(string s)
         {
-            var is_disabled = string.IsNullOrEmpty(s);
-            Image.Emoji = is_disabled ? "???" : s;
-            Image.Opacity = is_disabled ? 0.3 : 1.0;
+            var isDisabled = string.IsNullOrEmpty(s);
+            Image.Emoji = isDisabled ? "???" : s;
+            Image.Opacity = isDisabled ? 0.3 : 1.0;
             SelectionChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selection)));
         }
 
         private void OnEmojiPicked(object sender, RoutedEventArgs e)
         {
-            if (sender is Control control && control.DataContext is EmojiData.Emoji emoji)
-            {
-                if (emoji.VariationList.Count == 0 || sender is Button)
-                {
-                    Selection = emoji.Text;
-                    Button_INTERNAL.IsChecked = false;
-                    e.Handled = true;
-                    Picked?.Invoke(this, new EmojiPickedEventArgs(Selection));
-                }
-            }
+            if (sender is not Control { DataContext: EmojiData.Emoji emoji }) return;
+            if (emoji.VariationList.Count != 0 && sender is not Button) return;
+
+            Selection = emoji.Text;
+            Button_INTERNAL.IsChecked = false;
+            e.Handled = true;
+            Picked?.Invoke(this, new EmojiPickedEventArgs(Selection));
         }
 
         public static readonly DependencyProperty SelectionProperty = DependencyProperty.Register(
@@ -101,31 +100,37 @@ namespace Greenshot.Editor.Controls
 
         private void OnPopupKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && sender is Popup popup)
-            {
-                popup.IsOpen = false;
-                e.Handled = true;
-            }
+            if (e.Key != Key.Escape || sender is not Popup popup) return;
+            popup.IsOpen = false;
+            e.Handled = true;
         }
 
         private void OnPopupLoaded(object sender, RoutedEventArgs e)
         {
-            if (!(sender is Popup popup))
-                return;
+            if (sender is not Popup popup) return;
 
             var child = popup.Child;
-            IInputElement old_focus = null;
+            IInputElement oldFocus = null;
             child.Focusable = true;
             child.IsVisibleChanged += (o, ea) =>
             {
-                if (child.IsVisible)
-                {
-                    old_focus = Keyboard.FocusedElement;
-                    Keyboard.Focus(child);
-                }
+                if (!child.IsVisible) return;
+                oldFocus = Keyboard.FocusedElement;
+                Keyboard.Focus(child);
             };
 
-            popup.Closed += (o, ea) => Keyboard.Focus(old_focus);
+            popup.Closed += (o, ea) => Keyboard.Focus(oldFocus);
+        }
+
+        public void ShowPopup(bool show)
+        {
+            foreach (var child in Children)
+            {
+                if (child is ToggleButton button)
+                {
+                    button.IsChecked = show;
+                }
+            }
         }
     }
 }
