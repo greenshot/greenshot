@@ -8,7 +8,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13.19" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
   </ItemGroup>
 
   <ItemGroup>
