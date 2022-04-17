@@ -36,7 +36,7 @@
                         <Button Background="Transparent" BorderBrush="Transparent"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40" ToolTip="{Binding Path=Name}">
-                            <controls:EmojiControl Height="24" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Path=Text}"  />
+                            <controls:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
                         </Button>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -48,7 +48,7 @@
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
                           Click="OnEmojiPicked" Focusable="False" ToolTip="{Binding Path=Name}">
                 <Grid>
-                    <controls:EmojiControl Height="24" Margin="4" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Path=Text}" 
+                    <controls:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
@@ -77,7 +77,7 @@
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <controls:EmojiControl Height="24" UseSystemFont="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL, Mode=OneWay}" Emoji="{Binding Icon}" >
+                                <controls:EmojiControl Height="24" Emoji="{Binding Icon}" >
                                     <Image.ToolTip>
                                         <TextBlock Text="{Binding Name}"/>
                                     </Image.ToolTip>
@@ -134,9 +134,6 @@
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
-                <CheckBox VerticalContentAlignment="Center" IsChecked="{Binding UseSystemFont, ElementName=StackPanel_INTERNAL}" >
-                    Use system font
-                </CheckBox>
             </StackPanel>
         </Border>
     </Popup>

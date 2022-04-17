@@ -20,8 +20,6 @@ namespace Greenshot.Editor.Controls
             set { SetValue(EmojiProperty, value); }
         }
 
-        public static readonly DependencyProperty UseSystemFontProperty = DependencyProperty.Register("UseSystemFont", typeof(bool), typeof(EmojiControl), new PropertyMetadata(default(bool), OnUseSystemFontPropertyChanged));
-
         private static void OnUseSystemFontPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((EmojiControl)d).Source = null;
@@ -31,16 +29,10 @@ namespace Greenshot.Editor.Controls
         {
             if (Source == null && !string.IsNullOrEmpty(Emoji))
             {
-                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48, useSystemFont: UseSystemFont);
+                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48, useSystemFont: false);
             }
 
             base.OnRender(dc);
-        }
-
-        public bool UseSystemFont
-        {
-            get { return (bool)GetValue(UseSystemFontProperty); }
-            set { SetValue(UseSystemFontProperty, value); }
         }
     }
 }
