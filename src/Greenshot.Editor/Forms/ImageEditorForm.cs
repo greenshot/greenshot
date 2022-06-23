@@ -285,7 +285,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+                btnCursor, btnColorPicker, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -598,6 +598,9 @@ namespace Greenshot.Editor.Forms
                 case DrawingModes.None:
                     SetButtonChecked(btnCursor);
                     break;
+                case DrawingModes.ColorPicker:
+                    SetButtonChecked(btnColorPicker);
+                    break;
                 case DrawingModes.Ellipse:
                     SetButtonChecked(btnEllipse);
                     break;
@@ -680,6 +683,12 @@ namespace Greenshot.Editor.Forms
         private void BtnCursorClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.None;
+            RefreshFieldControls();
+        }
+
+        private void BtnColorPickerClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.ColorPicker;
             RefreshFieldControls();
         }
 
@@ -1295,7 +1304,7 @@ namespace Greenshot.Editor.Forms
         private void RefreshFieldControls()
         {
             propertiesToolStrip.SuspendLayout();
-            if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
+            if (_surface.HasSelectedElements || (_surface.DrawingMode != DrawingModes.None && _surface.DrawingMode != DrawingModes.ColorPicker))
             {
                 var props = (FieldAggregator)_surface.FieldAggregator;
                 btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);

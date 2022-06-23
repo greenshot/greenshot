@@ -1,3 +1,5 @@
+using System.Windows.Forms;
+
 namespace Greenshot.Editor.Forms
 {
     partial class MovableShowColorForm
