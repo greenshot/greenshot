@@ -248,7 +248,7 @@ namespace Greenshot.Editor.Drawing
                             _boundsBeforeResize.Left, _boundsBeforeResize.Top,
                             x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-                        _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Positions.TopLeft, x, y, GetAngleRoundProcessor());
+                        _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor());
                         break;
                     }
             }

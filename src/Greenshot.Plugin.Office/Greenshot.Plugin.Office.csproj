@@ -78,23 +78,23 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
-    <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0">
+    <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0.2">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000">
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1003">
+    <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1004">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.PowerPoint" Version="15.0.4420.1017">
+    <PackageReference Include="Microsoft.Office.Interop.PowerPoint" Version="15.0.4420.1018">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1003">
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004">
       <EmbedInteropTypes>true</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

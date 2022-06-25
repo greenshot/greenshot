@@ -100,8 +100,10 @@ namespace Greenshot.Editor.Drawing.Adorners
             // reset "workbench" rectangle to current bounds
             _boundsAfterResize = _boundsBeforeResize;
 
+            var scaleOptions = (Owner as IHaveScaleOptions)?.GetScaleOptions();
+
             // calculate scaled rectangle
-            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Position, new NativePointFloat(mouseEventArgs.X, mouseEventArgs.Y), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             Owner.ApplyBounds(_boundsAfterResize);
