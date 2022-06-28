@@ -550,69 +550,56 @@ namespace Greenshot.Base.Core
             {
                 // Try to return a cached value
                 long now = DateTime.Now.Ticks;
-                if (_previousWindowRectangle.IsEmpty || !_frozen)
-                {
-                    if (!_previousWindowRectangle.IsEmpty && now - _lastWindowRectangleRetrieveTime <= CacheTime)
-                    {
-                        return _previousWindowRectangle;
-                    }
-                    NativeRect windowRect = new();
-                    if (DwmApi.IsDwmEnabled)
-                    {
-                        bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
-                        if (IsWin10App)
-                        {
-                            // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
-                            if (gotFrameBounds)
-                            {
-                                _previousWindowRectangle = windowRect;
-                                _lastWindowRectangleRetrieveTime = now;
-                            }
-                        }
+                if (!_previousWindowRectangle.IsEmpty && _frozen) return _previousWindowRectangle;
 
-                        if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
+                if (!_previousWindowRectangle.IsEmpty && now - _lastWindowRectangleRetrieveTime <= CacheTime)
+                {
+                    return _previousWindowRectangle;
+                }
+                NativeRect windowRect = new();
+                if (DwmApi.IsDwmEnabled)
+                {
+                    bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+                    if (IsWin10App)
+                    {
+                        // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
+                        if (gotFrameBounds)
                         {
-                            // Somehow DWM doesn't calculate it correctly, there is a 1 pixel border around the capture
-                            // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
-                            windowRect = windowRect.Inflate(Conf.Win10BorderCrop);
                             _previousWindowRectangle = windowRect;
                             _lastWindowRectangleRetrieveTime = now;
-                            return windowRect;
                         }
                     }
 
-                    if (windowRect.IsEmpty)
+                    if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
                     {
-                        if (!GetWindowRect(out windowRect))
-                        {
-                            Win32Error error = Win32.GetLastErrorCode();
-                            Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
-                        }
+                        // Somehow DWM doesn't calculate it correctly, there is a 1 pixel border around the capture
+                        // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
+                        windowRect = windowRect.Inflate(Conf.Win10BorderCrop);
+                        _previousWindowRectangle = windowRect;
+                        _lastWindowRectangleRetrieveTime = now;
+                        return windowRect;
                     }
-
-                    // Correction for maximized windows
-                    if (!HasParent && Maximised)
-                    {
-                        // Only if the border size can be retrieved
-                        if (GetBorderSize(out var size))
-                        {
-                            windowRect = new NativeRect(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width),
-                                windowRect.Height - (2 * size.Height));
-                        }
-                    }
-
-                    _lastWindowRectangleRetrieveTime = now;
-                    // Try to return something valid, by getting returning the previous size if the window doesn't have a NativeRect anymore
-                    if (windowRect.IsEmpty)
-                    {
-                        return _previousWindowRectangle;
-                    }
-
-                    _previousWindowRectangle = windowRect;
-                    return windowRect;
                 }
 
-                return _previousWindowRectangle;
+                if (windowRect.IsEmpty)
+                {
+                    if (!GetWindowRect(out windowRect))
+                    {
+                        Win32Error error = Win32.GetLastErrorCode();
+                        Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
+                    }
+                }
+
+                _lastWindowRectangleRetrieveTime = now;
+                // Try to return something valid, by getting returning the previous size if the window doesn't have a NativeRect anymore
+                if (windowRect.IsEmpty)
+                {
+                    return _previousWindowRectangle;
+                }
+
+                _previousWindowRectangle = windowRect;
+                return windowRect;
+
             }
         }
 
