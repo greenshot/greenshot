@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Imgur.Forms;
@@ -85,6 +86,22 @@ namespace Greenshot.Plugin.Imgur
         public int Credits { get; set; }
 
         /// <summary>
+        /// Upgrade certain values
+        /// </summary>
+        public override void AfterLoad()
+        {
+            var coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+            bool isUpgradeFrom12 = coreConfiguration.LastSaveWithVersion?.StartsWith("1.2") ?? false;
+            // Clear token when we upgrade from 1.2 to 1.3 as it is no longer valid, discussed in #421
+            if (!isUpgradeFrom12) return;
+
+            // We have an upgrade, remove all previous credentials.
+            AccessToken = null;
+            RefreshToken = null;
+            AccessTokenExpires = default;
+        }
+
+        /// <summary>
         /// Supply values we can't put as defaults
         /// </summary>
         /// <param name="property">The property to return a default for</param>
@@ -92,7 +109,7 @@ namespace Greenshot.Plugin.Imgur
         public override object GetDefault(string property) =>
             property switch
             {
-                "ImgurUploadHistory" => new Dictionary<string, string>(),
+                nameof(ImgurUploadHistory) => new Dictionary<string, string>(),
                 _ => null
             };
 
