@@ -520,7 +520,7 @@ EndSelection:<<<<<<<4
             Bitmap singleImage = GetImage(dataObject);
             if (singleImage != null)
             {
-                Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
+                Log.Info($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
                 yield return singleImage;
                 yield break;
             }

@@ -59,7 +59,7 @@ namespace Greenshot.Base.Core
         [IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
         public string IEHotkey { get; set; }
 
-        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor")]
+        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor", ExcludeIfNull = true)]
         public string ClipboardHotkey { get; set; }
 
         [IniProperty("IsFirstLaunch", Description = "Is this the first time launch?", DefaultValue = "true")]
