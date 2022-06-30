@@ -100,8 +100,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmap = new Bitmap(infoHeader.Width, infoHeader.Height,
                         -(int)(infoHeader.SizeImage / infoHeader.Height),
                         infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                        new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels +
-                                   (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
+                        IntPtr.Add(handle.AddrOfPinnedObject(), (int)infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
                     );
             }
             catch (Exception ex)
