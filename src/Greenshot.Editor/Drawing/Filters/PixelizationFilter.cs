@@ -36,10 +36,7 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable()]
     public class PixelizationFilter : AbstractFilter
     {
-        public PixelizationFilter(DrawableContainer parent) : base(parent)
-        {
-            AddField(GetType(), FieldType.PIXEL_SIZE, 5);
-        }
+        public PixelizationFilter(DrawableContainer parent) : base(parent) => AddField(GetType(), FieldType.PIXEL_SIZE, 5);
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
@@ -64,7 +61,7 @@ namespace Greenshot.Editor.Drawing.Filters
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect);
             using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect))
             {
-                List<Color> colors = new List<Color>();
+                List<Color> colors = new();
                 int halbPixelSize = pixelSize / 2;
                 for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y += pixelSize)
                 {

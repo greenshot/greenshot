@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using Greenshot.Base.Controls;
 using log4net;
+using System.Linq;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -58,11 +59,9 @@ namespace Greenshot.Base.Core.OAuth
         protected const string HMACSHA1SignatureType = "HMAC-SHA1";
         protected const string PlainTextSignatureType = "PLAINTEXT";
 
-        protected static Random random = new Random();
+        protected static Random random = new();
 
         protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
-
-        private string _userAgent = "Greenshot";
         private IDictionary<string, string> _requestTokenResponseParameters;
 
         public IDictionary<string, object> RequestTokenParameters { get; } = new Dictionary<string, object>();
@@ -94,11 +93,7 @@ namespace Greenshot.Base.Core.OAuth
 
         public bool UseMultipartFormData { get; set; }
 
-        public string UserAgent
-        {
-            get { return _userAgent; }
-            set { _userAgent = value; }
-        }
+        public string UserAgent { get; set; } = "Greenshot";
 
         public string CallbackUrl { get; set; } = "https://getgreenshot.org";
 
@@ -166,7 +161,7 @@ namespace Greenshot.Base.Core.OAuth
 
             queryParameters = new SortedDictionary<string, object>(queryParameters);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (string key in queryParameters.Keys)
             {
                 if (queryParameters[key] is string)
@@ -189,7 +184,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <returns>Returns a Url encoded string (unicode) with UTF-8 encoded % values</returns>
         public static string UrlEncode3986(string value)
         {
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             foreach (char symbol in value)
             {
@@ -225,11 +220,9 @@ namespace Greenshot.Base.Core.OAuth
         /// Generate a nonce
         /// </summary>
         /// <returns></returns>
-        public static string GenerateNonce()
-        {
+        public static string GenerateNonce() =>
             // Just a simple implementation of a random number between 123400 and 9999999
-            return random.Next(123400, 9999999).ToString();
-        }
+            random.Next(123400, 9999999).ToString();
 
         /// <summary>
         /// Get the request token using the consumer key and secret.  Also initializes tokensecret
@@ -269,37 +262,29 @@ namespace Greenshot.Base.Core.OAuth
         {
             if (string.IsNullOrEmpty(Token))
             {
-                Exception e = new Exception("The request token is not set, service responded with: " + requestTokenResponse);
+                Exception e = new("The request token is not set, service responded with: " + requestTokenResponse);
                 throw e;
             }
 
             Log.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
-            OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
+            OAuthLoginForm oAuthLoginForm = new(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
             oAuthLoginForm.ShowDialog();
-            if (oAuthLoginForm.IsOk)
+            if (oAuthLoginForm.IsOk && oAuthLoginForm.CallbackParameters != null)
             {
-                if (oAuthLoginForm.CallbackParameters != null)
+                if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue))
                 {
-                    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue))
-                    {
-                        Token = tokenValue;
-                    }
+                    Token = tokenValue;
+                }
 
-                    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out var verifierValue))
-                    {
-                        Verifier = verifierValue;
-                    }
+                if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out var verifierValue))
+                {
+                    Verifier = verifierValue;
                 }
             }
 
             if (CheckVerifier)
             {
-                if (!string.IsNullOrEmpty(Verifier))
-                {
-                    return Token;
-                }
-
-                return null;
+                return !string.IsNullOrEmpty(Verifier) ? Token : null;
             }
 
             return Token;
@@ -313,7 +298,7 @@ namespace Greenshot.Base.Core.OAuth
         {
             if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier)))
             {
-                Exception e = new Exception("The request token and verifier were not set");
+                Exception e = new("The request token and verifier were not set");
                 throw e;
             }
 
@@ -394,10 +379,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="postData">Data to post (MemoryStream)</param>
         /// <returns>The web server response.</returns>
         public string MakeOAuthRequest(HTTPMethod method, string requestUrl, IDictionary<string, object> parametersToSign, IDictionary<string, object> additionalParameters,
-            IBinaryContainer postData)
-        {
-            return MakeOAuthRequest(method, requestUrl, requestUrl, null, parametersToSign, additionalParameters, postData);
-        }
+            IBinaryContainer postData) => MakeOAuthRequest(method, requestUrl, requestUrl, null, parametersToSign, additionalParameters, postData);
 
         /// <summary>
         /// Submit a web request using oAuth.
@@ -410,10 +392,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="postData">Data to post (MemoryStream)</param>
         /// <returns>The web server response.</returns>
         public string MakeOAuthRequest(HTTPMethod method, string requestUrl, IDictionary<string, string> headers, IDictionary<string, object> parametersToSign,
-            IDictionary<string, object> additionalParameters, IBinaryContainer postData)
-        {
-            return MakeOAuthRequest(method, requestUrl, requestUrl, headers, parametersToSign, additionalParameters, postData);
-        }
+            IDictionary<string, object> additionalParameters, IBinaryContainer postData) => MakeOAuthRequest(method, requestUrl, requestUrl, headers, parametersToSign, additionalParameters, postData);
 
         /// <summary>
         /// Submit a web request using oAuth.
@@ -426,10 +405,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="postData">Data to post (MemoryStream)</param>
         /// <returns>The web server response.</returns>
         public string MakeOAuthRequest(HTTPMethod method, string signUrl, string requestUrl, IDictionary<string, object> parametersToSign,
-            IDictionary<string, object> additionalParameters, IBinaryContainer postData)
-        {
-            return MakeOAuthRequest(method, signUrl, requestUrl, null, parametersToSign, additionalParameters, postData);
-        }
+            IDictionary<string, object> additionalParameters, IBinaryContainer postData) => MakeOAuthRequest(method, signUrl, requestUrl, null, parametersToSign, additionalParameters, postData);
 
         /// <summary>
         /// Submit a web request using oAuth.
@@ -455,12 +431,9 @@ namespace Greenshot.Base.Core.OAuth
             while (retries-- > 0)
             {
                 // If we are not trying to get a Authorization or Accestoken, and we don't have a token, create one
-                if (string.IsNullOrEmpty(Token))
+                if (string.IsNullOrEmpty(Token) && (!AutoLogin || !Authorize()))
                 {
-                    if (!AutoLogin || !Authorize())
-                    {
-                        throw new Exception("Not authorized");
-                    }
+                    throw new Exception("Not authorized");
                 }
 
                 try
@@ -490,15 +463,10 @@ namespace Greenshot.Base.Core.OAuth
                     Token = null;
                     TokenSecret = null;
                     // Remove oauth keys, so they aren't added double
-                    List<string> keysToDelete = new List<string>();
-                    foreach (string parameterKey in parametersToSign.Keys)
-                    {
-                        if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
-                        {
-                            keysToDelete.Add(parameterKey);
-                        }
-                    }
-
+                    List<string> keysToDelete = new();
+                    keysToDelete.AddRange(from string parameterKey in parametersToSign.Keys
+                                          where parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)
+                                          select parameterKey);
                     foreach (string keyToDelete in keysToDelete)
                     {
                         parametersToSign.Remove(keyToDelete);
@@ -529,13 +497,13 @@ namespace Greenshot.Base.Core.OAuth
             }
 
             // Build the signature base
-            StringBuilder signatureBase = new StringBuilder();
+            StringBuilder signatureBase = new();
 
             // Add Method to signature base
             signatureBase.Append(method).Append("&");
 
             // Add normalized URL
-            Uri url = new Uri(requestUrl);
+            Uri url = new(requestUrl);
             string normalizedUrl = string.Format(CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
             if (!((url.Scheme == "http" && url.Port == 80) || (url.Scheme == "https" && url.Port == 443)))
             {
@@ -586,7 +554,7 @@ namespace Greenshot.Base.Core.OAuth
                     break;
                 default:
                     // Generate Signature and add it to the parameters
-                    HMACSHA1 hmacsha1 = new HMACSHA1
+                    HMACSHA1 hmacsha1 = new()
                     {
                         Key = Encoding.UTF8.GetBytes(key)
                     };
@@ -643,19 +611,16 @@ namespace Greenshot.Base.Core.OAuth
                 requestParameters = parameters;
             }
 
-            if (HTTPMethod.GET == method || postData != null)
+            if ((HTTPMethod.GET == method || postData != null) && requestParameters.Count > 0)
             {
-                if (requestParameters.Count > 0)
-                {
-                    // Add the parameters to the request
-                    requestUrl += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
-                }
+                // Add the parameters to the request
+                requestUrl += "?" + NetworkHelper.GenerateQueryParameters(requestParameters);
             }
 
             // Create webrequest
             HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestUrl, method);
             webRequest.ServicePoint.Expect100Continue = false;
-            webRequest.UserAgent = _userAgent;
+            webRequest.UserAgent = UserAgent;
 
             if (UseHttpHeadersForAuthorization && authHeader != null)
             {
@@ -679,12 +644,11 @@ namespace Greenshot.Base.Core.OAuth
                 }
                 else
                 {
-                    StringBuilder form = new StringBuilder();
+                    StringBuilder form = new();
                     foreach (string parameterKey in requestParameters.Keys)
                     {
-                        var binaryParameter = parameters[parameterKey] as IBinaryContainer;
                         form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey),
-                            binaryParameter != null ? UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)) : UrlEncode3986($"{parameters[parameterKey]}"));
+                            parameters[parameterKey] is IBinaryContainer binaryParameter ? UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)) : UrlEncode3986($"{parameters[parameterKey]}"));
                     }
 
                     // Remove trailing &

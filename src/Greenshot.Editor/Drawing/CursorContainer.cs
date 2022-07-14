@@ -42,10 +42,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Cursor cursor;
 
-        public CursorContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public CursorContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -53,31 +50,22 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
-        public CursorContainer(ISurface parent, string filename) : this(parent)
-        {
-            Load(filename);
-        }
+        public CursorContainer(ISurface parent, string filename) : this(parent) => Load(filename);
 
         public Cursor Cursor
         {
             set
             {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
+                cursor?.Dispose();
 
                 // Clone cursor (is this correct??)
                 cursor = new Cursor(value.CopyHandle());
                 Width = value.Size.Width;
                 Height = value.Size.Height;
             }
-            get { return cursor; }
+            get => cursor;
         }
 
         /// <summary>
@@ -89,10 +77,7 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
+                cursor?.Dispose();
             }
 
             cursor = null;
@@ -106,7 +91,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            using Cursor fileCursor = new Cursor(filename);
+            using Cursor fileCursor = new(filename);
             Cursor = fileCursor;
             LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }

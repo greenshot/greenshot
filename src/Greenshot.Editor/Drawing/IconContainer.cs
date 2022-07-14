@@ -41,10 +41,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Icon icon;
 
-        public IconContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public IconContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -52,27 +49,18 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
-        public IconContainer(ISurface parent, string filename) : base(parent)
-        {
-            Load(filename);
-        }
+        public IconContainer(ISurface parent, string filename) : base(parent) => Load(filename);
 
-        public IconContainer(ISurface parent, Stream stream) : base(parent)
-        {
-            Load(stream);
-        }
+        public IconContainer(ISurface parent, Stream stream) : base(parent) => Load(stream);
 
         public Icon Icon
         {
             set
             {
                 icon?.Dispose();
-                icon = (Icon) value.Clone();
+                icon = (Icon)value.Clone();
                 Width = value.Width;
                 Height = value.Height;
             }
@@ -101,7 +89,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            using Icon fileIcon = new Icon(filename);
+            using Icon fileIcon = new(filename);
             Icon = fileIcon;
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
@@ -113,7 +101,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            using Icon fileIcon = new Icon(iconStream);
+            using Icon fileIcon = new(iconStream);
             Icon = fileIcon;
             Log.Debug("Loaded stream: with resolution: " + Height + "," + Width);
         }

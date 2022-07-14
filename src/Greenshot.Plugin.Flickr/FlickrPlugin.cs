@@ -87,7 +87,7 @@ namespace Greenshot.Plugin.Flickr
             _itemPlugInConfig = new ToolStripMenuItem
             {
                 Text = Language.GetString("flickr", LangKey.Configure),
-                Image = (Image) _resources.GetObject("flickr")
+                Image = (Image)_resources.GetObject("flickr")
             };
             _itemPlugInConfig.Click += ConfigMenuClick;
             SimpleServiceProvider.Current.AddService<IDestination>(new FlickrDestination(this));
@@ -104,27 +104,18 @@ namespace Greenshot.Plugin.Flickr
             }
         }
 
-        public void Shutdown()
-        {
-            Log.Debug("Flickr Plugin shutdown.");
-        }
+        public void Shutdown() => Log.Debug("Flickr Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => _config.ShowConfigDialog();
 
         public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, false);
             uploadUrl = null;
             try
             {

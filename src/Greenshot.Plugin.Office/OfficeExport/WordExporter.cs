@@ -92,7 +92,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return null;
             }
 
-            if ((wordApplication != null) && (wordApplication.ComObject != null))
+            if (wordApplication?.ComObject != null)
             {
                 InitializeVariables(wordApplication);
             }
@@ -121,12 +121,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     continue;
                 }
 
-                if (IsAfter2003())
+                if (IsAfter2003() && document.ComObject.Final)
                 {
-                    if (document.ComObject.Final)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 using var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow);
@@ -148,7 +145,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
             {
                 LOG.Warn("Assuming Word version 1997.");
-                _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                _wordVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -170,7 +167,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
                 for (int i = 1; i <= documents.ComObject.Count; i++)
                 {
-                    using var wordDocument = DisposableCom.Create((_Document) documents.ComObject[i]);
+                    using var wordDocument = DisposableCom.Create((_Document)documents.ComObject[i]);
                     using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
                     if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
                     {
@@ -356,9 +353,6 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Check if the used version is higher than Office 2003
         /// </summary>
         /// <returns></returns>
-        private bool IsAfter2003()
-        {
-            return _wordVersion.Major > (int) OfficeVersions.Office2003;
-        }
+        private bool IsAfter2003() => _wordVersion.Major > (int)OfficeVersions.Office2003;
     }
 }

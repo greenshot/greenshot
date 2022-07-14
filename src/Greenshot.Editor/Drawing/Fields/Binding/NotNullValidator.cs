@@ -32,14 +32,8 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         {
         }
 
-        public bool validate(object o)
-        {
-            return o != null;
-        }
+        public bool validate(object o) => o != null;
 
-        public static NotNullValidator GetInstance()
-        {
-            return _uniqueInstance ??= new NotNullValidator();
-        }
+        public static NotNullValidator GetInstance() => _uniqueInstance ??= new NotNullValidator();
     }
 }

@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Office.Destinations
         private const int IconDocument = 1;
         private static readonly string ExePath;
         private readonly string _documentCaption;
-        private readonly WordExporter _wordExporter = new WordExporter();
+        private readonly WordExporter _wordExporter = new();
 
         static WordDestination()
         {
@@ -57,10 +57,7 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public WordDestination(string wordCaption)
-        {
-            _documentCaption = wordCaption;
-        }
+        public WordDestination(string wordCaption) => _documentCaption = wordCaption;
 
         public override string Designation => "Word";
 
@@ -84,7 +81,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             string tmpFile = captureDetails.Filename;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
@@ -118,7 +115,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 if (!manuallyInitiated)
                 {
                     var documents = _wordExporter.GetWordDocuments().ToList();
-                    if (documents != null && documents.Count > 0)
+                    if (documents?.Count > 0)
                     {
                         var destinations = new List<IDestination>
                         {

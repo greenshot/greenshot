@@ -77,7 +77,7 @@ namespace Greenshot.Base.Core
         public static MemoryStream GetAsMemoryStream(string url)
         {
             var request = CreateWebRequest(url);
-            using var response = (HttpWebResponse) request.GetResponse();
+            using var response = (HttpWebResponse)request.GetResponse();
             var memoryStream = new MemoryStream();
             using (var responseStream = response.GetResponseStream())
             {
@@ -99,7 +99,7 @@ namespace Greenshot.Base.Core
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
-            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+            var imageUrlRegex = new Regex($"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
             try
             {
@@ -162,7 +162,7 @@ namespace Greenshot.Base.Core
 
             var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
 
-            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+            var imageUrlRegex = new Regex($"(http|https)://.*(?<extension>{extensions})");
             var match = imageUrlRegex.Match(url);
             try
             {
@@ -214,10 +214,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="uri">string with uri to connect to</param>
         /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri)
-        {
-            return CreateWebRequest(new Uri(uri));
-        }
+        public static HttpWebRequest CreateWebRequest(string uri) => CreateWebRequest(new Uri(uri));
 
         /// <summary>
         /// Helper method to create a web request with a lot of default settings
@@ -225,10 +222,7 @@ namespace Greenshot.Base.Core
         /// <param name="uri">string with uri to connect to</param>
         /// /// <param name="method">Method to use</param>
         /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method)
-        {
-            return CreateWebRequest(new Uri(uri), method);
-        }
+        public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method) => CreateWebRequest(new Uri(uri), method);
 
         /// <summary>
         /// Helper method to create a web request with a lot of default settings
@@ -250,7 +244,7 @@ namespace Greenshot.Base.Core
         /// <returns>WebRequest</returns>
         public static HttpWebRequest CreateWebRequest(Uri uri)
         {
-            var webRequest = (HttpWebRequest) WebRequest.Create(uri);
+            var webRequest = (HttpWebRequest)WebRequest.Create(uri);
             webRequest.Proxy = Config.UseProxy ? CreateProxy(uri) : null;
             // Make sure the default credentials are available
             webRequest.Credentials = CredentialCache.DefaultCredentials;
@@ -352,7 +346,6 @@ namespace Greenshot.Base.Core
             }
 
             return result.ToString();
-
         }
 
         /// <summary>
@@ -594,10 +587,7 @@ namespace Greenshot.Base.Core
         /// <param name="webRequest">The request object.</param>
         /// <returns>The response data.</returns>
         /// TODO: This method should handle the StatusCode better!
-        public static string GetResponseAsString(HttpWebRequest webRequest)
-        {
-            return GetResponseAsString(webRequest, false);
-        }
+        public static string GetResponseAsString(HttpWebRequest webRequest) => GetResponseAsString(webRequest, false);
 
         /// <summary>
         /// Read the response as string
@@ -617,7 +607,7 @@ namespace Greenshot.Base.Core
                 Stream responseStream = response.GetResponseStream();
                 if (responseStream != null)
                 {
-                    using StreamReader reader = new StreamReader(responseStream, true);
+                    using StreamReader reader = new(responseStream, true);
                     responseData = reader.ReadToEnd();
                 }
             }
@@ -638,9 +628,9 @@ namespace Greenshot.Base.Core
             bool isHttpError = false;
             try
             {
-                response = (HttpWebResponse) webRequest.GetResponse();
+                response = (HttpWebResponse)webRequest.GetResponse();
                 Log.InfoFormat("Response status: {0}", response.StatusCode);
-                isHttpError = (int) response.StatusCode >= 300;
+                isHttpError = (int)response.StatusCode >= 300;
                 if (isHttpError)
                 {
                     Log.ErrorFormat("HTTP error {0}", response.StatusCode);
@@ -655,7 +645,7 @@ namespace Greenshot.Base.Core
             }
             catch (WebException e)
             {
-                response = (HttpWebResponse) e.Response;
+                response = (HttpWebResponse)e.Response;
                 HttpStatusCode statusCode = HttpStatusCode.Unused;
                 if (response != null)
                 {
@@ -731,9 +721,9 @@ namespace Greenshot.Base.Core
         /// <returns>string</returns>
         public string ToBase64String(Base64FormattingOptions formattingOptions)
         {
-            using MemoryStream stream = new MemoryStream();
+            using MemoryStream stream = new();
             ImageIO.SaveToStream(_surface, stream, _outputSettings);
-            return Convert.ToBase64String(stream.GetBuffer(), 0, (int) stream.Length, formattingOptions);
+            return Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length, formattingOptions);
         }
 
         /// <summary>
@@ -743,7 +733,7 @@ namespace Greenshot.Base.Core
         /// <returns>byte[]</returns>
         public byte[] ToByteArray()
         {
-            using MemoryStream stream = new MemoryStream();
+            using MemoryStream stream = new();
             ImageIO.SaveToStream(_surface, stream, _outputSettings);
             return stream.ToArray();
         }
@@ -767,11 +757,9 @@ namespace Greenshot.Base.Core
         /// A plain "write data to stream"
         /// </summary>
         /// <param name="dataStream"></param>
-        public void WriteToStream(Stream dataStream)
-        {
+        public void WriteToStream(Stream dataStream) =>
             // Write the file data directly to the Stream, rather than serializing it to a string.
             ImageIO.SaveToStream(_surface, dataStream, _outputSettings);
-        }
 
         /// <summary>
         /// Upload the Surface as image to the webrequest

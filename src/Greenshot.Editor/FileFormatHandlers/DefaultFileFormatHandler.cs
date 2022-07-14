@@ -71,7 +71,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            EncoderParameters parameters = new EncoderParameters(1)
+            EncoderParameters parameters = new(1)
             {
                 Param =
                 {

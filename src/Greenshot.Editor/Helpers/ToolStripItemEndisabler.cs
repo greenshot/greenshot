@@ -26,7 +26,7 @@ namespace Greenshot.Editor.Helpers
 {
     /// <summary>
     /// Enables or disables toolstrip items, taking care of the hierarchy.
-    /// (parent) OwnerItems are ENabled with ToolStripItems, 
+    /// (parent) OwnerItems are ENabled with ToolStripItems,
     /// (child) DropDownItems are ENabled and DISabled with ToolStripItems.
     /// </summary>
     public static class ToolStripItemEndisabler
@@ -43,28 +43,19 @@ namespace Greenshot.Editor.Helpers
         /// Enables all of a ToolStrip's children (recursively),
         /// but not the ToolStrip itself
         /// </summary>
-        public static void Enable(ToolStrip ts)
-        {
-            Endisable(ts, true, PropagationMode.CHILDREN);
-        }
+        public static void Enable(ToolStrip ts) => Endisable(ts, true, PropagationMode.CHILDREN);
 
         /// <summary>
         /// Disables all of a ToolStrip's children (recursively),
         /// but not the ToolStrip itself
         /// </summary>
-        public static void Disable(ToolStrip ts)
-        {
-            Endisable(ts, false, PropagationMode.CHILDREN);
-        }
+        public static void Disable(ToolStrip ts) => Endisable(ts, false, PropagationMode.CHILDREN);
 
         /// <summary>
-        /// Enables the ToolStripItem, including children (ToolStripDropDownItem) 
+        /// Enables the ToolStripItem, including children (ToolStripDropDownItem)
         /// and ancestor (OwnerItem)
         /// </summary>
-        public static void Enable(ToolStripItem tsi)
-        {
-            Endisable(tsi, true, PropagationMode.CHILDREN | PropagationMode.ANCESTORS);
-        }
+        public static void Enable(ToolStripItem tsi) => Endisable(tsi, true, PropagationMode.CHILDREN | PropagationMode.ANCESTORS);
 
         private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode)
         {

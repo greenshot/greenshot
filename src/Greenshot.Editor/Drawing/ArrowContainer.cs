@@ -44,7 +44,7 @@ namespace Greenshot.Editor.Drawing
             BOTH
         };
 
-        private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
+        private static readonly AdjustableArrowCap ARROW_CAP = new(4, 6);
 
         public ArrowContainer(ISurface parent) : base(parent)
         {
@@ -69,23 +69,23 @@ namespace Greenshot.Editor.Drawing
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
             if (lineThickness <= 0) return;
-            
+
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
+            ArrowHeadCombination heads = (ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS);
             if (shadow)
             {
                 //draw shadow first
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = 1;
                 while (currentStep <= steps)
                 {
-                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    using Pen shadowCapPen = new(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
                     SetArrowHeads(heads, shadowCapPen);
 
                     graphics.DrawLine(shadowCapPen,
@@ -99,7 +99,7 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            using Pen pen = new Pen(lineColor, lineThickness);
+            using Pen pen = new(lineColor, lineThickness);
             SetArrowHeads(heads, pen);
             graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
@@ -124,14 +124,14 @@ namespace Greenshot.Editor.Drawing
                 int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
                 if (lineThickness > 0)
                 {
-                    using Pen pen = new Pen(Color.White)
+                    using Pen pen = new(Color.White)
                     {
                         Width = lineThickness
                     };
-                    SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS), pen);
-                    using GraphicsPath path = new GraphicsPath();
+                    SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
+                    using GraphicsPath path = new();
                     path.AddLine(Left, Top, Left + Width, Top + Height);
-                    using Matrix matrix = new Matrix();
+                    using Matrix matrix = new();
                     NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
                     return drawingBounds.Inflate(2, 2);
                 }
@@ -145,12 +145,12 @@ namespace Greenshot.Editor.Drawing
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             if (lineThickness > 0)
             {
-                using Pen pen = new Pen(Color.White)
+                using Pen pen = new(Color.White)
                 {
                     Width = lineThickness
                 };
-                SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS), pen);
-                using GraphicsPath path = new GraphicsPath();
+                SetArrowHeads((ArrowHeadCombination)GetFieldValue(FieldType.ARROWHEADS), pen);
+                using GraphicsPath path = new();
                 path.AddLine(Left, Top, Left + Width, Top + Height);
                 return path.IsOutlineVisible(x, y, pen);
             }

@@ -334,7 +334,7 @@ namespace Greenshot.Base.Core
             DefaultValue = "16,16")]
         public NativeSize IconSize
         {
-            get { return _iconSize; }
+            get => _iconSize;
             set
             {
                 Size newSize = value;
@@ -349,7 +349,7 @@ namespace Greenshot.Base.Core
                         newSize.Width = 256;
                     }
 
-                    newSize.Width = (newSize.Width / 16) * 16;
+                    newSize.Width = newSize.Width / 16 * 16;
                     if (newSize.Height < 16)
                     {
                         newSize.Height = 16;
@@ -359,17 +359,17 @@ namespace Greenshot.Base.Core
                         newSize.Height = 256;
                     }
 
-                    newSize.Height = (newSize.Height / 16) * 16;
+                    newSize.Height = newSize.Height / 16 * 16;
                 }
 
                 if (_iconSize != newSize)
                 {
                     _iconSize = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconSize)));
                 }
             }
         }
-        
+
         [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
 
@@ -383,10 +383,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="experimentalFeature"></param>
         /// <returns></returns>
-        public bool IsExperimentalFeatureEnabled(string experimentalFeature)
-        {
-            return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
-        }
+        public bool IsExperimentalFeatureEnabled(string experimentalFeature) => ExperimentalFeatures?.Contains(experimentalFeature) == true;
 
         private string CreateOutputFilePath()
         {
@@ -414,7 +411,7 @@ namespace Greenshot.Base.Core
 
             return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
-        
+
         /// <summary>
         /// Supply values we can't put as defaults
         /// </summary>
@@ -445,7 +442,7 @@ namespace Greenshot.Base.Core
                 },
                 _ => null
             };
-        
+
         /// <summary>
         /// This method will be called before converting the property, making to possible to correct a certain value
         /// Can be used when migration is needed
@@ -456,20 +453,14 @@ namespace Greenshot.Base.Core
         public override string PreCheckValue(string propertyName, string propertyValue)
         {
             // Changed the separator, now we need to correct this
-            if ("Destinations".Equals(propertyName))
+            if ("Destinations".Equals(propertyName) && propertyValue != null)
             {
-                if (propertyValue != null)
-                {
-                    return propertyValue.Replace('|', ',');
-                }
+                return propertyValue.Replace('|', ',');
             }
 
-            if ("OutputFilePath".Equals(propertyName))
+            if ("OutputFilePath".Equals(propertyName) && string.IsNullOrEmpty(propertyValue))
             {
-                if (string.IsNullOrEmpty(propertyValue))
-                {
-                    return null;
-                }
+                return null;
             }
 
             return base.PreCheckValue(propertyName, propertyValue);
@@ -528,12 +519,9 @@ namespace Greenshot.Base.Core
             }
 
             // Enable OneNote if upgrading from 1.1
-            if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote"))
+            if (ExcludeDestinations?.Contains("OneNote") == true && LastSaveWithVersion?.StartsWith("1.1") == true)
             {
-                if (LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1"))
-                {
-                    ExcludeDestinations.Remove("OneNote");
-                }
+                ExcludeDestinations.Remove("OneNote");
             }
 
             if (OutputDestinations == null)
@@ -568,14 +556,11 @@ namespace Greenshot.Base.Core
             if (NoGDICaptureForProduct != null)
             {
                 // Fix error in configuration
-                if (NoGDICaptureForProduct.Count >= 2)
+                if (NoGDICaptureForProduct.Count >= 2 && "intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
                 {
-                    if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-                    {
-                        NoGDICaptureForProduct.RemoveRange(0, 2);
-                        NoGDICaptureForProduct.Add("Intellij Idea");
-                        IsDirty = true;
-                    }
+                    NoGDICaptureForProduct.RemoveRange(0, 2);
+                    NoGDICaptureForProduct.Add("Intellij Idea");
+                    IsDirty = true;
                 }
 
                 for (int i = 0; i < NoGDICaptureForProduct.Count; i++)
@@ -587,14 +572,11 @@ namespace Greenshot.Base.Core
             if (NoDWMCaptureForProduct != null)
             {
                 // Fix error in configuration
-                if (NoDWMCaptureForProduct.Count >= 3)
+                if (NoDWMCaptureForProduct.Count >= 3 && "citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
                 {
-                    if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-                    {
-                        NoDWMCaptureForProduct.RemoveRange(0, 3);
-                        NoDWMCaptureForProduct.Add("Citrix ICA Client");
-                        IsDirty = true;
-                    }
+                    NoDWMCaptureForProduct.RemoveRange(0, 3);
+                    NoDWMCaptureForProduct.Add("Citrix ICA Client");
+                    IsDirty = true;
                 }
 
                 for (int i = 0; i < NoDWMCaptureForProduct.Count; i++)

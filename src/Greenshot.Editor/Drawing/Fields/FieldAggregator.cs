@@ -79,7 +79,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void BindElement(IDrawableContainer dc)
         {
-            if (!(dc is DrawableContainer container) || _boundContainers.Contains(container))
+            if (dc is not DrawableContainer container || _boundContainers.Contains(container))
             {
                 return;
             }
@@ -97,7 +97,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void UpdateElement(IDrawableContainer dc)
         {
-            if (!(dc is DrawableContainer container))
+            if (dc is not DrawableContainer container)
             {
                 return;
             }
@@ -164,29 +164,26 @@ namespace Greenshot.Editor.Drawing.Fields
         private IList<IField> FindCommonFields()
         {
             IList<IField> returnFields = null;
-            if (_boundContainers.Count > 0)
+            // take all fields from the least selected container...
+            if (_boundContainers.Count > 0 && _boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer)
             {
-                // take all fields from the least selected container...
-                if (_boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer)
+                returnFields = leastSelectedContainer.GetFields();
+                for (int i = 0; i < _boundContainers.Count - 1; i++)
                 {
-                    returnFields = leastSelectedContainer.GetFields();
-                    for (int i = 0; i < _boundContainers.Count - 1; i++)
+                    if (_boundContainers[i] is not DrawableContainer dc) continue;
+                    IList<IField> fieldsToRemove = new List<IField>();
+                    foreach (IField field in returnFields)
                     {
-                        if (!(_boundContainers[i] is DrawableContainer dc)) continue;
-                        IList<IField> fieldsToRemove = new List<IField>();
-                        foreach (IField field in returnFields)
+                        // ... throw out those that do not apply to one of the other containers
+                        if (!dc.HasField(field.FieldType))
                         {
-                            // ... throw out those that do not apply to one of the other containers
-                            if (!dc.HasField(field.FieldType))
-                            {
-                                fieldsToRemove.Add(field);
-                            }
+                            fieldsToRemove.Add(field);
                         }
+                    }
 
-                        foreach (var field in fieldsToRemove)
-                        {
-                            returnFields.Remove(field);
-                        }
+                    foreach (var field in fieldsToRemove)
+                    {
+                        returnFields.Remove(field);
                     }
                 }
             }
@@ -196,7 +193,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)
         {
-            IField field = (IField) sender;
+            IField field = (IField)sender;
             if (_internalUpdateRunning || field.Value == null)
             {
                 return;
@@ -204,7 +201,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
             foreach (var drawableContainer1 in _boundContainers.ToList())
             {
-                var drawableContainer = (DrawableContainer) drawableContainer1;
+                var drawableContainer = (DrawableContainer)drawableContainer1;
                 if (!drawableContainer.HasField(field.FieldType))
                 {
                     continue;

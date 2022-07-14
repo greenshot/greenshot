@@ -65,9 +65,9 @@ namespace Greenshot.Plugin.Confluence.Forms
             Log.Debug("Loading pages for page: " + page.Title);
             new Thread(() =>
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => { ShowBusy.Visibility = Visibility.Visible; }));
                 var pages = _confluenceConnector.GetPageChildren(page).OrderBy(p => p.Title);
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() =>
                 {
                     foreach (var childPage in pages)
                     {
@@ -117,11 +117,11 @@ namespace Greenshot.Plugin.Confluence.Forms
             ShowBusy.Visibility = Visibility.Visible;
             new Thread(() =>
             {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() =>
                 {
                     foreach (Space space in _confluenceUpload.Spaces)
                     {
-                        TreeViewItem spaceTreeViewItem = new TreeViewItem
+                        TreeViewItem spaceTreeViewItem = new()
                         {
                             Header = space.Name,
                             Tag = space
@@ -131,7 +131,7 @@ namespace Greenshot.Plugin.Confluence.Forms
                         try
                         {
                             Page page = _confluenceConnector.GetSpaceHomepage(space);
-                            TreeViewItem pageTreeViewItem = new TreeViewItem
+                            TreeViewItem pageTreeViewItem = new()
                             {
                                 Header = page.Title,
                                 Tag = page

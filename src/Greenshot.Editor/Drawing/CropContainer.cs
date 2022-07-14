@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
@@ -60,10 +59,7 @@ namespace Greenshot.Editor.Drawing
             Horizontal
         }
 
-        public CropContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public CropContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -134,27 +130,13 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
         }
 
-        public override void Invalidate()
-        {
-            _parent?.Invalidate();
-        }
+        public override void Invalidate() => _parent?.Invalidate();
 
         /// <summary>
         /// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
         /// (we create a transparent brown over the complete picture)
         /// </summary>
-        public override NativeRect DrawingBounds
-        {
-            get
-            {
-                if (_parent?.Image is { } image)
-                {
-                    return new NativeRect(0, 0, image.Width, image.Height);
-                }
-
-                return NativeRect.Empty;
-            }
-        }
+        public override NativeRect DrawingBounds => _parent?.Image is { } image ? new NativeRect(0, 0, image.Width, image.Height) : NativeRect.Empty;
 
         public override void Draw(Graphics g, RenderMode rm)
         {
@@ -162,7 +144,6 @@ namespace Greenshot.Editor.Drawing
             {
                 return;
             }
-
 
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
             var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
@@ -195,7 +176,6 @@ namespace Greenshot.Editor.Drawing
                     }
             }
 
-
         }
 
         /// <summary>
@@ -203,18 +183,15 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public override bool HasContextMenu => false;
 
-        public override bool HandleMouseDown(int x, int y)
+        public override bool HandleMouseDown(int x, int y) => GetFieldValue(FieldType.CROPMODE) switch
         {
-            return GetFieldValue(FieldType.CROPMODE) switch
-            {
-                //force horizontal crop to left edge
-                CropModes.Horizontal => base.HandleMouseDown(0, y),
-                //force vertical crop to top edge
-                CropModes.Vertical => base.HandleMouseDown(x, 0),
-                _ => base.HandleMouseDown(x, y),
-            };
-        }
-  
+            //force horizontal crop to left edge
+            CropModes.Horizontal => base.HandleMouseDown(0, y),
+            //force vertical crop to top edge
+            CropModes.Vertical => base.HandleMouseDown(x, 0),
+            _ => base.HandleMouseDown(x, y),
+        };
+
         public override bool HandleMouseMove(int x, int y)
         {
             Invalidate();

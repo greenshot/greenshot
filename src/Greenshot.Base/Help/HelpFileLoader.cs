@@ -33,7 +33,7 @@ namespace Greenshot.Base.Help
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(HelpFileLoader));
 
-        private const string ExtHelpUrl = @"https://getgreenshot.org/help/";
+        private const string ExtHelpUrl = "https://getgreenshot.org/help/";
 
         public static void LoadHelp()
         {
@@ -89,12 +89,12 @@ namespace Greenshot.Base.Help
             try
             {
                 HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
-                using HttpWebResponse res = (HttpWebResponse) req.GetResponse();
+                using HttpWebResponse res = (HttpWebResponse)req.GetResponse();
                 return res.StatusCode;
             }
             catch (WebException e)
             {
-                return ((HttpWebResponse) e.Response)?.StatusCode;
+                return ((HttpWebResponse)e.Response)?.StatusCode;
             }
         }
     }

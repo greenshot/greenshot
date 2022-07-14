@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Confluence.Forms
                 if (_pickerPage == null)
                 {
                     List<Page> pages = ConfluenceUtils.GetCurrentPages();
-                    if (pages != null && pages.Count > 0)
+                    if (pages?.Count > 0)
                     {
                         _pickerPage = new ConfluencePagePicker(this, pages);
                     }
@@ -54,17 +54,11 @@ namespace Greenshot.Plugin.Confluence.Forms
 
         private System.Windows.Controls.Page _searchPage;
 
-        public System.Windows.Controls.Page SearchPage
-        {
-            get { return _searchPage ??= new ConfluenceSearch(this); }
-        }
+        public System.Windows.Controls.Page SearchPage => _searchPage ??= new ConfluenceSearch(this);
 
         private System.Windows.Controls.Page _browsePage;
 
-        public System.Windows.Controls.Page BrowsePage
-        {
-            get { return _browsePage ??= new ConfluenceTreePicker(this); }
-        }
+        public System.Windows.Controls.Page BrowsePage => _browsePage ??= new ConfluenceTreePicker(this);
 
         private Page _selectedPage;
 
@@ -124,20 +118,17 @@ namespace Greenshot.Plugin.Confluence.Forms
             // Check if load is needed
             if (_spaces == null)
             {
-                (new Thread(() =>
+                new Thread(() =>
                 {
                     _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
                     _lastLoad = DateTime.Now;
                 })
                 {
                     Name = "Loading spaces for confluence"
-                }).Start();
+                }.Start();
             }
         }
 
-        private void Upload_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
+        private void Upload_Click(object sender, RoutedEventArgs e) => DialogResult = true;
     }
 }

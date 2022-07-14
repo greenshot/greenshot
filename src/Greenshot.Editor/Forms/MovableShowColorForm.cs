@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.User32;
+using System.Linq;
 
 namespace Greenshot.Editor.Forms
 {
@@ -36,15 +37,9 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class MovableShowColorForm : Form
     {
-        public Color Color
-        {
-            get { return preview.BackColor; }
-        }
+        public Color Color => preview.BackColor;
 
-        public MovableShowColorForm()
-        {
-            InitializeComponent();
-        }
+        public MovableShowColorForm() => InitializeComponent();
 
         /// <summary>
         /// Move the MovableShowColorForm to the specified location and display the color under the (current mouse) coordinates
@@ -65,12 +60,11 @@ namespace Greenshot.Editor.Forms
 
             var zoomerLocation = new NativePoint(screenCoordinates.X, screenCoordinates.Y)
                 .Offset(cursorSize.Width + 5 - hotspot.X, cursorSize.Height + 5 - hotspot.Y);
-
-            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+            foreach (var (displayInfo, screenRectangle) in from displayInfo in DisplayInfo.AllDisplayInfos
+                                                           let screenRectangle = displayInfo.Bounds
+                                                           select (displayInfo, screenRectangle))
             {
-                NativeRect screenRectangle = displayInfo.Bounds;
                 if (!displayInfo.Bounds.Contains(screenCoordinates)) continue;
-
                 if (zoomerLocation.X < screenRectangle.X)
                 {
                     zoomerLocation = zoomerLocation.ChangeX(screenRectangle.X);
@@ -107,7 +101,7 @@ namespace Greenshot.Editor.Forms
             try
             {
                 uint pixel = Gdi32Api.GetPixel(safeWindowDcHandle, screenCoordinates.X, screenCoordinates.Y);
-                Color color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
+                Color color = Color.FromArgb(255, (int)(pixel & 0xFF), (int)(pixel & 0xFF00) >> 8, (int)(pixel & 0xFF0000) >> 16);
                 return color;
             }
             catch (Exception)

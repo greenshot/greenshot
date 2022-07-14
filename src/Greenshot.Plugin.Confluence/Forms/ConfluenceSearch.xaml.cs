@@ -42,47 +42,34 @@ namespace Greenshot.Plugin.Confluence.Forms
             _confluenceUpload = confluenceUpload;
             DataContext = this;
             InitializeComponent();
-            if (ConfluenceConfig.SearchSpaceKey == null)
+            switch (ConfluenceConfig.SearchSpaceKey)
             {
-                SpaceComboBox.SelectedItem = Spaces.FirstOrDefault();
-            }
-            else
-            {
-                foreach (var space in Spaces)
-                {
-                    if (space.Key.Equals(ConfluenceConfig.SearchSpaceKey))
+                case null:
+                    SpaceComboBox.SelectedItem = Spaces.FirstOrDefault();
+                    break;
+                default:
                     {
-                        SpaceComboBox.SelectedItem = space;
+                        foreach (var space in from space in Spaces
+                                              where space.Key.Equals(ConfluenceConfig.SearchSpaceKey)
+                                              select space)
+                        {
+                            SpaceComboBox.SelectedItem = space;
+                        }
+
+                        break;
                     }
-                }
             }
         }
 
-        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) => SelectionChanged();
 
-        private void SelectionChanged()
-        {
-            if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
-            {
-                _confluenceUpload.SelectedPage = (Page) PageListView.SelectedItem;
-            }
-            else
-            {
-                _confluenceUpload.SelectedPage = null;
-            }
-        }
+        private void SelectionChanged() => _confluenceUpload.SelectedPage = PageListView.HasItems && PageListView.SelectedItems.Count > 0 ? (Page)PageListView.SelectedItem : null;
 
-        private void Search_Click(object sender, RoutedEventArgs e)
-        {
-            DoSearch();
-        }
+        private void Search_Click(object sender, RoutedEventArgs e) => DoSearch();
 
         private void DoSearch()
         {
-            string spaceKey = (string) SpaceComboBox.SelectedValue;
+            string spaceKey = (string)SpaceComboBox.SelectedValue;
             ConfluenceConfig.SearchSpaceKey = spaceKey;
             Pages.Clear();
             foreach (var page in ConfluencePlugin.ConfluenceConnector.SearchPages(searchText.Text, spaceKey).OrderBy(p => p.Title))
@@ -100,14 +87,8 @@ namespace Greenshot.Plugin.Confluence.Forms
             }
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void Page_Loaded(object sender, RoutedEventArgs e) => SelectionChanged();
 
-        private void SearchText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            Search.IsEnabled = !string.IsNullOrEmpty(searchText.Text);
-        }
+        private void SearchText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => Search.IsEnabled = !string.IsNullOrEmpty(searchText.Text);
     }
 }

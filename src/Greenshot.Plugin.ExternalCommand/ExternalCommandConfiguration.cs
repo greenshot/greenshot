@@ -121,12 +121,9 @@ namespace Greenshot.Plugin.ExternalCommand
             Commandline.Remove(command);
             Argument.Remove(command);
             RunInbackground.Remove(command);
-            if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
+            if ((MsPaint.Equals(command) || PaintDotNet.Equals(command)) && !DeletedBuildInCommands.Contains(command))
             {
-                if (!DeletedBuildInCommands.Contains(command))
-                {
-                    DeletedBuildInCommands.Add(command);
-                }
+                DeletedBuildInCommands.Add(command);
             }
         }
 
@@ -161,7 +158,7 @@ namespace Greenshot.Plugin.ExternalCommand
         public override object GetDefault(string property) =>
             property switch
             {
-                nameof(DeletedBuildInCommands) => (object) new List<string>(),
+                nameof(DeletedBuildInCommands) => new List<string>(),
                 nameof(Commands) => new List<string>(),
                 nameof(Commandline) => new Dictionary<string, string>(),
                 nameof(Argument) => new Dictionary<string, string>(),

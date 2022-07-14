@@ -37,11 +37,11 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public double PreviewQuality
         {
-            get { return previewQuality; }
+            get => previewQuality;
             set
             {
                 previewQuality = value;
-                OnPropertyChanged("PreviewQuality");
+                OnPropertyChanged(nameof(PreviewQuality));
             }
         }
 

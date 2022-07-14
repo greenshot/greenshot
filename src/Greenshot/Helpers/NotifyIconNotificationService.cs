@@ -37,10 +37,7 @@ namespace Greenshot.Helpers
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
         private readonly NotifyIcon _notifyIcon;
 
-        public NotifyIconNotificationService()
-        {
-            _notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-        }
+        public NotifyIconNotificationService() => _notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
 
         /// <summary>
         /// This will show a warning message to the user
@@ -49,10 +46,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, ToolTipIcon.Warning, onClickAction, onClosedAction);
-        }
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, ToolTipIcon.Warning, onClickAction, onClosedAction);
 
         /// <summary>
         /// This will show an error message to the user
@@ -61,10 +55,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, ToolTipIcon.Error, onClickAction, onClosedAction);
-        }
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, ToolTipIcon.Error, onClickAction, onClosedAction);
 
         /// <summary>
         /// This will show an info message to the user
@@ -73,10 +64,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, ToolTipIcon.Info, onClickAction, onClosedAction);
-        }
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, ToolTipIcon.Info, onClickAction, onClosedAction);
 
         /// <summary>
         /// This will show a message to the user
@@ -130,7 +118,7 @@ namespace Greenshot.Helpers
             }
 
             _notifyIcon.BalloonTipClosed += BalloonClosedHandler;
-            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
+            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int)timeout.Value.TotalMilliseconds : 5000, "Greenshot", message, level);
         }
     }
 }

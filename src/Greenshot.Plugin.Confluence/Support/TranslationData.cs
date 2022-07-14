@@ -40,10 +40,7 @@ namespace Greenshot.Plugin.Confluence.Support
             return false;
         }
 
-        private void OnLanguageChanged(object sender, EventArgs e)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
-        }
+        private void OnLanguageChanged(object sender, EventArgs e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

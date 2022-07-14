@@ -54,7 +54,7 @@ namespace Greenshot.Helpers
         /// <param name="title"></param>
         public static void SendImage(string fullPath, string title)
         {
-            using MapiMailMessage message = new MapiMailMessage(title, null);
+            using MapiMailMessage message = new(title, null);
             message.Files.Add(fullPath);
             if (!string.IsNullOrEmpty(CoreConfig.MailApiTo))
             {
@@ -73,7 +73,6 @@ namespace Greenshot.Helpers
 
             message.ShowDialog();
         }
-
 
         /// <summary>
         /// Helper Method for creating an Email with Image Attachment
@@ -236,7 +235,7 @@ namespace Greenshot.Helpers
                     DeallocFiles(message);
                 }
 
-                MAPI_CODES errorCode = (MAPI_CODES) Enum.ToObject(typeof(MAPI_CODES), error);
+                MAPI_CODES errorCode = (MAPI_CODES)Enum.ToObject(typeof(MAPI_CODES), error);
 
                 // Check for error
                 if (errorCode == MAPI_CODES.SUCCESS || errorCode == MAPI_CODES.USER_ABORT)
@@ -294,7 +293,7 @@ namespace Greenshot.Helpers
                 return IntPtr.Zero;
             }
 
-            if ((Files.Count <= 0) || (Files.Count > 100))
+            if ((Files.Count == 0) || (Files.Count > 100))
             {
                 return IntPtr.Zero;
             }
@@ -303,7 +302,7 @@ namespace Greenshot.Helpers
             int asize = Marshal.SizeOf(atype);
             IntPtr ptra = Marshal.AllocHGlobal(Files.Count * asize);
 
-            MapiFileDescriptor mfd = new MapiFileDescriptor
+            MapiFileDescriptor mfd = new()
             {
                 position = -1
             };
@@ -404,7 +403,6 @@ namespace Greenshot.Helpers
                 // Intenationally blank
             }
 
-
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
             public class MapiMessage
             {
@@ -443,20 +441,10 @@ namespace Greenshot.Helpers
     /// </summary>
     public class Recipient
     {
-        /// <summary>
-        /// The email address of this recipient.
-        /// </summary>
-        public string Address;
 
-        /// <summary>
-        /// The display name of this recipient.
-        /// </summary>
-        public string DisplayName;
-
-        /// <summary>
-        /// How the recipient will receive this message (To, CC, BCC).
-        /// </summary>
-        public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
+        public string Address { get; set; }
+        public string DisplayName { get; set; }
+        public MapiMailMessage.RecipientType RecipientType { get; set; }
 
         /// <summary>
         /// Creates a new recipient with the specified address and recipient type.
@@ -473,7 +461,7 @@ namespace Greenshot.Helpers
         /// <returns></returns>
         internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
         {
-            MapiMailMessage.MapiHelperInterop.MapiRecipDesc interop = new MapiMailMessage.MapiHelperInterop.MapiRecipDesc();
+            MapiMailMessage.MapiHelperInterop.MapiRecipDesc interop = new();
 
             if (DisplayName == null)
             {
@@ -485,7 +473,7 @@ namespace Greenshot.Helpers
                 interop.Address = Address;
             }
 
-            interop.RecipientClass = (int) RecipientType;
+            interop.RecipientClass = (int)RecipientType;
 
             return interop;
         }
@@ -499,15 +487,9 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Adds the specified recipient to this collection.
         /// </summary>
-        public void Add(Recipient value)
-        {
-            List.Add(value);
-        }
+        public void Add(Recipient value) => List.Add(value);
 
-        internal InteropRecipientCollection GetInteropRepresentation()
-        {
-            return new InteropRecipientCollection(this);
-        }
+        internal InteropRecipientCollection GetInteropRepresentation() => new(this);
 
         /// <summary>
         /// Struct which contains an interop representation of a colleciton of recipients.

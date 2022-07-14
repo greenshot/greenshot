@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.Dropbox
             _itemPlugInConfig = new ToolStripMenuItem
             {
                 Text = Language.GetString("dropbox", LangKey.Configure),
-                Image = (Image) _resources.GetObject("Dropbox")
+                Image = (Image)_resources.GetObject("Dropbox")
             };
             _itemPlugInConfig.Click += ConfigMenuClick;
 
@@ -94,23 +94,14 @@ namespace Greenshot.Plugin.Dropbox
             }
         }
 
-        public void Shutdown()
-        {
-            Log.Debug("Dropbox Plugin shutdown.");
-        }
+        public void Shutdown() => Log.Debug("Dropbox Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => _config.ShowConfigDialog();
 
         /// <summary>
         /// This will be called when the menu item in the Editor is clicked
@@ -118,7 +109,7 @@ namespace Greenshot.Plugin.Dropbox
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {
             uploadUrl = null;
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, false);
             try
             {
                 bool result = false;

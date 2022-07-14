@@ -38,10 +38,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="m">Message</param>
         /// <returns>true if the message should be filtered</returns>
-        public bool PreFilterMessage(ref Message m)
-        {
-            return PreFilterMessageExternal(ref m);
-        }
+        public bool PreFilterMessage(ref Message m) => PreFilterMessageExternal(ref m);
 
         /// <summary>
         /// Also used in the MainForm WndProc
@@ -50,7 +47,7 @@ namespace Greenshot.Base.Core
         /// <returns>true if the message should be filtered</returns>
         public static bool PreFilterMessageExternal(ref Message m)
         {
-            WindowsMessages message = (WindowsMessages) m.Msg;
+            WindowsMessages message = (WindowsMessages)m.Msg;
             if (message != WindowsMessages.WM_INPUTLANGCHANGEREQUEST && message != WindowsMessages.WM_INPUTLANGCHANGE) return false;
 
             LOG.DebugFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());

@@ -33,10 +33,8 @@ namespace Greenshot.Editor.Forms
     public class ColorPickerToolStripButton : ToolStripButton
     {
         private Color _color;
-        public NativePoint Offset = new NativePoint(0, 0);
         public event ColorPickerEventHandler ColorPicked;
         private readonly ColorDialog _cd;
-
 
         public ColorPickerToolStripButton()
         {
@@ -51,8 +49,10 @@ namespace Greenshot.Editor.Forms
                 _color = value;
                 Invalidate();
             }
-            get { return _color; }
+            get => _color;
         }
+
+        public NativePoint Offset { get; set; } = new(0, 0);
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -66,7 +66,7 @@ namespace Greenshot.Editor.Forms
                 OldColor = Color.Magenta, //this.ImageTransparentColor;
                 NewColor = _color
             };
-            ImageAttributes attr = new ImageAttributes();
+            ImageAttributes attr = new();
             attr.SetRemapTable(colorMap);
             var rect = new NativeRect(0, 0, Image.Width, Image.Height);
             // todo find a way to retrieve transparency offset automatically
@@ -89,9 +89,6 @@ namespace Greenshot.Editor.Forms
     {
         public Color Color;
 
-        public ColorPickerEventArgs(Color color)
-        {
-            Color = color;
-        }
+        public ColorPickerEventArgs(Color color) => Color = color;
     }
 }

@@ -56,10 +56,7 @@ namespace Greenshot.Editor.Memento
             }
         }
 
-        public bool Merge(IMemento otherMemento)
-        {
-            return false;
-        }
+        public bool Merge(IMemento otherMemento) => false;
 
         public IMemento Restore()
         {

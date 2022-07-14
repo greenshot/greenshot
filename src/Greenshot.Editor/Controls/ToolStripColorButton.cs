@@ -39,28 +39,16 @@ namespace Greenshot.Editor.Controls
 
         private Color _selectedColor = Color.Transparent;
 
-        public ToolStripColorButton()
-        {
-            Click += ColorButtonClick;
-        }
+        public ToolStripColorButton() => Click += ColorButtonClick;
 
         public Color SelectedColor
         {
-            get { return _selectedColor; }
+            get => _selectedColor;
             set
             {
                 _selectedColor = value;
 
-                Brush brush;
-                if (value != Color.Transparent)
-                {
-                    brush = new SolidBrush(value);
-                }
-                else
-                {
-                    brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
-                }
-
+                Brush brush = value != Color.Transparent ? new SolidBrush(value) : new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
                 if (Image != null)
                 {
                     using Graphics graphics = Graphics.FromImage(Image);

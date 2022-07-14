@@ -29,7 +29,7 @@ namespace Greenshot.Base.Core
 {
     /// <summary>
     /// Specifies which fields are valid in a FileDescriptor Structure
-    /// </summary>    
+    /// </summary>
     [Flags]
     public enum FileDescriptorFlags : uint
     {
@@ -67,7 +67,7 @@ namespace Greenshot.Base.Core
             var count = reader.ReadUInt32();
             while (count > 0)
             {
-                FileDescriptor descriptor = new FileDescriptor(reader);
+                FileDescriptor descriptor = new(reader);
 
                 yield return descriptor.FileName;
 
@@ -78,7 +78,7 @@ namespace Greenshot.Base.Core
         internal static MemoryStream GetFileContents(System.Windows.Forms.IDataObject dataObject, int index)
         {
             //cast the default IDataObject to a com IDataObject
-            var comDataObject = (IDataObject) dataObject;
+            var comDataObject = (IDataObject)dataObject;
 
             var format = System.Windows.DataFormats.GetDataFormat("FileContents");
             if (format == null)
@@ -87,13 +87,13 @@ namespace Greenshot.Base.Core
             }
 
             //create STGMEDIUM to output request results into
-            var medium = new STGMEDIUM();
-
+            _ = new STGMEDIUM();
+            STGMEDIUM medium;
             unchecked
             {
                 var formatetc = new FORMATETC
                 {
-                    cfFormat = (short) format.Id,
+                    cfFormat = (short)format.Id,
                     dwAspect = DVASPECT.DVASPECT_CONTENT,
                     lindex = index,
                     tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_HGLOBAL
@@ -113,13 +113,13 @@ namespace Greenshot.Base.Core
         private static MemoryStream GetIStream(STGMEDIUM medium)
         {
             //marshal the returned pointer to a IStream object
-            IStream iStream = (IStream) Marshal.GetObjectForIUnknown(medium.unionmember);
+            IStream iStream = (IStream)Marshal.GetObjectForIUnknown(medium.unionmember);
             Marshal.Release(medium.unionmember);
 
             //get the STATSTG of the IStream to determine how many bytes are in it
-            var iStreamStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
-            iStream.Stat(out iStreamStat, 0);
-            int iStreamSize = (int) iStreamStat.cbSize;
+            _ = new System.Runtime.InteropServices.ComTypes.STATSTG();
+            iStream.Stat(out System.Runtime.InteropServices.ComTypes.STATSTG iStreamStat, 0);
+            int iStreamSize = (int)iStreamStat.cbSize;
 
             //read the data from the IStream into a managed byte array
             byte[] iStreamContent = new byte[iStreamSize];

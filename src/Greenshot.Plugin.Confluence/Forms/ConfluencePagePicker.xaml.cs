@@ -38,16 +38,13 @@ namespace Greenshot.Plugin.Confluence.Forms
             InitializeComponent();
         }
 
-        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) => SelectionChanged();
 
         private void SelectionChanged()
         {
             if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
             {
-                _confluenceUpload.SelectedPage = (Page) PageListView.SelectedItem;
+                _confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
                 // Make sure the uploader knows we selected an already opened page
                 _confluenceUpload.IsOpenPageSelected = true;
             }
@@ -57,9 +54,6 @@ namespace Greenshot.Plugin.Confluence.Forms
             }
         }
 
-        private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e) => SelectionChanged();
     }
 }

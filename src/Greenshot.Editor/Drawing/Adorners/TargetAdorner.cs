@@ -45,10 +45,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="mouseEventArgs">MouseEventArgs</param>
-        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
-        {
-            EditStatus = EditStatus.MOVING;
-        }
+        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs) => EditStatus = EditStatus.MOVING;
 
         /// <summary>
         /// Handle the mouse move
@@ -63,8 +60,8 @@ namespace Greenshot.Editor.Drawing.Adorners
             }
 
             Owner.Invalidate();
-            NativePoint newGripperLocation = new NativePoint(mouseEventArgs.X, mouseEventArgs.Y);
-            NativeRect imageBounds = new NativeRect(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
+            NativePoint newGripperLocation = new(mouseEventArgs.X, mouseEventArgs.Y);
+            NativeRect imageBounds = new(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
             // Check if gripper inside the parent (surface), if not we need to move it inside
             // This was made for BUG-1682
             if (!imageBounds.Contains(newGripperLocation))

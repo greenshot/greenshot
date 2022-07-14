@@ -41,20 +41,11 @@ namespace Greenshot.Base.Interfaces.Plugin
             ReduceColors = CoreConfig.OutputFileReduceColors;
         }
 
-        public SurfaceOutputSettings(OutputFormat format) : this()
-        {
-            Format = format;
-        }
+        public SurfaceOutputSettings(OutputFormat format) : this() => Format = format;
 
-        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
-        {
-            JPGQuality = quality;
-        }
+        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format) => JPGQuality = quality;
 
-        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality)
-        {
-            ReduceColors = reduceColors;
-        }
+        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality) => ReduceColors = reduceColors;
 
         /// <summary>
         /// BUG-2056 reported a logical issue, using greenshot format as the default causes issues with the external commands.
@@ -81,17 +72,10 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public bool ReduceColors
         {
-            get
-            {
+            get =>
                 // Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-                if (OutputFormat.gif.Equals(Format))
-                {
-                    return true;
-                }
-
-                return _reduceColors;
-            }
-            set { _reduceColors = value; }
+                !(!OutputFormat.gif.Equals(Format) && !_reduceColors);
+            set => _reduceColors = value;
         }
 
         /// <summary>
@@ -99,7 +83,7 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// </summary>
         public bool DisableReduceColors
         {
-            get { return _disableReduceColors; }
+            get => _disableReduceColors;
             set
             {
                 // Quantizing os needed when output format is gif as this has only 256 colors!

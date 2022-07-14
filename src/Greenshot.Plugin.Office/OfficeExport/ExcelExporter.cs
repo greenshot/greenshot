@@ -115,7 +115,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
             {
                 LOG.Warn("Assuming Excel version 1997.");
-                _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                _excelVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -136,8 +136,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject[i]);
-                if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
+                using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject[i]);
+                if (workbook?.ComObject.Name.StartsWith(workbookName) == true)
                 {
                     InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
                 }
@@ -177,7 +177,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
             workbook.ComObject.Activate();
             using var application = DisposableCom.Create(workbook.ComObject.Application);
-            User32Api.SetForegroundWindow((IntPtr) application.ComObject.Hwnd);
+            User32Api.SetForegroundWindow((IntPtr)application.ComObject.Hwnd);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             excelApplication.ComObject.Visible = true;
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
-            using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject.Add());
+            using var workbook = DisposableCom.Create((_Workbook)workbooks.ComObject.Add());
             InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
         }
     }

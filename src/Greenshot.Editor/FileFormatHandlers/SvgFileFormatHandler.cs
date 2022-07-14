@@ -63,11 +63,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
-        {
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null) =>
             // TODO: Implement this
-            return false;
-        }
+            false;
 
         public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {

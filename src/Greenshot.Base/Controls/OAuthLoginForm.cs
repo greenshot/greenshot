@@ -112,10 +112,8 @@ namespace Greenshot.Base.Controls
             }
         }
 
-        private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e) =>
             //Cancel the key press so the user can't enter a new url
             e.Handled = true;
-        }
     }
 }

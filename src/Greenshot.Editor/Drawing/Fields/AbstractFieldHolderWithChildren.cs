@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces.Drawing;
+using System.Linq;
 
 namespace Greenshot.Editor.Drawing.Fields
 {
@@ -40,16 +41,13 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public event EventHandler ChildrenChanged
         {
-            add { childrenChanged += value; }
-            remove { childrenChanged -= value; }
+            add => childrenChanged += value;
+            remove => childrenChanged -= value;
         }
 
-        public IList<IFieldHolder> Children = new List<IFieldHolder>();
+        public IList<IFieldHolder> Children { get; set; } = new List<IFieldHolder>();
 
-        public AbstractFieldHolderWithChildren()
-        {
-            _fieldChangedEventHandler = OnFieldChanged;
-        }
+        protected AbstractFieldHolderWithChildren() => _fieldChangedEventHandler = OnFieldChanged;
 
         [OnDeserialized()]
         private void OnDeserialized(StreamingContext context)
@@ -98,22 +96,16 @@ namespace Greenshot.Editor.Drawing.Fields
             }
             else
             {
-                foreach (IFieldHolder fh in Children)
+                foreach (var fh in from IFieldHolder fh in Children
+                                   where fh.HasField(fieldType)
+                                   select fh)
                 {
-                    if (fh.HasField(fieldType))
-                    {
-                        ret = fh.GetField(fieldType);
-                        break;
-                    }
+                    ret = fh.GetField(fieldType);
+                    break;
                 }
             }
 
-            if (ret == null)
-            {
-                throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType());
-            }
-
-            return ret;
+            return ret ?? throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType());
         }
 
         public new bool HasField(IFieldType fieldType)
@@ -121,13 +113,12 @@ namespace Greenshot.Editor.Drawing.Fields
             bool ret = base.HasField(fieldType);
             if (!ret)
             {
-                foreach (IFieldHolder fh in Children)
+                foreach (var _ in from IFieldHolder fh in Children
+                                  where fh.HasField(fieldType)
+                                  select new { })
                 {
-                    if (fh.HasField(fieldType))
-                    {
-                        ret = true;
-                        break;
-                    }
+                    ret = true;
+                    break;
                 }
             }
 
@@ -137,7 +128,7 @@ namespace Greenshot.Editor.Drawing.Fields
         public new bool HasFieldValue(IFieldType fieldType)
         {
             IField f = GetField(fieldType);
-            return f != null && f.HasValue;
+            return f?.HasValue == true;
         }
 
         public new void SetFieldValue(IFieldType fieldType, object value)

@@ -165,7 +165,7 @@ namespace Greenshot.Plugin.Flickr
         {
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 if (config.UsePageLink)
                 {
@@ -209,7 +209,7 @@ namespace Greenshot.Plugin.Flickr
         {
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 XmlNodeList nodes = doc.GetElementsByTagName("photoid");
                 if (nodes.Count > 0)

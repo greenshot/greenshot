@@ -30,10 +30,7 @@ namespace Greenshot.Base.Effects
     /// </summary>
     public class BorderEffect : IEffect
     {
-        public BorderEffect()
-        {
-            Reset();
-        }
+        public BorderEffect() => Reset();
 
         public Color Color { get; set; }
         public int Width { get; set; }
@@ -44,9 +41,6 @@ namespace Greenshot.Base.Effects
             Color = Color.Black;
         }
 
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, matrix);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, matrix);
     }
 }

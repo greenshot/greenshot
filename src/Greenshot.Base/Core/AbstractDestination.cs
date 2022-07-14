@@ -49,12 +49,9 @@ namespace Greenshot.Base.Core
                 return 1;
             }
 
-            if (Priority == other.Priority)
-            {
-                return string.Compare(Description, other.Description, StringComparison.Ordinal);
-            }
-
-            return Priority - other.Priority;
+            return Priority == other.Priority
+                ? string.CompareOrdinal(Description, other.Description)
+                : Priority - other.Priority;
         }
 
         public abstract string Designation { get; }
@@ -89,18 +86,7 @@ namespace Greenshot.Base.Core
 
         public virtual bool IsLinkable => false;
 
-        public virtual bool IsActive
-        {
-            get
-            {
-                if (CoreConfig.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        }
+        public virtual bool IsActive => (CoreConfig.ExcludeDestinations?.Contains(Designation)) != true;
 
         public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
@@ -111,7 +97,7 @@ namespace Greenshot.Base.Core
         /// <param name="surface"></param>
         public void ProcessExport(ExportInformation exportInformation, ISurface surface)
         {
-            if (exportInformation != null && exportInformation.ExportMade)
+            if (exportInformation?.ExportMade == true)
             {
                 if (!string.IsNullOrEmpty(exportInformation.Uri))
                 {
@@ -137,10 +123,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ToString()
-        {
-            return Description;
-        }
+        public override string ToString() => Description;
 
         /// <summary>
         /// Helper method to add events which set the tag, this way we can see why there might be a close.
@@ -176,7 +159,7 @@ namespace Greenshot.Base.Core
         public ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations)
         {
             // Generate an empty ExportInformation object, for when nothing was selected.
-            ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
+            ExportInformation exportInformation = new(Designation, Language.GetString("settings_destination_picker"));
             var menu = new ContextMenuStrip
             {
                 ImageScalingSize = CoreConfig.IconSize,
@@ -196,7 +179,7 @@ namespace Greenshot.Base.Core
                 menu.ResumeLayout();
             };
 
-            menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs)
+            menu.Closing += (object source, ToolStripDropDownClosingEventArgs eventArgs) =>
             {
                 Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
                 switch (eventArgs.CloseReason)
@@ -243,10 +226,10 @@ namespace Greenshot.Base.Core
             {
                 // Fix foreach loop variable for the delegate
                 ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
-                    delegate(object sender, EventArgs e)
+                    (object sender, EventArgs e) =>
                     {
                         ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
-                        IDestination clickedDestination = (IDestination) toolStripMenuItem?.Tag;
+                        IDestination clickedDestination = (IDestination)toolStripMenuItem?.Tag;
                         if (clickedDestination == null)
                         {
                             return;
@@ -255,7 +238,7 @@ namespace Greenshot.Base.Core
                         menu.Tag = clickedDestination.Designation;
                         // Export
                         exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
-                        if (exportInformation != null && exportInformation.ExportMade)
+                        if (exportInformation?.ExportMade == true)
                         {
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
                             // close menu if the destination wasn't the editor
@@ -288,7 +271,7 @@ namespace Greenshot.Base.Core
 
             // Close
             menu.Items.Add(new ToolStripSeparator());
-            ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString("editor_close"))
+            ToolStripMenuItem closeItem = new(Language.GetString("editor_close"))
             {
                 Image = GreenshotResources.GetImage("Close.Image")
             };
@@ -307,7 +290,7 @@ namespace Greenshot.Base.Core
             ShowMenuAtCursor(menu);
             return exportInformation;
         }
-        
+
         /// <summary>
         /// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
         /// </summary>
@@ -319,14 +302,7 @@ namespace Greenshot.Base.Core
             var menuRectangle = new NativeRect(location, menu.Size);
 
             menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);
-            if (menuRectangle.Height < menu.Height)
-            {
-                location = location.Offset(-40, -(menuRectangle.Height - menu.Height));
-            }
-            else
-            {
-                location = location.Offset(-40, -10);
-            }
+            location = menuRectangle.Height < menu.Height ? location.Offset(-40, -(menuRectangle.Height - menu.Height)) : location.Offset(-40, -10);
 
             // This prevents the problem that the context menu shows in the task-bar
             User32Api.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
@@ -374,7 +350,7 @@ namespace Greenshot.Base.Core
                 {
                     if (basisMenuItem.DropDownItems.Count == 0)
                     {
-                        List<IDestination> subDestinations = new List<IDestination>();
+                        List<IDestination> subDestinations = new();
                         // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
                         try
                         {

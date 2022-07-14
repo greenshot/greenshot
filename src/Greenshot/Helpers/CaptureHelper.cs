@@ -42,6 +42,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using System.Linq;
 
 namespace Greenshot.Helpers
 {
@@ -53,9 +54,8 @@ namespace Greenshot.Helpers
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        
+
         private List<WindowDetails> _windows = new();
-        private WindowDetails _selectedCaptureWindow;
         private NativeRect _captureRect = NativeRect.Empty;
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
@@ -88,7 +88,7 @@ namespace Greenshot.Helpers
 
             // Unfortunately we can't dispose the capture, this might still be used somewhere else.
             _windows = null;
-            _selectedCaptureWindow = null;
+            SelectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing
             if (CoreConfig.MinimizeWorkingSetSize)
@@ -99,7 +99,7 @@ namespace Greenshot.Helpers
 
         public static void CaptureClipboard(IDestination destination = null)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard);
+            using CaptureHelper captureHelper = new(CaptureMode.Clipboard);
             if (destination != null)
             {
                 captureHelper.AddDestination(destination);
@@ -110,25 +110,25 @@ namespace Greenshot.Helpers
 
         public static void CaptureRegion(bool captureMouse)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse);
+            using CaptureHelper captureHelper = new(CaptureMode.Region, captureMouse);
             captureHelper.MakeCapture();
         }
 
         public static void CaptureRegion(bool captureMouse, IDestination destination)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination);
+            using CaptureHelper captureHelper = new(CaptureMode.Region, captureMouse, destination);
             captureHelper.MakeCapture();
         }
 
         public static void CaptureRegion(bool captureMouse, NativeRect region)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse);
+            using CaptureHelper captureHelper = new(CaptureMode.Region, captureMouse);
             captureHelper.MakeCapture(region);
         }
 
         public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse)
+            using CaptureHelper captureHelper = new(CaptureMode.FullScreen, captureMouse)
             {
                 _screenCaptureMode = screenCaptureMode
             };
@@ -137,13 +137,13 @@ namespace Greenshot.Helpers
 
         public static void CaptureLastRegion(bool captureMouse)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse);
+            using CaptureHelper captureHelper = new(CaptureMode.LastRegion, captureMouse);
             captureHelper.MakeCapture();
         }
 
         public static void CaptureIe(bool captureMouse, WindowDetails windowToCapture)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)
+            using CaptureHelper captureHelper = new(CaptureMode.IE, captureMouse)
             {
                 SelectedCaptureWindow = windowToCapture
             };
@@ -152,13 +152,13 @@ namespace Greenshot.Helpers
 
         public static void CaptureWindow(bool captureMouse)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse);
+            using CaptureHelper captureHelper = new(CaptureMode.ActiveWindow, captureMouse);
             captureHelper.MakeCapture();
         }
 
         public static void CaptureWindow(WindowDetails windowToCapture)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow)
+            using CaptureHelper captureHelper = new(CaptureMode.ActiveWindow)
             {
                 SelectedCaptureWindow = windowToCapture
             };
@@ -167,13 +167,13 @@ namespace Greenshot.Helpers
 
         public static void CaptureWindowInteractive(bool captureMouse)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window, captureMouse);
+            using CaptureHelper captureHelper = new(CaptureMode.Window, captureMouse);
             captureHelper.MakeCapture();
         }
 
         public static void CaptureFile(string filename, IDestination destination = null)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File);
+            using CaptureHelper captureHelper = new(CaptureMode.File);
 
             if (destination != null)
             {
@@ -185,7 +185,7 @@ namespace Greenshot.Helpers
 
         public static void ImportCapture(ICapture captureToImport)
         {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File)
+            using CaptureHelper captureHelper = new(CaptureMode.File)
             {
                 _capture = captureToImport
             };
@@ -204,10 +204,7 @@ namespace Greenshot.Helpers
             _capture = new Capture();
         }
 
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode)
-        {
-            _captureMouseCursor = captureMouseCursor;
-        }
+        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode) => _captureMouseCursor = captureMouseCursor;
 
         public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureMode)
         {
@@ -215,16 +212,9 @@ namespace Greenshot.Helpers
             _screenCaptureMode = screenCaptureMode;
         }
 
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
-        {
-            _capture.CaptureDetails.AddDestination(destination);
-        }
+        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor) => _capture.CaptureDetails.AddDestination(destination);
 
-        public WindowDetails SelectedCaptureWindow
-        {
-            get => _selectedCaptureWindow;
-            set => _selectedCaptureWindow = value;
-        }
+        public WindowDetails SelectedCaptureWindow { get; set; }
 
         private void DoCaptureFeedback()
         {
@@ -253,7 +243,6 @@ namespace Greenshot.Helpers
             _captureRect = region;
             MakeCapture();
         }
-
 
         /// <summary>
         /// Make Capture with specified destinations
@@ -356,17 +345,16 @@ namespace Greenshot.Helpers
                     {
                         case ScreenCaptureMode.Auto:
                             NativePoint mouseLocation = User32Api.GetCursorLocation();
-                            foreach (Screen screen in Screen.AllScreens)
+                            foreach (var screen in from Screen screen in Screen.AllScreens
+                                                   where screen.Bounds.Contains(mouseLocation)
+                                                   select screen)
                             {
-                                if (screen.Bounds.Contains(mouseLocation))
-                                {
-                                    _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
-                                    captureTaken = true;
-                                    // As the screen shot might be on a different monitor we need to correct the mouse location
-                                    var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
-                                    _capture.CursorLocation = correctedCursorLocation;
-                                    break;
-                                }
+                                _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
+                                captureTaken = true;
+                                // As the screen shot might be on a different monitor we need to correct the mouse location
+                                var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                                _capture.CursorLocation = correctedCursorLocation;
+                                break;
                             }
 
                             break;
@@ -507,11 +495,11 @@ namespace Greenshot.Helpers
                         // Set capture title, fixing bug #3569703
                         foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
                         {
-                            NativePoint estimatedLocation = new NativePoint(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
-                                CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
+                            NativePoint estimatedLocation = new(CoreConfig.LastCapturedRegion.X + (CoreConfig.LastCapturedRegion.Width / 2),
+                                CoreConfig.LastCapturedRegion.Y + (CoreConfig.LastCapturedRegion.Height / 2));
                             if (!window.Contains(estimatedLocation)) continue;
-                            _selectedCaptureWindow = window;
-                            _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+                            SelectedCaptureWindow = window;
+                            _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
                             break;
                         }
 
@@ -564,7 +552,7 @@ namespace Greenshot.Helpers
         {
             _windows = new List<WindowDetails>();
 
-            Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails)
+            Thread getWindowDetailsThread = new(RetrieveWindowDetails)
             {
                 Name = "Retrieve window details",
                 IsBackground = true
@@ -730,7 +718,7 @@ namespace Greenshot.Helpers
                 // Make sure the resolution is set correctly!
                 if (_capture.CaptureDetails != null)
                 {
-                    ((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                    ((Bitmap)_capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
                 }
 
                 DoCaptureFeedback();
@@ -745,7 +733,7 @@ namespace Greenshot.Helpers
             }
 
             // Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-            Surface surface = new Surface(_capture)
+            Surface surface = new(_capture)
             {
                 Modified = !outputMade
             };
@@ -816,39 +804,36 @@ namespace Greenshot.Helpers
         {
             bool presupplied = false;
             Log.Debug("CaptureActiveWindow");
-            if (_selectedCaptureWindow != null)
+            if (SelectedCaptureWindow != null)
             {
                 Log.Debug("Using supplied window");
                 presupplied = true;
             }
             else
             {
-                _selectedCaptureWindow = WindowDetails.GetActiveWindow();
-                if (_selectedCaptureWindow != null)
+                SelectedCaptureWindow = WindowDetails.GetActiveWindow();
+                if (SelectedCaptureWindow != null && Log.IsDebugEnabled)
                 {
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
-                    }
+                    Log.DebugFormat("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.WindowRectangle);
                 }
             }
 
-            if (_selectedCaptureWindow == null || (!presupplied && _selectedCaptureWindow.Iconic))
+            if (SelectedCaptureWindow == null || (!presupplied && SelectedCaptureWindow.Iconic))
             {
                 Log.Warn("No window to capture!");
                 // Nothing to capture, code up in the stack will capture the full screen
                 return false;
             }
 
-            if (!presupplied && _selectedCaptureWindow != null && _selectedCaptureWindow.Iconic)
+            if (!presupplied && SelectedCaptureWindow?.Iconic == true)
             {
                 // Restore the window making sure it's visible!
                 // This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
-                _selectedCaptureWindow.Restore();
+                SelectedCaptureWindow.Restore();
             }
 
-            _selectedCaptureWindow = SelectCaptureWindow(_selectedCaptureWindow);
-            if (_selectedCaptureWindow == null)
+            SelectedCaptureWindow = SelectCaptureWindow(SelectedCaptureWindow);
+            if (SelectedCaptureWindow == null)
             {
                 Log.Warn("No window to capture, after SelectCaptureWindow!");
                 // Nothing to capture, code up in the stack will capture the full screen
@@ -856,8 +841,8 @@ namespace Greenshot.Helpers
             }
 
             // Fix for Bug #3430560
-            CoreConfig.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
-            bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
+            CoreConfig.LastCapturedRegion = SelectedCaptureWindow.WindowRectangle;
+            bool returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
             return returnValue;
         }
 
@@ -990,12 +975,9 @@ namespace Greenshot.Helpers
                         }
 
                         // Change to DWM, if enabled and allowed
-                        if (dwmEnabled)
+                        if (dwmEnabled && WindowCapture.IsDwmAllowed(process))
                         {
-                            if (WindowCapture.IsDwmAllowed(process))
-                            {
-                                windowCaptureMode = WindowCaptureMode.Aero;
-                            }
+                            windowCaptureMode = WindowCaptureMode.Aero;
                         }
                     }
                 }
@@ -1176,13 +1158,13 @@ namespace Greenshot.Helpers
             previouslyActiveWindow?.ToForeground();
             if (_capture.CaptureDetails != null)
             {
-                ((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                ((Bitmap)_capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
             }
         }
 
         private void CaptureWithFeedback()
         {
-            using CaptureForm captureForm = new CaptureForm(_capture, _windows);
+            using CaptureForm captureForm = new(_capture, _windows);
             // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
             DialogResult result;
             try
@@ -1197,12 +1179,12 @@ namespace Greenshot.Helpers
 
             if (result != DialogResult.OK) return;
 
-            _selectedCaptureWindow = captureForm.SelectedCaptureWindow;
+            SelectedCaptureWindow = captureForm.SelectedCaptureWindow;
             _captureRect = captureForm.CaptureRectangle;
             // Get title
-            if (_selectedCaptureWindow != null)
+            if (SelectedCaptureWindow != null)
             {
-                _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+                _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
             }
 
             if (_captureRect.Height > 0 && _captureRect.Width > 0)

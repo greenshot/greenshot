@@ -48,8 +48,8 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public event FieldChangedEventHandler FieldChanged
         {
-            add { _fieldChanged += value; }
-            remove { _fieldChanged -= value; }
+            add => _fieldChanged += value;
+            remove => _fieldChanged -= value;
         }
 
         // we keep two Collections of our fields, dictionary for quick access, list for serialization
@@ -69,10 +69,7 @@ namespace Greenshot.Editor.Drawing.Fields
             }
         }
 
-        public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
-        {
-            AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
-        }
+        public void AddField(Type requestingType, IFieldType fieldType, object fieldValue) => AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
 
         public virtual void AddField(IField field)
         {
@@ -82,12 +79,9 @@ namespace Greenshot.Editor.Drawing.Fields
                 return;
             }
 
-            if (_fieldsByType.ContainsKey(field.FieldType))
+            if (_fieldsByType.ContainsKey(field.FieldType) && LOG.IsDebugEnabled)
             {
-                if (LOG.IsDebugEnabled)
-                {
-                    LOG.DebugFormat("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
-                }
+                LOG.DebugFormat("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
             }
 
             _fieldsByType[field.FieldType] = field;
@@ -104,11 +98,7 @@ namespace Greenshot.Editor.Drawing.Fields
             _handlers.Remove(field);
         }
 
-        public IList<IField> GetFields()
-        {
-            return fields;
-        }
-
+        public IList<IField> GetFields() => fields;
 
         public IField GetField(IFieldType fieldType)
         {
@@ -122,55 +112,25 @@ namespace Greenshot.Editor.Drawing.Fields
             }
         }
 
-        public object GetFieldValue(IFieldType fieldType)
-        {
-            return GetField(fieldType)?.Value;
-        }
+        public object GetFieldValue(IFieldType fieldType) => GetField(fieldType)?.Value;
 
-        public string GetFieldValueAsString(IFieldType fieldType)
-        {
-            return Convert.ToString(GetFieldValue(fieldType));
-        }
+        public string GetFieldValueAsString(IFieldType fieldType) => Convert.ToString(GetFieldValue(fieldType));
 
-        public int GetFieldValueAsInt(IFieldType fieldType)
-        {
-            return Convert.ToInt32(GetFieldValue(fieldType));
-        }
+        public int GetFieldValueAsInt(IFieldType fieldType) => Convert.ToInt32(GetFieldValue(fieldType));
 
-        public decimal GetFieldValueAsDecimal(IFieldType fieldType)
-        {
-            return Convert.ToDecimal(GetFieldValue(fieldType));
-        }
+        public decimal GetFieldValueAsDecimal(IFieldType fieldType) => Convert.ToDecimal(GetFieldValue(fieldType));
 
-        public double GetFieldValueAsDouble(IFieldType fieldType)
-        {
-            return Convert.ToDouble(GetFieldValue(fieldType));
-        }
+        public double GetFieldValueAsDouble(IFieldType fieldType) => Convert.ToDouble(GetFieldValue(fieldType));
 
-        public float GetFieldValueAsFloat(IFieldType fieldType)
-        {
-            return Convert.ToSingle(GetFieldValue(fieldType));
-        }
+        public float GetFieldValueAsFloat(IFieldType fieldType) => Convert.ToSingle(GetFieldValue(fieldType));
 
-        public bool GetFieldValueAsBool(IFieldType fieldType)
-        {
-            return Convert.ToBoolean(GetFieldValue(fieldType));
-        }
+        public bool GetFieldValueAsBool(IFieldType fieldType) => Convert.ToBoolean(GetFieldValue(fieldType));
 
-        public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default)
-        {
-            return (Color) (GetFieldValue(fieldType) ?? defaultColor);
-        }
+        public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default) => (Color)(GetFieldValue(fieldType) ?? defaultColor);
 
-        public bool HasField(IFieldType fieldType)
-        {
-            return _fieldsByType.ContainsKey(fieldType);
-        }
+        public bool HasField(IFieldType fieldType) => _fieldsByType.ContainsKey(fieldType);
 
-        public bool HasFieldValue(IFieldType fieldType)
-        {
-            return HasField(fieldType) && _fieldsByType[fieldType].HasValue;
-        }
+        public bool HasFieldValue(IFieldType fieldType) => HasField(fieldType) && _fieldsByType[fieldType].HasValue;
 
         public void SetFieldValue(IFieldType fieldType, object value)
         {
@@ -184,9 +144,6 @@ namespace Greenshot.Editor.Drawing.Fields
             }
         }
 
-        protected void OnFieldChanged(object sender, FieldChangedEventArgs e)
-        {
-            _fieldChanged?.Invoke(sender, e);
-        }
+        protected void OnFieldChanged(object sender, FieldChangedEventArgs e) => _fieldChanged?.Invoke(sender, e);
     }
 }

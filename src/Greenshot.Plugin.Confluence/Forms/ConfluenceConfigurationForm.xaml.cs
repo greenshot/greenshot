@@ -37,9 +37,6 @@ namespace Greenshot.Plugin.Confluence.Forms
             InitializeComponent();
         }
 
-        private void Button_OK_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
+        private void Button_OK_Click(object sender, RoutedEventArgs e) => DialogResult = true;
     }
 }

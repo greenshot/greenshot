@@ -51,7 +51,7 @@ namespace Greenshot.Plugin.Confluence
             IsInitialized = false;
             try
             {
-                Uri confluenceIconUri = new Uri("/Greenshot.Plugin.Confluence;component/Images/Confluence.ico", UriKind.Relative);
+                Uri confluenceIconUri = new("/Greenshot.Plugin.Confluence;component/Images/Confluence.ico", UriKind.Relative);
                 using (Stream iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
                 {
                     // TODO: Replace with FileFormatHandler
@@ -72,49 +72,23 @@ namespace Greenshot.Plugin.Confluence
         {
         }
 
-        public ConfluenceDestination(Page page)
-        {
-            _page = page;
-        }
+        public ConfluenceDestination(Page page) => _page = page;
 
-        public override string Designation
-        {
-            get { return "Confluence"; }
-        }
+        public override string Designation => "Confluence";
 
-        public override string Description
-        {
-            get
-            {
-                if (_page == null)
-                {
-                    return Language.GetString("confluence", LangKey.upload_menu_item);
-                }
-                else
-                {
-                    return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
-                }
-            }
-        }
+        public override string Description => _page == null
+                    ? Language.GetString("confluence", LangKey.upload_menu_item)
+                    : Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
 
-        public override bool IsDynamic
-        {
-            get { return true; }
-        }
+        public override bool IsDynamic => true;
 
-        public override bool IsActive
-        {
-            get { return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url); }
-        }
+        public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 
-        public override Image DisplayIcon
-        {
-            get { return ConfluenceIcon; }
-        }
+        public override Image DisplayIcon => ConfluenceIcon;
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {
-            if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn)
+            if (ConfluencePlugin.ConfluenceConnectorNoLogin?.IsLoggedIn != true)
             {
                 yield break;
             }
@@ -133,7 +107,7 @@ namespace Greenshot.Plugin.Confluence
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             // force password check to take place before the pages load
             if (!ConfluencePlugin.ConfluenceConnector.IsLoggedIn)
             {
@@ -145,7 +119,7 @@ namespace Greenshot.Plugin.Confluence
             string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
             if (selectedPage == null)
             {
-                Forms.ConfluenceUpload confluenceUpload = new Forms.ConfluenceUpload(filename);
+                Forms.ConfluenceUpload confluenceUpload = new(filename);
                 bool? dialogResult = confluenceUpload.ShowDialog();
                 if (dialogResult.HasValue && dialogResult.Value)
                 {
@@ -198,7 +172,7 @@ namespace Greenshot.Plugin.Confluence
         private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
         {
             SurfaceOutputSettings outputSettings =
-                new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
+                new(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
             errorMessage = null;
             try
             {

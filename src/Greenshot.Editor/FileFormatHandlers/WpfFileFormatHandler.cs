@@ -42,12 +42,12 @@ namespace Greenshot.Editor.FileFormatHandlers
         private const string HeifDecoder = "{E9A4A80A-44FE-4DE4-8971-7150B10A5199}";
         private const string WicDecoderCategory = "{7ED96837-96F0-4812-B211-F13C24117ED3}";
 
-        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
+        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new[] { ".jxr", ".dds", ".hdp", ".wdp", ".wmp" };
         private IReadOnlyCollection<string> SaveToStreamExtensions { get; } = new[] { ".jxr" };
-        
+
         public WpfFileFormatHandler()
         {
-            LoadFromStreamExtensions = LoadFromStreamExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
+            LoadFromStreamExtensions = LoadFromStreamExtensions.AsEnumerable().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
 
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
@@ -60,16 +60,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <returns>IEnumerable{string}</returns>
         private IEnumerable<string> RetrieveSupportedExtensions()
         {
-            string baseKeyPath;
-            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
-            {
-                baseKeyPath = "Wow6432Node\\CLSID";
-            }
-            else
-            {
-                baseKeyPath = "CLSID";
-            }
-
+            string baseKeyPath = Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess ? "Wow6432Node\\CLSID" : "CLSID";
             using RegistryKey baseKey = Registry.ClassesRoot.OpenSubKey(baseKeyPath, false);
             if (baseKey == null) yield break;
 

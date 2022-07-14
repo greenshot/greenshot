@@ -51,13 +51,10 @@ namespace Greenshot.Base.Controls
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && SaveFileDialog != null)
             {
-                if (SaveFileDialog != null)
-                {
-                    SaveFileDialog.Dispose();
-                    SaveFileDialog = null;
-                }
+                SaveFileDialog.Dispose();
+                SaveFileDialog = null;
             }
         }
 
@@ -121,13 +118,13 @@ namespace Greenshot.Base.Controls
         private void PrepareFilterOptions()
         {
             // TODO: Change to the FileFormatHandlerRegistry to look for all the supported extensions
-            OutputFormat[] supportedImageFormats = (OutputFormat[]) Enum.GetValues(typeof(OutputFormat));
+            OutputFormat[] supportedImageFormats = (OutputFormat[])Enum.GetValues(typeof(OutputFormat));
             _filterOptions = new FilterOption[supportedImageFormats.Length];
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 string ifo = supportedImageFormats[i].ToString();
-                if (ifo.ToLower().Equals("jpeg")) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
-                FilterOption fo = new FilterOption
+                if (ifo.Equals("jpeg", StringComparison.CurrentCultureIgnoreCase)) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
+                FilterOption fo = new()
                 {
                     Label = ifo.ToUpper(),
                     Extension = ifo.ToLower()
@@ -141,8 +138,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string FileName
         {
-            get { return SaveFileDialog.FileName; }
-            set { SaveFileDialog.FileName = value; }
+            get => SaveFileDialog.FileName;
+            set => SaveFileDialog.FileName = value;
         }
 
         /// <summary>
@@ -150,8 +147,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string InitialDirectory
         {
-            get { return SaveFileDialog.InitialDirectory; }
-            set { SaveFileDialog.InitialDirectory = value; }
+            get => SaveFileDialog.InitialDirectory;
+            set => SaveFileDialog.InitialDirectory = value;
         }
 
         /// <summary>
@@ -181,7 +178,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string Extension
         {
-            get { return _filterOptions[SaveFileDialog.FilterIndex - 1].Extension; }
+            get => _filterOptions[SaveFileDialog.FilterIndex - 1].Extension;
             set
             {
                 for (int i = 0; i < _filterOptions.Length; i++)
@@ -204,11 +201,9 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// sets InitialDirectory and FileName property of a SaveFileDialog smartly, considering default pattern and last used path
         /// </summary>
-        private void ApplySuggestedValues()
-        {
+        private void ApplySuggestedValues() =>
             // build the full path and set dialog properties
             FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
-        }
 
         private class FilterOption
         {
@@ -221,7 +216,7 @@ namespace Greenshot.Base.Controls
             // fix for bug #3379053
             try
             {
-                if (_eagerlyCreatedDirectory != null && _eagerlyCreatedDirectory.GetFiles().Length == 0 && _eagerlyCreatedDirectory.GetDirectories().Length == 0)
+                if (_eagerlyCreatedDirectory?.GetFiles().Length == 0 && _eagerlyCreatedDirectory.GetDirectories().Length == 0)
                 {
                     _eagerlyCreatedDirectory.Delete();
                     _eagerlyCreatedDirectory = null;

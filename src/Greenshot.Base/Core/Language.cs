@@ -36,17 +36,17 @@ namespace Greenshot.Base.Core
     /// This class supplies the GUI with translations, based upon keys.
     /// The language resources are loaded from the language files found on fixed or supplied paths
     /// </summary>
-    public class Language
+    public static class Language
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Language));
         private static readonly List<string> LanguagePaths = new();
         private static readonly Dictionary<string, List<LanguageFile>> LanguageFiles = new();
         private static readonly Dictionary<string, string> HelpFiles = new();
         private const string DefaultLanguage = "en-US";
-        private const string HelpFilenamePattern = @"help-*.html";
-        private const string LanguageFilenamePattern = @"language*.xml";
-        private static readonly Regex PrefixRegexp = new(@"language_([a-zA-Z0-9]+).*");
-        private static readonly Regex IetfRegexp = new(@"^.*([a-zA-Z]{2,3}-([a-zA-Z]{1,2})|[a-zA-Z]{2,3}-x-[a-zA-Z]+)$");
+        private const string HelpFilenamePattern = "help-*.html";
+        private const string LanguageFilenamePattern = "language*.xml";
+        private static readonly Regex PrefixRegexp = new("language_([a-zA-Z0-9]+).*");
+        private static readonly Regex IetfRegexp = new("^.*([a-zA-Z]{2,3}-([a-zA-Z]{1,2})|[a-zA-Z]{2,3}-x-[a-zA-Z]+)$");
         private const string LanguageGroupsKey = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
         private static readonly List<string> UnsupportedLanguageGroups = new();
         private static readonly Dictionary<string, string> Resources = new();
@@ -88,7 +88,7 @@ namespace Greenshot.Base.Core
                 // Startup path
                 if (applicationFolder != null)
                 {
-                    AddPath(Path.Combine(applicationFolder, @"Languages"));
+                    AddPath(Path.Combine(applicationFolder, "Languages"));
                 }
             }
             catch (Exception pathException)
@@ -104,7 +104,7 @@ namespace Greenshot.Base.Core
                     string[] groups = languageGroupsKey.GetValueNames();
                     foreach (string group in groups)
                     {
-                        string groupValue = (string) languageGroupsKey.GetValue(group);
+                        string groupValue = (string)languageGroupsKey.GetValue(group);
                         bool isGroupNotInstalled = "0".Equals(groupValue);
                         if (isGroupNotInstalled)
                         {
@@ -218,7 +218,7 @@ namespace Greenshot.Base.Core
         {
             Resources.Clear();
             LoadFiles(DefaultLanguage);
-            if (_currentLanguage != null && !_currentLanguage.Equals(DefaultLanguage))
+            if (_currentLanguage?.Equals(DefaultLanguage) == false)
             {
                 LoadFiles(_currentLanguage);
             }
@@ -239,7 +239,7 @@ namespace Greenshot.Base.Core
                 }
                 else
                 {
-                    if (_currentLanguage == null || !_currentLanguage.Equals(ietf))
+                    if (_currentLanguage?.Equals(ietf) != true)
                     {
                         _currentLanguage = ietf;
                         Reload();
@@ -328,18 +328,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Return the path to the help-file
         /// </summary>
-        public static string HelpFilePath
-        {
-            get
-            {
-                if (HelpFiles.ContainsKey(_currentLanguage))
-                {
-                    return HelpFiles[_currentLanguage];
-                }
-
-                return HelpFiles[DefaultLanguage];
-            }
-        }
+        public static string HelpFilePath => HelpFiles.ContainsKey(_currentLanguage) ? HelpFiles[_currentLanguage] : HelpFiles[DefaultLanguage];
 
         /// <summary>
         /// Load the resources from the language file
@@ -350,7 +339,7 @@ namespace Greenshot.Base.Core
             Log.InfoFormat("Loading language file {0}", languageFile.Filepath);
             try
             {
-                XmlDocument xmlDocument = new XmlDocument();
+                XmlDocument xmlDocument = new();
                 xmlDocument.Load(languageFile.Filepath);
                 XmlNodeList resourceNodes = xmlDocument.GetElementsByTagName("resource");
                 foreach (XmlNode resourceNode in resourceNodes)
@@ -571,32 +560,21 @@ namespace Greenshot.Base.Core
             }
             return null;
         }
-        
+
         /// <summary>
         /// Check if a resource with prefix.key exists
         /// </summary>
         /// <param name="prefix"></param>
         /// <param name="key"></param>
         /// <returns>true if available</returns>
-        public static bool HasKey(string prefix, string key)
-        {
-            return HasKey(prefix + "." + key);
-        }
+        public static bool HasKey(string prefix, string key) => HasKey(prefix + "." + key);
 
         /// <summary>
         /// Check if a resource with key exists
         /// </summary>
         /// <param name="key"></param>
         /// <returns>true if available</returns>
-        public static bool HasKey(string key)
-        {
-            if (key == null)
-            {
-                return false;
-            }
-
-            return Resources.ContainsKey(key);
-        }
+        public static bool HasKey(string key) => key != null && Resources.ContainsKey(key);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -604,10 +582,7 @@ namespace Greenshot.Base.Core
         /// <param name="key"></param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string key, out string languageString)
-        {
-            return Resources.TryGetValue(key, out languageString);
-        }
+        public static bool TryGetString(string key, out string languageString) => Resources.TryGetValue(key, out languageString);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -616,10 +591,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">string with key</param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string prefix, string key, out string languageString)
-        {
-            return Resources.TryGetValue(prefix + "." + key, out languageString);
-        }
+        public static bool TryGetString(string prefix, string key, out string languageString) => Resources.TryGetValue(prefix + "." + key, out languageString);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -628,10 +600,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">Enum with key</param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string prefix, Enum key, out string languageString)
-        {
-            return Resources.TryGetValue(prefix + "." + key, out languageString);
-        }
+        public static bool TryGetString(string prefix, Enum key, out string languageString) => Resources.TryGetValue(prefix + "." + key, out languageString);
 
         /// <summary>
         /// Translate
@@ -642,12 +611,7 @@ namespace Greenshot.Base.Core
         {
             string typename = key.GetType().Name;
             string enumKey = typename + "." + key;
-            if (HasKey(enumKey))
-            {
-                return GetString(enumKey);
-            }
-
-            return key.ToString();
+            return HasKey(enumKey) ? GetString(enumKey) : key.ToString();
         }
 
         /// <summary>
@@ -655,15 +619,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="key">Enum</param>
         /// <returns>resource or a "string ###key### not found"</returns>
-        public static string GetString(Enum key)
-        {
-            if (key == null)
-            {
-                return null;
-            }
-
-            return GetString(key.ToString());
-        }
+        public static string GetString(Enum key) => key == null ? null : GetString(key.ToString());
 
         /// <summary>
         /// Get the resource for prefix.key
@@ -671,15 +627,7 @@ namespace Greenshot.Base.Core
         /// <param name="prefix">string</param>
         /// <param name="key">Enum</param>
         /// <returns>resource or a "string ###prefix.key### not found"</returns>
-        public static string GetString(string prefix, Enum key)
-        {
-            if (key == null)
-            {
-                return null;
-            }
-
-            return GetString(prefix + "." + key);
-        }
+        public static string GetString(string prefix, Enum key) => key == null ? null : GetString(prefix + "." + key);
 
         /// <summary>
         /// Get the resource for prefix.key
@@ -687,10 +635,7 @@ namespace Greenshot.Base.Core
         /// <param name="prefix">string</param>
         /// <param name="key">string</param>
         /// <returns>resource or a "string ###prefix.key### not found"</returns>
-        public static string GetString(string prefix, string key)
-        {
-            return GetString(prefix + "." + key);
-        }
+        public static string GetString(string prefix, string key) => GetString(prefix + "." + key);
 
         /// <summary>
         /// Get the resource for key
@@ -704,63 +649,41 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            if (!Resources.TryGetValue(key, out var returnValue))
-            {
-                return "string ###" + key + "### not found";
-            }
-
-            return returnValue;
+            return !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : returnValue;
         }
 
         /// <summary>
-        /// Get the resource for key, format with with string.format an supply the parameters
+        /// Get the resource for key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="key">Enum</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###key### not found"</returns>
-        public static string GetFormattedString(Enum key, object param)
-        {
-            return GetFormattedString(key.ToString(), param);
-        }
+        public static string GetFormattedString(Enum key, object param) => GetFormattedString(key.ToString(), param);
 
         /// <summary>
-        /// Get the resource for prefix.key, format with with string.format an supply the parameters
+        /// Get the resource for prefix.key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="prefix">string</param>
         /// <param name="key">Enum</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
-        public static string GetFormattedString(string prefix, Enum key, object param)
-        {
-            return GetFormattedString(prefix, key.ToString(), param);
-        }
+        public static string GetFormattedString(string prefix, Enum key, object param) => GetFormattedString(prefix, key.ToString(), param);
 
         /// <summary>
-        /// Get the resource for prefix.key, format with with string.format an supply the parameters
+        /// Get the resource for prefix.key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="prefix">string</param>
         /// <param name="key">string</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
-        public static string GetFormattedString(string prefix, string key, object param)
-        {
-            return GetFormattedString(prefix + "." + key, param);
-        }
+        public static string GetFormattedString(string prefix, string key, object param) => GetFormattedString(prefix + "." + key, param);
 
         /// <summary>
-        /// Get the resource for key, format with with string.format an supply the parameters
+        /// Get the resource for key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="key">string</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###key### not found"</returns>
-        public static string GetFormattedString(string key, object param)
-        {
-            if (!Resources.TryGetValue(key, out var returnValue))
-            {
-                return "string ###" + key + "### not found";
-            }
-
-            return string.Format(returnValue, param);
-        }
+        public static string GetFormattedString(string key, object param) => !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : string.Format(returnValue, param);
     }
 }

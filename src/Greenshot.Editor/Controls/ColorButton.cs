@@ -41,28 +41,16 @@ namespace Greenshot.Editor.Controls
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
         public string LanguageKey { get; set; }
 
-        public ColorButton()
-        {
-            Click += ColorButtonClick;
-        }
+        public ColorButton() => Click += ColorButtonClick;
 
         public Color SelectedColor
         {
-            get { return _selectedColor; }
+            get => _selectedColor;
             set
             {
                 _selectedColor = value;
 
-                Brush brush;
-                if (value != Color.Transparent)
-                {
-                    brush = new SolidBrush(value);
-                }
-                else
-                {
-                    brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
-                }
-
+                Brush brush = value != Color.Transparent ? new SolidBrush(value) : new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
                 if (Image != null)
                 {
                     using Graphics graphics = Graphics.FromImage(Image);

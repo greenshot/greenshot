@@ -132,7 +132,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the name for the credentials.</summary>
         public string Name
         {
-            get { return _name; }
+            get => _name;
             set
             {
                 if (value?.Length > CredUi.MAX_USERNAME_LENGTH)
@@ -153,7 +153,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the password for the credentials.</summary>
         public string Password
         {
-            get { return _password; }
+            get => _password;
             set
             {
                 if (value?.Length > CredUi.MAX_PASSWORD_LENGTH)
@@ -181,7 +181,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
         public string Target
         {
-            get { return _target; }
+            get => _target;
             set
             {
                 if (value == null)
@@ -208,7 +208,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default caption to be used.</remarks>
         public string Caption
         {
-            get { return _caption; }
+            get => _caption;
             set
             {
                 if (value?.Length > CredUi.MAX_CAPTION_LENGTH)
@@ -230,7 +230,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default message to be used.</remarks>
         public string Message
         {
-            get { return _message; }
+            get => _message;
             set
             {
                 if (value?.Length > CredUi.MAX_MESSAGE_LENGTH)
@@ -252,7 +252,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default image to be used.</remarks>
         public Image Banner
         {
-            get { return _banner; }
+            get => _banner;
             set
             {
                 if (value != null)
@@ -275,10 +275,7 @@ namespace Greenshot.Base.Core
         /// <summary>Shows the credentials dialog with the specified name.</summary>
         /// <param name="name">The name for the credentials.</param>
         /// <returns>Returns a DialogResult indicating the user action.</returns>
-        public DialogResult Show(string name)
-        {
-            return Show(null, name, Password, SaveChecked);
-        }
+        public DialogResult Show(string name) => Show(null, name, Password, SaveChecked);
 
         /// <summary>Shows the credentials dialog with the specified owner, name, password and save checkbox status.</summary>
         /// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
@@ -325,10 +322,10 @@ namespace Greenshot.Base.Core
         private DialogResult ShowDialog(IWin32Window owner)
         {
             // set the api call parameters
-            StringBuilder name = new StringBuilder(CredUi.MAX_USERNAME_LENGTH);
+            StringBuilder name = new(CredUi.MAX_USERNAME_LENGTH);
             name.Append(Name);
 
-            StringBuilder password = new StringBuilder(CredUi.MAX_PASSWORD_LENGTH);
+            StringBuilder password = new(CredUi.MAX_PASSWORD_LENGTH);
             password.Append(Password);
 
             int saveChecked = Convert.ToInt32(SaveChecked);
@@ -365,7 +362,7 @@ namespace Greenshot.Base.Core
         /// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
         private CredUi.INFO GetInfo(IWin32Window owner)
         {
-            CredUi.INFO info = new CredUi.INFO();
+            CredUi.INFO info = new();
             if (owner != null) info.hWndParent = owner.Handle;
             info.pszCaptionText = Caption;
             info.pszMessageText = Message;

@@ -27,7 +27,7 @@ using log4net;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Cache class 
+    /// Cache class
     /// </summary>
     /// <typeparam name="TK">Type of key</typeparam>
     /// <typeparam name="TV">Type of value</typeparam>
@@ -35,7 +35,7 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
         private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
         private readonly int _secondsToExpire = 10;
         private readonly CacheObjectExpired _expiredCallback;
 
@@ -52,29 +52,20 @@ namespace Greenshot.Base.Core
         /// Initialize the cache
         /// </summary>
         /// <param name="expiredCallback"></param>
-        public Cache(CacheObjectExpired expiredCallback) : this()
-        {
-            _expiredCallback = expiredCallback;
-        }
+        public Cache(CacheObjectExpired expiredCallback) : this() => _expiredCallback = expiredCallback;
 
         /// <summary>
         /// Initialize the cache with a expire setting
         /// </summary>
         /// <param name="secondsToExpire"></param>
-        public Cache(int secondsToExpire) : this()
-        {
-            _secondsToExpire = secondsToExpire;
-        }
+        public Cache(int secondsToExpire) : this() => _secondsToExpire = secondsToExpire;
 
         /// <summary>
         /// Initialize the cache with a expire setting
         /// </summary>
         /// <param name="secondsToExpire"></param>
         /// <param name="expiredCallback"></param>
-        public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback)
-        {
-            _secondsToExpire = secondsToExpire;
-        }
+        public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback) => _secondsToExpire = secondsToExpire;
 
         /// <summary>
         /// Enumerable for the values in the cache
@@ -83,14 +74,11 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                List<TV> elements = new List<TV>();
+                List<TV> elements = new();
 
                 lock (_lockObject)
                 {
-                    foreach (TV element in _internalCache.Values)
-                    {
-                        elements.Add(element);
-                    }
+                    elements.AddRange(_internalCache.Values);
                 }
 
                 foreach (TV element in elements)
@@ -140,10 +128,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public void Add(TK key, TV value)
-        {
-            Add(key, value, null);
-        }
+        public void Add(TK key, TV value) => Add(key, value, null);
 
         /// <summary>
         /// Add a value to the cache
@@ -156,7 +141,7 @@ namespace Greenshot.Base.Core
             lock (_lockObject)
             {
                 var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
-                cachedItem.Expired += delegate(TK cacheKey, TV cacheValue)
+                cachedItem.Expired += (TK cacheKey, TV cacheValue) =>
                 {
                     if (_internalCache.ContainsKey(cacheKey))
                     {
@@ -242,10 +227,7 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            private void timerEvent_Elapsed(object sender, ElapsedEventArgs e)
-            {
-                ExpireNow();
-            }
+            private void timerEvent_Elapsed(object sender, ElapsedEventArgs e) => ExpireNow();
 
             public TK Key { get; private set; }
             public TV Item { get; private set; }

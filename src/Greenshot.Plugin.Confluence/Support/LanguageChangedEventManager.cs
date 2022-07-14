@@ -5,30 +5,21 @@ namespace Greenshot.Plugin.Confluence.Support
 {
     public class LanguageChangedEventManager : WeakEventManager
     {
-        public static void AddListener(TranslationManager source, IWeakEventListener listener)
-        {
-            CurrentManager.ProtectedAddListener(source, listener);
-        }
+        public static void AddListener(TranslationManager source, IWeakEventListener listener) => CurrentManager.ProtectedAddListener(source, listener);
 
-        public static void RemoveListener(TranslationManager source, IWeakEventListener listener)
-        {
-            CurrentManager.ProtectedRemoveListener(source, listener);
-        }
+        public static void RemoveListener(TranslationManager source, IWeakEventListener listener) => CurrentManager.ProtectedRemoveListener(source, listener);
 
-        private void OnLanguageChanged(object sender, EventArgs e)
-        {
-            DeliverEvent(sender, e);
-        }
+        private void OnLanguageChanged(object sender, EventArgs e) => DeliverEvent(sender, e);
 
         protected override void StartListening(object source)
         {
-            var manager = (TranslationManager) source;
+            var manager = (TranslationManager)source;
             manager.LanguageChanged += OnLanguageChanged;
         }
 
         protected override void StopListening(object source)
         {
-            var manager = (TranslationManager) source;
+            var manager = (TranslationManager)source;
             manager.LanguageChanged -= OnLanguageChanged;
         }
 
@@ -37,7 +28,7 @@ namespace Greenshot.Plugin.Confluence.Support
             get
             {
                 Type managerType = typeof(LanguageChangedEventManager);
-                var manager = (LanguageChangedEventManager) GetCurrentManager(managerType);
+                var manager = (LanguageChangedEventManager)GetCurrentManager(managerType);
                 if (manager == null)
                 {
                     manager = new LanguageChangedEventManager();

@@ -87,7 +87,7 @@ namespace Greenshot.Helpers
                 return false;
             }
 
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            var greenshotPlugin = (IGreenshotPlugin)listView.SelectedItems[0].Tag;
             return greenshotPlugin?.IsConfigurable == true;
         }
 
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
                 return;
             }
 
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            var greenshotPlugin = (IGreenshotPlugin)listView.SelectedItems[0].Tag;
             if (greenshotPlugin == null)
             {
                 return;
@@ -117,34 +117,22 @@ namespace Greenshot.Helpers
         /// <param name="width">Thumbnail width</param>
         /// <param name="height">Thumbnail height</param>
         /// <returns>Image with Thumbnail</returns>
-        public Image GetThumbnail(Image image, int width, int height)
-        {
-            return image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
-        }
+        public Image GetThumbnail(Image image, int width, int height) => image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
 
         ///  <summary>
         /// Required for GetThumbnail, but not used
         /// </summary>
         /// <returns>true</returns>
-        private bool ThumbnailCallback()
-        {
-            return true;
-        }
+        private bool ThumbnailCallback() => true;
 
-        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
-        }
+        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) => DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
 
         /// <summary>
         /// Make Capture with specified Handler
         /// </summary>
         /// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
         /// <param name="destination">IDestination</param>
-        public void CaptureRegion(bool captureMouseCursor, IDestination destination)
-        {
-            CaptureHelper.CaptureRegion(captureMouseCursor, destination);
-        }
+        public void CaptureRegion(bool captureMouseCursor, IDestination destination) => CaptureHelper.CaptureRegion(captureMouseCursor, destination);
 
         /// <summary>
         /// Use the supplied image, and handle it as if it's captured.
@@ -153,7 +141,7 @@ namespace Greenshot.Helpers
         public void ImportCapture(ICapture captureToImport)
         {
             var mainForm = SimpleServiceProvider.Current.GetInstance<Form>();
-            mainForm.BeginInvoke((MethodInvoker) delegate { CaptureHelper.ImportCapture(captureToImport); });
+            mainForm.BeginInvoke((MethodInvoker)delegate { CaptureHelper.ImportCapture(captureToImport); });
         }
 
         /// <summary>
@@ -172,7 +160,6 @@ namespace Greenshot.Helpers
             };
             return capture;
         }
-
 
         /// <summary>
         /// Private helper to find the plugins in the path
@@ -224,14 +211,14 @@ namespace Greenshot.Helpers
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
 
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginEntryName))
+                    if (CoreConfig.ExcludePlugins?.Contains(pluginEntryName) == true)
                     {
                         Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
                         Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginEntryName, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
-                    var plugin = (IGreenshotPlugin) Activator.CreateInstance(pluginEntryType);
+                    var plugin = (IGreenshotPlugin)Activator.CreateInstance(pluginEntryType);
                     if (plugin != null)
                     {
                         if (plugin.Initialize())

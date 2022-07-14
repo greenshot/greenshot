@@ -42,15 +42,15 @@ namespace Greenshot.Base.Core
         // If a parameters needs to be supplied, than a ":" should follow the name... everything from the : until the } is considered to be part of the parameters.
         // The parameter format is a single alpha followed by the value belonging to the parameter, e.g. :
         // ${capturetime:d"yyyy-MM-dd HH_mm_ss"}
-        private static readonly Regex VarRegexp = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
-        private static readonly Regex CmdVarRegexp = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
+        private static readonly Regex VarRegexp = new(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
+        private static readonly Regex CmdVarRegexp = new("%(?<variable>[^%]+)%", RegexOptions.Compiled);
 
-        private static readonly Regex SplitRegexp = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
+        private static readonly Regex SplitRegexp = new(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
         private const int MaxTitleLength = 80;
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const string UnsafeReplacement = "_";
-        private static readonly Random RandomNumberGen = new Random();
-        private static readonly Regex RandRegexp = new Regex("^R+$", RegexOptions.Compiled);
+        private static readonly Random RandomNumberGen = new();
+        private static readonly Regex RandRegexp = new("^R+$", RegexOptions.Compiled);
 
         /// <summary>
         /// Remove invalid characters from the fully qualified filename
@@ -103,25 +103,13 @@ namespace Greenshot.Base.Core
             return path;
         }
 
-        public static string GetFilenameWithoutExtensionFromPattern(string pattern)
-        {
-            return GetFilenameWithoutExtensionFromPattern(pattern, null);
-        }
+        public static string GetFilenameWithoutExtensionFromPattern(string pattern) => GetFilenameWithoutExtensionFromPattern(pattern, null);
 
-        public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
-        {
-            return FillPattern(pattern, captureDetails, true);
-        }
+        public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails) => FillPattern(pattern, captureDetails, true);
 
-        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
-        {
-            return GetFilenameFromPattern(pattern, imageFormat, null);
-        }
+        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat) => GetFilenameFromPattern(pattern, imageFormat, null);
 
-        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
-        {
-            return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
-        }
+        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) => FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 
         /// <summary>
         /// Return a filename for the current image format (png,jpg etc) with the default file pattern
@@ -140,7 +128,6 @@ namespace Greenshot.Base.Core
 
             return GetFilenameFromPattern(pattern, format, captureDetails);
         }
-
 
         /// <summary>
         /// This method will be called by the regexp.replace as a MatchEvaluator delegate!
@@ -191,7 +178,7 @@ namespace Greenshot.Base.Core
             string replaceValue = string.Empty;
             string variable = match.Groups["variable"].Value;
             string parameters = match.Groups["parameters"].Value;
-            string randomChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string randomChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
             if (parameters.Length > 0)
             {
@@ -222,7 +209,7 @@ namespace Greenshot.Base.Core
                         // r<old string>,<new string>
                         case "r":
                             string[] replaceParameters = parameter.Substring(1).Split(',');
-                            if (replaceParameters != null && replaceParameters.Length == 2)
+                            if (replaceParameters?.Length == 2)
                             {
                                 replacements.Add(replaceParameters[0], replaceParameters[1]);
                             }
@@ -277,25 +264,25 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            if (processVars != null && processVars.Contains(variable))
+            if (processVars?.Contains(variable) == true)
             {
-                replaceValue = (string) processVars[variable];
+                replaceValue = (string)processVars[variable];
                 if (filenameSafeMode)
                 {
                     replaceValue = MakePathSafe(replaceValue);
                 }
             }
-            else if (userVars != null && userVars.Contains(variable))
+            else if (userVars?.Contains(variable) == true)
             {
-                replaceValue = (string) userVars[variable];
+                replaceValue = (string)userVars[variable];
                 if (filenameSafeMode)
                 {
                     replaceValue = MakePathSafe(replaceValue);
                 }
             }
-            else if (machineVars != null && machineVars.Contains(variable))
+            else if (machineVars?.Contains(variable) == true)
             {
-                replaceValue = (string) machineVars[variable];
+                replaceValue = (string)machineVars[variable];
                 if (filenameSafeMode)
                 {
                     replaceValue = MakePathSafe(replaceValue);
@@ -675,7 +662,7 @@ namespace Greenshot.Base.Core
             var forbiddenChars = Path.GetInvalidPathChars();
             foreach (var forbiddenChar in forbiddenChars)
             {
-                if (directoryName == null || directoryName.Contains(forbiddenChar.ToString()))
+                if (directoryName?.Contains(forbiddenChar.ToString()) != false)
                 {
                     return false;
                 }
@@ -694,7 +681,7 @@ namespace Greenshot.Base.Core
             var forbiddenChars = Path.GetInvalidFileNameChars();
             foreach (var forbiddenChar in forbiddenChars)
             {
-                if (filename == null || filename.Contains(forbiddenChar.ToString()))
+                if (filename?.Contains(forbiddenChar.ToString()) != false)
                 {
                     return false;
                 }

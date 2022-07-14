@@ -48,8 +48,8 @@ namespace Greenshot.Plugin.Imgur
         public static bool IsHistoryLoadingNeeded()
         {
             Log.InfoFormat("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count,
-                Config.runtimeImgurHistory.Count);
-            return Config.runtimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
+                Config.RuntimeImgurHistory.Count);
+            return Config.RuntimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Greenshot.Plugin.Imgur
             // Load the ImUr history
             foreach (string hash in Config.ImgurUploadHistory.Keys.ToList())
             {
-                if (Config.runtimeImgurHistory.ContainsKey(hash))
+                if (Config.RuntimeImgurHistory.ContainsKey(hash))
                 {
                     // Already loaded
                     continue;
@@ -80,13 +80,13 @@ namespace Greenshot.Plugin.Imgur
                     if (imgurInfo != null)
                     {
                         RetrieveImgurThumbnail(imgurInfo);
-                        Config.runtimeImgurHistory[hash] = imgurInfo;
+                        Config.RuntimeImgurHistory[hash] = imgurInfo;
                     }
                     else
                     {
                         Log.InfoFormat("Deleting unknown ImgUr {0} from config, delete hash was {1}.", hash, deleteHash);
                         Config.ImgurUploadHistory.Remove(hash);
-                        Config.runtimeImgurHistory.Remove(hash);
+                        Config.RuntimeImgurHistory.Remove(hash);
                         saveNeeded = true;
                     }
                 }
@@ -95,7 +95,7 @@ namespace Greenshot.Plugin.Imgur
                     bool redirected = false;
                     if (wE.Status == WebExceptionStatus.ProtocolError)
                     {
-                        HttpWebResponse response = (HttpWebResponse) wE.Response;
+                        HttpWebResponse response = (HttpWebResponse)wE.Response;
 
                         if (response.StatusCode == HttpStatusCode.Forbidden)
                         {
@@ -108,7 +108,7 @@ namespace Greenshot.Plugin.Imgur
                         {
                             Log.InfoFormat("ImgUr image for hash {0} is no longer available, removing it from the history", hash);
                             Config.ImgurUploadHistory.Remove(hash);
-                            Config.runtimeImgurHistory.Remove(hash);
+                            Config.RuntimeImgurHistory.Remove(hash);
                             redirected = true;
                         }
                     }
@@ -135,10 +135,7 @@ namespace Greenshot.Plugin.Imgur
         /// Use this to make sure Imgur knows from where the upload comes.
         /// </summary>
         /// <param name="webRequest"></param>
-        private static void SetClientId(HttpWebRequest webRequest)
-        {
-            webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
-        }
+        private static void SetClientId(HttpWebRequest webRequest) => webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
 
         /// <summary>
         /// Do the actual upload to Imgur
@@ -187,7 +184,7 @@ namespace Greenshot.Plugin.Imgur
                     var responseStream = response.GetResponseStream();
                     if (responseStream != null)
                     {
-                        using StreamReader reader = new StreamReader(responseStream, true);
+                        using StreamReader reader = new(responseStream, true);
                         responseString = reader.ReadToEnd();
                     }
                 }
@@ -235,12 +232,7 @@ namespace Greenshot.Plugin.Imgur
                 }
             }
 
-            if (string.IsNullOrEmpty(responseString))
-            {
-                return null;
-            }
-
-            return ImgurInfo.ParseResponse(responseString);
+            return string.IsNullOrEmpty(responseString) ? null : ImgurInfo.ParseResponse(responseString);
         }
 
         /// <summary>
@@ -291,18 +283,15 @@ namespace Greenshot.Plugin.Imgur
                 var responseStream = response.GetResponseStream();
                 if (responseStream != null)
                 {
-                    using StreamReader reader = new StreamReader(responseStream, true);
+                    using StreamReader reader = new(responseStream, true);
                     responseString = reader.ReadToEnd();
                 }
             }
             catch (WebException wE)
             {
-                if (wE.Status == WebExceptionStatus.ProtocolError)
+                if (wE.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
                 {
-                    if (((HttpWebResponse) wE.Response).StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return null;
-                    }
+                    return null;
                 }
 
                 throw;
@@ -340,7 +329,7 @@ namespace Greenshot.Plugin.Imgur
                     var responseStream = response.GetResponseStream();
                     if (responseStream != null)
                     {
-                        using StreamReader reader = new StreamReader(responseStream, true);
+                        using StreamReader reader = new(responseStream, true);
                         responseString = reader.ReadToEnd();
                     }
                 }
@@ -350,17 +339,14 @@ namespace Greenshot.Plugin.Imgur
             catch (WebException wE)
             {
                 // Allow "Bad request" this means we already deleted it
-                if (wE.Status == WebExceptionStatus.ProtocolError)
+                if (wE.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest)
                 {
-                    if (((HttpWebResponse) wE.Response).StatusCode != HttpStatusCode.BadRequest)
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
 
             // Make sure we remove it from the history, if no error occurred
-            Config.runtimeImgurHistory.Remove(imgurInfo.Hash);
+            Config.RuntimeImgurHistory.Remove(imgurInfo.Hash);
             Config.ImgurUploadHistory.Remove(imgurInfo.Hash);
             imgurInfo.Image = null;
         }

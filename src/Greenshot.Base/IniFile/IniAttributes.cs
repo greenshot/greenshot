@@ -29,13 +29,9 @@ namespace Greenshot.Base.IniFile
     [AttributeUsage(AttributeTargets.Class)]
     public class IniSectionAttribute : Attribute
     {
-        public IniSectionAttribute(string name)
-        {
-            Name = name;
-        }
-
-        public string Description;
+        public IniSectionAttribute(string name) => Name = name;
         public string Name { get; set; }
+        public string Description { get; set; }
     }
 
     /// <summary>
@@ -44,15 +40,9 @@ namespace Greenshot.Base.IniFile
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class IniPropertyAttribute : Attribute
     {
-        public IniPropertyAttribute()
-        {
-            Separator = ",";
-        }
+        public IniPropertyAttribute() => Separator = ",";
 
-        public IniPropertyAttribute(string name) : this()
-        {
-            Name = name;
-        }
+        public IniPropertyAttribute(string name) : this() => Name = name;
 
         public string Description { get; set; }
         public string Separator { get; set; }

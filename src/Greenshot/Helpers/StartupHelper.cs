@@ -39,10 +39,7 @@ namespace Greenshot.Helpers
 
         private const string ApplicationName = "Greenshot";
 
-        private static string GetExecutablePath()
-        {
-            return "\"" + Application.ExecutablePath + "\"";
-        }
+        private static string GetExecutablePath() => "\"" + Application.ExecutablePath + "\"";
 
         /// <summary>
         /// Return true if the current user can write the RUN key of the local machine.

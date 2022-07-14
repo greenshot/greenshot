@@ -43,25 +43,13 @@ namespace Greenshot.Destinations
         {
         }
 
-        public PrinterDestination(string printerName)
-        {
-            _printerName = printerName;
-        }
+        public PrinterDestination(string printerName) => _printerName = printerName;
 
         public override string Designation => nameof(WellKnownDestinations.Printer);
 
-        public override string Description
-        {
-            get
-            {
-                if (_printerName != null)
-                {
-                    return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
-                }
-
-                return Language.GetString(LangKey.settings_destination_printer);
-            }
-        }
+        public override string Description => _printerName != null
+                    ? Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName
+                    : Language.GetString(LangKey.settings_destination_printer);
 
         public override int Priority => 2;
 
@@ -77,28 +65,23 @@ namespace Greenshot.Destinations
         /// <returns>IEnumerable of IDestination</returns>
         public override IEnumerable<IDestination> DynamicDestinations()
         {
-            PrinterSettings settings = new PrinterSettings();
+            PrinterSettings settings = new();
             string defaultPrinter = settings.PrinterName;
-            List<string> printers = new List<string>();
+            List<string> printers = new();
 
             foreach (string printer in PrinterSettings.InstalledPrinters)
             {
                 printers.Add(printer);
             }
 
-            printers.Sort(delegate(string p1, string p2)
+            printers.Sort((string p1, string p2) =>
             {
                 if (defaultPrinter.Equals(p1))
                 {
                     return -1;
                 }
 
-                if (defaultPrinter.Equals(p2))
-                {
-                    return 1;
-                }
-
-                return string.Compare(p1, p2, StringComparison.Ordinal);
+                return defaultPrinter.Equals(p2) ? 1 : string.CompareOrdinal(p1, p2);
             });
             foreach (string printer in printers)
             {
@@ -115,22 +98,22 @@ namespace Greenshot.Destinations
         /// <returns>ExportInformation</returns>
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             PrinterSettings printerSettings;
             if (!string.IsNullOrEmpty(_printerName))
             {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                using PrintHelper printHelper = new(surface, captureDetails);
                 printerSettings = printHelper.PrintTo(_printerName);
             }
             else if (!manuallyInitiated)
             {
-                PrinterSettings settings = new PrinterSettings();
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                PrinterSettings settings = new();
+                using PrintHelper printHelper = new(surface, captureDetails);
                 printerSettings = printHelper.PrintTo(settings.PrinterName);
             }
             else
             {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                using PrintHelper printHelper = new(surface, captureDetails);
                 printerSettings = printHelper.PrintWithDialog();
             }
 

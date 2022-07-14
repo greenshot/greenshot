@@ -79,7 +79,7 @@ namespace Greenshot.Plugin.Box
             SimpleServiceProvider.Current.AddService<IDestination>(new BoxDestination(this));
             _itemPlugInConfig = new ToolStripMenuItem
             {
-                Image = (Image) _resources.GetObject("Box"),
+                Image = (Image)_resources.GetObject("Box"),
                 Text = Language.GetString("box", LangKey.Configure)
             };
             _itemPlugInConfig.Click += ConfigMenuClick;
@@ -97,35 +97,26 @@ namespace Greenshot.Plugin.Box
             }
         }
 
-        public void Shutdown()
-        {
-            LOG.Debug("Box Plugin shutdown.");
-        }
+        public void Shutdown() => LOG.Debug("Box Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => _config.ShowConfigDialog();
 
         /// <summary>
         /// This will be called when the menu item in the Editor is clicked
         /// </summary>
         public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, false);
             try
             {
                 string url = null;
                 string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-                SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+                SurfaceContainer imageToUpload = new(surfaceToUpload, outputSettings, filename);
 
                 new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
                     delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }

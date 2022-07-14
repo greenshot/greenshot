@@ -62,7 +62,7 @@ namespace Greenshot.Helpers
             // Bring window to the front
             ieWindowDetails.Restore();
             // Get accessible
-            Accessible ieAccessible = new Accessible(directUiWindowDetails.Handle);
+            Accessible ieAccessible = new(directUiWindowDetails.Handle);
             // Activate Tab
             ieAccessible.ActivateIETab(tabIndex);
         }
@@ -79,12 +79,8 @@ namespace Greenshot.Helpers
                 return true;
             }
 
-            if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(someWindow.ClassName))
-            {
-                return someWindow.GetChild("Internet Explorer_Server") != null;
-            }
-
-            return false;
+            return CoreConfig.WindowClassesToCheckForIE?.Contains(someWindow.ClassName) == true
+&& someWindow.GetChild("Internet Explorer_Server") != null;
         }
 
         /// <summary>
@@ -116,10 +112,7 @@ namespace Greenshot.Helpers
         /// Simple check if IE is running
         /// </summary>
         /// <returns>bool</returns>
-        public static bool IsIeRunning()
-        {
-            return GetIeWindows().Any();
-        }
+        public static bool IsIeRunning() => GetIeWindows().Any();
 
         /// <summary>
         /// Gets a list of all IE Windows & tabs with the captions of the instances
@@ -149,7 +142,7 @@ namespace Greenshot.Helpers
                             browserWindows.Add(ieWindow, accessible.IETabCaptions);
                         }
                     }
-                    else if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(ieWindow.ClassName))
+                    else if (CoreConfig.WindowClassesToCheckForIE?.Contains(ieWindow.ClassName) == true)
                     {
                         var singleWindowText = new List<string>();
                         try
@@ -220,7 +213,7 @@ namespace Greenshot.Helpers
             IHTMLDocument2 document2;
             if (response != UIntPtr.Zero)
             {
-                document2 = (IHTMLDocument2) Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
+                document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
                 if (document2 == null)
                 {
                     Log.Error("No IHTMLDocument2 found");
@@ -289,7 +282,7 @@ namespace Greenshot.Helpers
                     }
 
                     // Get the content window handle for the shellWindow.Document
-                    IOleWindow oleWindow = (IOleWindow) document2;
+                    IOleWindow oleWindow = (IOleWindow)document2;
                     IntPtr contentWindowHandle = IntPtr.Zero;
                     oleWindow?.GetWindow(out contentWindowHandle);
 
@@ -297,7 +290,7 @@ namespace Greenshot.Helpers
                     {
                         // Get the HTMLDocument to check the hasFocus
                         // See: https://social.msdn.microsoft.com/Forums/en-US/vbgeneral/thread/60c6c95d-377c-4bf4-860d-390840fce31c/
-                        IHTMLDocument4 document4 = (IHTMLDocument4) document2;
+                        IHTMLDocument4 document4 = (IHTMLDocument4)document2;
 
                         if (document4.hasFocus())
                         {
@@ -393,7 +386,7 @@ namespace Greenshot.Helpers
             windowToCapture ??= WindowDetails.GetActiveWindow();
 
             // Show backgroundform after retrieving the active window..
-            BackgroundForm backgroundForm = new BackgroundForm(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
+            BackgroundForm backgroundForm = new(Language.GetString(LangKey.contextmenu_captureie), Language.GetString(LangKey.wait_ie_capture));
             backgroundForm.Show();
             //BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(LangKey.contextmenu_captureie), language.GetString(LangKey.wait_ie_capture));
             try
@@ -455,7 +448,6 @@ namespace Greenshot.Helpers
                 //    LOG.Warn("An error occurred while creating the capture elements: ", elementsException);
                 //}
 
-
                 if (returnBitmap == null)
                 {
                     return null;
@@ -483,7 +475,7 @@ namespace Greenshot.Helpers
                 {
                     try
                     {
-                        Uri uri = new Uri(documentContainer.Url);
+                        Uri uri = new(documentContainer.Url);
                         capture.CaptureDetails.AddMetaData("URL", uri.OriginalString);
                         // As the URL can hardly be used in a filename, the following can be used
                         if (!string.IsNullOrEmpty(uri.Scheme))
@@ -655,7 +647,7 @@ namespace Greenshot.Helpers
             WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
             //Create a target bitmap to draw into with the calculated page size
-            Bitmap returnBitmap = new Bitmap(pageSize.Width, pageSize.Height, PixelFormat.Format24bppRgb);
+            Bitmap returnBitmap = new(pageSize.Width, pageSize.Height, PixelFormat.Format24bppRgb);
             using (Graphics graphicsTarget = Graphics.FromImage(returnBitmap))
             {
                 // Clear the target with the backgroundcolor
@@ -741,8 +733,8 @@ namespace Greenshot.Helpers
                     targetOffset = targetOffset.ChangeY(documentContainer.ScrollTop);
 
                     // Draw the captured fragment to the target, but "crop" the scrollbars etc while capturing 
-                    NativeSize viewPortSize = new NativeSize(viewportWidth, viewportHeight);
-                    NativeRect clientRectangle = new NativeRect(documentContainer.SourceLocation, viewPortSize);
+                    NativeSize viewPortSize = new(viewportWidth, viewportHeight);
+                    NativeRect clientRectangle = new(documentContainer.SourceLocation, viewPortSize);
                     Image fragment = contentWindowDetails.PrintWindow();
                     if (fragment != null)
                     {
@@ -761,7 +753,7 @@ namespace Greenshot.Helpers
                             // Crop to clientRectangle
                             if (ImageHelper.Crop(ref fragment, ref clientRectangle))
                             {
-                                NativePoint targetLocation = new NativePoint(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
+                                NativePoint targetLocation = new(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
                                 Log.DebugFormat("Fragment targetLocation is {0}", targetLocation);
                                 targetLocation = targetLocation.Offset(targetOffset);
                                 Log.DebugFormat("After offsetting the fragment targetLocation is {0}", targetLocation);

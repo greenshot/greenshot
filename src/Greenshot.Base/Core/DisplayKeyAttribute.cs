@@ -28,10 +28,7 @@ namespace Greenshot.Base.Core
     {
         public string Value { get; }
 
-        public DisplayKeyAttribute(string v)
-        {
-            Value = v;
-        }
+        public DisplayKeyAttribute(string v) => Value = v;
 
         public DisplayKeyAttribute()
         {

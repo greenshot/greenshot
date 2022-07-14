@@ -30,10 +30,7 @@ namespace Greenshot.Base.Effects
     /// </summary>
     public class GrayscaleEffect : IEffect
     {
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.CreateGrayscale(sourceImage);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.CreateGrayscale(sourceImage);
 
         public void Reset()
         {

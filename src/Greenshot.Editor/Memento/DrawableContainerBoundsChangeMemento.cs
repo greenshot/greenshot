@@ -61,10 +61,7 @@ namespace Greenshot.Editor.Memento
             StoreBounds();
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         private void Dispose(bool disposing)
         {

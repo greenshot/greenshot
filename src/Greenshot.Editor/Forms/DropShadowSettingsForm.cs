@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void ShowSettings()
         {
-            trackBar1.Value = (int) (_effect.Darkness * 40);
+            trackBar1.Value = (int)(_effect.Darkness * 40);
             offsetX.Value = _effect.ShadowOffset.X;
             offsetY.Value = _effect.ShadowOffset.Y;
             thickness.Value = _effect.ShadowSize;
@@ -51,9 +51,9 @@ namespace Greenshot.Editor.Forms
 
         private void ButtonOK_Click(object sender, EventArgs e)
         {
-            _effect.Darkness = trackBar1.Value / (float) 40;
-            _effect.ShadowOffset = new NativePoint((int) offsetX.Value, (int) offsetY.Value);
-            _effect.ShadowSize = (int) thickness.Value;
+            _effect.Darkness = trackBar1.Value / (float)40;
+            _effect.ShadowOffset = new NativePoint((int)offsetX.Value, (int)offsetY.Value);
+            _effect.ShadowSize = (int)thickness.Value;
             DialogResult = DialogResult.OK;
         }
     }

@@ -161,7 +161,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 // No vista icon, try normal icon
                 stream.Position = stream.Seek(0, SeekOrigin.Begin);
                 // We create a copy of the bitmap, so everything else can be disposed
-                using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
+                using Icon tmpIcon = new(stream, new Size(1024, 1024));
                 using Image tmpImage = tmpIcon.ToBitmap();
                 bitmap = ImageHelper.Clone(tmpImage, PixelFormat.Format32bppArgb);
                 return true;
@@ -194,13 +194,13 @@ namespace Greenshot.Editor.FileFormatHandlers
                 int iCount = BitConverter.ToInt16(srcBuf, 4);
                 for (int iIndex = 0; iIndex < iCount; iIndex++)
                 {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
+                    int iWidth = srcBuf[sizeIconDir + (sizeIconDirEntry * iIndex)];
+                    int iHeight = srcBuf[sizeIconDir + (sizeIconDirEntry * iIndex) + 1];
                     if (iWidth != 0 || iHeight != 0) continue;
 
-                    int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                    int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                    using MemoryStream destStream = new MemoryStream();
+                    int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + (sizeIconDirEntry * iIndex) + 8);
+                    int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + (sizeIconDirEntry * iIndex) + 12);
+                    using MemoryStream destStream = new();
                     destStream.Write(srcBuf, iImageOffset, iImageSize);
                     destStream.Seek(0, SeekOrigin.Begin);
                     bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)

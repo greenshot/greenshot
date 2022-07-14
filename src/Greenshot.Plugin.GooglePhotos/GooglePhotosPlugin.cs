@@ -79,7 +79,7 @@ namespace Greenshot.Plugin.GooglePhotos
             _itemPlugInRoot = new ToolStripMenuItem
             {
                 Text = Language.GetString("googlephotos", LangKey.Configure),
-                Image = (Image) _resources.GetObject("GooglePhotos")
+                Image = (Image)_resources.GetObject("GooglePhotos")
             };
             _itemPlugInRoot.Click += ConfigMenuClick;
             PluginUtils.AddToContextMenu(_itemPlugInRoot);
@@ -105,19 +105,13 @@ namespace Greenshot.Plugin.GooglePhotos
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            Configure();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => Configure();
 
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality);
             try
             {
                 string url = null;

@@ -30,10 +30,7 @@ namespace Greenshot.Plugin.Flickr
     {
         private readonly FlickrPlugin _plugin;
 
-        public FlickrDestination(FlickrPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public FlickrDestination(FlickrPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "Flickr";
 
@@ -43,14 +40,14 @@ namespace Greenshot.Plugin.Flickr
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(FlickrPlugin));
-                return (Image) resources.GetObject("flickr");
+                ComponentResourceManager resources = new(typeof(FlickrPlugin));
+                return (Image)resources.GetObject("flickr");
             }
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
             if (uploaded)
             {

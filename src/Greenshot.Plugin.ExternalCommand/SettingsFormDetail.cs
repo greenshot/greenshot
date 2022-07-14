@@ -174,19 +174,10 @@ namespace Greenshot.Plugin.ExternalCommand
             }
         }
 
-        private void textBox_name_TextChanged(object sender, EventArgs e)
-        {
-            OkButtonState();
-        }
+        private void textBox_name_TextChanged(object sender, EventArgs e) => OkButtonState();
 
-        private void textBox_commandline_TextChanged(object sender, EventArgs e)
-        {
-            OkButtonState();
-        }
+        private void textBox_commandline_TextChanged(object sender, EventArgs e) => OkButtonState();
 
-        private void textBox_arguments_TextChanged(object sender, EventArgs e)
-        {
-            OkButtonState();
-        }
+        private void textBox_arguments_TextChanged(object sender, EventArgs e) => OkButtonState();
     }
 }

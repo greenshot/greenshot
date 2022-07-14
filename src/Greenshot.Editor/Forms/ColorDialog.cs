@@ -54,15 +54,15 @@ namespace Greenshot.Editor.Forms
 
         public static ColorDialog GetInstance() => _instance;
 
-        private readonly List<Button> _colorButtons = new List<Button>();
-        private readonly List<Button> _recentColorButtons = new List<Button>();
-        private readonly ToolTip _toolTip = new ToolTip();
+        private readonly List<Button> _colorButtons = new();
+        private readonly List<Button> _recentColorButtons = new();
+        private readonly ToolTip _toolTip = new();
         private bool _updateInProgress;
 
         public Color Color
         {
-            get { return colorPanel.BackColor; }
-            set { PreviewColor(value, this); }
+            get => colorPanel.BackColor;
+            set => PreviewColor(value, this);
         }
 
         private void CreateColorPalette(int x, int y, int w, int h)
@@ -101,17 +101,14 @@ namespace Greenshot.Editor.Forms
             int shadedColorsNum = (shades - 1) / 2;
             for (int i = 0; i <= shadedColorsNum; i++)
             {
-                _colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
+                _colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + (i * h), w, h));
                 if (i > 0)
-                    _colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum,
-                        blue + (255 - blue) * i / shadedColorsNum, x, y + (i + shadedColorsNum) * h, w, h));
+                    _colorButtons.Add(CreateColorButton(red + ((255 - red) * i / shadedColorsNum), green + ((255 - green) * i / shadedColorsNum),
+                        blue + ((255 - blue) * i / shadedColorsNum), x, y + ((i + shadedColorsNum) * h), w, h));
             }
         }
 
-        private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h)
-        {
-            return CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
-        }
+        private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h) => CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
 
         private Button CreateColorButton(Color color, int x, int y, int w, int h)
         {
@@ -235,10 +232,7 @@ namespace Greenshot.Editor.Forms
                     GetColorPartIntFromString(textBoxBlue.Text)), textBox);
         }
 
-        private void TextBoxGotFocus(object sender, EventArgs e)
-        {
-            textBoxHtmlColor.SelectAll();
-        }
+        private void TextBoxGotFocus(object sender, EventArgs e) => textBoxHtmlColor.SelectAll();
 
         private void TextBoxKeyDown(object sender, KeyEventArgs e)
         {
@@ -254,15 +248,9 @@ namespace Greenshot.Editor.Forms
             PreviewColor(b.BackColor, b);
         }
 
-        private void SetButtonTooltip(Button colorButton, Color color)
-        {
-            _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
-        }
+        private void SetButtonTooltip(Button colorButton, Color color) => _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
 
-        private void BtnTransparentClick(object sender, EventArgs e)
-        {
-            ColorButtonClick(sender, e);
-        }
+        private void BtnTransparentClick(object sender, EventArgs e) => ColorButtonClick(sender, e);
 
         private void BtnApplyClick(object sender, EventArgs e)
         {
@@ -286,9 +274,6 @@ namespace Greenshot.Editor.Forms
             return ret;
         }
 
-        private void PipetteUsed(object sender, PipetteUsedArgs e)
-        {
-            Color = e.Color;
-        }
+        private void PipetteUsed(object sender, PipetteUsedArgs e) => Color = e.Color;
     }
 }

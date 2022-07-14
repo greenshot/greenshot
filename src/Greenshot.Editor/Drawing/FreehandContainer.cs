@@ -43,10 +43,10 @@ namespace Greenshot.Editor.Drawing
             0.5f, 0.25f, 0.75f
         };
 
-        [NonSerialized] private GraphicsPath freehandPath = new GraphicsPath();
+        [NonSerialized] private GraphicsPath freehandPath = new();
         private NativeRect myBounds = NativeRect.Empty;
         private NativePoint lastMouse = NativePoint.Empty;
-        private readonly List<Point> capturePoints = new List<Point>();
+        private readonly List<Point> capturePoints = new();
         private bool isRecalculated;
 
         /// <summary>
@@ -76,10 +76,7 @@ namespace Greenshot.Editor.Drawing
             RecalculatePath();
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            RecalculatePath();
-        }
+        protected override void OnDeserialized(StreamingContext context) => RecalculatePath();
 
         /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
@@ -165,7 +162,7 @@ namespace Greenshot.Editor.Drawing
                 while ((capturePoints.Count - 1) % 3 != 0)
                 {
                     // duplicate points, first at 50% than 25% than 75%
-                    capturePoints.Insert((int) (capturePoints.Count * PointOffset[index]), capturePoints[(int) (capturePoints.Count * PointOffset[index++])]);
+                    capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
                 }
 
                 newFreehandPath.AddBeziers(capturePoints.ToArray());
@@ -204,7 +201,7 @@ namespace Greenshot.Editor.Drawing
             {
                 Width = lineThickness
             };
-            if (!(pen.Width > 0))
+            if (pen.Width <= 0)
             {
                 return;
             }
@@ -239,8 +236,8 @@ namespace Greenshot.Editor.Drawing
         /// <param name="path">GraphicsPath</param>
         protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path)
         {
-            using var selectionPen = (Pen) linePen.Clone();
-            using var selectionPath = (GraphicsPath) path.Clone();
+            using var selectionPen = (Pen)linePen.Clone();
+            using var selectionPath = (GraphicsPath)path.Clone();
             selectionPen.Width += 5;
             selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
             graphics.DrawPath(selectionPen, selectionPath);
@@ -264,17 +261,12 @@ namespace Greenshot.Editor.Drawing
                 if (!myBounds.IsEmpty)
                 {
                     int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
-                    int safetyMargin = 10;
+                    const int safetyMargin = 10;
                     return new NativeRect(myBounds.Left + Left - (safetyMargin + lineThickness), myBounds.Top + Top - (safetyMargin + lineThickness),
-                        myBounds.Width + 2 * (lineThickness + safetyMargin), myBounds.Height + 2 * (lineThickness + safetyMargin));
+                        myBounds.Width + (2 * (lineThickness + safetyMargin)), myBounds.Height + (2 * (lineThickness + safetyMargin)));
                 }
 
-                if (_parent?.Image is Image image)
-                {
-                    return new NativeRect(0, 0, image.Width, image.Height);
-                }
-
-                return NativeRect.Empty;
+                return _parent?.Image is Image image ? new NativeRect(0, 0, image.Width, image.Height) : NativeRect.Empty;
             }
         }
 
@@ -299,10 +291,7 @@ namespace Greenshot.Editor.Drawing
             return ret;
         }
 
-        public override int GetHashCode()
-        {
-            return freehandPath?.GetHashCode() ?? 0;
-        }
+        public override int GetHashCode() => freehandPath?.GetHashCode() ?? 0;
 
         public override bool ClickableAt(int x, int y)
         {

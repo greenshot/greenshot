@@ -38,7 +38,7 @@ namespace Greenshot.Plugin.Imgur
 
         public string DeleteHash
         {
-            get { return _deleteHash; }
+            get => _deleteHash;
             set
             {
                 _deleteHash = value;
@@ -66,7 +66,7 @@ namespace Greenshot.Plugin.Imgur
 
         public Image Image
         {
-            get { return _image; }
+            get => _image;
             set
             {
                 _image?.Dispose();
@@ -112,10 +112,10 @@ namespace Greenshot.Plugin.Imgur
             response = response.Replace("&copy;", "&#169;");
             response = response.Replace("&reg;", "&#174;");
 
-            ImgurInfo imgurInfo = new ImgurInfo();
+            ImgurInfo imgurInfo = new();
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 XmlNodeList nodes = doc.GetElementsByTagName("id");
                 if (nodes.Count > 0)
@@ -148,14 +148,11 @@ namespace Greenshot.Plugin.Imgur
                 }
 
                 nodes = doc.GetElementsByTagName("datetime");
-                if (nodes.Count > 0)
+                // Version 3 has seconds since Epoch
+                if (nodes.Count > 0 && double.TryParse(nodes.Item(0)?.InnerText, out var secondsSince))
                 {
-                    // Version 3 has seconds since Epoch
-                    if (double.TryParse(nodes.Item(0)?.InnerText, out var secondsSince))
-                    {
-                        var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-                        imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
-                    }
+                    var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
                 }
 
                 nodes = doc.GetElementsByTagName("original");

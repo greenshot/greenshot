@@ -40,8 +40,8 @@ namespace Greenshot.Plugin.Jira
     /// </summary>
     public class JiraMonitor : IDisposable
     {
-        private static readonly LogSource Log = new LogSource();
-        private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
+        private static readonly LogSource Log = new();
+        private readonly Regex _jiraKeyPattern = new(@"[A-Z][A-Z0-9]+\-[0-9]+");
         private readonly IDisposable _monitor;
         private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
         private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
@@ -92,18 +92,15 @@ namespace Greenshot.Plugin.Jira
         /// </summary>
         /// <param name="jiraDetails"></param>
         /// <returns>IJiraClient</returns>
-        public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails)
-        {
-            return _projectJiraClientMap[jiraDetails.ProjectKey];
-        }
+        public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails) => _projectJiraClientMap[jiraDetails.ProjectKey];
 
         /// <summary>
         /// Get the "list" of recently seen Jiras
         /// </summary>
         public IEnumerable<JiraDetails> RecentJiras =>
-            (from jiraDetails in _recentJiras.Values
-                orderby jiraDetails.SeenAt descending
-                select jiraDetails);
+            from jiraDetails in _recentJiras.Values
+            orderby jiraDetails.SeenAt descending
+            select jiraDetails;
 
         /// <summary>
         /// Check if this monitor has active instances
@@ -121,12 +118,11 @@ namespace Greenshot.Plugin.Jira
             var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
             if (projects != null)
             {
-                foreach (var project in projects)
+                foreach (var project in from project in projects
+                                        where !_projectJiraClientMap.ContainsKey(project.Key)
+                                        select project)
                 {
-                    if (!_projectJiraClientMap.ContainsKey(project.Key))
-                    {
-                        _projectJiraClientMap.Add(project.Key, jiraInstance);
-                    }
+                    _projectJiraClientMap.Add(project.Key, jiraInstance);
                 }
             }
         }
@@ -216,8 +212,8 @@ namespace Greenshot.Plugin.Jira
                 {
                     // Add it to the list of recent Jiras
                     _recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
-                        orderby jiraDetails.SeenAt descending
-                        select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
+                                    orderby jiraDetails.SeenAt descending
+                                    select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
                 }
 
                 // Now we can get the title from JIRA itself

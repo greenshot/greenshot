@@ -57,9 +57,6 @@ namespace Greenshot.Base.Interfaces.Drawing
     {
         public IField Field { get; private set; }
 
-        public FieldChangedEventArgs(IField field)
-        {
-            Field = field;
-        }
+        public FieldChangedEventArgs(IField field) => Field = field;
     }
 }

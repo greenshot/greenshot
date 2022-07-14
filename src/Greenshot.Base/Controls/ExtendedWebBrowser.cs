@@ -31,38 +31,29 @@ namespace Greenshot.Base.Controls
         {
             private const int OLECMDID_SHOWSCRIPTERROR = 40;
 
-            private static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+            private static readonly Guid CGID_DocHostCommandHandler = new("F38BC242-B950-11D1-8918-00C04FC2C836");
 
             private const int S_OK = 0;
-            private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
+            private const int OLECMDERR_E_NOTSUPPORTED = -2147221248;
 
             public ExtendedWebBrowserSite(WebBrowser wb) : base(wb)
             {
             }
 
-            public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText)
-            {
-                return OLECMDERR_E_NOTSUPPORTED;
-            }
+            public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText) => OLECMDERR_E_NOTSUPPORTED;
 
             public int Exec(Guid pguidCmdGroup, int nCmdID, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
             {
-                if (pguidCmdGroup == CGID_DocHostCommandHandler)
+                if (pguidCmdGroup == CGID_DocHostCommandHandler && nCmdID == OLECMDID_SHOWSCRIPTERROR)
                 {
-                    if (nCmdID == OLECMDID_SHOWSCRIPTERROR)
-                    {
-                        // do not need to alter pvaOut as the docs says, enough to return S_OK here
-                        return S_OK;
-                    }
+                    // do not need to alter pvaOut as the docs says, enough to return S_OK here
+                    return S_OK;
                 }
 
                 return OLECMDERR_E_NOTSUPPORTED;
             }
         }
 
-        protected override WebBrowserSiteBase CreateWebBrowserSiteBase()
-        {
-            return new ExtendedWebBrowserSite(this);
-        }
+        protected override WebBrowserSiteBase CreateWebBrowserSiteBase() => new ExtendedWebBrowserSite(this);
     }
 }

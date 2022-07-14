@@ -67,7 +67,7 @@ namespace Greenshot.Base.Core
     /// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
     public abstract class AnimatorBase<T> : IAnimator
     {
-        private readonly Queue<AnimationLeg<T>> _queue = new Queue<AnimationLeg<T>>();
+        private readonly Queue<AnimationLeg<T>> _queue = new();
 
         /// <summary>
         /// Constructor
@@ -77,7 +77,7 @@ namespace Greenshot.Base.Core
         /// <param name="frames"></param>
         /// <param name="easingType"></param>
         /// <param name="easingMode"></param>
-        public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode)
+        protected AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode)
         {
             First = first;
             Last = last;
@@ -110,27 +110,13 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Final animation value, this is including the legs
         /// </summary>
-        public T Final
-        {
-            get
-            {
-                if (_queue.Count == 0)
-                {
-                    return Last;
-                }
-
-                return _queue.ToArray()[_queue.Count - 1].Destination;
-            }
-        }
+        public T Final => _queue.Count == 0 ? Last : _queue.ToArray()[_queue.Count - 1].Destination;
 
         /// <summary>
         /// This restarts the current animation and changes the last frame
         /// </summary>
         /// <param name="newDestination"></param>
-        public void ChangeDestination(T newDestination)
-        {
-            ChangeDestination(newDestination, Frames);
-        }
+        public void ChangeDestination(T newDestination) => ChangeDestination(newDestination, Frames);
 
         /// <summary>
         /// This restarts the current animation and changes the last frame
@@ -151,20 +137,14 @@ namespace Greenshot.Base.Core
         /// All values will stay the same
         /// </summary>
         /// <param name="queuedDestination"></param>
-        public void QueueDestinationLeg(T queuedDestination)
-        {
-            QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
-        }
+        public void QueueDestinationLeg(T queuedDestination) => QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
 
         /// <summary>
         /// Queue the destination, it will be used to continue at the last frame
         /// </summary>
         /// <param name="queuedDestination"></param>
         /// <param name="frames"></param>
-        public void QueueDestinationLeg(T queuedDestination, int frames)
-        {
-            QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
-        }
+        public void QueueDestinationLeg(T queuedDestination, int frames) => QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
 
         /// <summary>
         /// Queue the destination, it will be used to continue at the last frame
@@ -172,10 +152,7 @@ namespace Greenshot.Base.Core
         /// <param name="queuedDestination"></param>
         /// <param name="frames"></param>
         /// <param name="easingType">EasingType</param>
-        public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType)
-        {
-            QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
-        }
+        public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType) => QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
 
         /// <summary>
         /// Queue the destination, it will be used to continue at the last frame
@@ -186,7 +163,7 @@ namespace Greenshot.Base.Core
         /// <param name="easingMode"></param>
         public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode)
         {
-            AnimationLeg<T> leg = new AnimationLeg<T>
+            AnimationLeg<T> leg = new()
             {
                 Destination = queuedDestination,
                 Frames = frames,
@@ -209,17 +186,13 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Get the easing value, which is from 0-1 and depends on the frame
         /// </summary>
-        protected double EasingValue
+        protected double EasingValue => EasingMode switch
         {
-            get =>
-                EasingMode switch
-                {
-                    EasingMode.EaseOut => Easing.EaseOut(CurrentFrameNr / (double) Frames, EasingType),
-                    EasingMode.EaseInOut => Easing.EaseInOut(CurrentFrameNr / (double) Frames, EasingType),
-                    EasingMode.EaseIn => Easing.EaseIn(CurrentFrameNr / (double) Frames, EasingType),
-                    _ => Easing.EaseIn(CurrentFrameNr / (double) Frames, EasingType)
-                };
-        }
+            EasingMode.EaseOut => Easing.EaseOut(CurrentFrameNr / (double)Frames, EasingType),
+            EasingMode.EaseInOut => Easing.EaseInOut(CurrentFrameNr / (double)Frames, EasingType),
+            EasingMode.EaseIn => Easing.EaseIn(CurrentFrameNr / (double)Frames, EasingType),
+            _ => Easing.EaseIn(CurrentFrameNr / (double)Frames, EasingType)
+        };
 
         /// <summary>
         /// Get the current (previous) frame object
@@ -239,7 +212,7 @@ namespace Greenshot.Base.Core
                     return true;
                 }
 
-                if (_queue.Count <= 0)
+                if (_queue.Count == 0)
                 {
                     return false;
                 }
@@ -251,25 +224,13 @@ namespace Greenshot.Base.Core
                 EasingType = nextLeg.EasingType;
                 EasingMode = nextLeg.EasingMode;
                 return true;
-
             }
         }
 
         /// <summary>
         /// Are there more frames to animate?
         /// </summary>
-        public virtual bool HasNext
-        {
-            get
-            {
-                if (CurrentFrameNr < Frames)
-                {
-                    return true;
-                }
-
-                return _queue.Count > 0;
-            }
-        }
+        public virtual bool HasNext => CurrentFrameNr < Frames || _queue.Count > 0;
 
         /// <summary>
         /// Get the next animation frame value object
@@ -312,12 +273,12 @@ namespace Greenshot.Base.Core
             double dx = Last.X - First.X;
             double dy = Last.Y - First.Y;
 
-            int x = First.X + (int) (easingValue * dx);
-            int y = First.Y + (int) (easingValue * dy);
+            int x = First.X + (int)(easingValue * dx);
+            int y = First.Y + (int)(easingValue * dy);
             double dw = Last.Width - First.Width;
             double dh = Last.Height - First.Height;
-            int width = First.Width + (int) (easingValue * dw);
-            int height = First.Height + (int) (easingValue * dh);
+            int width = First.Width + (int)(easingValue * dw);
+            int height = First.Height + (int)(easingValue * dh);
             Current = new NativeRect(x, y, width, height);
 
             return Current;
@@ -356,8 +317,8 @@ namespace Greenshot.Base.Core
                 double dx = Last.X - First.X;
                 double dy = Last.Y - First.Y;
 
-                int x = First.X + (int) (easingValue * dx);
-                int y = First.Y + (int) (easingValue * dy);
+                int x = First.X + (int)(easingValue * dx);
+                int y = First.Y + (int)(easingValue * dy);
                 Current = new NativePoint(x, y);
             }
 
@@ -396,8 +357,8 @@ namespace Greenshot.Base.Core
                 double easingValue = EasingValue;
                 double dw = Last.Width - First.Width;
                 double dh = Last.Height - First.Height;
-                int width = First.Width + (int) (easingValue * dw);
-                int height = First.Height + (int) (easingValue * dh);
+                int width = First.Width + (int)(easingValue * dw);
+                int height = First.Height + (int)(easingValue * dh);
                 Current = new NativeSize(width, height);
             }
 
@@ -438,10 +399,10 @@ namespace Greenshot.Base.Core
                 double dr = Last.R - First.R;
                 double dg = Last.G - First.G;
                 double db = Last.B - First.B;
-                int a = First.A + (int) (easingValue * da);
-                int r = First.R + (int) (easingValue * dr);
-                int g = First.G + (int) (easingValue * dg);
-                int b = First.B + (int) (easingValue * db);
+                int a = First.A + (int)(easingValue * da);
+                int r = First.R + (int)(easingValue * dr);
+                int g = First.G + (int)(easingValue * dg);
+                int b = First.B + (int)(easingValue * db);
                 Current = Color.FromArgb(a, r, g, b);
             }
 
@@ -479,7 +440,7 @@ namespace Greenshot.Base.Core
             {
                 double easingValue = EasingValue;
                 double delta = Last - First;
-                Current = First + (int) (easingValue * delta);
+                Current = First + (int)(easingValue * delta);
             }
 
             return Current;
@@ -497,13 +458,13 @@ namespace Greenshot.Base.Core
         {
             double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : linearStep;
             // Lerp:
-            return ((easedStep - linearStep) * Math.Abs(acceleration) + linearStep);
+            return ((easedStep - linearStep) * Math.Abs(acceleration)) + linearStep;
         }
 
         public static double EaseIn(double linearStep, EasingType type) =>
             type switch
             {
-                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Step => linearStep < 0.5 ? 0 : 1,
                 EasingType.Linear => linearStep,
                 EasingType.Sine => Sine.EaseIn(linearStep),
                 EasingType.Quadratic => Power.EaseIn(linearStep, 2),
@@ -516,7 +477,7 @@ namespace Greenshot.Base.Core
         public static double EaseOut(double linearStep, EasingType type) =>
             type switch
             {
-                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Step => linearStep < 0.5 ? 0 : 1,
                 EasingType.Linear => linearStep,
                 EasingType.Sine => Sine.EaseOut(linearStep),
                 EasingType.Quadratic => Power.EaseOut(linearStep, 2),
@@ -526,15 +487,12 @@ namespace Greenshot.Base.Core
                 _ => throw new NotImplementedException()
             };
 
-        public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType)
-        {
-            return linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
-        }
+        public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType) => linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
 
         public static double EaseInOut(double linearStep, EasingType type) =>
             type switch
             {
-                EasingType.Step => (linearStep < 0.5 ? 0 : 1),
+                EasingType.Step => linearStep < 0.5 ? 0 : 1,
                 EasingType.Linear => linearStep,
                 EasingType.Sine => Sine.EaseInOut(linearStep),
                 EasingType.Quadratic => Power.EaseInOut(linearStep, 2),
@@ -546,28 +504,16 @@ namespace Greenshot.Base.Core
 
         private static class Sine
         {
-            public static double EaseIn(double s)
-            {
-                return Math.Sin(s * (Math.PI / 2) - (Math.PI / 2)) + 1;
-            }
+            public static double EaseIn(double s) => Math.Sin((s * (Math.PI / 2)) - (Math.PI / 2)) + 1;
 
-            public static double EaseOut(double s)
-            {
-                return Math.Sin(s * (Math.PI / 2));
-            }
+            public static double EaseOut(double s) => Math.Sin(s * (Math.PI / 2));
 
-            public static double EaseInOut(double s)
-            {
-                return Math.Sin(s * Math.PI - (Math.PI / 2) + 1) / 2;
-            }
+            public static double EaseInOut(double s) => Math.Sin((s * Math.PI) - (Math.PI / 2) + 1) / 2;
         }
 
         private static class Power
         {
-            public static double EaseIn(double s, int power)
-            {
-                return Math.Pow(s, power);
-            }
+            public static double EaseIn(double s, int power) => Math.Pow(s, power);
 
             public static double EaseOut(double s, int power)
             {
@@ -584,7 +530,7 @@ namespace Greenshot.Base.Core
                 }
 
                 var sign = power % 2 == 0 ? -1 : 1;
-                return (sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
+                return sign / 2.0 * (Math.Pow(s - 2, power) + (sign * 2));
             }
         }
     }

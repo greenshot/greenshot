@@ -137,7 +137,8 @@ namespace Greenshot.Base.IEInterop
             [DispId(1004)]
             [return: MarshalAs(UnmanagedType.BStr)]
             get;
-            [DispId(1004)] set;
+            [DispId(1004)]
+            set;
         }
     }
 }

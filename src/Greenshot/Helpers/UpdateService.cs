@@ -40,9 +40,9 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
-        private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private static readonly Uri UpdateFeed = new("https://getgreenshot.org/update-feed.json");
+        private static readonly Uri Downloads = new("https://getgreenshot.org/downloads");
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         /// <summary>
         /// Provides the current version
@@ -69,10 +69,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public bool IsBetaUpdateAvailable => LatestBetaVersion > CurrentVersion;
 
-        /// <summary>
-        /// Keep track of when the update was shown, so it won't be every few minutes
-        /// </summary>
-        public DateTimeOffset LastUpdateShown = DateTimeOffset.MinValue;
+        public DateTimeOffset LastUpdateShown { get; set; } = DateTimeOffset.MinValue;
 
         /// <summary>
         /// Constructor with dependencies
@@ -88,10 +85,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Start the background task which checks for updates
         /// </summary>
-        public void Startup()
-        {
-            _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
-        }
+        public void Startup() => _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
 
         /// <summary>
         /// This runs a periodic task in the background
@@ -176,7 +170,6 @@ namespace Greenshot.Helpers
                 }
             }
         }
-
 
         /// <summary>
         /// This takes care of creating the toast view model, publishing it, and disposing afterwards

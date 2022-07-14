@@ -50,14 +50,9 @@ namespace Greenshot.Base.Controls
             FormBorderStyle = FormBorderStyle.None;
             TopMost = false;
             Enabled = false;
-            if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero)
-            {
-                BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
-            }
-            else
-            {
-                BackColor = Color.White;
-            }
+            BackColor = conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero
+                ? Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B)
+                : Color.White;
 
             // cleanup at close
             FormClosing += delegate { UnregisterThumbnail(); };
@@ -103,11 +98,11 @@ namespace Greenshot.Base.Controls
             }
 
             int thumbnailHeight = 200;
-            int thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
+            int thumbnailWidth = (int)(thumbnailHeight * (sourceSize.Width / (float)sourceSize.Height));
             if (parentControl != null && thumbnailWidth > parentControl.Width)
             {
                 thumbnailWidth = parentControl.Width;
-                thumbnailHeight = (int) (thumbnailWidth * (sourceSize.Height / (float) sourceSize.Width));
+                thumbnailHeight = (int)(thumbnailWidth * (sourceSize.Height / (float)sourceSize.Width));
             }
 
             Width = thumbnailWidth;
@@ -147,14 +142,9 @@ namespace Greenshot.Base.Controls
         public void AlignToControl(Control alignTo)
         {
             var screenBounds = DisplayInfo.ScreenBounds;
-            if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height))
-            {
-                Location = new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Top - Height);
-            }
-            else
-            {
-                Location = new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Bottom);
-            }
+            Location = screenBounds.Contains(alignTo.Left, alignTo.Top - Height)
+                ? new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Top - Height)
+                : new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Bottom);
         }
     }
 }

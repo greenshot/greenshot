@@ -33,10 +33,7 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable()]
     public class BrightnessFilter : AbstractFilter
     {
-        public BrightnessFilter(DrawableContainer parent) : base(parent)
-        {
-            AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
-        }
+        public BrightnessFilter(DrawableContainer parent) : base(parent) => AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
 
         /// <summary>
         /// Implements the Apply code for the Brightness Filet

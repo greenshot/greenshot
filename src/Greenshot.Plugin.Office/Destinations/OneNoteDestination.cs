@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
+using System.Linq;
 
 namespace Greenshot.Plugin.Office.Destinations
 {
@@ -37,7 +38,7 @@ namespace Greenshot.Plugin.Office.Destinations
         public const string DESIGNATION = "OneNote";
         private static readonly string exePath;
         private readonly OneNotePage page;
-        private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
+        private readonly OneNoteExporter _oneNoteExporter = new();
 
         static OneNoteDestination()
         {
@@ -56,62 +57,29 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public OneNoteDestination(OneNotePage page)
-        {
-            this.page = page;
-        }
+        public OneNoteDestination(OneNotePage page) => this.page = page;
 
-        public override string Designation
-        {
-            get { return DESIGNATION; }
-        }
+        public override string Designation => DESIGNATION;
 
-        public override string Description
-        {
-            get
-            {
-                if (page == null)
-                {
-                    return "Microsoft OneNote";
-                }
-                else
-                {
-                    return page.DisplayName;
-                }
-            }
-        }
+        public override string Description => page == null ? "Microsoft OneNote" : page.DisplayName;
 
-        public override int Priority
-        {
-            get { return 4; }
-        }
+        public override int Priority => 4;
 
-        public override bool IsDynamic
-        {
-            get { return true; }
-        }
+        public override bool IsDynamic => true;
 
-        public override bool IsActive
-        {
-            get { return base.IsActive && exePath != null; }
-        }
+        public override bool IsActive => base.IsActive && exePath != null;
 
-        public override Image DisplayIcon
-        {
-            get { return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION); }
-        }
+        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {
-            foreach (OneNotePage page in _oneNoteExporter.GetPages())
-            {
-                yield return new OneNoteDestination(page);
-            }
+            return from OneNotePage page in _oneNoteExporter.GetPages()
+                   select new OneNoteDestination(page);
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
 
             if (page == null)
             {

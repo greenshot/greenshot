@@ -17,10 +17,10 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// This parses a JSON response, a modified version of the code found at:
     /// See: https://techblog.procurios.nl/k/n618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
-    /// 
+    ///
     /// This file is under the MIT License, which is GPL Compatible and according to: https://en.wikipedia.org/wiki/MIT_License
     /// can be used under the GPL "umbrella".
-    /// 
+    ///
     /// TODO: code should be replaced when upgrading to .NET 3.5 or higher!!
     /// </summary>
     public class JSONHelper
@@ -80,55 +80,54 @@ namespace Greenshot.Base.Core
             // {
             NextToken(json, ref index);
 
-            bool done = false;
+            const bool done = false;
             while (!done)
             {
                 token = LookAhead(json, index);
-                if (token == TOKEN_NONE)
+                switch (token)
                 {
-                    success = false;
-                    return null;
-                }
-                else if (token == TOKEN_COMMA)
-                {
-                    NextToken(json, ref index);
-                }
-                else if (token == TOKEN_CURLY_CLOSE)
-                {
-                    NextToken(json, ref index);
-                    return table;
-                }
-                else
-                {
-                    // name
-                    string name = ParseString(json, ref index, ref success);
-                    if (!success)
-                    {
+                    case TOKEN_NONE:
                         success = false;
                         return null;
-                    }
+                    case TOKEN_COMMA:
+                        NextToken(json, ref index);
+                        break;
+                    case TOKEN_CURLY_CLOSE:
+                        NextToken(json, ref index);
+                        return table;
+                    default:
+                        {
+                            // name
+                            string name = ParseString(json, ref index, ref success);
+                            if (!success)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    // :
-                    token = NextToken(json, ref index);
-                    if (token != TOKEN_COLON)
-                    {
-                        success = false;
-                        return null;
-                    }
+                            // :
+                            token = NextToken(json, ref index);
+                            if (token != TOKEN_COLON)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    // value
-                    object value = ParseValue(json, ref index, ref success);
-                    if (!success)
-                    {
-                        success = false;
-                        return null;
-                    }
+                            // value
+                            object value = ParseValue(json, ref index, ref success);
+                            if (!success)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    table.Add(name, value);
+                            table.Add(name, value);
+                            break;
+                        }
                 }
             }
 
-            return table;
+            // return table;
         }
 
         protected static IList<object> ParseArray(char[] json, ref int index, ref bool success)
@@ -138,7 +137,7 @@ namespace Greenshot.Base.Core
             // [
             NextToken(json, ref index);
 
-            bool done = false;
+            const bool done = false;
             while (!done)
             {
                 int token = LookAhead(json, index);
@@ -202,12 +201,12 @@ namespace Greenshot.Base.Core
 
         protected static string ParseString(char[] json, ref int index, ref bool success)
         {
-            StringBuilder s = new StringBuilder(BUILDER_CAPACITY);
+            StringBuilder s = new(BUILDER_CAPACITY);
 
             EatWhitespace(json, ref index);
 
             // "
-            var c = json[index++];
+            _ = json[index++];
 
             bool complete = false;
             while (!complete)
@@ -217,7 +216,7 @@ namespace Greenshot.Base.Core
                     break;
                 }
 
-                c = json[index++];
+                char c = json[index++];
                 if (c == '"')
                 {
                     complete = true;
@@ -275,7 +274,7 @@ namespace Greenshot.Base.Core
                             }
 
                             // convert the integer codepoint to a unicode char and add to string
-                            s.Append(char.ConvertFromUtf32((int) codePoint));
+                            s.Append(char.ConvertFromUtf32((int)codePoint));
                             // skip 4 chars
                             index += 4;
                         }
@@ -305,7 +304,7 @@ namespace Greenshot.Base.Core
             EatWhitespace(json, ref index);
 
             int lastIndex = GetLastIndexOfNumber(json, index);
-            int charLength = (lastIndex - index) + 1;
+            int charLength = lastIndex - index + 1;
 
             success = double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out var number);
 
@@ -391,43 +390,34 @@ namespace Greenshot.Base.Core
             int remainingLength = json.Length - index;
 
             // false
-            if (remainingLength >= 5)
-            {
-                if (json[index] == 'f' &&
+            if (remainingLength >= 5 && json[index] == 'f' &&
                     json[index + 1] == 'a' &&
                     json[index + 2] == 'l' &&
                     json[index + 3] == 's' &&
                     json[index + 4] == 'e')
-                {
-                    index += 5;
-                    return TOKEN_FALSE;
-                }
+            {
+                index += 5;
+                return TOKEN_FALSE;
             }
 
             // true
-            if (remainingLength >= 4)
-            {
-                if (json[index] == 't' &&
+            if (remainingLength >= 4 && json[index] == 't' &&
                     json[index + 1] == 'r' &&
                     json[index + 2] == 'u' &&
                     json[index + 3] == 'e')
-                {
-                    index += 4;
-                    return TOKEN_TRUE;
-                }
+            {
+                index += 4;
+                return TOKEN_TRUE;
             }
 
             // null
-            if (remainingLength >= 4)
-            {
-                if (json[index] == 'n' &&
+            if (remainingLength >= 4 && json[index] == 'n' &&
                     json[index + 1] == 'u' &&
                     json[index + 2] == 'l' &&
                     json[index + 3] == 'l')
-                {
-                    index += 4;
-                    return TOKEN_NULL;
-                }
+            {
+                index += 4;
+                return TOKEN_NULL;
             }
 
             return TOKEN_NONE;

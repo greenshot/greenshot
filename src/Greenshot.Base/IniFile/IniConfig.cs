@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using log4net;
+using System.Linq;
 
 namespace Greenshot.Base.IniFile
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Base.IniFile
         /// <summary>
         /// A lock object for the ini file saving
         /// </summary>
-        private static readonly object IniLock = new object();
+        private static readonly object IniLock = new();
 
         /// <summary>
         /// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
@@ -152,18 +153,9 @@ namespace Greenshot.Base.IniFile
         /// <summary>
         /// Get the location of the configuration
         /// </summary>
-        public static string ConfigLocation
-        {
-            get
-            {
-                if (IsInitialized)
-                {
-                    return CreateIniLocation(_configName + IniExtension, false);
-                }
-
-                throw new InvalidOperationException("Ini configuration was not initialized!");
-            }
-        }
+        public static string ConfigLocation => IsInitialized
+                    ? CreateIniLocation(_configName + IniExtension, false)
+                    : throw new InvalidOperationException("Ini configuration was not initialized!");
 
         /// <summary>
         /// Create the location of the configuration file
@@ -210,7 +202,7 @@ namespace Greenshot.Base.IniFile
             catch (Exception exception)
             {
                 Log.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
-                applicationStartupPath = @".";
+                applicationStartupPath = ".";
             }
 
             if (applicationStartupPath != null)
@@ -328,12 +320,11 @@ namespace Greenshot.Base.IniFile
                 return;
             }
 
-            foreach (string fixedPropertyKey in fixedPropertiesForSection.Keys)
+            foreach (var fixedPropertyKey in from string fixedPropertyKey in fixedPropertiesForSection.Keys
+                                             where section.Values.ContainsKey(fixedPropertyKey)
+                                             select fixedPropertyKey)
             {
-                if (section.Values.ContainsKey(fixedPropertyKey))
-                {
-                    section.Values[fixedPropertyKey].IsFixed = true;
-                }
+                section.Values[fixedPropertyKey].IsFixed = true;
             }
         }
 
@@ -412,13 +403,10 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         /// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
         /// <returns>Filled instance of IniSection type which was supplied</returns>
-        public static T GetIniSection<T>() where T : IniSection
-        {
-            return GetIniSection<T>(true);
-        }
+        public static T GetIniSection<T>() where T : IniSection => GetIniSection<T>(true);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
         /// <param name="allowSave">false to skip saving</param>
@@ -432,12 +420,12 @@ namespace Greenshot.Base.IniFile
             if (SectionMap.ContainsKey(sectionName))
             {
                 //LOG.Debug("Returning pre-mapped section " + sectionName);
-                section = (T) SectionMap[sectionName];
+                section = (T)SectionMap[sectionName];
             }
             else
             {
                 // Create instance of this type
-                section = (T) Activator.CreateInstance(iniSectionType);
+                section = (T)Activator.CreateInstance(iniSectionType);
 
                 // Store for later save & retrieval
                 SectionMap.Add(sectionName, section);
@@ -463,18 +451,15 @@ namespace Greenshot.Base.IniFile
         {
             string sectionName = section.IniSectionAttribute.Name;
             // Get the properties for the section
-            IDictionary<string, string> properties;
             if (_sections.ContainsKey(sectionName))
             {
-                properties = _sections[sectionName];
+                return _sections[sectionName];
             }
             else
             {
                 _sections.Add(sectionName, new Dictionary<string, string>());
-                properties = _sections[sectionName];
+                return _sections[sectionName];
             }
-
-            return properties;
         }
 
         /// <summary>
@@ -567,7 +552,7 @@ namespace Greenshot.Base.IniFile
             // Don't forget to flush the buffer
             writer.Flush();
             // Now write the created .ini string to the real file
-            using FileStream fileStream = new FileStream(iniLocation, FileMode.Create, FileAccess.Write);
+            using FileStream fileStream = new(iniLocation, FileMode.Create, FileAccess.Write);
             memoryStream.WriteTo(fileStream);
         }
     }

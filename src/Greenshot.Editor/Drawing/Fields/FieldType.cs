@@ -53,24 +53,16 @@ namespace Greenshot.Editor.Drawing.Fields
         public static readonly IFieldType FLAGS = new FieldType(nameof(FLAGS));
         public static readonly IFieldType CROPMODE = new FieldType(nameof(CROPMODE));
 
-
-        public static IFieldType[] Values =
+        public string Name { get; set; }
+        public static IFieldType[] Values { get; set; } =
         {
             ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR,
             LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS, CROPMODE
         };
 
-        public string Name { get; set; }
+        private FieldType(string name) => Name = name;
 
-        private FieldType(string name)
-        {
-            Name = name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         public override int GetHashCode()
         {
@@ -87,22 +79,11 @@ namespace Greenshot.Editor.Drawing.Fields
         public override bool Equals(object obj)
         {
             FieldType other = obj as FieldType;
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Equals(Name, other.Name);
+            return other != null && Equals(Name, other.Name);
         }
 
-        public static bool operator ==(FieldType a, FieldType b)
-        {
-            return Equals(a, b);
-        }
+        public static bool operator ==(FieldType a, FieldType b) => Equals(a, b);
 
-        public static bool operator !=(FieldType a, FieldType b)
-        {
-            return !Equals(a, b);
-        }
+        public static bool operator !=(FieldType a, FieldType b) => !Equals(a, b);
     }
 }

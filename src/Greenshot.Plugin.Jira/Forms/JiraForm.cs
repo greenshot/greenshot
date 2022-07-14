@@ -113,15 +113,9 @@ namespace Greenshot.Plugin.Jira.Forms
             jiraCommentBox.Enabled = enabled;
         }
 
-        public void SetFilename(string filename)
-        {
-            jiraFilenameBox.Text = filename;
-        }
+        public void SetFilename(string filename) => jiraFilenameBox.Text = filename;
 
-        public Issue GetJiraIssue()
-        {
-            return _selectedIssue;
-        }
+        public Issue GetJiraIssue() => _selectedIssue;
 
         public async Task UploadAsync(IBinaryContainer attachment)
         {
@@ -139,7 +133,7 @@ namespace Greenshot.Plugin.Jira.Forms
             if (_jiraConnector.IsLoggedIn)
             {
                 uploadButton.Enabled = false;
-                var filter = (Filter) jiraFilterBox.SelectedItem;
+                var filter = (Filter)jiraFilterBox.SelectedItem;
                 if (filter == null)
                 {
                     return;
@@ -225,7 +219,7 @@ namespace Greenshot.Plugin.Jira.Forms
         {
             if (jiraListView.SelectedItems.Count > 0)
             {
-                _selectedIssue = (Issue) jiraListView.SelectedItems[0].Tag;
+                _selectedIssue = (Issue)jiraListView.SelectedItems[0].Tag;
                 jiraKey.Text = _selectedIssue.Key;
                 uploadButton.Enabled = true;
             }

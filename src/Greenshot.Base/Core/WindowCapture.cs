@@ -41,6 +41,7 @@ using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using log4net;
+using System.Linq;
 
 namespace Greenshot.Base.Core
 {
@@ -59,10 +60,7 @@ namespace Greenshot.Base.Core
         /// <returns>
         /// Point with cursor location, relative to the top left corner of the monitor setup (which itself might actually not be on any screen)
         /// </returns>
-        public static NativePoint GetCursorLocationRelativeToScreenBounds()
-        {
-            return GetLocationRelativeToScreenBounds(User32Api.GetCursorLocation());
-        }
+        public static NativePoint GetCursorLocationRelativeToScreenBounds() => GetLocationRelativeToScreenBounds(User32Api.GetCursorLocation());
 
         /// <summary>
         /// Converts locationRelativeToScreenOrigin to be relative to top left corner of all screen bounds, which might
@@ -153,7 +151,7 @@ namespace Greenshot.Base.Core
         {
             if (process == null) return true;
             if (Configuration.NoDWMCaptureForProduct == null ||
-                Configuration.NoDWMCaptureForProduct.Count <= 0) return true;
+                Configuration.NoDWMCaptureForProduct.Count == 0) return true;
 
             try
             {
@@ -180,7 +178,7 @@ namespace Greenshot.Base.Core
         {
             if (process == null) return true;
             if (Configuration.NoGDICaptureForProduct == null ||
-                Configuration.NoGDICaptureForProduct.Count <= 0) return true;
+                Configuration.NoGDICaptureForProduct.Count == 0) return true;
 
             try
             {
@@ -337,18 +335,14 @@ namespace Greenshot.Base.Core
                     try
                     {
                         // Collect all screens inside this capture
-                        List<Screen> screensInsideCapture = new List<Screen>();
-                        foreach (Screen screen in Screen.AllScreens)
-                        {
-                            if (screen.Bounds.IntersectsWith(captureBounds))
-                            {
-                                screensInsideCapture.Add(screen);
-                            }
-                        }
+                        List<Screen> screensInsideCapture = new();
+                        screensInsideCapture.AddRange(from Screen screen in Screen.AllScreens
+                                                      where screen.Bounds.IntersectsWith(captureBounds)
+                                                      select screen);
 
                         // Check all all screens are of an equal size
                         bool offscreenContent;
-                        using (Region captureRegion = new Region(captureBounds))
+                        using (Region captureRegion = new(captureBounds))
                         {
                             // Exclude every visible part
                             foreach (Screen screen in screensInsideCapture)

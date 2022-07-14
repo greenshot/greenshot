@@ -57,7 +57,7 @@ namespace Greenshot.Base.Core
                     return false;
                 }
             }
-            else if (other != null && other.Version != null)
+            else if (other?.Version != null)
             {
                 return false;
             }

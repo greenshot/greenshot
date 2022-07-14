@@ -40,9 +40,6 @@ namespace Greenshot.Plugin.Imgur.Forms
             historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
         }
 
-        private void ButtonHistoryClick(object sender, EventArgs e)
-        {
-            ImgurHistory.ShowHistory();
-        }
+        private void ButtonHistoryClick(object sender, EventArgs e) => ImgurHistory.ShowHistory();
     }
 }

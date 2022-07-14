@@ -71,7 +71,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT background (BSTR value);
             // VB6: Sub background (ByVal value As String)
-            [DispId(-2147413080)] set;
+            [DispId(-2147413080)]
+            set;
         }
 
         /// <summary><para><c>backgroundAttachment</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -87,7 +88,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT backgroundAttachment (BSTR value);
             // VB6: Sub backgroundAttachment (ByVal value As String)
-            [DispId(-2147413067)] set;
+            [DispId(-2147413067)]
+            set;
         }
 
         /// <summary><para><c>backgroundColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -98,10 +100,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT backgroundColor ([out, retval] VARIANT* ReturnValue);
             // VB6: Function backgroundColor As Any
-            [DispId(-501)] get;
+            [DispId(-501)]
+            get;
             // IDL: HRESULT backgroundColor (VARIANT value);
             // VB6: Sub backgroundColor (ByVal value As Any)
-            [DispId(-501)] set;
+            [DispId(-501)]
+            set;
         }
 
         /// <summary><para><c>backgroundImage</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -117,7 +121,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT backgroundImage (BSTR value);
             // VB6: Sub backgroundImage (ByVal value As String)
-            [DispId(-2147413111)] set;
+            [DispId(-2147413111)]
+            set;
         }
 
         /// <summary><para><c>backgroundPosition</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -133,7 +138,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT backgroundPosition (BSTR value);
             // VB6: Sub backgroundPosition (ByVal value As String)
-            [DispId(-2147413066)] set;
+            [DispId(-2147413066)]
+            set;
         }
 
         /// <summary><para><c>backgroundPositionX</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -144,10 +150,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT backgroundPositionX ([out, retval] VARIANT* ReturnValue);
             // VB6: Function backgroundPositionX As Any
-            [DispId(-2147413079)] get;
+            [DispId(-2147413079)]
+            get;
             // IDL: HRESULT backgroundPositionX (VARIANT value);
             // VB6: Sub backgroundPositionX (ByVal value As Any)
-            [DispId(-2147413079)] set;
+            [DispId(-2147413079)]
+            set;
         }
 
         /// <summary><para><c>backgroundPositionY</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -158,10 +166,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT backgroundPositionY ([out, retval] VARIANT* ReturnValue);
             // VB6: Function backgroundPositionY As Any
-            [DispId(-2147413078)] get;
+            [DispId(-2147413078)]
+            get;
             // IDL: HRESULT backgroundPositionY (VARIANT value);
             // VB6: Sub backgroundPositionY (ByVal value As Any)
-            [DispId(-2147413078)] set;
+            [DispId(-2147413078)]
+            set;
         }
 
         /// <summary><para><c>backgroundRepeat</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -177,7 +187,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT backgroundRepeat (BSTR value);
             // VB6: Sub backgroundRepeat (ByVal value As String)
-            [DispId(-2147413068)] set;
+            [DispId(-2147413068)]
+            set;
         }
 
         /// <summary><para><c>border</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -193,7 +204,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT border (BSTR value);
             // VB6: Sub border (ByVal value As String)
-            [DispId(-2147413063)] set;
+            [DispId(-2147413063)]
+            set;
         }
 
         /// <summary><para><c>borderBottom</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -209,7 +221,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderBottom (BSTR value);
             // VB6: Sub borderBottom (ByVal value As String)
-            [DispId(-2147413060)] set;
+            [DispId(-2147413060)]
+            set;
         }
 
         /// <summary><para><c>borderBottomColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -220,10 +233,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderBottomColor ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderBottomColor As Any
-            [DispId(-2147413055)] get;
+            [DispId(-2147413055)]
+            get;
             // IDL: HRESULT borderBottomColor (VARIANT value);
             // VB6: Sub borderBottomColor (ByVal value As Any)
-            [DispId(-2147413055)] set;
+            [DispId(-2147413055)]
+            set;
         }
 
         /// <summary><para><c>borderBottomStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -239,7 +254,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderBottomStyle (BSTR value);
             // VB6: Sub borderBottomStyle (ByVal value As String)
-            [DispId(-2147413045)] set;
+            [DispId(-2147413045)]
+            set;
         }
 
         /// <summary><para><c>borderBottomWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -250,10 +266,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderBottomWidth ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderBottomWidth As Any
-            [DispId(-2147413050)] get;
+            [DispId(-2147413050)]
+            get;
             // IDL: HRESULT borderBottomWidth (VARIANT value);
             // VB6: Sub borderBottomWidth (ByVal value As Any)
-            [DispId(-2147413050)] set;
+            [DispId(-2147413050)]
+            set;
         }
 
         /// <summary><para><c>borderColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -269,7 +287,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderColor (BSTR value);
             // VB6: Sub borderColor (ByVal value As String)
-            [DispId(-2147413058)] set;
+            [DispId(-2147413058)]
+            set;
         }
 
         /// <summary><para><c>borderLeft</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -285,7 +304,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderLeft (BSTR value);
             // VB6: Sub borderLeft (ByVal value As String)
-            [DispId(-2147413059)] set;
+            [DispId(-2147413059)]
+            set;
         }
 
         /// <summary><para><c>borderLeftColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -296,10 +316,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderLeftColor ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderLeftColor As Any
-            [DispId(-2147413054)] get;
+            [DispId(-2147413054)]
+            get;
             // IDL: HRESULT borderLeftColor (VARIANT value);
             // VB6: Sub borderLeftColor (ByVal value As Any)
-            [DispId(-2147413054)] set;
+            [DispId(-2147413054)]
+            set;
         }
 
         /// <summary><para><c>borderLeftStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -315,7 +337,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderLeftStyle (BSTR value);
             // VB6: Sub borderLeftStyle (ByVal value As String)
-            [DispId(-2147413044)] set;
+            [DispId(-2147413044)]
+            set;
         }
 
         /// <summary><para><c>borderLeftWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -326,10 +349,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderLeftWidth ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderLeftWidth As Any
-            [DispId(-2147413049)] get;
+            [DispId(-2147413049)]
+            get;
             // IDL: HRESULT borderLeftWidth (VARIANT value);
             // VB6: Sub borderLeftWidth (ByVal value As Any)
-            [DispId(-2147413049)] set;
+            [DispId(-2147413049)]
+            set;
         }
 
         /// <summary><para><c>borderRight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -345,7 +370,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderRight (BSTR value);
             // VB6: Sub borderRight (ByVal value As String)
-            [DispId(-2147413061)] set;
+            [DispId(-2147413061)]
+            set;
         }
 
         /// <summary><para><c>borderRightColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -356,10 +382,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderRightColor ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderRightColor As Any
-            [DispId(-2147413056)] get;
+            [DispId(-2147413056)]
+            get;
             // IDL: HRESULT borderRightColor (VARIANT value);
             // VB6: Sub borderRightColor (ByVal value As Any)
-            [DispId(-2147413056)] set;
+            [DispId(-2147413056)]
+            set;
         }
 
         /// <summary><para><c>borderRightStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -375,7 +403,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderRightStyle (BSTR value);
             // VB6: Sub borderRightStyle (ByVal value As String)
-            [DispId(-2147413046)] set;
+            [DispId(-2147413046)]
+            set;
         }
 
         /// <summary><para><c>borderRightWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -386,10 +415,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderRightWidth ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderRightWidth As Any
-            [DispId(-2147413051)] get;
+            [DispId(-2147413051)]
+            get;
             // IDL: HRESULT borderRightWidth (VARIANT value);
             // VB6: Sub borderRightWidth (ByVal value As Any)
-            [DispId(-2147413051)] set;
+            [DispId(-2147413051)]
+            set;
         }
 
         /// <summary><para><c>borderStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -405,7 +436,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderStyle (BSTR value);
             // VB6: Sub borderStyle (ByVal value As String)
-            [DispId(-2147413048)] set;
+            [DispId(-2147413048)]
+            set;
         }
 
         /// <summary><para><c>borderTop</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -421,7 +453,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderTop (BSTR value);
             // VB6: Sub borderTop (ByVal value As String)
-            [DispId(-2147413062)] set;
+            [DispId(-2147413062)]
+            set;
         }
 
         /// <summary><para><c>borderTopColor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -432,10 +465,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderTopColor ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderTopColor As Any
-            [DispId(-2147413057)] get;
+            [DispId(-2147413057)]
+            get;
             // IDL: HRESULT borderTopColor (VARIANT value);
             // VB6: Sub borderTopColor (ByVal value As Any)
-            [DispId(-2147413057)] set;
+            [DispId(-2147413057)]
+            set;
         }
 
         /// <summary><para><c>borderTopStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -451,7 +486,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderTopStyle (BSTR value);
             // VB6: Sub borderTopStyle (ByVal value As String)
-            [DispId(-2147413047)] set;
+            [DispId(-2147413047)]
+            set;
         }
 
         /// <summary><para><c>borderTopWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -462,10 +498,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT borderTopWidth ([out, retval] VARIANT* ReturnValue);
             // VB6: Function borderTopWidth As Any
-            [DispId(-2147413052)] get;
+            [DispId(-2147413052)]
+            get;
             // IDL: HRESULT borderTopWidth (VARIANT value);
             // VB6: Sub borderTopWidth (ByVal value As Any)
-            [DispId(-2147413052)] set;
+            [DispId(-2147413052)]
+            set;
         }
 
         /// <summary><para><c>borderWidth</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -481,7 +519,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT borderWidth (BSTR value);
             // VB6: Sub borderWidth (ByVal value As String)
-            [DispId(-2147413053)] set;
+            [DispId(-2147413053)]
+            set;
         }
 
         /// <summary><para><c>clear</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -497,7 +536,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT clear (BSTR value);
             // VB6: Sub clear (ByVal value As String)
-            [DispId(-2147413096)] set;
+            [DispId(-2147413096)]
+            set;
         }
 
         /// <summary><para><c>clip</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -513,7 +553,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT clip (BSTR value);
             // VB6: Sub clip (ByVal value As String)
-            [DispId(-2147413020)] set;
+            [DispId(-2147413020)]
+            set;
         }
 
         /// <summary><para><c>color</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -524,10 +565,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT color ([out, retval] VARIANT* ReturnValue);
             // VB6: Function color As Any
-            [DispId(-2147413110)] get;
+            [DispId(-2147413110)]
+            get;
             // IDL: HRESULT color (VARIANT value);
             // VB6: Sub color (ByVal value As Any)
-            [DispId(-2147413110)] set;
+            [DispId(-2147413110)]
+            set;
         }
 
         /// <summary><para><c>cssText</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -543,7 +586,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT cssText (BSTR value);
             // VB6: Sub cssText (ByVal value As String)
-            [DispId(-2147413013)] set;
+            [DispId(-2147413013)]
+            set;
         }
 
         /// <summary><para><c>cursor</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -559,7 +603,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT cursor (BSTR value);
             // VB6: Sub cursor (ByVal value As String)
-            [DispId(-2147413010)] set;
+            [DispId(-2147413010)]
+            set;
         }
 
         /// <summary><para><c>display</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -575,7 +620,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT display (BSTR value);
             // VB6: Sub display (ByVal value As String)
-            [DispId(-2147413041)] set;
+            [DispId(-2147413041)]
+            set;
         }
 
         /// <summary><para><c>filter</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -591,7 +637,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT filter (BSTR value);
             // VB6: Sub filter (ByVal value As String)
-            [DispId(-2147413030)] set;
+            [DispId(-2147413030)]
+            set;
         }
 
         /// <summary><para><c>font</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -607,7 +654,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT font (BSTR value);
             // VB6: Sub font (ByVal value As String)
-            [DispId(-2147413071)] set;
+            [DispId(-2147413071)]
+            set;
         }
 
         /// <summary><para><c>fontFamily</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -623,7 +671,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT fontFamily (BSTR value);
             // VB6: Sub fontFamily (ByVal value As String)
-            [DispId(-2147413094)] set;
+            [DispId(-2147413094)]
+            set;
         }
 
         /// <summary><para><c>fontSize</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -634,10 +683,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT fontSize ([out, retval] VARIANT* ReturnValue);
             // VB6: Function fontSize As Any
-            [DispId(-2147413093)] get;
+            [DispId(-2147413093)]
+            get;
             // IDL: HRESULT fontSize (VARIANT value);
             // VB6: Sub fontSize (ByVal value As Any)
-            [DispId(-2147413093)] set;
+            [DispId(-2147413093)]
+            set;
         }
 
         /// <summary><para><c>fontStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -653,7 +704,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT fontStyle (BSTR value);
             // VB6: Sub fontStyle (ByVal value As String)
-            [DispId(-2147413088)] set;
+            [DispId(-2147413088)]
+            set;
         }
 
         /// <summary><para><c>fontVariant</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -669,7 +721,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT fontVariant (BSTR value);
             // VB6: Sub fontVariant (ByVal value As String)
-            [DispId(-2147413087)] set;
+            [DispId(-2147413087)]
+            set;
         }
 
         /// <summary><para><c>fontWeight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -685,7 +738,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT fontWeight (BSTR value);
             // VB6: Sub fontWeight (ByVal value As String)
-            [DispId(-2147413085)] set;
+            [DispId(-2147413085)]
+            set;
         }
 
         /// <summary><para><c>height</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -696,10 +750,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT height ([out, retval] VARIANT* ReturnValue);
             // VB6: Function height As Any
-            [DispId(-2147418106)] get;
+            [DispId(-2147418106)]
+            get;
             // IDL: HRESULT height (VARIANT value);
             // VB6: Sub height (ByVal value As Any)
-            [DispId(-2147418106)] set;
+            [DispId(-2147418106)]
+            set;
         }
 
         /// <summary><para><c>left</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -710,10 +766,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT left ([out, retval] VARIANT* ReturnValue);
             // VB6: Function left As Any
-            [DispId(-2147418109)] get;
+            [DispId(-2147418109)]
+            get;
             // IDL: HRESULT left (VARIANT value);
             // VB6: Sub left (ByVal value As Any)
-            [DispId(-2147418109)] set;
+            [DispId(-2147418109)]
+            set;
         }
 
         /// <summary><para><c>letterSpacing</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -724,10 +782,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT letterSpacing ([out, retval] VARIANT* ReturnValue);
             // VB6: Function letterSpacing As Any
-            [DispId(-2147413104)] get;
+            [DispId(-2147413104)]
+            get;
             // IDL: HRESULT letterSpacing (VARIANT value);
             // VB6: Sub letterSpacing (ByVal value As Any)
-            [DispId(-2147413104)] set;
+            [DispId(-2147413104)]
+            set;
         }
 
         /// <summary><para><c>lineHeight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -738,10 +798,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT lineHeight ([out, retval] VARIANT* ReturnValue);
             // VB6: Function lineHeight As Any
-            [DispId(-2147413106)] get;
+            [DispId(-2147413106)]
+            get;
             // IDL: HRESULT lineHeight (VARIANT value);
             // VB6: Sub lineHeight (ByVal value As Any)
-            [DispId(-2147413106)] set;
+            [DispId(-2147413106)]
+            set;
         }
 
         /// <summary><para><c>listStyle</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -757,7 +819,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT listStyle (BSTR value);
             // VB6: Sub listStyle (ByVal value As String)
-            [DispId(-2147413037)] set;
+            [DispId(-2147413037)]
+            set;
         }
 
         /// <summary><para><c>listStyleImage</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -773,7 +836,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT listStyleImage (BSTR value);
             // VB6: Sub listStyleImage (ByVal value As String)
-            [DispId(-2147413038)] set;
+            [DispId(-2147413038)]
+            set;
         }
 
         /// <summary><para><c>listStylePosition</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -789,7 +853,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT listStylePosition (BSTR value);
             // VB6: Sub listStylePosition (ByVal value As String)
-            [DispId(-2147413039)] set;
+            [DispId(-2147413039)]
+            set;
         }
 
         /// <summary><para><c>listStyleType</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -805,7 +870,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT listStyleType (BSTR value);
             // VB6: Sub listStyleType (ByVal value As String)
-            [DispId(-2147413040)] set;
+            [DispId(-2147413040)]
+            set;
         }
 
         /// <summary><para><c>margin</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -821,7 +887,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT margin (BSTR value);
             // VB6: Sub margin (ByVal value As String)
-            [DispId(-2147413076)] set;
+            [DispId(-2147413076)]
+            set;
         }
 
         /// <summary><para><c>marginBottom</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -832,10 +899,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT marginBottom ([out, retval] VARIANT* ReturnValue);
             // VB6: Function marginBottom As Any
-            [DispId(-2147413073)] get;
+            [DispId(-2147413073)]
+            get;
             // IDL: HRESULT marginBottom (VARIANT value);
             // VB6: Sub marginBottom (ByVal value As Any)
-            [DispId(-2147413073)] set;
+            [DispId(-2147413073)]
+            set;
         }
 
         /// <summary><para><c>marginLeft</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -846,10 +915,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT marginLeft ([out, retval] VARIANT* ReturnValue);
             // VB6: Function marginLeft As Any
-            [DispId(-2147413072)] get;
+            [DispId(-2147413072)]
+            get;
             // IDL: HRESULT marginLeft (VARIANT value);
             // VB6: Sub marginLeft (ByVal value As Any)
-            [DispId(-2147413072)] set;
+            [DispId(-2147413072)]
+            set;
         }
 
         /// <summary><para><c>marginRight</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -860,10 +931,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT marginRight ([out, retval] VARIANT* ReturnValue);
             // VB6: Function marginRight As Any
-            [DispId(-2147413074)] get;
+            [DispId(-2147413074)]
+            get;
             // IDL: HRESULT marginRight (VARIANT value);
             // VB6: Sub marginRight (ByVal value As Any)
-            [DispId(-2147413074)] set;
+            [DispId(-2147413074)]
+            set;
         }
 
         /// <summary><para><c>marginTop</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -874,10 +947,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT marginTop ([out, retval] VARIANT* ReturnValue);
             // VB6: Function marginTop As Any
-            [DispId(-2147413075)] get;
+            [DispId(-2147413075)]
+            get;
             // IDL: HRESULT marginTop (VARIANT value);
             // VB6: Sub marginTop (ByVal value As Any)
-            [DispId(-2147413075)] set;
+            [DispId(-2147413075)]
+            set;
         }
 
         /// <summary><para><c>overflow</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -893,7 +968,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT overflow (BSTR value);
             // VB6: Sub overflow (ByVal value As String)
-            [DispId(-2147413102)] set;
+            [DispId(-2147413102)]
+            set;
         }
 
         /// <summary><para><c>padding</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -909,7 +985,8 @@ namespace Greenshot.Base.IEInterop
             get;
             // IDL: HRESULT padding (BSTR value);
             // VB6: Sub padding (ByVal value As String)
-            [DispId(-2147413101)] set;
+            [DispId(-2147413101)]
+            set;
         }
 
         /// <summary><para><c>paddingBottom</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -920,10 +997,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT paddingBottom ([out, retval] VARIANT* ReturnValue);
             // VB6: Function paddingBottom As Any
-            [DispId(-2147413098)] get;
+            [DispId(-2147413098)]
+            get;
             // IDL: HRESULT paddingBottom (VARIANT value);
             // VB6: Sub paddingBottom (ByVal value As Any)
-            [DispId(-2147413098)] set;
+            [DispId(-2147413098)]
+            set;
         }
 
         /// <summary><para><c>paddingLeft</c> property of <c>IHTMLStyle</c> interface.</para></summary>
@@ -934,10 +1013,12 @@ namespace Greenshot.Base.IEInterop
         {
             // IDL: HRESULT paddingLeft ([out, retval] VARIANT* ReturnValue);
             // VB6: Function paddingLeft As Any
-            [DispId(-2147413097)] get;
+            [DispId(-2147413097)]
+            get;
             // IDL: HRESULT paddingLeft (VARIANT value);
             // VB6: Sub paddingLeft (ByVal value As Any)
-            [DispId(-2147413097)] set;
+            [DispId(-2147413097)]
+            set;
         }
 
         /// <summary><para><c>paddingRight</c> property of <c>IHTMLStyle</c> interface.</para></summary>

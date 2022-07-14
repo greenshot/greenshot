@@ -53,14 +53,9 @@ namespace Greenshot.Destinations
 
         public override string Designation => nameof(WellKnownDestinations.EMail);
 
-        public override string Description
-        {
-            get
-            {
+        public override string Description =>
                 // Make sure there is some kind of "mail" name
-                return _mapiClient ??= Language.GetString(LangKey.editor_email);
-            }
-        }
+                _mapiClient ??= Language.GetString(LangKey.editor_email);
 
         public override int Priority => 3;
 
@@ -73,7 +68,7 @@ namespace Greenshot.Destinations
                     // Disable if the office plugin is installed and the client is outlook
                     // TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
                     var outlookDestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin", false);
-                    if (outlookDestination != null && _mapiClient.ToLower().Contains("microsoft outlook"))
+                    if (outlookDestination != null && _mapiClient.IndexOf("microsoft outlook", StringComparison.CurrentCultureIgnoreCase) >= 0)
                     {
                         _isActiveFlag = false;
                     }
@@ -89,7 +84,7 @@ namespace Greenshot.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             MapiMailMessage.SendImage(surface, captureDetails);
             exportInformation.ExportMade = true;
             ProcessExport(exportInformation, surface);

@@ -22,9 +22,9 @@
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Position 
+    /// Position
     /// </summary>
-    public enum Positions : int
+    public enum Positions
     {
         TopLeft = 0,
         TopCenter = 1,

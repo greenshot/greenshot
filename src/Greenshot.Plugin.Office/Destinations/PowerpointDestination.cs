@@ -41,7 +41,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         private static readonly string ExePath;
         private readonly string _presentationName;
-        private readonly PowerpointExporter _powerpointExporter = new PowerpointExporter();
+        private readonly PowerpointExporter _powerpointExporter = new();
 
         static PowerpointDestination()
         {
@@ -60,25 +60,11 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public PowerpointDestination(string presentationName)
-        {
-            _presentationName = presentationName;
-        }
+        public PowerpointDestination(string presentationName) => _presentationName = presentationName;
 
         public override string Designation => "Powerpoint";
 
-        public override string Description
-        {
-            get
-            {
-                if (_presentationName == null)
-                {
-                    return "Microsoft Powerpoint";
-                }
-
-                return _presentationName;
-            }
-        }
+        public override string Description => _presentationName ?? "Microsoft Powerpoint";
 
         public override int Priority => 4;
 
@@ -86,18 +72,9 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override bool IsActive => base.IsActive && ExePath != null;
 
-        public override Image DisplayIcon
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_presentationName))
-                {
-                    return PluginUtils.GetCachedExeIcon(ExePath, IconPresentation);
-                }
-
-                return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
-            }
-        }
+        public override Image DisplayIcon => !string.IsNullOrEmpty(_presentationName)
+                    ? PluginUtils.GetCachedExeIcon(ExePath, IconPresentation)
+                    : PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {
@@ -109,7 +86,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             string tmpFile = captureDetails.Filename;
             Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
@@ -127,7 +104,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 if (!manuallyInitiated)
                 {
                     var presentations = _powerpointExporter.GetPowerpointPresentations().ToList();
-                    if (presentations != null && presentations.Count > 0)
+                    if (presentations?.Count > 0)
                     {
                         var destinations = new List<IDestination>
                         {

@@ -49,10 +49,10 @@ namespace Greenshot.Helpers
             {
                 try
                 {
-                    ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-                    _soundBuffer = (byte[]) resources.GetObject("camera");
+                    ResourceManager resources = new("Greenshot.Sounds", Assembly.GetExecutingAssembly());
+                    _soundBuffer = (byte[])resources.GetObject("camera");
 
-                    if (CoreConfig.NotificationSound != null && CoreConfig.NotificationSound.EndsWith(".wav"))
+                    if (CoreConfig.NotificationSound?.EndsWith(".wav") == true)
                     {
                         try
                         {
@@ -82,7 +82,7 @@ namespace Greenshot.Helpers
             if (_soundBuffer != null)
             {
                 //Thread playSoundThread = new Thread(delegate() {
-                var flags = SoundSettings.Async | SoundSettings.Memory| SoundSettings.NoWait| SoundSettings.NoStop;
+                const SoundSettings flags = SoundSettings.Async | SoundSettings.Memory | SoundSettings.NoWait | SoundSettings.NoStop;
                 try
                 {
                     if (_gcHandle != null) WinMm.Play(_gcHandle.Value.AddrOfPinnedObject(), flags);

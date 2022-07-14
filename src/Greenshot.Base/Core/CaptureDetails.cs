@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using System.Linq;
 
 namespace Greenshot.Base.Core
 {
@@ -54,17 +55,7 @@ namespace Greenshot.Base.Core
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
 
         /// <inheritdoc />
-        public void AddMetaData(string key, string value)
-        {
-            if (MetaData.ContainsKey(key))
-            {
-                MetaData[key] = value;
-            }
-            else
-            {
-                MetaData.Add(key, value);
-            }
-        }
+        public void AddMetaData(string key, string value) => MetaData[key] = value;
 
         /// <inheritdoc />
         public CaptureMode CaptureMode { get; set; }
@@ -73,10 +64,7 @@ namespace Greenshot.Base.Core
         public List<IDestination> CaptureDestinations { get; set; } = new List<IDestination>();
 
         /// <inheritdoc />
-        public void ClearDestinations()
-        {
-            CaptureDestinations.Clear();
-        }
+        public void ClearDestinations() => CaptureDestinations.Clear();
 
         /// <inheritdoc />
         public void RemoveDestination(IDestination destination)
@@ -99,20 +87,16 @@ namespace Greenshot.Base.Core
         /// <inheritdoc />
         public bool HasDestination(string designation)
         {
-            foreach (IDestination destination in CaptureDestinations)
+            foreach (var _ in from IDestination destination in CaptureDestinations
+                              where designation.Equals(destination.Designation)
+                              select new { })
             {
-                if (designation.Equals(destination.Designation))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
         }
 
-        public CaptureDetails()
-        {
-            DateTime = DateTime.Now;
-        }
+        public CaptureDetails() => DateTime = DateTime.Now;
     }
 }

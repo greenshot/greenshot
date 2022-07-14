@@ -40,19 +40,19 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add { propertyChanged += value; }
-            remove { propertyChanged -= value; }
+            add => propertyChanged += value;
+            remove => propertyChanged -= value;
         }
 
         private bool invert;
 
         public bool Invert
         {
-            get { return invert; }
+            get => invert;
             set
             {
                 invert = value;
-                OnPropertyChanged("Invert");
+                OnPropertyChanged(nameof(Invert));
             }
         }
 
@@ -60,25 +60,16 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public DrawableContainer Parent
         {
-            get { return parent; }
-            set { parent = value; }
+            get => parent;
+            set => parent = value;
         }
 
-        public AbstractFilter(DrawableContainer parent)
-        {
-            this.parent = parent;
-        }
+        protected AbstractFilter(DrawableContainer parent) => this.parent = parent;
 
-        public DrawableContainer GetParent()
-        {
-            return parent;
-        }
+        public DrawableContainer GetParent() => parent;
 
         public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
 
-        protected void OnPropertyChanged(string propertyName)
-        {
-            propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected void OnPropertyChanged(string propertyName) => propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -57,7 +57,6 @@ namespace Greenshot.Forms
             UpdateImage();
         }
 
-
         private void UpdateImage()
         {
             var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);
@@ -78,7 +77,7 @@ namespace Greenshot.Forms
                 return;
             }
 
-            var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) sender;
+            var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)sender;
             _updateInProgress = true;
             if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed)
             {
@@ -128,17 +127,13 @@ namespace Greenshot.Forms
             DropDownItems.Add(toolStripMenuSelectListItem);
         }
 
-
         /// <summary>
         /// adds an item to the select list
         /// </summary>
         /// <param name="label">the label to be displayed</param>
         /// <param name="data">the data to be returned when an item is queried</param>
         /// <param name="isChecked">whether the item is initially checked</param>
-        public void AddItem(string label, object data, bool isChecked)
-        {
-            AddItem(label, null, data, isChecked);
-        }
+        public void AddItem(string label, object data, bool isChecked) => AddItem(label, null, data, isChecked);
 
         /// <summary>
         /// unchecks all items of the list
@@ -148,7 +143,7 @@ namespace Greenshot.Forms
             IEnumerator items = DropDownItems.GetEnumerator();
             while (items.MoveNext())
             {
-                var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+                var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)items.Current;
                 if (toolStripMenuSelectListItem != null)
                 {
                     toolStripMenuSelectListItem.Checked = false;
@@ -164,10 +159,7 @@ namespace Greenshot.Forms
     {
         public ToolStripMenuSelectListItem Item { get; set; }
 
-        public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item)
-        {
-            Item = item;
-        }
+        public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item) => Item = item;
     }
 
     /// <summary>

@@ -34,10 +34,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class ObfuscateContainer : FilterContainer
     {
-        public ObfuscateContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public ObfuscateContainer(ISurface parent) : base(parent) => Init();
 
         protected override void InitializeFields()
         {
@@ -45,10 +42,7 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
-        }
+        protected override void OnDeserialized(StreamingContext context) => Init();
 
         private void Init()
         {
@@ -59,18 +53,15 @@ namespace Greenshot.Editor.Drawing
 
         protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
         {
-            if (sender.Equals(this))
+            if (sender.Equals(this) && Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE))
             {
-                if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE))
-                {
-                    ConfigurePreparedFilters();
-                }
+                ConfigurePreparedFilters();
             }
         }
 
         private void ConfigurePreparedFilters()
         {
-            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
             while (Filters.Count > 0)
             {
                 Remove(Filters[0]);

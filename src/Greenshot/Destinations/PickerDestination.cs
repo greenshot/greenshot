@@ -38,7 +38,6 @@ namespace Greenshot.Destinations
 
         public override int Priority => 1;
 
-
         /// <summary>
         /// Export the capture with the destination picker
         /// </summary>
@@ -48,7 +47,7 @@ namespace Greenshot.Destinations
         /// <returns>true if export was made</returns>
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            List<IDestination> destinations = new List<IDestination>();
+            List<IDestination> destinations = new();
 
             foreach (var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>())
             {

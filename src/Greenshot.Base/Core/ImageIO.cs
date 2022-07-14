@@ -48,7 +48,7 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-        private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
+        private static readonly Cache<string, string> TmpFileCache = new(10 * 60 * 60, RemoveExpiredTmpFile);
 
         /// <summary>
         /// Creates a PropertyItem (Metadata) to store with the image.
@@ -66,7 +66,7 @@ namespace Greenshot.Base.Core
                 ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[]
                 {
                 }, null);
-                propertyItem = (PropertyItem) ci.Invoke(null);
+                propertyItem = (PropertyItem)ci.Invoke(null);
                 // Make sure it's of type string
                 propertyItem.Type = 2;
                 // Set the ID
@@ -182,10 +182,10 @@ namespace Greenshot.Base.Core
             }
 
             Image tmpImage;
-            if (outputSettings.Effects != null && outputSettings.Effects.Count > 0)
+            if (outputSettings.Effects?.Count > 0)
             {
                 // apply effects, if there are any
-                using (Matrix matrix = new Matrix())
+                using (Matrix matrix = new())
                 {
                     tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, matrix);
                 }
@@ -211,7 +211,7 @@ namespace Greenshot.Base.Core
             bool isAlpha = Image.IsAlphaPixelFormat(imageToSave.PixelFormat);
             if (outputSettings.ReduceColors || (!isAlpha && CoreConfig.OutputFileAutoReduceColors))
             {
-                using var quantizer = new WuQuantizer((Bitmap) imageToSave);
+                using var quantizer = new WuQuantizer((Bitmap)imageToSave);
                 int colorCount = quantizer.GetColorCount();
                 Log.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
                 if (!outputSettings.ReduceColors && colorCount >= 256)
@@ -304,7 +304,7 @@ namespace Greenshot.Base.Core
             // check whether path exists - if not create it
             if (path != null)
             {
-                DirectoryInfo di = new DirectoryInfo(path);
+                DirectoryInfo di = new(path);
                 if (!di.Exists)
                 {
                     Directory.CreateDirectory(di.FullName);
@@ -313,14 +313,14 @@ namespace Greenshot.Base.Core
 
             if (!allowOverwrite && File.Exists(fullPath))
             {
-                ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
+                ArgumentException throwingException = new("File '" + fullPath + "' already exists.");
                 throwingException.Data.Add("fullPath", fullPath);
                 throw throwingException;
             }
 
             Log.DebugFormat("Saving surface to {0}", fullPath);
             // Create the stream and call SaveToStream
-            using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            using (FileStream stream = new(fullPath, FileMode.Create, FileAccess.Write))
             {
                 SaveToStream(surface, stream, outputSettings);
             }
@@ -343,7 +343,7 @@ namespace Greenshot.Base.Core
             OutputFormat format = OutputFormat.png;
             try
             {
-                format = (OutputFormat) Enum.Parse(typeof(OutputFormat), extension.ToLower());
+                format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
             }
             catch (ArgumentException ae)
             {
@@ -362,17 +362,17 @@ namespace Greenshot.Base.Core
         public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
         {
             string returnValue = null;
-            using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+            using (SaveImageFileDialog saveImageFileDialog = new(captureDetails))
             {
                 DialogResult dialogResult = saveImageFileDialog.ShowDialog();
                 if (!dialogResult.Equals(DialogResult.OK)) return returnValue;
                 try
                 {
                     string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-                    SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+                    SurfaceOutputSettings outputSettings = new(FormatForFilename(fileNameWithExtension));
                     if (CoreConfig.OutputFilePromptQuality)
                     {
-                        QualityDialog qualityDialog = new QualityDialog(outputSettings);
+                        QualityDialog qualityDialog = new(outputSettings);
                         qualityDialog.ShowDialog();
                     }
 
@@ -410,7 +410,7 @@ namespace Greenshot.Base.Core
             // Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
             filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
             // Remove multiple "_"
-            filename = Regex.Replace(filename, @"_+", "_");
+            filename = Regex.Replace(filename, "_+", "_");
             string tmpFile = Path.Combine(Path.GetTempPath(), filename);
 
             Log.Debug("Creating TMP File: " + tmpFile);
@@ -495,7 +495,7 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// Cleanup all created tmpfiles
-        /// </summary>	
+        /// </summary>
         public static void RemoveTmpFiles()
         {
             foreach (string tmpFile in TmpFileCache.Elements)
@@ -625,7 +625,7 @@ namespace Greenshot.Base.Core
             // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
             const int markerSize = 14;
             surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
+            using (StreamReader streamReader = new(surfaceFileStream))
             {
                 var greenshotMarker = streamReader.ReadToEnd();
                 if (!greenshotMarker.StartsWith("Greenshot"))
@@ -636,7 +636,7 @@ namespace Greenshot.Base.Core
                 Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
                 const int filesizeLocation = 8 + markerSize;
                 surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
+                using BinaryReader reader = new(surfaceFileStream);
                 long bytesWritten = reader.ReadInt64();
                 surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
                 returnSurface.LoadElementsFromStream(surfaceFileStream);

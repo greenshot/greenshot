@@ -37,10 +37,7 @@ namespace Greenshot.Editor.Drawing.Adorners
 
         public Positions Position { get; private set; }
 
-        public ResizeAdorner(IDrawableContainer owner, Positions position) : base(owner)
-        {
-            Position = position;
-        }
+        public ResizeAdorner(IDrawableContainer owner, Positions position) : base(owner) => Position = position;
 
         /// <summary>
         /// Returns the cursor for when the mouse is over the adorner

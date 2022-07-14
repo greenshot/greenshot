@@ -34,21 +34,15 @@ namespace Greenshot.Base.Effects
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ReduceColorsEffect));
 
-        public ReduceColorsEffect()
-        {
-            Reset();
-        }
+        public ReduceColorsEffect() => Reset();
 
         public int Colors { get; set; }
 
-        public void Reset()
-        {
-            Colors = 256;
-        }
+        public void Reset() => Colors = 256;
 
         public Image Apply(Image sourceImage, Matrix matrix)
         {
-            using (WuQuantizer quantizer = new WuQuantizer((Bitmap) sourceImage))
+            using (WuQuantizer quantizer = new((Bitmap)sourceImage))
             {
                 int colorCount = quantizer.GetColorCount();
                 if (colorCount > Colors)

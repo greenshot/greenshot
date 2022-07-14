@@ -12,10 +12,7 @@ namespace Greenshot.Plugin.Office.Com
     /// <typeparam name="T">Type of the com object</typeparam>
     internal class DisposableComImplementation<T> : IDisposableCom<T>
     {
-        public DisposableComImplementation(T obj)
-        {
-            ComObject = obj;
-        }
+        public DisposableComImplementation(T obj) => ComObject = obj;
 
         public T ComObject { get; private set; }
 

@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Forms
         {
             shadowCheckbox.Checked = _effect.GenerateShadow;
             // Fix to prevent BUG-1753
-            shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int) (_effect.Darkness * shadowDarkness.Maximum)));
+            shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int)(_effect.Darkness * shadowDarkness.Maximum)));
             offsetX.Value = _effect.ShadowOffset.X;
             offsetY.Value = _effect.ShadowOffset.Y;
             toothsize.Value = _effect.ToothHeight;
@@ -55,12 +55,12 @@ namespace Greenshot.Editor.Forms
 
         private void ButtonOK_Click(object sender, EventArgs e)
         {
-            _effect.Darkness = shadowDarkness.Value / (float) 40;
-            _effect.ShadowOffset = new NativePoint((int) offsetX.Value, (int) offsetY.Value);
-            _effect.ShadowSize = (int) thickness.Value;
-            _effect.ToothHeight = (int) toothsize.Value;
-            _effect.VerticalToothRange = (int) verticaltoothrange.Value;
-            _effect.HorizontalToothRange = (int) horizontaltoothrange.Value;
+            _effect.Darkness = shadowDarkness.Value / (float)40;
+            _effect.ShadowOffset = new NativePoint((int)offsetX.Value, (int)offsetY.Value);
+            _effect.ShadowSize = (int)thickness.Value;
+            _effect.ToothHeight = (int)toothsize.Value;
+            _effect.VerticalToothRange = (int)verticaltoothrange.Value;
+            _effect.HorizontalToothRange = (int)horizontaltoothrange.Value;
             _effect.Edges = new[]
             {
                 top.Checked, right.Checked, bottom.Checked, left.Checked
@@ -76,7 +76,6 @@ namespace Greenshot.Editor.Forms
             offsetY.Enabled = shadowCheckbox.Checked;
             shadowDarkness.Enabled = shadowCheckbox.Checked;
         }
-
 
         private void all_CheckedChanged(object sender, EventArgs e)
         {

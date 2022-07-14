@@ -64,8 +64,8 @@ namespace Greenshot.Editor.Forms
             const double tolerance = 3 * double.Epsilon;
             if (Math.Abs(_newWidth - _effect.Width) > tolerance || Math.Abs(_newHeight - _effect.Height) > tolerance)
             {
-                _effect.Width = (int) _newWidth;
-                _effect.Height = (int) _newHeight;
+                _effect.Width = (int)_newWidth;
+                _effect.Height = (int)_newHeight;
                 _effect.MaintainAspectRatio = checkbox_aspectratio.Checked;
                 DialogResult = DialogResult.OK;
             }
@@ -90,32 +90,14 @@ namespace Greenshot.Editor.Forms
 
         private void DisplayWidth()
         {
-            double displayValue;
-            if (_valuePercent.Equals(combobox_width.SelectedItem))
-            {
-                displayValue = _newWidth / _effect.Width * 100d;
-            }
-            else
-            {
-                displayValue = _newWidth;
-            }
-
-            textbox_width.Text = ((int) displayValue).ToString();
+            double displayValue = _valuePercent.Equals(combobox_width.SelectedItem) ? _newWidth / _effect.Width * 100d : _newWidth;
+            textbox_width.Text = ((int)displayValue).ToString();
         }
 
         private void DisplayHeight()
         {
-            double displayValue;
-            if (_valuePercent.Equals(combobox_height.SelectedItem))
-            {
-                displayValue = _newHeight / _effect.Height * 100d;
-            }
-            else
-            {
-                displayValue = _newHeight;
-            }
-
-            textbox_height.Text = ((int) displayValue).ToString();
+            double displayValue = _valuePercent.Equals(combobox_height.SelectedItem) ? _newHeight / _effect.Height * 100d : _newHeight;
+            textbox_height.Text = ((int)displayValue).ToString();
         }
 
         private void Textbox_KeyUp(object sender, KeyEventArgs e)
@@ -188,13 +170,10 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void Textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            Validate(sender);
-        }
+        private void Textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e) => Validate(sender);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

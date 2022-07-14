@@ -80,10 +80,8 @@ namespace Greenshot.Plugin.Imgur
 
         [IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
         public Dictionary<string, string> ImgurUploadHistory { get; set; }
-
-        // Not stored, only run-time!
-        public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
         public int Credits { get; set; }
+        public Dictionary<string, ImgurInfo> RuntimeImgurHistory { get; set; } = new();
 
         /// <summary>
         /// Upgrade certain values
@@ -119,7 +117,7 @@ namespace Greenshot.Plugin.Imgur
         /// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog()
         {
-            SettingsForm settingsForm = new SettingsForm();
+            SettingsForm settingsForm = new();
             DialogResult result = settingsForm.ShowDialog();
             return result == DialogResult.OK;
         }

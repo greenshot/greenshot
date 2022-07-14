@@ -41,10 +41,7 @@ namespace Greenshot.Plugin.Win10
             // Nothing to dispose
         }
 
-        public void Configure()
-        {
-            throw new NotImplementedException();
-        }
+        public void Configure() => throw new NotImplementedException();
 
         /// <summary>
         /// Name of the plugin

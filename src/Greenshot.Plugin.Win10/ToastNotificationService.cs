@@ -122,8 +122,8 @@ namespace Greenshot.Plugin.Win10
                     //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
                     .Show(toast =>
                     {
-                    // Windows 10 first with 1903: ExpiresOnReboot = true
-                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
+                        // Windows 10 first with 1903: ExpiresOnReboot = true
+                        toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : null;
 
                         void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                         {
@@ -162,15 +162,14 @@ namespace Greenshot.Plugin.Win10
                             }
 
                             toast.Dismissed -= ToastDismissedHandler;
-                        // Remove the other handler too
-                        toast.Activated -= ToastActivatedHandler;
+                            // Remove the other handler too
+                            toast.Activated -= ToastActivatedHandler;
                             toast.Failed -= ToastOnFailed;
                         }
 
                         toast.Dismissed += ToastDismissedHandler;
                         toast.Failed += ToastOnFailed;
                     });
-
             }
             catch (Exception ex)
             {
@@ -184,20 +183,11 @@ namespace Greenshot.Plugin.Win10
             Log.Debug(sender.Content.GetXml());
         }
 
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
         /// <summary>
         /// Factory method, helping with checking if the notification service is even available

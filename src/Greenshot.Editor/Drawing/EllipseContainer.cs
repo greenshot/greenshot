@@ -38,10 +38,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class EllipseContainer : DrawableContainer
     {
-        public EllipseContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public EllipseContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -49,10 +46,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         protected override void InitializeFields()
         {
@@ -93,13 +87,13 @@ namespace Greenshot.Editor.Drawing
             // draw shadow before anything else
             if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
             {
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = lineVisible ? 1 : 0;
                 while (currentStep <= steps)
                 {
-                    using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))
+                    using Pen shadowPen = new(Color.FromArgb(alpha, 100, 100, 100))
                     {
                         Width = lineVisible ? lineThickness : 1
                     };
@@ -119,15 +113,12 @@ namespace Greenshot.Editor.Drawing
 
             if (lineVisible)
             {
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 graphics.DrawEllipse(pen, rect);
             }
         }
 
-        public override bool Contains(int x, int y)
-        {
-            return EllipseContains(this, x, y);
-        }
+        public override bool Contains(int x, int y) => EllipseContains(this, x, y);
 
         /// <summary>
         /// Allow the code to be used externally
@@ -138,10 +129,10 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public static bool EllipseContains(DrawableContainer caller, int x, int y)
         {
-            double xDistanceFromCenter = x - (caller.Left + caller.Width / 2);
-            double yDistanceFromCenter = y - (caller.Top + caller.Height / 2);
+            double xDistanceFromCenter = x - (caller.Left + (caller.Width / 2));
+            double yDistanceFromCenter = y - (caller.Top + (caller.Height / 2));
             // ellipse: x^2/a^2 + y^2/b^2 = 1
-            return Math.Pow(xDistanceFromCenter, 2) / Math.Pow(caller.Width / 2, 2) + Math.Pow(yDistanceFromCenter, 2) / Math.Pow(caller.Height / 2, 2) < 1;
+            return (Math.Pow(xDistanceFromCenter, 2) / Math.Pow(caller.Width / 2F, 2)) + (Math.Pow(yDistanceFromCenter, 2) / Math.Pow(caller.Height / 2, 2)) < 1;
         }
 
         public override bool ClickableAt(int x, int y)
@@ -155,19 +146,16 @@ namespace Greenshot.Editor.Drawing
         public static bool EllipseClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
-            if (!Color.Transparent.Equals(fillColor))
+            if (!Color.Transparent.Equals(fillColor) && rect.Contains(x, y))
             {
-                if (rect.Contains(x, y))
-                {
-                    return true;
-                }
+                return true;
             }
 
             // check the rest of the lines
             if (lineThickness > 0)
             {
-                using Pen pen = new Pen(Color.White, lineThickness);
-                using GraphicsPath path = new GraphicsPath();
+                using Pen pen = new(Color.White, lineThickness);
+                using GraphicsPath path = new();
                 path.AddEllipse(rect);
                 return path.IsOutlineVisible(x, y, pen);
             }

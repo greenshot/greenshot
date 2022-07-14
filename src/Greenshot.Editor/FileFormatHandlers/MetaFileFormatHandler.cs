@@ -37,7 +37,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".wmf", ".emf" };
-        
+
         public MetaFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
@@ -45,10 +45,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
-        {
-            return false;
-        }
+        public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null) => false;
 
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)

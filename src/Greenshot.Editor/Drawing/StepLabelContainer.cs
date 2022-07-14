@@ -39,7 +39,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public sealed class StepLabelContainer : DrawableContainer
     {
-        [NonSerialized] private StringFormat _stringFormat = new StringFormat();
+        [NonSerialized] private StringFormat _stringFormat = new();
 
         private readonly bool _drawAsRectangle = false;
 
@@ -50,22 +50,12 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
-
-        // Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
-        private int _number;
+        private void Init() => CreateDefaultAdorners();
 
         // Used to store the counter start of the Surface, as the surface is NOT stored.
         private int _counterStart = 1;
 
-        public int Number
-        {
-            get { return _number; }
-            set { _number = value; }
-        }
+        public int Number { get; set; }
 
         /// <summary>
         /// Retrieve the counter before serializing
@@ -117,7 +107,7 @@ namespace Greenshot.Editor.Drawing
             newParentSurface.AddStepLabel(this);
         }
 
-        public override NativeSize DefaultSize => new NativeSize(30, 30);
+        public override NativeSize DefaultSize => new(30, 30);
 
         public override bool InitContent()
         {
@@ -135,10 +125,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// This makes it possible for the label to be placed exactly in the middle of the pointer.
         /// </summary>
-        public override bool HandleMouseDown(int mouseX, int mouseY)
-        {
-            return base.HandleMouseDown(mouseX - Width / 2, mouseY - Height / 2);
-        }
+        public override bool HandleMouseDown(int mouseX, int mouseY) => base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
 
         /// <summary>
         /// We set our own field values
@@ -161,7 +148,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            ((Surface) Parent)?.RemoveStepLabel(this);
+            ((Surface)Parent)?.RemoveStepLabel(this);
             if (_stringFormat == null)
             {
                 return;
@@ -174,8 +161,8 @@ namespace Greenshot.Editor.Drawing
         public override bool HandleMouseMove(int x, int y)
         {
             Invalidate();
-            Left = x - Width / 2;
-            Top = y - Height / 2;
+            Left = x - (Width / 2);
+            Top = y - (Height / 2);
             Invalidate();
             return true;
         }
@@ -192,7 +179,7 @@ namespace Greenshot.Editor.Drawing
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            string text = ((Surface) Parent).CountStepLabels(this).ToString();
+            string text = ((Surface)Parent).CountStepLabels(this).ToString();
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
@@ -206,8 +193,8 @@ namespace Greenshot.Editor.Drawing
             }
 
             float fontSize = Math.Min(Math.Abs(Width), Math.Abs(Height)) / 1.4f;
-            using FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name);
-            using Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            using FontFamily fam = new(FontFamily.GenericSansSerif.Name);
+            using Font font = new(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
         }
 
@@ -215,12 +202,9 @@ namespace Greenshot.Editor.Drawing
         {
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-            if (_drawAsRectangle)
-            {
-                return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
-            }
-
-            return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
+            return _drawAsRectangle
+                ? RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y)
+                : EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Greenshot.Plugin.Win10.Native
             IActivationFactory activationFactory = WindowsRuntimeMarshal.GetActivationFactory(typeof(DataTransferManager));
 
             // ReSharper disable once SuspiciousTypeConversion.Global
-            _dataTransferManagerInterOp = (IDataTransferManagerInterOp) activationFactory;
+            _dataTransferManagerInterOp = (IDataTransferManagerInterOp)activationFactory;
 
             _windowHandle = handle;
             var riid = new Guid(DataTransferManagerId);

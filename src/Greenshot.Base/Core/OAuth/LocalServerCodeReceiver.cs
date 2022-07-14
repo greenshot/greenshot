@@ -38,7 +38,7 @@ namespace Greenshot.Base.Core.OAuth
     public class LocalServerCodeReceiver
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
-        private readonly ManualResetEvent _ready = new ManualResetEvent(true);
+        private readonly ManualResetEvent _ready = new(true);
 
         /// <summary>
         /// The call back format. Expects one port parameter.
@@ -47,7 +47,7 @@ namespace Greenshot.Base.Core.OAuth
         public string LoopbackCallbackUrl { get; set; } = "http://localhost:{0}/authorize/";
 
         /// <summary>
-        /// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
+        /// HTML code to return the _browser, default it will try to close the _browser / tab, this won't always work.
         /// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
         /// </summary>
         public string ClosePageResponse { get; set; } = @"<html>
@@ -71,23 +71,11 @@ Greenshot received information from CloudServiceName. You can close this browser
         /// <summary>
         /// The URL to redirect to
         /// </summary>
-        protected string RedirectUri
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_redirectUri))
-                {
-                    return _redirectUri;
-                }
-
-                return _redirectUri = string.Format(LoopbackCallbackUrl, GetRandomUnusedPort());
-            }
-        }
+        protected string RedirectUri => !string.IsNullOrEmpty(_redirectUri) ? _redirectUri : (_redirectUri = string.Format(LoopbackCallbackUrl, GetRandomUnusedPort()));
 
         private string _cloudServiceName;
 
         private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
-
 
         /// <summary>
         /// The OAuth code receiver
@@ -142,7 +130,7 @@ Greenshot received information from CloudServiceName. You can close this browser
         /// <param name="result">IAsyncResult</param>
         private void ListenerCallback(IAsyncResult result)
         {
-            HttpListener listener = (HttpListener) result.AsyncState;
+            HttpListener listener = (HttpListener)result.AsyncState;
 
             //If not listening return immediately as this method is called one last time after Close()
             if (!listener.IsListening)
@@ -152,7 +140,6 @@ Greenshot received information from CloudServiceName. You can close this browser
 
             // Use EndGetContext to complete the asynchronous operation.
             HttpListenerContext context = listener.EndGetContext(result);
-
 
             // Handle request
             HttpListenerRequest request = context.Request;
@@ -199,7 +186,7 @@ Greenshot received information from CloudServiceName. You can close this browser
             try
             {
                 listener.Start();
-                return ((IPEndPoint) listener.LocalEndpoint).Port;
+                return ((IPEndPoint)listener.LocalEndpoint).Port;
             }
             finally
             {

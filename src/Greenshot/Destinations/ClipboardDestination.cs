@@ -36,29 +36,17 @@ namespace Greenshot.Destinations
     {
         public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
-        public override string Description
-        {
-            get { return Language.GetString(LangKey.settings_destination_clipboard); }
-        }
+        public override string Description => Language.GetString(LangKey.settings_destination_clipboard);
 
-        public override int Priority
-        {
-            get { return 2; }
-        }
+        public override int Priority => 2;
 
-        public override Keys EditorShortcutKeys
-        {
-            get { return Keys.Control | Keys.Shift | Keys.C; }
-        }
+        public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 
-        public override Image DisplayIcon
-        {
-            get { return GreenshotResources.GetImage("Clipboard.Image"); }
-        }
+        public override Image DisplayIcon => GreenshotResources.GetImage("Clipboard.Image");
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             try
             {
                 ClipboardHelper.SetClipboardData(surface);

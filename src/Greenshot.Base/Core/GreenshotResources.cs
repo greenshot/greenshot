@@ -29,21 +29,12 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class GreenshotResources
     {
-        private static readonly ComponentResourceManager GreenshotResourceManager = new ComponentResourceManager(typeof(GreenshotResources));
+        private static readonly ComponentResourceManager GreenshotResourceManager = new(typeof(GreenshotResources));
 
-        public static Image GetImage(string imageName)
-        {
-            return (Image) GreenshotResourceManager.GetObject(imageName);
-        }
+        public static Image GetImage(string imageName) => (Image)GreenshotResourceManager.GetObject(imageName);
 
-        public static Icon GetIcon(string imageName)
-        {
-            return (Icon) GreenshotResourceManager.GetObject(imageName);
-        }
+        public static Icon GetIcon(string imageName) => (Icon)GreenshotResourceManager.GetObject(imageName);
 
-        public static Icon GetGreenshotIcon()
-        {
-            return GetIcon("Greenshot.Icon");
-        }
+        public static Icon GetGreenshotIcon() => GetIcon("Greenshot.Icon");
     }
 }

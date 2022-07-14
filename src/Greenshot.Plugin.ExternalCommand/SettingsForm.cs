@@ -44,10 +44,7 @@ namespace Greenshot.Plugin.ExternalCommand
             UpdateView();
         }
 
-        private void ButtonOkClick(object sender, EventArgs e)
-        {
-            IniConfig.Save();
-        }
+        private void ButtonOkClick(object sender, EventArgs e) => IniConfig.Save();
 
         private void ButtonAddClick(object sender, EventArgs e)
         {
@@ -75,7 +72,7 @@ namespace Greenshot.Plugin.ExternalCommand
             if (ExternalCommandConfig.Commands != null)
             {
                 listView1.ListViewItemSorter = new ListviewComparer();
-                ImageList imageList = new ImageList();
+                ImageList imageList = new();
                 listView1.SmallImageList = imageList;
                 int imageNr = 0;
                 foreach (string commando in ExternalCommandConfig.Commands)
@@ -101,15 +98,9 @@ namespace Greenshot.Plugin.ExternalCommand
             button_edit.Enabled = listView1.SelectedItems.Count > 0;
         }
 
-        private void ListView1ItemSelectionChanged(object sender, EventArgs e)
-        {
-            button_edit.Enabled = listView1.SelectedItems.Count > 0;
-        }
+        private void ListView1ItemSelectionChanged(object sender, EventArgs e) => button_edit.Enabled = listView1.SelectedItems.Count > 0;
 
-        private void ButtonEditClick(object sender, EventArgs e)
-        {
-            ListView1DoubleClick(sender, e);
-        }
+        private void ButtonEditClick(object sender, EventArgs e) => ListView1DoubleClick(sender, e);
 
         private void ListView1DoubleClick(object sender, EventArgs e)
         {
@@ -134,19 +125,19 @@ namespace Greenshot.Plugin.ExternalCommand
     {
         public int Compare(object x, object y)
         {
-            if (!(x is ListViewItem))
+            if (x is not ListViewItem)
             {
-                return (0);
+                return 0;
             }
 
-            if (!(y is ListViewItem))
+            if (y is not ListViewItem)
             {
-                return (0);
+                return 0;
             }
 
-            var l1 = (ListViewItem) x;
-            var l2 = (ListViewItem) y;
-            return string.Compare(l1.Text, l2.Text, StringComparison.Ordinal);
+            var l1 = (ListViewItem)x;
+            var l2 = (ListViewItem)y;
+            return string.CompareOrdinal(l1.Text, l2.Text);
         }
     }
 }

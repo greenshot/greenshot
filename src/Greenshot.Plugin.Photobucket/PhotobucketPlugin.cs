@@ -80,7 +80,7 @@ namespace Greenshot.Plugin.Photobucket
 
             _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure))
             {
-                Image = (Image) _resources.GetObject("Photobucket")
+                Image = (Image)_resources.GetObject("Photobucket")
             };
             _itemPlugInConfig.Click += delegate { _config.ShowConfigDialog(); };
 
@@ -106,10 +106,7 @@ namespace Greenshot.Plugin.Photobucket
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
         /// <summary>
         /// Upload the capture to Photobucket
@@ -121,7 +118,7 @@ namespace Greenshot.Plugin.Photobucket
         /// <returns>true if the upload succeeded</returns>
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));

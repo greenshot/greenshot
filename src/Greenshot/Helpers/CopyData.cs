@@ -45,33 +45,17 @@ namespace Greenshot.Helpers
     [Serializable()]
     public class CopyDataTransport
     {
-        private readonly List<KeyValuePair<CommandEnum, string>> _commands;
-        public List<KeyValuePair<CommandEnum, string>> Commands => _commands;
+        public List<KeyValuePair<CommandEnum, string>> Commands { get; }
 
-        public CopyDataTransport()
-        {
-            _commands = new List<KeyValuePair<CommandEnum, string>>();
-        }
+        public CopyDataTransport() => Commands = new List<KeyValuePair<CommandEnum, string>>();
 
-        public CopyDataTransport(CommandEnum command) : this()
-        {
-            AddCommand(command, null);
-        }
+        public CopyDataTransport(CommandEnum command) : this() => AddCommand(command, null);
 
-        public CopyDataTransport(CommandEnum command, string commandData) : this()
-        {
-            AddCommand(command, commandData);
-        }
+        public CopyDataTransport(CommandEnum command, string commandData) : this() => AddCommand(command, commandData);
 
-        public void AddCommand(CommandEnum command)
-        {
-            _commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
-        }
+        public void AddCommand(CommandEnum command) => Commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
 
-        public void AddCommand(CommandEnum command, string commandData)
-        {
-            _commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
-        }
+        public void AddCommand(CommandEnum command, string commandData) => Commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
     }
 
     public delegate void CopyDataReceivedEventHandler(object sender, CopyDataReceivedEventArgs e);
@@ -88,7 +72,7 @@ namespace Greenshot.Helpers
     public class CopyData : NativeWindow, IDisposable
     {
         /// <summary>
-        /// Event raised when data is received on any of the channels 
+        /// Event raised when data is received on any of the channels
         /// this class is subscribed to.
         /// </summary>
         public event CopyDataReceivedEventHandler CopyDataReceived;
@@ -115,20 +99,20 @@ namespace Greenshot.Helpers
         {
             if (m.Msg == WM_COPYDATA)
             {
-                var cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
+                var cds = (COPYDATASTRUCT)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
                 if (cds.cbData > 0)
                 {
                     byte[] data = new byte[cds.cbData];
                     Marshal.Copy(cds.lpData, data, 0, cds.cbData);
-                    MemoryStream stream = new MemoryStream(data);
-                    BinaryFormatter b = new BinaryFormatter();
-                    CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
+                    MemoryStream stream = new(data);
+                    BinaryFormatter b = new();
+                    CopyDataObjectData cdo = (CopyDataObjectData)b.Deserialize(stream);
 
-                    if (_channels != null && _channels.Contains(cdo.Channel))
+                    if (_channels?.Contains(cdo.Channel) == true)
                     {
-                        CopyDataReceivedEventArgs d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
+                        CopyDataReceivedEventArgs d = new(cdo.Channel, cdo.Data, cdo.Sent);
                         OnCopyDataReceived(d);
-                        m.Result = (IntPtr) 1;
+                        m.Result = (IntPtr)1;
                     }
                 }
             }
@@ -148,10 +132,7 @@ namespace Greenshot.Helpers
         /// Raises the DataReceived event from this class.
         /// </summary>
         /// <param name="e">The data which has been received.</param>
-        protected void OnCopyDataReceived(CopyDataReceivedEventArgs e)
-        {
-            CopyDataReceived?.Invoke(this, e);
-        }
+        protected void OnCopyDataReceived(CopyDataReceivedEventArgs e) => CopyDataReceived?.Invoke(this, e);
 
         /// <summary>
         /// If the form's handle changes, the properties associated
@@ -192,10 +173,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Constructs a new instance of the CopyData class
         /// </summary>
-        public CopyData()
-        {
-            _channels = new CopyDataChannels(this);
-        }
+        public CopyData() => _channels = new CopyDataChannels(this);
 
         /// <summary>
         /// Finalises a CopyData class which has not been disposed.
@@ -265,10 +243,7 @@ namespace Greenshot.Helpers
         /// </summary>
         /// <returns>An enumerator for each of the CopyDataChannel objects
         /// within this collection.</returns>
-        public new IEnumerator GetEnumerator()
-        {
-            return Dictionary.Values.GetEnumerator();
-        }
+        public new IEnumerator GetEnumerator() => Dictionary.Values.GetEnumerator();
 
         /// <summary>
         /// Returns the CopyDataChannel at the specified 0-based index.
@@ -295,7 +270,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Returns the CopyDataChannel for the specified channelName
         /// </summary>
-        public CopyDataChannel this[string channelName] => (CopyDataChannel) Dictionary[channelName];
+        public CopyDataChannel this[string channelName] => (CopyDataChannel)Dictionary[channelName];
 
         /// <summary>
         /// Adds a new channel on which this application can send and
@@ -303,7 +278,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public void Add(string channelName)
         {
-            CopyDataChannel cdc = new CopyDataChannel(_owner, channelName);
+            CopyDataChannel cdc = new(_owner, channelName);
             Dictionary.Add(channelName, cdc);
         }
 
@@ -311,19 +286,13 @@ namespace Greenshot.Helpers
         /// Removes an existing channel.
         /// </summary>
         /// <param name="channelName">The channel to remove</param>
-        public void Remove(string channelName)
-        {
-            Dictionary.Remove(channelName);
-        }
+        public void Remove(string channelName) => Dictionary.Remove(channelName);
 
         /// <summary>
         /// Gets/sets whether this channel contains a CopyDataChannel
         /// for the specified channelName.
         /// </summary>
-        public bool Contains(string channelName)
-        {
-            return Dictionary.Contains(channelName);
-        }
+        public bool Contains(string channelName) => Dictionary.Contains(channelName);
 
         /// <summary>
         /// Ensures the resources associated with a CopyDataChannel
@@ -348,7 +317,7 @@ namespace Greenshot.Helpers
         /// just been removed</param>
         protected override void OnRemoveComplete(object key, object data)
         {
-            ((CopyDataChannel) data).Dispose();
+            ((CopyDataChannel)data).Dispose();
             OnRemove(key, data);
         }
 
@@ -373,10 +342,7 @@ namespace Greenshot.Helpers
         /// </summary>
         /// <param name="owner">The NativeWindow this collection
         /// will be associated with</param>
-        internal CopyDataChannels(NativeWindow owner)
-        {
-            _owner = owner;
-        }
+        internal CopyDataChannels(NativeWindow owner) => _owner = owner;
     }
 
     /// <summary>
@@ -431,21 +397,20 @@ namespace Greenshot.Helpers
                 AddChannel();
             }
 
-            CopyDataObjectData cdo = new CopyDataObjectData(obj, ChannelName);
-
+            CopyDataObjectData cdo = new(obj, ChannelName);
 
             // Try to do a binary serialization on obj.
             // This will throw and exception if the object to
             // be passed isn't serializable.
-            BinaryFormatter b = new BinaryFormatter();
-            MemoryStream stream = new MemoryStream();
+            BinaryFormatter b = new();
+            MemoryStream stream = new();
             b.Serialize(stream, cdo);
             stream.Flush();
 
             // Now move the data into a pointer so we can send
             // it using WM_COPYDATA:
             // Get the length of the data:
-            int dataSize = (int) stream.Length;
+            int dataSize = (int)stream.Length;
             if (dataSize > 0)
             {
                 // This isn't very efficient if your data is very large.
@@ -463,19 +428,16 @@ namespace Greenshot.Helpers
                 // the channel:
                 foreach (WindowDetails window in WindowDetails.GetAllWindows())
                 {
-                    if (!window.Handle.Equals(_owner.Handle))
+                    if (!window.Handle.Equals(_owner.Handle) && GetProp(window.Handle, ChannelName) != IntPtr.Zero)
                     {
-                        if (GetProp(window.Handle, ChannelName) != IntPtr.Zero)
+                        COPYDATASTRUCT cds = new()
                         {
-                            COPYDATASTRUCT cds = new COPYDATASTRUCT
-                            {
-                                cbData = dataSize,
-                                dwData = IntPtr.Zero,
-                                lpData = ptrData
-                            };
-                            SendMessage(window.Handle, WM_COPYDATA, _owner.Handle, ref cds);
-                            recipients += Marshal.GetLastWin32Error() == 0 ? 1 : 0;
-                        }
+                            cbData = dataSize,
+                            dwData = IntPtr.Zero,
+                            lpData = ptrData
+                        };
+                        SendMessage(window.Handle, WM_COPYDATA, _owner.Handle, ref cds);
+                        recipients += Marshal.GetLastWin32Error() == 0 ? 1 : 0;
                     }
                 }
 
@@ -488,17 +450,13 @@ namespace Greenshot.Helpers
             return recipients;
         }
 
-        private void AddChannel()
-        {
+        private void AddChannel() =>
             // Tag this window with property "channelName"
             SetProp(_owner.Handle, ChannelName, _owner.Handle);
-        }
 
-        private void RemoveChannel()
-        {
+        private void RemoveChannel() =>
             // Remove the "channelName" property from this window
             RemoveProp(_owner.Handle, ChannelName);
-        }
 
         /// <summary>
         /// If the form's handle changes, the properties associated

@@ -57,10 +57,7 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public ExcelDestination(string workbookName)
-        {
-            _workbookName = workbookName;
-        }
+        public ExcelDestination(string workbookName) => _workbookName = workbookName;
 
         public override string Designation => "Excel";
 
@@ -84,7 +81,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             bool createdFile = false;
             string imageFile = captureDetails.Filename;
             if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))

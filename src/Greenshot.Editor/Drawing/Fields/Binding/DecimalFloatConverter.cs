@@ -34,19 +34,10 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         {
         }
 
-        protected override decimal convert(float o)
-        {
-            return Convert.ToDecimal(o);
-        }
+        protected override decimal convert(float o) => Convert.ToDecimal(o);
 
-        protected override float convert(decimal o)
-        {
-            return Convert.ToSingle(o);
-        }
+        protected override float convert(decimal o) => Convert.ToSingle(o);
 
-        public static DecimalFloatConverter GetInstance()
-        {
-            return _uniqueInstance ??= new DecimalFloatConverter();
-        }
+        public static DecimalFloatConverter GetInstance() => _uniqueInstance ??= new DecimalFloatConverter();
     }
 }

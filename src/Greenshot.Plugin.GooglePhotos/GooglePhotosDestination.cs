@@ -29,10 +29,7 @@ namespace Greenshot.Plugin.GooglePhotos
     {
         private readonly GooglePhotosPlugin _plugin;
 
-        public GooglePhotosDestination(GooglePhotosPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public GooglePhotosDestination(GooglePhotosPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "GooglePhotos";
 
@@ -42,14 +39,14 @@ namespace Greenshot.Plugin.GooglePhotos
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
-                return (Image) resources.GetObject("GooglePhotos");
+                ComponentResourceManager resources = new(typeof(GooglePhotosPlugin));
+                return (Image)resources.GetObject("GooglePhotos");
             }
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
             if (uploaded)
             {

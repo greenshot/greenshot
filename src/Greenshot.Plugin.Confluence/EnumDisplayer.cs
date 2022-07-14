@@ -38,7 +38,7 @@ namespace Greenshot.Plugin.Confluence
 
         public Type Type
         {
-            get { return _type; }
+            get => _type;
             set
             {
                 if (!value.IsEnum)
@@ -57,19 +57,19 @@ namespace Greenshot.Plugin.Confluence
                 var genericTypeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
                 if (genericTypeDefinition != null)
                 {
-                    _reverseValues = (IDictionary) Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
+                    _reverseValues = (IDictionary)Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
                 }
 
                 var typeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
                 if (typeDefinition != null)
                 {
-                    _displayValues = (IDictionary) Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
+                    _displayValues = (IDictionary)Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
                 }
 
                 var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
                 foreach (var field in fields)
                 {
-                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[]) field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
+                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
 
                     string displayKey = GetDisplayKeyValue(a);
                     object enumValue = field.GetValue(null);
@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.Confluence
                     string displayString;
                     if (displayKey != null && Language.HasKey(displayKey))
                     {
-                        displayString = Language.GetString(displayKey);
+                        _ = Language.GetString(displayKey);
                     }
 
                     displayString = displayKey ?? enumValue.ToString();
@@ -86,7 +86,7 @@ namespace Greenshot.Plugin.Confluence
                     _reverseValues.Add(displayString, enumValue);
                 }
 
-                return new List<string>((IEnumerable<string>) _displayValues.Values).AsReadOnly();
+                return new List<string>((IEnumerable<string>)_displayValues.Values).AsReadOnly();
             }
         }
 
@@ -101,14 +101,8 @@ namespace Greenshot.Plugin.Confluence
             return dka.Value;
         }
 
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _displayValues[value];
-        }
+        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture) => _displayValues[value];
 
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _reverseValues[value];
-        }
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => _reverseValues[value];
     }
 }

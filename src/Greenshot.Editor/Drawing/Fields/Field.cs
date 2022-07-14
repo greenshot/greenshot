@@ -38,13 +38,13 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public object Value
         {
-            get { return _myValue; }
+            get => _myValue;
             set
             {
                 if (!Equals(_myValue, value))
                 {
                     _myValue = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
                 }
             }
         }
@@ -75,10 +75,7 @@ namespace Greenshot.Editor.Drawing.Fields
             Scope = scope;
         }
 
-        public Field(IFieldType fieldType)
-        {
-            FieldType = fieldType;
-        }
+        public Field(IFieldType fieldType) => FieldType = fieldType;
 
         /// <summary>
         /// Returns true if this field holds a value other than null.
@@ -89,13 +86,10 @@ namespace Greenshot.Editor.Drawing.Fields
         /// Creates a flat clone of this Field. The fields value itself is not cloned.
         /// </summary>
         /// <returns></returns>
-        public Field Clone()
+        public Field Clone() => new(FieldType, Scope)
         {
-            return new Field(FieldType, Scope)
-            {
-                Value = Value
-            };
-        }
+            Value = Value
+        };
 
         public override int GetHashCode()
         {
@@ -110,19 +104,8 @@ namespace Greenshot.Editor.Drawing.Fields
             return hashCode;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (!(obj is Field other))
-            {
-                return false;
-            }
+        public override bool Equals(object obj) => obj is Field other && FieldType == other.FieldType && Equals(Scope, other.Scope);
 
-            return FieldType == other.FieldType && Equals(Scope, other.Scope);
-        }
-
-        public override string ToString()
-        {
-            return string.Format("[Field FieldType={1} Value={0} Scope={2}]", _myValue, FieldType, Scope);
-        }
+        public override string ToString() => string.Format("[Field FieldType={1} Value={0} Scope={2}]", _myValue, FieldType, Scope);
     }
 }

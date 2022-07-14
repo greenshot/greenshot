@@ -48,25 +48,13 @@ namespace Greenshot.Editor.Destinations
             // Do not remove, is needed for the framework
         }
 
-        public EditorDestination(IImageEditor editor)
-        {
-            this.editor = editor;
-        }
+        public EditorDestination(IImageEditor editor) => this.editor = editor;
 
         public override string Designation => DESIGNATION;
 
-        public override string Description
-        {
-            get
-            {
-                if (editor == null)
-                {
-                    return Language.GetString(LangKey.settings_destination_editor);
-                }
-
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
-            }
-        }
+        public override string Description => editor == null
+                    ? Language.GetString(LangKey.settings_destination_editor)
+                    : Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
 
         public override int Priority => 1;
 
@@ -84,7 +72,7 @@ namespace Greenshot.Editor.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             // Make sure we collect the garbage before opening the screenshot
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -108,7 +96,7 @@ namespace Greenshot.Editor.Destinations
                 {
                     try
                     {
-                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+                        ImageEditorForm editorForm = new(surface, !surface.Modified); // Output made??
 
                         if (!string.IsNullOrEmpty(captureDetails.Filename))
                         {

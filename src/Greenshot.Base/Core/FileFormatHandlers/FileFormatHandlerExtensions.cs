@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// </summary>
         /// <param name="extension">string</param>
         /// <returns>string</returns>
-        public static  string NormalizeExtension(string extension)
+        public static string NormalizeExtension(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {
@@ -56,10 +56,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="fileFormatHandlerAction"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction)
-        {
-            return fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct().OrderBy(e => e);
-        }
+        public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction) => fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct().OrderBy(e => e);
 
         /// <summary>
         /// Extension method to check if a certain IFileFormatHandler supports a certain action with a specific extension
@@ -93,17 +90,16 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)).ToList();
 
-            if (!saveFileFormatHandlers.Any())
+            if (saveFileFormatHandlers.Count == 0)
             {
                 return false;
             }
 
-            foreach (var fileFormatHandler in saveFileFormatHandlers)
+            foreach (var _ in from fileFormatHandler in saveFileFormatHandlers
+                              where fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface)
+                              select new { })
             {
-                if (fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -126,12 +122,9 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .FirstOrDefault();
 
-            if (loadfileFormatHandler != null)
-            {
-                return loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface);
-            }
-
-            return Enumerable.Empty<IDrawableContainer>();
+            return loadfileFormatHandler != null
+                ? loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface)
+                : Enumerable.Empty<IDrawableContainer>();
         }
 
         /// <summary>

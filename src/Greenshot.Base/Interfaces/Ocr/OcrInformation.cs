@@ -33,7 +33,7 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <summary>
         /// Check if there is any content
         /// </summary>
-        public bool HasContent => Lines.Any();
+        public bool HasContent => Lines.Count > 0;
 
         /// <summary>
         /// The complete text

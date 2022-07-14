@@ -29,10 +29,7 @@ namespace Greenshot.Plugin.Jira
     /// </summary>
     public class Log4NetLogger : AbstractLogger
     {
-        private ILog GetLogger(LogSource logSource)
-        {
-            return logSource.SourceType != null ? LogManager.GetLogger(logSource.SourceType) : LogManager.GetLogger(logSource.Source);
-        }
+        private ILog GetLogger(LogSource logSource) => logSource.SourceType != null ? LogManager.GetLogger(logSource.SourceType) : LogManager.GetLogger(logSource.Source);
 
         /// <summary>
         ///     Write the supplied information to a log4net.ILog
@@ -86,10 +83,7 @@ namespace Greenshot.Plugin.Jira
         /// <param name="logInfo"></param>
         /// <param name="messageTemplate"></param>
         /// <param name="logParameters"></param>
-        public override void WriteLine(LogInfo logInfo, string messageTemplate, params object[] logParameters)
-        {
-            Write(logInfo, messageTemplate, logParameters);
-        }
+        public override void WriteLine(LogInfo logInfo, string messageTemplate, params object[] logParameters) => Write(logInfo, messageTemplate, logParameters);
 
         /// <summary>
         ///     Test if a certain LogLevels enum is enabled
@@ -100,22 +94,15 @@ namespace Greenshot.Plugin.Jira
         public override bool IsLogLevelEnabled(LogLevels level, LogSource logSource = null)
         {
             var log = GetLogger(logSource);
-            switch (level)
+            return level switch
             {
-                case LogLevels.Verbose:
-                case LogLevels.Debug:
-                    return log.IsDebugEnabled;
-                case LogLevels.Error:
-                    return log.IsErrorEnabled;
-                case LogLevels.Fatal:
-                    return log.IsFatalEnabled;
-                case LogLevels.Info:
-                    return log.IsInfoEnabled;
-                case LogLevels.Warn:
-                    return log.IsWarnEnabled;
-            }
-
-            return false;
+                LogLevels.Verbose or LogLevels.Debug => log.IsDebugEnabled,
+                LogLevels.Error => log.IsErrorEnabled,
+                LogLevels.Fatal => log.IsFatalEnabled,
+                LogLevels.Info => log.IsInfoEnabled,
+                LogLevels.Warn => log.IsWarnEnabled,
+                _ => false,
+            };
         }
     }
 }

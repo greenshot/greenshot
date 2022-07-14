@@ -92,9 +92,9 @@ namespace Greenshot.Plugin.Imgur
             _config = IniConfig.GetIniSection<ImgurConfiguration>();
             _resources = new ComponentResourceManager(typeof(ImgurPlugin));
 
-            ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur")
+            ToolStripMenuItem itemPlugInRoot = new("Imgur")
             {
-                Image = (Image) _resources.GetObject("Imgur")
+                Image = (Image)_resources.GetObject("Imgur")
             };
 
             // Provide the IDestination
@@ -138,7 +138,7 @@ namespace Greenshot.Plugin.Imgur
             try
             {
                 var form = SimpleServiceProvider.Current.GetInstance<Form>();
-                form.BeginInvoke((MethodInvoker) delegate
+                form.BeginInvoke((MethodInvoker)delegate
                 {
                     var historyMenuItem = _historyMenuItem;
                     if (historyMenuItem == null)
@@ -146,14 +146,7 @@ namespace Greenshot.Plugin.Imgur
                         return;
                     }
 
-                    if (_config?.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0)
-                    {
-                        historyMenuItem.Enabled = true;
-                    }
-                    else
-                    {
-                        historyMenuItem.Enabled = false;
-                    }
+                    historyMenuItem.Enabled = _config?.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0;
                 });
             }
             catch (Exception ex)
@@ -171,10 +164,7 @@ namespace Greenshot.Plugin.Imgur
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public virtual void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public virtual void Configure() => _config.ShowConfigDialog();
 
         /// <summary>
         /// Upload the capture to imgur
@@ -185,7 +175,7 @@ namespace Greenshot.Plugin.Imgur
         /// <returns>true if the upload succeeded</returns>
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));
@@ -200,7 +190,7 @@ namespace Greenshot.Plugin.Imgur
                         {
                             Log.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
                             _config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-                            _config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+                            _config.RuntimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
                             UpdateHistoryMenuItem();
                         }
                     }
@@ -216,14 +206,7 @@ namespace Greenshot.Plugin.Imgur
 
                     IniConfig.Save();
 
-                    if (_config.UsePageLink)
-                    {
-                        uploadUrl = imgurInfo.Page;
-                    }
-                    else
-                    {
-                        uploadUrl = imgurInfo.Original;
-                    }
+                    uploadUrl = _config.UsePageLink ? imgurInfo.Page : imgurInfo.Original;
 
                     if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
                     {

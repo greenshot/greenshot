@@ -12,7 +12,7 @@ namespace Greenshot.Base.Core
     public class EffectConverter : TypeConverter
     {
         // Fix to prevent BUG-1753
-        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo();
+        private readonly NumberFormatInfo _numberFormatInfo = new();
 
         public EffectConverter()
         {
@@ -20,15 +20,7 @@ namespace Greenshot.Base.Core
             _numberFormatInfo.NumberGroupSeparator = ",";
         }
 
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            if (sourceType == typeof(string))
-            {
-                return true;
-            }
-
-            return base.CanConvertFrom(context, sourceType);
-        }
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -42,12 +34,7 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            if (destinationType == typeof(TornEdgeEffect))
-            {
-                return true;
-            }
-
-            return base.CanConvertTo(context, destinationType);
+            return destinationType == typeof(TornEdgeEffect) || base.CanConvertTo(context, destinationType);
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
@@ -55,7 +42,7 @@ namespace Greenshot.Base.Core
             // to string
             if (destinationType == typeof(string))
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 if (value.GetType() == typeof(DropShadowEffect))
                 {
                     DropShadowEffect effect = value as DropShadowEffect;
@@ -63,7 +50,7 @@ namespace Greenshot.Base.Core
                     return sb.ToString();
                 }
 
-                if (value.GetType() == typeof(TornEdgeEffect))
+                if (value is TornEdgeEffect)
                 {
                     TornEdgeEffect effect = value as TornEdgeEffect;
                     RetrieveDropShadowEffectValues(effect, sb);
@@ -79,14 +66,14 @@ namespace Greenshot.Base.Core
                 string settings = value as string;
                 if (destinationType == typeof(DropShadowEffect))
                 {
-                    DropShadowEffect effect = new DropShadowEffect();
+                    DropShadowEffect effect = new();
                     ApplyDropShadowEffectValues(settings, effect);
                     return effect;
                 }
 
                 if (destinationType == typeof(TornEdgeEffect))
                 {
-                    TornEdgeEffect effect = new TornEdgeEffect();
+                    TornEdgeEffect effect = new();
                     ApplyDropShadowEffectValues(settings, effect);
                     ApplyTornEdgeEffectValues(settings, effect);
                     return effect;
@@ -100,12 +87,9 @@ namespace Greenshot.Base.Core
         {
             if (value is string settings)
             {
-                if (settings.Contains("ToothHeight"))
-                {
-                    return ConvertTo(context, culture, settings, typeof(TornEdgeEffect));
-                }
-
-                return ConvertTo(context, culture, settings, typeof(DropShadowEffect));
+                return settings.Contains("ToothHeight")
+                    ? ConvertTo(context, culture, settings, typeof(TornEdgeEffect))
+                    : ConvertTo(context, culture, settings, typeof(DropShadowEffect));
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -121,12 +105,9 @@ namespace Greenshot.Base.Core
                 {
                     case "Darkness":
                         // Fix to prevent BUG-1753
-                        if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness))
+                        if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness) && darkness <= 1.0)
                         {
-                            if (darkness <= 1.0)
-                            {
-                                effect.Darkness = darkness;
-                            }
+                            effect.Darkness = darkness;
                         }
 
                         break;
@@ -138,7 +119,7 @@ namespace Greenshot.Base.Core
 
                         break;
                     case "ShadowOffset":
-                        NativePoint shadowOffset = new NativePoint();
+                        NativePoint shadowOffset = new();
                         string[] coordinates = pair[1].Split(',');
                         if (int.TryParse(coordinates[0], out var shadowOffsetX))
                         {
@@ -219,17 +200,12 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb)
-        {
+        private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb) =>
             // Fix to prevent BUG-1753 is to use the numberFormatInfo
             sb.AppendFormat("Darkness:{0}|ShadowSize:{1}|ShadowOffset:{2},{3}", effect.Darkness.ToString("F2", _numberFormatInfo), effect.ShadowSize, effect.ShadowOffset.X,
                 effect.ShadowOffset.Y);
-        }
 
-        private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb)
-        {
-            sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
+        private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb) => sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
                 effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);
-        }
     }
 }

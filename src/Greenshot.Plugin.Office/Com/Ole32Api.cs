@@ -18,15 +18,7 @@ namespace Greenshot.Plugin.Office.Com
         /// </summary>
         /// <param name="programId">string with the program ID</param>
         /// <returns>Guid with the clsId</returns>
-        public static Guid ClassIdFromProgId(string programId)
-        {
-            if (CLSIDFromProgID(programId, out Guid clsId).Succeeded())
-            {
-                return clsId;
-            }
-
-            return clsId;
-        }
+        public static Guid ClassIdFromProgId(string programId) => CLSIDFromProgID(programId, out Guid clsId).Succeeded() ? clsId : clsId;
 
         /// <summary>
         /// See more <a href="https://docs.microsoft.com/en-us/windows/desktop/api/combaseapi/nf-combaseapi-clsidfromprogid">here</a>
@@ -35,6 +27,6 @@ namespace Greenshot.Plugin.Office.Com
         /// <param name="clsId">Guid</param>
         /// <returns>HResult</returns>
         [DllImport("ole32.dll", ExactSpelling = true)]
-        private static extern HResult CLSIDFromProgID([In] [MarshalAs(UnmanagedType.LPWStr)] string progId, [Out] out Guid clsId);
+        private static extern HResult CLSIDFromProgID([In][MarshalAs(UnmanagedType.LPWStr)] string progId, [Out] out Guid clsId);
     }
 }

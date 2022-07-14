@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.GooglePhotos
                     webRequest.Headers.Add("Slug", NetworkHelper.EscapeDataString(filename));
                 }
 
-                SurfaceContainer container = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+                SurfaceContainer container = new(surfaceToUpload, outputSettings, filename);
                 container.Upload(webRequest);
 
                 string response = NetworkHelper.GetResponseAsString(webRequest);
@@ -109,7 +109,7 @@ namespace Greenshot.Plugin.GooglePhotos
 
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 XmlNodeList nodes = doc.GetElementsByTagName("link", "*");
                 if (nodes.Count > 0)
@@ -122,7 +122,7 @@ namespace Greenshot.Plugin.GooglePhotos
                             url = node.Attributes["href"].Value;
                             string rel = node.Attributes["rel"].Value;
                             // Pictures with rel="http://schemas.google.com/photos/2007#canonical" are the direct link
-                            if (rel != null && rel.EndsWith("canonical"))
+                            if (rel?.EndsWith("canonical") == true)
                             {
                                 break;
                             }

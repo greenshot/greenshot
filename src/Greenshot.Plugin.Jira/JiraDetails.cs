@@ -26,10 +26,7 @@ namespace Greenshot.Plugin.Jira
 {
     public class JiraDetails : IComparable<JiraDetails>
     {
-        public JiraDetails()
-        {
-            FirstSeenAt = SeenAt = DateTimeOffset.Now;
-        }
+        public JiraDetails() => FirstSeenAt = SeenAt = DateTimeOffset.Now;
 
         public string ProjectKey { get; set; }
 
@@ -43,9 +40,6 @@ namespace Greenshot.Plugin.Jira
 
         public DateTimeOffset SeenAt { get; set; }
 
-        public int CompareTo(JiraDetails other)
-        {
-            return SeenAt.CompareTo(other.SeenAt);
-        }
+        public int CompareTo(JiraDetails other) => SeenAt.CompareTo(other.SeenAt);
     }
 }

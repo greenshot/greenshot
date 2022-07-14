@@ -32,15 +32,15 @@ namespace Greenshot.Plugin.Confluence
     /// <summary>
     /// Description of ConfluenceUtils.
     /// </summary>
-    public class ConfluenceUtils
+    public static class ConfluenceUtils
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
 
         public static List<Page> GetCurrentPages()
         {
-            List<Page> pages = new List<Page>();
-            Regex pageIdRegex = new Regex(@"pageId=(\d+)");
-            Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
+            List<Page> pages = new();
+            Regex pageIdRegex = new(@"pageId=(\d+)");
+            Regex spacePageRegex = new(@"\/display\/([^\/]+)\/([^#]+)");
             foreach (string browserurl in GetBrowserUrls())
             {
                 string url;
@@ -55,7 +55,7 @@ namespace Greenshot.Plugin.Confluence
                 }
 
                 MatchCollection pageIdMatch = pageIdRegex.Matches(url);
-                if (pageIdMatch != null && pageIdMatch.Count > 0)
+                if (pageIdMatch?.Count > 0)
                 {
                     long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
                     try
@@ -89,48 +89,44 @@ namespace Greenshot.Plugin.Confluence
                 }
 
                 MatchCollection spacePageMatch = spacePageRegex.Matches(url);
-                if (spacePageMatch != null && spacePageMatch.Count > 0)
+                if (spacePageMatch?.Count > 0 && spacePageMatch[0].Groups.Count >= 2)
                 {
-                    if (spacePageMatch[0].Groups.Count >= 2)
+                    string space = spacePageMatch[0].Groups[1].Value;
+                    string title = spacePageMatch[0].Groups[2].Value;
+                    if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
                     {
-                        string space = spacePageMatch[0].Groups[1].Value;
-                        string title = spacePageMatch[0].Groups[2].Value;
-                        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
+                        continue;
+                    }
+
+                    if (title.EndsWith("#"))
+                    {
+                        title = title.Substring(0, title.Length - 1);
+                    }
+
+                    try
+                    {
+                        bool pageDouble = false;
+                        foreach (var _ in from Page page in pages
+                                          where page.Title.Equals(title)
+                                          select new { })
                         {
-                            continue;
+                            LOG.DebugFormat("Skipping double page with title {0}", title);
+                            pageDouble = true;
+                            break;
                         }
 
-                        if (title.EndsWith("#"))
+                        if (!pageDouble)
                         {
-                            title = title.Substring(0, title.Length - 1);
+                            Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
+                            LOG.DebugFormat("Adding page {0}", page.Title);
+                            pages.Add(page);
                         }
-
-                        try
-                        {
-                            bool pageDouble = false;
-                            foreach (Page page in pages)
-                            {
-                                if (page.Title.Equals(title))
-                                {
-                                    LOG.DebugFormat("Skipping double page with title {0}", title);
-                                    pageDouble = true;
-                                    break;
-                                }
-                            }
-
-                            if (!pageDouble)
-                            {
-                                Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
-                                LOG.DebugFormat("Adding page {0}", page.Title);
-                                pages.Add(page);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            // Preventing security problems
-                            LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
-                            LOG.Warn(ex);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Preventing security problems
+                        LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
+                        LOG.Warn(ex);
                     }
                 }
             }
@@ -140,7 +136,7 @@ namespace Greenshot.Plugin.Confluence
 
         private static IEnumerable<string> GetBrowserUrls()
         {
-            HashSet<string> urls = new HashSet<string>();
+            HashSet<string> urls = new();
 
             // FireFox
             foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass"))

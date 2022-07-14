@@ -35,18 +35,15 @@ namespace Greenshot.Plugin.ExternalCommand
         public static Image IconForCommand(string commandName)
         {
             Image icon = null;
-            if (commandName != null)
+            if (commandName != null && config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
             {
-                if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
+                try
                 {
-                    try
-                    {
-                        icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-                    }
-                    catch (Exception ex)
-                    {
-                        LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
-                    }
+                    icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
                 }
             }
 

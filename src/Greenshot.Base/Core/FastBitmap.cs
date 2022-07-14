@@ -290,15 +290,9 @@ namespace Greenshot.Base.Core
         protected bool BitsLocked;
         protected byte* Pointer;
 
-        public static IFastBitmap Create(Bitmap source)
-        {
-            return Create(source, NativeRect.Empty);
-        }
+        public static IFastBitmap Create(Bitmap source) => Create(source, NativeRect.Empty);
 
-        public void SetResolution(float horizontal, float vertical)
-        {
-            Bitmap.SetResolution(horizontal, vertical);
-        }
+        public void SetResolution(float horizontal, float vertical) => Bitmap.SetResolution(horizontal, vertical);
 
         /// <summary>
         /// Factory for creating a FastBitmap depending on the pixelformat of the source
@@ -324,10 +318,7 @@ namespace Greenshot.Base.Core
         /// <param name="source">Bitmap to clone</param>
         /// <param name="pixelFormat">new PixelFormat</param>
         /// <returns>IFastBitmap</returns>
-        public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat)
-        {
-            return CreateCloneOf(source, pixelFormat, NativeRect.Empty);
-        }
+        public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat) => CreateCloneOf(source, pixelFormat, NativeRect.Empty);
 
         /// <summary>
         /// Factory for creating a FastBitmap as a destination for the source
@@ -335,10 +326,7 @@ namespace Greenshot.Base.Core
         /// <param name="source">Bitmap to clone</param>
         /// <param name="area">Area of the bitmap to access, can be NativeRect.Empty for the whole</param>
         /// <returns>IFastBitmap</returns>
-        public static IFastBitmap CreateCloneOf(Image source, NativeRect area)
-        {
-            return CreateCloneOf(source, PixelFormat.DontCare, area);
-        }
+        public static IFastBitmap CreateCloneOf(Image source, NativeRect area) => CreateCloneOf(source, PixelFormat.DontCare, area);
 
         /// <summary>
         /// Factory for creating a FastBitmap as a destination for the source
@@ -408,50 +396,17 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Return the size of the image
         /// </summary>
-        public NativeSize Size
-        {
-            get
-            {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Size;
-                }
-
-                return Area.Size;
-            }
-        }
+        public NativeSize Size => Area == NativeRect.Empty ? (NativeSize)Bitmap.Size : Area.Size;
 
         /// <summary>
         /// Return the width of the image
         /// </summary>
-        public int Width
-        {
-            get
-            {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Width;
-                }
-
-                return Area.Width;
-            }
-        }
+        public int Width => Area == NativeRect.Empty ? Bitmap.Width : Area.Width;
 
         /// <summary>
         /// Return the height of the image
         /// </summary>
-        public int Height
-        {
-            get
-            {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Height;
-                }
-
-                return Area.Height;
-            }
-        }
+        public int Height => Area == NativeRect.Empty ? Bitmap.Height : Area.Height;
 
         private int _left;
 
@@ -460,8 +415,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         public int Left
         {
-            get { return 0; }
-            set { _left = value; }
+            get => 0;
+            set => _left = value;
         }
 
         /// <summary>
@@ -469,8 +424,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         int IFastBitmapWithOffset.Left
         {
-            get { return _left; }
-            set { _left = value; }
+            get => _left;
+            set => _left = value;
         }
 
         private int _top;
@@ -480,8 +435,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         public int Top
         {
-            get { return 0; }
-            set { _top = value; }
+            get => 0;
+            set => _top = value;
         }
 
         /// <summary>
@@ -489,8 +444,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         int IFastBitmapWithOffset.Top
         {
-            get { return _top; }
-            set { _top = value; }
+            get => _top;
+            set => _top = value;
         }
 
         /// <summary>
@@ -547,12 +502,9 @@ namespace Greenshot.Base.Core
         protected virtual void Dispose(bool disposing)
         {
             Unlock();
-            if (disposing)
+            if (disposing && Bitmap != null && NeedsDispose)
             {
-                if (Bitmap != null && NeedsDispose)
-                {
-                    Bitmap.Dispose();
-                }
+                Bitmap.Dispose();
             }
 
             Bitmap = null;
@@ -574,7 +526,7 @@ namespace Greenshot.Base.Core
             BitsLocked = true;
 
             IntPtr scan0 = BmData.Scan0;
-            Pointer = (byte*) (void*) scan0;
+            Pointer = (byte*)(void*)scan0;
             Stride = BmData.Stride;
         }
 
@@ -595,10 +547,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="graphics"></param>
         /// <param name="destination"></param>
-        public void DrawTo(Graphics graphics, NativePoint destination)
-        {
-            DrawTo(graphics, new NativeRect(destination, Area.Size));
-        }
+        public void DrawTo(Graphics graphics, NativePoint destination) => DrawTo(graphics, new NativeRect(destination, Area.Size));
 
         /// <summary>
         /// Draw the stored Bitmap on the Destination bitmap with the specified rectangle
@@ -624,10 +573,7 @@ namespace Greenshot.Base.Core
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>true if x & y are inside the FastBitmap</returns>
-        public bool Contains(int x, int y)
-        {
-            return Area.Contains(x - Left, y - Top);
-        }
+        public bool Contains(int x, int y) => Area.Contains(x - Left, y - Top);
 
         public abstract Color GetColorAt(int x, int y);
         public abstract void SetColorAt(int x, int y, Color color);
@@ -637,14 +583,7 @@ namespace Greenshot.Base.Core
         bool IFastBitmapWithClip.Contains(int x, int y)
         {
             bool contains = Clip.Contains(x, y);
-            if (InvertClip)
-            {
-                return !contains;
-            }
-            else
-            {
-                return contains;
-            }
+            return InvertClip ? !contains : contains;
         }
 
         void IFastBitmapWithClip.SetColorAt(int x, int y, byte[] color)
@@ -675,10 +614,7 @@ namespace Greenshot.Base.Core
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>true if x & y are inside the FastBitmap</returns>
-        bool IFastBitmapWithOffset.Contains(int x, int y)
-        {
-            return Area.Contains(x - Left, y - Top);
-        }
+        bool IFastBitmapWithOffset.Contains(int x, int y) => Area.Contains(x - Left, y - Top);
 
         Color IFastBitmapWithOffset.GetColorAt(int x, int y)
         {
@@ -716,12 +652,9 @@ namespace Greenshot.Base.Core
     {
         // Used for indexed images
         private readonly Color[] _colorEntries;
-        private readonly Dictionary<Color, byte> _colorCache = new Dictionary<Color, byte>();
+        private readonly Dictionary<Color, byte> _colorCache = new();
 
-        public FastChunkyBitmap(Bitmap source, NativeRect area) : base(source, area)
-        {
-            _colorEntries = Bitmap.Palette.Entries;
-        }
+        public FastChunkyBitmap(Bitmap source, NativeRect area) : base(source, area) => _colorEntries = Bitmap.Palette.Entries;
 
         /// <summary>
         /// Get the color from the specified location
@@ -742,10 +675,7 @@ namespace Greenshot.Base.Core
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="color">byte[4] as reference</param>
-        public override void GetColorAt(int x, int y, byte[] color)
-        {
-            throw new NotImplementedException("No performance gain!");
-        }
+        public override void GetColorAt(int x, int y, byte[] color) => throw new NotImplementedException("No performance gain!");
 
         /// <summary>
         /// Set the color at the specified location from the specified array
@@ -753,10 +683,7 @@ namespace Greenshot.Base.Core
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="color">byte[4] as reference</param>
-        public override void SetColorAt(int x, int y, byte[] color)
-        {
-            throw new NotImplementedException("No performance gain!");
-        }
+        public override void SetColorAt(int x, int y, byte[] color) => throw new NotImplementedException("No performance gain!");
 
         /// <summary>
         /// Get the color-index from the specified location
@@ -956,10 +883,7 @@ namespace Greenshot.Base.Core
 
         public Color BackgroundBlendColor { get; set; }
 
-        public Fast32ArgbBitmap(Bitmap source, NativeRect area) : base(source, area)
-        {
-            BackgroundBlendColor = Color.White;
-        }
+        public Fast32ArgbBitmap(Bitmap source, NativeRect area) : base(source, area) => BackgroundBlendColor = Color.White;
 
         /// <summary>
         /// Retrieve the color at location x,y
@@ -1039,9 +963,9 @@ namespace Greenshot.Base.Core
             {
                 // As the request is to get without alpha, we blend.
                 int rem = 255 - a;
-                red = (red * a + BackgroundBlendColor.R * rem) / 255;
-                green = (green * a + BackgroundBlendColor.G * rem) / 255;
-                blue = (blue * a + BackgroundBlendColor.B * rem) / 255;
+                red = ((red * a) + (BackgroundBlendColor.R * rem)) / 255;
+                green = ((green * a) + (BackgroundBlendColor.G * rem)) / 255;
+                blue = ((blue * a) + (BackgroundBlendColor.B * rem)) / 255;
             }
 
             return Color.FromArgb(255, red, green, blue);

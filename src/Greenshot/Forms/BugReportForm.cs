@@ -38,15 +38,9 @@ namespace Greenshot.Forms
             ToFront = true;
         }
 
-        public BugReportForm(string bugText) : this()
-        {
-            textBoxDescription.Text = bugText;
-        }
+        public BugReportForm(string bugText) : this() => textBoxDescription.Text = bugText;
 
-        private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            openLink((LinkLabel) sender);
-        }
+        private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => openLink((LinkLabel)sender);
 
         private void openLink(LinkLabel link)
         {

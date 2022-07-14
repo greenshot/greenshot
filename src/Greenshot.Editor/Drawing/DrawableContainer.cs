@@ -74,10 +74,7 @@ namespace Greenshot.Editor.Drawing
 
         protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 
-        public EditStatus DefaultEditMode
-        {
-            get { return _defaultEditMode; }
-        }
+        public EditStatus DefaultEditMode => _defaultEditMode;
 
         /// <summary>
         /// The public accessible Dispose
@@ -116,7 +113,7 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                List<IFilter> ret = new List<IFilter>();
+                List<IFilter> ret = new();
                 foreach (IFieldHolder c in Children)
                 {
                     if (c is IFilter)
@@ -137,10 +134,7 @@ namespace Greenshot.Editor.Drawing
             set => SwitchParent(value);
         }
 
-        protected Surface InternalParent
-        {
-            get => (Surface)_parent;
-        }
+        protected Surface InternalParent => (Surface)_parent;
 
         [NonSerialized] private TargetAdorner _targetAdorner;
         public TargetAdorner TargetAdorner => _targetAdorner;
@@ -153,7 +147,7 @@ namespace Greenshot.Editor.Drawing
             set
             {
                 _selected = value;
-                OnPropertyChanged("Selected");
+                OnPropertyChanged(nameof(Selected));
             }
         }
 
@@ -164,7 +158,6 @@ namespace Greenshot.Editor.Drawing
             get => _status;
             set => _status = value;
         }
-
 
         private int left;
 
@@ -232,7 +225,7 @@ namespace Greenshot.Editor.Drawing
 
         public NativePoint Location
         {
-            get => new NativePoint(left, top);
+            get => new(left, top);
             set
             {
                 left = value.X;
@@ -242,7 +235,7 @@ namespace Greenshot.Editor.Drawing
 
         public NativeSize Size
         {
-            get => new NativeSize(width, height);
+            get => new(width, height);
             set
             {
                 width = value.Width;
@@ -285,27 +278,20 @@ namespace Greenshot.Editor.Drawing
             Height = Round(newBounds.Height);
         }
 
-        public DrawableContainer(ISurface parent)
+        protected DrawableContainer(ISurface parent)
         {
             InitializeFields();
             _parent = parent;
         }
 
-        public void Add(IFilter filter)
-        {
-            AddChild(filter);
-        }
+        public void Add(IFilter filter) => AddChild(filter);
 
-        public void Remove(IFilter filter)
-        {
-            RemoveChild(filter);
-        }
+        public void Remove(IFilter filter) => RemoveChild(filter);
 
         private static int Round(float f)
         {
             if (float.IsPositiveInfinity(f) || f > int.MaxValue / 2) return int.MaxValue / 2;
-            if (float.IsNegativeInfinity(f) || f < int.MinValue / 2) return int.MinValue / 2;
-            return (int) Math.Round(f);
+            return float.IsNegativeInfinity(f) || f < int.MinValue / 2 ? int.MinValue / 2 : (int)Math.Round(f);
         }
 
         private bool accountForShadowChange;
@@ -354,10 +340,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual bool InitContent()
-        {
-            return true;
-        }
+        public virtual bool InitContent() => true;
 
         public virtual void OnDoubleClick()
         {
@@ -456,10 +439,7 @@ namespace Greenshot.Editor.Drawing
             // Empty as we do not want to add something to the context menu for every element
         }
 
-        public virtual bool Contains(int x, int y)
-        {
-            return Bounds.Contains(x, y);
-        }
+        public virtual bool Contains(int x, int y) => Bounds.Contains(x, y);
 
         public virtual bool ClickableAt(int x, int y)
         {
@@ -470,7 +450,7 @@ namespace Greenshot.Editor.Drawing
 
         protected void DrawSelectionBorder(Graphics g, NativeRect rect)
         {
-            using Pen pen = new Pen(Color.MediumSeaGreen)
+            using Pen pen = new(Color.MediumSeaGreen)
             {
                 DashPattern = new float[]
                 {
@@ -515,7 +495,7 @@ namespace Greenshot.Editor.Drawing
         public virtual bool HandleMouseDown(int x, int y)
         {
             _boundsBeforeResize = Bounds.MoveTo(x, y);
-            Left =  x;
+            Left = x;
             Top = y;
             return true;
         }
@@ -610,20 +590,14 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns></returns>
-        public static float CalculateScaleY(Matrix matrix)
-        {
-            return matrix.Elements[M22];
-        }
+        public static float CalculateScaleY(Matrix matrix) => matrix.Elements[M22];
 
         /// <summary>
         /// Retrieve the X scale from the matrix
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns></returns>
-        public static float CalculateScaleX(Matrix matrix)
-        {
-            return matrix.Elements[M11];
-        }
+        public static float CalculateScaleX(Matrix matrix) => matrix.Elements[M11];
 
         /// <summary>
         /// Retrieve the rotation angle from the matrix
@@ -632,10 +606,9 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public static int CalculateAngle(Matrix matrix)
         {
-            const int M11 = 0;
             const int M21 = 2;
-            var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
-            return (int) -Math.Round(radians * 180 / Math.PI);
+            var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[0]);
+            return (int)-Math.Round(radians * 180 / Math.PI);
         }
 
         /// <summary>
@@ -653,8 +626,8 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Point topLeft = new Point(Left, Top);
-            Point bottomRight = new Point(Left + Width, Top + Height);
+            Point topLeft = new(Left, Top);
+            Point bottomRight = new(Left + Width, Top + Height);
             Point[] points = new[]
             {
                 topLeft, bottomRight
@@ -667,10 +640,7 @@ namespace Greenshot.Editor.Drawing
             Height = points[1].Y - points[0].Y;
         }
 
-        protected virtual IDoubleProcessor GetAngleRoundProcessor()
-        {
-            return ShapeAngleRoundBehavior.INSTANCE;
-        }
+        protected virtual IDoubleProcessor GetAngleRoundProcessor() => ShapeAngleRoundBehavior.INSTANCE;
 
         public virtual bool HasContextMenu => true;
 

@@ -36,22 +36,18 @@ namespace Greenshot.Helpers.IEInterop
     public class DocumentContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
-        private const int E_ACCESSDENIED = unchecked((int) 0x80070005L);
-        private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
-        private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
+        private const int E_ACCESSDENIED = unchecked((int)0x80070005L);
+        private static readonly Guid IID_IWebBrowserApp = new("0002DF05-0000-0000-C000-000000000046");
+        private static readonly Guid IID_IWebBrowser2 = new("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
         private static int _counter;
         private readonly NativePoint _startLocation = NativePoint.Empty;
         private IHTMLDocument2 _document2;
         private IHTMLDocument3 _document3;
-        private NativePoint _sourceLocation;
-        private NativePoint _destinationLocation;
         private NativeRect _viewportRectangle = NativeRect.Empty;
         private bool _isDtd;
-        private DocumentContainer _parent;
         private WindowDetails _contentWindow;
         private double _zoomLevelX = 1;
         private double _zoomLevelY = 1;
-        private readonly IList<DocumentContainer> _frames = new List<DocumentContainer>();
 
         private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent)
         {
@@ -86,10 +82,10 @@ namespace Greenshot.Helpers.IEInterop
                 // Ignore
             }
 
-            _parent = parent;
+            Parent = parent;
             // Calculate startLocation for the frames
             IHTMLWindow2 window2 = document2.parentWindow;
-            IHTMLWindow3 window3 = (IHTMLWindow3) window2;
+            IHTMLWindow3 window3 = (IHTMLWindow3)window2;
             NativePoint contentWindowLocation = contentWindow.WindowRectangle.Location;
             int x = window3.screenLeft - contentWindowLocation.X;
             int y = window3.screenTop - contentWindowLocation.Y;
@@ -131,7 +127,7 @@ namespace Greenshot.Helpers.IEInterop
             _contentWindow = contentWindow;
             _document3 = document2 as IHTMLDocument3;
             // Check what access method is needed for the document
-            IHTMLDocument5 document5 = (IHTMLDocument5) document2;
+            IHTMLDocument5 document5 = (IHTMLDocument5)document2;
 
             //compatibility mode affects how height is computed
             _isDtd = false;
@@ -156,22 +152,21 @@ namespace Greenshot.Helpers.IEInterop
                 IHTMLWindow2 window2 = document2.parentWindow;
                 //IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
                 IHTMLScreen screen = window2.screen;
-                IHTMLScreen2 screen2 = (IHTMLScreen2) screen;
-                if (_parent != null)
+                IHTMLScreen2 screen2 = (IHTMLScreen2)screen;
+                if (Parent != null)
                 {
                     // Copy parent values
-                    _zoomLevelX = _parent._zoomLevelX;
-                    _zoomLevelY = _parent._zoomLevelY;
-                    _viewportRectangle = _parent._viewportRectangle;
+                    _zoomLevelX = Parent._zoomLevelX;
+                    _zoomLevelY = Parent._zoomLevelY;
+                    _viewportRectangle = Parent._viewportRectangle;
                 }
                 else
                 {
                     //DisableScrollbars(document2);
 
                     // Calculate zoom level
-                    _zoomLevelX = screen2.deviceXDPI / (double) screen2.logicalXDPI;
-                    _zoomLevelY = screen2.deviceYDPI / (double) screen2.logicalYDPI;
-
+                    _zoomLevelX = screen2.deviceXDPI / (double)screen2.logicalXDPI;
+                    _zoomLevelY = screen2.deviceYDPI / (double)screen2.logicalYDPI;
 
                     // Calculate the viewport rectangle, needed if there is a frame around the html window
                     LOG.DebugFormat("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
@@ -202,7 +197,6 @@ namespace Greenshot.Helpers.IEInterop
                 LOG.Warn("Can't get certain properties for documents, using default. Due to: ", e);
             }
 
-
             try
             {
                 LOG.DebugFormat("Calculated location {0} for {1}", _startLocation, document2.title);
@@ -225,28 +219,28 @@ namespace Greenshot.Helpers.IEInterop
                 LOG.Warn("Problem while trying to get document url!", e);
             }
 
-            _sourceLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
-            _destinationLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+            SourceLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+            DestinationLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 
-            if (_parent != null)
+            if (Parent != null)
             {
                 return;
             }
 
             try
             {
-                IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2) document2.frames;
+                IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2)document2.frames;
                 for (int frame = 0; frame < frameCollection.length; frame++)
                 {
                     try
                     {
                         IHTMLWindow2 frameWindow = frameCollection.item(frame);
-                        DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
+                        DocumentContainer frameData = new(frameWindow, contentWindow, this);
                         // check if frame is hidden
                         if (!frameData.IsHidden)
                         {
                             LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.Name, frameData.SourceRectangle);
-                            _frames.Add(frameData);
+                            Frames.Add(frameData);
                         }
                         else
                         {
@@ -317,14 +311,14 @@ namespace Greenshot.Helpers.IEInterop
                 oldElement = element;
             } while (element != null);
 
-            var elementLocation = new NativePoint((int) x, (int) y);
-            IHTMLElement2 element2 = (IHTMLElement2) frameElement;
+            var elementLocation = new NativePoint((int)x, (int)y);
+            IHTMLElement2 element2 = (IHTMLElement2)frameElement;
             IHTMLRect rec = element2.getBoundingClientRect();
             var elementBoundingLocation = new NativePoint(rec.left, rec.top);
             // Release IHTMLRect
             ReleaseCom(rec);
             LOG.DebugFormat("Looking for iframe to correct at {0}", elementBoundingLocation);
-            foreach (DocumentContainer foundFrame in _frames)
+            foreach (DocumentContainer foundFrame in Frames)
             {
                 NativePoint frameLocation = foundFrame.SourceLocation;
                 if (frameLocation.Equals(elementBoundingLocation))
@@ -385,7 +379,7 @@ namespace Greenshot.Helpers.IEInterop
             try
             {
                 // Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
-                IServiceProvider sp = (IServiceProvider) htmlWindow;
+                IServiceProvider sp = (IServiceProvider)htmlWindow;
 
                 // Use IServiceProvider.QueryService to get IWebBrowser2 object.
                 Guid webBrowserApp = IID_IWebBrowserApp;
@@ -393,9 +387,9 @@ namespace Greenshot.Helpers.IEInterop
                 sp.QueryService(ref webBrowserApp, ref webBrowser2, out var brws);
 
                 // Get the document from IWebBrowser2.
-                IWebBrowser2 browser = (IWebBrowser2) brws;
+                IWebBrowser2 browser = (IWebBrowser2)brws;
 
-                return (IHTMLDocument2) browser.Document;
+                return (IHTMLDocument2)browser.Document;
             }
             catch (Exception ex2)
             {
@@ -411,7 +405,7 @@ namespace Greenshot.Helpers.IEInterop
             {
                 try
                 {
-                    string bgColor = (string) _document2.bgColor;
+                    string bgColor = (string)_document2.bgColor;
                     if (bgColor != null)
                     {
                         int rgbInt = int.Parse(bgColor.Substring(1), NumberStyles.HexNumber);
@@ -431,39 +425,20 @@ namespace Greenshot.Helpers.IEInterop
 
         public WindowDetails ContentWindow => _contentWindow;
 
-        public DocumentContainer Parent
-        {
-            get { return _parent; }
-            set { _parent = value; }
-        }
+        public DocumentContainer Parent { get; set; }
 
-        private int ScaleX(int physicalValue)
-        {
-            return (int) Math.Round(physicalValue * _zoomLevelX, MidpointRounding.AwayFromZero);
-        }
+        private int ScaleX(int physicalValue) => (int)Math.Round(physicalValue * _zoomLevelX, MidpointRounding.AwayFromZero);
 
-        private int ScaleY(int physicalValue)
-        {
-            return (int) Math.Round(physicalValue * _zoomLevelY, MidpointRounding.AwayFromZero);
-        }
+        private int ScaleY(int physicalValue) => (int)Math.Round(physicalValue * _zoomLevelY, MidpointRounding.AwayFromZero);
 
-        private int UnscaleX(int physicalValue)
-        {
-            return (int) Math.Round(physicalValue / _zoomLevelX, MidpointRounding.AwayFromZero);
-        }
+        private int UnscaleX(int physicalValue) => (int)Math.Round(physicalValue / _zoomLevelX, MidpointRounding.AwayFromZero);
 
-        private int UnscaleY(int physicalValue)
-        {
-            return (int) Math.Round(physicalValue / _zoomLevelY, MidpointRounding.AwayFromZero);
-        }
+        private int UnscaleY(int physicalValue) => (int)Math.Round(physicalValue / _zoomLevelY, MidpointRounding.AwayFromZero);
 
         /// <summary>
         /// Set/change an int attribute on a document
         /// </summary>
-        public void SetAttribute(string attribute, int value)
-        {
-            SetAttribute(attribute, value.ToString());
-        }
+        public void SetAttribute(string attribute, int value) => SetAttribute(attribute, value.ToString());
 
         /// <summary>
         /// Set/change an attribute on a document
@@ -497,7 +472,7 @@ namespace Greenshot.Helpers.IEInterop
         /// </summary>
         public int GetAttributeAsInt(string attribute)
         {
-            int retVal = (int) GetAttribute(attribute);
+            int retVal = (int)GetAttribute(attribute);
             return retVal;
         }
 
@@ -517,62 +492,54 @@ namespace Greenshot.Helpers.IEInterop
 
         public int ScrollHeight => ScaleY(GetAttributeAsInt("scrollHeight"));
 
-        public NativePoint SourceLocation
-        {
-            get { return _sourceLocation; }
-            set { _sourceLocation = value; }
-        }
+        public NativePoint SourceLocation { get; set; }
 
-        public NativeSize SourceSize => new NativeSize(ClientWidth, ClientHeight);
+        public NativeSize SourceSize => new(ClientWidth, ClientHeight);
 
-        public NativeRect SourceRectangle => new NativeRect(SourceLocation, SourceSize);
+        public NativeRect SourceRectangle => new(SourceLocation, SourceSize);
 
-        public int SourceLeft => _sourceLocation.X;
+        public int SourceLeft => SourceLocation.X;
 
-        public int SourceTop => _sourceLocation.Y;
+        public int SourceTop => SourceLocation.Y;
 
-        public int SourceRight => _sourceLocation.X + ClientWidth;
+        public int SourceRight => SourceLocation.X + ClientWidth;
 
-        public int SourceBottom => _sourceLocation.Y + ClientHeight;
+        public int SourceBottom => SourceLocation.Y + ClientHeight;
 
-        public NativePoint DestinationLocation
-        {
-            get { return _destinationLocation; }
-            set { _destinationLocation = value; }
-        }
+        public NativePoint DestinationLocation { get; set; }
 
-        public NativeSize DestinationSize => new NativeSize(ScrollWidth, ScrollHeight);
+        public NativeSize DestinationSize => new(ScrollWidth, ScrollHeight);
 
-        public NativeRect DestinationRectangle => new NativeRect(DestinationLocation, DestinationSize);
+        public NativeRect DestinationRectangle => new(DestinationLocation, DestinationSize);
 
         public int DestinationLeft
         {
-            get { return _destinationLocation.X; }
-            set { _destinationLocation = _destinationLocation.ChangeX(value); }
+            get => DestinationLocation.X;
+            set => DestinationLocation = DestinationLocation.ChangeX(value);
         }
 
         public int DestinationTop
         {
-            get { return _destinationLocation.Y; }
-            set { _destinationLocation = _destinationLocation.ChangeY(value); }
+            get => DestinationLocation.Y;
+            set => DestinationLocation = DestinationLocation.ChangeY(value);
         }
 
-        public int DestinationRight => _destinationLocation.X + ScrollWidth;
+        public int DestinationRight => DestinationLocation.X + ScrollWidth;
 
-        public int DestinationBottom => _destinationLocation.Y + ScrollHeight;
+        public int DestinationBottom => DestinationLocation.Y + ScrollHeight;
 
         public int ScrollLeft
         {
-            get { return ScaleX(GetAttributeAsInt("scrollLeft")); }
-            set { SetAttribute("scrollLeft", UnscaleX(value)); }
+            get => ScaleX(GetAttributeAsInt("scrollLeft"));
+            set => SetAttribute("scrollLeft", UnscaleX(value));
         }
 
         public int ScrollTop
         {
-            get { return ScaleY(GetAttributeAsInt("scrollTop")); }
-            set { SetAttribute("scrollTop", UnscaleY(value)); }
+            get => ScaleY(GetAttributeAsInt("scrollTop"));
+            set => SetAttribute("scrollTop", UnscaleY(value));
         }
 
-        public IList<DocumentContainer> Frames => _frames;
+        public IList<DocumentContainer> Frames { get; } = new List<DocumentContainer>();
     }
 }

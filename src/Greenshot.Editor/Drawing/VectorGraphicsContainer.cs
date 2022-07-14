@@ -36,12 +36,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public abstract class VectorGraphicsContainer : DrawableContainer
     {
-        private int _rotationAngle;
-        protected int RotationAngle
-        {
-            get => _rotationAngle;
-            set => _rotationAngle = value;
-        }
+        protected int RotationAngle { get; set; }
 
         /// <summary>
         /// This is the cached version of the bitmap, pre-rendered to save performance
@@ -53,10 +48,7 @@ namespace Greenshot.Editor.Drawing
         /// Constructor takes care of calling Init 
         /// </summary>
         /// <param name="parent">ISurface</param>
-        public VectorGraphicsContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        protected VectorGraphicsContainer(ISurface parent) : base(parent) => Init();
 
         /// <summary>
         /// Make sure Init is called after deserializing
@@ -92,7 +84,6 @@ namespace Greenshot.Editor.Drawing
         /// When disposing==true all non-managed resources should be freed too!
         /// </summary>
         /// <param name="disposing"></param>
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -131,7 +122,6 @@ namespace Greenshot.Editor.Drawing
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
 
             graphics.DrawImage(_cachedImage, Bounds);
         }

@@ -44,13 +44,13 @@ namespace Greenshot.Editor.Controls
                 if (Tag == null && DropDownItems.Count > 0) Tag = DropDownItems[0].Tag;
                 return Tag;
             }
-            set { AdoptFromTag(value); }
+            set => AdoptFromTag(value);
         }
 
         protected override void OnDropDownItemClicked(ToolStripItemClickedEventArgs e)
         {
             ToolStripItem clickedItem = e.ClickedItem;
-            if (Tag == null || !Tag.Equals(clickedItem.Tag))
+            if (Tag?.Equals(clickedItem.Tag) != true)
             {
                 Tag = clickedItem.Tag;
                 Image = clickedItem.Image;
@@ -62,12 +62,12 @@ namespace Greenshot.Editor.Controls
 
         private void AdoptFromTag(object tag)
         {
-            if (Tag == null || !Tag.Equals(tag))
+            if (Tag?.Equals(tag) != true)
             {
                 Tag = tag;
                 foreach (ToolStripItem item in DropDownItems)
                 {
-                    if (item.Tag != null && item.Tag.Equals(tag))
+                    if (item.Tag?.Equals(tag) == true)
                     {
                         Image = item.Image;
                         break;

@@ -54,10 +54,7 @@ namespace Greenshot.Editor.Drawing
             MAGNIFICATION
         };
 
-        public FilterContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        protected FilterContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -65,10 +62,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         protected override void InitializeFields()
         {
@@ -92,13 +86,13 @@ namespace Greenshot.Editor.Drawing
             //draw shadow first
             if (shadow)
             {
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = lineVisible ? 1 : 0;
                 while (currentStep <= steps)
                 {
-                    using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    using Pen shadowPen = new(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
                     var shadowRect = new NativeRect(Left + currentStep, Top + currentStep, Width, Height).Normalize();
                     graphics.DrawRectangle(shadowPen, shadowRect);
                     currentStep++;
@@ -109,7 +103,7 @@ namespace Greenshot.Editor.Drawing
             if (lineThickness > 0)
             {
                 var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 graphics.DrawRectangle(pen, rect);
             }
         }

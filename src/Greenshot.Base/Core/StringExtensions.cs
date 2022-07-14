@@ -41,10 +41,7 @@ namespace Greenshot.Base.Core
         /// <param name="format">String with formatting, like {name}</param>
         /// <param name="source">Object used for the formatting</param>
         /// <returns>Formatted string</returns>
-        public static string FormatWith(this string format, object source)
-        {
-            return FormatWith(format, null, source);
-        }
+        public static string FormatWith(this string format, object source) => FormatWith(format, null, source);
 
         /// <summary>
         /// Format the string "format" with the source
@@ -72,7 +69,7 @@ namespace Greenshot.Base.Core
                     }
                     else
                     {
-                        IDictionary<string, string> dictionary = (IDictionary<string, string>) value;
+                        IDictionary<string, string> dictionary = (IDictionary<string, string>)value;
                         foreach (var propertyKey in dictionary.Keys)
                         {
                             properties.Add(propertyKey, dictionary[propertyKey]);
@@ -81,11 +78,11 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            Regex r = new Regex(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>:[^}]+)?(?<end>\})+",
+            Regex r = new(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>:[^}]+)?(?<end>\})+",
                 RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-            List<object> values = new List<object>();
-            string rewrittenFormat = r.Replace(format, delegate(Match m)
+            List<object> values = new();
+            string rewrittenFormat = r.Replace(format, (Match m) =>
             {
                 Group startGroup = m.Groups["start"];
                 Group propertyGroup = m.Groups["property"];
@@ -112,10 +109,10 @@ namespace Greenshot.Base.Core
                 byte[] clearTextBytes = Encoding.ASCII.GetBytes(clearText);
                 SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 
-                using MemoryStream ms = new MemoryStream();
+                using MemoryStream ms = new();
                 byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
                 byte[] key = Encoding.ASCII.GetBytes(KEY);
-                using CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
+                using CryptoStream cs = new(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
                 cs.Write(clearTextBytes, 0, clearTextBytes.Length);
                 cs.FlushFinalBlock();
 
@@ -140,14 +137,13 @@ namespace Greenshot.Base.Core
             try
             {
                 byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText);
-                using MemoryStream ms = new MemoryStream();
+                using MemoryStream ms = new();
                 SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-
 
                 byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
                 byte[] key = Encoding.ASCII.GetBytes(KEY);
 
-                using CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
+                using CryptoStream cs = new(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
                 cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
                 cs.FlushFinalBlock();
                 returnValue = Encoding.ASCII.GetString(ms.ToArray());

@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core.OAuth
     public class LocalJsonReceiver
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(LocalJsonReceiver));
-        private readonly ManualResetEvent _ready = new ManualResetEvent(true);
+        private readonly ManualResetEvent _ready = new(true);
         private IDictionary<string, string> _returnValues;
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="result">IAsyncResult</param>
         private void ListenerCallback(IAsyncResult result)
         {
-            HttpListener listener = (HttpListener) result.AsyncState;
+            HttpListener listener = (HttpListener)result.AsyncState;
 
             //If not listening return immediately as this method is called one last time after Close()
             if (!listener.IsListening)
@@ -192,7 +192,7 @@ namespace Greenshot.Base.Core.OAuth
             try
             {
                 listener.Start();
-                return ((IPEndPoint) listener.LocalEndpoint).Port;
+                return ((IPEndPoint)listener.LocalEndpoint).Port;
             }
             finally
             {
