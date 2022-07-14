@@ -60,13 +60,10 @@ namespace Greenshot.Plugin.Confluence
                 Logout();
             }
 
-            if (disposing)
+            if (disposing && _confluence != null)
             {
-                if (_confluence != null)
-                {
-                    _confluence.Dispose();
-                    _confluence = null;
-                }
+                _confluence.Dispose();
+                _confluence = null;
             }
         }
 

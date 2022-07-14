@@ -36,14 +36,8 @@ namespace Greenshot.Editor.Controls
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
         public string LanguageKey { get; set; }
 
-        public BindableToolStripButton()
-        {
-            CheckedChanged += BindableToolStripButton_CheckedChanged;
-        }
+        public BindableToolStripButton() => CheckedChanged += BindableToolStripButton_CheckedChanged;
 
-        private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Checked"));
-        }
+        private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Checked"));
     }
 }

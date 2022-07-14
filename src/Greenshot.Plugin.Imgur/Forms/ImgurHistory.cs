@@ -218,10 +218,7 @@ namespace Greenshot.Plugin.Imgur.Forms
             }
         }
 
-        private void FinishedButtonClick(object sender, EventArgs e)
-        {
-            Hide();
-        }
+        private void FinishedButtonClick(object sender, EventArgs e) => Hide();
 
         private void OpenButtonClick(object sender, EventArgs e)
         {
@@ -254,9 +251,6 @@ namespace Greenshot.Plugin.Imgur.Forms
             listview_imgur_uploads.Sort();
         }
 
-        private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
-        {
-            _instance = null;
-        }
+        private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e) => _instance = null;
     }
 }

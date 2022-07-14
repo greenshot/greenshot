@@ -38,10 +38,7 @@ namespace Greenshot.Controls
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static Image _scaledCheckbox;
 
-        public ContextMenuToolStripProfessionalRenderer(IProvideDeviceDpi provideDeviceDpi)
-        {
-            _provideDeviceDpi = provideDeviceDpi;
-        }
+        public ContextMenuToolStripProfessionalRenderer(IProvideDeviceDpi provideDeviceDpi) => _provideDeviceDpi = provideDeviceDpi;
         protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
         {
             var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);

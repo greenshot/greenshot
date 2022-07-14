@@ -43,22 +43,13 @@ namespace Greenshot.Destinations
         {
         }
 
-        public PrinterDestination(string printerName)
-        {
-            _printerName = printerName;
-        }
+        public PrinterDestination(string printerName) => _printerName = printerName;
 
         public override string Designation => nameof(WellKnownDestinations.Printer);
 
-        public override string Description
-        {
-            get
-            {
-                return _printerName != null
+        public override string Description => _printerName != null
                     ? Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName
                     : Language.GetString(LangKey.settings_destination_printer);
-            }
-        }
 
         public override int Priority => 2;
 
@@ -83,7 +74,7 @@ namespace Greenshot.Destinations
                 printers.Add(printer);
             }
 
-            printers.Sort(delegate (string p1, string p2)
+            printers.Sort((string p1, string p2) =>
             {
                 if (defaultPrinter.Equals(p1))
                 {

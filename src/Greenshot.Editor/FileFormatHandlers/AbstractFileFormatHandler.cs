@@ -35,10 +35,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         public IDictionary<FileFormatHandlerActions, IReadOnlyCollection<string>> SupportedExtensions { get; } = new Dictionary<FileFormatHandlerActions, IReadOnlyCollection<string>>();
 
         /// <inheritdoc />
-        public virtual int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)
-        {
-            return 0;
-        }
+        public virtual int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) => 0;
 
         public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 

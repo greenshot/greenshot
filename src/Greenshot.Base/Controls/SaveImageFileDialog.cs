@@ -51,13 +51,10 @@ namespace Greenshot.Base.Controls
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && SaveFileDialog != null)
             {
-                if (SaveFileDialog != null)
-                {
-                    SaveFileDialog.Dispose();
-                    SaveFileDialog = null;
-                }
+                SaveFileDialog.Dispose();
+                SaveFileDialog = null;
             }
         }
 
@@ -126,7 +123,7 @@ namespace Greenshot.Base.Controls
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 string ifo = supportedImageFormats[i].ToString();
-                if (ifo.ToLower().Equals("jpeg")) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
+                if (ifo.Equals("jpeg", StringComparison.CurrentCultureIgnoreCase)) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
                 FilterOption fo = new()
                 {
                     Label = ifo.ToUpper(),
@@ -204,11 +201,9 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// sets InitialDirectory and FileName property of a SaveFileDialog smartly, considering default pattern and last used path
         /// </summary>
-        private void ApplySuggestedValues()
-        {
+        private void ApplySuggestedValues() =>
             // build the full path and set dialog properties
             FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
-        }
 
         private class FilterOption
         {

@@ -42,10 +42,7 @@ namespace Greenshot.Base.Core
         private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
 
-        static PluginUtils()
-        {
-            CoreConfig.PropertyChanged += OnIconSizeChanged;
-        }
+        static PluginUtils() => CoreConfig.PropertyChanged += OnIconSizeChanged;
 
         /// <summary>
         /// Clear icon cache

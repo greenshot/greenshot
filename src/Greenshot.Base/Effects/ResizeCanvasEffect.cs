@@ -50,9 +50,6 @@ namespace Greenshot.Base.Effects
             // values don't have a default value
         }
 
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom, matrix);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom, matrix);
     }
 }

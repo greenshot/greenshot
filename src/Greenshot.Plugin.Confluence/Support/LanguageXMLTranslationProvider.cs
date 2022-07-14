@@ -10,9 +10,6 @@ namespace Greenshot.Plugin.Confluence.Support
         /// <summary>
         /// See <see cref="ITranslationProvider.Translate" />
         /// </summary>
-        public object Translate(string key)
-        {
-            return Language.HasKey("confluence", key) ? Language.GetString("confluence", key) : (object)key;
-        }
+        public object Translate(string key) => Language.HasKey("confluence", key) ? Language.GetString("confluence", key) : (object)key;
     }
 }

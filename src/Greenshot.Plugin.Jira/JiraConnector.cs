@@ -54,21 +54,18 @@ namespace Greenshot.Plugin.Jira
         /// <summary>
         /// Initialize some basic stuff, in the case the SVG to bitmap converter
         /// </summary>
-        static JiraConnector()
-        {
-            CoreConfig.PropertyChanged += (sender, args) =>
-            {
-                if (args.PropertyName == nameof(CoreConfig.IconSize))
-                {
-                    var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-                    jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration
-                    {
-                        Width = CoreConfig.IconSize.Width,
-                        Height = CoreConfig.IconSize.Height
-                    });
-                }
-            };
-        }
+        static JiraConnector() => CoreConfig.PropertyChanged += (sender, args) =>
+                                           {
+                                               if (args.PropertyName == nameof(CoreConfig.IconSize))
+                                               {
+                                                   var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+                                                   jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration
+                                                   {
+                                                       Width = CoreConfig.IconSize.Width,
+                                                       Height = CoreConfig.IconSize.Height
+                                                   });
+                                               }
+                                           };
 
         /// <summary>
         /// Dispose, logout the users
@@ -86,10 +83,7 @@ namespace Greenshot.Plugin.Jira
         /// <summary>
         /// Constructor
         /// </summary>
-        public JiraConnector()
-        {
-            JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
-        }
+        public JiraConnector() => JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
 
         /// <summary>
         /// Access the jira monitor
@@ -299,10 +293,7 @@ namespace Greenshot.Plugin.Jira
         /// <param name="issue">Issue</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Bitmap</returns>
-        public async Task<Bitmap> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default)
-        {
-            return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
-        }
+        public async Task<Bitmap> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default) => await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         /// Get the base uri

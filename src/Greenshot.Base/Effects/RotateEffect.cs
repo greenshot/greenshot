@@ -31,10 +31,7 @@ namespace Greenshot.Base.Effects
     /// </summary>
     public class RotateEffect : IEffect
     {
-        public RotateEffect(int angle)
-        {
-            Angle = angle;
-        }
+        public RotateEffect(int angle) => Angle = angle;
 
         public int Angle { get; set; }
 

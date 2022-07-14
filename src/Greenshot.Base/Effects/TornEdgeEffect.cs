@@ -33,10 +33,7 @@ namespace Greenshot.Base.Effects
     [TypeConverter(typeof(EffectConverter))]
     public sealed class TornEdgeEffect : DropShadowEffect
     {
-        public TornEdgeEffect()
-        {
-            Reset();
-        }
+        public TornEdgeEffect() => Reset();
 
         public int ToothHeight { get; set; }
         public int HorizontalToothRange { get; set; }

@@ -94,6 +94,14 @@ dotnet_diagnostic.S4136.severity = silent
 
 # IDE1006: Naming Styles
 dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.S927.severity = suggestion
+
+# S1481: Unused local variables should be removed
+dotnet_diagnostic.S1481.severity = silent
+
+# IDE0076: Invalid global 'SuppressMessageAttribute'
+dotnet_diagnostic.IDE0076.severity = none
+dotnet_diagnostic.S101.severity = silent
 
 [*.{cs,vb}]
 #### Naming styles ####

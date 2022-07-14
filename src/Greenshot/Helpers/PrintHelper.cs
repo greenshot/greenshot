@@ -159,10 +159,7 @@ namespace Greenshot.Helpers
             return returnPrinterSettings;
         }
 
-        private bool IsColorPrint()
-        {
-            return !CoreConfig.OutputPrintGrayscale && !CoreConfig.OutputPrintMonochrome;
-        }
+        private bool IsColorPrint() => !CoreConfig.OutputPrintGrayscale && !CoreConfig.OutputPrintMonochrome;
 
         /// <summary>
         /// display print options dialog (if the user has not configured Greenshot not to)
@@ -217,16 +214,13 @@ namespace Greenshot.Helpers
                 GraphicsUnit gu = GraphicsUnit.Pixel;
                 RectangleF imageRect = image.GetBounds(ref gu);
                 // rotate the image if it fits the page better
-                if (CoreConfig.OutputPrintAllowRotate)
+                if (CoreConfig.OutputPrintAllowRotate && ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)))
                 {
-                    if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height))
+                    image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                    imageRect = image.GetBounds(ref gu);
+                    if (alignment.Equals(ContentAlignment.TopLeft))
                     {
-                        image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                        imageRect = image.GetBounds(ref gu);
-                        if (alignment.Equals(ContentAlignment.TopLeft))
-                        {
-                            alignment = ContentAlignment.TopRight;
-                        }
+                        alignment = ContentAlignment.TopRight;
                     }
                 }
 

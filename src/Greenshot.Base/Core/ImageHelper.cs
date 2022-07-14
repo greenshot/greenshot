@@ -244,12 +244,9 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Value.Width - 1, area.Value.Height - 1))))
+            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Value.Width - 1, area.Value.Height - 1))) && !(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
             {
-                if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
-                {
-                    cropNativeRect = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
-                }
+                cropNativeRect = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
             }
 
             return cropNativeRect;
@@ -811,16 +808,9 @@ namespace Greenshot.Base.Core
             {
                 Matrix00 = 0,
                 Matrix11 = 0,
-                Matrix22 = 0
+                Matrix22 = 0,
+                Matrix33 = useGdiBlur ? darkness + 0.1f : darkness
             };
-            if (useGdiBlur)
-            {
-                maskMatrix.Matrix33 = darkness + 0.1f;
-            }
-            else
-            {
-                maskMatrix.Matrix33 = darkness;
-            }
 
             NativeRect shadowNativeRect = new(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
             ApplyColorMatrix((Bitmap)sourceBitmap, NativeRect.Empty, returnImage, shadowNativeRect, maskMatrix);
@@ -897,10 +887,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="source">Image to apply matrix to</param>
         /// <param name="colorMatrix">ColorMatrix to apply</param>
-        public static void ApplyColorMatrix(Bitmap source, ColorMatrix colorMatrix)
-        {
-            ApplyColorMatrix(source, NativeRect.Empty, source, NativeRect.Empty, colorMatrix);
-        }
+        public static void ApplyColorMatrix(Bitmap source, ColorMatrix colorMatrix) => ApplyColorMatrix(source, NativeRect.Empty, source, NativeRect.Empty, colorMatrix);
 
         /// <summary>
         /// Apply a color matrix by copying from the source to the destination
@@ -1130,23 +1117,17 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="pixelformat">PixelFormat to check</param>
         /// <returns>bool if we support it</returns>
-        public static bool SupportsPixelFormat(PixelFormat pixelformat)
-        {
-            return pixelformat.Equals(PixelFormat.Format32bppArgb) ||
+        public static bool SupportsPixelFormat(PixelFormat pixelformat) => pixelformat.Equals(PixelFormat.Format32bppArgb) ||
                    pixelformat.Equals(PixelFormat.Format32bppPArgb) ||
                    pixelformat.Equals(PixelFormat.Format32bppRgb) ||
                    pixelformat.Equals(PixelFormat.Format24bppRgb);
-        }
 
         /// <summary>
         /// Wrapper for just cloning which calls the CloneArea
         /// </summary>
         /// <param name="sourceImage">Image to clone</param>
         /// <returns>Bitmap with clone image data</returns>
-        public static Image Clone(Image sourceImage)
-        {
-            return sourceImage is Metafile ? (Image)sourceImage.Clone() : CloneArea(sourceImage, NativeRect.Empty, PixelFormat.DontCare);
-        }
+        public static Image Clone(Image sourceImage) => sourceImage is Metafile ? (Image)sourceImage.Clone() : CloneArea(sourceImage, NativeRect.Empty, PixelFormat.DontCare);
 
         /// <summary>
         /// Wrapper for just cloning & TargetFormat which calls the CloneArea
@@ -1154,10 +1135,7 @@ namespace Greenshot.Base.Core
         /// <param name="sourceBitmap">Image to clone</param>
         /// <param name="targetFormat">Target Format, use PixelFormat.DontCare if you want the original (or a default if the source PixelFormat is not supported)</param>
         /// <returns>Bitmap with clone image data</returns>
-        public static Bitmap Clone(Image sourceBitmap, PixelFormat targetFormat)
-        {
-            return CloneArea(sourceBitmap, NativeRect.Empty, targetFormat);
-        }
+        public static Bitmap Clone(Image sourceBitmap, PixelFormat targetFormat) => CloneArea(sourceBitmap, NativeRect.Empty, targetFormat);
 
         /// <summary>
         /// Clone an image, taking some rules into account:
@@ -1176,14 +1154,9 @@ namespace Greenshot.Base.Core
             NativeRect bitmapRect = new(0, 0, sourceImage.Width, sourceImage.Height);
 
             // Make sure the source is not NativeRect.Empty
-            if (NativeRect.Empty.Equals(sourceRect))
-            {
-                sourceRect = new NativeRect(0, 0, sourceImage.Width, sourceImage.Height);
-            }
-            else
-            {
-                sourceRect = sourceRect.Intersect(bitmapRect);
-            }
+            sourceRect = NativeRect.Empty.Equals(sourceRect)
+                ? new NativeRect(0, 0, sourceImage.Width, sourceImage.Height)
+                : sourceRect.Intersect(bitmapRect);
 
             // If no pixelformat is supplied
             if (targetFormat is PixelFormat.DontCare or PixelFormat.Undefined)
@@ -1192,13 +1165,9 @@ namespace Greenshot.Base.Core
                 {
                     targetFormat = sourceImage.PixelFormat;
                 }
-                else if (Image.IsAlphaPixelFormat(sourceImage.PixelFormat))
-                {
-                    targetFormat = PixelFormat.Format32bppArgb;
-                }
                 else
                 {
-                    targetFormat = PixelFormat.Format24bppRgb;
+                    targetFormat = Image.IsAlphaPixelFormat(sourceImage.PixelFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
                 }
             }
 
@@ -1369,10 +1338,7 @@ namespace Greenshot.Base.Core
         /// <param name="newHeight"></param>
         /// <param name="matrix"></param>
         /// <returns></returns>
-        public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix)
-        {
-            return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
-        }
+        public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix) => ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
 
         /// <summary>
         /// Count how many times the supplied color exists

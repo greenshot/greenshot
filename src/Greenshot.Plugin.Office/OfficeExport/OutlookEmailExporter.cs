@@ -95,12 +95,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                                     break;
                                 case AppointmentItem appointmentItem:
-                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                    if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings && !string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                     {
-                                        if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
-                                        {
-                                            return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
-                                        }
+                                        return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
                                     }
 
                                     break;
@@ -224,13 +221,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         // TODO: Needs to have the Microsoft Outlook 15.0 Object Library installed
                         wordDocument = DisposableCom.Create((_Document)explorer.ComObject.ActiveInlineResponseWordEditor);
                     }
-                    else if (inspector != null)
+                    else if (inspector != null && inspector.ComObject.IsWordMail() && (inspector.ComObject.EditorType == OlEditorType.olEditorWord))
                     {
-                        if (inspector.ComObject.IsWordMail() && (inspector.ComObject.EditorType == OlEditorType.olEditorWord))
-                        {
-                            var tmpWordDocument = (_Document)inspector.ComObject.WordEditor;
-                            wordDocument = DisposableCom.Create(tmpWordDocument);
-                        }
+                        var tmpWordDocument = (_Document)inspector.ComObject.WordEditor;
+                        wordDocument = DisposableCom.Create(tmpWordDocument);
                     }
 
                     if (wordDocument != null)
@@ -495,14 +489,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         if (bodyIndex >= 0)
                         {
                             bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
-                            if (bodyIndex >= 0)
-                            {
-                                bodyString = bodyString.Insert(bodyIndex, htmlImgEmbedded);
-                            }
-                            else
-                            {
-                                bodyString = fallbackBody;
-                            }
+                            bodyString = bodyIndex >= 0 ? bodyString.Insert(bodyIndex, htmlImgEmbedded) : fallbackBody;
                         }
                         else
                         {
@@ -744,12 +731,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                                         break;
                                     case AppointmentItem appointmentItem:
-                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings)
+                                        if ((_outlookVersion.Major >= (int)OfficeVersions.Office2010) && _officeConfiguration.OutlookAllowExportInMeetings && !string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                         {
-                                            if (!string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
-                                            {
-                                                inspectorCaptions.Add(caption, appointmentItem.Class);
-                                            }
+                                            inspectorCaptions.Add(caption, appointmentItem.Class);
                                         }
 
                                         break;

@@ -60,20 +60,11 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public PowerpointDestination(string presentationName)
-        {
-            _presentationName = presentationName;
-        }
+        public PowerpointDestination(string presentationName) => _presentationName = presentationName;
 
         public override string Designation => "Powerpoint";
 
-        public override string Description
-        {
-            get
-            {
-                return _presentationName ?? "Microsoft Powerpoint";
-            }
-        }
+        public override string Description => _presentationName ?? "Microsoft Powerpoint";
 
         public override int Priority => 4;
 
@@ -81,15 +72,9 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override bool IsActive => base.IsActive && ExePath != null;
 
-        public override Image DisplayIcon
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(_presentationName)
+        public override Image DisplayIcon => !string.IsNullOrEmpty(_presentationName)
                     ? PluginUtils.GetCachedExeIcon(ExePath, IconPresentation)
                     : PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
-            }
-        }
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {

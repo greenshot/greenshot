@@ -86,13 +86,7 @@ namespace Greenshot.Base.Core
 
         public virtual bool IsLinkable => false;
 
-        public virtual bool IsActive
-        {
-            get
-            {
-                return (CoreConfig.ExcludeDestinations?.Contains(Designation)) != true;
-            }
-        }
+        public virtual bool IsActive => (CoreConfig.ExcludeDestinations?.Contains(Designation)) != true;
 
         public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
@@ -129,10 +123,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ToString()
-        {
-            return Description;
-        }
+        public override string ToString() => Description;
 
         /// <summary>
         /// Helper method to add events which set the tag, this way we can see why there might be a close.
@@ -188,7 +179,7 @@ namespace Greenshot.Base.Core
                 menu.ResumeLayout();
             };
 
-            menu.Closing += delegate (object source, ToolStripDropDownClosingEventArgs eventArgs)
+            menu.Closing += (object source, ToolStripDropDownClosingEventArgs eventArgs) =>
             {
                 Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
                 switch (eventArgs.CloseReason)
@@ -235,7 +226,7 @@ namespace Greenshot.Base.Core
             {
                 // Fix foreach loop variable for the delegate
                 ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
-                    delegate (object sender, EventArgs e)
+                    (object sender, EventArgs e) =>
                     {
                         ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
                         IDestination clickedDestination = (IDestination)toolStripMenuItem?.Tag;
@@ -311,14 +302,7 @@ namespace Greenshot.Base.Core
             var menuRectangle = new NativeRect(location, menu.Size);
 
             menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);
-            if (menuRectangle.Height < menu.Height)
-            {
-                location = location.Offset(-40, -(menuRectangle.Height - menu.Height));
-            }
-            else
-            {
-                location = location.Offset(-40, -10);
-            }
+            location = menuRectangle.Height < menu.Height ? location.Offset(-40, -(menuRectangle.Height - menu.Height)) : location.Offset(-40, -10);
 
             // This prevents the problem that the context menu shows in the task-bar
             User32Api.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);

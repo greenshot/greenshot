@@ -42,15 +42,9 @@ namespace Greenshot.Destinations
 
         public override int Priority => 0;
 
-        public override Keys EditorShortcutKeys
-        {
-            get { return Keys.Control | Keys.Shift | Keys.S; }
-        }
+        public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.S;
 
-        public override Image DisplayIcon
-        {
-            get { return GreenshotResources.GetImage("Save.Image"); }
-        }
+        public override Image DisplayIcon => GreenshotResources.GetImage("Save.Image");
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {

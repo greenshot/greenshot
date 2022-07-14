@@ -35,10 +35,7 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable()]
     public class HighlightFilter : AbstractFilter
     {
-        public HighlightFilter(DrawableContainer parent) : base(parent)
-        {
-            AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
-        }
+        public HighlightFilter(DrawableContainer parent) : base(parent) => AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
 
         /// <summary>
         /// Implements the Apply code for the Brightness Filet

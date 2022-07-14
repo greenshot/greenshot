@@ -328,13 +328,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Return the path to the help-file
         /// </summary>
-        public static string HelpFilePath
-        {
-            get
-            {
-                return HelpFiles.ContainsKey(_currentLanguage) ? HelpFiles[_currentLanguage] : HelpFiles[DefaultLanguage];
-            }
-        }
+        public static string HelpFilePath => HelpFiles.ContainsKey(_currentLanguage) ? HelpFiles[_currentLanguage] : HelpFiles[DefaultLanguage];
 
         /// <summary>
         /// Load the resources from the language file
@@ -573,20 +567,14 @@ namespace Greenshot.Base.Core
         /// <param name="prefix"></param>
         /// <param name="key"></param>
         /// <returns>true if available</returns>
-        public static bool HasKey(string prefix, string key)
-        {
-            return HasKey(prefix + "." + key);
-        }
+        public static bool HasKey(string prefix, string key) => HasKey(prefix + "." + key);
 
         /// <summary>
         /// Check if a resource with key exists
         /// </summary>
         /// <param name="key"></param>
         /// <returns>true if available</returns>
-        public static bool HasKey(string key)
-        {
-            return key != null && Resources.ContainsKey(key);
-        }
+        public static bool HasKey(string key) => key != null && Resources.ContainsKey(key);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -594,10 +582,7 @@ namespace Greenshot.Base.Core
         /// <param name="key"></param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string key, out string languageString)
-        {
-            return Resources.TryGetValue(key, out languageString);
-        }
+        public static bool TryGetString(string key, out string languageString) => Resources.TryGetValue(key, out languageString);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -606,10 +591,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">string with key</param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string prefix, string key, out string languageString)
-        {
-            return Resources.TryGetValue(prefix + "." + key, out languageString);
-        }
+        public static bool TryGetString(string prefix, string key, out string languageString) => Resources.TryGetValue(prefix + "." + key, out languageString);
 
         /// <summary>
         /// TryGet method which combines HasKey & GetString
@@ -618,10 +600,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">Enum with key</param>
         /// <param name="languageString">out string</param>
         /// <returns></returns>
-        public static bool TryGetString(string prefix, Enum key, out string languageString)
-        {
-            return Resources.TryGetValue(prefix + "." + key, out languageString);
-        }
+        public static bool TryGetString(string prefix, Enum key, out string languageString) => Resources.TryGetValue(prefix + "." + key, out languageString);
 
         /// <summary>
         /// Translate
@@ -640,10 +619,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="key">Enum</param>
         /// <returns>resource or a "string ###key### not found"</returns>
-        public static string GetString(Enum key)
-        {
-            return key == null ? null : GetString(key.ToString());
-        }
+        public static string GetString(Enum key) => key == null ? null : GetString(key.ToString());
 
         /// <summary>
         /// Get the resource for prefix.key
@@ -651,10 +627,7 @@ namespace Greenshot.Base.Core
         /// <param name="prefix">string</param>
         /// <param name="key">Enum</param>
         /// <returns>resource or a "string ###prefix.key### not found"</returns>
-        public static string GetString(string prefix, Enum key)
-        {
-            return key == null ? null : GetString(prefix + "." + key);
-        }
+        public static string GetString(string prefix, Enum key) => key == null ? null : GetString(prefix + "." + key);
 
         /// <summary>
         /// Get the resource for prefix.key
@@ -662,10 +635,7 @@ namespace Greenshot.Base.Core
         /// <param name="prefix">string</param>
         /// <param name="key">string</param>
         /// <returns>resource or a "string ###prefix.key### not found"</returns>
-        public static string GetString(string prefix, string key)
-        {
-            return GetString(prefix + "." + key);
-        }
+        public static string GetString(string prefix, string key) => GetString(prefix + "." + key);
 
         /// <summary>
         /// Get the resource for key
@@ -688,10 +658,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">Enum</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###key### not found"</returns>
-        public static string GetFormattedString(Enum key, object param)
-        {
-            return GetFormattedString(key.ToString(), param);
-        }
+        public static string GetFormattedString(Enum key, object param) => GetFormattedString(key.ToString(), param);
 
         /// <summary>
         /// Get the resource for prefix.key, format with with string.format an supply the parameters
@@ -700,10 +667,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">Enum</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
-        public static string GetFormattedString(string prefix, Enum key, object param)
-        {
-            return GetFormattedString(prefix, key.ToString(), param);
-        }
+        public static string GetFormattedString(string prefix, Enum key, object param) => GetFormattedString(prefix, key.ToString(), param);
 
         /// <summary>
         /// Get the resource for prefix.key, format with with string.format an supply the parameters
@@ -712,10 +676,7 @@ namespace Greenshot.Base.Core
         /// <param name="key">string</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
-        public static string GetFormattedString(string prefix, string key, object param)
-        {
-            return GetFormattedString(prefix + "." + key, param);
-        }
+        public static string GetFormattedString(string prefix, string key, object param) => GetFormattedString(prefix + "." + key, param);
 
         /// <summary>
         /// Get the resource for key, format with with string.format an supply the parameters
@@ -723,9 +684,6 @@ namespace Greenshot.Base.Core
         /// <param name="key">string</param>
         /// <param name="param">object</param>
         /// <returns>formatted resource or a "string ###key### not found"</returns>
-        public static string GetFormattedString(string key, object param)
-        {
-            return !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : string.Format(returnValue, param);
-        }
+        public static string GetFormattedString(string key, object param) => !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : string.Format(returnValue, param);
     }
 }

@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Drawing.Filters
             set
             {
                 previewQuality = value;
-                OnPropertyChanged("PreviewQuality");
+                OnPropertyChanged(nameof(PreviewQuality));
             }
         }
 

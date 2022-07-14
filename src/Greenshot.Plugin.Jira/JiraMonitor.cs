@@ -92,18 +92,15 @@ namespace Greenshot.Plugin.Jira
         /// </summary>
         /// <param name="jiraDetails"></param>
         /// <returns>IJiraClient</returns>
-        public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails)
-        {
-            return _projectJiraClientMap[jiraDetails.ProjectKey];
-        }
+        public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails) => _projectJiraClientMap[jiraDetails.ProjectKey];
 
         /// <summary>
         /// Get the "list" of recently seen Jiras
         /// </summary>
         public IEnumerable<JiraDetails> RecentJiras =>
             from jiraDetails in _recentJiras.Values
-             orderby jiraDetails.SeenAt descending
-             select jiraDetails;
+            orderby jiraDetails.SeenAt descending
+            select jiraDetails;
 
         /// <summary>
         /// Check if this monitor has active instances
@@ -121,12 +118,11 @@ namespace Greenshot.Plugin.Jira
             var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
             if (projects != null)
             {
-                foreach (var project in projects)
+                foreach (var project in from project in projects
+                                        where !_projectJiraClientMap.ContainsKey(project.Key)
+                                        select project)
                 {
-                    if (!_projectJiraClientMap.ContainsKey(project.Key))
-                    {
-                        _projectJiraClientMap.Add(project.Key, jiraInstance);
-                    }
+                    _projectJiraClientMap.Add(project.Key, jiraInstance);
                 }
             }
         }

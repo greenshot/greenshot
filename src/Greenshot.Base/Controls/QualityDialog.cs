@@ -64,9 +64,6 @@ namespace Greenshot.Base.Controls
             }
         }
 
-        private void TrackBarJpegQualityScroll(object sender, EventArgs e)
-        {
-            textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
-        }
+        private void TrackBarJpegQualityScroll(object sender, EventArgs e) => textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
     }
 }

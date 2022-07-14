@@ -275,10 +275,7 @@ namespace Greenshot.Base.Core
         /// <summary>Shows the credentials dialog with the specified name.</summary>
         /// <param name="name">The name for the credentials.</param>
         /// <returns>Returns a DialogResult indicating the user action.</returns>
-        public DialogResult Show(string name)
-        {
-            return Show(null, name, Password, SaveChecked);
-        }
+        public DialogResult Show(string name) => Show(null, name, Password, SaveChecked);
 
         /// <summary>Shows the credentials dialog with the specified owner, name, password and save checkbox status.</summary>
         /// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>

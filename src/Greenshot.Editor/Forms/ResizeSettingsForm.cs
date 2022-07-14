@@ -90,31 +90,13 @@ namespace Greenshot.Editor.Forms
 
         private void DisplayWidth()
         {
-            double displayValue;
-            if (_valuePercent.Equals(combobox_width.SelectedItem))
-            {
-                displayValue = _newWidth / _effect.Width * 100d;
-            }
-            else
-            {
-                displayValue = _newWidth;
-            }
-
+            double displayValue = _valuePercent.Equals(combobox_width.SelectedItem) ? _newWidth / _effect.Width * 100d : _newWidth;
             textbox_width.Text = ((int)displayValue).ToString();
         }
 
         private void DisplayHeight()
         {
-            double displayValue;
-            if (_valuePercent.Equals(combobox_height.SelectedItem))
-            {
-                displayValue = _newHeight / _effect.Height * 100d;
-            }
-            else
-            {
-                displayValue = _newHeight;
-            }
-
+            double displayValue = _valuePercent.Equals(combobox_height.SelectedItem) ? _newHeight / _effect.Height * 100d : _newHeight;
             textbox_height.Text = ((int)displayValue).ToString();
         }
 
@@ -188,10 +170,7 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void Textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            Validate(sender);
-        }
+        private void Textbox_Validating(object sender, System.ComponentModel.CancelEventArgs e) => Validate(sender);
 
         /// <summary>
         ///

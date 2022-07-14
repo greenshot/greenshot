@@ -14,10 +14,7 @@ namespace Greenshot.Plugin.Confluence.Support
         /// Initializes a new instance of the <see cref="TranslateExtension"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        public TranslateExtension(string key)
-        {
-            Key = key;
-        }
+        public TranslateExtension(string key) => Key = key;
 
         [ConstructorArgument("key")]
         public string Key { get; set; }

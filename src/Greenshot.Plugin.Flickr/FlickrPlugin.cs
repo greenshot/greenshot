@@ -104,23 +104,14 @@ namespace Greenshot.Plugin.Flickr
             }
         }
 
-        public void Shutdown()
-        {
-            Log.Debug("Flickr Plugin shutdown.");
-        }
+        public void Shutdown() => Log.Debug("Flickr Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => _config.ShowConfigDialog();
 
         public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
         {

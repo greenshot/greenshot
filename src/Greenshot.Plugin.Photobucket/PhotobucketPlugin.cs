@@ -106,10 +106,7 @@ namespace Greenshot.Plugin.Photobucket
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
         /// <summary>
         /// Upload the capture to Photobucket

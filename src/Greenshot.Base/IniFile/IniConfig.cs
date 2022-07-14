@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using log4net;
+using System.Linq;
 
 namespace Greenshot.Base.IniFile
 {
@@ -152,15 +153,9 @@ namespace Greenshot.Base.IniFile
         /// <summary>
         /// Get the location of the configuration
         /// </summary>
-        public static string ConfigLocation
-        {
-            get
-            {
-                return IsInitialized
+        public static string ConfigLocation => IsInitialized
                     ? CreateIniLocation(_configName + IniExtension, false)
                     : throw new InvalidOperationException("Ini configuration was not initialized!");
-            }
-        }
 
         /// <summary>
         /// Create the location of the configuration file
@@ -325,12 +320,11 @@ namespace Greenshot.Base.IniFile
                 return;
             }
 
-            foreach (string fixedPropertyKey in fixedPropertiesForSection.Keys)
+            foreach (var fixedPropertyKey in from string fixedPropertyKey in fixedPropertiesForSection.Keys
+                                             where section.Values.ContainsKey(fixedPropertyKey)
+                                             select fixedPropertyKey)
             {
-                if (section.Values.ContainsKey(fixedPropertyKey))
-                {
-                    section.Values[fixedPropertyKey].IsFixed = true;
-                }
+                section.Values[fixedPropertyKey].IsFixed = true;
             }
         }
 
@@ -409,10 +403,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         /// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
         /// <returns>Filled instance of IniSection type which was supplied</returns>
-        public static T GetIniSection<T>() where T : IniSection
-        {
-            return GetIniSection<T>(true);
-        }
+        public static T GetIniSection<T>() where T : IniSection => GetIniSection<T>(true);
 
         /// <summary>
         ///

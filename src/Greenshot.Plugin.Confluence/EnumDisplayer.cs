@@ -101,14 +101,8 @@ namespace Greenshot.Plugin.Confluence
             return dka.Value;
         }
 
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _displayValues[value];
-        }
+        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture) => _displayValues[value];
 
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _reverseValues[value];
-        }
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => _reverseValues[value];
     }
 }

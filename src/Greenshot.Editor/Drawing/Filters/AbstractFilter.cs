@@ -52,7 +52,7 @@ namespace Greenshot.Editor.Drawing.Filters
             set
             {
                 invert = value;
-                OnPropertyChanged("Invert");
+                OnPropertyChanged(nameof(Invert));
             }
         }
 
@@ -64,21 +64,12 @@ namespace Greenshot.Editor.Drawing.Filters
             set { parent = value; }
         }
 
-        protected AbstractFilter(DrawableContainer parent)
-        {
-            this.parent = parent;
-        }
+        protected AbstractFilter(DrawableContainer parent) => this.parent = parent;
 
-        public DrawableContainer GetParent()
-        {
-            return parent;
-        }
+        public DrawableContainer GetParent() => parent;
 
         public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
 
-        protected void OnPropertyChanged(string propertyName)
-        {
-            propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected void OnPropertyChanged(string propertyName) => propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

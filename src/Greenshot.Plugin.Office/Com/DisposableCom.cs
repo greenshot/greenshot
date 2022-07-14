@@ -14,9 +14,6 @@ namespace Greenshot.Plugin.Office.Com
         /// <typeparam name="T">Type for the com object</typeparam>
         /// <param name="comObject">the com object itself</param>
         /// <returns>IDisposableCom of type T</returns>
-        public static IDisposableCom<T> Create<T>(T comObject)
-        {
-            return Equals(comObject, default(T)) ? null : (IDisposableCom<T>)new DisposableComImplementation<T>(comObject);
-        }
+        public static IDisposableCom<T> Create<T>(T comObject) => Equals(comObject, default(T)) ? null : (IDisposableCom<T>)new DisposableComImplementation<T>(comObject);
     }
 }

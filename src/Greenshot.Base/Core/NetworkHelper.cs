@@ -214,10 +214,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="uri">string with uri to connect to</param>
         /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri)
-        {
-            return CreateWebRequest(new Uri(uri));
-        }
+        public static HttpWebRequest CreateWebRequest(string uri) => CreateWebRequest(new Uri(uri));
 
         /// <summary>
         /// Helper method to create a web request with a lot of default settings
@@ -225,10 +222,7 @@ namespace Greenshot.Base.Core
         /// <param name="uri">string with uri to connect to</param>
         /// /// <param name="method">Method to use</param>
         /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method)
-        {
-            return CreateWebRequest(new Uri(uri), method);
-        }
+        public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method) => CreateWebRequest(new Uri(uri), method);
 
         /// <summary>
         /// Helper method to create a web request with a lot of default settings
@@ -593,10 +587,7 @@ namespace Greenshot.Base.Core
         /// <param name="webRequest">The request object.</param>
         /// <returns>The response data.</returns>
         /// TODO: This method should handle the StatusCode better!
-        public static string GetResponseAsString(HttpWebRequest webRequest)
-        {
-            return GetResponseAsString(webRequest, false);
-        }
+        public static string GetResponseAsString(HttpWebRequest webRequest) => GetResponseAsString(webRequest, false);
 
         /// <summary>
         /// Read the response as string
@@ -766,11 +757,9 @@ namespace Greenshot.Base.Core
         /// A plain "write data to stream"
         /// </summary>
         /// <param name="dataStream"></param>
-        public void WriteToStream(Stream dataStream)
-        {
+        public void WriteToStream(Stream dataStream) =>
             // Write the file data directly to the Stream, rather than serializing it to a string.
             ImageIO.SaveToStream(_surface, dataStream, _outputSettings);
-        }
 
         /// <summary>
         /// Upload the Surface as image to the webrequest

@@ -38,10 +38,7 @@ namespace Greenshot.Editor.Memento
             _oldText = textContainer.Text;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         private void Dispose(bool disposing)
         {
@@ -51,10 +48,7 @@ namespace Greenshot.Editor.Memento
             }
         }
 
-        public bool Merge(IMemento otherMemento)
-        {
-            return otherMemento is TextChangeMemento other && other._textContainer.Equals(_textContainer);
-        }
+        public bool Merge(IMemento otherMemento) => otherMemento is TextChangeMemento other && other._textContainer.Equals(_textContainer);
 
         public IMemento Restore()
         {

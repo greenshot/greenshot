@@ -242,10 +242,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public void RemoveStepLabel(StepLabelContainer stepLabel)
-        {
-            _stepLabels.Remove(stepLabel);
-        }
+        public void RemoveStepLabel(StepLabelContainer stepLabel) => _stepLabels.Remove(stepLabel);
 
         /// <summary>
         ///     The start value of the counter objects
@@ -878,14 +875,9 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                if (ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits"))
-                {
-                    e.Effect = DragDropEffects.Copy;
-                }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
+                e.Effect = ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits")
+                    ? DragDropEffects.Copy
+                    : DragDropEffects.None;
             }
         }
 
@@ -1426,7 +1418,7 @@ namespace Greenshot.Editor.Drawing
             _mouseDown = true;
             _isSurfaceMoveMadeUndoable = false;
 
-            if (_cropContainer != null && ((_undrawnElement == null) || (_undrawnElement != null && DrawingMode != DrawingModes.Crop)))
+            if (_cropContainer != null && ((_undrawnElement == null) || (DrawingMode != DrawingModes.Crop)))
             {
                 RemoveElement(_cropContainer, false);
                 _cropContainer = null;
@@ -1675,10 +1667,7 @@ namespace Greenshot.Editor.Drawing
         /// This returns the image "result" of this surface, with all the elements rendered on it.
         /// </summary>
         /// <returns></returns>
-        public Image GetImageForExport()
-        {
-            return GetImage(RenderMode.EXPORT);
-        }
+        public Image GetImageForExport() => GetImage(RenderMode.EXPORT);
 
         private static NativeRect ZoomClipRectangle(NativeRect rc, double scale, int inflateAmount = 0)
         {
@@ -1735,13 +1724,10 @@ namespace Greenshot.Editor.Drawing
 
             if (Elements.HasIntersectingFilters(imageClipRectangle) || _zoomFactor > Fraction.Identity)
             {
-                if (_buffer != null)
+                if (_buffer != null && (_buffer.Width != Image.Width || _buffer.Height != Image.Height || _buffer.PixelFormat != Image.PixelFormat))
                 {
-                    if (_buffer.Width != Image.Width || _buffer.Height != Image.Height || _buffer.PixelFormat != Image.PixelFormat)
-                    {
-                        _buffer.Dispose();
-                        _buffer = null;
-                    }
+                    _buffer.Dispose();
+                    _buffer = null;
                 }
 
                 if (_buffer == null)
@@ -2373,10 +2359,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Deselect all the selected elements
         /// </summary>
-        public void DeselectAllElements()
-        {
-            DeselectElements(selectedElements);
-        }
+        public void DeselectAllElements() => DeselectElements(selectedElements);
 
         /// <summary>
         /// Select the supplied element
@@ -2409,10 +2392,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Select all elements, this is called when Ctrl+A is pressed
         /// </summary>
-        public void SelectAllElements()
-        {
-            SelectElements(Elements);
-        }
+        public void SelectAllElements() => SelectElements(Elements);
 
         /// <summary>
         /// Select the supplied elements
@@ -2630,29 +2610,17 @@ namespace Greenshot.Editor.Drawing
         /// indicates whether the selected elements could be pulled up in hierarchy
         /// </summary>
         /// <returns>true if selected elements could be pulled up, false otherwise</returns>
-        public bool CanPullSelectionUp()
-        {
-            return Elements.CanPullUp(selectedElements);
-        }
+        public bool CanPullSelectionUp() => Elements.CanPullUp(selectedElements);
 
         /// <summary>
         /// indicates whether the selected elements could be pushed down in hierarchy
         /// </summary>
         /// <returns>true if selected elements could be pushed down, false otherwise</returns>
-        public bool CanPushSelectionDown()
-        {
-            return Elements.CanPushDown(selectedElements);
-        }
+        public bool CanPushSelectionDown() => Elements.CanPushDown(selectedElements);
 
-        private void Element_FieldChanged(object sender, FieldChangedEventArgs e)
-        {
-            selectedElements.HandleFieldChangedEvent(sender, e);
-        }
+        private void Element_FieldChanged(object sender, FieldChangedEventArgs e) => selectedElements.HandleFieldChangedEvent(sender, e);
 
-        public bool IsOnSurface(IDrawableContainer container)
-        {
-            return Elements.Contains(container);
-        }
+        public bool IsOnSurface(IDrawableContainer container) => Elements.Contains(container);
 
         public NativePoint ToSurfaceCoordinates(NativePoint point)
         {

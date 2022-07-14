@@ -56,10 +56,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         [NonSerialized] private readonly NativePoint _shadowOffset = new(-1, -1);
 
-        public ImageContainer(ISurface parent, string filename) : this(parent)
-        {
-            Load(filename);
-        }
+        public ImageContainer(ISurface parent, string filename) : this(parent) => Load(filename);
 
         public ImageContainer(ISurface parent) : base(parent)
         {
@@ -73,15 +70,9 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
-        protected override void InitializeFields()
-        {
-            AddField(GetType(), FieldType.SHADOW, false);
-        }
+        protected override void InitializeFields() => AddField(GetType(), FieldType.SHADOW, false);
 
         protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
         {

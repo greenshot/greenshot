@@ -123,7 +123,7 @@ namespace Greenshot.Plugin.Win10
                     .Show(toast =>
                     {
                         // Windows 10 first with 1903: ExpiresOnReboot = true
-                        toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
+                        toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : null;
 
                         void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                         {
@@ -183,20 +183,11 @@ namespace Greenshot.Plugin.Win10
             Log.Debug(sender.Content.GetXml());
         }
 
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null) => ShowMessage(message, timeout, onClickAction, onClosedAction);
 
         /// <summary>
         /// Factory method, helping with checking if the notification service is even available

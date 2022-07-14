@@ -48,10 +48,7 @@ namespace Greenshot.Editor.Drawing
         /// Constructor takes care of calling Init 
         /// </summary>
         /// <param name="parent">ISurface</param>
-        protected VectorGraphicsContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        protected VectorGraphicsContainer(ISurface parent) : base(parent) => Init();
 
         /// <summary>
         /// Make sure Init is called after deserializing

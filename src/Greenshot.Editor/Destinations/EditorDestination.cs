@@ -48,22 +48,13 @@ namespace Greenshot.Editor.Destinations
             // Do not remove, is needed for the framework
         }
 
-        public EditorDestination(IImageEditor editor)
-        {
-            this.editor = editor;
-        }
+        public EditorDestination(IImageEditor editor) => this.editor = editor;
 
         public override string Designation => DESIGNATION;
 
-        public override string Description
-        {
-            get
-            {
-                return editor == null
+        public override string Description => editor == null
                     ? Language.GetString(LangKey.settings_destination_editor)
                     : Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
-            }
-        }
 
         public override int Priority => 1;
 

@@ -71,13 +71,7 @@ Greenshot received information from CloudServiceName. You can close this browser
         /// <summary>
         /// The URL to redirect to
         /// </summary>
-        protected string RedirectUri
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(_redirectUri) ? _redirectUri : (_redirectUri = string.Format(LoopbackCallbackUrl, GetRandomUnusedPort()));
-            }
-        }
+        protected string RedirectUri => !string.IsNullOrEmpty(_redirectUri) ? _redirectUri : (_redirectUri = string.Format(LoopbackCallbackUrl, GetRandomUnusedPort()));
 
         private string _cloudServiceName;
 

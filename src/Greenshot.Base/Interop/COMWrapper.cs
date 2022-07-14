@@ -232,10 +232,7 @@ namespace Greenshot.Base.Interop
         /// <returns>
         /// The full name of the intercepted type.
         /// </returns>
-        public override string ToString()
-        {
-            return _interceptType.FullName;
-        }
+        public override string ToString() => _interceptType.FullName;
 
         /// <summary>
         /// Returns the hash code of the wrapped object.
@@ -243,10 +240,7 @@ namespace Greenshot.Base.Interop
         /// <returns>
         /// The hash code of the wrapped object.
         /// </returns>
-        public override int GetHashCode()
-        {
-            return _comObject.GetHashCode();
-        }
+        public override int GetHashCode() => _comObject.GetHashCode();
 
         /// <summary>
         /// Compares this object to another.
@@ -259,12 +253,9 @@ namespace Greenshot.Base.Interop
         /// </returns>
         public override bool Equals(object value)
         {
-            if (value != null && RemotingServices.IsTransparentProxy(value))
+            if (value != null && RemotingServices.IsTransparentProxy(value) && RemotingServices.GetRealProxy(value) is COMWrapper wrapper)
             {
-                if (RemotingServices.GetRealProxy(value) is COMWrapper wrapper)
-                {
-                    return _comObject == wrapper._comObject;
-                }
+                return _comObject == wrapper._comObject;
             }
 
             return base.Equals(value);
@@ -559,24 +550,21 @@ namespace Greenshot.Base.Interop
                         {
                             arg = Enum.Parse(byValType, arg.ToString());
                         }
-                        else if (byValType.IsInterface)
+                        else if (byValType.IsInterface && Marshal.IsComObject(arg))
                         {
-                            if (Marshal.IsComObject(arg))
+                            wrapper = originalArgs[i];
+                            if (wrapper != null && wrapper._comObject != arg)
                             {
-                                wrapper = originalArgs[i];
-                                if (wrapper != null && wrapper._comObject != arg)
-                                {
-                                    wrapper.Dispose();
-                                    wrapper = null;
-                                }
-
-                                if (wrapper == null)
-                                {
-                                    wrapper = new COMWrapper(arg, byValType, _targetName);
-                                }
-
-                                arg = wrapper.GetTransparentProxy();
+                                wrapper.Dispose();
+                                wrapper = null;
                             }
+
+                            if (wrapper == null)
+                            {
+                                wrapper = new COMWrapper(arg, byValType, _targetName);
+                            }
+
+                            arg = wrapper.GetTransparentProxy();
                         }
 
                         outArgs[i] = arg;

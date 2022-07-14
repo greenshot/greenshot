@@ -30,10 +30,7 @@ namespace Greenshot.Plugin.Flickr
     {
         private readonly FlickrPlugin _plugin;
 
-        public FlickrDestination(FlickrPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public FlickrDestination(FlickrPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "Flickr";
 

@@ -94,10 +94,6 @@ namespace Greenshot.Plugin.Jira
             {
                 LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
             }
-            else if (Log.IsErrorEnabled)
-            {
-                LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
-            }
             else
             {
                 LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
@@ -123,13 +119,10 @@ namespace Greenshot.Plugin.Jira
             {
                 // check for re-login
                 var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-                if (jiraConnector?.IsLoggedIn == true && !string.IsNullOrEmpty(url))
+                if (jiraConnector?.IsLoggedIn == true && !string.IsNullOrEmpty(url) && !url.Equals(_config.Url))
                 {
-                    if (!url.Equals(_config.Url))
-                    {
-                        jiraConnector.Logout();
-                        Task.Run(async () => { await jiraConnector.LoginAsync(); });
-                    }
+                    jiraConnector.Logout();
+                    Task.Run(async () => { await jiraConnector.LoginAsync(); });
                 }
             }
         }

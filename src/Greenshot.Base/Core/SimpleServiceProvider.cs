@@ -20,10 +20,7 @@ namespace Greenshot.Base.Core
             return !_services.TryGetValue(typeOfService, out var results) ? Array.Empty<TService>() : (IReadOnlyList<TService>)results.Cast<TService>().ToArray();
         }
 
-        public TService GetInstance<TService>()
-        {
-            return GetAllInstances<TService>().SingleOrDefault();
-        }
+        public TService GetInstance<TService>() => GetAllInstances<TService>().SingleOrDefault();
 
         public void AddService<TService>(IEnumerable<TService> services)
         {
@@ -45,9 +42,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public void AddService<TService>(params TService[] services)
-        {
-            AddService(services.AsEnumerable());
-        }
+        public void AddService<TService>(params TService[] services) => AddService(services.AsEnumerable());
     }
 }

@@ -79,9 +79,6 @@ namespace Greenshot.Editor.Controls
             NumericUpDown.ValueChanged -= _valueChanged;
         }
 
-        private void _valueChanged(object sender, EventArgs e)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
-        }
+        private void _valueChanged(object sender, EventArgs e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }
 }

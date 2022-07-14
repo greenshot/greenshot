@@ -97,23 +97,14 @@ namespace Greenshot.Plugin.Box
             }
         }
 
-        public void Shutdown()
-        {
-            LOG.Debug("Box Plugin shutdown.");
-        }
+        public void Shutdown() => LOG.Debug("Box Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => _config.ShowConfigDialog();
 
         /// <summary>
         /// This will be called when the menu item in the Editor is clicked

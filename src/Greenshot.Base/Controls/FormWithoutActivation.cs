@@ -28,9 +28,6 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public class FormWithoutActivation : Form
     {
-        protected override bool ShowWithoutActivation
-        {
-            get { return true; }
-        }
+        protected override bool ShowWithoutActivation => true;
     }
 }

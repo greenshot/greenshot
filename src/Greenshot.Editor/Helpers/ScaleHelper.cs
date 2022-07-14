@@ -117,21 +117,18 @@ namespace Greenshot.Editor.Helpers
         /// <param name="resizeHandlePosition">Positions with the position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
         /// <param name="resizeHandleCoords">NativePointFloat with coordinates of the used handle/gripper</param>
         /// <returns>NativeRectFloat with the scaled originalRectangle</returns>
-        private static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords)
+        private static NativeRectFloat Scale(NativeRectFloat originalRectangle, Positions resizeHandlePosition, NativePointFloat resizeHandleCoords) => resizeHandlePosition switch
         {
-            return resizeHandlePosition switch
-            {
-                Positions.TopLeft => new NativeRectFloat(resizeHandleCoords.X, resizeHandleCoords.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
-                Positions.TopCenter => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, originalRectangle.Width, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
-                Positions.TopRight => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
-                Positions.MiddleLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Height),
-                Positions.MiddleRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Height),
-                Positions.BottomLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top),
-                Positions.BottomCenter => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, originalRectangle.Width, resizeHandleCoords.Y - originalRectangle.Top),
-                Positions.BottomRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top),
-                _ => throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition)
-            };
-        }
+            Positions.TopLeft => new NativeRectFloat(resizeHandleCoords.X, resizeHandleCoords.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+            Positions.TopCenter => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, originalRectangle.Width, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+            Positions.TopRight => new NativeRectFloat(originalRectangle.X, resizeHandleCoords.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y),
+            Positions.MiddleLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, originalRectangle.Height),
+            Positions.MiddleRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, originalRectangle.Height),
+            Positions.BottomLeft => new NativeRectFloat(resizeHandleCoords.X, originalRectangle.Y, originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X, resizeHandleCoords.Y - originalRectangle.Top),
+            Positions.BottomCenter => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, originalRectangle.Width, resizeHandleCoords.Y - originalRectangle.Top),
+            Positions.BottomRight => new NativeRectFloat(originalRectangle.X, originalRectangle.Y, resizeHandleCoords.X - originalRectangle.Left, resizeHandleCoords.Y - originalRectangle.Top),
+            _ => throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition)
+        };
 
         /// <summary>
         /// Adjusts resizeHandleCoords so that aspect ratio is kept after resizing a given rectangle with provided arguments.

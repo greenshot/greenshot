@@ -74,10 +74,7 @@ namespace Greenshot.Plugin.Jira
         /// </summary>
         /// <param name="keyObject">TKey</param>
         /// <returns>string</returns>
-        protected virtual string CreateKey(TKey keyObject)
-        {
-            return keyObject.ToString();
-        }
+        protected virtual string CreateKey(TKey keyObject) => keyObject.ToString();
 
         /// <summary>
         ///     Get a task element from the cache, if this is not available call the create function.
@@ -183,9 +180,6 @@ namespace Greenshot.Plugin.Jira
         ///     ActivateUpdateCallback / ActivateRemovedCallback
         /// </summary>
         /// <param name="cacheEntryUpdateArguments">CacheEntryUpdateArguments</param>
-        protected void UpdateCallback(CacheEntryUpdateArguments cacheEntryUpdateArguments)
-        {
-            _log.Verbose().WriteLine("Update request for {0} due to {1}.", cacheEntryUpdateArguments.Key, cacheEntryUpdateArguments.RemovedReason);
-        }
+        protected void UpdateCallback(CacheEntryUpdateArguments cacheEntryUpdateArguments) => _log.Verbose().WriteLine("Update request for {0} due to {1}.", cacheEntryUpdateArguments.Key, cacheEntryUpdateArguments.RemovedReason);
     }
 }

@@ -86,15 +86,9 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private string Name
-        {
-            get { return accessible.get_accName(CHILDID_SELF); }
-        }
+        private string Name => accessible.get_accName(CHILDID_SELF);
 
-        private int ChildCount
-        {
-            get { return accessible.accChildCount; }
-        }
+        private int ChildCount => accessible.accChildCount;
 
         public Accessible(IntPtr hWnd)
         {
@@ -194,13 +188,10 @@ namespace Greenshot.Base.Core
                         {
                             _ = tab.accessible.get_accState(CHILDID_SELF);
                             var description = tab.accessible.get_accDescription(CHILDID_SELF);
-                            if (!string.IsNullOrEmpty(description))
+                            if (!string.IsNullOrEmpty(description) && description.Contains(Environment.NewLine))
                             {
-                                if (description.Contains(Environment.NewLine))
-                                {
-                                    var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-                                    yield return url;
-                                }
+                                var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
+                                yield return url;
                             }
                         }
                     }
@@ -208,15 +199,9 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private Accessible(IAccessible acc)
-        {
-            accessible = acc ?? throw new Exception();
-        }
+        private Accessible(IAccessible acc) => accessible = acc ?? throw new Exception();
 
-        private void Activate()
-        {
-            accessible.accDoDefaultAction(CHILDID_SELF);
-        }
+        private void Activate() => accessible.accDoDefaultAction(CHILDID_SELF);
 
         private static object[] GetAccessibleChildren(IAccessible ao, out int childs)
         {

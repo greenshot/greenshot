@@ -84,51 +84,50 @@ namespace Greenshot.Base.Core
             while (!done)
             {
                 token = LookAhead(json, index);
-                if (token == TOKEN_NONE)
+                switch (token)
                 {
-                    success = false;
-                    return null;
-                }
-                else if (token == TOKEN_COMMA)
-                {
-                    NextToken(json, ref index);
-                }
-                else if (token == TOKEN_CURLY_CLOSE)
-                {
-                    NextToken(json, ref index);
-                    return table;
-                }
-                else
-                {
-                    // name
-                    string name = ParseString(json, ref index, ref success);
-                    if (!success)
-                    {
+                    case TOKEN_NONE:
                         success = false;
                         return null;
-                    }
+                    case TOKEN_COMMA:
+                        NextToken(json, ref index);
+                        break;
+                    case TOKEN_CURLY_CLOSE:
+                        NextToken(json, ref index);
+                        return table;
+                    default:
+                        {
+                            // name
+                            string name = ParseString(json, ref index, ref success);
+                            if (!success)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    // :
-                    token = NextToken(json, ref index);
-                    if (token != TOKEN_COLON)
-                    {
-                        success = false;
-                        return null;
-                    }
+                            // :
+                            token = NextToken(json, ref index);
+                            if (token != TOKEN_COLON)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    // value
-                    object value = ParseValue(json, ref index, ref success);
-                    if (!success)
-                    {
-                        success = false;
-                        return null;
-                    }
+                            // value
+                            object value = ParseValue(json, ref index, ref success);
+                            if (!success)
+                            {
+                                success = false;
+                                return null;
+                            }
 
-                    table.Add(name, value);
+                            table.Add(name, value);
+                            break;
+                        }
                 }
             }
 
-            return table;
+            // return table;
         }
 
         protected static IList<object> ParseArray(char[] json, ref int index, ref bool success)
@@ -391,43 +390,34 @@ namespace Greenshot.Base.Core
             int remainingLength = json.Length - index;
 
             // false
-            if (remainingLength >= 5)
-            {
-                if (json[index] == 'f' &&
+            if (remainingLength >= 5 && json[index] == 'f' &&
                     json[index + 1] == 'a' &&
                     json[index + 2] == 'l' &&
                     json[index + 3] == 's' &&
                     json[index + 4] == 'e')
-                {
-                    index += 5;
-                    return TOKEN_FALSE;
-                }
+            {
+                index += 5;
+                return TOKEN_FALSE;
             }
 
             // true
-            if (remainingLength >= 4)
-            {
-                if (json[index] == 't' &&
+            if (remainingLength >= 4 && json[index] == 't' &&
                     json[index + 1] == 'r' &&
                     json[index + 2] == 'u' &&
                     json[index + 3] == 'e')
-                {
-                    index += 4;
-                    return TOKEN_TRUE;
-                }
+            {
+                index += 4;
+                return TOKEN_TRUE;
             }
 
             // null
-            if (remainingLength >= 4)
-            {
-                if (json[index] == 'n' &&
+            if (remainingLength >= 4 && json[index] == 'n' &&
                     json[index + 1] == 'u' &&
                     json[index + 2] == 'l' &&
                     json[index + 3] == 'l')
-                {
-                    index += 4;
-                    return TOKEN_NULL;
-                }
+            {
+                index += 4;
+                return TOKEN_NULL;
             }
 
             return TOKEN_NONE;

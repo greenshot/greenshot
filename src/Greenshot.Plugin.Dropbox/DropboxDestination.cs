@@ -33,10 +33,7 @@ namespace Greenshot.Plugin.Dropbox
 
         private readonly DropboxPlugin _plugin;
 
-        public DropboxDestination(DropboxPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public DropboxDestination(DropboxPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "Dropbox";
 

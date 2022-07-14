@@ -53,15 +53,9 @@ namespace Greenshot.Editor.Drawing
         {
         }
 
-        public DrawableContainerList(IEnumerable<IDrawableContainer> elements)
-        {
-            AddRange(elements);
-        }
+        public DrawableContainerList(IEnumerable<IDrawableContainer> elements) => AddRange(elements);
 
-        public DrawableContainerList(Guid parentId)
-        {
-            ParentID = parentId;
-        }
+        public DrawableContainerList(Guid parentId) => ParentID = parentId;
 
         public EditStatus Status
         {
@@ -78,10 +72,7 @@ namespace Greenshot.Editor.Drawing
         public List<IDrawableContainer> AsIDrawableContainerList()
         {
             List<IDrawableContainer> interfaceList = new();
-            foreach (IDrawableContainer container in this)
-            {
-                interfaceList.Add(container);
-            }
+            interfaceList.AddRange(this);
 
             return interfaceList;
         }
@@ -275,12 +266,11 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public bool IntersectsWith(NativeRect clipRectangle)
         {
-            foreach (var dc in this)
+            foreach (var _ in from dc in this
+                              where dc.DrawingBounds.IntersectsWith(clipRectangle)
+                              select new { })
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -758,11 +748,9 @@ namespace Greenshot.Editor.Drawing
         }
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
+        public void Dispose() =>
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-        }
 
         /// <summary>
         /// Adjust UI elements to the supplied DPI settings

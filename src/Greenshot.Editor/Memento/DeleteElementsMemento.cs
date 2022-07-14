@@ -38,10 +38,7 @@ namespace Greenshot.Editor.Memento
             _containerList = containerList;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         private void Dispose(bool disposing)
         {
@@ -54,10 +51,7 @@ namespace Greenshot.Editor.Memento
             _surface = null;
         }
 
-        public bool Merge(IMemento otherMemento)
-        {
-            return false;
-        }
+        public bool Merge(IMemento otherMemento) => false;
 
         public IMemento Restore()
         {

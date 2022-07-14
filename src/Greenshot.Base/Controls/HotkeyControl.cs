@@ -243,10 +243,7 @@ namespace Greenshot.Base.Controls
         /// Prevents the letter/whatever entered to show up in the TextBox
         /// Without this, a "A" key press would appear as "aControl, Alt + A"
         /// </summary>
-        private void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = true;
-        }
+        private void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e) => e.Handled = true;
 
         /// <summary>
         /// Handles some misc keys, such as Ctrl+Delete and Shift+Insert
@@ -336,7 +333,7 @@ namespace Greenshot.Base.Controls
             }
 
             // Only validate input if it comes from the user
-            if (bCalledProgramatically == false)
+            if (!bCalledProgramatically)
             {
                 // No modifier or shift only, AND a hotkey that needs another modifier
                 if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && _needNonShiftModifier.Contains((int)_hotkey))
@@ -344,7 +341,7 @@ namespace Greenshot.Base.Controls
                     if (_modifiers == Keys.None)
                     {
                         // Set Ctrl+Alt as the modifier unless Ctrl+Alt+<key> won't work...
-                        if (_needNonAltGrModifier.Contains((int)_hotkey) == false)
+                        if (!_needNonAltGrModifier.Contains((int)_hotkey))
                         {
                             _modifiers = Keys.Alt | Keys.Control;
                         }
@@ -384,10 +381,7 @@ namespace Greenshot.Base.Controls
             Text = HotkeyToLocalizedString(_modifiers, _hotkey);
         }
 
-        public override string ToString()
-        {
-            return HotkeyToString(HotkeyModifiers, Hotkey);
-        }
+        public override string ToString() => HotkeyToString(HotkeyModifiers, Hotkey);
 
         public static string GetLocalizedHotkeyStringFromString(string hotkeyString)
         {
@@ -396,10 +390,7 @@ namespace Greenshot.Base.Controls
             return HotkeyToLocalizedString(modifiers, virtualKeyCode);
         }
 
-        public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode)
-        {
-            return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
-        }
+        public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode) => HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
 
         public static string HotkeyModifiersToString(Keys modifierKeyCode)
         {
@@ -427,10 +418,7 @@ namespace Greenshot.Base.Controls
             return hotkeyString.ToString();
         }
 
-        public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode)
-        {
-            return HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
-        }
+        public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode) => HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
 
         public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
         {
@@ -463,22 +451,22 @@ namespace Greenshot.Base.Controls
             Keys modifiers = Keys.None;
             if (!string.IsNullOrEmpty(modifiersString))
             {
-                if (modifiersString.ToLower().Contains("alt"))
+                if (modifiersString.IndexOf("alt", StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
                     modifiers |= Keys.Alt;
                 }
 
-                if (modifiersString.ToLower().Contains("ctrl"))
+                if (modifiersString.IndexOf("ctrl", StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
                     modifiers |= Keys.Control;
                 }
 
-                if (modifiersString.ToLower().Contains("shift"))
+                if (modifiersString.IndexOf("shift", StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
                     modifiers |= Keys.Shift;
                 }
 
-                if (modifiersString.ToLower().Contains("win"))
+                if (modifiersString.IndexOf("win", StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
                     modifiers |= Keys.LWin;
                 }
@@ -503,10 +491,7 @@ namespace Greenshot.Base.Controls
             return key;
         }
 
-        public static void RegisterHotkeyHwnd(IntPtr hWnd)
-        {
-            _hotkeyHwnd = hWnd;
-        }
+        public static void RegisterHotkeyHwnd(IntPtr hWnd) => _hotkeyHwnd = hWnd;
 
         /// <summary>
         /// Register a hotkey

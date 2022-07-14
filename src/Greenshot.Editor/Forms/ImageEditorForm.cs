@@ -135,10 +135,7 @@ namespace Greenshot.Editor.Forms
             Initialize(surface, false);
         }
 
-        public ImageEditorForm(ISurface surface, bool outputMade)
-        {
-            Initialize(surface, outputMade);
-        }
+        public ImageEditorForm(ISurface surface, bool outputMade) => Initialize(surface, outputMade);
 
         private void Initialize(ISurface surface, bool outputMade)
         {
@@ -331,40 +328,37 @@ namespace Greenshot.Editor.Forms
         /// <summary>
         /// Get all the destinations and display them in the file menu and the buttons
         /// </summary>
-        private void AddDestinations()
-        {
-            Invoke((MethodInvoker)delegate
-            {
-                // Create export buttons
-                foreach (IDestination destination in DestinationHelper.GetAllDestinations())
-                {
-                    if (destination.Priority <= 2)
-                    {
-                        continue;
-                    }
+        private void AddDestinations() => Invoke((MethodInvoker)delegate
+                                                   {
+                                                       // Create export buttons
+                                                       foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+                                                       {
+                                                           if (destination.Priority <= 2)
+                                                           {
+                                                               continue;
+                                                           }
 
-                    if (!destination.IsActive)
-                    {
-                        continue;
-                    }
+                                                           if (!destination.IsActive)
+                                                           {
+                                                               continue;
+                                                           }
 
-                    if (destination.DisplayIcon == null)
-                    {
-                        continue;
-                    }
+                                                           if (destination.DisplayIcon == null)
+                                                           {
+                                                               continue;
+                                                           }
 
-                    try
-                    {
-                        AddDestinationButton(destination);
-                    }
-                    catch (Exception addingException)
-                    {
-                        Log.WarnFormat("Problem adding destination {0}", destination.Designation);
-                        Log.Warn("Exception: ", addingException);
-                    }
-                }
-            });
-        }
+                                                           try
+                                                           {
+                                                               AddDestinationButton(destination);
+                                                           }
+                                                           catch (Exception addingException)
+                                                           {
+                                                               Log.WarnFormat("Problem adding destination {0}", destination.Designation);
+                                                               Log.Warn("Exception: ", addingException);
+                                                           }
+                                                       }
+                                                   });
 
         private void AddDestinationButton(IDestination toolstripDestination)
         {
@@ -515,40 +509,28 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
-        private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
-        {
-            _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
-        }
+        private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs) => _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
 
         /// <summary>
         /// This is called when the background color of the select element chances, used for shortcuts
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
-        private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
-        {
-            _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
-        }
+        private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs) => _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
 
         /// <summary>
         /// This is called when the line thickness of the select element chances, used for shortcuts
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="eventArgs">SurfaceLineThicknessEventArgs</param>
-        private void LineThicknessChanged(object sender, SurfaceLineThicknessEventArgs eventArgs)
-        {
-            _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS).Value = eventArgs.Thickness;
-        }
+        private void LineThicknessChanged(object sender, SurfaceLineThicknessEventArgs eventArgs) => _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS).Value = eventArgs.Thickness;
 
         /// <summary>
         /// This is called when the shadow of the select element chances, used for shortcuts
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="eventArgs">SurfaceShadowEventArgs</param>
-        private void ShadowChanged(object sender, SurfaceShadowEventArgs eventArgs)
-        {
-            _surface.FieldAggregator.GetField(FieldType.SHADOW).Value = eventArgs.HasShadow;
-        }
+        private void ShadowChanged(object sender, SurfaceShadowEventArgs eventArgs) => _surface.FieldAggregator.GetField(FieldType.SHADOW).Value = eventArgs.HasShadow;
 
         /// <summary>
         /// This is called when the size of the surface chances, used for resizing and displaying the size information
@@ -637,10 +619,7 @@ namespace Greenshot.Editor.Forms
         /**
 		 * Interfaces for plugins, see GreenshotInterface for more details!
 		 */
-        public Image GetImageForExport()
-        {
-            return _surface.GetImageForExport();
-        }
+        public Image GetImageForExport() => _surface.GetImageForExport();
 
         public ICaptureDetails CaptureDetails => _surface.CaptureDetails;
 
@@ -655,21 +634,13 @@ namespace Greenshot.Editor.Forms
             DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
         }
 
-        private void BtnClipboardClick(object sender, EventArgs e)
-        {
-            DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
-        }
+        private void BtnClipboardClick(object sender, EventArgs e) => DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
 
-        private void BtnPrintClick(object sender, EventArgs e)
-        {
+        private void BtnPrintClick(object sender, EventArgs e) =>
             // The BeginInvoke is a solution for the printdialog not having focus
             BeginInvoke((MethodInvoker)delegate { DestinationHelper.ExportCapture(true, WellKnownDestinations.Printer, _surface, _surface.CaptureDetails); });
-        }
 
-        private void CloseToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void CloseToolStripMenuItemClick(object sender, EventArgs e) => Close();
 
         private void BtnEllipseClick(object sender, EventArgs e)
         {
@@ -763,55 +734,25 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void AddRectangleToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnRectClick(sender, e);
-        }
+        private void AddRectangleToolStripMenuItemClick(object sender, EventArgs e) => BtnRectClick(sender, e);
 
-        private void DrawFreehandToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnFreehandClick(sender, e);
-        }
+        private void DrawFreehandToolStripMenuItemClick(object sender, EventArgs e) => BtnFreehandClick(sender, e);
 
-        private void AddEllipseToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnEllipseClick(sender, e);
-        }
+        private void AddEllipseToolStripMenuItemClick(object sender, EventArgs e) => BtnEllipseClick(sender, e);
 
-        private void AddTextBoxToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnTextClick(sender, e);
-        }
+        private void AddTextBoxToolStripMenuItemClick(object sender, EventArgs e) => BtnTextClick(sender, e);
 
-        private void AddSpeechBubbleToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnSpeechBubbleClick(sender, e);
-        }
+        private void AddSpeechBubbleToolStripMenuItemClick(object sender, EventArgs e) => BtnSpeechBubbleClick(sender, e);
 
-        private void AddCounterToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnStepLabelClick(sender, e);
-        }
+        private void AddCounterToolStripMenuItemClick(object sender, EventArgs e) => BtnStepLabelClick(sender, e);
 
-        private void DrawLineToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnLineClick(sender, e);
-        }
+        private void DrawLineToolStripMenuItemClick(object sender, EventArgs e) => BtnLineClick(sender, e);
 
-        private void DrawArrowToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnArrowClick(sender, e);
-        }
+        private void DrawArrowToolStripMenuItemClick(object sender, EventArgs e) => BtnArrowClick(sender, e);
 
-        private void RemoveObjectToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.RemoveSelectedElements();
-        }
+        private void RemoveObjectToolStripMenuItemClick(object sender, EventArgs e) => _surface.RemoveSelectedElements();
 
-        private void BtnDeleteClick(object sender, EventArgs e)
-        {
-            RemoveObjectToolStripMenuItemClick(sender, e);
-        }
+        private void BtnDeleteClick(object sender, EventArgs e) => RemoveObjectToolStripMenuItemClick(sender, e);
 
         private void CutToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -819,10 +760,7 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
         }
 
-        private void BtnCutClick(object sender, EventArgs e)
-        {
-            CutToolStripMenuItemClick(sender, e);
-        }
+        private void BtnCutClick(object sender, EventArgs e) => CutToolStripMenuItemClick(sender, e);
 
         private void CopyToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -830,10 +768,7 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
         }
 
-        private void BtnCopyClick(object sender, EventArgs e)
-        {
-            CopyToolStripMenuItemClick(sender, e);
-        }
+        private void BtnCopyClick(object sender, EventArgs e) => CopyToolStripMenuItemClick(sender, e);
 
         private void PasteToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -841,10 +776,7 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
         }
 
-        private void BtnPasteClick(object sender, EventArgs e)
-        {
-            PasteToolStripMenuItemClick(sender, e);
-        }
+        private void BtnPasteClick(object sender, EventArgs e) => PasteToolStripMenuItemClick(sender, e);
 
         private void UndoToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -852,10 +784,7 @@ namespace Greenshot.Editor.Forms
             UpdateUndoRedoSurfaceDependencies();
         }
 
-        private void BtnUndoClick(object sender, EventArgs e)
-        {
-            UndoToolStripMenuItemClick(sender, e);
-        }
+        private void BtnUndoClick(object sender, EventArgs e) => UndoToolStripMenuItemClick(sender, e);
 
         private void RedoToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -863,10 +792,7 @@ namespace Greenshot.Editor.Forms
             UpdateUndoRedoSurfaceDependencies();
         }
 
-        private void BtnRedoClick(object sender, EventArgs e)
-        {
-            RedoToolStripMenuItemClick(sender, e);
-        }
+        private void BtnRedoClick(object sender, EventArgs e) => RedoToolStripMenuItemClick(sender, e);
 
         private void DuplicateToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -874,30 +800,15 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
         }
 
-        private void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.PullElementsUp();
-        }
+        private void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e) => _surface.PullElementsUp();
 
-        private void DownOneLevelToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.PushElementsDown();
-        }
+        private void DownOneLevelToolStripMenuItemClick(object sender, EventArgs e) => _surface.PushElementsDown();
 
-        private void UpToTopToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.PullElementsToTop();
-        }
+        private void UpToTopToolStripMenuItemClick(object sender, EventArgs e) => _surface.PullElementsToTop();
 
-        private void DownToBottomToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.PushElementsToBottom();
-        }
+        private void DownToBottomToolStripMenuItemClick(object sender, EventArgs e) => _surface.PushElementsToBottom();
 
-        private void HelpToolStripMenuItem1Click(object sender, EventArgs e)
-        {
-            HelpFileLoader.LoadHelp();
-        }
+        private void HelpToolStripMenuItem1Click(object sender, EventArgs e) => HelpFileLoader.LoadHelp();
 
         private void AboutToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -911,15 +822,9 @@ namespace Greenshot.Editor.Forms
             mainForm.ShowSetting();
         }
 
-        private void BtnSettingsClick(object sender, EventArgs e)
-        {
-            PreferencesToolStripMenuItemClick(sender, e);
-        }
+        private void BtnSettingsClick(object sender, EventArgs e) => PreferencesToolStripMenuItemClick(sender, e);
 
-        private void BtnHelpClick(object sender, EventArgs e)
-        {
-            HelpToolStripMenuItem1Click(sender, e);
-        }
+        private void BtnHelpClick(object sender, EventArgs e) => HelpToolStripMenuItem1Click(sender, e);
 
         private void ImageEditorFormActivated(object sender, EventArgs e)
         {
@@ -1099,30 +1004,27 @@ namespace Greenshot.Editor.Forms
         /// <param name="e">MouseEventArgs</param>
         private void PanelMouseWheel(object sender, MouseEventArgs e)
         {
-            if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control))
+            //waiting for next zoom step 100 ms
+            if (System.Windows.Forms.Control.ModifierKeys.Equals(Keys.Control) && _zoomStartTime.AddMilliseconds(100) < DateTime.Now)
             {
-                if (_zoomStartTime.AddMilliseconds(100) < DateTime.Now) //waiting for next zoom step 100 ms
+                _zoomStartTime = DateTime.Now;
+                switch (e.Delta)
                 {
-                    _zoomStartTime = DateTime.Now;
-                    if (e.Delta > 0)
-                    {
+                    case > 0:
                         ZoomInMenuItemClick(sender, e);
-                    }
-                    else if (e.Delta < 0)
-                    {
+                        break;
+                    case < 0:
                         ZoomOutMenuItemClick(sender, e);
-                    }
+                        break;
                 }
             }
 
             panel1.Focus();
         }
 
-        protected override bool ProcessKeyPreview(ref Message msg)
-        {
+        protected override bool ProcessKeyPreview(ref Message msg) =>
             // disable default key handling if surface has requested a lock
-            return !_surface.KeysLocked && base.ProcessKeyPreview(ref msg);
-        }
+            !_surface.KeysLocked && base.ProcessKeyPreview(ref msg);
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {
@@ -1171,12 +1073,9 @@ namespace Greenshot.Editor.Forms
             btnUndo.Enabled = canUndo;
             undoToolStripMenuItem.Enabled = canUndo;
             string undoAction = string.Empty;
-            if (canUndo)
+            if (canUndo && _surface.UndoActionLanguageKey != LangKey.none)
             {
-                if (_surface.UndoActionLanguageKey != LangKey.none)
-                {
-                    undoAction = Language.GetString(_surface.UndoActionLanguageKey);
-                }
+                undoAction = Language.GetString(_surface.UndoActionLanguageKey);
             }
 
             string undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
@@ -1187,12 +1086,9 @@ namespace Greenshot.Editor.Forms
             btnRedo.Enabled = canRedo;
             redoToolStripMenuItem.Enabled = canRedo;
             string redoAction = string.Empty;
-            if (canRedo)
+            if (canRedo && _surface.RedoActionLanguageKey != LangKey.none)
             {
-                if (_surface.RedoActionLanguageKey != LangKey.none)
-                {
-                    redoAction = Language.GetString(_surface.RedoActionLanguageKey);
-                }
+                redoAction = Language.GetString(_surface.RedoActionLanguageKey);
             }
 
             string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
@@ -1240,15 +1136,9 @@ namespace Greenshot.Editor.Forms
             ss.ContextMenuStrip?.Show(ss, e.X, e.Y);
         }
 
-        private void CopyPathMenuItemClick(object sender, EventArgs e)
-        {
-            ClipboardHelper.SetClipboardData(_surface.LastSaveFullPath);
-        }
+        private void CopyPathMenuItemClick(object sender, EventArgs e) => ClipboardHelper.SetClipboardData(_surface.LastSaveFullPath);
 
-        private void OpenDirectoryMenuItemClick(object sender, EventArgs e)
-        {
-            ExplorerHelper.OpenInExplorer(_surface.LastSaveFullPath);
-        }
+        private void OpenDirectoryMenuItemClick(object sender, EventArgs e) => ExplorerHelper.OpenInExplorer(_surface.LastSaveFullPath);
 
         private void BindFieldControls()
         {
@@ -1339,16 +1229,9 @@ namespace Greenshot.Editor.Forms
         private void RefreshEditorControls()
         {
             int stepLabels = _surface.CountStepLabels(null);
-            Image icon;
-            if (stepLabels <= 20)
-            {
-                icon = (Image)resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
-            }
-            else
-            {
-                icon = (Image)resources.GetObject("btnStepLabel20+.Image");
-            }
-
+            Image icon = stepLabels <= 20
+                ? (Image)resources.GetObject($"btnStepLabel{stepLabels:00}.Image")
+                : (Image)resources.GetObject("btnStepLabel20+.Image");
             btnStepLabel.Image = icon;
             addCounterToolStripMenuItem.Image = icon;
 
@@ -1400,10 +1283,7 @@ namespace Greenshot.Editor.Forms
             RefreshFieldControls();
         }
 
-        private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
-        }
+        private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e) => _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -1449,8 +1329,7 @@ namespace Greenshot.Editor.Forms
                 fontItalicButton.Enabled = italicAvailable;
             }
 
-            bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
-            if (regularAvailable)
+            if (fontFamily.IsStyleAvailable(FontStyle.Regular))
             {
                 return;
             }
@@ -1462,12 +1341,9 @@ namespace Greenshot.Editor.Forms
                     fontBoldButton.Checked = true;
                 }
             }
-            else if (italicAvailable)
+            else if (italicAvailable && fontItalicButton != null)
             {
-                if (fontItalicButton != null)
-                {
-                    fontItalicButton.Checked = true;
-                }
+                fontItalicButton.Checked = true;
             }
         }
 
@@ -1481,25 +1357,13 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private void FontBoldButtonClick(object sender, EventArgs e)
-        {
-            _originalBoldCheckState = fontBoldButton.Checked;
-        }
+        private void FontBoldButtonClick(object sender, EventArgs e) => _originalBoldCheckState = fontBoldButton.Checked;
 
-        private void FontItalicButtonClick(object sender, EventArgs e)
-        {
-            _originalItalicCheckState = fontItalicButton.Checked;
-        }
+        private void FontItalicButtonClick(object sender, EventArgs e) => _originalItalicCheckState = fontItalicButton.Checked;
 
-        private void ToolBarFocusableElementGotFocus(object sender, EventArgs e)
-        {
-            _surface.KeysLocked = true;
-        }
+        private void ToolBarFocusableElementGotFocus(object sender, EventArgs e) => _surface.KeysLocked = true;
 
-        private void ToolBarFocusableElementLostFocus(object sender, EventArgs e)
-        {
-            _surface.KeysLocked = false;
-        }
+        private void ToolBarFocusableElementLostFocus(object sender, EventArgs e) => _surface.KeysLocked = false;
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -1602,10 +1466,7 @@ namespace Greenshot.Editor.Forms
             RefreshEditorControls();
         }
 
-        private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            _surface.SelectAllElements();
-        }
+        private void SelectAllToolStripMenuItemClick(object sender, EventArgs e) => _surface.SelectAllElements();
 
         private void BtnConfirmClick(object sender, EventArgs e)
         {
@@ -1803,10 +1664,7 @@ namespace Greenshot.Editor.Forms
             UpdateUndoRedoSurfaceDependencies();
         }
 
-        private void ImageEditorFormResize(object sender, EventArgs e)
-        {
-            AlignCanvasPositionAfterResize();
-        }
+        private void ImageEditorFormResize(object sender, EventArgs e) => AlignCanvasPositionAfterResize();
 
         private void AlignCanvasPositionAfterResize()
         {
@@ -1826,23 +1684,9 @@ namespace Greenshot.Editor.Forms
 
             int offsetX = -panel.HorizontalScroll.Value;
             int offsetY = -panel.VerticalScroll.Value;
-            if (currentClientSize.Width > canvasSize.Width)
-            {
-                canvas.Left = offsetX + ((currentClientSize.Width - canvasSize.Width) / 2);
-            }
-            else
-            {
-                canvas.Left = offsetX + 0;
-            }
+            canvas.Left = currentClientSize.Width > canvasSize.Width ? offsetX + ((currentClientSize.Width - canvasSize.Width) / 2) : offsetX + 0;
 
-            if (currentClientSize.Height > canvasSize.Height)
-            {
-                canvas.Top = offsetY + ((currentClientSize.Height - canvasSize.Height) / 2);
-            }
-            else
-            {
-                canvas.Top = offsetY + 0;
-            }
+            canvas.Top = currentClientSize.Height > canvasSize.Height ? offsetY + ((currentClientSize.Height - canvasSize.Height) / 2) : offsetY + 0;
         }
 
         /// <summary>

@@ -29,10 +29,7 @@ namespace Greenshot.Plugin.Jira
     /// </summary>
     public class Log4NetLogger : AbstractLogger
     {
-        private ILog GetLogger(LogSource logSource)
-        {
-            return logSource.SourceType != null ? LogManager.GetLogger(logSource.SourceType) : LogManager.GetLogger(logSource.Source);
-        }
+        private ILog GetLogger(LogSource logSource) => logSource.SourceType != null ? LogManager.GetLogger(logSource.SourceType) : LogManager.GetLogger(logSource.Source);
 
         /// <summary>
         ///     Write the supplied information to a log4net.ILog
@@ -86,10 +83,7 @@ namespace Greenshot.Plugin.Jira
         /// <param name="logInfo"></param>
         /// <param name="messageTemplate"></param>
         /// <param name="logParameters"></param>
-        public override void WriteLine(LogInfo logInfo, string messageTemplate, params object[] logParameters)
-        {
-            Write(logInfo, messageTemplate, logParameters);
-        }
+        public override void WriteLine(LogInfo logInfo, string messageTemplate, params object[] logParameters) => Write(logInfo, messageTemplate, logParameters);
 
         /// <summary>
         ///     Test if a certain LogLevels enum is enabled

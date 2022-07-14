@@ -59,10 +59,7 @@ namespace Greenshot.Editor.Drawing
             Horizontal
         }
 
-        public CropContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public CropContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -133,22 +130,13 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
         }
 
-        public override void Invalidate()
-        {
-            _parent?.Invalidate();
-        }
+        public override void Invalidate() => _parent?.Invalidate();
 
         /// <summary>
         /// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
         /// (we create a transparent brown over the complete picture)
         /// </summary>
-        public override NativeRect DrawingBounds
-        {
-            get
-            {
-                return _parent?.Image is { } image ? new NativeRect(0, 0, image.Width, image.Height) : NativeRect.Empty;
-            }
-        }
+        public override NativeRect DrawingBounds => _parent?.Image is { } image ? new NativeRect(0, 0, image.Width, image.Height) : NativeRect.Empty;
 
         public override void Draw(Graphics g, RenderMode rm)
         {
@@ -195,17 +183,14 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public override bool HasContextMenu => false;
 
-        public override bool HandleMouseDown(int x, int y)
+        public override bool HandleMouseDown(int x, int y) => GetFieldValue(FieldType.CROPMODE) switch
         {
-            return GetFieldValue(FieldType.CROPMODE) switch
-            {
-                //force horizontal crop to left edge
-                CropModes.Horizontal => base.HandleMouseDown(0, y),
-                //force vertical crop to top edge
-                CropModes.Vertical => base.HandleMouseDown(x, 0),
-                _ => base.HandleMouseDown(x, y),
-            };
-        }
+            //force horizontal crop to left edge
+            CropModes.Horizontal => base.HandleMouseDown(0, y),
+            //force vertical crop to top edge
+            CropModes.Vertical => base.HandleMouseDown(x, 0),
+            _ => base.HandleMouseDown(x, y),
+        };
 
         public override bool HandleMouseMove(int x, int y)
         {

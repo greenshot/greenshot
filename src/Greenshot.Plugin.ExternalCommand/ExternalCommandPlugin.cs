@@ -181,15 +181,9 @@ namespace Greenshot.Plugin.ExternalCommand
             }
         }
 
-        public virtual void Shutdown()
-        {
-            Log.Debug("Shutdown");
-        }
+        public virtual void Shutdown() => Log.Debug("Shutdown");
 
-        private void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            Configure();
-        }
+        private void ConfigMenuClick(object sender, EventArgs eventArgs) => Configure();
 
         /// <summary>
         /// Implementation of the IPlugin.Configure

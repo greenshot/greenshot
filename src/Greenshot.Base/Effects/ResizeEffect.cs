@@ -46,9 +46,6 @@ namespace Greenshot.Base.Effects
             // values don't have a default value
         }
 
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height, matrix);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height, matrix);
     }
 }

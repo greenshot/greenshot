@@ -56,43 +56,19 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public OneNoteDestination(OneNotePage page)
-        {
-            this.page = page;
-        }
+        public OneNoteDestination(OneNotePage page) => this.page = page;
 
-        public override string Designation
-        {
-            get { return DESIGNATION; }
-        }
+        public override string Designation => DESIGNATION;
 
-        public override string Description
-        {
-            get
-            {
-                return page == null ? "Microsoft OneNote" : page.DisplayName;
-            }
-        }
+        public override string Description => page == null ? "Microsoft OneNote" : page.DisplayName;
 
-        public override int Priority
-        {
-            get { return 4; }
-        }
+        public override int Priority => 4;
 
-        public override bool IsDynamic
-        {
-            get { return true; }
-        }
+        public override bool IsDynamic => true;
 
-        public override bool IsActive
-        {
-            get { return base.IsActive && exePath != null; }
-        }
+        public override bool IsActive => base.IsActive && exePath != null;
 
-        public override Image DisplayIcon
-        {
-            get { return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION); }
-        }
+        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {

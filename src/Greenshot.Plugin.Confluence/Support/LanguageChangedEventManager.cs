@@ -5,20 +5,11 @@ namespace Greenshot.Plugin.Confluence.Support
 {
     public class LanguageChangedEventManager : WeakEventManager
     {
-        public static void AddListener(TranslationManager source, IWeakEventListener listener)
-        {
-            CurrentManager.ProtectedAddListener(source, listener);
-        }
+        public static void AddListener(TranslationManager source, IWeakEventListener listener) => CurrentManager.ProtectedAddListener(source, listener);
 
-        public static void RemoveListener(TranslationManager source, IWeakEventListener listener)
-        {
-            CurrentManager.ProtectedRemoveListener(source, listener);
-        }
+        public static void RemoveListener(TranslationManager source, IWeakEventListener listener) => CurrentManager.ProtectedRemoveListener(source, listener);
 
-        private void OnLanguageChanged(object sender, EventArgs e)
-        {
-            DeliverEvent(sender, e);
-        }
+        private void OnLanguageChanged(object sender, EventArgs e) => DeliverEvent(sender, e);
 
         protected override void StartListening(object source)
         {

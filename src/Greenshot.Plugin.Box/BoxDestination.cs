@@ -30,10 +30,7 @@ namespace Greenshot.Plugin.Box
     {
         private readonly BoxPlugin _plugin;
 
-        public BoxDestination(BoxPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public BoxDestination(BoxPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "Box";
 

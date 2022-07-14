@@ -33,10 +33,7 @@ namespace Greenshot.Plugin.Imgur
     {
         private readonly ImgurPlugin _plugin;
 
-        public ImgurDestination(ImgurPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public ImgurDestination(ImgurPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "Imgur";
 

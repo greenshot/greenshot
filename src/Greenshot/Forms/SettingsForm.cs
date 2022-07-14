@@ -68,10 +68,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="dpiChangedEventArgs">DpiChangedEventArgs</param>
-        private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs)
-        {
-            DisplaySettings();
-        }
+        private void AdjustToDpi(object sender, DpiChangedEventArgs dpiChangedEventArgs) => DisplaySettings();
 
         protected override void OnLoad(EventArgs e)
         {
@@ -122,14 +119,7 @@ namespace Greenshot.Forms
             // Check if we can into the forbidden range
             if (currentValue > 0 && currentValue < 7)
             {
-                if (_daysBetweenCheckPreviousValue <= currentValue)
-                {
-                    numericUpDown_daysbetweencheck.Value = 7;
-                }
-                else
-                {
-                    numericUpDown_daysbetweencheck.Value = 0;
-                }
+                numericUpDown_daysbetweencheck.Value = _daysBetweenCheckPreviousValue <= currentValue ? 7 : 0;
             }
 
             if ((int)numericUpDown_daysbetweencheck.Value < 0)
@@ -326,10 +316,7 @@ namespace Greenshot.Forms
         }
 
         // Check the settings and somehow visibly mark when something is incorrect
-        private bool CheckSettings()
-        {
-            return CheckFilenamePattern() && CheckStorageLocationPath();
-        }
+        private bool CheckSettings() => CheckFilenamePattern() && CheckStorageLocationPath();
 
         private bool CheckFilenamePattern()
         {
@@ -370,15 +357,9 @@ namespace Greenshot.Forms
             }
         }
 
-        private void FilenamePatternChanged(object sender, EventArgs e)
-        {
-            CheckFilenamePattern();
-        }
+        private void FilenamePatternChanged(object sender, EventArgs e) => CheckFilenamePattern();
 
-        private void StorageLocationChanged(object sender, EventArgs e)
-        {
-            CheckStorageLocationPath();
-        }
+        private void StorageLocationChanged(object sender, EventArgs e) => CheckStorageLocationPath();
 
         /// <summary>
         /// Show all destination descriptions in the current language
@@ -444,16 +425,9 @@ namespace Greenshot.Forms
                 }
                 else
                 {
-                    ListViewItem item;
-                    if (destinationImage != null)
-                    {
-                        item = listview_destinations.Items.Add(currentDestination.Description, imageNr);
-                    }
-                    else
-                    {
-                        item = listview_destinations.Items.Add(currentDestination.Description);
-                    }
-
+                    ListViewItem item = destinationImage != null
+                        ? listview_destinations.Items.Add(currentDestination.Description, imageNr)
+                        : listview_destinations.Items.Add(currentDestination.Description);
                     item.Tag = currentDestination;
                     item.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
                 }
@@ -622,10 +596,7 @@ namespace Greenshot.Forms
             }
         }
 
-        private void Settings_cancelClick(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.Cancel;
-        }
+        private void Settings_cancelClick(object sender, EventArgs e) => DialogResult = DialogResult.Cancel;
 
         private void Settings_okayClick(object sender, EventArgs e)
         {
@@ -651,20 +622,14 @@ namespace Greenshot.Forms
         {
             // Get the storage location and replace the environment variables
             folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            // Only change if there is a change, otherwise we might overwrite the environment variables
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK && folderBrowserDialog1.SelectedPath?.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)) == false)
             {
-                // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath?.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)) == false)
-                {
-                    textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
-                }
+                textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
             }
         }
 
-        private void TrackBarJpegQualityScroll(object sender, EventArgs e)
-        {
-            textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
-        }
+        private void TrackBarJpegQualityScroll(object sender, EventArgs e) => textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
 
         private void BtnPatternHelpClick(object sender, EventArgs e)
         {
@@ -674,15 +639,9 @@ namespace Greenshot.Forms
             MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
         }
 
-        private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e)
-        {
-            button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
-        }
+        private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) => button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
 
-        private void Button_pluginconfigureClick(object sender, EventArgs e)
-        {
-            PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
-        }
+        private void Button_pluginconfigureClick(object sender, EventArgs e) => PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 
         private void Combobox_languageSelectedIndexChanged(object sender, EventArgs e)
         {
@@ -772,10 +731,7 @@ namespace Greenshot.Forms
             }
         }
 
-        private void DestinationsCheckStateChanged(object sender, EventArgs e)
-        {
-            CheckDestinationSettings();
-        }
+        private void DestinationsCheckStateChanged(object sender, EventArgs e) => CheckDestinationSettings();
 
         protected override void OnFieldsFilled()
         {
@@ -817,10 +773,7 @@ namespace Greenshot.Forms
             }
         }
 
-        private void Radiobutton_CheckedChanged(object sender, EventArgs e)
-        {
-            combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
-        }
+        private void Radiobutton_CheckedChanged(object sender, EventArgs e) => combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
     }
 
     public class ListviewWithDestinationComparer : IComparer

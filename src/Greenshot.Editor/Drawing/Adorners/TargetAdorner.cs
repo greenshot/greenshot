@@ -45,10 +45,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="mouseEventArgs">MouseEventArgs</param>
-        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
-        {
-            EditStatus = EditStatus.MOVING;
-        }
+        public override void MouseDown(object sender, MouseEventArgs mouseEventArgs) => EditStatus = EditStatus.MOVING;
 
         /// <summary>
         /// Handle the mouse move

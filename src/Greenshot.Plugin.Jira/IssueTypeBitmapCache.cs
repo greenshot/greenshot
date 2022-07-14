@@ -42,14 +42,8 @@ namespace Greenshot.Plugin.Jira
             ExpireTimeSpan = TimeSpan.FromHours(4);
         }
 
-        protected override string CreateKey(IssueType keyObject)
-        {
-            return keyObject.Name;
-        }
+        protected override string CreateKey(IssueType keyObject) => keyObject.Name;
 
-        protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return await _jiraClient.Server.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
-        }
+        protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken()) => await _jiraClient.Server.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
     }
 }

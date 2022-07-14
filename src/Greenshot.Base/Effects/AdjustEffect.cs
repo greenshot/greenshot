@@ -30,10 +30,7 @@ namespace Greenshot.Base.Effects
     /// </summary>
     public class AdjustEffect : IEffect
     {
-        public AdjustEffect()
-        {
-            Reset();
-        }
+        public AdjustEffect() => Reset();
 
         public float Contrast { get; set; }
         public float Brightness { get; set; }
@@ -46,9 +43,6 @@ namespace Greenshot.Base.Effects
             Gamma = 1f;
         }
 
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
     }
 }

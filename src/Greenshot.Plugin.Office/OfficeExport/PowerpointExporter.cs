@@ -113,14 +113,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))
                     {
                         using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height));
-                        if (_officeConfiguration.PowerpointLockAspectRatio)
-                        {
-                            shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
-                        }
-                        else
-                        {
-                            shape.ComObject.LockAspectRatio = MsoTriState.msoFalse;
-                        }
+                        shape.ComObject.LockAspectRatio = _officeConfiguration.PowerpointLockAspectRatio ? MsoTriState.msoTrue : MsoTriState.msoFalse;
 
                         shape.ComObject.ScaleHeight(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
                         shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromMiddle);
@@ -292,12 +285,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     continue;
                 }
 
-                if (IsAfter2003())
+                if (IsAfter2003() && presentation.ComObject.Final)
                 {
-                    if (presentation.ComObject.Final)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 yield return presentation.ComObject.Name;
@@ -355,9 +345,6 @@ namespace Greenshot.Plugin.Office.OfficeExport
             return isPictureAdded;
         }
 
-        private bool IsAfter2003()
-        {
-            return _powerpointVersion.Major > (int)OfficeVersions.Office2003;
-        }
+        private bool IsAfter2003() => _powerpointVersion.Major > (int)OfficeVersions.Office2003;
     }
 }

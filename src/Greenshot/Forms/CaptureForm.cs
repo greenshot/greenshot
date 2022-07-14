@@ -39,6 +39,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using System.Linq;
 
 namespace Greenshot.Forms
 {
@@ -463,12 +464,11 @@ namespace Greenshot.Forms
                 if (lineBounds.IsEmpty) continue;
                 // Highlight the text which is selected
                 if (!lineBounds.Contains(location)) continue;
-                foreach (var word in line.Words)
+                foreach (var _ in from word in line.Words
+                                  where word.Bounds.Contains(location)
+                                  select new { })
                 {
-                    if (word.Bounds.Contains(location))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -536,10 +536,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="animator"></param>
         /// <returns></returns>
-        private bool IsAnimating(IAnimator animator)
-        {
-            return animator != null && animator.HasNext;
-        }
+        private bool IsAnimating(IAnimator animator) => animator?.HasNext == true;
 
         /// <summary>
         /// update the frame, this only invalidates
@@ -732,14 +729,7 @@ namespace Greenshot.Forms
                             {
                                 continue;
                             }
-                            if (invalidateRectangle.IsEmpty)
-                            {
-                                invalidateRectangle = word.Bounds;
-                            }
-                            else
-                            {
-                                invalidateRectangle = invalidateRectangle.Union(word.Bounds);
-                            }
+                            invalidateRectangle = invalidateRectangle.IsEmpty ? word.Bounds : invalidateRectangle.Union(word.Bounds);
                         }
                     }
                     else if (lineBounds.Contains(_mouseMovePos))
@@ -747,14 +737,7 @@ namespace Greenshot.Forms
                         foreach (var word in line.Words)
                         {
                             if (!word.Bounds.Contains(_mouseMovePos)) continue;
-                            if (invalidateRectangle.IsEmpty)
-                            {
-                                invalidateRectangle = word.Bounds;
-                            }
-                            else
-                            {
-                                invalidateRectangle = invalidateRectangle.Union(word.Bounds);
-                            }
+                            invalidateRectangle = invalidateRectangle.IsEmpty ? word.Bounds : invalidateRectangle.Union(word.Bounds);
 
                             break;
                         }

@@ -72,40 +72,19 @@ namespace Greenshot.Plugin.Confluence
         {
         }
 
-        public ConfluenceDestination(Page page)
-        {
-            _page = page;
-        }
+        public ConfluenceDestination(Page page) => _page = page;
 
-        public override string Designation
-        {
-            get { return "Confluence"; }
-        }
+        public override string Designation => "Confluence";
 
-        public override string Description
-        {
-            get
-            {
-                return _page == null
+        public override string Description => _page == null
                     ? Language.GetString("confluence", LangKey.upload_menu_item)
                     : Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
-            }
-        }
 
-        public override bool IsDynamic
-        {
-            get { return true; }
-        }
+        public override bool IsDynamic => true;
 
-        public override bool IsActive
-        {
-            get { return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url); }
-        }
+        public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 
-        public override Image DisplayIcon
-        {
-            get { return ConfluenceIcon; }
-        }
+        public override Image DisplayIcon => ConfluenceIcon;
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {

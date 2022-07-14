@@ -106,10 +106,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="applicationName">Name of the process</param>
         /// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
-        public static void FixBrowserVersion(string applicationName, bool ignoreDoctype = true)
-        {
-            FixBrowserVersion(applicationName, GetEmbVersion(ignoreDoctype));
-        }
+        public static void FixBrowserVersion(string applicationName, bool ignoreDoctype = true) => FixBrowserVersion(applicationName, GetEmbVersion(ignoreDoctype));
 
         /// <summary>
         ///     Fix the browser version for the specified application

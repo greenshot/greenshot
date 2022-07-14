@@ -121,12 +121,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     continue;
                 }
 
-                if (IsAfter2003())
+                if (IsAfter2003() && document.ComObject.Final)
                 {
-                    if (document.ComObject.Final)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 using var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow);
@@ -356,9 +353,6 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Check if the used version is higher than Office 2003
         /// </summary>
         /// <returns></returns>
-        private bool IsAfter2003()
-        {
-            return _wordVersion.Major > (int)OfficeVersions.Office2003;
-        }
+        private bool IsAfter2003() => _wordVersion.Major > (int)OfficeVersions.Office2003;
     }
 }

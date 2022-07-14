@@ -135,12 +135,9 @@ namespace Greenshot.Base.Core.OAuth
             {
                 var expiresIn = callbackParameters[ExpiresIn];
                 settings.AccessTokenExpires = DateTimeOffset.MaxValue;
-                if (expiresIn != null)
+                if (expiresIn != null && double.TryParse(expiresIn, out var seconds))
                 {
-                    if (double.TryParse(expiresIn, out var seconds))
-                    {
-                        settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
-                    }
+                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
                 }
             }
 
@@ -393,12 +390,9 @@ namespace Greenshot.Base.Core.OAuth
         public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings)
         {
             // Get Refresh / Access token
-            if (string.IsNullOrEmpty(settings.RefreshToken))
+            if (string.IsNullOrEmpty(settings.RefreshToken) && !Authorize(settings))
             {
-                if (!Authorize(settings))
-                {
-                    throw new Exception("Authentication cancelled");
-                }
+                throw new Exception("Authentication cancelled");
             }
 
             if (settings.IsAccessTokenExpired)

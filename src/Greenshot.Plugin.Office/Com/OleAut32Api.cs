@@ -19,10 +19,7 @@ namespace Greenshot.Plugin.Office.Com
         /// <typeparam name="T">Type for the instance</typeparam>
         /// <param name="clsId">Guid</param>
         /// <returns>IDisposableCom of T</returns>
-        public static IDisposableCom<T> GetActiveObject<T>(ref Guid clsId)
-        {
-            return GetActiveObject(ref clsId, IntPtr.Zero, out object comObject).Succeeded() ? DisposableCom.Create((T)comObject) : null;
-        }
+        public static IDisposableCom<T> GetActiveObject<T>(ref Guid clsId) => GetActiveObject(ref clsId, IntPtr.Zero, out object comObject).Succeeded() ? DisposableCom.Create((T)comObject) : null;
 
         /// <summary>
         /// Get the active instance of the com object with the specified progId

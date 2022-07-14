@@ -38,10 +38,7 @@ namespace Greenshot.Plugin.Confluence.Forms
             InitializeComponent();
         }
 
-        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) => SelectionChanged();
 
         private void SelectionChanged()
         {
@@ -57,9 +54,6 @@ namespace Greenshot.Plugin.Confluence.Forms
             }
         }
 
-        private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            SelectionChanged();
-        }
+        private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e) => SelectionChanged();
     }
 }

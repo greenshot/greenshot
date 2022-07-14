@@ -108,10 +108,7 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h)
-        {
-            return CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
-        }
+        private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h) => CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
 
         private Button CreateColorButton(Color color, int x, int y, int w, int h)
         {
@@ -235,10 +232,7 @@ namespace Greenshot.Editor.Forms
                     GetColorPartIntFromString(textBoxBlue.Text)), textBox);
         }
 
-        private void TextBoxGotFocus(object sender, EventArgs e)
-        {
-            textBoxHtmlColor.SelectAll();
-        }
+        private void TextBoxGotFocus(object sender, EventArgs e) => textBoxHtmlColor.SelectAll();
 
         private void TextBoxKeyDown(object sender, KeyEventArgs e)
         {
@@ -254,15 +248,9 @@ namespace Greenshot.Editor.Forms
             PreviewColor(b.BackColor, b);
         }
 
-        private void SetButtonTooltip(Button colorButton, Color color)
-        {
-            _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
-        }
+        private void SetButtonTooltip(Button colorButton, Color color) => _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
 
-        private void BtnTransparentClick(object sender, EventArgs e)
-        {
-            ColorButtonClick(sender, e);
-        }
+        private void BtnTransparentClick(object sender, EventArgs e) => ColorButtonClick(sender, e);
 
         private void BtnApplyClick(object sender, EventArgs e)
         {
@@ -286,9 +274,6 @@ namespace Greenshot.Editor.Forms
             return ret;
         }
 
-        private void PipetteUsed(object sender, PipetteUsedArgs e)
-        {
-            Color = e.Color;
-        }
+        private void PipetteUsed(object sender, PipetteUsedArgs e) => Color = e.Color;
     }
 }

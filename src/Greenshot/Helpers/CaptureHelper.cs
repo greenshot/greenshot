@@ -42,6 +42,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using System.Linq;
 
 namespace Greenshot.Helpers
 {
@@ -203,10 +204,7 @@ namespace Greenshot.Helpers
             _capture = new Capture();
         }
 
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode)
-        {
-            _captureMouseCursor = captureMouseCursor;
-        }
+        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode) => _captureMouseCursor = captureMouseCursor;
 
         public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureMode)
         {
@@ -214,10 +212,7 @@ namespace Greenshot.Helpers
             _screenCaptureMode = screenCaptureMode;
         }
 
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
-        {
-            _capture.CaptureDetails.AddDestination(destination);
-        }
+        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor) => _capture.CaptureDetails.AddDestination(destination);
 
         public WindowDetails SelectedCaptureWindow { get; set; }
 
@@ -350,17 +345,16 @@ namespace Greenshot.Helpers
                     {
                         case ScreenCaptureMode.Auto:
                             NativePoint mouseLocation = User32Api.GetCursorLocation();
-                            foreach (Screen screen in Screen.AllScreens)
+                            foreach (var screen in from Screen screen in Screen.AllScreens
+                                                   where screen.Bounds.Contains(mouseLocation)
+                                                   select screen)
                             {
-                                if (screen.Bounds.Contains(mouseLocation))
-                                {
-                                    _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
-                                    captureTaken = true;
-                                    // As the screen shot might be on a different monitor we need to correct the mouse location
-                                    var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
-                                    _capture.CursorLocation = correctedCursorLocation;
-                                    break;
-                                }
+                                _capture = WindowCapture.CaptureRectangle(_capture, screen.Bounds);
+                                captureTaken = true;
+                                // As the screen shot might be on a different monitor we need to correct the mouse location
+                                var correctedCursorLocation = _capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                                _capture.CursorLocation = correctedCursorLocation;
+                                break;
                             }
 
                             break;
@@ -818,12 +812,9 @@ namespace Greenshot.Helpers
             else
             {
                 SelectedCaptureWindow = WindowDetails.GetActiveWindow();
-                if (SelectedCaptureWindow != null)
+                if (SelectedCaptureWindow != null && Log.IsDebugEnabled)
                 {
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.WindowRectangle);
-                    }
+                    Log.DebugFormat("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.WindowRectangle);
                 }
             }
 
@@ -984,12 +975,9 @@ namespace Greenshot.Helpers
                         }
 
                         // Change to DWM, if enabled and allowed
-                        if (dwmEnabled)
+                        if (dwmEnabled && WindowCapture.IsDwmAllowed(process))
                         {
-                            if (WindowCapture.IsDwmAllowed(process))
-                            {
-                                windowCaptureMode = WindowCaptureMode.Aero;
-                            }
+                            windowCaptureMode = WindowCaptureMode.Aero;
                         }
                     }
                 }

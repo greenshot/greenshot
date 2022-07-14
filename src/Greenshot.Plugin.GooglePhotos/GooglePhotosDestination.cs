@@ -29,10 +29,7 @@ namespace Greenshot.Plugin.GooglePhotos
     {
         private readonly GooglePhotosPlugin _plugin;
 
-        public GooglePhotosDestination(GooglePhotosPlugin plugin)
-        {
-            _plugin = plugin;
-        }
+        public GooglePhotosDestination(GooglePhotosPlugin plugin) => _plugin = plugin;
 
         public override string Designation => "GooglePhotos";
 

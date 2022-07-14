@@ -74,10 +74,7 @@ namespace Greenshot.Editor.Drawing
 
         protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 
-        public EditStatus DefaultEditMode
-        {
-            get { return _defaultEditMode; }
-        }
+        public EditStatus DefaultEditMode => _defaultEditMode;
 
         /// <summary>
         /// The public accessible Dispose
@@ -137,10 +134,7 @@ namespace Greenshot.Editor.Drawing
             set => SwitchParent(value);
         }
 
-        protected Surface InternalParent
-        {
-            get => (Surface)_parent;
-        }
+        protected Surface InternalParent => (Surface)_parent;
 
         [NonSerialized] private TargetAdorner _targetAdorner;
         public TargetAdorner TargetAdorner => _targetAdorner;
@@ -153,7 +147,7 @@ namespace Greenshot.Editor.Drawing
             set
             {
                 _selected = value;
-                OnPropertyChanged("Selected");
+                OnPropertyChanged(nameof(Selected));
             }
         }
 
@@ -290,15 +284,9 @@ namespace Greenshot.Editor.Drawing
             _parent = parent;
         }
 
-        public void Add(IFilter filter)
-        {
-            AddChild(filter);
-        }
+        public void Add(IFilter filter) => AddChild(filter);
 
-        public void Remove(IFilter filter)
-        {
-            RemoveChild(filter);
-        }
+        public void Remove(IFilter filter) => RemoveChild(filter);
 
         private static int Round(float f)
         {
@@ -352,10 +340,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual bool InitContent()
-        {
-            return true;
-        }
+        public virtual bool InitContent() => true;
 
         public virtual void OnDoubleClick()
         {
@@ -454,10 +439,7 @@ namespace Greenshot.Editor.Drawing
             // Empty as we do not want to add something to the context menu for every element
         }
 
-        public virtual bool Contains(int x, int y)
-        {
-            return Bounds.Contains(x, y);
-        }
+        public virtual bool Contains(int x, int y) => Bounds.Contains(x, y);
 
         public virtual bool ClickableAt(int x, int y)
         {
@@ -608,20 +590,14 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns></returns>
-        public static float CalculateScaleY(Matrix matrix)
-        {
-            return matrix.Elements[M22];
-        }
+        public static float CalculateScaleY(Matrix matrix) => matrix.Elements[M22];
 
         /// <summary>
         /// Retrieve the X scale from the matrix
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns></returns>
-        public static float CalculateScaleX(Matrix matrix)
-        {
-            return matrix.Elements[M11];
-        }
+        public static float CalculateScaleX(Matrix matrix) => matrix.Elements[M11];
 
         /// <summary>
         /// Retrieve the rotation angle from the matrix
@@ -630,9 +606,8 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public static int CalculateAngle(Matrix matrix)
         {
-            const int M11 = 0;
             const int M21 = 2;
-            var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
+            var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[0]);
             return (int)-Math.Round(radians * 180 / Math.PI);
         }
 
@@ -665,10 +640,7 @@ namespace Greenshot.Editor.Drawing
             Height = points[1].Y - points[0].Y;
         }
 
-        protected virtual IDoubleProcessor GetAngleRoundProcessor()
-        {
-            return ShapeAngleRoundBehavior.INSTANCE;
-        }
+        protected virtual IDoubleProcessor GetAngleRoundProcessor() => ShapeAngleRoundBehavior.INSTANCE;
 
         public virtual bool HasContextMenu => true;
 

@@ -117,7 +117,7 @@ namespace Greenshot.Forms
                 {
                     string argument = arguments[argumentNr];
                     // Help
-                    if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
+                    if (argument.Equals("/help", StringComparison.CurrentCultureIgnoreCase) || argument.Equals("/h", StringComparison.CurrentCultureIgnoreCase) || argument.Equals("/?", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Try to attach to the console
                         bool attachedToConsole = Kernel32Api.AttachConsole();
@@ -166,7 +166,7 @@ namespace Greenshot.Forms
                         return;
                     }
 
-                    if (argument.ToLower().Equals("/exit"))
+                    if (argument.Equals("/exit", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // un-register application on uninstall (allow uninstall)
                         try
@@ -185,7 +185,7 @@ namespace Greenshot.Forms
                     }
 
                     // Reload the configuration
-                    if (argument.ToLower().Equals("/reload"))
+                    if (argument.Equals("/reload", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Modify configuration
                         LOG.Info("Reloading configuration!");
@@ -196,7 +196,7 @@ namespace Greenshot.Forms
                     }
 
                     // Stop running
-                    if (argument.ToLower().Equals("/norun"))
+                    if (argument.Equals("/norun", StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Make an exit possible
                         FreeMutex();
@@ -204,7 +204,7 @@ namespace Greenshot.Forms
                     }
 
                     // Language
-                    if (argument.ToLower().Equals("/language"))
+                    if (argument.Equals("/language", StringComparison.CurrentCultureIgnoreCase))
                     {
                         _conf.Language = arguments[++argumentNr];
                         IniConfig.Save();
@@ -212,7 +212,7 @@ namespace Greenshot.Forms
                     }
 
                     // Setting the INI-directory
-                    if (argument.ToLower().Equals("/inidirectory"))
+                    if (argument.Equals("/inidirectory", StringComparison.CurrentCultureIgnoreCase))
                     {
                         IniConfig.IniDirectory = arguments[++argumentNr];
                         continue;
@@ -769,10 +769,7 @@ namespace Greenshot.Forms
         /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
         /// </summary>
         /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
-        public static bool RegisterHotkeys()
-        {
-            return RegisterHotkeys(false);
-        }
+        public static bool RegisterHotkeys() => RegisterHotkeys(false);
 
         /// <summary>
         /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
@@ -814,12 +811,9 @@ namespace Greenshot.Forms
                 success = false;
             }
 
-            if (_conf.IECapture)
+            if (_conf.IECapture && !RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", _instance.CaptureIE, ignoreFailedRegistration))
             {
-                if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", _instance.CaptureIE, ignoreFailedRegistration))
-                {
-                    success = false;
-                }
+                success = false;
             }
 
             if (!success)
@@ -936,10 +930,7 @@ namespace Greenshot.Forms
             //loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
-        private void CaptureRegion()
-        {
-            CaptureHelper.CaptureRegion(true);
-        }
+        private void CaptureRegion() => CaptureHelper.CaptureRegion(true);
 
         private void CaptureFile(IDestination destination = null)
         {
@@ -961,23 +952,14 @@ namespace Greenshot.Forms
             }
         }
 
-        private void CaptureFullScreen()
-        {
-            CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
-        }
+        private void CaptureFullScreen() => CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
 
-        private void CaptureLastRegion()
-        {
-            CaptureHelper.CaptureLastRegion(true);
-        }
+        private void CaptureLastRegion() => CaptureHelper.CaptureLastRegion(true);
 
         /// <summary>
         /// This is used by the hotkey trigger
         /// </summary>
-        private void CaptureClipboard()
-        {
-            CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-        }
+        private void CaptureClipboard() => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 
         private void CaptureIE()
         {
@@ -1191,10 +1173,7 @@ namespace Greenshot.Forms
             AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_CaptureWindowFromList_Click);
         }
 
-        private void CaptureWindowFromListMenuDropDownClosed(object sender, EventArgs e)
-        {
-            CleanupThumbnail();
-        }
+        private void CaptureWindowFromListMenuDropDownClosed(object sender, EventArgs e) => CleanupThumbnail();
 
         private void ShowThumbnailOnEnter(object sender, EventArgs e)
         {
@@ -1203,10 +1182,7 @@ namespace Greenshot.Forms
             (_thumbnailForm ??= new ThumbnailForm()).ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
         }
 
-        private void HideThumbnailOnLeave(object sender, EventArgs e)
-        {
-            _thumbnailForm?.Hide();
-        }
+        private void HideThumbnailOnLeave(object sender, EventArgs e) => _thumbnailForm?.Hide();
 
         private void CleanupThumbnail()
         {
@@ -1261,35 +1237,17 @@ namespace Greenshot.Forms
             }
         }
 
-        private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureRegion(false); });
-        }
+        private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureRegion(false); });
 
-        private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureClipboard(); });
-        }
+        private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureClipboard(); });
 
-        private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureFile(); });
-        }
+        private void OpenFileToolStripMenuItemClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureFile(); });
 
-        private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
-        }
+        private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
 
-        private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureLastRegion(false); });
-        }
+        private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureLastRegion(false); });
 
-        private void Contextmenu_CaptureWindow_Click(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureWindowInteractive(false); });
-        }
+        private void Contextmenu_CaptureWindow_Click(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureWindowInteractive(false); });
 
         private void Contextmenu_CaptureWindowFromList_Click(object sender, EventArgs e)
         {
@@ -1308,10 +1266,7 @@ namespace Greenshot.Forms
             });
         }
 
-        private void Contextmenu_CaptureIe_Click(object sender, EventArgs e)
-        {
-            CaptureIE();
-        }
+        private void Contextmenu_CaptureIe_Click(object sender, EventArgs e) => CaptureIE();
 
         private void Contextmenu_CaptureIeFromList_Click(object sender, EventArgs e)
         {
@@ -1356,20 +1311,14 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="e">EventArgs</param>
-        private void Contextmenu_DonateClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
-        }
+        private void Contextmenu_DonateClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
 
         /// <summary>
         /// Context menu entry "Preferences"
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_SettingsClick(object sender, EventArgs e)
-        {
-            BeginInvoke((MethodInvoker)ShowSetting);
-        }
+        private void Contextmenu_SettingsClick(object sender, EventArgs e) => BeginInvoke((MethodInvoker)ShowSetting);
 
         /// <summary>
         /// This is called indirectly from the context menu "Preferences"
@@ -1404,10 +1353,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_AboutClick(object sender, EventArgs e)
-        {
-            ShowAbout();
-        }
+        private void Contextmenu_AboutClick(object sender, EventArgs e) => ShowAbout();
 
         public void ShowAbout()
         {
@@ -1436,20 +1382,14 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_HelpClick(object sender, EventArgs e)
-        {
-            HelpFileLoader.LoadHelp();
-        }
+        private void Contextmenu_HelpClick(object sender, EventArgs e) => HelpFileLoader.LoadHelp();
 
         /// <summary>
         /// The "Exit" entry is clicked
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Contextmenu_ExitClick(object sender, EventArgs e)
-        {
-            Exit();
-        }
+        private void Contextmenu_ExitClick(object sender, EventArgs e) => Exit();
 
         private void CheckStateChangedHandler(object sender, EventArgs e)
         {
@@ -1528,15 +1468,14 @@ namespace Greenshot.Forms
             };
 
             IniValue iniValue;
-            foreach (string propertyName in _conf.Values.Keys)
+            foreach (var propertyName in from string propertyName in _conf.Values.Keys
+                                         where propertyName.StartsWith("OutputPrint")
+                                         select propertyName)
             {
-                if (propertyName.StartsWith("OutputPrint"))
+                iniValue = _conf.Values[propertyName];
+                if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
                 {
-                    iniValue = _conf.Values[propertyName];
-                    if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
-                    {
-                        selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
-                    }
+                    selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
                 }
             }
 
@@ -1931,10 +1870,7 @@ namespace Greenshot.Forms
         /// </summary>
         /// <param name="windowToCapture">WindowDetails</param>
         /// <returns>WindowDetails</returns>
-        public WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
-        {
-            return CaptureHelper.SelectCaptureWindow(windowToCapture);
-        }
+        public WindowDetails SelectCaptureWindow(WindowDetails windowToCapture) => CaptureHelper.SelectCaptureWindow(windowToCapture);
 
         /// <summary>
         /// TODO: Delete when the ICaptureHelper can be solve someway else
@@ -1943,9 +1879,6 @@ namespace Greenshot.Forms
         /// <param name="capture">ICapture</param>
         /// <param name="coreConfigurationWindowCaptureMode">WindowCaptureMode</param>
         /// <returns>ICapture</returns>
-        public ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode)
-        {
-            return CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfigurationWindowCaptureMode);
-        }
+        public ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode) => CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfigurationWindowCaptureMode);
     }
 }

@@ -427,33 +427,18 @@ namespace Greenshot.Helpers.IEInterop
 
         public DocumentContainer Parent { get; set; }
 
-        private int ScaleX(int physicalValue)
-        {
-            return (int)Math.Round(physicalValue * _zoomLevelX, MidpointRounding.AwayFromZero);
-        }
+        private int ScaleX(int physicalValue) => (int)Math.Round(physicalValue * _zoomLevelX, MidpointRounding.AwayFromZero);
 
-        private int ScaleY(int physicalValue)
-        {
-            return (int)Math.Round(physicalValue * _zoomLevelY, MidpointRounding.AwayFromZero);
-        }
+        private int ScaleY(int physicalValue) => (int)Math.Round(physicalValue * _zoomLevelY, MidpointRounding.AwayFromZero);
 
-        private int UnscaleX(int physicalValue)
-        {
-            return (int)Math.Round(physicalValue / _zoomLevelX, MidpointRounding.AwayFromZero);
-        }
+        private int UnscaleX(int physicalValue) => (int)Math.Round(physicalValue / _zoomLevelX, MidpointRounding.AwayFromZero);
 
-        private int UnscaleY(int physicalValue)
-        {
-            return (int)Math.Round(physicalValue / _zoomLevelY, MidpointRounding.AwayFromZero);
-        }
+        private int UnscaleY(int physicalValue) => (int)Math.Round(physicalValue / _zoomLevelY, MidpointRounding.AwayFromZero);
 
         /// <summary>
         /// Set/change an int attribute on a document
         /// </summary>
-        public void SetAttribute(string attribute, int value)
-        {
-            SetAttribute(attribute, value.ToString());
-        }
+        public void SetAttribute(string attribute, int value) => SetAttribute(attribute, value.ToString());
 
         /// <summary>
         /// Set/change an attribute on a document

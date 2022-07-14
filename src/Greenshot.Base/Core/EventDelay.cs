@@ -28,14 +28,12 @@ namespace Greenshot.Base.Core
         private long lastCheck;
         private readonly long waitTime;
 
-        public EventDelay(long ticks)
-        {
-            waitTime = ticks;
-        }
+        public EventDelay(long ticks) => waitTime = ticks;
+        private readonly object _lockObject = new(); // Prevent RCS1059
 
         public bool Check()
         {
-            lock (this)
+            lock (_lockObject)
             {
                 long now = DateTime.Now.Ticks;
                 bool isPassed = now - lastCheck > waitTime;

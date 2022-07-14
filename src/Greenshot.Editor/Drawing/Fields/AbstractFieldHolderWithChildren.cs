@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces.Drawing;
+using System.Linq;
 
 namespace Greenshot.Editor.Drawing.Fields
 {
@@ -46,10 +47,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public IList<IFieldHolder> Children = new List<IFieldHolder>();
 
-        protected AbstractFieldHolderWithChildren()
-        {
-            _fieldChangedEventHandler = OnFieldChanged;
-        }
+        protected AbstractFieldHolderWithChildren() => _fieldChangedEventHandler = OnFieldChanged;
 
         [OnDeserialized()]
         private void OnDeserialized(StreamingContext context)
@@ -98,13 +96,12 @@ namespace Greenshot.Editor.Drawing.Fields
             }
             else
             {
-                foreach (IFieldHolder fh in Children)
+                foreach (var fh in from IFieldHolder fh in Children
+                                   where fh.HasField(fieldType)
+                                   select fh)
                 {
-                    if (fh.HasField(fieldType))
-                    {
-                        ret = fh.GetField(fieldType);
-                        break;
-                    }
+                    ret = fh.GetField(fieldType);
+                    break;
                 }
             }
 
@@ -116,13 +113,12 @@ namespace Greenshot.Editor.Drawing.Fields
             bool ret = base.HasField(fieldType);
             if (!ret)
             {
-                foreach (IFieldHolder fh in Children)
+                foreach (var _ in from IFieldHolder fh in Children
+                                  where fh.HasField(fieldType)
+                                  select new { })
                 {
-                    if (fh.HasField(fieldType))
-                    {
-                        ret = true;
-                        break;
-                    }
+                    ret = true;
+                    break;
                 }
             }
 

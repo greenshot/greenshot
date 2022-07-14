@@ -47,7 +47,7 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public WpfFileFormatHandler()
         {
-            LoadFromStreamExtensions = LoadFromStreamExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
+            LoadFromStreamExtensions = LoadFromStreamExtensions.AsEnumerable().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
 
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
@@ -60,16 +60,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <returns>IEnumerable{string}</returns>
         private IEnumerable<string> RetrieveSupportedExtensions()
         {
-            string baseKeyPath;
-            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
-            {
-                baseKeyPath = "Wow6432Node\\CLSID";
-            }
-            else
-            {
-                baseKeyPath = "CLSID";
-            }
-
+            string baseKeyPath = Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess ? "Wow6432Node\\CLSID" : "CLSID";
             using RegistryKey baseKey = Registry.ClassesRoot.OpenSubKey(baseKeyPath, false);
             if (baseKey == null) yield break;
 

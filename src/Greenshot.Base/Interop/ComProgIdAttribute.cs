@@ -70,10 +70,7 @@ namespace Greenshot.Base.Interop
 
         /// <summary>Constructor</summary>
         /// <param name="value">The COM ProgID.</param>
-        public ComProgIdAttribute(string value)
-        {
-            Value = value;
-        }
+        public ComProgIdAttribute(string value) => Value = value;
 
         /// <summary>
         /// Returns the COM ProgID

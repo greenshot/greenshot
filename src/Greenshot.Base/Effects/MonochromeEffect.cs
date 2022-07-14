@@ -33,19 +33,13 @@ namespace Greenshot.Base.Effects
         private readonly byte _threshold;
 
         /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
-        public MonochromeEffect(byte threshold)
-        {
-            _threshold = threshold;
-        }
+        public MonochromeEffect(byte threshold) => _threshold = threshold;
 
         public void Reset()
         {
             // TODO: Modify the threshold to have a default, which is reset here
         }
 
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.CreateMonochrome(sourceImage, _threshold);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.CreateMonochrome(sourceImage, _threshold);
     }
 }

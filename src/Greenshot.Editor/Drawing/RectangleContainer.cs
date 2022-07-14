@@ -38,10 +38,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class RectangleContainer : DrawableContainer
     {
-        public RectangleContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public RectangleContainer(ISurface parent) : base(parent) => Init();
 
         /// <summary>
         /// Do some logic to make sure all field are initiated correctly
@@ -53,10 +50,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         protected override void InitializeFields()
         {
@@ -145,12 +139,9 @@ namespace Greenshot.Editor.Drawing
         public static bool RectangleClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
-            if (!Color.Transparent.Equals(fillColor))
+            if (!Color.Transparent.Equals(fillColor) && rect.Contains(x, y))
             {
-                if (rect.Contains(x, y))
-                {
-                    return true;
-                }
+                return true;
             }
 
             // check the rest of the lines

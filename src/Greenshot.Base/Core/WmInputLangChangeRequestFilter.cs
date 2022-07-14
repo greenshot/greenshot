@@ -38,10 +38,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="m">Message</param>
         /// <returns>true if the message should be filtered</returns>
-        public bool PreFilterMessage(ref Message m)
-        {
-            return PreFilterMessageExternal(ref m);
-        }
+        public bool PreFilterMessage(ref Message m) => PreFilterMessageExternal(ref m);
 
         /// <summary>
         /// Also used in the MainForm WndProc

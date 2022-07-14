@@ -45,10 +45,7 @@ namespace Greenshot.Plugin.Jira
         private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
         private readonly Issue _jiraIssue;
 
-        public JiraDestination(Issue jiraIssue = null)
-        {
-            _jiraIssue = jiraIssue;
-        }
+        public JiraDestination(Issue jiraIssue = null) => _jiraIssue = jiraIssue;
 
         public override string Designation => "Jira";
 

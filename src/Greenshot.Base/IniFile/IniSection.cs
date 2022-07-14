@@ -25,6 +25,7 @@ using System.IO;
 using System.Reflection;
 using Greenshot.Base.Core;
 using log4net;
+using System.Linq;
 
 namespace Greenshot.Base.IniFile
 {
@@ -39,21 +40,12 @@ namespace Greenshot.Base.IniFile
         [NonSerialized] private readonly IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
         [NonSerialized] private IniSectionAttribute iniSectionAttribute;
 
-        public IniSectionAttribute IniSectionAttribute
-        {
-            get
-            {
-                return iniSectionAttribute ??= GetIniSectionAttribute(GetType());
-            }
-        }
+        public IniSectionAttribute IniSectionAttribute => iniSectionAttribute ??= GetIniSectionAttribute(GetType());
 
         /// <summary>
         /// Get the dictionary with all the IniValues
         /// </summary>
-        public IDictionary<string, IniValue> Values
-        {
-            get { return values; }
-        }
+        public IDictionary<string, IniValue> Values => values;
 
         /// <summary>
         /// Flag to specify if values have been changed
@@ -65,10 +57,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         /// <param name="property">The property to return a default for</param>
         /// <returns>object with the default value for the supplied property</returns>
-        public virtual object GetDefault(string property)
-        {
-            return null;
-        }
+        public virtual object GetDefault(string property) => null;
 
         /// <summary>
         /// This method will be called before converting the property, making to possible to correct a certain value
@@ -77,10 +66,7 @@ namespace Greenshot.Base.IniFile
         /// <param name="propertyName">The name of the property</param>
         /// <param name="propertyValue">The string value of the property</param>
         /// <returns>string with the propertyValue, modified or not...</returns>
-        public virtual string PreCheckValue(string propertyName, string propertyValue)
-        {
-            return propertyValue;
-        }
+        public virtual string PreCheckValue(string propertyName, string propertyValue) => propertyValue;
 
         /// <summary>
         /// This method will be called after reading the configuration, so eventually some corrections can be made
@@ -129,29 +115,23 @@ namespace Greenshot.Base.IniFile
         public void Fill(IDictionary<string, string> properties)
         {
             Type iniSectionType = GetType();
-
             // Iterate over the members and create IniValueContainers
-            foreach (FieldInfo fieldInfo in iniSectionType.GetFields())
+            foreach (var (fieldInfo, iniPropertyAttribute) in
+            from FieldInfo fieldInfo in iniSectionType.GetFields()
+            where Attribute.IsDefined(fieldInfo, typeof(IniPropertyAttribute))
+            let iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0]
+            where !Values.ContainsKey(iniPropertyAttribute.Name)
+            select (fieldInfo, iniPropertyAttribute))
             {
-                if (Attribute.IsDefined(fieldInfo, typeof(IniPropertyAttribute)))
-                {
-                    IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-                    if (!Values.ContainsKey(iniPropertyAttribute.Name))
-                    {
-                        Values[iniPropertyAttribute.Name] = new IniValue(this, fieldInfo, iniPropertyAttribute);
-                    }
-                }
+                Values[iniPropertyAttribute.Name] = new IniValue(this, fieldInfo, iniPropertyAttribute);
             }
 
             foreach (PropertyInfo propertyInfo in iniSectionType.GetProperties())
             {
-                if (Attribute.IsDefined(propertyInfo, typeof(IniPropertyAttribute)))
+                if (Attribute.IsDefined(propertyInfo, typeof(IniPropertyAttribute)) && !Values.ContainsKey(propertyInfo.Name))
                 {
-                    if (!Values.ContainsKey(propertyInfo.Name))
-                    {
-                        IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
-                        Values[iniPropertyAttribute.Name] = new IniValue(this, propertyInfo, iniPropertyAttribute);
-                    }
+                    IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
+                    Values[iniPropertyAttribute.Name] = new IniValue(this, propertyInfo, iniPropertyAttribute);
                 }
             }
 
@@ -161,12 +141,9 @@ namespace Greenshot.Base.IniFile
                 try
                 {
                     iniValue.SetValueFromProperties(properties);
-                    if (iniValue.Attributes.Encrypted)
+                    if (iniValue.Attributes.Encrypted && iniValue.Value is string stringValue && stringValue.Length > 2)
                     {
-                        if (iniValue.Value is string stringValue && stringValue.Length > 2)
-                        {
-                            iniValue.Value = stringValue.Decrypt();
-                        }
+                        iniValue.Value = stringValue.Decrypt();
                     }
                 }
                 catch (Exception ex)
@@ -202,22 +179,16 @@ namespace Greenshot.Base.IniFile
 
                 foreach (IniValue value in Values.Values)
                 {
-                    if (value.Attributes.Encrypted)
+                    if (value.Attributes.Encrypted && value.Value is string stringValue && stringValue.Length > 2)
                     {
-                        if (value.Value is string stringValue && stringValue.Length > 2)
-                        {
-                            value.Value = stringValue.Encrypt();
-                        }
+                        value.Value = stringValue.Encrypt();
                     }
 
                     // Write the value
                     value.Write(writer, onlyProperties);
-                    if (value.Attributes.Encrypted)
+                    if (value.Attributes.Encrypted && value.Value is string stringValue2 && stringValue2.Length > 2)
                     {
-                        if (value.Value is string stringValue && stringValue.Length > 2)
-                        {
-                            value.Value = stringValue.Decrypt();
-                        }
+                        value.Value = stringValue2.Decrypt();
                     }
                 }
             }

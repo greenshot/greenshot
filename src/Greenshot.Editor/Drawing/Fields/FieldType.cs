@@ -61,15 +61,9 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public string Name { get; set; }
 
-        private FieldType(string name)
-        {
-            Name = name;
-        }
+        private FieldType(string name) => Name = name;
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         public override int GetHashCode()
         {
@@ -89,14 +83,8 @@ namespace Greenshot.Editor.Drawing.Fields
             return other != null && Equals(Name, other.Name);
         }
 
-        public static bool operator ==(FieldType a, FieldType b)
-        {
-            return Equals(a, b);
-        }
+        public static bool operator ==(FieldType a, FieldType b) => Equals(a, b);
 
-        public static bool operator !=(FieldType a, FieldType b)
-        {
-            return !Equals(a, b);
-        }
+        public static bool operator !=(FieldType a, FieldType b) => !Equals(a, b);
     }
 }

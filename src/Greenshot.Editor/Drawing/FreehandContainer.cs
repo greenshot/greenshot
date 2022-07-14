@@ -76,10 +76,7 @@ namespace Greenshot.Editor.Drawing
             RecalculatePath();
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            RecalculatePath();
-        }
+        protected override void OnDeserialized(StreamingContext context) => RecalculatePath();
 
         /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
@@ -204,7 +201,7 @@ namespace Greenshot.Editor.Drawing
             {
                 Width = lineThickness
             };
-            if (!(pen.Width > 0))
+            if (pen.Width <= 0)
             {
                 return;
             }
@@ -294,10 +291,7 @@ namespace Greenshot.Editor.Drawing
             return ret;
         }
 
-        public override int GetHashCode()
-        {
-            return freehandPath?.GetHashCode() ?? 0;
-        }
+        public override int GetHashCode() => freehandPath?.GetHashCode() ?? 0;
 
         public override bool ClickableAt(int x, int y)
         {

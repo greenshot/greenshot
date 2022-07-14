@@ -112,10 +112,7 @@ namespace Greenshot.Helpers
         /// Simple check if IE is running
         /// </summary>
         /// <returns>bool</returns>
-        public static bool IsIeRunning()
-        {
-            return GetIeWindows().Any();
-        }
+        public static bool IsIeRunning() => GetIeWindows().Any();
 
         /// <summary>
         /// Gets a list of all IE Windows & tabs with the captions of the instances

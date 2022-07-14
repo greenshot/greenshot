@@ -365,7 +365,7 @@ namespace Greenshot.Base.Core
                 if (_iconSize != newSize)
                 {
                     _iconSize = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconSize)));
                 }
             }
         }
@@ -383,10 +383,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="experimentalFeature"></param>
         /// <returns></returns>
-        public bool IsExperimentalFeatureEnabled(string experimentalFeature)
-        {
-            return ExperimentalFeatures?.Contains(experimentalFeature) == true;
-        }
+        public bool IsExperimentalFeatureEnabled(string experimentalFeature) => ExperimentalFeatures?.Contains(experimentalFeature) == true;
 
         private string CreateOutputFilePath()
         {
@@ -456,20 +453,14 @@ namespace Greenshot.Base.Core
         public override string PreCheckValue(string propertyName, string propertyValue)
         {
             // Changed the separator, now we need to correct this
-            if ("Destinations".Equals(propertyName))
+            if ("Destinations".Equals(propertyName) && propertyValue != null)
             {
-                if (propertyValue != null)
-                {
-                    return propertyValue.Replace('|', ',');
-                }
+                return propertyValue.Replace('|', ',');
             }
 
-            if ("OutputFilePath".Equals(propertyName))
+            if ("OutputFilePath".Equals(propertyName) && string.IsNullOrEmpty(propertyValue))
             {
-                if (string.IsNullOrEmpty(propertyValue))
-                {
-                    return null;
-                }
+                return null;
             }
 
             return base.PreCheckValue(propertyName, propertyValue);
@@ -528,12 +519,9 @@ namespace Greenshot.Base.Core
             }
 
             // Enable OneNote if upgrading from 1.1
-            if (ExcludeDestinations?.Contains("OneNote") == true)
+            if (ExcludeDestinations?.Contains("OneNote") == true && LastSaveWithVersion?.StartsWith("1.1") == true)
             {
-                if (LastSaveWithVersion?.StartsWith("1.1") == true)
-                {
-                    ExcludeDestinations.Remove("OneNote");
-                }
+                ExcludeDestinations.Remove("OneNote");
             }
 
             if (OutputDestinations == null)
@@ -568,14 +556,11 @@ namespace Greenshot.Base.Core
             if (NoGDICaptureForProduct != null)
             {
                 // Fix error in configuration
-                if (NoGDICaptureForProduct.Count >= 2)
+                if (NoGDICaptureForProduct.Count >= 2 && "intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
                 {
-                    if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-                    {
-                        NoGDICaptureForProduct.RemoveRange(0, 2);
-                        NoGDICaptureForProduct.Add("Intellij Idea");
-                        IsDirty = true;
-                    }
+                    NoGDICaptureForProduct.RemoveRange(0, 2);
+                    NoGDICaptureForProduct.Add("Intellij Idea");
+                    IsDirty = true;
                 }
 
                 for (int i = 0; i < NoGDICaptureForProduct.Count; i++)
@@ -587,14 +572,11 @@ namespace Greenshot.Base.Core
             if (NoDWMCaptureForProduct != null)
             {
                 // Fix error in configuration
-                if (NoDWMCaptureForProduct.Count >= 3)
+                if (NoDWMCaptureForProduct.Count >= 3 && "citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
                 {
-                    if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-                    {
-                        NoDWMCaptureForProduct.RemoveRange(0, 3);
-                        NoDWMCaptureForProduct.Add("Citrix ICA Client");
-                        IsDirty = true;
-                    }
+                    NoDWMCaptureForProduct.RemoveRange(0, 3);
+                    NoDWMCaptureForProduct.Add("Citrix ICA Client");
+                    IsDirty = true;
                 }
 
                 for (int i = 0; i < NoDWMCaptureForProduct.Count; i++)

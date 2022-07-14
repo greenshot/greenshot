@@ -64,10 +64,7 @@ namespace Greenshot.Plugin.Win10.Internal
         }
 
         /// <inheritdoc />
-        public void Seek(ulong position)
-        {
-            Seek((long)position, SeekOrigin.Begin);
-        }
+        public void Seek(ulong position) => Seek((long)position, SeekOrigin.Begin);
 
         /// <inheritdoc />
         public Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)

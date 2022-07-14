@@ -88,9 +88,6 @@ namespace Greenshot.Editor.Forms
     {
         public Color Color;
 
-        public ColorPickerEventArgs(Color color)
-        {
-            Color = color;
-        }
+        public ColorPickerEventArgs(Color color) => Color = color;
     }
 }

@@ -18,10 +18,7 @@ namespace Greenshot.Plugin.Office.Com
         /// </summary>
         /// <param name="programId">string with the program ID</param>
         /// <returns>Guid with the clsId</returns>
-        public static Guid ClassIdFromProgId(string programId)
-        {
-            return CLSIDFromProgID(programId, out Guid clsId).Succeeded() ? clsId : clsId;
-        }
+        public static Guid ClassIdFromProgId(string programId) => CLSIDFromProgID(programId, out Guid clsId).Succeeded() ? clsId : clsId;
 
         /// <summary>
         /// See more <a href="https://docs.microsoft.com/en-us/windows/desktop/api/combaseapi/nf-combaseapi-clsidfromprogid">here</a>

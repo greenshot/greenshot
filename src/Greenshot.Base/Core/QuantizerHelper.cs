@@ -113,13 +113,10 @@ namespace Greenshot.Base.Core
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && resultBitmap != null)
             {
-                if (resultBitmap != null)
-                {
-                    resultBitmap.Dispose();
-                    resultBitmap = null;
-                }
+                resultBitmap.Dispose();
+                resultBitmap = null;
             }
         }
 
@@ -174,15 +171,9 @@ namespace Greenshot.Base.Core
             {
                 for (int x = 0; x < sourceFastBitmap.Width; x++)
                 {
-                    Color color;
-                    if (sourceFastBitmap is not IFastBitmapWithBlend sourceFastBitmapWithBlend)
-                    {
-                        color = sourceFastBitmap.GetColorAt(x, y);
-                    }
-                    else
-                    {
-                        color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
-                    }
+                    Color color = sourceFastBitmap is not IFastBitmapWithBlend sourceFastBitmapWithBlend
+                        ? sourceFastBitmap.GetColorAt(x, y)
+                        : sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
 
                     // To count the colors
                     int index = color.ToArgb() & 0x00ffffff;
@@ -216,10 +207,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// See <see cref="IColorQuantizer.Prepare"/> for more details.
         /// </summary>
-        public int GetColorCount()
-        {
-            return colorCount;
-        }
+        public int GetColorCount() => colorCount;
 
         /// <summary>
         /// Reindex the 24/32 BPP (A)RGB image to a 8BPP
@@ -240,16 +228,7 @@ namespace Greenshot.Base.Core
                 {
                     for (int x = 0; x < bbbSrc.Width; x++)
                     {
-                        Color color;
-                        if (bbbSrc is IFastBitmapWithBlend bbbSrcBlend)
-                        {
-                            color = bbbSrcBlend.GetBlendedColorAt(x, y);
-                        }
-                        else
-                        {
-                            color = bbbSrc.GetColorAt(x, y);
-                        }
-
+                        Color color = bbbSrc is IFastBitmapWithBlend bbbSrcBlend ? bbbSrcBlend.GetBlendedColorAt(x, y) : bbbSrc.GetColorAt(x, y);
                         if (lookup.ContainsKey(color))
                         {
                             index = lookup[color];
@@ -271,14 +250,7 @@ namespace Greenshot.Base.Core
             Color[] entries = imagePalette.Entries;
             for (int paletteIndex = 0; paletteIndex < 256; paletteIndex++)
             {
-                if (paletteIndex < colorCount)
-                {
-                    entries[paletteIndex] = colors[paletteIndex];
-                }
-                else
-                {
-                    entries[paletteIndex] = Color.Black;
-                }
+                entries[paletteIndex] = paletteIndex < colorCount ? colors[paletteIndex] : Color.Black;
             }
 
             resultBitmap.Palette = imagePalette;
@@ -527,9 +499,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Computes the volume of the cube in a specific moment.
         /// </summary>
-        private static long Volume(WuColorCube cube, long[,,] moment)
-        {
-            return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
+        private static long Volume(WuColorCube cube, long[,,] moment) => moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
                    moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
                    moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
                    moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] -
@@ -537,14 +507,11 @@ namespace Greenshot.Base.Core
                    moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
-        }
 
         /// <summary>
         /// Computes the volume of the cube in a specific moment. For the floating-point values.
         /// </summary>
-        private static float VolumeFloat(WuColorCube cube, float[,,] moment)
-        {
-            return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
+        private static float VolumeFloat(WuColorCube cube, float[,,] moment) => moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] -
                    moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] -
                    moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
                    moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] -
@@ -552,53 +519,46 @@ namespace Greenshot.Base.Core
                    moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
-        }
 
         /// <summary>
         /// Splits the cube in given position, and color direction.
         /// </summary>
-        private static long Top(WuColorCube cube, int direction, int position, long[,,] moment)
+        private static long Top(WuColorCube cube, int direction, int position, long[,,] moment) => direction switch
         {
-            return direction switch
-            {
-                RED => moment[position, cube.GreenMaximum, cube.BlueMaximum] -
-                        moment[position, cube.GreenMaximum, cube.BlueMinimum] -
-                        moment[position, cube.GreenMinimum, cube.BlueMaximum] +
-                        moment[position, cube.GreenMinimum, cube.BlueMinimum],
-                GREEN => moment[cube.RedMaximum, position, cube.BlueMaximum] -
-                          moment[cube.RedMaximum, position, cube.BlueMinimum] -
-                          moment[cube.RedMinimum, position, cube.BlueMaximum] +
-                          moment[cube.RedMinimum, position, cube.BlueMinimum],
-                BLUE => moment[cube.RedMaximum, cube.GreenMaximum, position] -
-                         moment[cube.RedMaximum, cube.GreenMinimum, position] -
-                         moment[cube.RedMinimum, cube.GreenMaximum, position] +
-                         moment[cube.RedMinimum, cube.GreenMinimum, position],
-                _ => 0,
-            };
-        }
+            RED => moment[position, cube.GreenMaximum, cube.BlueMaximum] -
+                    moment[position, cube.GreenMaximum, cube.BlueMinimum] -
+                    moment[position, cube.GreenMinimum, cube.BlueMaximum] +
+                    moment[position, cube.GreenMinimum, cube.BlueMinimum],
+            GREEN => moment[cube.RedMaximum, position, cube.BlueMaximum] -
+                      moment[cube.RedMaximum, position, cube.BlueMinimum] -
+                      moment[cube.RedMinimum, position, cube.BlueMaximum] +
+                      moment[cube.RedMinimum, position, cube.BlueMinimum],
+            BLUE => moment[cube.RedMaximum, cube.GreenMaximum, position] -
+                     moment[cube.RedMaximum, cube.GreenMinimum, position] -
+                     moment[cube.RedMinimum, cube.GreenMaximum, position] +
+                     moment[cube.RedMinimum, cube.GreenMinimum, position],
+            _ => 0,
+        };
 
         /// <summary>
         /// Splits the cube in a given color direction at its minimum.
         /// </summary>
-        private static long Bottom(WuColorCube cube, int direction, long[,,] moment)
+        private static long Bottom(WuColorCube cube, int direction, long[,,] moment) => direction switch
         {
-            return direction switch
-            {
-                RED => -moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
-                        moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
-                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
-                GREEN => -moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
-                          moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
-                BLUE => -moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
-                         moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
-                         moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
-                         moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
-                _ => 0
-            };
-        }
+            RED => -moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
+                    moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
+                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
+                    moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
+            GREEN => -moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
+                      moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
+                      moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
+                      moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
+            BLUE => -moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
+                     moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
+                     moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
+                     moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
+            _ => 0
+        };
 
         /// <summary>
         /// Calculates statistical variance for a given cube.
@@ -703,14 +663,7 @@ namespace Greenshot.Base.Core
             }
             else
             {
-                if ((maxGreen >= maxRed) && (maxGreen >= maxBlue))
-                {
-                    direction = GREEN;
-                }
-                else
-                {
-                    direction = BLUE;
-                }
+                direction = (maxGreen >= maxRed) && (maxGreen >= maxBlue) ? GREEN : BLUE;
             }
 
             second.RedMaximum = first.RedMaximum;

@@ -30,12 +30,9 @@ namespace Greenshot
     /// <summary>
     /// Description of Main.
     /// </summary>
-    public class GreenshotMain
+    public static class GreenshotMain
     {
-        static GreenshotMain()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-        }
+        static GreenshotMain() => AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
@@ -60,7 +57,7 @@ namespace Greenshot
         public static void Main(string[] args)
         {
             // Enable TLS 1.2 support
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;

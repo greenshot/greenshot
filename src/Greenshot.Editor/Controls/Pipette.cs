@@ -78,10 +78,7 @@ namespace Greenshot.Editor.Controls
         /// <summary>
         /// The bulk of the clean-up code is implemented in Dispose(bool)
         /// </summary>
-        public new void Dispose()
-        {
-            Dispose(true);
-        }
+        public new void Dispose() => Dispose(true);
 
         /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
@@ -176,15 +173,9 @@ namespace Greenshot.Editor.Controls
 
         public bool PreFilterMessage(ref Message m)
         {
-            if (_dragging)
+            if (_dragging && m.Msg == (int)WindowsMessages.WM_CHAR && (int)m.WParam == VkEsc)
             {
-                if (m.Msg == (int)WindowsMessages.WM_CHAR)
-                {
-                    if ((int)m.WParam == VkEsc)
-                    {
-                        User32Api.ReleaseCapture();
-                    }
-                }
+                User32Api.ReleaseCapture();
             }
 
             return false;
@@ -195,9 +186,6 @@ namespace Greenshot.Editor.Controls
     {
         public Color Color;
 
-        public PipetteUsedArgs(Color c)
-        {
-            Color = c;
-        }
+        public PipetteUsedArgs(Color c) => Color = c;
     }
 }

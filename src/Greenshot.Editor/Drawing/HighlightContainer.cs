@@ -34,10 +34,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class HighlightContainer : FilterContainer
     {
-        public HighlightContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public HighlightContainer(ISurface parent) : base(parent) => Init();
 
         /// <summary>
         /// Use settings from base, extend with our own field
@@ -48,10 +45,7 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
-        }
+        protected override void OnDeserialized(StreamingContext context) => Init();
 
         private void Init()
         {

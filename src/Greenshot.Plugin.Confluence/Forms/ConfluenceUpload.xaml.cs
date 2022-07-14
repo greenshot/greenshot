@@ -54,17 +54,11 @@ namespace Greenshot.Plugin.Confluence.Forms
 
         private System.Windows.Controls.Page _searchPage;
 
-        public System.Windows.Controls.Page SearchPage
-        {
-            get { return _searchPage ??= new ConfluenceSearch(this); }
-        }
+        public System.Windows.Controls.Page SearchPage => _searchPage ??= new ConfluenceSearch(this);
 
         private System.Windows.Controls.Page _browsePage;
 
-        public System.Windows.Controls.Page BrowsePage
-        {
-            get { return _browsePage ??= new ConfluenceTreePicker(this); }
-        }
+        public System.Windows.Controls.Page BrowsePage => _browsePage ??= new ConfluenceTreePicker(this);
 
         private Page _selectedPage;
 
@@ -135,9 +129,6 @@ namespace Greenshot.Plugin.Confluence.Forms
             }
         }
 
-        private void Upload_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
+        private void Upload_Click(object sender, RoutedEventArgs e) => DialogResult = true;
     }
 }

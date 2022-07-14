@@ -28,15 +28,12 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
     /// </summary>
     public abstract class AbstractBindingConverter<T1, T2> : IBindingConverter
     {
-        public object convert(object o)
+        public object convert(object o) => o switch
         {
-            return o switch
-            {
-                null => null,
-                T1 => convert((T1)o),
-                _ => o is T2 t ? (object)convert(t) : throw new ArgumentException("Cannot handle argument of type " + o.GetType())
-            };
-        }
+            null => null,
+            T1 => convert((T1)o),
+            _ => o is T2 t ? (object)convert(t) : throw new ArgumentException("Cannot handle argument of type " + o.GetType())
+        };
 
         protected abstract T2 convert(T1 o);
         protected abstract T1 convert(T2 o);

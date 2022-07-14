@@ -62,9 +62,6 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="minimalBuildNumber">int</param>
         /// <returns>bool</returns>
-        public static bool IsWindows10BuildOrLater(int minimalBuildNumber)
-        {
-            return IsWindows10 && WinVersion.Build >= minimalBuildNumber;
-        }
+        public static bool IsWindows10BuildOrLater(int minimalBuildNumber) => IsWindows10 && WinVersion.Build >= minimalBuildNumber;
     }
 }

@@ -30,35 +30,17 @@ namespace Greenshot.Editor.Controls
     /// </summary>
     internal class CustomProfessionalColorTable : ProfessionalColorTable
     {
-        public override Color ToolStripGradientBegin
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color ToolStripGradientBegin => SystemColors.Control;
 
-        public override Color ToolStripGradientMiddle
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color ToolStripGradientMiddle => SystemColors.Control;
 
-        public override Color ToolStripGradientEnd
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color ToolStripGradientEnd => SystemColors.Control;
 
-        public override Color OverflowButtonGradientBegin
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color OverflowButtonGradientBegin => SystemColors.Control;
 
-        public override Color OverflowButtonGradientMiddle
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color OverflowButtonGradientMiddle => SystemColors.Control;
 
-        public override Color OverflowButtonGradientEnd
-        {
-            get { return SystemColors.Control; }
-        }
+        public override Color OverflowButtonGradientEnd => SystemColors.Control;
     }
 
     /// <summary>
@@ -67,10 +49,7 @@ namespace Greenshot.Editor.Controls
     /// </summary>
     public class CustomToolStripProfessionalRenderer : ToolStripProfessionalRenderer
     {
-        public CustomToolStripProfessionalRenderer() : base(new CustomProfessionalColorTable())
-        {
-            RoundedEdges = false;
-        }
+        public CustomToolStripProfessionalRenderer() : base(new CustomProfessionalColorTable()) => RoundedEdges = false;
 
         /// <summary>
         /// By overriding the OnRenderToolStripBorder we can make the ToolStrip without border

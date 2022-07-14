@@ -36,10 +36,7 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable()]
     public class PixelizationFilter : AbstractFilter
     {
-        public PixelizationFilter(DrawableContainer parent) : base(parent)
-        {
-            AddField(GetType(), FieldType.PIXEL_SIZE, 5);
-        }
+        public PixelizationFilter(DrawableContainer parent) : base(parent) => AddField(GetType(), FieldType.PIXEL_SIZE, 5);
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {

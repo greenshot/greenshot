@@ -85,10 +85,7 @@ namespace Greenshot.Editor.Drawing
             OnPropertyChanged("Text");
         }
 
-        public TextContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public TextContainer(ISurface parent) : base(parent) => Init();
 
         protected override void InitializeFields()
         {
@@ -272,10 +269,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override void OnDoubleClick()
-        {
-            ShowTextBox();
-        }
+        public override void OnDoubleClick() => ShowTextBox();
 
         private void CreateTextBox()
         {
@@ -322,14 +316,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            if (lc.R > 203 && lc.G > 203 && lc.B > 203)
-            {
-                _textBox.BackColor = Color.FromArgb(51, 51, 51);
-            }
-            else
-            {
-                _textBox.BackColor = Color.White;
-            }
+            _textBox.BackColor = lc.R > 203 && lc.G > 203 && lc.B > 203 ? Color.FromArgb(51, 51, 51) : Color.White;
         }
 
         private void HideTextBox()

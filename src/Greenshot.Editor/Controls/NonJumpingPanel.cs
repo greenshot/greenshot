@@ -29,12 +29,10 @@ namespace Greenshot.Editor.Controls
     /// </summary>
     public class NonJumpingPanel : Panel
     {
-        protected override Point ScrollToControl(Control activeControl)
-        {
+        protected override Point ScrollToControl(Control activeControl) =>
             // Returning the current location prevents the panel from
             // scrolling to the active control when the panel loses and regains focus
-            return DisplayRectangle.Location;
-        }
+            DisplayRectangle.Location;
 
         /// <summary>
         /// Add horizontal scrolling to the panel, when using the wheel and the shift key is pressed

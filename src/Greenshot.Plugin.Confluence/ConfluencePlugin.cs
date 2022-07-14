@@ -64,21 +64,13 @@ namespace Greenshot.Plugin.Confluence
         {
             if (_confluenceConnector == null)
             {
-                if (_config.Url.Contains("soap-axis"))
-                {
-                    _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
-                }
-                else
-                {
-                    _confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
-                }
+                _confluenceConnector = _config.Url.Contains("soap-axis")
+                    ? new ConfluenceConnector(_config.Url, _config.Timeout)
+                    : new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
             }
         }
 
-        public static ConfluenceConnector ConfluenceConnectorNoLogin
-        {
-            get { return _confluenceConnector; }
-        }
+        public static ConfluenceConnector ConfluenceConnectorNoLogin => _confluenceConnector;
 
         public static ConfluenceConnector ConfluenceConnector
         {
@@ -160,17 +152,14 @@ namespace Greenshot.Plugin.Confluence
                 // copy the new object to the old...
                 clonedConfig.CloneTo(_config);
                 IniConfig.Save();
-                if (_confluenceConnector != null)
+                if (_confluenceConnector != null && !url.Equals(_config.Url))
                 {
-                    if (!url.Equals(_config.Url))
+                    if (_confluenceConnector.IsLoggedIn)
                     {
-                        if (_confluenceConnector.IsLoggedIn)
-                        {
-                            _confluenceConnector.Logout();
-                        }
-
-                        _confluenceConnector = null;
+                        _confluenceConnector.Logout();
                     }
+
+                    _confluenceConnector = null;
                 }
             }
         }

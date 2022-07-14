@@ -41,10 +41,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Icon icon;
 
-        public IconContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public IconContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -52,20 +49,11 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
-        public IconContainer(ISurface parent, string filename) : base(parent)
-        {
-            Load(filename);
-        }
+        public IconContainer(ISurface parent, string filename) : base(parent) => Load(filename);
 
-        public IconContainer(ISurface parent, Stream stream) : base(parent)
-        {
-            Load(stream);
-        }
+        public IconContainer(ISurface parent, Stream stream) : base(parent) => Load(stream);
 
         public Icon Icon
         {

@@ -72,10 +72,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         /// <param name="fieldPropertyName">Property of 2nd object to bind</param>
         /// <param name="converter">taking care of converting the synchronized value to the correct target format and back</param>
         public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName,
-            IBindingConverter converter) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName)
-        {
-            Converter = converter;
-        }
+            IBindingConverter converter) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) => Converter = converter;
 
         /// <summary>
         /// Bind properties of two objects bidirectionally, converting the values using a converter.
@@ -87,10 +84,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         /// <param name="fieldPropertyName">Property of 2nd object to bind</param>
         /// <param name="validator">validator to intercept synchronization if the value does not match certain criteria</param>
         public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName,
-            IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName)
-        {
-            _validator = validator;
-        }
+            IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName) => _validator = validator;
 
         /// <summary>
         /// Bind properties of two objects bidirectionally, converting the values using a converter.
@@ -103,10 +97,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         /// <param name="converter">taking care of converting the synchronized value to the correct target format and back</param>
         /// <param name="validator">validator to intercept synchronization if the value does not match certain criteria</param>
         public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName,
-            IBindingConverter converter, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName, converter)
-        {
-            _validator = validator;
-        }
+            IBindingConverter converter, IBindingValidator validator) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName, converter) => _validator = validator;
 
         public void ControlPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

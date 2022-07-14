@@ -187,14 +187,9 @@ EndSelection:<<<<<<<4
                 {
                     string messageText;
                     string clipboardOwner = GetClipboardOwner();
-                    if (clipboardOwner != null)
-                    {
-                        messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-                    }
-                    else
-                    {
-                        messageText = Language.GetString("clipboard_error");
-                    }
+                    messageText = clipboardOwner != null
+                        ? Language.GetFormattedString("clipboard_inuse", clipboardOwner)
+                        : Language.GetString("clipboard_error");
 
                     Log.Error(messageText, clipboardSetException);
                 }
@@ -221,14 +216,9 @@ EndSelection:<<<<<<<4
                         {
                             string messageText;
                             string clipboardOwner = GetClipboardOwner();
-                            if (clipboardOwner != null)
-                            {
-                                messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-                            }
-                            else
-                            {
-                                messageText = Language.GetString("clipboard_error");
-                            }
+                            messageText = clipboardOwner != null
+                                ? Language.GetFormattedString("clipboard_inuse", clipboardOwner)
+                                : Language.GetString("clipboard_error");
 
                             Log.Error(messageText, ee);
                         }
@@ -254,12 +244,9 @@ EndSelection:<<<<<<<4
         /// <returns></returns>
         public static bool ContainsText(IDataObject dataObject)
         {
-            if (dataObject != null)
+            if (dataObject != null && (dataObject.GetDataPresent(DataFormats.Text) || dataObject.GetDataPresent(DataFormats.UnicodeText)))
             {
-                if (dataObject.GetDataPresent(DataFormats.Text) || dataObject.GetDataPresent(DataFormats.UnicodeText))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -487,10 +474,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="memoryStream"></param>
         /// <returns>true if there is a valid stream</returns>
-        private static bool IsValidStream(MemoryStream memoryStream)
-        {
-            return memoryStream?.Length > 0;
-        }
+        private static bool IsValidStream(MemoryStream memoryStream) => memoryStream?.Length > 0;
 
         /// <summary>
         /// Wrapper for Clipboard.GetImage, Created for Bug #3432313
@@ -885,10 +869,7 @@ EndSelection:<<<<<<<4
         /// Get Text from the DataObject
         /// </summary>
         /// <returns>string if there is text on the clipboard</returns>
-        public static string GetText(IDataObject dataObject)
-        {
-            return ContainsText(dataObject) ? (string)dataObject.GetData(DataFormats.Text) : null;
-        }
+        public static string GetText(IDataObject dataObject) => ContainsText(dataObject) ? (string)dataObject.GetData(DataFormats.Text) : null;
 
         /// <summary>
         /// Set text to the clipboard
@@ -1177,23 +1158,17 @@ EndSelection:<<<<<<<4
         /// <param name="dataObject">IDataObject</param>
         /// <param name="format">string with format</param>
         /// <returns>true if one the format is found</returns>
-        public static bool ContainsFormat(IDataObject dataObject, string format)
-        {
-            return ContainsFormat(dataObject, new[]
+        public static bool ContainsFormat(IDataObject dataObject, string format) => ContainsFormat(dataObject, new[]
             {
                 format
             });
-        }
 
         /// <summary>
         /// Check if there is currently something on the clipboard which has one of the supplied formats
         /// </summary>
         /// <param name="formats">string[] with formats</param>
         /// <returns>true if one of the formats was found</returns>
-        public static bool ContainsFormat(string[] formats)
-        {
-            return ContainsFormat(GetDataObject(), formats);
-        }
+        public static bool ContainsFormat(string[] formats) => ContainsFormat(GetDataObject(), formats);
 
         /// <summary>
         /// Check if there is currently something on the clipboard which has one of the supplied formats
@@ -1210,13 +1185,12 @@ EndSelection:<<<<<<<4
                 return false;
             }
 
-            foreach (string format in formats)
+            foreach (var _ in from string format in formats
+                              where currentFormats.Contains(format)
+                              select new { })
             {
-                if (currentFormats.Contains(format))
-                {
-                    formatFound = true;
-                    break;
-                }
+                formatFound = true;
+                break;
             }
 
             return formatFound;
@@ -1228,10 +1202,7 @@ EndSelection:<<<<<<<4
         /// <param name="dataObj">IDataObject</param>
         /// <param name="type">Type to get</param>
         /// <returns>object from IDataObject</returns>
-        public static object GetFromDataObject(IDataObject dataObj, Type type)
-        {
-            return type != null ? GetFromDataObject(dataObj, type.FullName) : null;
-        }
+        public static object GetFromDataObject(IDataObject dataObj, Type type) => type != null ? GetFromDataObject(dataObj, type.FullName) : null;
 
         /// <summary>
         /// Get ImageFilenames from the IDataObject

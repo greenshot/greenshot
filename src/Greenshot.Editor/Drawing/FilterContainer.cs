@@ -54,10 +54,7 @@ namespace Greenshot.Editor.Drawing
             MAGNIFICATION
         };
 
-        protected FilterContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        protected FilterContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -65,10 +62,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         protected override void InitializeFields()
         {

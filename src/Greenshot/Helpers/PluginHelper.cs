@@ -117,34 +117,22 @@ namespace Greenshot.Helpers
         /// <param name="width">Thumbnail width</param>
         /// <param name="height">Thumbnail height</param>
         /// <returns>Image with Thumbnail</returns>
-        public Image GetThumbnail(Image image, int width, int height)
-        {
-            return image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
-        }
+        public Image GetThumbnail(Image image, int width, int height) => image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
 
         ///  <summary>
         /// Required for GetThumbnail, but not used
         /// </summary>
         /// <returns>true</returns>
-        private bool ThumbnailCallback()
-        {
-            return true;
-        }
+        private bool ThumbnailCallback() => true;
 
-        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
-        }
+        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) => DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
 
         /// <summary>
         /// Make Capture with specified Handler
         /// </summary>
         /// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
         /// <param name="destination">IDestination</param>
-        public void CaptureRegion(bool captureMouseCursor, IDestination destination)
-        {
-            CaptureHelper.CaptureRegion(captureMouseCursor, destination);
-        }
+        public void CaptureRegion(bool captureMouseCursor, IDestination destination) => CaptureHelper.CaptureRegion(captureMouseCursor, destination);
 
         /// <summary>
         /// Use the supplied image, and handle it as if it's captured.

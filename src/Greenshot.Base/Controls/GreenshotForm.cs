@@ -72,15 +72,9 @@ namespace Greenshot.Base.Controls
         /// Used to check the designmode during a constructor
         /// </summary>
         /// <returns></returns>
-        protected static bool IsInDesignMode
-        {
-            get
-            {
-                return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) ||
+        protected static bool IsInDesignMode => (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) ||
                        Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 ||
                         (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1);
-            }
-        }
 #endif
 
         protected bool ManualLanguageApply { get; set; }
@@ -92,10 +86,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
-        protected GreenshotForm()
-        {
-            DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
-        }
+        protected GreenshotForm() => DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
 
         /// <summary>
         /// This is the basic DpiChangedHandler responsible for all the DPI relative changes
@@ -148,19 +139,16 @@ namespace Greenshot.Base.Controls
         /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (DesignMode)
+            if (DesignMode && !_isDesignModeLanguageSet)
             {
-                if (!_isDesignModeLanguageSet)
+                _isDesignModeLanguageSet = true;
+                try
                 {
-                    _isDesignModeLanguageSet = true;
-                    try
-                    {
-                        ApplyLanguage();
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
+                    ApplyLanguage();
+                }
+                catch (Exception)
+                {
+                    // ignored
                 }
             }
 
@@ -215,13 +203,10 @@ namespace Greenshot.Base.Controls
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            if (!DesignMode && !ManualStoreFields)
+            if (!DesignMode && !ManualStoreFields && DialogResult == DialogResult.OK)
             {
-                if (DialogResult == DialogResult.OK)
-                {
-                    LOG.Info("Form was closed with OK: storing field values.");
-                    StoreFields();
-                }
+                LOG.Info("Form was closed with OK: storing field values.");
+                StoreFields();
             }
 
             base.OnClosed(e);

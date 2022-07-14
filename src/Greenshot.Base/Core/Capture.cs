@@ -97,10 +97,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public void NullImage()
-        {
-            _image = null;
-        }
+        public void NullImage() => _image = null;
 
         private Icon _cursor;
 
@@ -162,10 +159,7 @@ namespace Greenshot.Base.Core
         /// Note: the supplied bitmap can be disposed immediately or when constructor is called.
         /// </summary>
         /// <param name="newImage">Image</param>
-        public Capture(Image newImage) : this()
-        {
-            Image = newImage;
-        }
+        public Capture(Image newImage) : this() => Image = newImage;
 
         /// <summary>
         /// Destructor
@@ -234,10 +228,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="x">x coordinates to move the mouse</param>
         /// <param name="y">y coordinates to move the mouse</param>
-        public void MoveMouseLocation(int x, int y)
-        {
-            CursorLocation = CursorLocation.Offset(x, y);
-        }
+        public void MoveMouseLocation(int x, int y) => CursorLocation = CursorLocation.Offset(x, y);
 
         // TODO: Enable when the elements are usable again.
         ///// <summary>

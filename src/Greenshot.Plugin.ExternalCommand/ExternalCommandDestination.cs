@@ -47,10 +47,7 @@ namespace Greenshot.Plugin.ExternalCommand
         private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
         private readonly string _presetCommand;
 
-        public ExternalCommandDestination(string commando)
-        {
-            _presetCommand = commando;
-        }
+        public ExternalCommandDestination(string commando) => _presetCommand = commando;
 
         public override string Designation => "External " + _presetCommand.Replace(',', '_');
 
@@ -83,7 +80,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 string error;
                 if (runInBackground)
                 {
-                    Thread commandThread = new(delegate ()
+                    Thread commandThread = new(() =>
                     {
                         CallExternalCommand(exportInformation, fullPath, out output, out error);
                         ProcessExport(exportInformation, surface);
@@ -264,9 +261,6 @@ namespace Greenshot.Plugin.ExternalCommand
             return -1;
         }
 
-        public static string FormatArguments(string arguments, string fullpath)
-        {
-            return string.Format(arguments, fullpath);
-        }
+        public static string FormatArguments(string arguments, string fullpath) => string.Format(arguments, fullpath);
     }
 }

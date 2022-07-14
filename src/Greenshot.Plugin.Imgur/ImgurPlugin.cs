@@ -146,14 +146,7 @@ namespace Greenshot.Plugin.Imgur
                         return;
                     }
 
-                    if (_config?.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0)
-                    {
-                        historyMenuItem.Enabled = true;
-                    }
-                    else
-                    {
-                        historyMenuItem.Enabled = false;
-                    }
+                    historyMenuItem.Enabled = _config?.ImgurUploadHistory != null && _config.ImgurUploadHistory.Count > 0;
                 });
             }
             catch (Exception ex)
@@ -171,10 +164,7 @@ namespace Greenshot.Plugin.Imgur
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public virtual void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public virtual void Configure() => _config.ShowConfigDialog();
 
         /// <summary>
         /// Upload the capture to imgur
@@ -216,14 +206,7 @@ namespace Greenshot.Plugin.Imgur
 
                     IniConfig.Save();
 
-                    if (_config.UsePageLink)
-                    {
-                        uploadUrl = imgurInfo.Page;
-                    }
-                    else
-                    {
-                        uploadUrl = imgurInfo.Original;
-                    }
+                    uploadUrl = _config.UsePageLink ? imgurInfo.Page : imgurInfo.Original;
 
                     if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
                     {

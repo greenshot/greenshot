@@ -27,9 +27,7 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        public static void Initialize()
-        {
-            SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
+        public static void Initialize() => SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
                     new DefaultFileFormatHandler(),
                     // Greenshot format
@@ -45,6 +43,5 @@ namespace Greenshot.Editor
                     // JPG XR
                     new WpfFileFormatHandler()
                 );
-        }
     }
 }

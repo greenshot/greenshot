@@ -37,10 +37,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class LineContainer : DrawableContainer
     {
-        public LineContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public LineContainer(ISurface parent) : base(parent) => Init();
 
         protected override void InitializeFields()
         {
@@ -49,10 +46,7 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.SHADOW, true);
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
-        }
+        protected override void OnDeserialized(StreamingContext context) => Init();
 
         protected void Init()
         {
@@ -114,9 +108,6 @@ namespace Greenshot.Editor.Drawing
             return false;
         }
 
-        protected override IDoubleProcessor GetAngleRoundProcessor()
-        {
-            return LineAngleRoundBehavior.INSTANCE;
-        }
+        protected override IDoubleProcessor GetAngleRoundProcessor() => LineAngleRoundBehavior.INSTANCE;
     }
 }

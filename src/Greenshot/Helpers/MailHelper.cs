@@ -497,15 +497,9 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Adds the specified recipient to this collection.
         /// </summary>
-        public void Add(Recipient value)
-        {
-            List.Add(value);
-        }
+        public void Add(Recipient value) => List.Add(value);
 
-        internal InteropRecipientCollection GetInteropRepresentation()
-        {
-            return new InteropRecipientCollection(this);
-        }
+        internal InteropRecipientCollection GetInteropRepresentation() => new(this);
 
         /// <summary>
         /// Struct which contains an interop representation of a colleciton of recipients.

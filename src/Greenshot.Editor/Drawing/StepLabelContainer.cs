@@ -50,10 +50,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         // Used to store the counter start of the Surface, as the surface is NOT stored.
         private int _counterStart = 1;
@@ -128,10 +125,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// This makes it possible for the label to be placed exactly in the middle of the pointer.
         /// </summary>
-        public override bool HandleMouseDown(int mouseX, int mouseY)
-        {
-            return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
-        }
+        public override bool HandleMouseDown(int mouseX, int mouseY) => base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
 
         /// <summary>
         /// We set our own field values

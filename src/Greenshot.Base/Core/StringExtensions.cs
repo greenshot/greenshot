@@ -41,10 +41,7 @@ namespace Greenshot.Base.Core
         /// <param name="format">String with formatting, like {name}</param>
         /// <param name="source">Object used for the formatting</param>
         /// <returns>Formatted string</returns>
-        public static string FormatWith(this string format, object source)
-        {
-            return FormatWith(format, null, source);
-        }
+        public static string FormatWith(this string format, object source) => FormatWith(format, null, source);
 
         /// <summary>
         /// Format the string "format" with the source
@@ -85,7 +82,7 @@ namespace Greenshot.Base.Core
                 RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
             List<object> values = new();
-            string rewrittenFormat = r.Replace(format, delegate (Match m)
+            string rewrittenFormat = r.Replace(format, (Match m) =>
             {
                 Group startGroup = m.Groups["start"];
                 Group propertyGroup = m.Groups["property"];

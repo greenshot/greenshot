@@ -48,13 +48,7 @@ namespace Greenshot.Plugin.Photobucket
 
         public override string Designation => "Photobucket";
 
-        public override string Description
-        {
-            get
-            {
-                return _albumPath ?? Language.GetString("photobucket", LangKey.upload_menu_item);
-            }
-        }
+        public override string Description => _albumPath ?? Language.GetString("photobucket", LangKey.upload_menu_item);
 
         public override Image DisplayIcon
         {

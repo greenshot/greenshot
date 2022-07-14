@@ -105,15 +105,9 @@ namespace Greenshot.Plugin.GooglePhotos
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
+        public void Configure() => _config.ShowConfigDialog();
 
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            Configure();
-        }
+        public void ConfigMenuClick(object sender, EventArgs eventArgs) => Configure();
 
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {

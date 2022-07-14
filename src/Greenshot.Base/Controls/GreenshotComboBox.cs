@@ -37,10 +37,7 @@ namespace Greenshot.Base.Controls
         [Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
         public string PropertyName { get; set; }
 
-        public GreenshotComboBox()
-        {
-            SelectedIndexChanged += delegate { StoreSelectedEnum(); };
-        }
+        public GreenshotComboBox() => SelectedIndexChanged += delegate { StoreSelectedEnum(); };
 
         public void SetValue(Enum currentValue)
         {
@@ -108,9 +105,6 @@ namespace Greenshot.Base.Controls
         /// Get the selected enum value from the combobox, uses generics
         /// </summary>
         /// <returns>The enum value of the combobox</returns>
-        public Enum GetSelectedEnum()
-        {
-            return _selectedEnum;
-        }
+        public Enum GetSelectedEnum() => _selectedEnum;
     }
 }

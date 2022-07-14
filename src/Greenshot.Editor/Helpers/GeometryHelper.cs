@@ -56,9 +56,6 @@ namespace Greenshot.Editor.Helpers
         /// <param name="y1">The point on the y-axis of the first point</param>
         /// <param name="y2">The point on the y-axis of the second point</param>
         /// <returns></returns>
-        public static double Angle2D(int x1, int y1, int x2, int y2)
-        {
-            return Math.Atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        }
+        public static double Angle2D(int x1, int y1, int x2, int y2) => Math.Atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
     }
 }

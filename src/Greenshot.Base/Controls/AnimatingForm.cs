@@ -54,17 +54,15 @@ namespace Greenshot.Base.Controls
         /// </summary>
         /// <param name="milliseconds"></param>
         /// <returns>Number of frames, 1 if in Terminal Server Session</returns>
-        protected int FramesForMillis(int milliseconds)
-        {
+        protected int FramesForMillis(int milliseconds) =>
             // If we are in a Terminal Server Session we return 1
-            return IsTerminalServerSession ? 1 : milliseconds / VRefresh;
-        }
+            IsTerminalServerSession ? 1 : milliseconds / VRefresh;
 
         /// <summary>
         /// Calculate the interval for the timer to animate the frames
         /// </summary>
         /// <returns>Milliseconds for the interval</returns>
-        protected int Interval() => (int)1000 / VRefresh;
+        protected int Interval() => 1000 / VRefresh;
 
         /// <summary>
         /// Initialize the animation
@@ -114,9 +112,6 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// This method will be called every frame, so implement your animation/redraw logic here.
         /// </summary>
-        protected virtual void Animate()
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual void Animate() => throw new NotImplementedException();
     }
 }

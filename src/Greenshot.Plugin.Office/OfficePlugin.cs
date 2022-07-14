@@ -140,17 +140,11 @@ namespace Greenshot.Plugin.Office
             return true;
         }
 
-        public void Shutdown()
-        {
-            LOG.Debug("Office Plugin shutdown.");
-        }
+        public void Shutdown() => LOG.Debug("Office Plugin shutdown.");
 
         /// <summary>
         /// Implementation of the IPlugin.Configure
         /// </summary>
-        public void Configure()
-        {
-            throw new NotImplementedException();
-        }
+        public void Configure() => throw new NotImplementedException();
     }
 }

@@ -88,10 +88,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Start the background task which checks for updates
         /// </summary>
-        public void Startup()
-        {
-            _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
-        }
+        public void Startup() => _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
 
         /// <summary>
         /// This runs a periodic task in the background

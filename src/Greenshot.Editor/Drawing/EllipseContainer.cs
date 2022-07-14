@@ -38,10 +38,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class EllipseContainer : DrawableContainer
     {
-        public EllipseContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public EllipseContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -49,10 +46,7 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
         protected override void InitializeFields()
         {
@@ -124,10 +118,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override bool Contains(int x, int y)
-        {
-            return EllipseContains(this, x, y);
-        }
+        public override bool Contains(int x, int y) => EllipseContains(this, x, y);
 
         /// <summary>
         /// Allow the code to be used externally
@@ -141,7 +132,7 @@ namespace Greenshot.Editor.Drawing
             double xDistanceFromCenter = x - (caller.Left + (caller.Width / 2));
             double yDistanceFromCenter = y - (caller.Top + (caller.Height / 2));
             // ellipse: x^2/a^2 + y^2/b^2 = 1
-            return (Math.Pow(xDistanceFromCenter, 2) / Math.Pow(caller.Width / 2, 2)) + (Math.Pow(yDistanceFromCenter, 2) / Math.Pow(caller.Height / 2, 2)) < 1;
+            return (Math.Pow(xDistanceFromCenter, 2) / Math.Pow(caller.Width / 2F, 2)) + (Math.Pow(yDistanceFromCenter, 2) / Math.Pow(caller.Height / 2, 2)) < 1;
         }
 
         public override bool ClickableAt(int x, int y)
@@ -155,12 +146,9 @@ namespace Greenshot.Editor.Drawing
         public static bool EllipseClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
         {
             // If we clicked inside the rectangle and it's visible we are clickable at.
-            if (!Color.Transparent.Equals(fillColor))
+            if (!Color.Transparent.Equals(fillColor) && rect.Contains(x, y))
             {
-                if (rect.Contains(x, y))
-                {
-                    return true;
-                }
+                return true;
             }
 
             // check the rest of the lines

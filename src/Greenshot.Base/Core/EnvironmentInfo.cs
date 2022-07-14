@@ -54,11 +54,9 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public static bool IsNet45OrNewer()
-        {
+        public static bool IsNet45OrNewer() =>
             // Class "ReflectionContext" exists from .NET 4.5 onwards.
-            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
-        }
+            Type.GetType("System.Reflection.ReflectionContext", false) != null;
 
         public static string GetGreenshotVersion(bool shortVersion = false)
         {
@@ -304,84 +302,82 @@ namespace Greenshot.Base.Core
                     var productType = osVersionInfo.ProductType;
                     var suiteMask = osVersionInfo.SuiteMask;
 
-                    if (majorVersion == 4)
+                    switch (majorVersion)
                     {
-                        if (productType == WindowsProductTypes.VER_NT_WORKSTATION)
-                        {
-                            // Windows NT 4.0 Workstation
-                            edition = "Workstation";
-                        }
-                        else if (productType == WindowsProductTypes.VER_NT_SERVER)
-                        {
-                            edition = (suiteMask & WindowsSuites.Enterprise) != 0 ? "Enterprise Server" : "Standard Server";
-                        }
-                    }
-                    else if (majorVersion == 5)
-                    {
-                        if (productType == WindowsProductTypes.VER_NT_WORKSTATION)
-                        {
-                            if ((suiteMask & WindowsSuites.Personal) != 0)
+                        case 4:
+                            if (productType == WindowsProductTypes.VER_NT_WORKSTATION)
                             {
-                                // Windows XP Home Edition
-                                edition = "Home";
+                                // Windows NT 4.0 Workstation
+                                edition = "Workstation";
                             }
-                            else
+                            else if (productType == WindowsProductTypes.VER_NT_SERVER)
                             {
-                                // Windows XP / Windows 2000 Professional
-                                edition = "Professional";
+                                edition = (suiteMask & WindowsSuites.Enterprise) != 0 ? "Enterprise Server" : "Standard Server";
                             }
-                        }
-                        else if (productType == WindowsProductTypes.VER_NT_SERVER)
-                        {
-                            if (minorVersion == 0)
+                            break;
+                        case 5:
+                            if (productType == WindowsProductTypes.VER_NT_WORKSTATION)
                             {
-                                if ((suiteMask & WindowsSuites.DataCenter) != 0)
+                                if ((suiteMask & WindowsSuites.Personal) != 0)
                                 {
-                                    // Windows 2000 Datacenter Server
-                                    edition = "Datacenter Server";
-                                }
-                                else if ((suiteMask & WindowsSuites.Enterprise) != 0)
-                                {
-                                    // Windows 2000 Advanced Server
-                                    edition = "Advanced Server";
+                                    // Windows XP Home Edition
+                                    edition = "Home";
                                 }
                                 else
                                 {
-                                    // Windows 2000 Server
-                                    edition = "Server";
+                                    // Windows XP / Windows 2000 Professional
+                                    edition = "Professional";
                                 }
                             }
-                            else
+                            else if (productType == WindowsProductTypes.VER_NT_SERVER)
                             {
-                                if ((suiteMask & WindowsSuites.DataCenter) != 0)
+                                switch (minorVersion)
                                 {
-                                    // Windows Server 2003 Datacenter Edition
-                                    edition = "Datacenter";
-                                }
-                                else if ((suiteMask & WindowsSuites.Enterprise) != 0)
-                                {
-                                    // Windows Server 2003 Enterprise Edition
-                                    edition = "Enterprise";
-                                }
-                                else if ((suiteMask & WindowsSuites.Blade) != 0)
-                                {
-                                    // Windows Server 2003 Web Edition
-                                    edition = "Web Edition";
-                                }
-                                else
-                                {
-                                    // Windows Server 2003 Standard Edition
-                                    edition = "Standard";
+                                    case 0:
+                                        if ((suiteMask & WindowsSuites.DataCenter) != 0)
+                                        {
+                                            // Windows 2000 Datacenter Server
+                                            edition = "Datacenter Server";
+                                        }
+                                        else if ((suiteMask & WindowsSuites.Enterprise) != 0)
+                                        {
+                                            // Windows 2000 Advanced Server
+                                            edition = "Advanced Server";
+                                        }
+                                        else
+                                        {
+                                            // Windows 2000 Server
+                                            edition = "Server";
+                                        }
+                                        break;
+                                    default:
+                                        if ((suiteMask & WindowsSuites.DataCenter) != 0)
+                                        {
+                                            // Windows Server 2003 Datacenter Edition
+                                            edition = "Datacenter";
+                                        }
+                                        else if ((suiteMask & WindowsSuites.Enterprise) != 0)
+                                        {
+                                            // Windows Server 2003 Enterprise Edition
+                                            edition = "Enterprise";
+                                        }
+                                        else if ((suiteMask & WindowsSuites.Blade) != 0)
+                                        {
+                                            // Windows Server 2003 Web Edition
+                                            edition = "Web Edition";
+                                        }
+                                        else
+                                        {
+                                            // Windows Server 2003 Standard Edition
+                                            edition = "Standard";
+                                        }
+                                        break;
                                 }
                             }
-                        }
-                    }
-                    else if (majorVersion == 6)
-                    {
-                        if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var windowsProduct))
-                        {
+                            break;
+                        case 6 when Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var windowsProduct):
                             edition = windowsProduct.GetEnumDescription();
-                        }
+                            break;
                     }
                 }
 
@@ -423,14 +419,7 @@ namespace Greenshot.Base.Core
                                 switch (minorVersion)
                                 {
                                     case 0:
-                                        if (csdVersion == "B" || csdVersion == "C")
-                                        {
-                                            name = "Windows 95 OSR2";
-                                        }
-                                        else
-                                        {
-                                            name = "Windows 95";
-                                        }
+                                        name = csdVersion == "B" || csdVersion == "C" ? "Windows 95 OSR2" : "Windows 95";
 
                                         break;
                                     case 10:

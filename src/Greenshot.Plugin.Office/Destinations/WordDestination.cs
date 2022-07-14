@@ -57,10 +57,7 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public WordDestination(string wordCaption)
-        {
-            _documentCaption = wordCaption;
-        }
+        public WordDestination(string wordCaption) => _documentCaption = wordCaption;
 
         public override string Designation => "Word";
 

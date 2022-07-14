@@ -47,30 +47,15 @@ namespace Greenshot.Helpers
     {
         public List<KeyValuePair<CommandEnum, string>> Commands { get; }
 
-        public CopyDataTransport()
-        {
-            Commands = new List<KeyValuePair<CommandEnum, string>>();
-        }
+        public CopyDataTransport() => Commands = new List<KeyValuePair<CommandEnum, string>>();
 
-        public CopyDataTransport(CommandEnum command) : this()
-        {
-            AddCommand(command, null);
-        }
+        public CopyDataTransport(CommandEnum command) : this() => AddCommand(command, null);
 
-        public CopyDataTransport(CommandEnum command, string commandData) : this()
-        {
-            AddCommand(command, commandData);
-        }
+        public CopyDataTransport(CommandEnum command, string commandData) : this() => AddCommand(command, commandData);
 
-        public void AddCommand(CommandEnum command)
-        {
-            Commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
-        }
+        public void AddCommand(CommandEnum command) => Commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
 
-        public void AddCommand(CommandEnum command, string commandData)
-        {
-            Commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
-        }
+        public void AddCommand(CommandEnum command, string commandData) => Commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
     }
 
     public delegate void CopyDataReceivedEventHandler(object sender, CopyDataReceivedEventArgs e);
@@ -147,10 +132,7 @@ namespace Greenshot.Helpers
         /// Raises the DataReceived event from this class.
         /// </summary>
         /// <param name="e">The data which has been received.</param>
-        protected void OnCopyDataReceived(CopyDataReceivedEventArgs e)
-        {
-            CopyDataReceived?.Invoke(this, e);
-        }
+        protected void OnCopyDataReceived(CopyDataReceivedEventArgs e) => CopyDataReceived?.Invoke(this, e);
 
         /// <summary>
         /// If the form's handle changes, the properties associated
@@ -191,10 +173,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Constructs a new instance of the CopyData class
         /// </summary>
-        public CopyData()
-        {
-            _channels = new CopyDataChannels(this);
-        }
+        public CopyData() => _channels = new CopyDataChannels(this);
 
         /// <summary>
         /// Finalises a CopyData class which has not been disposed.
@@ -264,10 +243,7 @@ namespace Greenshot.Helpers
         /// </summary>
         /// <returns>An enumerator for each of the CopyDataChannel objects
         /// within this collection.</returns>
-        public new IEnumerator GetEnumerator()
-        {
-            return Dictionary.Values.GetEnumerator();
-        }
+        public new IEnumerator GetEnumerator() => Dictionary.Values.GetEnumerator();
 
         /// <summary>
         /// Returns the CopyDataChannel at the specified 0-based index.
@@ -310,19 +286,13 @@ namespace Greenshot.Helpers
         /// Removes an existing channel.
         /// </summary>
         /// <param name="channelName">The channel to remove</param>
-        public void Remove(string channelName)
-        {
-            Dictionary.Remove(channelName);
-        }
+        public void Remove(string channelName) => Dictionary.Remove(channelName);
 
         /// <summary>
         /// Gets/sets whether this channel contains a CopyDataChannel
         /// for the specified channelName.
         /// </summary>
-        public bool Contains(string channelName)
-        {
-            return Dictionary.Contains(channelName);
-        }
+        public bool Contains(string channelName) => Dictionary.Contains(channelName);
 
         /// <summary>
         /// Ensures the resources associated with a CopyDataChannel
@@ -372,10 +342,7 @@ namespace Greenshot.Helpers
         /// </summary>
         /// <param name="owner">The NativeWindow this collection
         /// will be associated with</param>
-        internal CopyDataChannels(NativeWindow owner)
-        {
-            _owner = owner;
-        }
+        internal CopyDataChannels(NativeWindow owner) => _owner = owner;
     }
 
     /// <summary>
@@ -461,19 +428,16 @@ namespace Greenshot.Helpers
                 // the channel:
                 foreach (WindowDetails window in WindowDetails.GetAllWindows())
                 {
-                    if (!window.Handle.Equals(_owner.Handle))
+                    if (!window.Handle.Equals(_owner.Handle) && GetProp(window.Handle, ChannelName) != IntPtr.Zero)
                     {
-                        if (GetProp(window.Handle, ChannelName) != IntPtr.Zero)
+                        COPYDATASTRUCT cds = new()
                         {
-                            COPYDATASTRUCT cds = new()
-                            {
-                                cbData = dataSize,
-                                dwData = IntPtr.Zero,
-                                lpData = ptrData
-                            };
-                            SendMessage(window.Handle, WM_COPYDATA, _owner.Handle, ref cds);
-                            recipients += Marshal.GetLastWin32Error() == 0 ? 1 : 0;
-                        }
+                            cbData = dataSize,
+                            dwData = IntPtr.Zero,
+                            lpData = ptrData
+                        };
+                        SendMessage(window.Handle, WM_COPYDATA, _owner.Handle, ref cds);
+                        recipients += Marshal.GetLastWin32Error() == 0 ? 1 : 0;
                     }
                 }
 
@@ -486,17 +450,13 @@ namespace Greenshot.Helpers
             return recipients;
         }
 
-        private void AddChannel()
-        {
+        private void AddChannel() =>
             // Tag this window with property "channelName"
             SetProp(_owner.Handle, ChannelName, _owner.Handle);
-        }
 
-        private void RemoveChannel()
-        {
+        private void RemoveChannel() =>
             // Remove the "channelName" property from this window
             RemoveProp(_owner.Handle, ChannelName);
-        }
 
         /// <summary>
         /// If the form's handle changes, the properties associated

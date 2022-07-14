@@ -164,29 +164,26 @@ namespace Greenshot.Editor.Drawing.Fields
         private IList<IField> FindCommonFields()
         {
             IList<IField> returnFields = null;
-            if (_boundContainers.Count > 0)
+            // take all fields from the least selected container...
+            if (_boundContainers.Count > 0 && _boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer)
             {
-                // take all fields from the least selected container...
-                if (_boundContainers[_boundContainers.Count - 1] is DrawableContainer leastSelectedContainer)
+                returnFields = leastSelectedContainer.GetFields();
+                for (int i = 0; i < _boundContainers.Count - 1; i++)
                 {
-                    returnFields = leastSelectedContainer.GetFields();
-                    for (int i = 0; i < _boundContainers.Count - 1; i++)
+                    if (_boundContainers[i] is not DrawableContainer dc) continue;
+                    IList<IField> fieldsToRemove = new List<IField>();
+                    foreach (IField field in returnFields)
                     {
-                        if (_boundContainers[i] is not DrawableContainer dc) continue;
-                        IList<IField> fieldsToRemove = new List<IField>();
-                        foreach (IField field in returnFields)
+                        // ... throw out those that do not apply to one of the other containers
+                        if (!dc.HasField(field.FieldType))
                         {
-                            // ... throw out those that do not apply to one of the other containers
-                            if (!dc.HasField(field.FieldType))
-                            {
-                                fieldsToRemove.Add(field);
-                            }
+                            fieldsToRemove.Add(field);
                         }
+                    }
 
-                        foreach (var field in fieldsToRemove)
-                        {
-                            returnFields.Remove(field);
-                        }
+                    foreach (var field in fieldsToRemove)
+                    {
+                        returnFields.Remove(field);
                     }
                 }
             }

@@ -78,10 +78,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        internal static bool IsIgnoreHandle(IntPtr handle)
-        {
-            return IgnoreHandles.Contains(handle);
-        }
+        internal static bool IsIgnoreHandle(IntPtr handle) => IgnoreHandles.Contains(handle);
 
         private IList<WindowDetails> _childWindows;
         private IntPtr _parentHandle = IntPtr.Zero;
@@ -106,15 +103,9 @@ namespace Greenshot.Base.Core
         /// objects for the same Window will be equal.
         /// </summary>
         /// <returns>The Window Handle for this window</returns>
-        public override int GetHashCode()
-        {
-            return Handle.ToInt32();
-        }
+        public override int GetHashCode() => Handle.ToInt32();
 
-        public override bool Equals(object right)
-        {
-            return Equals(right as WindowDetails);
-        }
+        public override bool Equals(object right) => Equals(right as WindowDetails);
 
         /// <summary>
         /// Compare two windows details
@@ -144,18 +135,12 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Freeze information updates
         /// </summary>
-        public void FreezeDetails()
-        {
-            _frozen = true;
-        }
+        public void FreezeDetails() => _frozen = true;
 
         /// <summary>
         /// Make the information update again.
         /// </summary>
-        public void UnfreezeDetails()
-        {
-            _frozen = false;
-        }
+        public void UnfreezeDetails() => _frozen = false;
 
         /// <summary>
         /// Get the file path to the exe for the process which owns this window
@@ -270,19 +255,13 @@ namespace Greenshot.Base.Core
         /// Use this to make remove internal windows, like the mainform and the captureforms, invisible
         /// </summary>
         /// <param name="ignoreHandle"></param>
-        public static void RegisterIgnoreHandle(IntPtr ignoreHandle)
-        {
-            IgnoreHandles.Add(ignoreHandle);
-        }
+        public static void RegisterIgnoreHandle(IntPtr ignoreHandle) => IgnoreHandles.Add(ignoreHandle);
 
         /// <summary>
         /// Use this to remove the with RegisterIgnoreHandle registered handle
         /// </summary>
         /// <param name="ignoreHandle"></param>
-        public static void UnregisterIgnoreHandle(IntPtr ignoreHandle)
-        {
-            IgnoreHandles.Remove(ignoreHandle);
-        }
+        public static void UnregisterIgnoreHandle(IntPtr ignoreHandle) => IgnoreHandles.Remove(ignoreHandle);
 
         public IList<WindowDetails> Children
         {
@@ -302,12 +281,11 @@ namespace Greenshot.Base.Core
         /// </summary>
         public WindowDetails GetChild(string childClassname)
         {
-            foreach (var child in Children)
+            foreach (var child in from child in Children
+                                  where childClassname.Equals(child.ClassName)
+                                  select child)
             {
-                if (childClassname.Equals(child.ClassName))
-                {
-                    return child;
-                }
+                return child;
             }
 
             return null;
@@ -361,10 +339,7 @@ namespace Greenshot.Base.Core
         /// Retrieve all the children, this only stores the children internally.
         /// One should normally use the getter "Children"
         /// </summary>
-        public IList<WindowDetails> GetChildren()
-        {
-            return _childWindows ?? GetChildren(0);
-        }
+        public IList<WindowDetails> GetChildren() => _childWindows ?? GetChildren(0);
 
         /// <summary>
         /// Retrieve all the children, this only stores the children internally, use the "Children" property for the value
@@ -467,22 +442,14 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Returns if this window is cloaked
         /// </summary>
-        public bool IsCloaked
-        {
-            get => DwmApi.IsWindowCloaked(Handle);
-        }
+        public bool IsCloaked => DwmApi.IsWindowCloaked(Handle);
 
         /// <summary>
         /// Gets whether the window is visible.
         /// </summary>
-        public bool Visible
-        {
-            get
-            {
+        public bool Visible =>
                 // Tip from Raymond Chen https://devblogs.microsoft.com/oldnewthing/20200302-00/?p=103507
-                return !IsCloaked && User32Api.IsWindowVisible(Handle);
-            }
-        }
+                !IsCloaked && User32Api.IsWindowVisible(Handle);
 
         public bool HasParent
         {
@@ -543,14 +510,11 @@ namespace Greenshot.Base.Core
                 if (DwmApi.IsDwmEnabled)
                 {
                     bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
-                    if (IsWin10App)
+                    // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
+                    if (IsWin10App && gotFrameBounds)
                     {
-                        // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
-                        if (gotFrameBounds)
-                        {
-                            _previousWindowRectangle = windowRect;
-                            _lastWindowRectangleRetrieveTime = now;
-                        }
+                        _previousWindowRectangle = windowRect;
+                        _lastWindowRectangleRetrieveTime = now;
                     }
 
                     if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
@@ -564,13 +528,10 @@ namespace Greenshot.Base.Core
                     }
                 }
 
-                if (windowRect.IsEmpty)
+                if (windowRect.IsEmpty && !GetWindowRect(out windowRect))
                 {
-                    if (!GetWindowRect(out windowRect))
-                    {
-                        Win32Error error = Win32.GetLastErrorCode();
-                        Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
-                    }
+                    Win32Error error = Win32.GetLastErrorCode();
+                    Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
                 }
 
                 _lastWindowRectangleRetrieveTime = now;
@@ -588,18 +549,12 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Gets the location of the window relative to the screen.
         /// </summary>
-        public NativePoint Location
-        {
-            get => WindowRectangle.Location;
-        }
+        public NativePoint Location => WindowRectangle.Location;
 
         /// <summary>
         /// Gets the size of the window.
         /// </summary>
-        public NativeSize Size
-        {
-            get => WindowRectangle.Size;
-        }
+        public NativeSize Size => WindowRectangle.Size;
 
         /// <summary>
         /// Get the client rectangle, this is the part of the window inside the borders (drawable area)
@@ -623,10 +578,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="p">Point with the coordinates to check</param>
         /// <returns>true if the point lies within</returns>
-        public bool Contains(NativePoint p)
-        {
-            return WindowRectangle.Contains(p);
-        }
+        public bool Contains(NativePoint p) => WindowRectangle.Contains(p);
 
         /// <summary>
         /// Restores and Brings the window to the front,
@@ -796,18 +748,15 @@ namespace Greenshot.Base.Core
                         captureRectangle = captureRectangle.Inflate(Conf.Win10BorderCrop);
                     }
 
-                    if (autoMode)
+                    // check if the capture fits
+                    if (autoMode && !doesCaptureFit)
                     {
-                        // check if the capture fits
-                        if (!doesCaptureFit)
+                        // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
+                        using Process thisWindowProcess = Process;
+                        if (WindowCapture.IsGdiAllowed(thisWindowProcess))
                         {
-                            // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-                            using Process thisWindowProcess = Process;
-                            if (WindowCapture.IsGdiAllowed(thisWindowProcess))
-                            {
-                                // we return null which causes the capturing code to try another method.
-                                return null;
-                            }
+                            // we return null which causes the capturing code to try another method.
+                            return null;
                         }
                     }
                 }
@@ -894,26 +843,20 @@ namespace Greenshot.Base.Core
                         capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
                     }
 
-                    if (capturedBitmap != null)
+                    // Only if the Inivalue is set, not maximized and it's not a tool window.
+                    // Not needed for Windows 8
+                    if (capturedBitmap != null && !WindowsVersion.IsWindows8OrLater && Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
                     {
-                        // Not needed for Windows 8
-                        if (!WindowsVersion.IsWindows8OrLater)
+                        // Remove corners
+                        if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
                         {
-                            // Only if the Inivalue is set, not maximized and it's not a tool window.
-                            if (Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
-                            {
-                                // Remove corners
-                                if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
-                                {
-                                    Log.Debug("Changing pixelformat to Alpha for the RemoveCorners");
-                                    Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
-                                    capturedBitmap.Dispose();
-                                    capturedBitmap = tmpBitmap;
-                                }
-
-                                RemoveCorners(capturedBitmap);
-                            }
+                            Log.Debug("Changing pixelformat to Alpha for the RemoveCorners");
+                            Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
+                            capturedBitmap.Dispose();
+                            capturedBitmap = tmpBitmap;
                         }
+
+                        RemoveCorners(capturedBitmap);
                     }
                 }
                 finally
@@ -1076,14 +1019,7 @@ namespace Greenshot.Base.Core
             var windowInfo = new WindowInfo();
             // Get the Window Info for this window
             bool result = User32Api.GetWindowInfo(Handle, ref windowInfo);
-            if (IsHidden(windowInfo.Bounds))
-            {
-                rectangle = NativeRect.Empty;
-            }
-            else
-            {
-                rectangle = result ? windowInfo.Bounds : NativeRect.Empty;
-            }
+            rectangle = IsHidden(windowInfo.Bounds) ? NativeRect.Empty : result ? windowInfo.Bounds : NativeRect.Empty;
             return result;
         }
 
@@ -1146,10 +1082,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Set the window as foreground window
         /// </summary>
-        public void ToForeground()
-        {
-            ToForeground(Handle);
-        }
+        public void ToForeground() => ToForeground(Handle);
 
         /// <summary>
         /// Get the region for a window
@@ -1178,7 +1111,7 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            if (titleOrProcessname.ToLower().Contains("greenshot"))
+            if (titleOrProcessname.IndexOf("greenshot", StringComparison.CurrentCultureIgnoreCase) >= 0)
             {
                 return false;
             }
@@ -1339,10 +1272,7 @@ namespace Greenshot.Base.Core
         ///  the specified Window Handle.
         /// </summary>
         /// <param name="hWnd">The Window Handle</param>
-        public WindowDetails(IntPtr hWnd)
-        {
-            Handle = hWnd;
-        }
+        public WindowDetails(IntPtr hWnd) => Handle = hWnd;
 
         /// <summary>
         /// Gets an instance of the current active foreground window
@@ -1370,28 +1300,19 @@ namespace Greenshot.Base.Core
         /// Gets the Desktop window
         /// </summary>
         /// <returns>WindowDetails for the desktop window</returns>
-        public static WindowDetails GetDesktopWindow()
-        {
-            return new WindowDetails(User32Api.GetDesktopWindow());
-        }
+        public static WindowDetails GetDesktopWindow() => new(User32Api.GetDesktopWindow());
 
         /// <summary>
         /// Get all the top level windows
         /// </summary>
         /// <returns>List of WindowDetails with all the top level windows</returns>
-        public static IList<WindowDetails> GetAllWindows()
-        {
-            return GetAllWindows(null);
-        }
+        public static IList<WindowDetails> GetAllWindows() => GetAllWindows(null);
 
         /// <summary>
         /// Get all the top level windows, with matching classname
         /// </summary>
         /// <returns>List WindowDetails with all the top level windows</returns>
-        public static IList<WindowDetails> GetAllWindows(string classname)
-        {
-            return new WindowsEnumerator().GetWindows(IntPtr.Zero, classname).Items;
-        }
+        public static IList<WindowDetails> GetAllWindows(string classname) => new WindowsEnumerator().GetWindows(IntPtr.Zero, classname).Items;
 
         /// <summary>
         /// Recursive "find children which"
@@ -1618,13 +1539,7 @@ namespace Greenshot.Base.Core
         /// Return true if the metro-app-launcher is visible
         /// </summary>
         /// <returns></returns>
-        public static bool IsAppLauncherVisible
-        {
-            get
-            {
-                return AppVisibility != null && AppVisibility.IsLauncherVisible;
-            }
-        }
+        public static bool IsAppLauncherVisible => AppVisibility?.IsLauncherVisible == true;
 
         /// <summary>
         /// Make a string representation of the window details

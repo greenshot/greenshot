@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using System.Linq;
 
 namespace Greenshot.Base.Controls
 {
@@ -52,14 +53,13 @@ namespace Greenshot.Base.Controls
         {
             base.Show();
             bool positioned = false;
-            foreach (Screen screen in Screen.AllScreens)
+            foreach (var screen in from Screen screen in Screen.AllScreens
+                                   where screen.Bounds.Contains(Cursor.Position)
+                                   select screen)
             {
-                if (screen.Bounds.Contains(Cursor.Position))
-                {
-                    positioned = true;
-                    Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (Height / 2));
-                    break;
-                }
+                positioned = true;
+                Location = new Point(screen.Bounds.X + (screen.Bounds.Width / 2) - (Width / 2), screen.Bounds.Y + (screen.Bounds.Height / 2) - (Height / 2));
+                break;
             }
 
             if (!positioned)
@@ -91,9 +91,6 @@ namespace Greenshot.Base.Controls
             Application.DoEvents();
         }
 
-        private void BackgroundFormFormClosing(object sender, FormClosingEventArgs e)
-        {
-            timer_checkforclose.Stop();
-        }
+        private void BackgroundFormFormClosing(object sender, FormClosingEventArgs e) => timer_checkforclose.Stop();
     }
 }

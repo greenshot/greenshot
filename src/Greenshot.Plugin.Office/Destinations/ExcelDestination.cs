@@ -57,10 +57,7 @@ namespace Greenshot.Plugin.Office.Destinations
         {
         }
 
-        public ExcelDestination(string workbookName)
-        {
-            _workbookName = workbookName;
-        }
+        public ExcelDestination(string workbookName) => _workbookName = workbookName;
 
         public override string Designation => "Excel";
 

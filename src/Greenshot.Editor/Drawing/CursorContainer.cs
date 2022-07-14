@@ -42,10 +42,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Cursor cursor;
 
-        public CursorContainer(ISurface parent) : base(parent)
-        {
-            Init();
-        }
+        public CursorContainer(ISurface parent) : base(parent) => Init();
 
         protected override void OnDeserialized(StreamingContext streamingContext)
         {
@@ -53,15 +50,9 @@ namespace Greenshot.Editor.Drawing
             Init();
         }
 
-        private void Init()
-        {
-            CreateDefaultAdorners();
-        }
+        private void Init() => CreateDefaultAdorners();
 
-        public CursorContainer(ISurface parent, string filename) : this(parent)
-        {
-            Load(filename);
-        }
+        public CursorContainer(ISurface parent, string filename) : this(parent) => Load(filename);
 
         public Cursor Cursor
         {

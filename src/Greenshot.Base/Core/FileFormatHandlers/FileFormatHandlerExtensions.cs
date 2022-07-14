@@ -56,10 +56,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// <param name="fileFormatHandlers">IEnumerable{IFileFormatHandler}</param>
         /// <param name="fileFormatHandlerAction"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction)
-        {
-            return fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct().OrderBy(e => e);
-        }
+        public static IEnumerable<string> ExtensionsFor(this IEnumerable<IFileFormatHandler> fileFormatHandlers, FileFormatHandlerActions fileFormatHandlerAction) => fileFormatHandlers.Where(ffh => ffh.SupportedExtensions.ContainsKey(fileFormatHandlerAction)).SelectMany(ffh => ffh.SupportedExtensions[fileFormatHandlerAction]).Distinct().OrderBy(e => e);
 
         /// <summary>
         /// Extension method to check if a certain IFileFormatHandler supports a certain action with a specific extension
@@ -98,12 +95,11 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 return false;
             }
 
-            foreach (var fileFormatHandler in saveFileFormatHandlers)
+            foreach (var _ in from fileFormatHandler in saveFileFormatHandlers
+                              where fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface)
+                              select new { })
             {
-                if (fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;

@@ -20,10 +20,7 @@ namespace Greenshot.Base.Core
             _numberFormatInfo.NumberGroupSeparator = ",";
         }
 
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-        }
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -53,7 +50,7 @@ namespace Greenshot.Base.Core
                     return sb.ToString();
                 }
 
-                if (value.GetType() == typeof(TornEdgeEffect))
+                if (value is TornEdgeEffect)
                 {
                     TornEdgeEffect effect = value as TornEdgeEffect;
                     RetrieveDropShadowEffectValues(effect, sb);
@@ -108,12 +105,9 @@ namespace Greenshot.Base.Core
                 {
                     case "Darkness":
                         // Fix to prevent BUG-1753
-                        if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness))
+                        if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness) && darkness <= 1.0)
                         {
-                            if (darkness <= 1.0)
-                            {
-                                effect.Darkness = darkness;
-                            }
+                            effect.Darkness = darkness;
                         }
 
                         break;
@@ -206,17 +200,12 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb)
-        {
+        private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb) =>
             // Fix to prevent BUG-1753 is to use the numberFormatInfo
             sb.AppendFormat("Darkness:{0}|ShadowSize:{1}|ShadowOffset:{2},{3}", effect.Darkness.ToString("F2", _numberFormatInfo), effect.ShadowSize, effect.ShadowOffset.X,
                 effect.ShadowOffset.Y);
-        }
 
-        private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb)
-        {
-            sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
+        private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb) => sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
                 effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);
-        }
     }
 }

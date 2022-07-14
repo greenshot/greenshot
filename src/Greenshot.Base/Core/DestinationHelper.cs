@@ -37,12 +37,8 @@ namespace Greenshot.Base.Core
         /// Method to get all the destinations from the plugins
         /// </summary>
         /// <returns>List of IDestination</returns>
-        public static IEnumerable<IDestination> GetAllDestinations()
-        {
-            return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
-                .Where(destination => destination.IsActive)
-                .Where(destination => CoreConfig.ExcludeDestinations?.Contains(destination.Designation) != true).OrderBy(p => p.Priority).ThenBy(p => p.Description);
-        }
+        public static IEnumerable<IDestination> GetAllDestinations() => SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                .Where(destination => destination.IsActive && CoreConfig.ExcludeDestinations?.Contains(destination.Designation) != true).OrderBy(p => p.Priority).ThenBy(p => p.Description);
 
         /// <summary>
         /// Get a destination by a designation
@@ -56,12 +52,11 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            foreach (IDestination destination in GetAllDestinations())
+            foreach (var destination in from IDestination destination in GetAllDestinations()
+                                        where designation.Equals(destination.Designation)
+                                        select destination)
             {
-                if (designation.Equals(destination.Designation))
-                {
-                    return destination;
-                }
+                return destination;
             }
 
             return null;
@@ -74,10 +69,7 @@ namespace Greenshot.Base.Core
         /// <param name="designation">WellKnownDestinations</param>
         /// <param name="surface">ISurface</param>
         /// <param name="captureDetails">ICaptureDetails</param>
-        public static ExportInformation ExportCapture(bool manuallyInitiated, WellKnownDestinations designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            return ExportCapture(manuallyInitiated, designation.ToString(), surface, captureDetails);
-        }
+        public static ExportInformation ExportCapture(bool manuallyInitiated, WellKnownDestinations designation, ISurface surface, ICaptureDetails captureDetails) => ExportCapture(manuallyInitiated, designation.ToString(), surface, captureDetails);
 
         /// <summary>
         /// A simple helper method which will call ExportCapture for the destination with the specified designation

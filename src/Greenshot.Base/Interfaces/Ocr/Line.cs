@@ -77,10 +77,7 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <summary>
         /// Return the calculated bounds for the whole line
         /// </summary>
-        public NativeRect CalculatedBounds
-        {
-            get { return _calculatedBounds ??= CalculateBounds(); }
-        }
+        public NativeRect CalculatedBounds => _calculatedBounds ??= CalculateBounds();
 
         /// <summary>
         /// Offset the words with the specified x and y coordinates

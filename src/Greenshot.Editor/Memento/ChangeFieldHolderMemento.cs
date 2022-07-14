@@ -39,10 +39,7 @@ namespace Greenshot.Editor.Memento
             _oldValue = fieldToBeChanged.Value;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         private void Dispose(bool disposing)
         {

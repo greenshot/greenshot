@@ -113,15 +113,9 @@ namespace Greenshot.Plugin.Jira.Forms
             jiraCommentBox.Enabled = enabled;
         }
 
-        public void SetFilename(string filename)
-        {
-            jiraFilenameBox.Text = filename;
-        }
+        public void SetFilename(string filename) => jiraFilenameBox.Text = filename;
 
-        public Issue GetJiraIssue()
-        {
-            return _selectedIssue;
-        }
+        public Issue GetJiraIssue() => _selectedIssue;
 
         public async Task UploadAsync(IBinaryContainer attachment)
         {

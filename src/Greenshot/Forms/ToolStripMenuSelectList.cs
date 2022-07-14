@@ -133,10 +133,7 @@ namespace Greenshot.Forms
         /// <param name="label">the label to be displayed</param>
         /// <param name="data">the data to be returned when an item is queried</param>
         /// <param name="isChecked">whether the item is initially checked</param>
-        public void AddItem(string label, object data, bool isChecked)
-        {
-            AddItem(label, null, data, isChecked);
-        }
+        public void AddItem(string label, object data, bool isChecked) => AddItem(label, null, data, isChecked);
 
         /// <summary>
         /// unchecks all items of the list
@@ -162,10 +159,7 @@ namespace Greenshot.Forms
     {
         public ToolStripMenuSelectListItem Item { get; set; }
 
-        public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item)
-        {
-            Item = item;
-        }
+        public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item) => Item = item;
     }
 
     /// <summary>

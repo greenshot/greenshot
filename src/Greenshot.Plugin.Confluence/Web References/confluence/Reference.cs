@@ -68,30 +68,31 @@ namespace GreenshotConfluencePlugin.confluence {
             }
         }
         
-        public new string Url {
-            get {
-                return base.Url;
-            }
-            set {
-                if ((((this.IsLocalFileSystemWebService(base.Url) == true) 
-                            && (this.useDefaultCredentialsSetExplicitly == false)) 
-                            && (this.IsLocalFileSystemWebService(value) == false))) {
+        public new string Url
+        {
+            get => base.Url;
+            set
+            {
+                if ((((this.IsLocalFileSystemWebService(base.Url) == true)
+                            && (this.useDefaultCredentialsSetExplicitly == false))
+                            && (this.IsLocalFileSystemWebService(value) == false)))
+                {
                     base.UseDefaultCredentials = false;
                 }
                 base.Url = value;
             }
         }
-        
-        public new bool UseDefaultCredentials {
-            get {
-                return base.UseDefaultCredentials;
-            }
-            set {
+
+        public new bool UseDefaultCredentials
+        {
+            get => base.UseDefaultCredentials;
+            set
+            {
                 base.UseDefaultCredentials = value;
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
+
         /// <remarks/>
         public event searchCompletedEventHandler searchCompleted;
         
@@ -135,12 +136,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in2});
             return ((RemoteSearchResult[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void searchAsync(string in0, string in1, int in2) {
-            this.searchAsync(in0, in1, in2, null);
-        }
-        
+        public void searchAsync(string in0, string in1, int in2) => this.searchAsync(in0, in1, in2, null);
+
         /// <remarks/>
         public void searchAsync(string in0, string in1, int in2, object userState) {
             if ((this.searchOperationCompleted == null)) {
@@ -168,12 +167,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in1});
             return ((RemoteSpace)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getSpaceAsync(string in0, string in1) {
-            this.getSpaceAsync(in0, in1, null);
-        }
-        
+        public void getSpaceAsync(string in0, string in1) => this.getSpaceAsync(in0, in1, null);
+
         /// <remarks/>
         public void getSpaceAsync(string in0, string in1, object userState) {
             if ((this.getSpaceOperationCompleted == null)) {
@@ -200,12 +197,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in1});
             return ((RemotePageSummary[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getChildrenAsync(string in0, long in1) {
-            this.getChildrenAsync(in0, in1, null);
-        }
-        
+        public void getChildrenAsync(string in0, long in1) => this.getChildrenAsync(in0, in1, null);
+
         /// <remarks/>
         public void getChildrenAsync(string in0, long in1, object userState) {
             if ((this.getChildrenOperationCompleted == null)) {
@@ -232,12 +227,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in1});
             return ((string)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void loginAsync(string in0, string in1) {
-            this.loginAsync(in0, in1, null);
-        }
-        
+        public void loginAsync(string in0, string in1) => this.loginAsync(in0, in1, null);
+
         /// <remarks/>
         public void loginAsync(string in0, string in1, object userState) {
             if ((this.loginOperationCompleted == null)) {
@@ -265,12 +258,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in2});
             return ((RemotePage)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getPageAsync(string in0, string in1, string in2) {
-            this.getPageAsync(in0, in1, in2, null);
-        }
-        
+        public void getPageAsync(string in0, string in1, string in2) => this.getPageAsync(in0, in1, in2, null);
+
         /// <remarks/>
         public void getPageAsync(string in0, string in1, string in2, object userState) {
             if ((this.getPageOperationCompleted == null)) {
@@ -299,12 +290,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in1});
             return ((RemotePage)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getPage1Async(string in0, long in1) {
-            this.getPage1Async(in0, in1, null);
-        }
-        
+        public void getPage1Async(string in0, long in1) => this.getPage1Async(in0, in1, null);
+
         /// <remarks/>
         public void getPage1Async(string in0, long in1, object userState) {
             if ((this.getPage1OperationCompleted == null)) {
@@ -330,12 +319,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in0});
             return ((bool)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void logoutAsync(string in0) {
-            this.logoutAsync(in0, null);
-        }
-        
+        public void logoutAsync(string in0) => this.logoutAsync(in0, null);
+
         /// <remarks/>
         public void logoutAsync(string in0, object userState) {
             if ((this.logoutOperationCompleted == null)) {
@@ -363,12 +350,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in3});
             return ((RemoteAttachment)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void addAttachmentAsync(string in0, long in1, RemoteAttachment in2, byte[] in3) {
-            this.addAttachmentAsync(in0, in1, in2, in3, null);
-        }
-        
+        public void addAttachmentAsync(string in0, long in1, RemoteAttachment in2, byte[] in3) => this.addAttachmentAsync(in0, in1, in2, in3, null);
+
         /// <remarks/>
         public void addAttachmentAsync(string in0, long in1, RemoteAttachment in2, byte[] in3, object userState) {
             if ((this.addAttachmentOperationCompleted == null)) {
@@ -399,12 +384,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in2});
             return ((RemoteAttachment)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void addAttachment1Async(string in0, RemoteAttachment in1, byte[] in2) {
-            this.addAttachment1Async(in0, in1, in2, null);
-        }
-        
+        public void addAttachment1Async(string in0, RemoteAttachment in1, byte[] in2) => this.addAttachment1Async(in0, in1, in2, null);
+
         /// <remarks/>
         public void addAttachment1Async(string in0, RemoteAttachment in1, byte[] in2, object userState) {
             if ((this.addAttachment1OperationCompleted == null)) {
@@ -431,12 +414,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in0});
             return ((RemoteSpaceSummary[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getSpacesAsync(string in0) {
-            this.getSpacesAsync(in0, null);
-        }
-        
+        public void getSpacesAsync(string in0) => this.getSpacesAsync(in0, null);
+
         /// <remarks/>
         public void getSpacesAsync(string in0, object userState) {
             if ((this.getSpacesOperationCompleted == null)) {
@@ -462,12 +443,10 @@ namespace GreenshotConfluencePlugin.confluence {
                         in1});
             return ((RemotePageSummary[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void getPagesAsync(string in0, string in1) {
-            this.getPagesAsync(in0, in1, null);
-        }
-        
+        public void getPagesAsync(string in0, string in1) => this.getPagesAsync(in0, in1, null);
+
         /// <remarks/>
         public void getPagesAsync(string in0, string in1, object userState) {
             if ((this.getPagesOperationCompleted == null)) {
@@ -484,12 +463,10 @@ namespace GreenshotConfluencePlugin.confluence {
                 this.getPagesCompleted(this, new getPagesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        public new void CancelAsync(object userState) {
-            base.CancelAsync(userState);
-        }
-        
+        public new void CancelAsync(object userState) => base.CancelAsync(userState);
+
         private bool IsLocalFileSystemWebService(string url) {
             if (((url == null) 
                         || (url == string.Empty))) {
@@ -525,55 +502,35 @@ namespace GreenshotConfluencePlugin.confluence {
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string excerpt {
-            get {
-                return this.excerptField;
-            }
-            set {
-                this.excerptField = value;
-            }
+            get => this.excerptField;
+            set => this.excerptField = value;
         }
-        
+
         /// <remarks/>
         public long id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
+            get => this.idField;
+            set => this.idField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string title {
-            get {
-                return this.titleField;
-            }
-            set {
-                this.titleField = value;
-            }
+            get => this.titleField;
+            set => this.titleField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
+            get => this.typeField;
+            set => this.typeField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
+            get => this.urlField;
+            set => this.urlField = value;
         }
     }
     
@@ -608,108 +565,68 @@ namespace GreenshotConfluencePlugin.confluence {
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string comment {
-            get {
-                return this.commentField;
-            }
-            set {
-                this.commentField = value;
-            }
+            get => this.commentField;
+            set => this.commentField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string contentType {
-            get {
-                return this.contentTypeField;
-            }
-            set {
-                this.contentTypeField = value;
-            }
+            get => this.contentTypeField;
+            set => this.contentTypeField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public System.Nullable<System.DateTime> created {
-            get {
-                return this.createdField;
-            }
-            set {
-                this.createdField = value;
-            }
+            get => this.createdField;
+            set => this.createdField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string creator {
-            get {
-                return this.creatorField;
-            }
-            set {
-                this.creatorField = value;
-            }
+            get => this.creatorField;
+            set => this.creatorField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string fileName {
-            get {
-                return this.fileNameField;
-            }
-            set {
-                this.fileNameField = value;
-            }
+            get => this.fileNameField;
+            set => this.fileNameField = value;
         }
-        
+
         /// <remarks/>
         public long fileSize {
-            get {
-                return this.fileSizeField;
-            }
-            set {
-                this.fileSizeField = value;
-            }
+            get => this.fileSizeField;
+            set => this.fileSizeField = value;
         }
-        
+
         /// <remarks/>
         public long id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
+            get => this.idField;
+            set => this.idField = value;
         }
-        
+
         /// <remarks/>
         public long pageId {
-            get {
-                return this.pageIdField;
-            }
-            set {
-                this.pageIdField = value;
-            }
+            get => this.pageIdField;
+            set => this.pageIdField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string title {
-            get {
-                return this.titleField;
-            }
-            set {
-                this.titleField = value;
-            }
+            get => this.titleField;
+            set => this.titleField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
+            get => this.urlField;
+            set => this.urlField = value;
         }
     }
     
@@ -735,55 +652,35 @@ namespace GreenshotConfluencePlugin.confluence {
         
         /// <remarks/>
         public long id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
+            get => this.idField;
+            set => this.idField = value;
         }
-        
+
         /// <remarks/>
         public int permissions {
-            get {
-                return this.permissionsField;
-            }
-            set {
-                this.permissionsField = value;
-            }
+            get => this.permissionsField;
+            set => this.permissionsField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string space {
-            get {
-                return this.spaceField;
-            }
-            set {
-                this.spaceField = value;
-            }
+            get => this.spaceField;
+            set => this.spaceField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string title {
-            get {
-                return this.titleField;
-            }
-            set {
-                this.titleField = value;
-            }
+            get => this.titleField;
+            set => this.titleField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
+            get => this.urlField;
+            set => this.urlField = value;
         }
     }
     
@@ -800,12 +697,8 @@ namespace GreenshotConfluencePlugin.confluence {
         
         /// <remarks/>
         public long parentId {
-            get {
-                return this.parentIdField;
-            }
-            set {
-                this.parentIdField = value;
-            }
+            get => this.parentIdField;
+            set => this.parentIdField = value;
         }
     }
     
@@ -838,97 +731,61 @@ namespace GreenshotConfluencePlugin.confluence {
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string content {
-            get {
-                return this.contentField;
-            }
-            set {
-                this.contentField = value;
-            }
+            get => this.contentField;
+            set => this.contentField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string contentStatus {
-            get {
-                return this.contentStatusField;
-            }
-            set {
-                this.contentStatusField = value;
-            }
+            get => this.contentStatusField;
+            set => this.contentStatusField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public System.Nullable<System.DateTime> created {
-            get {
-                return this.createdField;
-            }
-            set {
-                this.createdField = value;
-            }
+            get => this.createdField;
+            set => this.createdField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string creator {
-            get {
-                return this.creatorField;
-            }
-            set {
-                this.creatorField = value;
-            }
+            get => this.creatorField;
+            set => this.creatorField = value;
         }
-        
+
         /// <remarks/>
         public bool current {
-            get {
-                return this.currentField;
-            }
-            set {
-                this.currentField = value;
-            }
+            get => this.currentField;
+            set => this.currentField = value;
         }
-        
+
         /// <remarks/>
         public bool homePage {
-            get {
-                return this.homePageField;
-            }
-            set {
-                this.homePageField = value;
-            }
+            get => this.homePageField;
+            set => this.homePageField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public System.Nullable<System.DateTime> modified {
-            get {
-                return this.modifiedField;
-            }
-            set {
-                this.modifiedField = value;
-            }
+            get => this.modifiedField;
+            set => this.modifiedField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string modifier {
-            get {
-                return this.modifierField;
-            }
-            set {
-                this.modifierField = value;
-            }
+            get => this.modifierField;
+            set => this.modifierField = value;
         }
-        
+
         /// <remarks/>
         public int version {
-            get {
-                return this.versionField;
-            }
-            set {
-                this.versionField = value;
-            }
+            get => this.versionField;
+            set => this.versionField = value;
         }
     }
     
@@ -952,45 +809,29 @@ namespace GreenshotConfluencePlugin.confluence {
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
+            get => this.keyField;
+            set => this.keyField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
+            get => this.nameField;
+            set => this.nameField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
+            get => this.typeField;
+            set => this.typeField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
+            get => this.urlField;
+            set => this.urlField = value;
         }
     }
     
@@ -1011,33 +852,21 @@ namespace GreenshotConfluencePlugin.confluence {
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
+            get => this.descriptionField;
+            set => this.descriptionField = value;
         }
-        
+
         /// <remarks/>
         public long homePage {
-            get {
-                return this.homePageField;
-            }
-            set {
-                this.homePageField = value;
-            }
+            get => this.homePageField;
+            set => this.homePageField = value;
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
         public string spaceGroup {
-            get {
-                return this.spaceGroupField;
-            }
-            set {
-                this.spaceGroupField = value;
-            }
+            get => this.spaceGroupField;
+            set => this.spaceGroupField = value;
         }
     }
     
@@ -1052,12 +881,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class searchCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal searchCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal searchCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemoteSearchResult[] Result {
             get {
@@ -1078,12 +905,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getSpaceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getSpaceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getSpaceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemoteSpace Result {
             get {
@@ -1104,12 +929,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getChildrenCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getChildrenCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getChildrenCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemotePageSummary[] Result {
             get {
@@ -1130,12 +953,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class loginCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal loginCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal loginCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public string Result {
             get {
@@ -1156,12 +977,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getPageCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getPageCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getPageCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemotePage Result {
             get {
@@ -1182,12 +1001,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getPage1CompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getPage1CompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getPage1CompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemotePage Result {
             get {
@@ -1208,12 +1025,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class logoutCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal logoutCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal logoutCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public bool Result {
             get {
@@ -1234,12 +1049,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class addAttachmentCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal addAttachmentCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal addAttachmentCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemoteAttachment Result {
             get {
@@ -1260,12 +1073,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class addAttachment1CompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal addAttachment1CompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal addAttachment1CompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemoteAttachment Result {
             get {
@@ -1286,12 +1097,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getSpacesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getSpacesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getSpacesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemoteSpaceSummary[] Result {
             get {
@@ -1312,12 +1121,10 @@ namespace GreenshotConfluencePlugin.confluence {
     public partial class getPagesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
-        
-        internal getPagesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
+
+        internal getPagesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+                base(exception, cancelled, userState) => this.results = results;
+
         /// <remarks/>
         public RemotePageSummary[] Result {
             get {

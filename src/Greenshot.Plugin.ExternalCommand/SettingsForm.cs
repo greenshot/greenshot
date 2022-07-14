@@ -44,10 +44,7 @@ namespace Greenshot.Plugin.ExternalCommand
             UpdateView();
         }
 
-        private void ButtonOkClick(object sender, EventArgs e)
-        {
-            IniConfig.Save();
-        }
+        private void ButtonOkClick(object sender, EventArgs e) => IniConfig.Save();
 
         private void ButtonAddClick(object sender, EventArgs e)
         {
@@ -101,15 +98,9 @@ namespace Greenshot.Plugin.ExternalCommand
             button_edit.Enabled = listView1.SelectedItems.Count > 0;
         }
 
-        private void ListView1ItemSelectionChanged(object sender, EventArgs e)
-        {
-            button_edit.Enabled = listView1.SelectedItems.Count > 0;
-        }
+        private void ListView1ItemSelectionChanged(object sender, EventArgs e) => button_edit.Enabled = listView1.SelectedItems.Count > 0;
 
-        private void ButtonEditClick(object sender, EventArgs e)
-        {
-            ListView1DoubleClick(sender, e);
-        }
+        private void ButtonEditClick(object sender, EventArgs e) => ListView1DoubleClick(sender, e);
 
         private void ListView1DoubleClick(object sender, EventArgs e)
         {

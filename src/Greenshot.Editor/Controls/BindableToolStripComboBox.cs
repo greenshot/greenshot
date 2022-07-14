@@ -36,14 +36,8 @@ namespace Greenshot.Editor.Controls
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
         public string LanguageKey { get; set; }
 
-        public BindableToolStripComboBox()
-        {
-            SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
-        }
+        public BindableToolStripComboBox() => SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
 
-        private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
-        }
+        private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
     }
 }

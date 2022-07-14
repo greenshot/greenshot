@@ -135,10 +135,7 @@ namespace Greenshot.Plugin.Imgur
         /// Use this to make sure Imgur knows from where the upload comes.
         /// </summary>
         /// <param name="webRequest"></param>
-        private static void SetClientId(HttpWebRequest webRequest)
-        {
-            webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
-        }
+        private static void SetClientId(HttpWebRequest webRequest) => webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
 
         /// <summary>
         /// Do the actual upload to Imgur
@@ -292,12 +289,9 @@ namespace Greenshot.Plugin.Imgur
             }
             catch (WebException wE)
             {
-                if (wE.Status == WebExceptionStatus.ProtocolError)
+                if (wE.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
                 {
-                    if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return null;
-                    }
+                    return null;
                 }
 
                 throw;
@@ -345,12 +339,9 @@ namespace Greenshot.Plugin.Imgur
             catch (WebException wE)
             {
                 // Allow "Bad request" this means we already deleted it
-                if (wE.Status == WebExceptionStatus.ProtocolError)
+                if (wE.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest)
                 {
-                    if (((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest)
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
 

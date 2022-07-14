@@ -34,10 +34,7 @@ namespace Greenshot.Base.Interfaces
             DestinationDescription = destinationDescription;
         }
 
-        public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade) : this(destinationDesignation, destinationDescription)
-        {
-            ExportMade = exportMade;
-        }
+        public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade) : this(destinationDesignation, destinationDescription) => ExportMade = exportMade;
 
         public string DestinationDesignation { get; }
 

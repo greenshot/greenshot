@@ -380,10 +380,7 @@ namespace Greenshot.Editor.Drawing
             return false;
         }
 
-        public override bool ClickableAt(int x, int y)
-        {
-            return Contains(x, y);
-        }
+        public override bool ClickableAt(int x, int y) => Contains(x, y);
 
         /// <summary>
         /// Additional to the Transform of the TextContainer the bubble tail coordinates also need to be moved

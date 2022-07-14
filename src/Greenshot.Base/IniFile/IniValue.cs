@@ -59,7 +59,7 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                return Attributes != null && Attributes.FixedValue;
+                return Attributes?.FixedValue == true;
             }
             set
             {
@@ -77,7 +77,7 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                return Attributes != null && Attributes.Expert;
+                return Attributes?.Expert == true;
             }
             set
             {
@@ -98,13 +98,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         public bool IsVisible => !IsExpert;
 
-        public MemberInfo MemberInfo
-        {
-            get
-            {
-                return _propertyInfo == null ? _fieldInfo : _propertyInfo;
-            }
-        }
+        public MemberInfo MemberInfo => _propertyInfo == null ? _fieldInfo : _propertyInfo;
 
         /// <summary>
         /// Returns the IniSection this value is contained in
@@ -193,12 +187,9 @@ namespace Greenshot.Base.IniFile
                 }
             }
 
-            if (myValue == null)
+            if (myValue == null && Attributes.ExcludeIfNull)
             {
-                if (Attributes.ExcludeIfNull)
-                {
-                    return;
-                }
+                return;
             }
 
             if (!onlyProperties)
@@ -520,10 +511,7 @@ namespace Greenshot.Base.IniFile
         /// Override of ToString which calls the ConvertValueToString
         /// </summary>
         /// <returns>string representation of this</returns>
-        public override string ToString()
-        {
-            return ConvertValueToString(ValueType, Value, Attributes.Separator);
-        }
+        public override string ToString() => ConvertValueToString(ValueType, Value, Attributes.Separator);
 
         /// <summary>
         /// Convert the supplied value to a string

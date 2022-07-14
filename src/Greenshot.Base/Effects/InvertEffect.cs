@@ -30,10 +30,7 @@ namespace Greenshot.Base.Effects
     /// </summary>
     public class InvertEffect : IEffect
     {
-        public Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.CreateNegative(sourceImage);
-        }
+        public Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.CreateNegative(sourceImage);
 
         public void Reset()
         {

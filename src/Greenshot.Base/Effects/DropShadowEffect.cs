@@ -34,10 +34,7 @@ namespace Greenshot.Base.Effects
     [TypeConverter(typeof(EffectConverter))]
     public class DropShadowEffect : IEffect
     {
-        public DropShadowEffect()
-        {
-            Reset();
-        }
+        public DropShadowEffect() => Reset();
 
         public float Darkness { get; set; }
 
@@ -52,9 +49,6 @@ namespace Greenshot.Base.Effects
             ShadowOffset = new Point(-1, -1);
         }
 
-        public virtual Image Apply(Image sourceImage, Matrix matrix)
-        {
-            return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
-        }
+        public virtual Image Apply(Image sourceImage, Matrix matrix) => ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
     }
 }
