@@ -30,9 +30,8 @@ namespace Greenshot.Base.IniFile
     public class IniSectionAttribute : Attribute
     {
         public IniSectionAttribute(string name) => Name = name;
-
-        public string Description;
         public string Name { get; set; }
+        public string Description { get; set; }
     }
 
     /// <summary>

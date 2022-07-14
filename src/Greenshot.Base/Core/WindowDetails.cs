@@ -400,10 +400,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool Iconic
         {
-            get
-            {
-                return User32Api.IsIconic(Handle) || Location.X <= -32000;
-            }
+            get => User32Api.IsIconic(Handle) || Location.X <= -32000;
             set
             {
                 if (value)
@@ -422,10 +419,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool Maximised
         {
-            get
-            {
-                return User32Api.IsZoomed(Handle);
-            }
+            get => User32Api.IsZoomed(Handle);
             set
             {
                 if (value)
@@ -623,7 +617,7 @@ namespace Greenshot.Base.Core
                 User32Api.GetWindowPlacement(Handle, ref placement);
                 return placement;
             }
-            set { User32Api.SetWindowPlacement(Handle, ref value); }
+            set => User32Api.SetWindowPlacement(Handle, ref value);
         }
 
         /// <summary>
@@ -1116,12 +1110,11 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            foreach (string excludeProcess in ExcludeProcessesFromFreeze)
+            foreach (var _ in from string excludeProcess in ExcludeProcessesFromFreeze
+                              where titleOrProcessname.ToLower().Contains(excludeProcess)
+                              select new { })
             {
-                if (titleOrProcessname.ToLower().Contains(excludeProcess))
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -1333,13 +1326,13 @@ namespace Greenshot.Base.Core
                 return this;
             }
 
+            foreach (var childWindow in
             // Look into the child windows
-            foreach (var childWindow in Children)
+            from childWindow in Children
+            where childWindow.Contains(point)
+            select childWindow)
             {
-                if (childWindow.Contains(point))
-                {
-                    return childWindow.FindChildUnderPoint(point);
-                }
+                return childWindow.FindChildUnderPoint(point);
             }
 
             return this;
@@ -1389,14 +1382,9 @@ namespace Greenshot.Base.Core
         public static IEnumerable<WindowDetails> GetVisibleWindows()
         {
             var screenBounds = DisplayInfo.ScreenBounds;
-
-            foreach (var window in GetAllWindows())
-            {
-                if (IsVisible(window, screenBounds))
-                {
-                    yield return window;
-                }
-            }
+            return from window in GetAllWindows()
+                   where IsVisible(window, screenBounds)
+                   select window;
         }
 
         /// <summary>
@@ -1460,13 +1448,9 @@ namespace Greenshot.Base.Core
         /// <returns>List WindowDetails with all the top level windows</returns>
         public static IEnumerable<WindowDetails> GetTopLevelWindows()
         {
-            foreach (var possibleTopLevel in GetAllWindows())
-            {
-                if (IsTopLevel(possibleTopLevel))
-                {
-                    yield return possibleTopLevel;
-                }
-            }
+            return from possibleTopLevel in GetAllWindows()
+                   where IsTopLevel(possibleTopLevel)
+                   select possibleTopLevel;
         }
 
         /// <summary>

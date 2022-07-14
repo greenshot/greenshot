@@ -334,7 +334,7 @@ namespace Greenshot.Base.Core
             DefaultValue = "16,16")]
         public NativeSize IconSize
         {
-            get { return _iconSize; }
+            get => _iconSize;
             set
             {
                 Size newSize = value;

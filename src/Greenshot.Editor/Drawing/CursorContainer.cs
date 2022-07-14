@@ -65,7 +65,7 @@ namespace Greenshot.Editor.Drawing
                 Width = value.Size.Width;
                 Height = value.Size.Height;
             }
-            get { return cursor; }
+            get => cursor;
         }
 
         /// <summary>

@@ -219,7 +219,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public override ISite Site
         {
-            get { return base.Site; }
+            get => base.Site;
             set
             {
                 // Clear any component change event handlers.

@@ -41,11 +41,11 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public event EventHandler ChildrenChanged
         {
-            add { childrenChanged += value; }
-            remove { childrenChanged -= value; }
+            add => childrenChanged += value;
+            remove => childrenChanged -= value;
         }
 
-        public IList<IFieldHolder> Children = new List<IFieldHolder>();
+        public IList<IFieldHolder> Children { get; set; } = new List<IFieldHolder>();
 
         protected AbstractFieldHolderWithChildren() => _fieldChangedEventHandler = OnFieldChanged;
 

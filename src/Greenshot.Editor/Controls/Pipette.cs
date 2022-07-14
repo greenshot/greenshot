@@ -184,8 +184,9 @@ namespace Greenshot.Editor.Controls
 
     public class PipetteUsedArgs : EventArgs
     {
-        public Color Color;
 
         public PipetteUsedArgs(Color c) => Color = c;
+
+        public Color Color { get; set; }
     }
 }

@@ -44,7 +44,7 @@ namespace Greenshot.Editor.Controls
                 if (Tag == null && DropDownItems.Count > 0) Tag = DropDownItems[0].Tag;
                 return Tag;
             }
-            set { AdoptFromTag(value); }
+            set => AdoptFromTag(value);
         }
 
         protected override void OnDropDownItemClicked(ToolStripItemClickedEventArgs e)

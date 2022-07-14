@@ -51,8 +51,8 @@ namespace Greenshot.Plugin.Win10.Internal
         /// <inheritdoc />
         public ulong Size
         {
-            get { return (ulong)Length; }
-            set { SetLength((long)value); }
+            get => (ulong)Length;
+            set => SetLength((long)value);
         }
 
         /// <inheritdoc />

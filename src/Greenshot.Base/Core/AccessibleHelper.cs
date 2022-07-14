@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
+using System.Linq;
 
 namespace Greenshot.Base.Core
 {
@@ -180,20 +181,19 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                foreach (Accessible accessor in Children)
+                foreach (var tab in from Accessible accessor in Children
+                                    from tab in
+                                        from child in accessor.Children
+                                        from tab in child.Children
+                                        select tab
+                                    select tab)
                 {
-                    foreach (var child in accessor.Children)
+                    _ = tab.accessible.get_accState(CHILDID_SELF);
+                    var description = tab.accessible.get_accDescription(CHILDID_SELF);
+                    if (!string.IsNullOrEmpty(description) && description.Contains(Environment.NewLine))
                     {
-                        foreach (var tab in child.Children)
-                        {
-                            _ = tab.accessible.get_accState(CHILDID_SELF);
-                            var description = tab.accessible.get_accDescription(CHILDID_SELF);
-                            if (!string.IsNullOrEmpty(description) && description.Contains(Environment.NewLine))
-                            {
-                                var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-                                yield return url;
-                            }
-                        }
+                        var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
+                        yield return url;
                     }
                 }
             }

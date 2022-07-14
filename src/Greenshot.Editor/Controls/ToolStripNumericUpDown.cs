@@ -39,32 +39,32 @@ namespace Greenshot.Editor.Controls
 
         public decimal Value
         {
-            get { return NumericUpDown.Value; }
-            set { NumericUpDown.Value = value; }
+            get => NumericUpDown.Value;
+            set => NumericUpDown.Value = value;
         }
 
         public decimal Minimum
         {
-            get { return NumericUpDown.Minimum; }
-            set { NumericUpDown.Minimum = value; }
+            get => NumericUpDown.Minimum;
+            set => NumericUpDown.Minimum = value;
         }
 
         public decimal Maximum
         {
-            get { return NumericUpDown.Maximum; }
-            set { NumericUpDown.Maximum = value; }
+            get => NumericUpDown.Maximum;
+            set => NumericUpDown.Maximum = value;
         }
 
         public decimal Increment
         {
-            get { return NumericUpDown.Increment; }
-            set { NumericUpDown.Increment = value; }
+            get => NumericUpDown.Increment;
+            set => NumericUpDown.Increment = value;
         }
 
         public int DecimalPlaces
         {
-            get { return NumericUpDown.DecimalPlaces; }
-            set { NumericUpDown.DecimalPlaces = value; }
+            get => NumericUpDown.DecimalPlaces;
+            set => NumericUpDown.DecimalPlaces = value;
         }
 
         protected override void OnSubscribeControlEvents(Control control)

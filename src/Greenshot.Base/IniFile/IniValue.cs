@@ -57,10 +57,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         public bool IsFixed
         {
-            get
-            {
-                return Attributes?.FixedValue == true;
-            }
+            get => Attributes?.FixedValue == true;
             set
             {
                 if (Attributes != null)
@@ -75,10 +72,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         public bool IsExpert
         {
-            get
-            {
-                return Attributes?.Expert == true;
-            }
+            get => Attributes?.Expert == true;
             set
             {
                 if (Attributes != null)
@@ -115,10 +109,7 @@ namespace Greenshot.Base.IniFile
         /// </summary>
         public object Value
         {
-            get
-            {
-                return _propertyInfo == null ? _fieldInfo.GetValue(ContainingIniSection) : _propertyInfo.GetValue(ContainingIniSection, null);
-            }
+            get => _propertyInfo == null ? _fieldInfo.GetValue(ContainingIniSection) : _propertyInfo.GetValue(ContainingIniSection, null);
             set
             {
                 if (_propertyInfo == null)

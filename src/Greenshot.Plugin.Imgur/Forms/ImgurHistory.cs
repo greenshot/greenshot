@@ -110,7 +110,7 @@ namespace Greenshot.Plugin.Imgur.Forms
                 listview_imgur_uploads.Columns.Add(column);
             }
 
-            foreach (ImgurInfo imgurInfo in Config.runtimeImgurHistory.Values)
+            foreach (ImgurInfo imgurInfo in Config.RuntimeImgurHistory.Values)
             {
                 var item = new ListViewItem(imgurInfo.Hash)
                 {
@@ -211,7 +211,7 @@ namespace Greenshot.Plugin.Imgur.Forms
             DialogResult result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                Config.runtimeImgurHistory.Clear();
+                Config.RuntimeImgurHistory.Clear();
                 Config.ImgurUploadHistory.Clear();
                 IniConfig.Save();
                 Redraw();

@@ -72,12 +72,10 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public bool ReduceColors
         {
-            get
-            {
+            get =>
                 // Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-                return !(!OutputFormat.gif.Equals(Format) && !_reduceColors);
-            }
-            set { _reduceColors = value; }
+                !(!OutputFormat.gif.Equals(Format) && !_reduceColors);
+            set => _reduceColors = value;
         }
 
         /// <summary>
@@ -85,7 +83,7 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// </summary>
         public bool DisableReduceColors
         {
-            get { return _disableReduceColors; }
+            get => _disableReduceColors;
             set
             {
                 // Quantizing os needed when output format is gif as this has only 256 colors!

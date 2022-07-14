@@ -80,10 +80,8 @@ namespace Greenshot.Plugin.Imgur
 
         [IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
         public Dictionary<string, string> ImgurUploadHistory { get; set; }
-
-        // Not stored, only run-time!
-        public Dictionary<string, ImgurInfo> runtimeImgurHistory = new();
         public int Credits { get; set; }
+        public Dictionary<string, ImgurInfo> RuntimeImgurHistory { get; set; } = new();
 
         /// <summary>
         /// Upgrade certain values

@@ -415,8 +415,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         public int Left
         {
-            get { return 0; }
-            set { _left = value; }
+            get => 0;
+            set => _left = value;
         }
 
         /// <summary>
@@ -424,8 +424,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         int IFastBitmapWithOffset.Left
         {
-            get { return _left; }
-            set { _left = value; }
+            get => _left;
+            set => _left = value;
         }
 
         private int _top;
@@ -435,8 +435,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         public int Top
         {
-            get { return 0; }
-            set { _top = value; }
+            get => 0;
+            set => _top = value;
         }
 
         /// <summary>
@@ -444,8 +444,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         int IFastBitmapWithOffset.Top
         {
-            get { return _top; }
-            set { _top = value; }
+            get => _top;
+            set => _top = value;
         }
 
         /// <summary>

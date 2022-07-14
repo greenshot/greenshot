@@ -38,7 +38,7 @@ namespace Greenshot.Plugin.Confluence
 
         public Type Type
         {
-            get { return _type; }
+            get => _type;
             set
             {
                 if (!value.IsEnum)

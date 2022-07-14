@@ -944,25 +944,26 @@ namespace Greenshot.Forms
                 using var pen = new Pen(Color.Red);
                 var highlightColor = Color.FromArgb(128, Color.Yellow);
                 using var highlightTextBrush = new SolidBrush(highlightColor);
-                foreach (var line in ocrInfo.Lines)
+                foreach (var (line, lineBounds) in from line in ocrInfo.Lines
+                                                   let lineBounds = line.CalculatedBounds
+                                                   select (line, lineBounds))
                 {
-                    var lineBounds = line.CalculatedBounds;
                     if (lineBounds.IsEmpty)
                     {
                         continue;
                     }
+
                     graphics.DrawRectangle(pen, line.CalculatedBounds);
                     if (_mouseDown)
                     {
                         // Highlight the text which is selected
                         if (lineBounds.IntersectsWith(_captureRect))
                         {
-                            foreach (var word in line.Words)
+                            foreach (var word in from word in line.Words
+                                                 where word.Bounds.IntersectsWith(_captureRect)
+                                                 select word)
                             {
-                                if (word.Bounds.IntersectsWith(_captureRect))
-                                {
-                                    graphics.FillRectangle(highlightTextBrush, word.Bounds);
-                                }
+                                graphics.FillRectangle(highlightTextBrush, word.Bounds);
                             }
                         }
                     }

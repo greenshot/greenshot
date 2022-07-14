@@ -514,14 +514,14 @@ namespace Greenshot.Helpers.IEInterop
 
         public int DestinationLeft
         {
-            get { return DestinationLocation.X; }
-            set { DestinationLocation = DestinationLocation.ChangeX(value); }
+            get => DestinationLocation.X;
+            set => DestinationLocation = DestinationLocation.ChangeX(value);
         }
 
         public int DestinationTop
         {
-            get { return DestinationLocation.Y; }
-            set { DestinationLocation = DestinationLocation.ChangeY(value); }
+            get => DestinationLocation.Y;
+            set => DestinationLocation = DestinationLocation.ChangeY(value);
         }
 
         public int DestinationRight => DestinationLocation.X + ScrollWidth;
@@ -530,14 +530,14 @@ namespace Greenshot.Helpers.IEInterop
 
         public int ScrollLeft
         {
-            get { return ScaleX(GetAttributeAsInt("scrollLeft")); }
-            set { SetAttribute("scrollLeft", UnscaleX(value)); }
+            get => ScaleX(GetAttributeAsInt("scrollLeft"));
+            set => SetAttribute("scrollLeft", UnscaleX(value));
         }
 
         public int ScrollTop
         {
-            get { return ScaleY(GetAttributeAsInt("scrollTop")); }
-            set { SetAttribute("scrollTop", UnscaleY(value)); }
+            get => ScaleY(GetAttributeAsInt("scrollTop"));
+            set => SetAttribute("scrollTop", UnscaleY(value));
         }
 
         public IList<DocumentContainer> Frames { get; } = new List<DocumentContainer>();

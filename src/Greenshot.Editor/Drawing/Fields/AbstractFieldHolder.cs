@@ -48,8 +48,8 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public event FieldChangedEventHandler FieldChanged
         {
-            add { _fieldChanged += value; }
-            remove { _fieldChanged -= value; }
+            add => _fieldChanged += value;
+            remove => _fieldChanged -= value;
         }
 
         // we keep two Collections of our fields, dictionary for quick access, list for serialization

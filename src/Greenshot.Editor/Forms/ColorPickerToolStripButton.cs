@@ -33,7 +33,6 @@ namespace Greenshot.Editor.Forms
     public class ColorPickerToolStripButton : ToolStripButton
     {
         private Color _color;
-        public NativePoint Offset = new(0, 0);
         public event ColorPickerEventHandler ColorPicked;
         private readonly ColorDialog _cd;
 
@@ -50,8 +49,10 @@ namespace Greenshot.Editor.Forms
                 _color = value;
                 Invalidate();
             }
-            get { return _color; }
+            get => _color;
         }
+
+        public NativePoint Offset { get; set; } = new(0, 0);
 
         protected override void OnPaint(PaintEventArgs e)
         {

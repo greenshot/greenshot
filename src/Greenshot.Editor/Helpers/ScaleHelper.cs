@@ -55,7 +55,7 @@ namespace Greenshot.Editor.Helpers
         /// <param name="currentRect">NativeRectFloat the bounds of the element to be aligned</param>
         /// <param name="targetRect">NativeRectFloat with the rectangle for alignment of the element</param>
         /// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
-        /// <returns>NativeRectFloat object with Location aligned aligned to targetRect</returns>
+        /// <returns>NativeRectFloat object with Location aligned to targetRect</returns>
         public static NativeRectFloat GetAlignedRectangle(NativeRectFloat currentRect, NativeRectFloat targetRect, ContentAlignment alignment)
         {
             var newRect = new NativeRectFloat(targetRect.Location, currentRect.Size);
@@ -171,7 +171,7 @@ namespace Greenshot.Editor.Helpers
         }
 
         /// <summary>
-        /// For an original size, and a selected size, returns the the largest possible size that
+        /// For an original size, and a selected size, returns the largest possible size that
         /// * has the same aspect ratio as the original
         /// * fits into selected size
         /// </summary>

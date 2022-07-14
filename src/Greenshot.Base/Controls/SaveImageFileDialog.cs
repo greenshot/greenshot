@@ -138,8 +138,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string FileName
         {
-            get { return SaveFileDialog.FileName; }
-            set { SaveFileDialog.FileName = value; }
+            get => SaveFileDialog.FileName;
+            set => SaveFileDialog.FileName = value;
         }
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string InitialDirectory
         {
-            get { return SaveFileDialog.InitialDirectory; }
-            set { SaveFileDialog.InitialDirectory = value; }
+            get => SaveFileDialog.InitialDirectory;
+            set => SaveFileDialog.InitialDirectory = value;
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string Extension
         {
-            get { return _filterOptions[SaveFileDialog.FilterIndex - 1].Extension; }
+            get => _filterOptions[SaveFileDialog.FilterIndex - 1].Extension;
             set
             {
                 for (int i = 0; i < _filterOptions.Length; i++)

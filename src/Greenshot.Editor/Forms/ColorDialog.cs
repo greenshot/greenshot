@@ -61,8 +61,8 @@ namespace Greenshot.Editor.Forms
 
         public Color Color
         {
-            get { return colorPanel.BackColor; }
-            set { PreviewColor(value, this); }
+            get => colorPanel.BackColor;
+            set => PreviewColor(value, this);
         }
 
         private void CreateColorPalette(int x, int y, int w, int h)

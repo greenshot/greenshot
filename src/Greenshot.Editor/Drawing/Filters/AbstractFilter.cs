@@ -40,15 +40,15 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add { propertyChanged += value; }
-            remove { propertyChanged -= value; }
+            add => propertyChanged += value;
+            remove => propertyChanged -= value;
         }
 
         private bool invert;
 
         public bool Invert
         {
-            get { return invert; }
+            get => invert;
             set
             {
                 invert = value;
@@ -60,8 +60,8 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public DrawableContainer Parent
         {
-            get { return parent; }
-            set { parent = value; }
+            get => parent;
+            set => parent = value;
         }
 
         protected AbstractFilter(DrawableContainer parent) => this.parent = parent;

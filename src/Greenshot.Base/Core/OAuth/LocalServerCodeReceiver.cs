@@ -47,7 +47,7 @@ namespace Greenshot.Base.Core.OAuth
         public string LoopbackCallbackUrl { get; set; } = "http://localhost:{0}/authorize/";
 
         /// <summary>
-        /// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
+        /// HTML code to return the _browser, default it will try to close the _browser / tab, this won't always work.
         /// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
         /// </summary>
         public string ClosePageResponse { get; set; } = @"<html>

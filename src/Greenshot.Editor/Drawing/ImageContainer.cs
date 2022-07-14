@@ -133,7 +133,7 @@ namespace Greenshot.Editor.Drawing
                     Top -= _shadowOffset.Y;
                 }
             }
-            get { return _image; }
+            get => _image;
         }
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace Greenshot.Plugin.Imgur
 
         public string DeleteHash
         {
-            get { return _deleteHash; }
+            get => _deleteHash;
             set
             {
                 _deleteHash = value;
@@ -66,7 +66,7 @@ namespace Greenshot.Plugin.Imgur
 
         public Image Image
         {
-            get { return _image; }
+            get => _image;
             set
             {
                 _image?.Dispose();

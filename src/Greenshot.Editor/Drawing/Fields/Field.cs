@@ -38,7 +38,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public object Value
         {
-            get { return _myValue; }
+            get => _myValue;
             set
             {
                 if (!Equals(_myValue, value))

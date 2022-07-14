@@ -69,10 +69,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public bool IsBetaUpdateAvailable => LatestBetaVersion > CurrentVersion;
 
-        /// <summary>
-        /// Keep track of when the update was shown, so it won't be every few minutes
-        /// </summary>
-        public DateTimeOffset LastUpdateShown = DateTimeOffset.MinValue;
+        public DateTimeOffset LastUpdateShown { get; set; } = DateTimeOffset.MinValue;
 
         /// <summary>
         /// Constructor with dependencies

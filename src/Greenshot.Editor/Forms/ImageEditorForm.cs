@@ -550,8 +550,8 @@ namespace Greenshot.Editor.Forms
 
         public ISurface Surface
         {
-            get { return _surface; }
-            set { SetSurface(value); }
+            get => _surface;
+            set => SetSurface(value);
         }
 
         public void SetImagePath(string fullpath)

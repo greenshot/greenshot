@@ -593,8 +593,8 @@ namespace Greenshot.Base.Interop
         /// </summary>
         public string TypeName
         {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
     }
 }

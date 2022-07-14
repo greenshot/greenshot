@@ -96,7 +96,7 @@ namespace Greenshot.Base.Core.OAuth
         public string AccessToken { get; set; }
 
         /// <summary>
-        /// Expire time for the AccessToken, this this time (-60 seconds) is passed a new AccessToken needs to be generated with the RefreshToken
+        /// Expire time for the AccessToken, this time (-60 seconds) is passed a new AccessToken needs to be generated with the RefreshToken
         /// </summary>
         public DateTimeOffset AccessTokenExpires { get; set; }
 

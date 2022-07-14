@@ -45,7 +45,7 @@ namespace Greenshot.Editor.Controls
 
         public Color SelectedColor
         {
-            get { return _selectedColor; }
+            get => _selectedColor;
             set
             {
                 _selectedColor = value;

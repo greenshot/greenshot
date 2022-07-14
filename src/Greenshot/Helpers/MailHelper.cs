@@ -441,20 +441,10 @@ namespace Greenshot.Helpers
     /// </summary>
     public class Recipient
     {
-        /// <summary>
-        /// The email address of this recipient.
-        /// </summary>
-        public string Address;
 
-        /// <summary>
-        /// The display name of this recipient.
-        /// </summary>
-        public string DisplayName;
-
-        /// <summary>
-        /// How the recipient will receive this message (To, CC, BCC).
-        /// </summary>
-        public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
+        public string Address { get; set; }
+        public string DisplayName { get; set; }
+        public MapiMailMessage.RecipientType RecipientType { get; set; }
 
         /// <summary>
         /// Creates a new recipient with the specified address and recipient type.

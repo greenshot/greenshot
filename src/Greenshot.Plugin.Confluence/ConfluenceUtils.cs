@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.Confluence
     /// <summary>
     /// Description of ConfluenceUtils.
     /// </summary>
-    public class ConfluenceUtils
+    public static class ConfluenceUtils
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
 

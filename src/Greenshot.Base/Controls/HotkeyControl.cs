@@ -109,8 +109,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public override ContextMenuStrip ContextMenuStrip
         {
-            get { return _dummy; }
-            set { base.ContextMenuStrip = _dummy; }
+            get => _dummy;
+            set => base.ContextMenuStrip = _dummy;
         }
 
         /// <summary>
@@ -118,12 +118,10 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public override bool Multiline
         {
-            get { return base.Multiline; }
-            set
-            {
+            get => base.Multiline;
+            set =>
                 // Ignore what the user wants; force Multiline to false
                 base.Multiline = false;
-            }
         }
 
         /// <summary>
@@ -281,7 +279,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public Keys Hotkey
         {
-            get { return _hotkey; }
+            get => _hotkey;
             set
             {
                 _hotkey = value;
@@ -304,7 +302,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public Keys HotkeyModifiers
         {
-            get { return _modifiers; }
+            get => _modifiers;
             set
             {
                 _modifiers = value;

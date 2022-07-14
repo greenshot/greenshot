@@ -67,7 +67,6 @@ namespace Greenshot.Forms
         private static ILog LOG;
         private static ResourceMutex _applicationMutex;
         private static CoreConfiguration _conf;
-        public static string LogFileLocation;
 
         public static void Start(string[] arguments)
         {
@@ -377,6 +376,8 @@ namespace Greenshot.Forms
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new();
+
+        public static string LogFileLocation { get; set; }
 
         public MainForm(CopyDataTransport dataTransport)
         {

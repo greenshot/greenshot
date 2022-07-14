@@ -132,7 +132,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the name for the credentials.</summary>
         public string Name
         {
-            get { return _name; }
+            get => _name;
             set
             {
                 if (value?.Length > CredUi.MAX_USERNAME_LENGTH)
@@ -153,7 +153,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the password for the credentials.</summary>
         public string Password
         {
-            get { return _password; }
+            get => _password;
             set
             {
                 if (value?.Length > CredUi.MAX_PASSWORD_LENGTH)
@@ -181,7 +181,7 @@ namespace Greenshot.Base.Core
         /// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
         public string Target
         {
-            get { return _target; }
+            get => _target;
             set
             {
                 if (value == null)
@@ -208,7 +208,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default caption to be used.</remarks>
         public string Caption
         {
-            get { return _caption; }
+            get => _caption;
             set
             {
                 if (value?.Length > CredUi.MAX_CAPTION_LENGTH)
@@ -230,7 +230,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default message to be used.</remarks>
         public string Message
         {
-            get { return _message; }
+            get => _message;
             set
             {
                 if (value?.Length > CredUi.MAX_MESSAGE_LENGTH)
@@ -252,7 +252,7 @@ namespace Greenshot.Base.Core
         /// <remarks>A null value will cause a system default image to be used.</remarks>
         public Image Banner
         {
-            get { return _banner; }
+            get => _banner;
             set
             {
                 if (value != null)

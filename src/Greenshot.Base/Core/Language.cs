@@ -36,7 +36,7 @@ namespace Greenshot.Base.Core
     /// This class supplies the GUI with translations, based upon keys.
     /// The language resources are loaded from the language files found on fixed or supplied paths
     /// </summary>
-    public class Language
+    public static class Language
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Language));
         private static readonly List<string> LanguagePaths = new();
@@ -653,7 +653,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Get the resource for key, format with with string.format an supply the parameters
+        /// Get the resource for key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="key">Enum</param>
         /// <param name="param">object</param>
@@ -661,7 +661,7 @@ namespace Greenshot.Base.Core
         public static string GetFormattedString(Enum key, object param) => GetFormattedString(key.ToString(), param);
 
         /// <summary>
-        /// Get the resource for prefix.key, format with with string.format an supply the parameters
+        /// Get the resource for prefix.key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="prefix">string</param>
         /// <param name="key">Enum</param>
@@ -670,7 +670,7 @@ namespace Greenshot.Base.Core
         public static string GetFormattedString(string prefix, Enum key, object param) => GetFormattedString(prefix, key.ToString(), param);
 
         /// <summary>
-        /// Get the resource for prefix.key, format with with string.format an supply the parameters
+        /// Get the resource for prefix.key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="prefix">string</param>
         /// <param name="key">string</param>
@@ -679,7 +679,7 @@ namespace Greenshot.Base.Core
         public static string GetFormattedString(string prefix, string key, object param) => GetFormattedString(prefix + "." + key, param);
 
         /// <summary>
-        /// Get the resource for key, format with with string.format an supply the parameters
+        /// Get the resource for key, format with string.format an supply the parameters
         /// </summary>
         /// <param name="key">string</param>
         /// <param name="param">object</param>

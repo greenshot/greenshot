@@ -59,7 +59,7 @@ namespace Greenshot.Editor.Drawing
 
         public EditStatus Status
         {
-            get { return this[Count - 1].Status; }
+            get => this[Count - 1].Status;
             set
             {
                 foreach (var dc in this)
@@ -108,10 +108,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public ISurface Parent
         {
-            get
-            {
-                return Count > 0 ? this[Count - 1].Parent : null;
-            }
+            get => Count > 0 ? this[Count - 1].Parent : null;
             set
             {
                 ParentID = value?.ID ?? Guid.NewGuid();

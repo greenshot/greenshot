@@ -190,7 +190,7 @@ namespace Greenshot.Plugin.Imgur
                         {
                             Log.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
                             _config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-                            _config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+                            _config.RuntimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
                             UpdateHistoryMenuItem();
                         }
                     }

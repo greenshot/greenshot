@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
+using System.Linq;
 
 namespace Greenshot.Plugin.Office.Destinations
 {
@@ -72,10 +73,8 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {
-            foreach (OneNotePage page in _oneNoteExporter.GetPages())
-            {
-                yield return new OneNoteDestination(page);
-            }
+            return from OneNotePage page in _oneNoteExporter.GetPages()
+                   select new OneNoteDestination(page);
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
