@@ -123,7 +123,7 @@ namespace Greenshot.Plugin.Jira
             {
                 // check for re-login
                 var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-                if (jiraConnector != null && jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url))
+                if (jiraConnector?.IsLoggedIn == true && !string.IsNullOrEmpty(url))
                 {
                     if (!url.Equals(_config.Url))
                     {
@@ -142,12 +142,7 @@ namespace Greenshot.Plugin.Jira
         {
             var settingsForm = new SettingsForm();
             var result = settingsForm.ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                return true;
-            }
-
-            return false;
+            return result == DialogResult.OK;
         }
     }
 }

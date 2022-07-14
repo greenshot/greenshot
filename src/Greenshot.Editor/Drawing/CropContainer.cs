@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
@@ -147,12 +146,7 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                if (_parent?.Image is { } image)
-                {
-                    return new NativeRect(0, 0, image.Width, image.Height);
-                }
-
-                return NativeRect.Empty;
+                return _parent?.Image is { } image ? new NativeRect(0, 0, image.Width, image.Height) : NativeRect.Empty;
             }
         }
 
@@ -162,7 +156,6 @@ namespace Greenshot.Editor.Drawing
             {
                 return;
             }
-
 
             using Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100));
             var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
@@ -195,7 +188,6 @@ namespace Greenshot.Editor.Drawing
                     }
             }
 
-
         }
 
         /// <summary>
@@ -214,7 +206,7 @@ namespace Greenshot.Editor.Drawing
                 _ => base.HandleMouseDown(x, y),
             };
         }
-  
+
         public override bool HandleMouseMove(int x, int y)
         {
             Invalidate();

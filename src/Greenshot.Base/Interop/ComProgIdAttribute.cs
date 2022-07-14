@@ -43,7 +43,7 @@ namespace Greenshot.Base.Interop
         /// </exception>
         public static ComProgIdAttribute GetAttribute(Type interfaceType)
         {
-            if (null == interfaceType)
+            if (interfaceType == null)
             {
                 throw new ArgumentNullException(nameof(interfaceType));
             }
@@ -51,26 +51,21 @@ namespace Greenshot.Base.Interop
             Type attributeType = typeof(ComProgIdAttribute);
             object[] attributes = interfaceType.GetCustomAttributes(attributeType, false);
 
-            if (0 == attributes.Length)
+            if (attributes.Length == 0)
             {
                 Type[] interfaces = interfaceType.GetInterfaces();
                 foreach (Type t in interfaces)
                 {
                     interfaceType = t;
                     attributes = interfaceType.GetCustomAttributes(attributeType, false);
-                    if (0 != attributes.Length)
+                    if (attributes.Length != 0)
                     {
                         break;
                     }
                 }
             }
 
-            if (0 == attributes.Length)
-            {
-                return null;
-            }
-
-            return (ComProgIdAttribute) attributes[0];
+            return attributes.Length == 0 ? null : (ComProgIdAttribute)attributes[0];
         }
 
         /// <summary>Constructor</summary>

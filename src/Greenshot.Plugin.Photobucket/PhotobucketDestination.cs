@@ -52,12 +52,7 @@ namespace Greenshot.Plugin.Photobucket
         {
             get
             {
-                if (_albumPath != null)
-                {
-                    return _albumPath;
-                }
-
-                return Language.GetString("photobucket", LangKey.upload_menu_item);
+                return _albumPath ?? Language.GetString("photobucket", LangKey.upload_menu_item);
             }
         }
 
@@ -65,8 +60,8 @@ namespace Greenshot.Plugin.Photobucket
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-                return (Image) resources.GetObject("Photobucket");
+                ComponentResourceManager resources = new(typeof(PhotobucketPlugin));
+                return (Image)resources.GetObject("Photobucket");
             }
         }
 
@@ -104,7 +99,7 @@ namespace Greenshot.Plugin.Photobucket
         /// <returns></returns>
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out var uploadUrl);
             if (uploaded)
             {

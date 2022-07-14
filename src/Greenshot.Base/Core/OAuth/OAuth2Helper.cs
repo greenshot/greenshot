@@ -82,7 +82,7 @@ namespace Greenshot.Base.Core.OAuth
                     throw new Exception($"{refreshTokenResult["error"]} - {refreshTokenResult["error_description"]}");
                 }
 
-                throw new Exception((string) refreshTokenResult["error"]);
+                throw new Exception((string)refreshTokenResult["error"]);
             }
 
             // gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
@@ -92,12 +92,12 @@ namespace Greenshot.Base.Core.OAuth
             //	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
             if (refreshTokenResult.ContainsKey(AccessToken))
             {
-                settings.AccessToken = (string) refreshTokenResult[AccessToken];
+                settings.AccessToken = (string)refreshTokenResult[AccessToken];
             }
 
             if (refreshTokenResult.ContainsKey(RefreshToken))
             {
-                settings.RefreshToken = (string) refreshTokenResult[RefreshToken];
+                settings.RefreshToken = (string)refreshTokenResult[RefreshToken];
             }
 
             if (refreshTokenResult.ContainsKey(ExpiresIn))
@@ -105,7 +105,7 @@ namespace Greenshot.Base.Core.OAuth
                 object seconds = refreshTokenResult[ExpiresIn];
                 if (seconds != null)
                 {
-                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
                 }
             }
 
@@ -187,7 +187,7 @@ namespace Greenshot.Base.Core.OAuth
             IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
             if (accessTokenResult.ContainsKey("error"))
             {
-                if ("invalid_grant" == (string) accessTokenResult["error"])
+                if ((string)accessTokenResult["error"] == "invalid_grant")
                 {
                     // Refresh token has also expired, we need a new one!
                     settings.RefreshToken = null;
@@ -202,19 +202,19 @@ namespace Greenshot.Base.Core.OAuth
                     throw new Exception($"{accessTokenResult["error"]} - {accessTokenResult["error_description"]}");
                 }
 
-                throw new Exception((string) accessTokenResult["error"]);
+                throw new Exception((string)accessTokenResult["error"]);
             }
 
             if (accessTokenResult.ContainsKey(AccessToken))
             {
-                settings.AccessToken = (string) accessTokenResult[AccessToken];
+                settings.AccessToken = (string)accessTokenResult[AccessToken];
                 settings.AccessTokenExpires = DateTimeOffset.MaxValue;
             }
 
             if (accessTokenResult.ContainsKey(RefreshToken))
             {
                 // Refresh the refresh token :)
-                settings.RefreshToken = (string) accessTokenResult[RefreshToken];
+                settings.RefreshToken = (string)accessTokenResult[RefreshToken];
             }
 
             if (accessTokenResult.ContainsKey(ExpiresIn))
@@ -222,7 +222,7 @@ namespace Greenshot.Base.Core.OAuth
                 object seconds = accessTokenResult[ExpiresIn];
                 if (seconds != null)
                 {
-                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
                 }
             }
         }
@@ -288,7 +288,7 @@ namespace Greenshot.Base.Core.OAuth
                     throw new Exception(errorDescription);
                 }
 
-                if ("access_denied" == error)
+                if (error == "access_denied")
                 {
                     throw new UnauthorizedAccessException("Access denied");
                 }
@@ -324,7 +324,7 @@ namespace Greenshot.Base.Core.OAuth
                 throw new ArgumentNullException(nameof(settings.BrowserSize));
             }
 
-            OAuthLoginForm loginForm = new OAuthLoginForm($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
+            OAuthLoginForm loginForm = new($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
             loginForm.ShowDialog();
             if (!loginForm.IsOk) return false;
             if (loginForm.CallbackParameters.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
@@ -362,7 +362,7 @@ namespace Greenshot.Base.Core.OAuth
                     throw new Exception(errorDescription);
                 }
 
-                if ("access_denied" == error)
+                if (error == "access_denied")
                 {
                     throw new UnauthorizedAccessException("Access denied");
                 }

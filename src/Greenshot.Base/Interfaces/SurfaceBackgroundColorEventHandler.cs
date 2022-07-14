@@ -21,5 +21,5 @@
 
 namespace Greenshot.Base.Interfaces
 {
-    public delegate void SurfaceBackgroundColorEventHandler (object sender, SurfaceBackgroundColorEventArgs e);
+    public delegate void SurfaceBackgroundColorEventHandler(object sender, SurfaceBackgroundColorEventArgs e);
 }

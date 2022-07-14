@@ -58,11 +58,9 @@ namespace Greenshot.Base.Core.OAuth
         protected const string HMACSHA1SignatureType = "HMAC-SHA1";
         protected const string PlainTextSignatureType = "PLAINTEXT";
 
-        protected static Random random = new Random();
+        protected static Random random = new();
 
         protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
-
-        private string _userAgent = "Greenshot";
         private IDictionary<string, string> _requestTokenResponseParameters;
 
         public IDictionary<string, object> RequestTokenParameters { get; } = new Dictionary<string, object>();
@@ -94,11 +92,7 @@ namespace Greenshot.Base.Core.OAuth
 
         public bool UseMultipartFormData { get; set; }
 
-        public string UserAgent
-        {
-            get { return _userAgent; }
-            set { _userAgent = value; }
-        }
+        public string UserAgent { get; set; } = "Greenshot";
 
         public string CallbackUrl { get; set; } = "https://getgreenshot.org";
 
@@ -166,7 +160,7 @@ namespace Greenshot.Base.Core.OAuth
 
             queryParameters = new SortedDictionary<string, object>(queryParameters);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (string key in queryParameters.Keys)
             {
                 if (queryParameters[key] is string)
@@ -189,7 +183,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <returns>Returns a Url encoded string (unicode) with UTF-8 encoded % values</returns>
         public static string UrlEncode3986(string value)
         {
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             foreach (char symbol in value)
             {
@@ -269,12 +263,12 @@ namespace Greenshot.Base.Core.OAuth
         {
             if (string.IsNullOrEmpty(Token))
             {
-                Exception e = new Exception("The request token is not set, service responded with: " + requestTokenResponse);
+                Exception e = new("The request token is not set, service responded with: " + requestTokenResponse);
                 throw e;
             }
 
             Log.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
-            OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
+            OAuthLoginForm oAuthLoginForm = new(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
             oAuthLoginForm.ShowDialog();
             if (oAuthLoginForm.IsOk)
             {
@@ -294,12 +288,7 @@ namespace Greenshot.Base.Core.OAuth
 
             if (CheckVerifier)
             {
-                if (!string.IsNullOrEmpty(Verifier))
-                {
-                    return Token;
-                }
-
-                return null;
+                return !string.IsNullOrEmpty(Verifier) ? Token : null;
             }
 
             return Token;
@@ -313,7 +302,7 @@ namespace Greenshot.Base.Core.OAuth
         {
             if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier)))
             {
-                Exception e = new Exception("The request token and verifier were not set");
+                Exception e = new("The request token and verifier were not set");
                 throw e;
             }
 
@@ -490,7 +479,7 @@ namespace Greenshot.Base.Core.OAuth
                     Token = null;
                     TokenSecret = null;
                     // Remove oauth keys, so they aren't added double
-                    List<string> keysToDelete = new List<string>();
+                    List<string> keysToDelete = new();
                     foreach (string parameterKey in parametersToSign.Keys)
                     {
                         if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
@@ -529,13 +518,13 @@ namespace Greenshot.Base.Core.OAuth
             }
 
             // Build the signature base
-            StringBuilder signatureBase = new StringBuilder();
+            StringBuilder signatureBase = new();
 
             // Add Method to signature base
             signatureBase.Append(method).Append("&");
 
             // Add normalized URL
-            Uri url = new Uri(requestUrl);
+            Uri url = new(requestUrl);
             string normalizedUrl = string.Format(CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
             if (!((url.Scheme == "http" && url.Port == 80) || (url.Scheme == "https" && url.Port == 443)))
             {
@@ -586,7 +575,7 @@ namespace Greenshot.Base.Core.OAuth
                     break;
                 default:
                     // Generate Signature and add it to the parameters
-                    HMACSHA1 hmacsha1 = new HMACSHA1
+                    HMACSHA1 hmacsha1 = new()
                     {
                         Key = Encoding.UTF8.GetBytes(key)
                     };
@@ -655,7 +644,7 @@ namespace Greenshot.Base.Core.OAuth
             // Create webrequest
             HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestUrl, method);
             webRequest.ServicePoint.Expect100Continue = false;
-            webRequest.UserAgent = _userAgent;
+            webRequest.UserAgent = UserAgent;
 
             if (UseHttpHeadersForAuthorization && authHeader != null)
             {
@@ -679,12 +668,11 @@ namespace Greenshot.Base.Core.OAuth
                 }
                 else
                 {
-                    StringBuilder form = new StringBuilder();
+                    StringBuilder form = new();
                     foreach (string parameterKey in requestParameters.Keys)
                     {
-                        var binaryParameter = parameters[parameterKey] as IBinaryContainer;
                         form.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", UrlEncode3986(parameterKey),
-                            binaryParameter != null ? UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)) : UrlEncode3986($"{parameters[parameterKey]}"));
+                            parameters[parameterKey] is IBinaryContainer binaryParameter ? UrlEncode3986(binaryParameter.ToBase64String(Base64FormattingOptions.None)) : UrlEncode3986($"{parameters[parameterKey]}"));
                     }
 
                     // Remove trailing &

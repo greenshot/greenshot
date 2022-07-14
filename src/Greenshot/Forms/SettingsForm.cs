@@ -49,7 +49,7 @@ namespace Greenshot.Forms
     public partial class SettingsForm : BaseForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
-        private readonly ToolTip _toolTip = new ToolTip();
+        private readonly ToolTip _toolTip = new();
         private bool _inHotkey;
         private int _daysBetweenCheckPreviousValue;
 
@@ -102,7 +102,7 @@ namespace Greenshot.Forms
                 item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
             }
 
-            _daysBetweenCheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
+            _daysBetweenCheckPreviousValue = (int)numericUpDown_daysbetweencheck.Value;
             DisplayPluginTab();
             UpdateUi();
             ExpertSettingsEnableState(false);
@@ -117,7 +117,7 @@ namespace Greenshot.Forms
         /// <param name="eventArgs">EventArgs</param>
         private void NumericUpDownDaysbetweencheckOnValueChanged(object sender, EventArgs eventArgs)
         {
-            int currentValue = (int) numericUpDown_daysbetweencheck.Value;
+            int currentValue = (int)numericUpDown_daysbetweencheck.Value;
 
             // Check if we can into the forbidden range
             if (currentValue > 0 && currentValue < 7)
@@ -132,17 +132,17 @@ namespace Greenshot.Forms
                 }
             }
 
-            if ((int) numericUpDown_daysbetweencheck.Value < 0)
+            if ((int)numericUpDown_daysbetweencheck.Value < 0)
             {
                 numericUpDown_daysbetweencheck.Value = 0;
             }
 
-            if ((int) numericUpDown_daysbetweencheck.Value > 365)
+            if ((int)numericUpDown_daysbetweencheck.Value > 365)
             {
                 numericUpDown_daysbetweencheck.Value = 365;
             }
 
-            _daysBetweenCheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
+            _daysBetweenCheckPreviousValue = (int)numericUpDown_daysbetweencheck.Value;
         }
 
         private void EnterHotkeyControl(object sender, EventArgs e)
@@ -197,7 +197,6 @@ namespace Greenshot.Forms
             comboBox.SelectedItem = Language.Translate(selectedValue);
         }
 
-
         /// <summary>
         /// Get the selected enum value from the combobox, uses generics
         /// </summary>
@@ -207,7 +206,7 @@ namespace Greenshot.Forms
         {
             string enumTypeName = typeof(TEnum).Name;
             string selectedValue = comboBox.SelectedItem as string;
-            TEnum[] availableValues = (TEnum[]) Enum.GetValues(typeof(TEnum));
+            TEnum[] availableValues = (TEnum[])Enum.GetValues(typeof(TEnum));
             TEnum returnValue = availableValues[0];
             foreach (TEnum enumValue in availableValues)
             {
@@ -251,7 +250,7 @@ namespace Greenshot.Forms
 
         private void DisplayPluginTab()
         {
-            if (!SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().Any())
+            if (SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().Count == 0)
             {
                 tabcontrol.TabPages.Remove(tab_plugins);
                 return;
@@ -402,7 +401,7 @@ namespace Greenshot.Forms
         {
             foreach (ListViewItem item in listview_clipboardformats.Items)
             {
-                ClipboardFormat cf = (ClipboardFormat) item.Tag;
+                ClipboardFormat cf = (ClipboardFormat)item.Tag;
                 item.Text = Language.Translate(cf);
             }
         }
@@ -423,7 +422,7 @@ namespace Greenshot.Forms
             listview_destinations.Items.Clear();
             var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
             listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
-            ImageList imageList = new ImageList
+            ImageList imageList = new()
             {
                 ImageSize = scaledIconSize
             };
@@ -555,7 +554,7 @@ namespace Greenshot.Forms
                 var item = listview_clipboardformats.Items[index];
                 if (item.Checked)
                 {
-                    clipboardFormats.Add((ClipboardFormat) item.Tag);
+                    clipboardFormats.Add((ClipboardFormat)item.Tag);
                 }
             }
 
@@ -569,7 +568,7 @@ namespace Greenshot.Forms
 
             coreConfiguration.OutputFileJpegQuality = trackBarJpegQuality.Value;
 
-            List<string> destinations = new List<string>();
+            List<string> destinations = new();
             if (checkbox_picker.Checked)
             {
                 destinations.Add(nameof(WellKnownDestinations.Picker));
@@ -586,11 +585,11 @@ namespace Greenshot.Forms
             }
 
             coreConfiguration.OutputDestinations = destinations;
-            coreConfiguration.CaptureDelay = (int) numericUpDownWaitTime.Value;
+            coreConfiguration.CaptureDelay = (int)numericUpDownWaitTime.Value;
             coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
-            coreConfiguration.UpdateCheckInterval = (int) numericUpDown_daysbetweencheck.Value;
+            coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-            coreConfiguration.IconSize = new Size((int) numericUpdownIconSize.Value, (int) numericUpdownIconSize.Value);
+            coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 
             try
             {
@@ -655,7 +654,7 @@ namespace Greenshot.Forms
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+                if (folderBrowserDialog1.SelectedPath?.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)) == false)
                 {
                     textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
                 }
@@ -667,12 +666,11 @@ namespace Greenshot.Forms
             textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
         }
 
-
         private void BtnPatternHelpClick(object sender, EventArgs e)
         {
             string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
             // Convert %NUM% to ${NUM} for old language files!
-            filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
+            filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", "${$1}");
             MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
         }
 
@@ -693,8 +691,8 @@ namespace Greenshot.Forms
             WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
             if (combobox_language.SelectedItem != null)
             {
-                Log.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
-                Language.CurrentLanguage = (string) combobox_language.SelectedValue;
+                Log.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
+                Language.CurrentLanguage = (string)combobox_language.SelectedValue;
             }
 
             // Reflect language changes to the settings form
@@ -848,15 +846,10 @@ namespace Greenshot.Forms
 
             if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
             {
-                return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
+                return string.CompareOrdinal(firstDestination.Description, secondDestination.Description);
             }
 
-            if (firstDestination != null)
-            {
-                return firstDestination.Priority - secondDestination.Priority;
-            }
-
-            return 0;
+            return firstDestination != null ? firstDestination.Priority - secondDestination.Priority : 0;
         }
     }
 }

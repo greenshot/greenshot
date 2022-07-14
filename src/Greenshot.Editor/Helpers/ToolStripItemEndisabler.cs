@@ -26,7 +26,7 @@ namespace Greenshot.Editor.Helpers
 {
     /// <summary>
     /// Enables or disables toolstrip items, taking care of the hierarchy.
-    /// (parent) OwnerItems are ENabled with ToolStripItems, 
+    /// (parent) OwnerItems are ENabled with ToolStripItems,
     /// (child) DropDownItems are ENabled and DISabled with ToolStripItems.
     /// </summary>
     public static class ToolStripItemEndisabler
@@ -58,7 +58,7 @@ namespace Greenshot.Editor.Helpers
         }
 
         /// <summary>
-        /// Enables the ToolStripItem, including children (ToolStripDropDownItem) 
+        /// Enables the ToolStripItem, including children (ToolStripDropDownItem)
         /// and ancestor (OwnerItem)
         /// </summary>
         public static void Enable(ToolStripItem tsi)

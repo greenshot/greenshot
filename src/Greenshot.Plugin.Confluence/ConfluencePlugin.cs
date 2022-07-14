@@ -91,7 +91,7 @@ namespace Greenshot.Plugin.Confluence
 
                 try
                 {
-                    if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn)
+                    if (_confluenceConnector?.IsLoggedIn == false)
                     {
                         _confluenceConnector.Login();
                     }
@@ -152,7 +152,7 @@ namespace Greenshot.Plugin.Confluence
         public void Configure()
         {
             ConfluenceConfiguration clonedConfig = _config.Clone();
-            ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
+            ConfluenceConfigurationForm configForm = new(clonedConfig);
             string url = _config.Url;
             bool? dialogResult = configForm.ShowDialog();
             if (dialogResult.HasValue && dialogResult.Value)

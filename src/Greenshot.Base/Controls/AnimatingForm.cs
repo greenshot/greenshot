@@ -57,12 +57,7 @@ namespace Greenshot.Base.Controls
         protected int FramesForMillis(int milliseconds)
         {
             // If we are in a Terminal Server Session we return 1
-            if (IsTerminalServerSession)
-            {
-                return 1;
-            }
-
-            return milliseconds / VRefresh;
+            return IsTerminalServerSession ? 1 : milliseconds / VRefresh;
         }
 
         /// <summary>

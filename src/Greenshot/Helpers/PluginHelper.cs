@@ -87,7 +87,7 @@ namespace Greenshot.Helpers
                 return false;
             }
 
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            var greenshotPlugin = (IGreenshotPlugin)listView.SelectedItems[0].Tag;
             return greenshotPlugin?.IsConfigurable == true;
         }
 
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
                 return;
             }
 
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
+            var greenshotPlugin = (IGreenshotPlugin)listView.SelectedItems[0].Tag;
             if (greenshotPlugin == null)
             {
                 return;
@@ -153,7 +153,7 @@ namespace Greenshot.Helpers
         public void ImportCapture(ICapture captureToImport)
         {
             var mainForm = SimpleServiceProvider.Current.GetInstance<Form>();
-            mainForm.BeginInvoke((MethodInvoker) delegate { CaptureHelper.ImportCapture(captureToImport); });
+            mainForm.BeginInvoke((MethodInvoker)delegate { CaptureHelper.ImportCapture(captureToImport); });
         }
 
         /// <summary>
@@ -172,7 +172,6 @@ namespace Greenshot.Helpers
             };
             return capture;
         }
-
 
         /// <summary>
         /// Private helper to find the plugins in the path
@@ -224,14 +223,14 @@ namespace Greenshot.Helpers
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
 
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginEntryName))
+                    if (CoreConfig.ExcludePlugins?.Contains(pluginEntryName) == true)
                     {
                         Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
                         Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginEntryName, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
-                    var plugin = (IGreenshotPlugin) Activator.CreateInstance(pluginEntryType);
+                    var plugin = (IGreenshotPlugin)Activator.CreateInstance(pluginEntryType);
                     if (plugin != null)
                     {
                         if (plugin.Initialize())

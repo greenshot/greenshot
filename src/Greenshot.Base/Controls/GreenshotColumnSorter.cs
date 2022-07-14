@@ -30,16 +30,6 @@ namespace Greenshot.Base.Controls
     public class GreenshotColumnSorter : IComparer
     {
         /// <summary>
-        /// Specifies the column to be sorted
-        /// </summary>
-        private int _columnToSort;
-
-        /// <summary>
-        /// Specifies the order in which to sort (i.e. 'Ascending').
-        /// </summary>
-        private SortOrder _orderOfSort;
-
-        /// <summary>
         /// Case insensitive comparer object
         /// </summary>
         private readonly CaseInsensitiveComparer _objectCompare;
@@ -50,10 +40,10 @@ namespace Greenshot.Base.Controls
         public GreenshotColumnSorter()
         {
             // Initialize the column to '0'
-            _columnToSort = 0;
+            SortColumn = 0;
 
             // Initialize the sort order to 'none'
-            _orderOfSort = SortOrder.None;
+            Order = SortOrder.None;
 
             // Initialize the CaseInsensitiveComparer object
             _objectCompare = new CaseInsensitiveComparer();
@@ -83,20 +73,20 @@ namespace Greenshot.Base.Controls
             }
 
             // Cast the objects to be compared to ListViewItem objects
-            var listviewX = (ListViewItem) x;
-            var listviewY = (ListViewItem) y;
+            var listviewX = (ListViewItem)x;
+            var listviewY = (ListViewItem)y;
 
             // Compare the two items
-            var compareResult = _objectCompare.Compare(listviewX.SubItems[_columnToSort].Text, listviewY.SubItems[_columnToSort].Text);
+            var compareResult = _objectCompare.Compare(listviewX.SubItems[SortColumn].Text, listviewY.SubItems[SortColumn].Text);
 
             // Calculate correct return value based on object comparison
-            if (_orderOfSort == SortOrder.Ascending)
+            if (Order == SortOrder.Ascending)
             {
                 // Ascending sort is selected, return normal result of compare operation
                 return compareResult;
             }
 
-            if (_orderOfSort == SortOrder.Descending)
+            if (Order == SortOrder.Descending)
             {
                 // Descending sort is selected, return negative result of compare operation
                 return -compareResult;
@@ -109,19 +99,11 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Gets or sets the number of the column to which to apply the sorting operation (Defaults to '0').
         /// </summary>
-        public int SortColumn
-        {
-            set { _columnToSort = value; }
-            get { return _columnToSort; }
-        }
+        public int SortColumn { set; get; }
 
         /// <summary>
         /// Gets or sets the order of sorting to apply (for example, 'Ascending' or 'Descending').
         /// </summary>
-        public SortOrder Order
-        {
-            set { _orderOfSort = value; }
-            get { return _orderOfSort; }
-        }
+        public SortOrder Order { set; get; }
     }
 }

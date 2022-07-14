@@ -51,7 +51,6 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
-
         /// <summary>
         /// Make sure the image is orientated correctly
         /// </summary>
@@ -75,7 +74,7 @@ namespace Greenshot.Base.Core
 
                 PropertyItem item = image.GetPropertyItem(ExifOrientationId);
 
-                ExifOrientations orientation = (ExifOrientations) item.Value[0];
+                ExifOrientations orientation = (ExifOrientations)item.Value[0];
                 // Orient the image.
                 switch (orientation)
                 {
@@ -106,7 +105,7 @@ namespace Greenshot.Base.Core
                 }
 
                 // Set the orientation to be normal, as we rotated the image.
-                item.Value[0] = (byte) ExifOrientations.TopLeft;
+                item.Value[0] = (byte)ExifOrientations.TopLeft;
                 image.SetPropertyItem(item);
             }
             catch (Exception orientEx)
@@ -130,34 +129,34 @@ namespace Greenshot.Base.Core
             int srcHeight = image.Height;
             if (thumbHeight < 0)
             {
-                thumbHeight = (int) (thumbWidth * (srcHeight / (float) srcWidth));
+                thumbHeight = (int)(thumbWidth * (srcHeight / (float)srcWidth));
             }
 
             if (thumbWidth < 0)
             {
-                thumbWidth = (int) (thumbHeight * (srcWidth / (float) srcHeight));
+                thumbWidth = (int)(thumbHeight * (srcWidth / (float)srcHeight));
             }
 
             if (maxWidth > 0 && thumbWidth > maxWidth)
             {
                 thumbWidth = Math.Min(thumbWidth, maxWidth);
-                thumbHeight = (int) (thumbWidth * (srcHeight / (float) srcWidth));
+                thumbHeight = (int)(thumbWidth * (srcHeight / (float)srcWidth));
             }
 
             if (maxHeight > 0 && thumbHeight > maxHeight)
             {
                 thumbHeight = Math.Min(thumbHeight, maxHeight);
-                thumbWidth = (int) (thumbHeight * (srcWidth / (float) srcHeight));
+                thumbWidth = (int)(thumbHeight * (srcWidth / (float)srcHeight));
             }
 
-            Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);
+            Bitmap bmp = new(thumbWidth, thumbHeight);
             using (Graphics graphics = Graphics.FromImage(bmp))
             {
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                NativeRect rectDestination = new NativeRect(0, 0, thumbWidth, thumbHeight);
+                NativeRect rectDestination = new(0, 0, thumbWidth, thumbHeight);
                 graphics.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);
             }
 
@@ -200,8 +199,8 @@ namespace Greenshot.Base.Core
             area ??= new NativeRect(0, 0, fastBitmap.Width, fastBitmap.Height);
             NativeRect cropNativeRect = NativeRect.Empty;
             Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
-            NativePoint min = new NativePoint(int.MaxValue, int.MaxValue);
-            NativePoint max = new NativePoint(int.MinValue, int.MinValue);
+            NativePoint min = new(int.MaxValue, int.MaxValue);
+            NativePoint max = new(int.MinValue, int.MinValue);
 
             if (cropDifference > 0)
             {
@@ -279,7 +278,7 @@ namespace Greenshot.Base.Core
             // Bottom Left
             // Top Right
             // Bottom Right
-            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap) image))
+            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap)image))
             {
                 // find biggest area
                 foreach (var checkPoint in checkPoints)
@@ -369,9 +368,9 @@ namespace Greenshot.Base.Core
             Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
-                Random random = new Random();
-                int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
-                int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
+                Random random = new();
+                int horizontalRegions = (int)Math.Round((float)sourceImage.Width / horizontalToothRange);
+                int verticalRegions = (int)Math.Round((float)sourceImage.Height / verticalToothRange);
 
                 var topLeft = new NativePoint(0, 0);
                 var topRight = new NativePoint(sourceImage.Width, 0);
@@ -429,7 +428,7 @@ namespace Greenshot.Base.Core
                 {
                     for (int i = 1; i < horizontalRegions - 1; i++)
                     {
-                        points.Add(new NativePoint(sourceImage.Width - i * horizontalToothRange, sourceImage.Height - random.Next(1, toothHeight)));
+                        points.Add(new NativePoint(sourceImage.Width - (i * horizontalToothRange), sourceImage.Height - random.Next(1, toothHeight)));
                     }
 
                     points.Add(new NativePoint(random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
@@ -575,7 +574,7 @@ namespace Greenshot.Base.Core
 
                     if (x >= targetFastBitmap.Left)
                     {
-                        newColors[x - targetFastBitmap.Left] = Color.FromArgb(255, (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        newColors[x - targetFastBitmap.Left] = Color.FromArgb(255, (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
                     }
                 }
 
@@ -634,7 +633,7 @@ namespace Greenshot.Base.Core
 
                     if (x >= targetFastBitmap.Left)
                     {
-                        newColors[x - targetFastBitmap.Left] = Color.FromArgb((byte) (a / hits), (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        newColors[x - targetFastBitmap.Left] = Color.FromArgb((byte)(a / hits), (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
                     }
                 }
 
@@ -690,7 +689,7 @@ namespace Greenshot.Base.Core
 
                     if (y >= targetFastBitmap.Top)
                     {
-                        newColors[y - targetFastBitmap.Top] = Color.FromArgb(255, (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        newColors[y - targetFastBitmap.Top] = Color.FromArgb(255, (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
                     }
                 }
 
@@ -750,7 +749,7 @@ namespace Greenshot.Base.Core
 
                     if (y >= targetFastBitmap.Top)
                     {
-                        newColors[y - targetFastBitmap.Top] = Color.FromArgb((byte) (a / hits), (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        newColors[y - targetFastBitmap.Top] = Color.FromArgb((byte)(a / hits), (byte)(r / hits), (byte)(g / hits), (byte)(b / hits));
                     }
                 }
 
@@ -772,18 +771,15 @@ namespace Greenshot.Base.Core
         /// <returns>NativeRect</returns>
         public static NativeRect CreateIntersectRectangle(NativeSize applySize, NativeRect rect, bool invert)
         {
-            NativeRect myRect;
             if (invert)
             {
-                myRect = new NativeRect(0, 0, applySize.Width, applySize.Height);
+                return new NativeRect(0, 0, applySize.Width, applySize.Height);
             }
             else
             {
-                NativeRect applyRect = new NativeRect(0, 0, applySize.Width, applySize.Height);
-                myRect = new NativeRect(rect.X, rect.Y, rect.Width, rect.Height).Intersect(applyRect);
+                NativeRect applyRect = new(0, 0, applySize.Width, applySize.Height);
+                return new NativeRect(rect.X, rect.Y, rect.Width, rect.Height).Intersect(applyRect);
             }
-
-            return myRect;
         }
 
         /// <summary>
@@ -801,7 +797,7 @@ namespace Greenshot.Base.Core
             NativePoint offset = shadowOffset.Offset(shadowSize - 1, shadowSize - 1);
             matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
             // Create a new "clean" image
-            Bitmap returnImage = CreateEmpty(sourceBitmap.Width + shadowSize * 2, sourceBitmap.Height + shadowSize * 2, targetPixelformat, Color.Empty,
+            Bitmap returnImage = CreateEmpty(sourceBitmap.Width + (shadowSize * 2), sourceBitmap.Height + (shadowSize * 2), targetPixelformat, Color.Empty,
                 sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
             // Make sure the shadow is odd, there is no reason for an even blur!
             if ((shadowSize & 1) == 0)
@@ -811,7 +807,7 @@ namespace Greenshot.Base.Core
 
             bool useGdiBlur = GdiPlusApi.IsBlurPossible(shadowSize);
             // Create "mask" for the shadow
-            ColorMatrix maskMatrix = new ColorMatrix
+            ColorMatrix maskMatrix = new()
             {
                 Matrix00 = 0,
                 Matrix11 = 0,
@@ -826,14 +822,14 @@ namespace Greenshot.Base.Core
                 maskMatrix.Matrix33 = darkness;
             }
 
-            NativeRect shadowNativeRect = new NativeRect(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
-            ApplyColorMatrix((Bitmap) sourceBitmap, NativeRect.Empty, returnImage, shadowNativeRect, maskMatrix);
+            NativeRect shadowNativeRect = new(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
+            ApplyColorMatrix((Bitmap)sourceBitmap, NativeRect.Empty, returnImage, shadowNativeRect, maskMatrix);
 
             // blur "shadow", apply to whole new image
             if (useGdiBlur)
             {
                 // Use GDI Blur
-                NativeRect newImageNativeRect = new NativeRect(0, 0, returnImage.Width, returnImage.Height);
+                NativeRect newImageNativeRect = new(0, 0, returnImage.Width, returnImage.Height);
                 GdiPlusApi.ApplyBlur(returnImage, newImageNativeRect, shadowSize + 1, false);
             }
             else
@@ -868,8 +864,8 @@ namespace Greenshot.Base.Core
         /// <returns>Negative bitmap</returns>
         public static Bitmap CreateNegative(Image sourceImage)
         {
-            Bitmap clone = (Bitmap) Clone(sourceImage);
-            ColorMatrix invertMatrix = new ColorMatrix(new[]
+            Bitmap clone = (Bitmap)Clone(sourceImage);
+            ColorMatrix invertMatrix = new(new[]
             {
                 new float[]
                 {
@@ -916,7 +912,7 @@ namespace Greenshot.Base.Core
         /// <param name="colorMatrix">ColorMatrix to apply</param>
         public static void ApplyColorMatrix(Bitmap source, NativeRect sourceRect, Bitmap dest, NativeRect destRect, ColorMatrix colorMatrix)
         {
-            using ImageAttributes imageAttributes = new ImageAttributes();
+            using ImageAttributes imageAttributes = new();
             imageAttributes.ClearColorMatrix();
             imageAttributes.SetColorMatrix(colorMatrix);
             ApplyImageAttributes(source, sourceRect, dest, destRect, imageAttributes);
@@ -993,11 +989,11 @@ namespace Greenshot.Base.Core
         public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix)
         {
             // "return" the shifted offset, so the caller can e.g. move elements
-            NativePoint offset = new NativePoint(borderSize, borderSize);
+            NativePoint offset = new(borderSize, borderSize);
             matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
 
             // Create a new "clean" image
-            Bitmap newImage = CreateEmpty(sourceImage.Width + borderSize * 2, sourceImage.Height + borderSize * 2, targetPixelformat, Color.Empty, sourceImage.HorizontalResolution,
+            Bitmap newImage = CreateEmpty(sourceImage.Width + (borderSize * 2), sourceImage.Height + (borderSize * 2), targetPixelformat, Color.Empty, sourceImage.HorizontalResolution,
                 sourceImage.VerticalResolution);
             using (Graphics graphics = Graphics.FromImage(newImage))
             {
@@ -1006,10 +1002,10 @@ namespace Greenshot.Base.Core
                 graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                using (GraphicsPath path = new GraphicsPath())
+                using (GraphicsPath path = new())
                 {
                     path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
-                    using Pen pen = new Pen(borderColor, borderSize)
+                    using Pen pen = new(borderColor, borderSize)
                     {
                         LineJoin = LineJoin.Round,
                         StartCap = LineCap.Round,
@@ -1038,7 +1034,7 @@ namespace Greenshot.Base.Core
         public static ImageAttributes CreateAdjustAttributes(float brightness, float contrast, float gamma)
         {
             float adjustedBrightness = brightness - 1.0f;
-            ColorMatrix applyColorMatrix = new ColorMatrix(
+            ColorMatrix applyColorMatrix = new(
                 new[]
                 {
                     new[]
@@ -1064,7 +1060,7 @@ namespace Greenshot.Base.Core
                 });
 
             //create some image attributes
-            ImageAttributes attributes = new ImageAttributes();
+            ImageAttributes attributes = new();
             attributes.ClearColorMatrix();
             attributes.SetColorMatrix(applyColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
@@ -1088,7 +1084,7 @@ namespace Greenshot.Base.Core
                 sourceImage.VerticalResolution);
             using (ImageAttributes adjustAttributes = CreateAdjustAttributes(brightness, contrast, gamma))
             {
-                ApplyImageAttributes((Bitmap) sourceImage, NativeRect.Empty, newBitmap, NativeRect.Empty, adjustAttributes);
+                ApplyImageAttributes((Bitmap)sourceImage, NativeRect.Empty, newBitmap, NativeRect.Empty, adjustAttributes);
             }
 
             return newBitmap;
@@ -1101,8 +1097,8 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap with grayscale</returns>
         public static Image CreateGrayscale(Image sourceImage)
         {
-            Bitmap clone = (Bitmap) Clone(sourceImage);
-            ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
+            Bitmap clone = (Bitmap)Clone(sourceImage);
+            ColorMatrix grayscaleMatrix = new(new[]
             {
                 new[]
                 {
@@ -1149,12 +1145,7 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap with clone image data</returns>
         public static Image Clone(Image sourceImage)
         {
-            if (sourceImage is Metafile)
-            {
-                return (Image) sourceImage.Clone();
-            }
-
-            return CloneArea(sourceImage, NativeRect.Empty, PixelFormat.DontCare);
+            return sourceImage is Metafile ? (Image)sourceImage.Clone() : CloneArea(sourceImage, NativeRect.Empty, PixelFormat.DontCare);
         }
 
         /// <summary>
@@ -1182,7 +1173,7 @@ namespace Greenshot.Base.Core
         public static Bitmap CloneArea(Image sourceImage, NativeRect sourceRect, PixelFormat targetFormat)
         {
             Bitmap newImage;
-            NativeRect bitmapRect = new NativeRect(0, 0, sourceImage.Width, sourceImage.Height);
+            NativeRect bitmapRect = new(0, 0, sourceImage.Width, sourceImage.Height);
 
             // Make sure the source is not NativeRect.Empty
             if (NativeRect.Empty.Equals(sourceRect))
@@ -1322,7 +1313,7 @@ namespace Greenshot.Base.Core
         public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
-            Bitmap newImage = new Bitmap(width, height, format);
+            Bitmap newImage = new(width, height, format);
             newImage.SetResolution(horizontalResolution, verticalResolution);
             if (format != PixelFormat.Format8bppIndexed)
             {
@@ -1399,7 +1390,7 @@ namespace Greenshot.Base.Core
                 toCount &= 0xffffff;
             }
 
-            using IFastBitmap bb = FastBitmap.Create((Bitmap) sourceImage);
+            using IFastBitmap bb = FastBitmap.Create((Bitmap)sourceImage);
             for (int y = 0; y < bb.Height; y++)
             {
                 for (int x = 0; x < bb.Width; x++)
@@ -1436,32 +1427,32 @@ namespace Greenshot.Base.Core
             int destX = 0;
             int destY = 0;
 
-            var nPercentW = newWidth / (float) sourceImage.Width;
-            var nPercentH = newHeight / (float) sourceImage.Height;
+            var nPercentW = newWidth / (float)sourceImage.Width;
+            var nPercentH = newHeight / (float)sourceImage.Height;
             if (maintainAspectRatio)
             {
-                if ((int) nPercentW == 1)
+                if ((int)nPercentW == 1)
                 {
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
                     {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
+                        destX = Math.Max(0, Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
                     }
                 }
-                else if ((int) nPercentH == 1)
+                else if ((int)nPercentH == 1)
                 {
                     nPercentH = nPercentW;
                     if (canvasUseNewSize)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destY = Math.Max(0, Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
                     }
                 }
-                else if ((int) nPercentH != 0 && nPercentH < nPercentW)
+                else if ((int)nPercentH != 0 && nPercentH < nPercentW)
                 {
                     nPercentW = nPercentH;
                     if (canvasUseNewSize)
                     {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
+                        destX = Math.Max(0, Convert.ToInt32((newWidth - (sourceImage.Width * nPercentW)) / 2));
                     }
                 }
                 else
@@ -1469,13 +1460,13 @@ namespace Greenshot.Base.Core
                     nPercentH = nPercentW;
                     if (canvasUseNewSize)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destY = Math.Max(0, Convert.ToInt32((newHeight - (sourceImage.Height * nPercentH)) / 2));
                     }
                 }
             }
 
-            int destWidth = (int) (sourceImage.Width * nPercentW);
-            int destHeight = (int) (sourceImage.Height * nPercentH);
+            int destWidth = (int)(sourceImage.Width * nPercentW);
+            int destHeight = (int)(sourceImage.Height * nPercentH);
             if (newWidth == 0)
             {
                 newWidth = destWidth;
@@ -1490,25 +1481,25 @@ namespace Greenshot.Base.Core
             if (maintainAspectRatio && canvasUseNewSize)
             {
                 newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-                matrix?.Scale((float) newWidth / sourceImage.Width, (float) newHeight / sourceImage.Height, MatrixOrder.Append);
+                matrix?.Scale((float)newWidth / sourceImage.Width, (float)newHeight / sourceImage.Height, MatrixOrder.Append);
             }
             else
             {
                 newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-                matrix?.Scale((float) destWidth / sourceImage.Width, (float) destHeight / sourceImage.Height, MatrixOrder.Append);
+                matrix?.Scale((float)destWidth / sourceImage.Width, (float)destHeight / sourceImage.Height, MatrixOrder.Append);
             }
 
             using (Graphics graphics = Graphics.FromImage(newImage))
             {
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                using ImageAttributes wrapMode = new ImageAttributes();
+                using ImageAttributes wrapMode = new();
                 wrapMode.SetWrapMode(WrapMode.TileFlipXY);
                 graphics.DrawImage(sourceImage, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
             }
 
             return newImage;
         }
-        
+
         /// <summary>
         /// Rotate the image
         /// </summary>
@@ -1562,12 +1553,7 @@ namespace Greenshot.Base.Core
             {
                 return PixelFormat.Format24bppRgb;
             }
-            if (pixelFormat == PixelFormats.Bgr32)
-            {
-                return PixelFormat.Format32bppRgb;
-            }
-
-            throw new NotSupportedException($"Can't map {pixelFormat}.");
+            return pixelFormat == PixelFormats.Bgr32 ? PixelFormat.Format32bppRgb : throw new NotSupportedException($"Can't map {pixelFormat}.");
         }
 
         /// <summary>
@@ -1605,7 +1591,7 @@ namespace Greenshot.Base.Core
         {
             var pixelFormat = bitmapSource.Format.Map();
 
-            Bitmap bitmap = new Bitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, pixelFormat);
+            Bitmap bitmap = new(bitmapSource.PixelWidth, bitmapSource.PixelHeight, pixelFormat);
             BitmapData data = bitmap.LockBits(new NativeRect(NativePoint.Empty, bitmap.Size), ImageLockMode.WriteOnly, pixelFormat);
             bitmapSource.CopyPixels(Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
             bitmap.UnlockBits(data);

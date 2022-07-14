@@ -130,7 +130,7 @@ namespace Greenshot.Helpers
             }
 
             _notifyIcon.BalloonTipClosed += BalloonClosedHandler;
-            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
+            _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int)timeout.Value.TotalMilliseconds : 5000, "Greenshot", message, level);
         }
     }
 }

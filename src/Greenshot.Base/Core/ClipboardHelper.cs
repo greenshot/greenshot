@@ -52,7 +52,7 @@ namespace Greenshot.Base.Core
     public static class ClipboardHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ClipboardHelper));
-        private static readonly object ClipboardLockObject = new object();
+        private static readonly object ClipboardLockObject = new();
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private static readonly string FORMAT_FILECONTENTS = "FileContents";
         private static readonly string FORMAT_HTML = "text/html";
@@ -384,7 +384,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         /// <param name="dataObject">IDataObject</param>
         /// <returns>IEnumerable{(MemoryStream,string)}</returns>
-        private static IEnumerable<(MemoryStream stream,string filename)> IterateClipboardContent(IDataObject dataObject)
+        private static IEnumerable<(MemoryStream stream, string filename)> IterateClipboardContent(IDataObject dataObject)
         {
             var fileDescriptors = AvailableFileDescriptors(dataObject);
             if (fileDescriptors == null) yield break;
@@ -402,7 +402,7 @@ EndSelection:<<<<<<<4
         /// <returns>IEnumerable{FileDescriptor}</returns>
         private static IEnumerable<FileDescriptor> AvailableFileDescriptors(IDataObject dataObject)
         {
-            var fileDescriptor = (MemoryStream) dataObject.GetData("FileGroupDescriptorW");
+            var fileDescriptor = (MemoryStream)dataObject.GetData("FileGroupDescriptorW");
             if (fileDescriptor != null)
             {
                 try
@@ -544,7 +544,6 @@ EndSelection:<<<<<<<4
                     {
                         continue;
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -569,7 +568,7 @@ EndSelection:<<<<<<<4
                 }
 
                 Bitmap bitmap = null;
-                using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using FileStream fileStream = new(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 try
                 {
                     if (!fileFormatHandlers.TryLoadFromStream(fileStream, extension, out bitmap))
@@ -643,7 +642,7 @@ EndSelection:<<<<<<<4
                 {
                     continue;
                 }
-                using FileStream fileStream = new FileStream(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using FileStream fileStream = new(imageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                 IEnumerable<IDrawableContainer> drawableContainers;
                 try
                 {
@@ -677,7 +676,7 @@ EndSelection:<<<<<<<4
 
             // Found a weird bug, where PNG's from Outlook 2010 are clipped
             // So I build some special logic to get the best format:
-            if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            if (formats?.Contains(FORMAT_PNG_OFFICEART) == true && formats.Contains(DataFormats.Dib))
             {
                 // Outlook ??
                 Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
@@ -698,7 +697,7 @@ EndSelection:<<<<<<<4
 
             foreach (string currentFormat in retrieveFormats)
             {
-                if (formats != null && formats.Contains(currentFormat))
+                if (formats?.Contains(currentFormat) == true)
                 {
                     Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
                     returnImage = GetImageForFormat(currentFormat, dataObject);
@@ -732,7 +731,7 @@ EndSelection:<<<<<<<4
 
             // Found a weird bug, where PNG's from Outlook 2010 are clipped
             // So I build some special logic to get the best format:
-            if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+            if (formats?.Contains(FORMAT_PNG_OFFICEART) == true && formats.Contains(DataFormats.Dib))
             {
                 // Outlook ??
                 Log.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
@@ -753,7 +752,7 @@ EndSelection:<<<<<<<4
 
             foreach (string currentFormat in retrieveFormats)
             {
-                if (formats != null && formats.Contains(currentFormat))
+                if (formats?.Contains(currentFormat) == true)
                 {
                     Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
                     returnImage = GetDrawableForFormat(currentFormat, dataObject);
@@ -782,8 +781,7 @@ EndSelection:<<<<<<<4
         /// <returns>Bitmap or null</returns>
         private static Bitmap GetImageForFormat(string format, IDataObject dataObject)
         {
-            Bitmap bitmap = null;
-
+            Bitmap bitmap;
             if (format == FORMAT_HTML)
             {
                 var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
@@ -818,11 +816,7 @@ EndSelection:<<<<<<<4
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
             // From here, imageStream is a valid stream
-            if (fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap))
-            {
-                return bitmap;
-            }
-            return null;
+            return fileFormatHandlers.TryLoadFromStream(imageStream, format, out bitmap) ? bitmap : null;
         }
 
         /// <summary>
@@ -835,8 +829,6 @@ EndSelection:<<<<<<<4
         /// <returns>IDrawableContainer or null</returns>
         private static IDrawableContainer GetDrawableForFormat(string format, IDataObject dataObject)
         {
-            IDrawableContainer drawableContainer = null;
-
             if (format == FORMAT_HTML)
             {
                 var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
@@ -852,7 +844,7 @@ EndSelection:<<<<<<<4
                             var srcAttribute = imgNode.Attributes["src"];
                             var imageUrl = srcAttribute.Value;
                             Log.Debug(imageUrl);
-                            drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(imageUrl);
+                            IDrawableContainer drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(imageUrl);
                             if (drawableContainer != null)
                             {
                                 return drawableContainer;
@@ -895,12 +887,7 @@ EndSelection:<<<<<<<4
         /// <returns>string if there is text on the clipboard</returns>
         public static string GetText(IDataObject dataObject)
         {
-            if (ContainsText(dataObject))
-            {
-                return (string) dataObject.GetData(DataFormats.Text);
-            }
-
-            return null;
+            return ContainsText(dataObject) ? (string)dataObject.GetData(DataFormats.Text) : null;
         }
 
         /// <summary>
@@ -920,12 +907,12 @@ EndSelection:<<<<<<<4
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${file}", filename.Replace("\\", "/"));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.Append(utf8EncodedHtmlString);
             sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
-            sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal)).ToString("D8"));
+            sb.Replace("<<<<<<<2", utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal).ToString("D8"));
             sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal) + "<!--StartFragment -->".Length).ToString("D8"));
-            sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal)).ToString("D8"));
+            sb.Replace("<<<<<<<4", utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal).ToString("D8"));
             return sb.ToString();
         }
 
@@ -935,13 +922,13 @@ EndSelection:<<<<<<<4
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
-            StringBuilder sb = new StringBuilder();
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int)pngStream.Length));
+            StringBuilder sb = new();
             sb.Append(utf8EncodedHtmlString);
             sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
-            sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal)).ToString("D8"));
+            sb.Replace("<<<<<<<2", utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal).ToString("D8"));
             sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal) + "<!--StartFragment -->".Length).ToString("D8"));
-            sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal)).ToString("D8"));
+            sb.Replace("<<<<<<<4", utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal).ToString("D8"));
             return sb.ToString();
         }
 
@@ -956,7 +943,7 @@ EndSelection:<<<<<<<4
         /// </summary>
         public static void SetClipboardData(ISurface surface)
         {
-            DataObject dataObject = new DataObject();
+            DataObject dataObject = new();
 
             // This will work for Office and most other applications
             //ido.SetData(DataFormats.Bitmap, true, image);
@@ -968,7 +955,7 @@ EndSelection:<<<<<<<4
             bool disposeImage = false;
             try
             {
-                SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+                SurfaceOutputSettings outputSettings = new(OutputFormat.png, 100, false);
                 // Create the image which is going to be saved so we don't create it multiple times
                 disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out imageToSave);
                 try
@@ -978,7 +965,7 @@ EndSelection:<<<<<<<4
                     {
                         pngStream = new MemoryStream();
                         // PNG works for e.g. Powerpoint
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+                        SurfaceOutputSettings pngOutputSettings = new(OutputFormat.png, 100, false);
                         ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
                         pngStream.Seek(0, SeekOrigin.Begin);
                         // Set the PNG stream
@@ -1034,7 +1021,7 @@ EndSelection:<<<<<<<4
 
                         // As we have specified BI_COMPRESSION.BI_BITFIELDS, the BitfieldColorMask needs to be added
                         // This also makes sure the default values are set
-                        BitfieldColorMask colorMask = new BitfieldColorMask();
+                        BitfieldColorMask colorMask = new();
                         // Create the byte[] from the struct
                         byte[] colorMaskBytes = BinaryStructHelper.ToByteArray(colorMask);
                         Array.Reverse(colorMaskBytes);
@@ -1042,7 +1029,7 @@ EndSelection:<<<<<<<4
                         dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
 
                         // Create the raw bytes for the pixels only
-                        byte[] bitmapBytes = BitmapToByteArray((Bitmap) imageToSave);
+                        byte[] bitmapBytes = BitmapToByteArray((Bitmap)imageToSave);
                         // Write to the stream
                         dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
@@ -1065,9 +1052,9 @@ EndSelection:<<<<<<<4
                 else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
                     string html;
-                    using (MemoryStream tmpPngStream = new MemoryStream())
+                    using (MemoryStream tmpPngStream = new())
                     {
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
+                        SurfaceOutputSettings pngOutputSettings = new(OutputFormat.png, 100, false)
                         {
                             // Do not allow to reduce the colors, some applications dislike 256 color images
                             // reported with bug #3594681
@@ -1136,7 +1123,7 @@ EndSelection:<<<<<<<4
 
             for (int i = 0; i < bitmap.Height; i++)
             {
-                IntPtr pointer = new IntPtr(ptr + (bmpData.Stride * i));
+                IntPtr pointer = new(ptr + (bmpData.Stride * i));
                 Marshal.Copy(pointer, rgbValues, absStride * (bitmap.Height - i - 1), absStride);
             }
 
@@ -1243,12 +1230,7 @@ EndSelection:<<<<<<<4
         /// <returns>object from IDataObject</returns>
         public static object GetFromDataObject(IDataObject dataObj, Type type)
         {
-            if (type != null)
-            {
-                return GetFromDataObject(dataObj, type.FullName);
-            }
-
-            return null;
+            return type != null ? GetFromDataObject(dataObj, type.FullName) : null;
         }
 
         /// <summary>
@@ -1267,7 +1249,6 @@ EndSelection:<<<<<<<4
                 .Where(filename => !string.IsNullOrEmpty(filename))
                 .Where(Path.HasExtension)
                 .Where(filename => supportedExtensions.Contains(Path.GetExtension(filename)));
-
         }
 
         /// <summary>

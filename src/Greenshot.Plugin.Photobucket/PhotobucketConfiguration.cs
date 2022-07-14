@@ -70,12 +70,7 @@ namespace Greenshot.Plugin.Photobucket
                 delegate { settingsForm = new SettingsForm(); }
             );
             DialogResult result = settingsForm.ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                return true;
-            }
-
-            return false;
+            return result == DialogResult.OK;
         }
     }
 }

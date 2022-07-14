@@ -67,10 +67,7 @@ namespace Greenshot.Editor.Drawing
         {
             set
             {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
+                cursor?.Dispose();
 
                 // Clone cursor (is this correct??)
                 cursor = new Cursor(value.CopyHandle());
@@ -89,10 +86,7 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
-                if (cursor != null)
-                {
-                    cursor.Dispose();
-                }
+                cursor?.Dispose();
             }
 
             cursor = null;
@@ -106,7 +100,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            using Cursor fileCursor = new Cursor(filename);
+            using Cursor fileCursor = new(filename);
             Cursor = fileCursor;
             LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }

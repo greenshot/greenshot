@@ -21,5 +21,5 @@
 
 namespace Greenshot.Base.Interfaces
 {
-    public delegate void SurfaceShadowEventHandler (object sender, SurfaceShadowEventArgs e);
+    public delegate void SurfaceShadowEventHandler(object sender, SurfaceShadowEventArgs e);
 }

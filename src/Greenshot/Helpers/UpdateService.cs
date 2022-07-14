@@ -40,9 +40,9 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
-        private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private static readonly Uri UpdateFeed = new("https://getgreenshot.org/update-feed.json");
+        private static readonly Uri Downloads = new("https://getgreenshot.org/downloads");
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         /// <summary>
         /// Provides the current version
@@ -176,7 +176,6 @@ namespace Greenshot.Helpers
                 }
             }
         }
-
 
         /// <summary>
         /// This takes care of creating the toast view model, publishing it, and disposing afterwards

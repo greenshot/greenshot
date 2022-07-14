@@ -325,10 +325,10 @@ namespace Greenshot.Base.Core
         private DialogResult ShowDialog(IWin32Window owner)
         {
             // set the api call parameters
-            StringBuilder name = new StringBuilder(CredUi.MAX_USERNAME_LENGTH);
+            StringBuilder name = new(CredUi.MAX_USERNAME_LENGTH);
             name.Append(Name);
 
-            StringBuilder password = new StringBuilder(CredUi.MAX_PASSWORD_LENGTH);
+            StringBuilder password = new(CredUi.MAX_PASSWORD_LENGTH);
             password.Append(Password);
 
             int saveChecked = Convert.ToInt32(SaveChecked);
@@ -365,7 +365,7 @@ namespace Greenshot.Base.Core
         /// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
         private CredUi.INFO GetInfo(IWin32Window owner)
         {
-            CredUi.INFO info = new CredUi.INFO();
+            CredUi.INFO info = new();
             if (owner != null) info.hWndParent = owner.Handle;
             info.pszCaptionText = Caption;
             info.pszMessageText = Message;

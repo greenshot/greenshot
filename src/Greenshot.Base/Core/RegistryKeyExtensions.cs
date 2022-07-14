@@ -50,7 +50,7 @@ namespace Greenshot.Base.Core
 
                 if (key != null)
                 {
-                    result = (string) key.GetValue(value);
+                    result = (string)key.GetValue(value);
                 }
 
                 if (string.IsNullOrEmpty(result))
@@ -67,7 +67,7 @@ namespace Greenshot.Base.Core
             {
                 if (key != null)
                 {
-                    result = (string) key.GetValue(value);
+                    result = (string)key.GetValue(value);
                 }
 
                 if (!string.IsNullOrEmpty(result)) return result;
@@ -78,7 +78,7 @@ namespace Greenshot.Base.Core
             {
                 if (key != null)
                 {
-                    result = (string) key.GetValue(value);
+                    result = (string)key.GetValue(value);
                 }
             }
 

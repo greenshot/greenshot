@@ -45,7 +45,7 @@ namespace Greenshot.Forms
 
         private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            openLink((LinkLabel) sender);
+            openLink((LinkLabel)sender);
         }
 
         private void openLink(LinkLabel link)

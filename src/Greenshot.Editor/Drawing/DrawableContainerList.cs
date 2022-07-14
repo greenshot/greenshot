@@ -77,7 +77,7 @@ namespace Greenshot.Editor.Drawing
 
         public List<IDrawableContainer> AsIDrawableContainerList()
         {
-            List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
+            List<IDrawableContainer> interfaceList = new();
             foreach (IDrawableContainer container in this)
             {
                 interfaceList.Add(container);
@@ -119,19 +119,14 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                if (Count > 0)
-                {
-                    return this[Count - 1].Parent;
-                }
-
-                return null;
+                return Count > 0 ? this[Count - 1].Parent : null;
             }
             set
             {
                 ParentID = value?.ID ?? Guid.NewGuid();
                 foreach (var drawableContainer in this)
                 {
-                    var dc = (DrawableContainer) drawableContainer;
+                    var dc = (DrawableContainer)drawableContainer;
                     dc.Parent = value;
                 }
             }
@@ -146,7 +141,7 @@ namespace Greenshot.Editor.Drawing
             if (Count <= 0 || Parent == null) return;
             // Take all containers to make undoable
             var containersToClone = this.Where(c => c.IsUndoable).ToList();
-            if (!containersToClone.Any())
+            if (containersToClone.Count == 0)
             {
                 return;
             }
@@ -250,7 +245,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.OnDoubleClick();
             }
         }
@@ -330,7 +325,7 @@ namespace Greenshot.Editor.Drawing
 
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 if (dc.Parent == null)
                 {
                     continue;
@@ -352,7 +347,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.HandleFieldChanged(sender, e);
             }
         }
@@ -377,7 +372,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Indicates whether the given list of elements can be pulled up, 
+        /// Indicates whether the given list of elements can be pulled up,
         /// i.e. whether there is at least one unselected element higher in hierarchy
         /// </summary>
         /// <param name="elements">list of elements to pull up</param>
@@ -443,70 +438,70 @@ namespace Greenshot.Editor.Drawing
 
         public void SetForegroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
-		        
-		        fh.SetFieldValue(field, color);
-	        }
+            var dcs = ToArray();
+            var field = FieldType.LINE_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
+
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public void SetBackgroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.FILL_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.FILL_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        fh.SetFieldValue(field, color);
-	        }
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public int IncreaseLineThickness(int increaseBy)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_THICKNESS;
-	        var lastThickness = 0;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.LINE_THICKNESS;
+            var lastThickness = 0;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentThickness = (int)fh.GetFieldValue(field);
-		        var thickness = Math.Max(0, currentThickness + increaseBy);
-		        fh.SetFieldValue(field, thickness);
-		        lastThickness = thickness;
-	        }
+                var currentThickness = (int)fh.GetFieldValue(field);
+                var thickness = Math.Max(0, currentThickness + increaseBy);
+                fh.SetFieldValue(field, thickness);
+                lastThickness = thickness;
+            }
 
-	        return lastThickness;
+            return lastThickness;
         }
 
         public bool FlipShadow()
         {
-	        var dcs = ToArray();
-	        var field = FieldType.SHADOW;
-	        var lastShadow = false;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.SHADOW;
+            var lastShadow = false;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentShadow = (bool)fh.GetFieldValue(field);
-		        var shadow = !currentShadow;
-		        fh.SetFieldValue(field, shadow);
-		        lastShadow = shadow;
-	        }
+                var currentShadow = (bool)fh.GetFieldValue(field);
+                var shadow = !currentShadow;
+                fh.SetFieldValue(field, shadow);
+                lastShadow = shadow;
+            }
 
-	        return lastShadow;
+            return lastShadow;
         }
 
         /// <summary>
-        /// Indicates whether the given list of elements can be pushed down, 
+        /// Indicates whether the given list of elements can be pushed down,
         /// i.e. whether there is at least one unselected element lower in hierarchy
         /// </summary>
         /// <param name="elements">list of elements to push down</param>
@@ -572,7 +567,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// swaps two elements in hierarchy (z-index), 
+        /// swaps two elements in hierarchy (z-index),
         /// checks both indices to be in range
         /// </summary>
         /// <param name="index1">index of the 1st element</param>
@@ -655,7 +650,7 @@ namespace Greenshot.Editor.Drawing
             // Copy
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
             item.Click += delegate { ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this); };
             menu.Items.Add(item);
@@ -663,7 +658,7 @@ namespace Greenshot.Editor.Drawing
             // Cut
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("btnCut.Image")
+                Image = (Image)EditorFormResources.GetObject("btnCut.Image")
             };
             item.Click += delegate
             {
@@ -675,7 +670,7 @@ namespace Greenshot.Editor.Drawing
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
-                Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
             item.Click += delegate { surface.RemoveElements(this); };
             menu.Items.Add(item);
@@ -692,7 +687,7 @@ namespace Greenshot.Editor.Drawing
                     MakeBoundsChangeUndoable(false);
                     foreach (var drawableContainer in this)
                     {
-                        var container = (DrawableContainer) drawableContainer;
+                        var container = (DrawableContainer)drawableContainer;
                         if (!container.HasDefaultSize)
                         {
                             continue;
@@ -726,8 +721,8 @@ namespace Greenshot.Editor.Drawing
             bool hasMenu = this.Cast<DrawableContainer>().Any(container => container.HasContextMenu);
 
             if (!hasMenu) return;
-            
-            ContextMenuStrip menu = new ContextMenuStrip();
+
+            ContextMenuStrip menu = new();
             AddContextMenuItems(menu, surface, mouseEventArgs);
             if (menu.Items.Count <= 0) return;
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));

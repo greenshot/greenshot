@@ -17,10 +17,10 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// This parses a JSON response, a modified version of the code found at:
     /// See: https://techblog.procurios.nl/k/n618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
-    /// 
+    ///
     /// This file is under the MIT License, which is GPL Compatible and according to: https://en.wikipedia.org/wiki/MIT_License
     /// can be used under the GPL "umbrella".
-    /// 
+    ///
     /// TODO: code should be replaced when upgrading to .NET 3.5 or higher!!
     /// </summary>
     public class JSONHelper
@@ -80,7 +80,7 @@ namespace Greenshot.Base.Core
             // {
             NextToken(json, ref index);
 
-            bool done = false;
+            const bool done = false;
             while (!done)
             {
                 token = LookAhead(json, index);
@@ -138,7 +138,7 @@ namespace Greenshot.Base.Core
             // [
             NextToken(json, ref index);
 
-            bool done = false;
+            const bool done = false;
             while (!done)
             {
                 int token = LookAhead(json, index);
@@ -202,12 +202,12 @@ namespace Greenshot.Base.Core
 
         protected static string ParseString(char[] json, ref int index, ref bool success)
         {
-            StringBuilder s = new StringBuilder(BUILDER_CAPACITY);
+            StringBuilder s = new(BUILDER_CAPACITY);
 
             EatWhitespace(json, ref index);
 
             // "
-            var c = json[index++];
+            _ = json[index++];
 
             bool complete = false;
             while (!complete)
@@ -217,7 +217,7 @@ namespace Greenshot.Base.Core
                     break;
                 }
 
-                c = json[index++];
+                char c = json[index++];
                 if (c == '"')
                 {
                     complete = true;
@@ -275,7 +275,7 @@ namespace Greenshot.Base.Core
                             }
 
                             // convert the integer codepoint to a unicode char and add to string
-                            s.Append(char.ConvertFromUtf32((int) codePoint));
+                            s.Append(char.ConvertFromUtf32((int)codePoint));
                             // skip 4 chars
                             index += 4;
                         }
@@ -305,7 +305,7 @@ namespace Greenshot.Base.Core
             EatWhitespace(json, ref index);
 
             int lastIndex = GetLastIndexOfNumber(json, index);
-            int charLength = (lastIndex - index) + 1;
+            int charLength = lastIndex - index + 1;
 
             success = double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out var number);
 

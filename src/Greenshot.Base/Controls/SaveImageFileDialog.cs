@@ -121,13 +121,13 @@ namespace Greenshot.Base.Controls
         private void PrepareFilterOptions()
         {
             // TODO: Change to the FileFormatHandlerRegistry to look for all the supported extensions
-            OutputFormat[] supportedImageFormats = (OutputFormat[]) Enum.GetValues(typeof(OutputFormat));
+            OutputFormat[] supportedImageFormats = (OutputFormat[])Enum.GetValues(typeof(OutputFormat));
             _filterOptions = new FilterOption[supportedImageFormats.Length];
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 string ifo = supportedImageFormats[i].ToString();
                 if (ifo.ToLower().Equals("jpeg")) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
-                FilterOption fo = new FilterOption
+                FilterOption fo = new()
                 {
                     Label = ifo.ToUpper(),
                     Extension = ifo.ToLower()
@@ -221,7 +221,7 @@ namespace Greenshot.Base.Controls
             // fix for bug #3379053
             try
             {
-                if (_eagerlyCreatedDirectory != null && _eagerlyCreatedDirectory.GetFiles().Length == 0 && _eagerlyCreatedDirectory.GetDirectories().Length == 0)
+                if (_eagerlyCreatedDirectory?.GetFiles().Length == 0 && _eagerlyCreatedDirectory.GetDirectories().Length == 0)
                 {
                     _eagerlyCreatedDirectory.Delete();
                     _eagerlyCreatedDirectory = null;

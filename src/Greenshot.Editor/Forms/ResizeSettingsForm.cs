@@ -64,8 +64,8 @@ namespace Greenshot.Editor.Forms
             const double tolerance = 3 * double.Epsilon;
             if (Math.Abs(_newWidth - _effect.Width) > tolerance || Math.Abs(_newHeight - _effect.Height) > tolerance)
             {
-                _effect.Width = (int) _newWidth;
-                _effect.Height = (int) _newHeight;
+                _effect.Width = (int)_newWidth;
+                _effect.Height = (int)_newHeight;
                 _effect.MaintainAspectRatio = checkbox_aspectratio.Checked;
                 DialogResult = DialogResult.OK;
             }
@@ -100,7 +100,7 @@ namespace Greenshot.Editor.Forms
                 displayValue = _newWidth;
             }
 
-            textbox_width.Text = ((int) displayValue).ToString();
+            textbox_width.Text = ((int)displayValue).ToString();
         }
 
         private void DisplayHeight()
@@ -115,7 +115,7 @@ namespace Greenshot.Editor.Forms
                 displayValue = _newHeight;
             }
 
-            textbox_height.Text = ((int) displayValue).ToString();
+            textbox_height.Text = ((int)displayValue).ToString();
         }
 
         private void Textbox_KeyUp(object sender, KeyEventArgs e)
@@ -194,7 +194,7 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

@@ -103,11 +103,11 @@ namespace Greenshot.Base.Controls
             }
 
             int thumbnailHeight = 200;
-            int thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
+            int thumbnailWidth = (int)(thumbnailHeight * (sourceSize.Width / (float)sourceSize.Height));
             if (parentControl != null && thumbnailWidth > parentControl.Width)
             {
                 thumbnailWidth = parentControl.Width;
-                thumbnailHeight = (int) (thumbnailWidth * (sourceSize.Height / (float) sourceSize.Width));
+                thumbnailHeight = (int)(thumbnailWidth * (sourceSize.Height / (float)sourceSize.Width));
             }
 
             Width = thumbnailWidth;

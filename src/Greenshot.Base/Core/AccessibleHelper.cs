@@ -37,8 +37,8 @@ namespace Greenshot.Base.Core
         {
             var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
             object obj = null;
-            int num = AccessibleObjectFromWindow(hWnd, (uint) idObject, ref guid, ref obj);
-            acc = (IAccessible) obj;
+            int num = AccessibleObjectFromWindow(hWnd, (uint)idObject, ref guid, ref obj);
+            acc = (IAccessible)obj;
             return num;
         }
 
@@ -67,13 +67,13 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                object[] res = GetAccessibleChildren(accessible, out var num);
+                object[] res = GetAccessibleChildren(accessible, out _);
                 if (res == null)
                 {
                     return new Accessible[0];
                 }
 
-                List<Accessible> list = new List<Accessible>(res.Length);
+                List<Accessible> list = new(res.Length);
                 foreach (object obj in res)
                 {
                     if (obj is IAccessible acc)
@@ -143,7 +143,7 @@ namespace Greenshot.Base.Core
                         {
                             object tabIndex = tab.accessible.get_accState(0);
 
-                            if ((int) tabIndex == IE_ACTIVE_TAB)
+                            if ((int)tabIndex == IE_ACTIVE_TAB)
                             {
                                 return tab.Name;
                             }
@@ -182,7 +182,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-
         public IEnumerable<string> IETabUrls
         {
             get
@@ -193,7 +192,7 @@ namespace Greenshot.Base.Core
                     {
                         foreach (var tab in child.Children)
                         {
-                            object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
+                            _ = tab.accessible.get_accState(CHILDID_SELF);
                             var description = tab.accessible.get_accDescription(CHILDID_SELF);
                             if (!string.IsNullOrEmpty(description))
                             {

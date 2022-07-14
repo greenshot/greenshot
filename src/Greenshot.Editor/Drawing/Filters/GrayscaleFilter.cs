@@ -56,7 +56,7 @@ namespace Greenshot.Editor.Drawing.Filters
                 graphics.ExcludeClip(rect);
             }
 
-            ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
+            ColorMatrix grayscaleMatrix = new(new[]
             {
                 new[]
                 {
@@ -79,7 +79,7 @@ namespace Greenshot.Editor.Drawing.Filters
                     0, 0, 0, 0, 1
                 }
             });
-            using (ImageAttributes ia = new ImageAttributes())
+            using (ImageAttributes ia = new())
             {
                 ia.SetColorMatrix(grayscaleMatrix);
                 graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);

@@ -85,15 +85,10 @@ namespace Greenshot.Base.Core
 
             if (ieVersion > 9)
             {
-                return ieVersion * 1000 + (ignoreDoctype ? 1 : 0);
+                return (ieVersion * 1000) + (ignoreDoctype ? 1 : 0);
             }
 
-            if (ieVersion > 7)
-            {
-                return ieVersion * 1111;
-            }
-
-            return 7000;
+            return ieVersion > 7 ? ieVersion * 1111 : 7000;
         }
 
         /// <summary>
@@ -128,7 +123,7 @@ namespace Greenshot.Base.Core
         {
             ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".exe", ieVersion);
 #if DEBUG
-			ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".vshost.exe", ieVersion);
+            ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".vshost.exe", ieVersion);
 #endif
         }
 
@@ -191,7 +186,7 @@ namespace Greenshot.Base.Core
                 WindowDetails directUIWD = GetDirectUI(ieWindow);
                 if (directUIWD != null)
                 {
-                    Accessible ieAccessible = new Accessible(directUIWD.Handle);
+                    Accessible ieAccessible = new(directUIWD.Handle);
                     foreach (string url in ieAccessible.IETabUrls)
                     {
                         yield return url;

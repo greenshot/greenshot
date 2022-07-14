@@ -45,7 +45,7 @@ namespace Greenshot.Editor.Helpers
             //Add both of the parts together
             double underRadical = part1 + part2;
             //Get the square root of the parts
-            return (int) Math.Sqrt(underRadical);
+            return (int)Math.Sqrt(underRadical);
         }
 
         /// <summary>

@@ -99,13 +99,13 @@ namespace Greenshot.Base.Core
         public static string EnvironmentToString(bool newline)
         {
             StringBuilder environment = new();
-            environment.Append("Software version: " + GetGreenshotVersion());
+            environment.Append("Software version: ").Append(GetGreenshotVersion());
             if (IniConfig.IsPortable)
             {
                 environment.Append(" Portable");
             }
 
-            environment.Append(" (" + OsInfo.Bits + " bit)");
+            environment.Append(" (").Append(OsInfo.Bits).Append(" bit)");
 
             if (newline)
             {
@@ -116,7 +116,7 @@ namespace Greenshot.Base.Core
                 environment.Append(", ");
             }
 
-            environment.Append(".NET runtime version: " + Environment.Version);
+            environment.Append(".NET runtime version: ").Append(Environment.Version);
             if (IsNet45OrNewer())
             {
                 environment.Append("+");
@@ -131,7 +131,7 @@ namespace Greenshot.Base.Core
                 environment.Append(", ");
             }
 
-            environment.Append("Time: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+            environment.Append("Time: ").Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
 
             if (IsWindows)
             {
@@ -144,19 +144,19 @@ namespace Greenshot.Base.Core
                     environment.Append(", ");
                 }
 
-                environment.Append($"OS: {OsInfo.Name}");
+                environment.Append("OS: ").Append(OsInfo.Name);
                 if (!string.IsNullOrEmpty(OsInfo.Edition))
                 {
-                    environment.Append($" {OsInfo.Edition}");
+                    environment.Append(' ').Append(OsInfo.Edition);
                 }
 
                 if (!string.IsNullOrEmpty(OsInfo.ServicePack))
                 {
-                    environment.Append($" {OsInfo.ServicePack}");
+                    environment.Append(' ').Append(OsInfo.ServicePack);
                 }
 
-                environment.Append($" x{OsInfo.Bits}");
-                environment.Append($" {OsInfo.VersionString}");
+                environment.Append(" x").Append(OsInfo.Bits);
+                environment.Append(' ').Append(OsInfo.VersionString);
                 if (newline)
                 {
                     environment.AppendLine();
@@ -214,8 +214,8 @@ namespace Greenshot.Base.Core
 
             StringBuilder report = new();
 
-            report.AppendLine("Exception: " + ex.GetType());
-            report.AppendLine("Message: " + ex.Message);
+            report.Append("Exception: ").Append(ex.GetType()).AppendLine();
+            report.Append("Message: ").AppendLine(ex.Message);
             if (ex.Data.Count > 0)
             {
                 report.AppendLine();
@@ -225,7 +225,7 @@ namespace Greenshot.Base.Core
                     object data = ex.Data[key];
                     if (data != null)
                     {
-                        report.AppendLine(key + " : " + data);
+                        report.Append(key).Append(" : ").Append(data).AppendLine();
                     }
                 }
             }
@@ -233,7 +233,7 @@ namespace Greenshot.Base.Core
             if (ex is ExternalException externalException)
             {
                 // e.g. COMException
-                report.AppendLine().AppendLine("ErrorCode: 0x" + externalException.ErrorCode.ToString("X"));
+                report.AppendLine().Append("ErrorCode: 0x").AppendLine(externalException.ErrorCode.ToString("X"));
             }
 
             report.AppendLine().AppendLine("Stack:").AppendLine(ex.StackTrace);
@@ -316,7 +316,6 @@ namespace Greenshot.Base.Core
                             edition = (suiteMask & WindowsSuites.Enterprise) != 0 ? "Enterprise Server" : "Standard Server";
                         }
                     }
-
                     else if (majorVersion == 5)
                     {
                         if (productType == WindowsProductTypes.VER_NT_WORKSTATION)
@@ -377,7 +376,6 @@ namespace Greenshot.Base.Core
                             }
                         }
                     }
-
                     else if (majorVersion == 6)
                     {
                         if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var windowsProduct))
@@ -562,13 +560,9 @@ namespace Greenshot.Base.Core
                     return $"build {Environment.OSVersion.Version.Build}";
                 }
 
-                if (Environment.OSVersion.Version.Revision != 0)
-                {
-                    return
-                        $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build} revision {Environment.OSVersion.Version.Revision:X}";
-                }
-
-                return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build}";
+                return Environment.OSVersion.Version.Revision != 0
+                    ? $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build} revision {Environment.OSVersion.Version.Revision:X}"
+                    : $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} build {Environment.OSVersion.Version.Build}";
             }
         }
     }

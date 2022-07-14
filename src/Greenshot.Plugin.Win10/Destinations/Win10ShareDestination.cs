@@ -93,7 +93,7 @@ namespace Greenshot.Plugin.Win10.Destinations
                     if (wei.WinEvent == WinEvents.EVENT_OBJECT_CREATE)
                     {
                         var windowTitle = User32Api.GetText(wei.Handle);
-                        if ("Windows Shell Experience Host" == windowTitle)
+                        if (windowTitle == "Windows Shell Experience Host")
                         {
                             shareInfo.SharingHwnd = wei.Handle;
                         }

@@ -16,12 +16,7 @@ namespace Greenshot.Plugin.Office.Com
         /// <returns>IDisposableCom of type T</returns>
         public static IDisposableCom<T> Create<T>(T comObject)
         {
-            if (Equals(comObject, default(T)))
-            {
-                return null;
-            }
-
-            return new DisposableComImplementation<T>(comObject);
+            return Equals(comObject, default(T)) ? null : (IDisposableCom<T>)new DisposableComImplementation<T>(comObject);
         }
     }
 }

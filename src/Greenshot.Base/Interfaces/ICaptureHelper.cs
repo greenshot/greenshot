@@ -30,7 +30,7 @@ namespace Greenshot.Base.Interfaces
     public interface ICaptureHelper
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="windowToCapture"></param>
         /// <returns></returns>

@@ -161,7 +161,7 @@ namespace Greenshot.Plugin.ExternalCommand
         public override object GetDefault(string property) =>
             property switch
             {
-                nameof(DeletedBuildInCommands) => (object) new List<string>(),
+                nameof(DeletedBuildInCommands) => (object)new List<string>(),
                 nameof(Commands) => new List<string>(),
                 nameof(Commandline) => new Dictionary<string, string>(),
                 nameof(Argument) => new Dictionary<string, string>(),

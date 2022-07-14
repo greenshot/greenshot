@@ -412,12 +412,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Size;
-                }
-
-                return Area.Size;
+                return Area == NativeRect.Empty ? (NativeSize)Bitmap.Size : Area.Size;
             }
         }
 
@@ -428,12 +423,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Width;
-                }
-
-                return Area.Width;
+                return Area == NativeRect.Empty ? Bitmap.Width : Area.Width;
             }
         }
 
@@ -444,12 +434,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (Area == NativeRect.Empty)
-                {
-                    return Bitmap.Height;
-                }
-
-                return Area.Height;
+                return Area == NativeRect.Empty ? Bitmap.Height : Area.Height;
             }
         }
 
@@ -574,7 +559,7 @@ namespace Greenshot.Base.Core
             BitsLocked = true;
 
             IntPtr scan0 = BmData.Scan0;
-            Pointer = (byte*) (void*) scan0;
+            Pointer = (byte*)(void*)scan0;
             Stride = BmData.Stride;
         }
 
@@ -637,14 +622,7 @@ namespace Greenshot.Base.Core
         bool IFastBitmapWithClip.Contains(int x, int y)
         {
             bool contains = Clip.Contains(x, y);
-            if (InvertClip)
-            {
-                return !contains;
-            }
-            else
-            {
-                return contains;
-            }
+            return InvertClip ? !contains : contains;
         }
 
         void IFastBitmapWithClip.SetColorAt(int x, int y, byte[] color)
@@ -716,7 +694,7 @@ namespace Greenshot.Base.Core
     {
         // Used for indexed images
         private readonly Color[] _colorEntries;
-        private readonly Dictionary<Color, byte> _colorCache = new Dictionary<Color, byte>();
+        private readonly Dictionary<Color, byte> _colorCache = new();
 
         public FastChunkyBitmap(Bitmap source, NativeRect area) : base(source, area)
         {
@@ -1039,9 +1017,9 @@ namespace Greenshot.Base.Core
             {
                 // As the request is to get without alpha, we blend.
                 int rem = 255 - a;
-                red = (red * a + BackgroundBlendColor.R * rem) / 255;
-                green = (green * a + BackgroundBlendColor.G * rem) / 255;
-                blue = (blue * a + BackgroundBlendColor.B * rem) / 255;
+                red = ((red * a) + (BackgroundBlendColor.R * rem)) / 255;
+                green = ((green * a) + (BackgroundBlendColor.G * rem)) / 255;
+                blue = ((blue * a) + (BackgroundBlendColor.B * rem)) / 255;
             }
 
             return Color.FromArgb(255, red, green, blue);

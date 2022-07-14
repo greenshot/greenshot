@@ -21,5 +21,5 @@
 
 namespace Greenshot.Base.Interfaces
 {
-    public delegate void SurfaceLineThicknessEventHandler (object sender, SurfaceLineThicknessEventArgs e);
+    public delegate void SurfaceLineThicknessEventHandler(object sender, SurfaceLineThicknessEventArgs e);
 }

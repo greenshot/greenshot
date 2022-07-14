@@ -46,8 +46,8 @@ namespace Greenshot.Helpers
 
         private ISurface _surface;
         private readonly ICaptureDetails _captureDetails;
-        private PrintDocument _printDocument = new PrintDocument();
-        private PrintDialog _printDialog = new PrintDialog();
+        private PrintDocument _printDocument = new();
+        private PrintDialog _printDialog = new();
 
         public PrintHelper(ISurface surface, ICaptureDetails captureDetails)
         {
@@ -173,7 +173,7 @@ namespace Greenshot.Helpers
             DialogResult? ret = null;
             if (CoreConfig.OutputPrintPromptOptions)
             {
-                using PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog();
+                using PrintOptionsDialog printOptionsDialog = new();
                 ret = printOptionsDialog.ShowDialog();
             }
 
@@ -183,7 +183,7 @@ namespace Greenshot.Helpers
         private void DrawImageForPrint(object sender, PrintPageEventArgs e)
         {
             // Create the output settings
-            SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            SurfaceOutputSettings printOutputSettings = new(OutputFormat.png, 100, false);
 
             ApplyEffects(printOutputSettings);
 
@@ -199,7 +199,7 @@ namespace Greenshot.Helpers
                 if (CoreConfig.OutputPrintFooter)
                 {
                     footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false);
-                    using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    using Font f = new(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
                     footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
                     footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
                 }
@@ -208,9 +208,7 @@ namespace Greenshot.Helpers
                 RectangleF pageRect = e.PageSettings.PrintableArea;
                 if (e.PageSettings.Landscape)
                 {
-                    float origWidth = pageRect.Width;
-                    pageRect.Width = pageRect.Height;
-                    pageRect.Height = origWidth;
+                    (pageRect.Height, pageRect.Width) = (pageRect.Width, pageRect.Height);
                 }
 
                 // Subtract the dateString height from the available area, this way the area stays free
@@ -221,7 +219,7 @@ namespace Greenshot.Helpers
                 // rotate the image if it fits the page better
                 if (CoreConfig.OutputPrintAllowRotate)
                 {
-                    if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)
+                    if ((pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height) || (pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height))
                     {
                         image.RotateFlip(RotateFlipType.Rotate270FlipNone);
                         imageRect = image.GetBounds(ref gu);
@@ -232,12 +230,12 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                RectangleF printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
+                RectangleF printRect = new(0, 0, imageRect.Width, imageRect.Height);
                 // scale the image to fit the page better
                 if (CoreConfig.OutputPrintAllowEnlarge || CoreConfig.OutputPrintAllowShrink)
                 {
                     SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
-                    if (CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width)
+                    if ((CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width) || (CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width))
                     {
                         printRect.Size = resizedRect;
                     }
@@ -248,8 +246,8 @@ namespace Greenshot.Helpers
                 if (CoreConfig.OutputPrintFooter)
                 {
                     //printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
-                    using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
-                    e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
+                    using Font f = new(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
+                    e.Graphics.DrawString(footerString, f, Brushes.Black, (pageRect.Width / 2) - (footerStringWidth / 2), pageRect.Height);
                 }
 
                 e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);

@@ -80,12 +80,7 @@ namespace Greenshot.Plugin.Flickr
         public bool ShowConfigDialog()
         {
             DialogResult result = new SettingsForm().ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                return true;
-            }
-
-            return false;
+            return result == DialogResult.OK;
         }
 
         /// <summary>
@@ -102,6 +97,5 @@ namespace Greenshot.Plugin.Flickr
             FlickrToken = null;
             FlickrTokenSecret = null;
         }
-
     }
 }

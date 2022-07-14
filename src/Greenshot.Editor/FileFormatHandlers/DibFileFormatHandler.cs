@@ -100,7 +100,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmap = new Bitmap(infoHeader.Width, infoHeader.Height,
                         -(int)(infoHeader.SizeImage / infoHeader.Height),
                         infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                        IntPtr.Add(handle.AddrOfPinnedObject(), (int)infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
+                        IntPtr.Add(handle.AddrOfPinnedObject(), (int)infoHeader.OffsetToPixels + ((infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height)))
                     );
             }
             catch (Exception ex)
@@ -148,7 +148,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             // The bitmap info hear takes this many bytes:
             var bitmapInfoHeaderSize = Marshal.SizeOf(typeof(BitmapInfoHeader));
             // The bitmap info size is the header + 3 RGBQUADs
-            var bitmapInfoSize = bitmapInfoHeaderSize + 3 * Marshal.SizeOf(typeof(RgbQuad));
+            var bitmapInfoSize = bitmapInfoHeaderSize + (3 * Marshal.SizeOf(typeof(RgbQuad)));
 
             // Create a byte [] to contain the complete DIB (with .NET 5 and upwards, we could write the pixels directly to a stream)
             var fullBmpBytes = new byte[bitmapInfoSize + bitmapSize];
@@ -192,7 +192,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 for (int destinationY = 0; destinationY < sourceBitmap.Height; destinationY++)
                 {
                     // Calculate the y coordinate for the bottom up. (flipping the image)
-                    var sourceY = (sourceBitmap.Height - 1) - destinationY;
+                    var sourceY = sourceBitmap.Height - 1 - destinationY;
                     // Make a Span for the source bitmap pixels
                     var sourceLine = bitmapSourceSpan.Slice(sourceBitmapData.Stride * sourceY, 4 * sourceBitmap.Width);
                     // Make a Span for the destination dib pixels

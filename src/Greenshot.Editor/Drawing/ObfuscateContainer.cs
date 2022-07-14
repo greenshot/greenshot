@@ -70,7 +70,7 @@ namespace Greenshot.Editor.Drawing
 
         private void ConfigurePreparedFilters()
         {
-            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
             while (Filters.Count > 0)
             {
                 Remove(Filters[0]);

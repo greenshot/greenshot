@@ -130,7 +130,7 @@ namespace Greenshot.Base.Core
         {
             this.sourceBitmap = sourceBitmap;
             // Make sure the color count variables are reset
-            BitArray bitArray = new BitArray((int) Math.Pow(2, 24));
+            BitArray bitArray = new((int)Math.Pow(2, 24));
             colorCount = 0;
 
             // creates all the cubes
@@ -167,7 +167,6 @@ namespace Greenshot.Base.Core
 
             // Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
             using IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap);
-            IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
             sourceFastBitmap.Lock();
             using FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap;
             destinationFastBitmap.Lock();
@@ -176,7 +175,7 @@ namespace Greenshot.Base.Core
                 for (int x = 0; x < sourceFastBitmap.Width; x++)
                 {
                     Color color;
-                    if (sourceFastBitmapWithBlend == null)
+                    if (sourceFastBitmap is not IFastBitmapWithBlend sourceFastBitmapWithBlend)
                     {
                         color = sourceFastBitmap.GetColorAt(x, y);
                     }
@@ -207,7 +206,7 @@ namespace Greenshot.Base.Core
 
                     // Store the initial "match"
                     int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-                    destinationFastBitmap.SetColorIndexAt(x, y, (byte) (paletteIndex & 0xff));
+                    destinationFastBitmap.SetColorIndexAt(x, y, (byte)(paletteIndex & 0xff));
                 }
             }
 
@@ -228,13 +227,12 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap</returns>
         public Bitmap SimpleReindex()
         {
-            List<Color> colors = new List<Color>();
-            Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
+            List<Color> colors = new();
+            Dictionary<Color, byte> lookup = new();
             using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
             {
                 bbbDest.Lock();
                 using IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap);
-                IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
 
                 bbbSrc.Lock();
                 byte index;
@@ -243,7 +241,7 @@ namespace Greenshot.Base.Core
                     for (int x = 0; x < bbbSrc.Width; x++)
                     {
                         Color color;
-                        if (bbbSrcBlend != null)
+                        if (bbbSrc is IFastBitmapWithBlend bbbSrcBlend)
                         {
                             color = bbbSrcBlend.GetBlendedColorAt(x, y);
                         }
@@ -259,7 +257,7 @@ namespace Greenshot.Base.Core
                         else
                         {
                             colors.Add(color);
-                            index = (byte) (colors.Count - 1);
+                            index = (byte)(colors.Count - 1);
                             lookup.Add(color, index);
                         }
 
@@ -364,9 +362,9 @@ namespace Greenshot.Base.Core
 
                 if (weight > 0)
                 {
-                    lookupRed[k] = (int) (Volume(cubes[k], momentsRed) / weight);
-                    lookupGreen[k] = (int) (Volume(cubes[k], momentsGreen) / weight);
-                    lookupBlue[k] = (int) (Volume(cubes[k], momentsBlue) / weight);
+                    lookupRed[k] = (int)(Volume(cubes[k], momentsRed) / weight);
+                    lookupGreen[k] = (int)(Volume(cubes[k], momentsGreen) / weight);
+                    lookupBlue[k] = (int)(Volume(cubes[k], momentsBlue) / weight);
                 }
                 else
                 {
@@ -386,14 +384,13 @@ namespace Greenshot.Base.Core
             using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
             {
                 using IFastBitmap src = FastBitmap.Create(sourceBitmap);
-                IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
-                Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
+                Dictionary<Color, byte> lookup = new();
                 for (int y = 0; y < src.Height; y++)
                 {
                     for (int x = 0; x < src.Width; x++)
                     {
                         Color color;
-                        if (srcBlend != null)
+                        if (src is IFastBitmapWithBlend srcBlend)
                         {
                             // WithoutAlpha, this makes it possible to ignore the alpha
                             color = srcBlend.GetBlendedColorAt(x, y);
@@ -423,12 +420,12 @@ namespace Greenshot.Base.Core
                                 int deltaGreen = color.G - foundGreen;
                                 int deltaBlue = color.B - foundBlue;
 
-                                int distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
+                                int distance = (deltaRed * deltaRed) + (deltaGreen * deltaGreen) + (deltaBlue * deltaBlue);
 
                                 if (distance < bestDistance)
                                 {
                                     bestDistance = distance;
-                                    bestMatch = (byte) lookupIndex;
+                                    bestMatch = (byte)lookupIndex;
                                 }
                             }
 
@@ -449,7 +446,6 @@ namespace Greenshot.Base.Core
                     }
                 }
             }
-
 
             // generates palette
             ColorPalette imagePalette = resultBitmap.Palette;
@@ -565,18 +561,18 @@ namespace Greenshot.Base.Core
         {
             return direction switch
             {
-                RED => (moment[position, cube.GreenMaximum, cube.BlueMaximum] -
+                RED => moment[position, cube.GreenMaximum, cube.BlueMaximum] -
                         moment[position, cube.GreenMaximum, cube.BlueMinimum] -
                         moment[position, cube.GreenMinimum, cube.BlueMaximum] +
-                        moment[position, cube.GreenMinimum, cube.BlueMinimum]),
-                GREEN => (moment[cube.RedMaximum, position, cube.BlueMaximum] -
+                        moment[position, cube.GreenMinimum, cube.BlueMinimum],
+                GREEN => moment[cube.RedMaximum, position, cube.BlueMaximum] -
                           moment[cube.RedMaximum, position, cube.BlueMinimum] -
                           moment[cube.RedMinimum, position, cube.BlueMaximum] +
-                          moment[cube.RedMinimum, position, cube.BlueMinimum]),
-                BLUE => (moment[cube.RedMaximum, cube.GreenMaximum, position] -
+                          moment[cube.RedMinimum, position, cube.BlueMinimum],
+                BLUE => moment[cube.RedMaximum, cube.GreenMaximum, position] -
                          moment[cube.RedMaximum, cube.GreenMinimum, position] -
                          moment[cube.RedMinimum, cube.GreenMaximum, position] +
-                         moment[cube.RedMinimum, cube.GreenMinimum, position]),
+                         moment[cube.RedMinimum, cube.GreenMinimum, position],
                 _ => 0,
             };
         }
@@ -588,18 +584,18 @@ namespace Greenshot.Base.Core
         {
             return direction switch
             {
-                RED => (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
+                RED => -moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] +
                         moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] +
                         moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
-                GREEN => (-moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
+                        moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
+                GREEN => -moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] +
                           moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
                           moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] -
-                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
-                BLUE => (-moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
+                          moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
+                BLUE => -moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] +
                          moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] +
                          moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] -
-                         moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]),
+                         moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum],
                 _ => 0
             };
         }
@@ -615,7 +611,7 @@ namespace Greenshot.Base.Core
             float volumeMoment = VolumeFloat(cube, moments);
             float volumeWeight = Volume(cube, weights);
 
-            float distance = volumeRed * volumeRed + volumeGreen * volumeGreen + volumeBlue * volumeBlue;
+            float distance = (volumeRed * volumeRed) + (volumeGreen * volumeGreen) + (volumeBlue * volumeBlue);
 
             return volumeMoment - (distance / volumeWeight);
         }
@@ -644,7 +640,7 @@ namespace Greenshot.Base.Core
                 // the cube cannot be cut at bottom (this would lead to empty cube)
                 if (halfWeight != 0)
                 {
-                    float halfDistance = (float) halfRed * halfRed + (float) halfGreen * halfGreen + (float) halfBlue * halfBlue;
+                    float halfDistance = ((float)halfRed * halfRed) + ((float)halfGreen * halfGreen) + ((float)halfBlue * halfBlue);
                     float temp = halfDistance / halfWeight;
 
                     halfRed = wholeRed - halfRed;
@@ -654,7 +650,7 @@ namespace Greenshot.Base.Core
 
                     if (halfWeight != 0)
                     {
-                        halfDistance = (float) halfRed * halfRed + (float) halfGreen * halfGreen + (float) halfBlue * halfBlue;
+                        halfDistance = ((float)halfRed * halfRed) + ((float)halfGreen * halfGreen) + ((float)halfBlue * halfBlue);
                         temp += halfDistance / halfWeight;
 
                         if (temp > result)
@@ -762,7 +758,7 @@ namespace Greenshot.Base.Core
                 {
                     for (int blueIndex = cube.BlueMinimum + 1; blueIndex <= cube.BlueMaximum; ++blueIndex)
                     {
-                        tag[(redIndex << 10) + (redIndex << 6) + redIndex + (greenIndex << 5) + greenIndex + blueIndex] = (byte) label;
+                        tag[(redIndex << 10) + (redIndex << 6) + redIndex + (greenIndex << 5) + greenIndex + blueIndex] = (byte)label;
                     }
                 }
             }

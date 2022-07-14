@@ -30,12 +30,9 @@ namespace Greenshot.Plugin.Office.OfficeExport.Entities
             get
             {
                 var notebook = Parent.Parent;
-                if (string.IsNullOrEmpty(notebook.Name))
-                {
-                    return string.Format("{0} / {1}", Parent.Name, Name);
-                }
-
-                return string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
+                return string.IsNullOrEmpty(notebook.Name)
+                    ? string.Format("{0} / {1}", Parent.Name, Name)
+                    : string.Format("{0} / {1} / {2}", Parent.Parent.Name, Parent.Name, Name);
             }
         }
 

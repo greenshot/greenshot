@@ -50,12 +50,7 @@ namespace Greenshot.Editor.Helpers
                 }
             }
 
-            if (count == 0)
-            {
-                return Color.Empty;
-            }
-
-            return Color.FromArgb(a / count, r / count, g / count, b / count);
+            return count == 0 ? Color.Empty : Color.FromArgb(a / count, r / count, g / count, b / count);
         }
     }
 }

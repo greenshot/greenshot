@@ -75,7 +75,6 @@ namespace Greenshot.Plugin.Office.Destinations
             }
         }
 
-
         private static string GetOutlookExePath() => RegistryHive.LocalMachine.ReadKey64Or32(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
 
         /// <summary>
@@ -85,12 +84,7 @@ namespace Greenshot.Plugin.Office.Destinations
         private static bool HasOutlook()
         {
             string outlookPath = GetOutlookExePath();
-            if (outlookPath == null)
-            {
-                return false;
-            }
-
-            return File.Exists(outlookPath);
+            return outlookPath != null && File.Exists(outlookPath);
         }
 
         public OutlookDestination()
@@ -155,7 +149,7 @@ namespace Greenshot.Plugin.Office.Destinations
         /// <returns></returns>
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             // Outlook logic
             string tmpFile = captureDetails.Filename;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
@@ -193,7 +187,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 if (!manuallyInitiated)
                 {
                     var inspectorCaptions = _outlookEmailExporter.RetrievePossibleTargets();
-                    if (inspectorCaptions != null && inspectorCaptions.Count > 0)
+                    if (inspectorCaptions?.Count > 0)
                     {
                         var destinations = new List<IDestination>
                         {

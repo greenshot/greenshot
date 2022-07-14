@@ -62,7 +62,7 @@ namespace Greenshot.Editor.Memento
             _drawableContainer.Invalidate();
             // Store the selected state, as it's overwritten by the RemoveElement
 
-            DeleteElementMemento oldState = new DeleteElementMemento(_surface, _drawableContainer);
+            DeleteElementMemento oldState = new(_surface, _drawableContainer);
             _surface.RemoveElement(_drawableContainer, false);
             _drawableContainer.Selected = true;
 

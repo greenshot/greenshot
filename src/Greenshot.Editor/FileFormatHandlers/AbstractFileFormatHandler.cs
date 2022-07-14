@@ -45,7 +45,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
         /// <summary>
-        /// Default implementation taking the TryLoadFromStream image and placing it in an ImageContainer 
+        /// Default implementation taking the TryLoadFromStream image and placing it in an ImageContainer
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>

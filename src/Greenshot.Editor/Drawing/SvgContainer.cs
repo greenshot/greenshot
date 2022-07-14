@@ -41,13 +41,13 @@ namespace Greenshot.Editor.Drawing
             _svgDocument = svgDocument;
             Size = new Size((int)svgDocument.Width, (int)svgDocument.Height);
         }
-        
+
         protected override Image ComputeBitmap()
         {
             //var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
 
             var image = _svgDocument.Draw(Width, Height);
-            
+
             if (RotationAngle == 0) return image;
 
             var newImage = image.Rotate(RotationAngle);
@@ -57,6 +57,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override NativeSize DefaultSize => new NativeSize((int)_svgDocument.Width, (int)_svgDocument.Height);
+        public override NativeSize DefaultSize => new((int)_svgDocument.Width, (int)_svgDocument.Height);
     }
 }

@@ -31,11 +31,11 @@ namespace Greenshot.Base.Core
         }
 
         public Fraction Inverse()
-            => new Fraction(Denominator, Numerator);
+            => new(Denominator, Numerator);
 
         #region Parse
 
-        private static readonly Regex PARSE_REGEX = new Regex(@"^([1-9][0-9]*)\/([1-9][0-9]*)$", RegexOptions.Compiled);
+        private static readonly Regex PARSE_REGEX = new(@"^([1-9][0-9]*)\/([1-9][0-9]*)$", RegexOptions.Compiled);
 
         public static bool TryParse(string str, out Fraction result)
         {
@@ -75,14 +75,14 @@ namespace Greenshot.Base.Core
             unchecked
             {
                 int hashCode = -1534900553;
-                hashCode = hashCode * -1521134295 + Numerator.GetHashCode();
-                hashCode = hashCode * -1521134295 + Denominator.GetHashCode();
+                hashCode = (hashCode * -1521134295) + Numerator.GetHashCode();
+                hashCode = (hashCode * -1521134295) + Denominator.GetHashCode();
                 return hashCode;
             }
         }
 
         public int CompareTo(Fraction other)
-            => (int) (Numerator * other.Denominator) - (int) (other.Numerator * Denominator);
+            => (int)(Numerator * other.Denominator) - (int)(other.Numerator * Denominator);
 
         #endregion
 
@@ -115,22 +115,22 @@ namespace Greenshot.Base.Core
         #region Scale operators
 
         public static Fraction operator *(Fraction left, Fraction right)
-            => new Fraction(left.Numerator * right.Numerator, left.Denominator * right.Denominator);
+            => new(left.Numerator * right.Numerator, left.Denominator * right.Denominator);
 
         public static Fraction operator *(Fraction left, uint right)
-            => new Fraction(left.Numerator * right, left.Denominator);
+            => new(left.Numerator * right, left.Denominator);
 
         public static Fraction operator *(uint left, Fraction right)
-            => new Fraction(left * right.Numerator, right.Denominator);
+            => new(left * right.Numerator, right.Denominator);
 
         public static Fraction operator /(Fraction left, Fraction right)
-            => new Fraction(left.Numerator * right.Denominator, left.Denominator * right.Numerator);
+            => new(left.Numerator * right.Denominator, left.Denominator * right.Numerator);
 
         public static Fraction operator /(Fraction left, uint right)
-            => new Fraction(left.Numerator, left.Denominator * right);
+            => new(left.Numerator, left.Denominator * right);
 
         public static Fraction operator /(uint left, Fraction right)
-            => new Fraction(left * right.Denominator, right.Numerator);
+            => new(left * right.Denominator, right.Numerator);
 
         #endregion
 
@@ -143,10 +143,10 @@ namespace Greenshot.Base.Core
             => 1.0f * fraction.Numerator / fraction.Denominator;
 
         public static implicit operator Fraction(uint number)
-            => new Fraction(number, 1u);
+            => new(number, 1u);
 
         public static implicit operator Fraction((uint numerator, uint demoninator) tuple)
-            => new Fraction(tuple.numerator, tuple.demoninator);
+            => new(tuple.numerator, tuple.demoninator);
 
         #endregion
 

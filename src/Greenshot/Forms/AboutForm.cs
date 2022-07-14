@@ -70,7 +70,7 @@ namespace Greenshot.Forms
         /// <summary>
         /// The location of every dot in the "G"
         /// </summary>
-        private readonly List<NativePoint> _gSpots = new List<NativePoint>
+        private readonly List<NativePoint> _gSpots = new()
         {
             // Top row
             new(P2, P1), // 0
@@ -153,7 +153,7 @@ namespace Greenshot.Forms
             _bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
             pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
+            lblTitle.Text = $"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);
@@ -171,7 +171,7 @@ namespace Greenshot.Forms
                 RectangleAnimator pixelAnimation;
 
                 // Make the pixel grow from the middle, if this offset isn't used it looks like it's shifted
-                int offset = (W - 2) / 2;
+                const int offset = (W - 2) / 2;
 
                 // If the optimize for Terminal Server is set we make the animation without much ado
                 if (IsTerminalServerSession)
@@ -182,7 +182,7 @@ namespace Greenshot.Forms
                 else
                 {
                     // Create the animation, first we do nothing (on the final destination)
-                    NativeRect standingStill = new NativeRect(gSpot.X + offset, gSpot.Y + offset, 0, 0);
+                    NativeRect standingStill = new(gSpot.X + offset, gSpot.Y + offset, 0, 0);
                     pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingType.Quintic, EasingMode.EaseIn);
                     // And than we size to the wanted size.
                     pixelAnimation.QueueDestinationLeg(new NativeRect(gSpot.X, gSpot.Y, W - 2, W - 2), frames);
@@ -200,7 +200,7 @@ namespace Greenshot.Forms
             _hasAnimationsLeft = true;
 
             // Pixel Color cycle colors, here we use a pre-animated loop which stores the values.
-            ColorAnimator pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
+            ColorAnimator pixelColorAnimator = new(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
             pixelColorAnimator.QueueDestinationLeg(_pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
             do
             {
@@ -301,7 +301,7 @@ namespace Greenshot.Forms
                 graphics.TranslateTransform(2, -2);
                 graphics.RotateTransform(20);
 
-                using SolidBrush brush = new SolidBrush(_pixelColor);
+                using SolidBrush brush = new(_pixelColor);
                 int index = 0;
                 // We assume there is nothing to animate in the next Animate loop
                 _hasAnimationsLeft = false;
@@ -350,12 +350,12 @@ namespace Greenshot.Forms
                             }
                             else
                             {
-                                MessageBox.Show(@"Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
+                                MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
                             }
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(@"Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, @"Error opening greenshot.log",
+                            MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greenshot.log",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         }
 
@@ -369,7 +369,7 @@ namespace Greenshot.Forms
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, @"Error opening greenshot.ini",
+                            MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greenshot.ini",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         }
 

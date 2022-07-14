@@ -43,10 +43,10 @@ namespace Greenshot.Base.Core
         private static readonly Dictionary<string, List<LanguageFile>> LanguageFiles = new();
         private static readonly Dictionary<string, string> HelpFiles = new();
         private const string DefaultLanguage = "en-US";
-        private const string HelpFilenamePattern = @"help-*.html";
-        private const string LanguageFilenamePattern = @"language*.xml";
-        private static readonly Regex PrefixRegexp = new(@"language_([a-zA-Z0-9]+).*");
-        private static readonly Regex IetfRegexp = new(@"^.*([a-zA-Z]{2,3}-([a-zA-Z]{1,2})|[a-zA-Z]{2,3}-x-[a-zA-Z]+)$");
+        private const string HelpFilenamePattern = "help-*.html";
+        private const string LanguageFilenamePattern = "language*.xml";
+        private static readonly Regex PrefixRegexp = new("language_([a-zA-Z0-9]+).*");
+        private static readonly Regex IetfRegexp = new("^.*([a-zA-Z]{2,3}-([a-zA-Z]{1,2})|[a-zA-Z]{2,3}-x-[a-zA-Z]+)$");
         private const string LanguageGroupsKey = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
         private static readonly List<string> UnsupportedLanguageGroups = new();
         private static readonly Dictionary<string, string> Resources = new();
@@ -88,7 +88,7 @@ namespace Greenshot.Base.Core
                 // Startup path
                 if (applicationFolder != null)
                 {
-                    AddPath(Path.Combine(applicationFolder, @"Languages"));
+                    AddPath(Path.Combine(applicationFolder, "Languages"));
                 }
             }
             catch (Exception pathException)
@@ -104,7 +104,7 @@ namespace Greenshot.Base.Core
                     string[] groups = languageGroupsKey.GetValueNames();
                     foreach (string group in groups)
                     {
-                        string groupValue = (string) languageGroupsKey.GetValue(group);
+                        string groupValue = (string)languageGroupsKey.GetValue(group);
                         bool isGroupNotInstalled = "0".Equals(groupValue);
                         if (isGroupNotInstalled)
                         {
@@ -218,7 +218,7 @@ namespace Greenshot.Base.Core
         {
             Resources.Clear();
             LoadFiles(DefaultLanguage);
-            if (_currentLanguage != null && !_currentLanguage.Equals(DefaultLanguage))
+            if (_currentLanguage?.Equals(DefaultLanguage) == false)
             {
                 LoadFiles(_currentLanguage);
             }
@@ -239,7 +239,7 @@ namespace Greenshot.Base.Core
                 }
                 else
                 {
-                    if (_currentLanguage == null || !_currentLanguage.Equals(ietf))
+                    if (_currentLanguage?.Equals(ietf) != true)
                     {
                         _currentLanguage = ietf;
                         Reload();
@@ -332,12 +332,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (HelpFiles.ContainsKey(_currentLanguage))
-                {
-                    return HelpFiles[_currentLanguage];
-                }
-
-                return HelpFiles[DefaultLanguage];
+                return HelpFiles.ContainsKey(_currentLanguage) ? HelpFiles[_currentLanguage] : HelpFiles[DefaultLanguage];
             }
         }
 
@@ -350,7 +345,7 @@ namespace Greenshot.Base.Core
             Log.InfoFormat("Loading language file {0}", languageFile.Filepath);
             try
             {
-                XmlDocument xmlDocument = new XmlDocument();
+                XmlDocument xmlDocument = new();
                 xmlDocument.Load(languageFile.Filepath);
                 XmlNodeList resourceNodes = xmlDocument.GetElementsByTagName("resource");
                 foreach (XmlNode resourceNode in resourceNodes)
@@ -571,7 +566,7 @@ namespace Greenshot.Base.Core
             }
             return null;
         }
-        
+
         /// <summary>
         /// Check if a resource with prefix.key exists
         /// </summary>
@@ -590,12 +585,7 @@ namespace Greenshot.Base.Core
         /// <returns>true if available</returns>
         public static bool HasKey(string key)
         {
-            if (key == null)
-            {
-                return false;
-            }
-
-            return Resources.ContainsKey(key);
+            return key != null && Resources.ContainsKey(key);
         }
 
         /// <summary>
@@ -642,12 +632,7 @@ namespace Greenshot.Base.Core
         {
             string typename = key.GetType().Name;
             string enumKey = typename + "." + key;
-            if (HasKey(enumKey))
-            {
-                return GetString(enumKey);
-            }
-
-            return key.ToString();
+            return HasKey(enumKey) ? GetString(enumKey) : key.ToString();
         }
 
         /// <summary>
@@ -657,12 +642,7 @@ namespace Greenshot.Base.Core
         /// <returns>resource or a "string ###key### not found"</returns>
         public static string GetString(Enum key)
         {
-            if (key == null)
-            {
-                return null;
-            }
-
-            return GetString(key.ToString());
+            return key == null ? null : GetString(key.ToString());
         }
 
         /// <summary>
@@ -673,12 +653,7 @@ namespace Greenshot.Base.Core
         /// <returns>resource or a "string ###prefix.key### not found"</returns>
         public static string GetString(string prefix, Enum key)
         {
-            if (key == null)
-            {
-                return null;
-            }
-
-            return GetString(prefix + "." + key);
+            return key == null ? null : GetString(prefix + "." + key);
         }
 
         /// <summary>
@@ -704,12 +679,7 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            if (!Resources.TryGetValue(key, out var returnValue))
-            {
-                return "string ###" + key + "### not found";
-            }
-
-            return returnValue;
+            return !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : returnValue;
         }
 
         /// <summary>
@@ -755,12 +725,7 @@ namespace Greenshot.Base.Core
         /// <returns>formatted resource or a "string ###key### not found"</returns>
         public static string GetFormattedString(string key, object param)
         {
-            if (!Resources.TryGetValue(key, out var returnValue))
-            {
-                return "string ###" + key + "### not found";
-            }
-
-            return string.Format(returnValue, param);
+            return !Resources.TryGetValue(key, out var returnValue) ? "string ###" + key + "### not found" : string.Format(returnValue, param);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
-        private readonly IReadOnlyCollection<string> _ourExtensions = new [] { ".greenshot" };
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".greenshot" };
         public GreenshotFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
@@ -54,9 +54,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             try
             {
                 bitmap.Save(stream, ImageFormat.Png);
-                using MemoryStream tmpStream = new MemoryStream();
+                using MemoryStream tmpStream = new();
                 long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
+                using BinaryWriter writer = new(tmpStream);
                 writer.Write(bytesWritten);
                 Version v = Assembly.GetExecutingAssembly().GetName().Version;
                 byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
@@ -115,7 +115,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
                 const int fileSizeLocation = 8 + markerSize;
                 surfaceFileStream.Seek(-fileSizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
+                using BinaryReader reader = new(surfaceFileStream);
                 long bytesWritten = reader.ReadInt64();
                 surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
                 returnSurface.LoadElementsFromStream(surfaceFileStream);

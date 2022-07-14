@@ -47,7 +47,7 @@ namespace Greenshot.Plugin.Confluence.Forms
         {
             if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
             {
-                _confluenceUpload.SelectedPage = (Page) PageListView.SelectedItem;
+                _confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
                 // Make sure the uploader knows we selected an already opened page
                 _confluenceUpload.IsOpenPageSelected = true;
             }

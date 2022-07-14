@@ -54,9 +54,9 @@ namespace Greenshot.Editor.Forms
 
         public static ColorDialog GetInstance() => _instance;
 
-        private readonly List<Button> _colorButtons = new List<Button>();
-        private readonly List<Button> _recentColorButtons = new List<Button>();
-        private readonly ToolTip _toolTip = new ToolTip();
+        private readonly List<Button> _colorButtons = new();
+        private readonly List<Button> _recentColorButtons = new();
+        private readonly ToolTip _toolTip = new();
         private bool _updateInProgress;
 
         public Color Color
@@ -101,10 +101,10 @@ namespace Greenshot.Editor.Forms
             int shadedColorsNum = (shades - 1) / 2;
             for (int i = 0; i <= shadedColorsNum; i++)
             {
-                _colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
+                _colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + (i * h), w, h));
                 if (i > 0)
-                    _colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum,
-                        blue + (255 - blue) * i / shadedColorsNum, x, y + (i + shadedColorsNum) * h, w, h));
+                    _colorButtons.Add(CreateColorButton(red + ((255 - red) * i / shadedColorsNum), green + ((255 - green) * i / shadedColorsNum),
+                        blue + ((255 - blue) * i / shadedColorsNum), x, y + ((i + shadedColorsNum) * h), w, h));
             }
         }
 

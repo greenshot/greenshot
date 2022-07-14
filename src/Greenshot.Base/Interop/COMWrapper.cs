@@ -37,8 +37,8 @@ namespace Greenshot.Base.Interop
     public sealed class COMWrapper : RealProxy, IDisposable, IRemotingTypeInfo
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(COMWrapper));
-        public const int RPC_E_CALL_REJECTED = unchecked((int) 0x80010001);
-        public const int RPC_E_FAIL = unchecked((int) 0x80004005);
+        public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
+        public const int RPC_E_FAIL = unchecked((int)0x80004005);
 
         /// <summary>
         /// Holds reference to the actual COM object which is wrapped by this proxy
@@ -67,7 +67,7 @@ namespace Greenshot.Base.Interop
         public static T CreateInstance<T>()
         {
             Type type = typeof(T);
-            if (null == type)
+            if (type == null)
             {
                 throw new ArgumentNullException(nameof(T));
             }
@@ -87,7 +87,7 @@ namespace Greenshot.Base.Interop
             Type comType = null;
             if (progId.StartsWith("clsid:"))
             {
-                Guid guid = new Guid(progId.Substring(6));
+                Guid guid = new(progId.Substring(6));
                 try
                 {
                     comType = Type.GetTypeFromCLSID(guid);
@@ -127,12 +127,7 @@ namespace Greenshot.Base.Interop
                 }
             }
 
-            if (comObject != null)
-            {
-                return (T) comObject;
-            }
-
-            return default;
+            return comObject != null ? (T)comObject : default;
         }
 
         /// <summary>
@@ -144,17 +139,17 @@ namespace Greenshot.Base.Interop
         /// <returns>Transparent proxy to the real proxy for the object</returns>
         private static object Wrap(object comObject, Type type, string targetName)
         {
-            if (null == comObject)
+            if (comObject == null)
             {
                 throw new ArgumentNullException(nameof(comObject));
             }
 
-            if (null == type)
+            if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
 
-            COMWrapper wrapper = new COMWrapper(comObject, type, targetName);
+            COMWrapper wrapper = new(comObject, type, targetName);
             return wrapper.GetTransparentProxy();
         }
 
@@ -204,7 +199,7 @@ namespace Greenshot.Base.Interop
         /// </param>
         private void Dispose(bool disposing)
         {
-            if (null != _comObject)
+            if (_comObject != null)
             {
                 Log.DebugFormat("Disposing {0}", _interceptType);
                 if (Marshal.IsComObject(_comObject))
@@ -264,10 +259,9 @@ namespace Greenshot.Base.Interop
         /// </returns>
         public override bool Equals(object value)
         {
-            if (null != value && RemotingServices.IsTransparentProxy(value))
+            if (value != null && RemotingServices.IsTransparentProxy(value))
             {
-                COMWrapper wrapper = RemotingServices.GetRealProxy(value) as COMWrapper;
-                if (null != wrapper)
+                if (RemotingServices.GetRealProxy(value) is COMWrapper wrapper)
                 {
                     return _comObject == wrapper._comObject;
                 }
@@ -290,7 +284,7 @@ namespace Greenshot.Base.Interop
         /// </exception>
         private static Type GetByValType(Type byRefType)
         {
-            if (null == byRefType)
+            if (byRefType == null)
             {
                 throw new ArgumentNullException(nameof(byRefType));
             }
@@ -306,7 +300,7 @@ namespace Greenshot.Base.Interop
         }
 
         /// <summary>
-        /// Intercept method calls 
+        /// Intercept method calls
         /// </summary>
         /// <param name="myMessage">
         /// Contains information about the method being called
@@ -316,14 +310,14 @@ namespace Greenshot.Base.Interop
         /// </returns>
         public override IMessage Invoke(IMessage myMessage)
         {
-            if (!(myMessage is IMethodCallMessage callMessage))
+            if (myMessage is not IMethodCallMessage callMessage)
             {
                 Log.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
                 return null;
             }
 
             MethodInfo method = callMessage.MethodBase as MethodInfo;
-            if (null == method)
+            if (method == null)
             {
                 Log.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase);
                 return null;
@@ -341,33 +335,34 @@ namespace Greenshot.Base.Interop
             ParameterModifier[] argModifiers = null;
             ParameterInfo[] parameters = null;
 
-            if ("Dispose" == methodName && 0 == argCount && typeof(void) == returnType)
+            if (methodName == "Dispose" && argCount == 0 && typeof(void) == returnType)
             {
                 Dispose();
             }
-            else if ("ToString" == methodName && 0 == argCount && typeof(string) == returnType)
+            else if (methodName == "ToString" && argCount == 0 && typeof(string) == returnType)
             {
                 returnValue = ToString();
             }
-            else if ("GetType" == methodName && 0 == argCount && typeof(Type) == returnType)
+            else if (methodName == "GetType" && argCount == 0 && typeof(Type) == returnType)
             {
                 returnValue = _interceptType;
             }
-            else if ("GetHashCode" == methodName && 0 == argCount && typeof(int) == returnType)
+            else if (methodName == "GetHashCode" && argCount == 0 && typeof(int) == returnType)
             {
                 returnValue = GetHashCode();
             }
-            else if ("Equals" == methodName && 1 == argCount && typeof(bool) == returnType)
+            else if (methodName == "Equals" && argCount == 1 && typeof(bool) == returnType)
             {
                 returnValue = Equals(callMessage.Args[0]);
             }
-            else if (1 == argCount && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_")))
+            else if (argCount == 1 && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_")))
             {
                 bool removeHandler = methodName.StartsWith("remove_");
-                methodName = methodName.Substring(removeHandler ? 7 : 4);
+                _ = methodName.Substring(removeHandler ? 7 : 4);
                 // TODO: Something is missing here
-                if (!(callMessage.InArgs[0] is Delegate handler))
+                if (callMessage.InArgs[0] is not Delegate)
                 {
+                    Delegate handler;
                     return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
                 }
             }
@@ -395,7 +390,7 @@ namespace Greenshot.Base.Interop
                 else
                 {
                     args = callMessage.Args;
-                    if (null != args && 0 != args.Length)
+                    if (args != null && args.Length != 0)
                     {
                         // Modifiers for ref / out parameters
                         argModifiers = new ParameterModifier[1];
@@ -412,7 +407,7 @@ namespace Greenshot.Base.Interop
                             }
                         }
 
-                        if (0 == outArgsCount)
+                        if (outArgsCount == 0)
                         {
                             argModifiers = null;
                         }
@@ -423,7 +418,7 @@ namespace Greenshot.Base.Interop
                 Type byValType;
                 COMWrapper wrapper;
                 COMWrapper[] originalArgs;
-                if (null == args || 0 == args.Length)
+                if (args == null || args.Length == 0)
                 {
                     originalArgs = null;
                 }
@@ -432,16 +427,16 @@ namespace Greenshot.Base.Interop
                     originalArgs = new COMWrapper[args.Length];
                     for (int i = 0; i < args.Length; i++)
                     {
-                        if (null != args[i] && RemotingServices.IsTransparentProxy(args[i]))
+                        if (args[i] != null && RemotingServices.IsTransparentProxy(args[i]))
                         {
                             wrapper = RemotingServices.GetRealProxy(args[i]) as COMWrapper;
-                            if (null != wrapper)
+                            if (wrapper != null)
                             {
                                 originalArgs[i] = wrapper;
                                 args[i] = wrapper._comObject;
                             }
                         }
-                        else if (0 != outArgsCount && argModifiers[0][i])
+                        else if (outArgsCount != 0 && argModifiers[0][i])
                         {
                             byValType = GetByValType(parameters[i].ParameterType);
                             if (byValType.IsInterface)
@@ -449,7 +444,7 @@ namespace Greenshot.Base.Interop
                                 // If we're passing a COM object by reference, and
                                 // the parameter is null, we need to pass a
                                 // DispatchWrapper to avoid a type mismatch exception.
-                                if (null == args[i])
+                                if (args[i] == null)
                                 {
                                     args[i] = new DispatchWrapper(null);
                                 }
@@ -466,7 +461,7 @@ namespace Greenshot.Base.Interop
                     }
                 }
 
-                do
+                while (true)
                 {
                     try
                     {
@@ -482,7 +477,7 @@ namespace Greenshot.Base.Interop
                     catch (Exception ex)
                     {
                         // Test for rejected
-                        if (!(ex is COMException comEx))
+                        if (ex is not COMException comEx)
                         {
                             comEx = ex.InnerException as COMException;
                         }
@@ -491,7 +486,7 @@ namespace Greenshot.Base.Interop
                         {
                             string destinationName = _targetName;
                             // Try to find a "catchy" name for the rejecting application
-                            if (destinationName != null && destinationName.Contains("."))
+                            if (destinationName?.Contains(".") == true)
                             {
                                 destinationName = destinationName.Substring(0, destinationName.IndexOf(".", StringComparison.Ordinal));
                             }
@@ -514,10 +509,10 @@ namespace Greenshot.Base.Interop
                         // Not rejected OR pressed cancel
                         return new ReturnMessage(ex, callMessage);
                     }
-                } while (true);
+                }
 
                 // Handle enum and interface return types
-                if (null != returnValue)
+                if (returnValue != null)
                 {
                     if (returnType.IsInterface)
                     {
@@ -535,7 +530,7 @@ namespace Greenshot.Base.Interop
                 }
 
                 // Handle out args
-                if (0 != outArgsCount)
+                if (outArgsCount != 0)
                 {
                     outArgs = new object[args.Length];
                     for (int i = 0; i < parameters.Length; i++)
@@ -546,20 +541,18 @@ namespace Greenshot.Base.Interop
                         }
 
                         var arg = args[i];
-                        if (null == arg)
+                        if (arg == null)
                         {
                             continue;
                         }
 
                         parameter = parameters[i];
-                        wrapper = null;
-
                         byValType = GetByValType(parameter.ParameterType);
                         if (typeof(decimal) == byValType)
                         {
-                            if (arg is CurrencyWrapper)
+                            if (arg is CurrencyWrapper wrapper1)
                             {
-                                arg = ((CurrencyWrapper) arg).WrappedObject;
+                                arg = wrapper1.WrappedObject;
                             }
                         }
                         else if (byValType.IsEnum)
@@ -571,13 +564,13 @@ namespace Greenshot.Base.Interop
                             if (Marshal.IsComObject(arg))
                             {
                                 wrapper = originalArgs[i];
-                                if (null != wrapper && wrapper._comObject != arg)
+                                if (wrapper != null && wrapper._comObject != arg)
                                 {
                                     wrapper.Dispose();
                                     wrapper = null;
                                 }
 
-                                if (null == wrapper)
+                                if (wrapper == null)
                                 {
                                     wrapper = new COMWrapper(arg, byValType, _targetName);
                                 }

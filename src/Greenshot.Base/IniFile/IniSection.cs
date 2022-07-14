@@ -43,12 +43,7 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (iniSectionAttribute == null)
-                {
-                    iniSectionAttribute = GetIniSectionAttribute(GetType());
-                }
-
-                return iniSectionAttribute;
+                return iniSectionAttribute ??= GetIniSectionAttribute(GetType());
             }
         }
 
@@ -118,9 +113,9 @@ namespace Greenshot.Base.IniFile
             Attribute[] classAttributes = Attribute.GetCustomAttributes(iniSectionType);
             foreach (Attribute attribute in classAttributes)
             {
-                if (attribute is IniSectionAttribute)
+                if (attribute is IniSectionAttribute iniSectionAttribute2)
                 {
-                    return (IniSectionAttribute) attribute;
+                    return iniSectionAttribute2;
                 }
             }
 
@@ -140,7 +135,7 @@ namespace Greenshot.Base.IniFile
             {
                 if (Attribute.IsDefined(fieldInfo, typeof(IniPropertyAttribute)))
                 {
-                    IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute) fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
+                    IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)fieldInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
                     if (!Values.ContainsKey(iniPropertyAttribute.Name))
                     {
                         Values[iniPropertyAttribute.Name] = new IniValue(this, fieldInfo, iniPropertyAttribute);
@@ -154,7 +149,7 @@ namespace Greenshot.Base.IniFile
                 {
                     if (!Values.ContainsKey(propertyInfo.Name))
                     {
-                        IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute) propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
+                        IniPropertyAttribute iniPropertyAttribute = (IniPropertyAttribute)propertyInfo.GetCustomAttributes(typeof(IniPropertyAttribute), false)[0];
                         Values[iniPropertyAttribute.Name] = new IniValue(this, propertyInfo, iniPropertyAttribute);
                     }
                 }

@@ -37,21 +37,19 @@ namespace Greenshot.Base.IniFile
         private static readonly ILog Log = LogManager.GetLogger(typeof(IniValue));
         private readonly PropertyInfo _propertyInfo;
         private readonly FieldInfo _fieldInfo;
-        private readonly IniSection _containingIniSection;
-        private readonly IniPropertyAttribute _attributes;
 
         public IniValue(IniSection containingIniSection, PropertyInfo propertyInfo, IniPropertyAttribute iniPropertyAttribute)
         {
-            _containingIniSection = containingIniSection;
+            ContainingIniSection = containingIniSection;
             _propertyInfo = propertyInfo;
-            _attributes = iniPropertyAttribute;
+            Attributes = iniPropertyAttribute;
         }
 
         public IniValue(IniSection containingIniSection, FieldInfo fieldInfo, IniPropertyAttribute iniPropertyAttribute)
         {
-            _containingIniSection = containingIniSection;
+            ContainingIniSection = containingIniSection;
             _fieldInfo = fieldInfo;
-            _attributes = iniPropertyAttribute;
+            Attributes = iniPropertyAttribute;
         }
 
         /// <summary>
@@ -61,18 +59,13 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (_attributes != null)
-                {
-                    return _attributes.FixedValue;
-                }
-
-                return false;
+                return Attributes != null && Attributes.FixedValue;
             }
             set
             {
-                if (_attributes != null)
+                if (Attributes != null)
                 {
-                    _attributes.FixedValue = value;
+                    Attributes.FixedValue = value;
                 }
             }
         }
@@ -84,22 +77,16 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (_attributes != null)
-                {
-                    return _attributes.Expert;
-                }
-
-                return false;
+                return Attributes != null && Attributes.Expert;
             }
             set
             {
-                if (_attributes != null)
+                if (Attributes != null)
                 {
-                    _attributes.Expert = value;
+                    Attributes.Expert = value;
                 }
             }
         }
-
 
         /// <summary>
         /// Return true when the value is can be changed by the GUI
@@ -115,24 +102,19 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (_propertyInfo == null)
-                {
-                    return _fieldInfo;
-                }
-
-                return _propertyInfo;
+                return _propertyInfo == null ? _fieldInfo : _propertyInfo;
             }
         }
 
         /// <summary>
         /// Returns the IniSection this value is contained in
         /// </summary>
-        public IniSection ContainingIniSection => _containingIniSection;
+        public IniSection ContainingIniSection { get; }
 
         /// <summary>
         /// Get the in the ini file defined attributes
         /// </summary>
-        public IniPropertyAttribute Attributes => _attributes;
+        public IniPropertyAttribute Attributes { get; }
 
         /// <summary>
         /// Get the value for this IniValue
@@ -141,22 +123,17 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (_propertyInfo == null)
-                {
-                    return _fieldInfo.GetValue(_containingIniSection);
-                }
-
-                return _propertyInfo.GetValue(_containingIniSection, null);
+                return _propertyInfo == null ? _fieldInfo.GetValue(ContainingIniSection) : _propertyInfo.GetValue(ContainingIniSection, null);
             }
             set
             {
                 if (_propertyInfo == null)
                 {
-                    _fieldInfo.SetValue(_containingIniSection, value);
+                    _fieldInfo.SetValue(ContainingIniSection, value);
                 }
                 else
                 {
-                    _propertyInfo.SetValue(_containingIniSection, value, null);
+                    _propertyInfo.SetValue(ContainingIniSection, value, null);
                 }
             }
         }
@@ -196,19 +173,19 @@ namespace Greenshot.Base.IniFile
             Type valueType = ValueType;
             if (myValue == null)
             {
-                if (_attributes.ExcludeIfNull)
+                if (Attributes.ExcludeIfNull)
                 {
                     return;
                 }
 
-                if (_attributes.DefaultValue != null)
+                if (Attributes.DefaultValue != null)
                 {
-                    myValue = _attributes.DefaultValue;
+                    myValue = Attributes.DefaultValue;
                     valueType = typeof(string);
                 }
                 else
                 {
-                    myValue = _containingIniSection.GetDefault(_attributes.Name);
+                    myValue = ContainingIniSection.GetDefault(Attributes.Name);
                     if (myValue != null)
                     {
                         valueType = myValue.GetType();
@@ -218,7 +195,7 @@ namespace Greenshot.Base.IniFile
 
             if (myValue == null)
             {
-                if (_attributes.ExcludeIfNull)
+                if (Attributes.ExcludeIfNull)
                 {
                     return;
                 }
@@ -226,12 +203,12 @@ namespace Greenshot.Base.IniFile
 
             if (!onlyProperties)
             {
-                writer.WriteLine("; {0}", _attributes.Description);
+                writer.WriteLine("; {0}", Attributes.Description);
             }
 
             if (myValue == null)
             {
-                writer.WriteLine("{0}=", _attributes.Name);
+                writer.WriteLine("{0}=", Attributes.Name);
                 return;
             }
 
@@ -247,7 +224,7 @@ namespace Greenshot.Base.IniFile
                 var moveNext = enumerator.GetType().GetMethod("MoveNext");
                 var current = enumerator.GetType().GetProperty("Current").GetGetMethod();
                 // Get all the values.
-                while ((bool) moveNext.Invoke(enumerator, null))
+                while ((bool)moveNext.Invoke(enumerator, null))
                 {
                     var key = current.Invoke(enumerator, null);
                     var valueObject = item.GetValue(myValue, new[]
@@ -255,13 +232,13 @@ namespace Greenshot.Base.IniFile
                         key
                     });
                     // Write to ini file!
-                    writer.WriteLine("{0}.{1}={2}", _attributes.Name, ConvertValueToString(valueType1, key, _attributes.Separator),
-                        ConvertValueToString(valueType2, valueObject, _attributes.Separator));
+                    writer.WriteLine("{0}.{1}={2}", Attributes.Name, ConvertValueToString(valueType1, key, Attributes.Separator),
+                        ConvertValueToString(valueType2, valueObject, Attributes.Separator));
                 }
             }
             else
             {
-                writer.WriteLine("{0}={1}", _attributes.Name, ConvertValueToString(valueType, myValue, _attributes.Separator));
+                writer.WriteLine("{0}={1}", Attributes.Name, ConvertValueToString(valueType, myValue, Attributes.Separator));
             }
         }
 
@@ -271,11 +248,11 @@ namespace Greenshot.Base.IniFile
         /// <returns></returns>
         public void SetValueFromProperties(IDictionary<string, string> properties)
         {
-            string propertyName = _attributes.Name;
+            string propertyName = Attributes.Name;
             string propertyValue = null;
             if (properties.ContainsKey(propertyName) && properties[propertyName] != null)
             {
-                propertyValue = _containingIniSection.PreCheckValue(propertyName, properties[propertyName]);
+                propertyValue = ContainingIniSection.PreCheckValue(propertyName, properties[propertyName]);
             }
 
             UseValueOrDefault(propertyValue);
@@ -288,10 +265,10 @@ namespace Greenshot.Base.IniFile
         public void UseValueOrDefault(string propertyValue)
         {
             Type valueType = ValueType;
-            string propertyName = _attributes.Name;
-            string defaultValue = _attributes.DefaultValue;
+            string propertyName = Attributes.Name;
+            string defaultValue = Attributes.DefaultValue;
             bool defaultUsed = false;
-            object defaultValueFromConfig = _containingIniSection.GetDefault(propertyName);
+            object defaultValueFromConfig = ContainingIniSection.GetDefault(propertyName);
 
             if (string.IsNullOrEmpty(propertyValue))
             {
@@ -306,7 +283,7 @@ namespace Greenshot.Base.IniFile
                 }
                 else
                 {
-                    if (_attributes.ExcludeIfNull)
+                    if (Attributes.ExcludeIfNull)
                     {
                         Value = null;
                         return;
@@ -326,10 +303,10 @@ namespace Greenshot.Base.IniFile
                 object dictionary = Activator.CreateInstance(valueType);
                 MethodInfo addMethodInfo = valueType.GetMethod("Add");
                 bool addedElements = false;
-                IDictionary<string, string> properties = IniConfig.PropertiesForSection(_containingIniSection);
+                IDictionary<string, string> properties = IniConfig.PropertiesForSection(ContainingIniSection);
                 foreach (string key in properties.Keys)
                 {
-                    if (key != null && key.StartsWith(propertyName + "."))
+                    if (key?.StartsWith(propertyName + ".") == true)
                     {
                         // What "key" do we need to store it under?
                         string subPropertyName = key.Substring(propertyName.Length + 1);
@@ -338,7 +315,7 @@ namespace Greenshot.Base.IniFile
                         object newValue2 = null;
                         try
                         {
-                            newValue1 = ConvertStringToValueType(type1, subPropertyName, _attributes.Separator);
+                            newValue1 = ConvertStringToValueType(type1, subPropertyName, Attributes.Separator);
                         }
                         catch (Exception ex)
                         {
@@ -348,7 +325,7 @@ namespace Greenshot.Base.IniFile
 
                         try
                         {
-                            newValue2 = ConvertStringToValueType(type2, stringValue, _attributes.Separator);
+                            newValue2 = ConvertStringToValueType(type2, stringValue, Attributes.Separator);
                         }
                         catch (Exception ex)
                         {
@@ -388,7 +365,7 @@ namespace Greenshot.Base.IniFile
                 object newValue;
                 try
                 {
-                    newValue = ConvertStringToValueType(valueType, propertyValue, _attributes.Separator);
+                    newValue = ConvertStringToValueType(valueType, propertyValue, Attributes.Separator);
                 }
                 catch (Exception ex1)
                 {
@@ -398,7 +375,7 @@ namespace Greenshot.Base.IniFile
                         try
                         {
                             Log.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
-                            newValue = ConvertStringToValueType(valueType, defaultValue, _attributes.Separator);
+                            newValue = ConvertStringToValueType(valueType, defaultValue, Attributes.Separator);
                             ContainingIniSection.IsDirty = true;
                             Log.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
                         }
@@ -432,7 +409,7 @@ namespace Greenshot.Base.IniFile
                 }
                 catch (Exception)
                 {
-                    Log.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, _attributes.Name);
+                    Log.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, Attributes.Name);
                     Value = default(ValueType);
                 }
             }
@@ -545,7 +522,7 @@ namespace Greenshot.Base.IniFile
         /// <returns>string representation of this</returns>
         public override string ToString()
         {
-            return ConvertValueToString(ValueType, Value, _attributes.Separator);
+            return ConvertValueToString(ValueType, Value, Attributes.Separator);
         }
 
         /// <summary>
@@ -565,9 +542,9 @@ namespace Greenshot.Base.IniFile
 
             if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>))
             {
-                StringBuilder stringBuilder = new StringBuilder();
+                StringBuilder stringBuilder = new();
                 Type specificValueType = valueType.GetGenericArguments()[0];
-                int listCount = (int) valueType.GetProperty("Count").GetValue(valueObject, null);
+                int listCount = (int)valueType.GetProperty("Count").GetValue(valueObject, null);
                 // Loop though generic list
                 for (int index = 0; index < listCount; index++)
                 {

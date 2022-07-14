@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.Win10.Internal
         /// <inheritdoc />
         public IInputStream GetInputStreamAt(ulong position)
         {
-            Seek((long) position, SeekOrigin.Begin);
+            Seek((long)position, SeekOrigin.Begin);
 
             return this.AsInputStream();
         }
@@ -40,19 +40,19 @@ namespace Greenshot.Plugin.Win10.Internal
         /// <inheritdoc />
         public IOutputStream GetOutputStreamAt(ulong position)
         {
-            Seek((long) position, SeekOrigin.Begin);
+            Seek((long)position, SeekOrigin.Begin);
 
             return this.AsOutputStream();
         }
 
         /// <inheritdoc />
-        ulong IRandomAccessStream.Position => (ulong) Position;
+        ulong IRandomAccessStream.Position => (ulong)Position;
 
         /// <inheritdoc />
         public ulong Size
         {
-            get { return (ulong) Length; }
-            set { SetLength((long) value); }
+            get { return (ulong)Length; }
+            set { SetLength((long)value); }
         }
 
         /// <inheritdoc />
@@ -66,7 +66,7 @@ namespace Greenshot.Plugin.Win10.Internal
         /// <inheritdoc />
         public void Seek(ulong position)
         {
-            Seek((long) position, SeekOrigin.Begin);
+            Seek((long)position, SeekOrigin.Begin);
         }
 
         /// <inheritdoc />

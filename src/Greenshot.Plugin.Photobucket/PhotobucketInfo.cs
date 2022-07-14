@@ -45,10 +45,10 @@ namespace Greenshot.Plugin.Photobucket
         public static PhotobucketInfo FromUploadResponse(string response)
         {
             Log.Debug(response);
-            PhotobucketInfo photobucketInfo = new PhotobucketInfo();
+            PhotobucketInfo photobucketInfo = new();
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 var nodes = doc.GetElementsByTagName("url");
                 if (nodes.Count > 0)

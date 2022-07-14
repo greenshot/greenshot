@@ -62,7 +62,6 @@ namespace Greenshot.Editor.Drawing
 
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
             if (lineThickness <= 0) return;
@@ -75,13 +74,13 @@ namespace Greenshot.Editor.Drawing
             if (shadow)
             {
                 //draw shadow first
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = 1;
                 while (currentStep <= steps)
                 {
-                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    using Pen shadowCapPen = new(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
                     graphics.DrawLine(shadowCapPen,
                         Left + currentStep,
                         Top + currentStep,
@@ -94,7 +93,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            using Pen pen = new Pen(lineColor, lineThickness);
+            using Pen pen = new(lineColor, lineThickness);
             graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
 
@@ -103,11 +102,11 @@ namespace Greenshot.Editor.Drawing
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 5;
             if (lineThickness > 0)
             {
-                using Pen pen = new Pen(Color.White)
+                using Pen pen = new(Color.White)
                 {
                     Width = lineThickness
                 };
-                using GraphicsPath path = new GraphicsPath();
+                using GraphicsPath path = new();
                 path.AddLine(Left, Top, Left + Width, Top + Height);
                 return path.IsOutlineVisible(x, y, pen);
             }

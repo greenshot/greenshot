@@ -45,7 +45,7 @@ namespace Greenshot.Plugin.Confluence
         private ConfluenceSoapServiceService _confluence;
         private readonly int _timeout;
         private string _url;
-        private readonly Cache<string, RemotePage> _pageCache = new Cache<string, RemotePage>(60 * Config.Timeout);
+        private readonly Cache<string, RemotePage> _pageCache = new(60 * Config.Timeout);
 
         public void Dispose()
         {

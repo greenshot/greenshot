@@ -53,7 +53,6 @@ namespace Greenshot.Editor.Drawing.Fields
         public static readonly IFieldType FLAGS = new FieldType(nameof(FLAGS));
         public static readonly IFieldType CROPMODE = new FieldType(nameof(CROPMODE));
 
-
         public static IFieldType[] Values =
         {
             ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR,
@@ -87,12 +86,7 @@ namespace Greenshot.Editor.Drawing.Fields
         public override bool Equals(object obj)
         {
             FieldType other = obj as FieldType;
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Equals(Name, other.Name);
+            return other != null && Equals(Name, other.Name);
         }
 
         public static bool operator ==(FieldType a, FieldType b)

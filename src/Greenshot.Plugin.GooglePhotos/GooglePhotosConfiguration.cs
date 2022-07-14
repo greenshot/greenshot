@@ -70,12 +70,7 @@ namespace Greenshot.Plugin.GooglePhotos
         public bool ShowConfigDialog()
         {
             DialogResult result = new SettingsForm().ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                return true;
-            }
-
-            return false;
+            return result == DialogResult.OK;
         }
     }
 }

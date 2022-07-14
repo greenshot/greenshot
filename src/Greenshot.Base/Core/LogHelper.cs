@@ -88,12 +88,11 @@ namespace Greenshot.Base.Core
                 // Get the logfile name
                 try
                 {
-                    if (((Hierarchy) LogManager.GetRepository()).Root.Appenders.Count > 0)
+                    if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0)
                     {
-                        foreach (IAppender appender in ((Hierarchy) LogManager.GetRepository()).Root.Appenders)
+                        foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders)
                         {
-                            var fileAppender = appender as FileAppender;
-                            if (fileAppender != null)
+                            if (appender is FileAppender fileAppender)
                             {
                                 return fileAppender.File;
                             }
@@ -117,7 +116,7 @@ namespace Greenshot.Base.Core
     {
         protected override void Convert(TextWriter writer, object state)
         {
-            Environment.SpecialFolder specialFolder = (Environment.SpecialFolder) Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
+            Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
             writer.Write(Environment.GetFolderPath(specialFolder));
         }
     }

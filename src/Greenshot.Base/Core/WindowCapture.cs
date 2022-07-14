@@ -153,7 +153,7 @@ namespace Greenshot.Base.Core
         {
             if (process == null) return true;
             if (Configuration.NoDWMCaptureForProduct == null ||
-                Configuration.NoDWMCaptureForProduct.Count <= 0) return true;
+                Configuration.NoDWMCaptureForProduct.Count == 0) return true;
 
             try
             {
@@ -180,7 +180,7 @@ namespace Greenshot.Base.Core
         {
             if (process == null) return true;
             if (Configuration.NoGDICaptureForProduct == null ||
-                Configuration.NoGDICaptureForProduct.Count <= 0) return true;
+                Configuration.NoGDICaptureForProduct.Count == 0) return true;
 
             try
             {
@@ -337,7 +337,7 @@ namespace Greenshot.Base.Core
                     try
                     {
                         // Collect all screens inside this capture
-                        List<Screen> screensInsideCapture = new List<Screen>();
+                        List<Screen> screensInsideCapture = new();
                         foreach (Screen screen in Screen.AllScreens)
                         {
                             if (screen.Bounds.IntersectsWith(captureBounds))
@@ -348,7 +348,7 @@ namespace Greenshot.Base.Core
 
                         // Check all all screens are of an equal size
                         bool offscreenContent;
-                        using (Region captureRegion = new Region(captureBounds))
+                        using (Region captureRegion = new(captureBounds))
                         {
                             // Exclude every visible part
                             foreach (Screen screen in screensInsideCapture)

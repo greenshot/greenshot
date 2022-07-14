@@ -349,7 +349,7 @@ namespace Greenshot.Base.Core
                         newSize.Width = 256;
                     }
 
-                    newSize.Width = (newSize.Width / 16) * 16;
+                    newSize.Width = newSize.Width / 16 * 16;
                     if (newSize.Height < 16)
                     {
                         newSize.Height = 16;
@@ -359,7 +359,7 @@ namespace Greenshot.Base.Core
                         newSize.Height = 256;
                     }
 
-                    newSize.Height = (newSize.Height / 16) * 16;
+                    newSize.Height = newSize.Height / 16 * 16;
                 }
 
                 if (_iconSize != newSize)
@@ -369,7 +369,7 @@ namespace Greenshot.Base.Core
                 }
             }
         }
-        
+
         [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
 
@@ -385,7 +385,7 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public bool IsExperimentalFeatureEnabled(string experimentalFeature)
         {
-            return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
+            return ExperimentalFeatures?.Contains(experimentalFeature) == true;
         }
 
         private string CreateOutputFilePath()
@@ -414,7 +414,7 @@ namespace Greenshot.Base.Core
 
             return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
-        
+
         /// <summary>
         /// Supply values we can't put as defaults
         /// </summary>
@@ -445,7 +445,7 @@ namespace Greenshot.Base.Core
                 },
                 _ => null
             };
-        
+
         /// <summary>
         /// This method will be called before converting the property, making to possible to correct a certain value
         /// Can be used when migration is needed
@@ -528,9 +528,9 @@ namespace Greenshot.Base.Core
             }
 
             // Enable OneNote if upgrading from 1.1
-            if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote"))
+            if (ExcludeDestinations?.Contains("OneNote") == true)
             {
-                if (LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1"))
+                if (LastSaveWithVersion?.StartsWith("1.1") == true)
                 {
                     ExcludeDestinations.Remove("OneNote");
                 }

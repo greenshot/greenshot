@@ -37,13 +37,13 @@ namespace Greenshot.Base.Core
         ///     Test if the current OS is Windows 8.1 or later
         /// </summary>
         /// <returns>true if we are running on Windows 8.1 or later</returns>
-        public static bool IsWindows81OrLater { get; } = WinVersion.Major == 6 && WinVersion.Minor >= 3 || WinVersion.Major > 6;
+        public static bool IsWindows81OrLater { get; } = (WinVersion.Major == 6 && WinVersion.Minor >= 3) || WinVersion.Major > 6;
 
         /// <summary>
         ///     Test if the current OS is Windows 8 or later
         /// </summary>
         /// <returns>true if we are running on Windows 8 or later</returns>
-        public static bool IsWindows8OrLater { get; } = WinVersion.Major == 6 && WinVersion.Minor >= 2 || WinVersion.Major > 6;
+        public static bool IsWindows8OrLater { get; } = (WinVersion.Major == 6 && WinVersion.Minor >= 2) || WinVersion.Major > 6;
 
         /// <summary>
         ///     Test if the current OS is Windows Vista or later

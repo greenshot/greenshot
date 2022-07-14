@@ -57,8 +57,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     float left, top;
                     using (var pageSetup = DisposableCom.Create(presentation.ComObject.PageSetup))
                     {
-                        left = pageSetup.ComObject.SlideWidth / 2 - imageSize.Width / 2f;
-                        top = pageSetup.ComObject.SlideHeight / 2 - imageSize.Height / 2f;
+                        left = (pageSetup.ComObject.SlideWidth / 2) - (imageSize.Width / 2f);
+                        top = (pageSetup.ComObject.SlideHeight / 2) - (imageSize.Height / 2f);
                     }
 
                     float width = imageSize.Width;
@@ -98,7 +98,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         }
                         else
                         {
-                            top = shapeForLocation.ComObject.Top + shapeForLocation.ComObject.Height / 2 - imageSize.Height / 2f;
+                            top = shapeForLocation.ComObject.Top + (shapeForLocation.ComObject.Height / 2) - (imageSize.Height / 2f);
                         }
 
                         shapeForLocation.ComObject.Height = imageSize.Height;
@@ -318,7 +318,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
             {
                 LOG.Warn("Assuming Powerpoint version 1997.");
-                _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                _powerpointVersion = new Version((int)OfficeVersions.Office97, 0, 0, 0);
             }
         }
 
@@ -357,7 +357,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
         private bool IsAfter2003()
         {
-            return _powerpointVersion.Major > (int) OfficeVersions.Office2003;
+            return _powerpointVersion.Major > (int)OfficeVersions.Office2003;
         }
     }
 }

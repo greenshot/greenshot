@@ -57,19 +57,19 @@ namespace Greenshot.Plugin.Confluence
                 var genericTypeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
                 if (genericTypeDefinition != null)
                 {
-                    _reverseValues = (IDictionary) Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
+                    _reverseValues = (IDictionary)Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
                 }
 
                 var typeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
                 if (typeDefinition != null)
                 {
-                    _displayValues = (IDictionary) Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
+                    _displayValues = (IDictionary)Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
                 }
 
                 var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
                 foreach (var field in fields)
                 {
-                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[]) field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
+                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
 
                     string displayKey = GetDisplayKeyValue(a);
                     object enumValue = field.GetValue(null);
@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.Confluence
                     string displayString;
                     if (displayKey != null && Language.HasKey(displayKey))
                     {
-                        displayString = Language.GetString(displayKey);
+                        _ = Language.GetString(displayKey);
                     }
 
                     displayString = displayKey ?? enumValue.ToString();
@@ -86,7 +86,7 @@ namespace Greenshot.Plugin.Confluence
                     _reverseValues.Add(displayString, enumValue);
                 }
 
-                return new List<string>((IEnumerable<string>) _displayValues.Values).AsReadOnly();
+                return new List<string>((IEnumerable<string>)_displayValues.Values).AsReadOnly();
             }
         }
 

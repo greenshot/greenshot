@@ -79,7 +79,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void BindElement(IDrawableContainer dc)
         {
-            if (!(dc is DrawableContainer container) || _boundContainers.Contains(container))
+            if (dc is not DrawableContainer container || _boundContainers.Contains(container))
             {
                 return;
             }
@@ -97,7 +97,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void UpdateElement(IDrawableContainer dc)
         {
-            if (!(dc is DrawableContainer container))
+            if (dc is not DrawableContainer container)
             {
                 return;
             }
@@ -172,7 +172,7 @@ namespace Greenshot.Editor.Drawing.Fields
                     returnFields = leastSelectedContainer.GetFields();
                     for (int i = 0; i < _boundContainers.Count - 1; i++)
                     {
-                        if (!(_boundContainers[i] is DrawableContainer dc)) continue;
+                        if (_boundContainers[i] is not DrawableContainer dc) continue;
                         IList<IField> fieldsToRemove = new List<IField>();
                         foreach (IField field in returnFields)
                         {
@@ -196,7 +196,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)
         {
-            IField field = (IField) sender;
+            IField field = (IField)sender;
             if (_internalUpdateRunning || field.Value == null)
             {
                 return;
@@ -204,7 +204,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
             foreach (var drawableContainer1 in _boundContainers.ToList())
             {
-                var drawableContainer = (DrawableContainer) drawableContainer1;
+                var drawableContainer = (DrawableContainer)drawableContainer1;
                 if (!drawableContainer.HasField(field.FieldType))
                 {
                     continue;

@@ -22,13 +22,13 @@ namespace Greenshot.Plugin.Confluence.Support
 
         protected override void StartListening(object source)
         {
-            var manager = (TranslationManager) source;
+            var manager = (TranslationManager)source;
             manager.LanguageChanged += OnLanguageChanged;
         }
 
         protected override void StopListening(object source)
         {
-            var manager = (TranslationManager) source;
+            var manager = (TranslationManager)source;
             manager.LanguageChanged -= OnLanguageChanged;
         }
 
@@ -37,7 +37,7 @@ namespace Greenshot.Plugin.Confluence.Support
             get
             {
                 Type managerType = typeof(LanguageChangedEventManager);
-                var manager = (LanguageChangedEventManager) GetCurrentManager(managerType);
+                var manager = (LanguageChangedEventManager)GetCurrentManager(managerType);
                 if (manager == null)
                 {
                     manager = new LanguageChangedEventManager();

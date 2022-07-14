@@ -35,9 +35,9 @@ namespace Greenshot.Plugin.Jira
     public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
     {
         private static readonly Task<TResult> EmptyValueTask = Task.FromResult<TResult>(null);
-        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
-        private readonly MemoryCache _cache = new MemoryCache(Guid.NewGuid().ToString());
-        private readonly LogSource _log = new LogSource();
+        private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
+        private readonly MemoryCache _cache = new(Guid.NewGuid().ToString());
+        private readonly LogSource _log = new();
 
         /// <summary>
         ///     Set the timespan for items to expire.

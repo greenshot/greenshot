@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// </summary>
         /// <param name="extension">string</param>
         /// <returns>string</returns>
-        public static  string NormalizeExtension(string extension)
+        public static string NormalizeExtension(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {
@@ -93,7 +93,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)).ToList();
 
-            if (!saveFileFormatHandlers.Any())
+            if (saveFileFormatHandlers.Count == 0)
             {
                 return false;
             }
@@ -126,12 +126,9 @@ namespace Greenshot.Base.Core.FileFormatHandlers
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .FirstOrDefault();
 
-            if (loadfileFormatHandler != null)
-            {
-                return loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface);
-            }
-
-            return Enumerable.Empty<IDrawableContainer>();
+            return loadfileFormatHandler != null
+                ? loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface)
+                : Enumerable.Empty<IDrawableContainer>();
         }
 
         /// <summary>

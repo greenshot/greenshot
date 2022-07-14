@@ -90,7 +90,7 @@ namespace Greenshot.Plugin.Photobucket
             };
             try
             {
-                string apiUrl = "https://api.photobucket.com/album/!/upload";
+                const string apiUrl = "https://api.photobucket.com/album/!/upload";
                 responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", PhotobucketConfig.SubDomain), signedParameters,
                     unsignedParameters, null);
             }
@@ -235,9 +235,9 @@ namespace Greenshot.Plugin.Photobucket
 
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(responseString);
-                List<string> albums = new List<string>();
+                List<string> albums = new();
                 var xmlNode = doc.GetElementsByTagName("content").Item(0);
                 if (xmlNode != null)
                 {

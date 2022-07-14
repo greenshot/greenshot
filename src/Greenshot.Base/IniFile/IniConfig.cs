@@ -39,7 +39,7 @@ namespace Greenshot.Base.IniFile
         /// <summary>
         /// A lock object for the ini file saving
         /// </summary>
-        private static readonly object IniLock = new object();
+        private static readonly object IniLock = new();
 
         /// <summary>
         /// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
@@ -156,12 +156,9 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                if (IsInitialized)
-                {
-                    return CreateIniLocation(_configName + IniExtension, false);
-                }
-
-                throw new InvalidOperationException("Ini configuration was not initialized!");
+                return IsInitialized
+                    ? CreateIniLocation(_configName + IniExtension, false)
+                    : throw new InvalidOperationException("Ini configuration was not initialized!");
             }
         }
 
@@ -210,7 +207,7 @@ namespace Greenshot.Base.IniFile
             catch (Exception exception)
             {
                 Log.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
-                applicationStartupPath = @".";
+                applicationStartupPath = ".";
             }
 
             if (applicationStartupPath != null)
@@ -418,7 +415,7 @@ namespace Greenshot.Base.IniFile
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T">IniSection Type to get the configuration for</typeparam>
         /// <param name="allowSave">false to skip saving</param>
@@ -432,12 +429,12 @@ namespace Greenshot.Base.IniFile
             if (SectionMap.ContainsKey(sectionName))
             {
                 //LOG.Debug("Returning pre-mapped section " + sectionName);
-                section = (T) SectionMap[sectionName];
+                section = (T)SectionMap[sectionName];
             }
             else
             {
                 // Create instance of this type
-                section = (T) Activator.CreateInstance(iniSectionType);
+                section = (T)Activator.CreateInstance(iniSectionType);
 
                 // Store for later save & retrieval
                 SectionMap.Add(sectionName, section);
@@ -463,18 +460,15 @@ namespace Greenshot.Base.IniFile
         {
             string sectionName = section.IniSectionAttribute.Name;
             // Get the properties for the section
-            IDictionary<string, string> properties;
             if (_sections.ContainsKey(sectionName))
             {
-                properties = _sections[sectionName];
+                return _sections[sectionName];
             }
             else
             {
                 _sections.Add(sectionName, new Dictionary<string, string>());
-                properties = _sections[sectionName];
+                return _sections[sectionName];
             }
-
-            return properties;
         }
 
         /// <summary>
@@ -567,7 +561,7 @@ namespace Greenshot.Base.IniFile
             // Don't forget to flush the buffer
             writer.Flush();
             // Now write the created .ini string to the real file
-            using FileStream fileStream = new FileStream(iniLocation, FileMode.Create, FileAccess.Write);
+            using FileStream fileStream = new(iniLocation, FileMode.Create, FileAccess.Write);
             memoryStream.WriteTo(fileStream);
         }
     }

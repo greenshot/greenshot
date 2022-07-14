@@ -27,7 +27,7 @@ using log4net;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Cache class 
+    /// Cache class
     /// </summary>
     /// <typeparam name="TK">Type of key</typeparam>
     /// <typeparam name="TV">Type of value</typeparam>
@@ -35,7 +35,7 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
         private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
         private readonly int _secondsToExpire = 10;
         private readonly CacheObjectExpired _expiredCallback;
 
@@ -83,7 +83,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                List<TV> elements = new List<TV>();
+                List<TV> elements = new();
 
                 lock (_lockObject)
                 {
@@ -156,7 +156,7 @@ namespace Greenshot.Base.Core
             lock (_lockObject)
             {
                 var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
-                cachedItem.Expired += delegate(TK cacheKey, TV cacheValue)
+                cachedItem.Expired += delegate (TK cacheKey, TV cacheValue)
                 {
                     if (_internalCache.ContainsKey(cacheKey))
                     {

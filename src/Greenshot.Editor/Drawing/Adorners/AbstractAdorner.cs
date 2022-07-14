@@ -122,7 +122,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             get
             {
                 NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
-                return new NativeRect(displayLocation.X - Size.Width / 2, displayLocation.Y - Size.Height / 2, Size.Width, Size.Height);
+                return new NativeRect(displayLocation.X - (Size.Width / 2), displayLocation.Y - (Size.Height / 2), Size.Width, Size.Height);
             }
         }
 

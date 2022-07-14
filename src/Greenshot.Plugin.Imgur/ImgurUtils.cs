@@ -95,7 +95,7 @@ namespace Greenshot.Plugin.Imgur
                     bool redirected = false;
                     if (wE.Status == WebExceptionStatus.ProtocolError)
                     {
-                        HttpWebResponse response = (HttpWebResponse) wE.Response;
+                        HttpWebResponse response = (HttpWebResponse)wE.Response;
 
                         if (response.StatusCode == HttpStatusCode.Forbidden)
                         {
@@ -187,7 +187,7 @@ namespace Greenshot.Plugin.Imgur
                     var responseStream = response.GetResponseStream();
                     if (responseStream != null)
                     {
-                        using StreamReader reader = new StreamReader(responseStream, true);
+                        using StreamReader reader = new(responseStream, true);
                         responseString = reader.ReadToEnd();
                     }
                 }
@@ -235,12 +235,7 @@ namespace Greenshot.Plugin.Imgur
                 }
             }
 
-            if (string.IsNullOrEmpty(responseString))
-            {
-                return null;
-            }
-
-            return ImgurInfo.ParseResponse(responseString);
+            return string.IsNullOrEmpty(responseString) ? null : ImgurInfo.ParseResponse(responseString);
         }
 
         /// <summary>
@@ -291,7 +286,7 @@ namespace Greenshot.Plugin.Imgur
                 var responseStream = response.GetResponseStream();
                 if (responseStream != null)
                 {
-                    using StreamReader reader = new StreamReader(responseStream, true);
+                    using StreamReader reader = new(responseStream, true);
                     responseString = reader.ReadToEnd();
                 }
             }
@@ -299,7 +294,7 @@ namespace Greenshot.Plugin.Imgur
             {
                 if (wE.Status == WebExceptionStatus.ProtocolError)
                 {
-                    if (((HttpWebResponse) wE.Response).StatusCode == HttpStatusCode.NotFound)
+                    if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound)
                     {
                         return null;
                     }
@@ -340,7 +335,7 @@ namespace Greenshot.Plugin.Imgur
                     var responseStream = response.GetResponseStream();
                     if (responseStream != null)
                     {
-                        using StreamReader reader = new StreamReader(responseStream, true);
+                        using StreamReader reader = new(responseStream, true);
                         responseString = reader.ReadToEnd();
                     }
                 }
@@ -352,7 +347,7 @@ namespace Greenshot.Plugin.Imgur
                 // Allow "Bad request" this means we already deleted it
                 if (wE.Status == WebExceptionStatus.ProtocolError)
                 {
-                    if (((HttpWebResponse) wE.Response).StatusCode != HttpStatusCode.BadRequest)
+                    if (((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest)
                     {
                         throw;
                     }

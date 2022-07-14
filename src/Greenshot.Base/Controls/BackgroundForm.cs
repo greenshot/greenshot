@@ -64,7 +64,7 @@ namespace Greenshot.Base.Controls
 
             if (!positioned)
             {
-                Location = new Point(Cursor.Position.X - Width / 2, Cursor.Position.Y - Height / 2);
+                Location = new Point(Cursor.Position.X - (Width / 2), Cursor.Position.Y - (Height / 2));
             }
         }
 

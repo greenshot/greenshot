@@ -107,7 +107,7 @@ namespace Greenshot.Editor.Forms
             try
             {
                 uint pixel = Gdi32Api.GetPixel(safeWindowDcHandle, screenCoordinates.X, screenCoordinates.Y);
-                Color color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
+                Color color = Color.FromArgb(255, (int)(pixel & 0xFF), (int)(pixel & 0xFF00) >> 8, (int)(pixel & 0xFF0000) >> 16);
                 return color;
             }
             catch (Exception)

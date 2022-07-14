@@ -42,7 +42,6 @@ namespace Greenshot.Destinations
 
         public override int Priority => 0;
 
-
         public override Keys EditorShortcutKeys
         {
             get { return Keys.Control | Keys.Shift | Keys.S; }
@@ -55,7 +54,7 @@ namespace Greenshot.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             // Bug #2918756 don't overwrite path if SaveWithDialog returns null!
             var savedTo = ImageIO.SaveWithDialog(surface, captureDetails);
             if (savedTo != null)

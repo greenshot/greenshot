@@ -53,16 +53,14 @@ namespace Greenshot.Editor.Memento
 
         public bool Merge(IMemento otherMemento)
         {
-            if (otherMemento is not TextChangeMemento other) return false;
-
-            return other._textContainer.Equals(_textContainer);
+            return otherMemento is TextChangeMemento other && other._textContainer.Equals(_textContainer);
         }
 
         public IMemento Restore()
         {
             // Before
             _textContainer.Invalidate();
-            TextChangeMemento oldState = new TextChangeMemento(_textContainer);
+            TextChangeMemento oldState = new(_textContainer);
             _textContainer.ChangeText(_oldText, false);
             // After
             _textContainer.Invalidate();

@@ -28,7 +28,7 @@ using Dapplo.Windows.Common.Structs;
 namespace Greenshot.Editor.Controls
 {
     /// <summary>
-    /// ToolStripComboBox containing installed font families, 
+    /// ToolStripComboBox containing installed font families,
     /// implementing INotifyPropertyChanged for data binding
     /// </summary>
     public class FontFamilyComboBox : ToolStripComboBox, INotifyPropertyChanged
@@ -37,7 +37,7 @@ namespace Greenshot.Editor.Controls
 
         public FontFamily FontFamily
         {
-            get { return (FontFamily) SelectedItem; }
+            get { return (FontFamily)SelectedItem; }
             set
             {
                 if (!SelectedItem.Equals(value))
@@ -70,7 +70,7 @@ namespace Greenshot.Editor.Controls
             {
                 FontFamily fontFamily = Items[e.Index] as FontFamily;
                 FontStyle fontStyle = FontStyle.Regular;
-                if (fontFamily != null && !fontFamily.IsStyleAvailable(FontStyle.Regular))
+                if (fontFamily?.IsStyleAvailable(FontStyle.Regular) == false)
                 {
                     if (fontFamily.IsStyleAvailable(FontStyle.Bold))
                     {
@@ -121,9 +121,9 @@ namespace Greenshot.Editor.Controls
         /// <param name="text">string</param>
         private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text)
         {
-            using Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel);
+            using Font font = new(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel);
             // Make sure the text is visible by centering it in the line
-            using StringFormat stringFormat = new StringFormat
+            using StringFormat stringFormat = new()
             {
                 LineAlignment = StringAlignment.Center
             };

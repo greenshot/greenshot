@@ -59,12 +59,9 @@ namespace Greenshot.Editor.Destinations
         {
             get
             {
-                if (editor == null)
-                {
-                    return Language.GetString(LangKey.settings_destination_editor);
-                }
-
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
+                return editor == null
+                    ? Language.GetString(LangKey.settings_destination_editor)
+                    : Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
             }
         }
 
@@ -84,7 +81,7 @@ namespace Greenshot.Editor.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             // Make sure we collect the garbage before opening the screenshot
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -108,7 +105,7 @@ namespace Greenshot.Editor.Destinations
                 {
                     try
                     {
-                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+                        ImageEditorForm editorForm = new(surface, !surface.Modified); // Output made??
 
                         if (!string.IsNullOrEmpty(captureDetails.Filename))
                         {

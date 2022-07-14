@@ -92,9 +92,9 @@ namespace Greenshot.Plugin.Imgur
             _config = IniConfig.GetIniSection<ImgurConfiguration>();
             _resources = new ComponentResourceManager(typeof(ImgurPlugin));
 
-            ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur")
+            ToolStripMenuItem itemPlugInRoot = new("Imgur")
             {
-                Image = (Image) _resources.GetObject("Imgur")
+                Image = (Image)_resources.GetObject("Imgur")
             };
 
             // Provide the IDestination
@@ -138,7 +138,7 @@ namespace Greenshot.Plugin.Imgur
             try
             {
                 var form = SimpleServiceProvider.Current.GetInstance<Form>();
-                form.BeginInvoke((MethodInvoker) delegate
+                form.BeginInvoke((MethodInvoker)delegate
                 {
                     var historyMenuItem = _historyMenuItem;
                     if (historyMenuItem == null)
@@ -185,7 +185,7 @@ namespace Greenshot.Plugin.Imgur
         /// <returns>true if the upload succeeded</returns>
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));

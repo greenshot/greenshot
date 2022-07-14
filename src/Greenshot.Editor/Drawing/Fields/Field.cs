@@ -112,12 +112,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public override bool Equals(object obj)
         {
-            if (!(obj is Field other))
-            {
-                return false;
-            }
-
-            return FieldType == other.FieldType && Equals(Scope, other.Scope);
+            return obj is Field other && FieldType == other.FieldType && Equals(Scope, other.Scope);
         }
 
         public override string ToString()

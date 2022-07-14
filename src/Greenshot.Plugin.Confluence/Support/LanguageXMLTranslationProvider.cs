@@ -3,7 +3,7 @@
 namespace Greenshot.Plugin.Confluence.Support
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class LanguageXMLTranslationProvider : ITranslationProvider
     {
@@ -12,12 +12,7 @@ namespace Greenshot.Plugin.Confluence.Support
         /// </summary>
         public object Translate(string key)
         {
-            if (Language.HasKey("confluence", key))
-            {
-                return Language.GetString("confluence", key);
-            }
-
-            return key;
+            return Language.HasKey("confluence", key) ? Language.GetString("confluence", key) : (object)key;
         }
     }
 }

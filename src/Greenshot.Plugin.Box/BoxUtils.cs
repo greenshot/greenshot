@@ -85,7 +85,6 @@ namespace Greenshot.Plugin.Box
                 AccessTokenExpires = Config.AccessTokenExpires
             };
 
-
             // Copy the settings from the config, which is kept in memory and on the disk
 
             try
@@ -149,7 +148,7 @@ namespace Greenshot.Plugin.Box
             byte[] content = Encoding.UTF8.GetBytes(jsonString);
             stream.Write(content, 0, content.Length);
             stream.Seek(0, SeekOrigin.Begin);
-            return (T) deserializer.ReadObject(stream);
+            return (T)deserializer.ReadObject(stream);
         }
     }
 }

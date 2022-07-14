@@ -15,12 +15,7 @@ namespace Greenshot.Plugin.Confluence.Support
         public object Translate(string key)
         {
             object translatedValue = TranslationProvider?.Translate(key);
-            if (translatedValue != null)
-            {
-                return translatedValue;
-            }
-
-            return $"!{key}!";
+            return translatedValue ?? $"!{key}!";
         }
     }
 }

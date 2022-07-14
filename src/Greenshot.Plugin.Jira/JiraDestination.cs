@@ -100,7 +100,7 @@ namespace Greenshot.Plugin.Jira
                 if (displayIcon == null)
                 {
                     var resources = new ComponentResourceManager(typeof(JiraPlugin));
-                    displayIcon = (Image) resources.GetObject("Jira");
+                    displayIcon = (Image)resources.GetObject("Jira");
                 }
 
                 return displayIcon;
@@ -110,7 +110,7 @@ namespace Greenshot.Plugin.Jira
         public override IEnumerable<IDestination> DynamicDestinations()
         {
             var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-            if (jiraConnector == null || !jiraConnector.IsLoggedIn)
+            if (jiraConnector?.IsLoggedIn != true)
             {
                 yield break;
             }
@@ -123,9 +123,9 @@ namespace Greenshot.Plugin.Jira
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
+            SurfaceOutputSettings outputSettings = new(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
             var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
             if (_jiraIssue != null)
             {

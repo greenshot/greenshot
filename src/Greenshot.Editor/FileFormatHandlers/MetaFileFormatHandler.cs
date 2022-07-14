@@ -37,7 +37,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".wmf", ".emf" };
-        
+
         public MetaFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;

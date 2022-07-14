@@ -56,14 +56,7 @@ namespace Greenshot.Base.Core
         /// <inheritdoc />
         public void AddMetaData(string key, string value)
         {
-            if (MetaData.ContainsKey(key))
-            {
-                MetaData[key] = value;
-            }
-            else
-            {
-                MetaData.Add(key, value);
-            }
+            MetaData[key] = value;
         }
 
         /// <inheritdoc />

@@ -84,7 +84,7 @@ namespace Greenshot.Base.Core
                 if (key != null)
                 {
                     // "" is the default key, which should point to the requested location
-                    return (string) key.GetValue(string.Empty);
+                    return (string)key.GetValue(string.Empty);
                 }
             }
 

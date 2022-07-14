@@ -46,14 +46,14 @@ namespace Greenshot.Plugin.Imgur
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(ImgurPlugin));
-                return (Image) resources.GetObject("Imgur");
+                ComponentResourceManager resources = new(typeof(ImgurPlugin));
+                return (Image)resources.GetObject("Imgur");
             }
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description)
+            ExportInformation exportInformation = new(Designation, Description)
             {
                 ExportMade = _plugin.Upload(captureDetails, surface, out var uploadUrl),
                 Uri = uploadUrl

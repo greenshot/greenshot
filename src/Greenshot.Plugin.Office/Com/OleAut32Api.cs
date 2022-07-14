@@ -21,12 +21,7 @@ namespace Greenshot.Plugin.Office.Com
         /// <returns>IDisposableCom of T</returns>
         public static IDisposableCom<T> GetActiveObject<T>(ref Guid clsId)
         {
-            if (GetActiveObject(ref clsId, IntPtr.Zero, out object comObject).Succeeded())
-            {
-                return DisposableCom.Create((T) comObject);
-            }
-
-            return null;
+            return GetActiveObject(ref clsId, IntPtr.Zero, out object comObject).Succeeded() ? DisposableCom.Create((T)comObject) : null;
         }
 
         /// <summary>

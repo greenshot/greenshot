@@ -144,10 +144,10 @@ namespace Greenshot.Editor.Drawing
                 int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
                 Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
                 bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
                 using GraphicsPath tailPath = CreateTail();
-         
+
                 var bubbleBounds = new NativeRect(Left, Top, Width, Height).Normalize();
                 using var matrix = new Matrix();
 
@@ -155,7 +155,6 @@ namespace Greenshot.Editor.Drawing
 
                 var drawingBoundsWithoutSafety = bubbleBounds.Union(tailBounds);
                 return drawingBoundsWithoutSafety.Inflate(inflateValue, inflateValue);
-
             }
         }
 
@@ -166,13 +165,13 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         private GraphicsPath CreateBubble(int lineThickness)
         {
-            GraphicsPath bubble = new GraphicsPath();
+            GraphicsPath bubble = new();
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             var bubbleRect = new NativeRect(0, 0, rect.Width, rect.Height).Normalize();
             // adapt corner radius to small rectangle dimensions
             int smallerSideLength = Math.Min(bubbleRect.Width, bubbleRect.Height);
-            int cornerRadius = Math.Min(30, smallerSideLength / 2 - lineThickness);
+            int cornerRadius = Math.Min(30, (smallerSideLength / 2) - lineThickness);
             if (cornerRadius > 0)
             {
                 bubble.AddArc(bubbleRect.X, bubbleRect.Y, cornerRadius, cornerRadius, 180, 90);
@@ -186,7 +185,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             bubble.CloseAllFigures();
-            using (Matrix bubbleMatrix = new Matrix())
+            using (Matrix bubbleMatrix = new())
             {
                 bubbleMatrix.Translate(rect.Left, rect.Top);
                 bubble.Transform(bubbleMatrix);
@@ -210,16 +209,16 @@ namespace Greenshot.Editor.Drawing
             tailWidth = Math.Min(Math.Abs(rect.Width) / 2, tailWidth);
             tailWidth = Math.Min(Math.Abs(rect.Height) / 2, tailWidth);
 
-            GraphicsPath tail = new GraphicsPath();
+            GraphicsPath tail = new();
             tail.AddLine(-tailWidth, 0, tailWidth, 0);
             tail.AddLine(tailWidth, 0, 0, -tailLength);
             tail.CloseFigure();
 
-            int tailAngle = 90 + (int) GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
+            int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
 
-            using (Matrix tailMatrix = new Matrix())
+            using (Matrix tailMatrix = new())
             {
-                tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                tailMatrix.Translate(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
                 tailMatrix.Rotate(tailAngle);
                 tail.Transform(tailMatrix);
             }
@@ -269,13 +268,13 @@ namespace Greenshot.Editor.Drawing
                 int alpha = basealpha;
                 const int steps = 5;
                 int currentStep = lineVisible ? 1 : 0;
-                using Matrix shadowMatrix = new Matrix();
-                using GraphicsPath bubbleClone = (GraphicsPath) bubble.Clone();
-                using GraphicsPath tailClone = (GraphicsPath) tail.Clone();
+                using Matrix shadowMatrix = new();
+                using GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone();
+                using GraphicsPath tailClone = (GraphicsPath)tail.Clone();
                 shadowMatrix.Translate(1, 1);
                 while (currentStep <= steps)
                 {
-                    using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
+                    using (Pen shadowPen = new(Color.FromArgb(alpha, 100, 100, 100)))
                     {
                         shadowPen.Width = lineVisible ? lineThickness : 1;
                         tailClone.Transform(shadowMatrix);
@@ -291,10 +290,10 @@ namespace Greenshot.Editor.Drawing
 
             GraphicsState state = graphics.Save();
             // draw the tail border where the bubble is not visible
-            using (Region clipRegion = new Region(bubble))
+            using (Region clipRegion = new(bubble))
             {
                 graphics.SetClip(clipRegion, CombineMode.Exclude);
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 graphics.DrawPath(pen, tail);
             }
 
@@ -317,10 +316,10 @@ namespace Greenshot.Editor.Drawing
                 //draw the bubble border
                 state = graphics.Save();
                 // Draw bubble where the Tail is not visible.
-                using (Region clipRegion = new Region(tail))
+                using (Region clipRegion = new(tail))
                 {
                     graphics.SetClip(clipRegion, CombineMode.Exclude);
-                    using Pen pen = new Pen(lineColor, lineThickness);
+                    using Pen pen = new(lineColor, lineThickness);
                     //pen.EndCap = pen.StartCap = LineCap.Round;
                     graphics.DrawPath(pen, bubble);
                 }
@@ -355,12 +354,12 @@ namespace Greenshot.Editor.Drawing
                 return true;
             }
 
-            Point clickedPoint = new Point(x, y);
+            Point clickedPoint = new(x, y);
             if (Status != EditStatus.UNDRAWN)
             {
                 int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
                 Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 using (GraphicsPath bubblePath = CreateBubble(lineThickness))
                 {
                     bubblePath.Widen(pen);

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 #if DEBUG
 using System.ComponentModel;
 using System.ComponentModel.Design;
@@ -48,9 +47,8 @@ namespace Greenshot.Base.Controls
         private bool _isDesignModeLanguageSet;
         private IDictionary<string, Control> _designTimeControls;
         private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
+
 #endif
-        private bool _applyLanguageManually;
-        private bool _storeFieldsManually;
 
         static GreenshotForm()
         {
@@ -79,23 +77,15 @@ namespace Greenshot.Base.Controls
             get
             {
                 return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) ||
-                       (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 ||
-                        (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1));
+                       Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 ||
+                        (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1);
             }
         }
 #endif
 
-        protected bool ManualLanguageApply
-        {
-            get { return _applyLanguageManually; }
-            set { _applyLanguageManually = value; }
-        }
+        protected bool ManualLanguageApply { get; set; }
 
-        protected bool ManualStoreFields
-        {
-            get { return _storeFieldsManually; }
-            set { _storeFieldsManually = value; }
-        }
+        protected bool ManualStoreFields { get; set; }
 
         /// <summary>
         /// When this is set, the form will be brought to the foreground as soon as it is shown.
@@ -127,14 +117,12 @@ namespace Greenshot.Base.Controls
             _designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
             try
             {
-                ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
-
                 // Add a hard-path if you are using SharpDevelop
                 // Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
 
                 // this "type"
                 Assembly currentAssembly = GetType().Assembly;
-                if (typeResService == null) return;
+                if (GetService(typeof(ITypeResolutionService)) is not ITypeResolutionService typeResService) return;
 
                 string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
                 string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
@@ -189,7 +177,7 @@ namespace Greenshot.Base.Controls
             if (!DesignMode)
             {
 #endif
-                if (!_applyLanguageManually)
+                if (!ManualLanguageApply)
                 {
                     ApplyLanguage();
                 }
@@ -227,7 +215,7 @@ namespace Greenshot.Base.Controls
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            if (!DesignMode && !_storeFieldsManually)
+            if (!DesignMode && !ManualStoreFields)
             {
                 if (DialogResult == DialogResult.OK)
                 {
@@ -255,7 +243,7 @@ namespace Greenshot.Base.Controls
                 // Set the new Site value.
                 base.Site = value;
 
-                m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
+                m_changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
 
                 // Register event handlers for component change events.
                 RegisterChangeNotifications();
@@ -266,7 +254,7 @@ namespace Greenshot.Base.Controls
         {
             // The m_changeService value is null when not in design mode,
             // as the IComponentChangeService is only available at design time.
-            m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
+            m_changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
 
             // Clear our the component change events to prepare for re-siting.
             if (m_changeService != null)
@@ -293,19 +281,19 @@ namespace Greenshot.Base.Controls
         /// <param name="ce"></param>
         private void OnComponentChanged(object sender, ComponentChangedEventArgs ce)
         {
-            if (((IComponent) ce.Component)?.Site == null || ce.Member == null) return;
+            if (((IComponent)ce.Component)?.Site == null || ce.Member == null) return;
             if (!"LanguageKey".Equals(ce.Member.Name)) return;
             if (ce.Component is Control control)
             {
                 LOG.InfoFormat("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
-                ApplyLanguage(control, (string) ce.NewValue);
+                ApplyLanguage(control, (string)ce.NewValue);
             }
             else
             {
                 if (ce.Component is ToolStripItem item)
                 {
                     LOG.InfoFormat("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
-                    ApplyLanguage(item, (string) ce.NewValue);
+                    ApplyLanguage(item, (string)ce.NewValue);
                 }
                 else
                 {
@@ -556,14 +544,14 @@ namespace Greenshot.Base.Controls
 
                 if (controlObject is CheckBox checkBox)
                 {
-                    checkBox.Checked = (bool) iniValue.Value;
+                    checkBox.Checked = (bool)iniValue.Value;
                     checkBox.Enabled = !iniValue.IsFixed;
                     continue;
                 }
 
                 if (controlObject is RadioButton radíoButton)
                 {
-                    radíoButton.Checked = (bool) iniValue.Value;
+                    radíoButton.Checked = (bool)iniValue.Value;
                     radíoButton.Enabled = !iniValue.IsFixed;
                     continue;
                 }
@@ -572,7 +560,7 @@ namespace Greenshot.Base.Controls
                 {
                     if (controlObject is HotkeyControl hotkeyControl)
                     {
-                        string hotkeyValue = (string) iniValue.Value;
+                        string hotkeyValue = (string)iniValue.Value;
                         if (!string.IsNullOrEmpty(hotkeyValue))
                         {
                             hotkeyControl.SetHotkey(hotkeyValue);
@@ -590,7 +578,7 @@ namespace Greenshot.Base.Controls
                 if (controlObject is GreenshotComboBox comboxBox)
                 {
                     comboxBox.Populate(iniValue.ValueType);
-                    comboxBox.SetValue((Enum) iniValue.Value);
+                    comboxBox.SetValue((Enum)iniValue.Value);
                     comboxBox.Enabled = !iniValue.IsFixed;
                 }
             }

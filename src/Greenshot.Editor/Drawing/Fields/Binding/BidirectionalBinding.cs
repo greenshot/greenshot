@@ -38,7 +38,6 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         private readonly string _fieldPropertyName;
         private bool _updatingControl;
         private bool _updatingField;
-        private IBindingConverter _converter;
         private readonly IBindingValidator _validator;
 
         /// <summary>
@@ -75,7 +74,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
         public BidirectionalBinding(INotifyPropertyChanged controlObject, string controlPropertyName, INotifyPropertyChanged fieldObject, string fieldPropertyName,
             IBindingConverter converter) : this(controlObject, controlPropertyName, fieldObject, fieldPropertyName)
         {
-            _converter = converter;
+            Converter = converter;
         }
 
         /// <summary>
@@ -134,17 +133,17 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
             PropertyInfo targetPropertyInfo = ResolvePropertyInfo(targetObject, targetProperty);
             PropertyInfo sourcePropertyInfo = ResolvePropertyInfo(sourceObject, sourceProperty);
 
-            if (sourcePropertyInfo != null && targetPropertyInfo != null && targetPropertyInfo.CanWrite)
+            if (sourcePropertyInfo != null && targetPropertyInfo?.CanWrite == true)
             {
                 object bValue = sourcePropertyInfo.GetValue(sourceObject, null);
-                if (_converter != null && bValue != null)
+                if (Converter != null && bValue != null)
                 {
-                    bValue = _converter.convert(bValue);
+                    bValue = Converter.convert(bValue);
                 }
 
                 try
                 {
-                    if (_validator == null || _validator.validate(bValue))
+                    if (_validator?.validate(bValue) != false)
                     {
                         targetPropertyInfo.SetValue(targetObject, bValue, null);
                     }
@@ -166,7 +165,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
             {
                 string prop = properties[i];
                 ret = obj.GetType().GetProperty(prop);
-                if (ret != null && ret.CanRead && i < prop.Length - 1)
+                if (ret?.CanRead == true && i < prop.Length - 1)
                 {
                     obj = ret.GetValue(obj, null);
                 }
@@ -175,10 +174,6 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
             return ret;
         }
 
-        public IBindingConverter Converter
-        {
-            get { return _converter; }
-            set { _converter = value; }
-        }
+        public IBindingConverter Converter { get; set; }
     }
 }

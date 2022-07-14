@@ -82,7 +82,7 @@ namespace Greenshot.Plugin.Imgur
         public Dictionary<string, string> ImgurUploadHistory { get; set; }
 
         // Not stored, only run-time!
-        public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
+        public Dictionary<string, ImgurInfo> runtimeImgurHistory = new();
         public int Credits { get; set; }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Greenshot.Plugin.Imgur
         /// <returns>bool true if OK was pressed, false if cancel</returns>
         public bool ShowConfigDialog()
         {
-            SettingsForm settingsForm = new SettingsForm();
+            SettingsForm settingsForm = new();
             DialogResult result = settingsForm.ShowDialog();
             return result == DialogResult.OK;
         }

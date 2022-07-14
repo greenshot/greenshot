@@ -61,8 +61,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return false;
             }
 
-            string pageId;
-            oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
+            oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out string pageId, NewPageStyle.npsDefault);
             newPage.Id = pageId;
             // Set the new name, this is automatically done in the export to page
             newPage.Name = surfaceToUpload.CaptureDetails.Title;
@@ -163,8 +162,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 if (oneNoteApplication != null)
                 {
                     // ReSharper disable once RedundantAssignment
-                    string notebookXml = "";
-                    oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+                    oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out string notebookXml, XMLSchema.xs2010);
                     if (!string.IsNullOrEmpty(notebookXml))
                     {
                         LOG.Debug(notebookXml);
@@ -231,17 +229,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         }
                         finally
                         {
-                            if (reader != null)
-                            {
-                                reader.Dispose();
-                            }
+                            reader?.Dispose();
                         }
                     }
                 }
             }
             catch (COMException cEx)
             {
-                if (cEx.ErrorCode == unchecked((int) 0x8002801D))
+                if (cEx.ErrorCode == unchecked((int)0x8002801D))
                 {
                     LOG.Warn(
                         "Wrong registry keys, to solve this remove the OneNote key as described here: https://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
@@ -256,12 +251,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             pages.Sort((page1, page2) =>
             {
-                if (page1.IsCurrentlyViewed || page2.IsCurrentlyViewed)
-                {
-                    return page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed);
-                }
-
-                return string.Compare(page1.DisplayName, page2.DisplayName, StringComparison.Ordinal);
+                return page1.IsCurrentlyViewed || page2.IsCurrentlyViewed
+                    ? page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed)
+                    : string.CompareOrdinal(page1.DisplayName, page2.DisplayName);
             });
             return pages;
         }
@@ -280,12 +272,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
 
             // ReSharper disable once RedundantAssignment
-            string unfiledNotesPath = "";
-            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
+            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out string unfiledNotesPath);
 
             // ReSharper disable once RedundantAssignment
-            string notebookXml = "";
-            oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+            oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out string notebookXml, XMLSchema.xs2010);
             if (!string.IsNullOrEmpty(notebookXml))
             {
                 LOG.Debug(notebookXml);
@@ -311,10 +301,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 }
                 finally
                 {
-                    if (reader != null)
-                    {
-                        reader.Dispose();
-                    }
+                    reader?.Dispose();
                 }
             }
 

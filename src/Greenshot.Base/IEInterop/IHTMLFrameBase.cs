@@ -28,47 +28,47 @@ namespace Greenshot.Base.IEInterop
      InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public interface IHTMLFrameBase
     {
-//dispinterface IHTMLFrameBase {
-//    properties:
-//    methods:
-//        [id(0x80010bb8), propput]
-//        void src([in] BSTR rhs);
-//        [id(0x80010bb8), propget]
-//        BSTR src();
-//        [id(0x80010000), propput]
-//        void name([in] BSTR rhs);
-//        [id(0x80010000), propget]
-//        BSTR name();
-//        [id(0x80010bba), propput]
-//        void border([in] VARIANT rhs);
-//        [id(0x80010bba), propget]
-//        VARIANT border();
-//        [id(0x80010bbb), propput]
-//        void frameBorder([in] BSTR rhs);
-//        [id(0x80010bbb), propget]
-//        BSTR frameBorder();
-//        [id(0x80010bbc), propput]
-//        void frameSpacing([in] VARIANT rhs);
-//        [id(0x80010bbc), propget]
-//        VARIANT frameSpacing();
-//        [id(0x80010bbd), propput]
-//        void marginWidth([in] VARIANT rhs);
-//        [id(0x80010bbd), propget]
-//        VARIANT marginWidth();
-//        [id(0x80010bbe), propput]
-//        void marginHeight([in] VARIANT rhs);
-//        [id(0x80010bbe), propget]
-//        VARIANT marginHeight();
-//        [id(0x80010bbf), propput]
-//        void noResize([in] VARIANT_BOOL rhs);
-//        [id(0x80010bbf), propget]
-//        VARIANT_BOOL noResize();
-//        [id(0x80010bc0), propput]
-//        void scrolling([in] BSTR rhs);
-//        [id(0x80010bc0), propget]
-//        BSTR scrolling();
-//};
-//        [DispId(HTMLDispIDs.DISPID_IHTMLFRAMEBASE_SRC)]
+        //dispinterface IHTMLFrameBase {
+        //    properties:
+        //    methods:
+        //        [id(0x80010bb8), propput]
+        //        void src([in] BSTR rhs);
+        //        [id(0x80010bb8), propget]
+        //        BSTR src();
+        //        [id(0x80010000), propput]
+        //        void name([in] BSTR rhs);
+        //        [id(0x80010000), propget]
+        //        BSTR name();
+        //        [id(0x80010bba), propput]
+        //        void border([in] VARIANT rhs);
+        //        [id(0x80010bba), propget]
+        //        VARIANT border();
+        //        [id(0x80010bbb), propput]
+        //        void frameBorder([in] BSTR rhs);
+        //        [id(0x80010bbb), propget]
+        //        BSTR frameBorder();
+        //        [id(0x80010bbc), propput]
+        //        void frameSpacing([in] VARIANT rhs);
+        //        [id(0x80010bbc), propget]
+        //        VARIANT frameSpacing();
+        //        [id(0x80010bbd), propput]
+        //        void marginWidth([in] VARIANT rhs);
+        //        [id(0x80010bbd), propget]
+        //        VARIANT marginWidth();
+        //        [id(0x80010bbe), propput]
+        //        void marginHeight([in] VARIANT rhs);
+        //        [id(0x80010bbe), propget]
+        //        VARIANT marginHeight();
+        //        [id(0x80010bbf), propput]
+        //        void noResize([in] VARIANT_BOOL rhs);
+        //        [id(0x80010bbf), propget]
+        //        VARIANT_BOOL noResize();
+        //        [id(0x80010bc0), propput]
+        //        void scrolling([in] BSTR rhs);
+        //        [id(0x80010bc0), propget]
+        //        BSTR scrolling();
+        //};
+        //        [DispId(HTMLDispIDs.DISPID_IHTMLFRAMEBASE_SRC)]
         string src
         {
             [return: MarshalAs(UnmanagedType.BStr)]

@@ -113,7 +113,7 @@ namespace Greenshot.Base.Core
             set
             {
                 _cursor?.Dispose();
-                _cursor = (Icon) value.Clone();
+                _cursor = (Icon)value.Clone();
             }
         }
 
@@ -127,27 +127,15 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool CursorVisible { get; set; }
 
-        private NativePoint _cursorLocation = NativePoint.Empty;
-
         /// <summary>
         /// Get/Set the CursorLocation
         /// </summary>
-        public NativePoint CursorLocation
-        {
-            get => _cursorLocation;
-            set => _cursorLocation = value;
-        }
-
-        private NativePoint _location = NativePoint.Empty;
+        public NativePoint CursorLocation { get; set; } = NativePoint.Empty;
 
         /// <summary>
         /// Get/set the Location
         /// </summary>
-        public NativePoint Location
-        {
-            get => _location;
-            set => _location = value;
-        }
+        public NativePoint Location { get; set; } = NativePoint.Empty;
 
         private CaptureDetails _captureDetails;
 
@@ -157,7 +145,7 @@ namespace Greenshot.Base.Core
         public ICaptureDetails CaptureDetails
         {
             get => _captureDetails;
-            set => _captureDetails = (CaptureDetails) value;
+            set => _captureDetails = (CaptureDetails)value;
         }
 
         /// <summary>
@@ -226,7 +214,7 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            _location = cropRectangle.Location;
+            Location = cropRectangle.Location;
             // Change mouse location according to the cropRectangle (including screenbounds) offset
             MoveMouseLocation(-cropRectangle.Location.X, -cropRectangle.Location.Y);
             // Move all the elements
@@ -248,7 +236,7 @@ namespace Greenshot.Base.Core
         /// <param name="y">y coordinates to move the mouse</param>
         public void MoveMouseLocation(int x, int y)
         {
-            _cursorLocation = _cursorLocation.Offset(x, y);
+            CursorLocation = CursorLocation.Offset(x, y);
         }
 
         // TODO: Enable when the elements are usable again.

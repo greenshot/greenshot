@@ -98,13 +98,13 @@ namespace Greenshot.Editor.Drawing
             if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
             {
                 //draw shadow first
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = lineVisible ? 1 : 0;
                 while (currentStep <= steps)
                 {
-                    using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))
+                    using Pen shadowPen = new(Color.FromArgb(alpha, 100, 100, 100))
                     {
                         Width = lineVisible ? lineThickness : 1
                     };
@@ -119,7 +119,6 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-
             if (Colors.IsVisible(fillColor))
             {
                 using Brush brush = new SolidBrush(fillColor);
@@ -129,7 +128,7 @@ namespace Greenshot.Editor.Drawing
             graphics.SmoothingMode = SmoothingMode.HighSpeed;
             if (lineVisible)
             {
-                using Pen pen = new Pen(lineColor, lineThickness);
+                using Pen pen = new(lineColor, lineThickness);
                 graphics.DrawRectangle(pen, rect);
             }
         }
@@ -157,8 +156,8 @@ namespace Greenshot.Editor.Drawing
             // check the rest of the lines
             if (lineThickness > 0)
             {
-                using Pen pen = new Pen(Color.White, lineThickness);
-                using GraphicsPath path = new GraphicsPath();
+                using Pen pen = new(Color.White, lineThickness);
+                using GraphicsPath path = new();
                 path.AddRectangle(rect);
                 return path.IsOutlineVisible(x, y, pen);
             }

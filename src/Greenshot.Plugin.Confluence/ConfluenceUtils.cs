@@ -38,9 +38,9 @@ namespace Greenshot.Plugin.Confluence
 
         public static List<Page> GetCurrentPages()
         {
-            List<Page> pages = new List<Page>();
-            Regex pageIdRegex = new Regex(@"pageId=(\d+)");
-            Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
+            List<Page> pages = new();
+            Regex pageIdRegex = new(@"pageId=(\d+)");
+            Regex spacePageRegex = new(@"\/display\/([^\/]+)\/([^#]+)");
             foreach (string browserurl in GetBrowserUrls())
             {
                 string url;
@@ -55,7 +55,7 @@ namespace Greenshot.Plugin.Confluence
                 }
 
                 MatchCollection pageIdMatch = pageIdRegex.Matches(url);
-                if (pageIdMatch != null && pageIdMatch.Count > 0)
+                if (pageIdMatch?.Count > 0)
                 {
                     long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
                     try
@@ -89,7 +89,7 @@ namespace Greenshot.Plugin.Confluence
                 }
 
                 MatchCollection spacePageMatch = spacePageRegex.Matches(url);
-                if (spacePageMatch != null && spacePageMatch.Count > 0)
+                if (spacePageMatch?.Count > 0)
                 {
                     if (spacePageMatch[0].Groups.Count >= 2)
                     {
@@ -140,7 +140,7 @@ namespace Greenshot.Plugin.Confluence
 
         private static IEnumerable<string> GetBrowserUrls()
         {
-            HashSet<string> urls = new HashSet<string>();
+            HashSet<string> urls = new();
 
             // FireFox
             foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass"))

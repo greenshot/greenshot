@@ -38,28 +38,20 @@ namespace Greenshot.Editor.Controls
             MA_ACTIVATEANDEAT = 2,
         }
 
-        private bool _clickThrough;
-
         /// <summary>
         /// Gets or sets whether the ToolStripEx honors item clicks when its containing form does not have input focus.
         /// </summary>
         /// <remarks>
         /// Default value is false, which is the same behavior provided by the base ToolStrip class.
         /// </remarks>
-
-        public bool ClickThrough
-        {
-            get { return _clickThrough; }
-
-            set { _clickThrough = value; }
-        }
+        public bool ClickThrough { get; set; }
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (_clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr) NativeConstants.MA_ACTIVATEANDEAT)
+            if (ClickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT)
             {
-                m.Result = (IntPtr) NativeConstants.MA_ACTIVATE;
+                m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
             }
         }
     }

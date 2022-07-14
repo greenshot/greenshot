@@ -58,16 +58,14 @@ namespace Greenshot.Editor.Memento
         {
             if (otherMemento is not ChangeFieldHolderMemento other) return false;
 
-            if (!other._drawableContainer.Equals(_drawableContainer)) return false;
-
-            return other._fieldToBeChanged.Equals(_fieldToBeChanged);
+            return other._drawableContainer.Equals(_drawableContainer) && other._fieldToBeChanged.Equals(_fieldToBeChanged);
         }
 
         public IMemento Restore()
         {
             // Before
             _drawableContainer.Invalidate();
-            ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
+            ChangeFieldHolderMemento oldState = new(_drawableContainer, _fieldToBeChanged);
             _fieldToBeChanged.Value = _oldValue;
             // After
             _drawableContainer.Invalidate();

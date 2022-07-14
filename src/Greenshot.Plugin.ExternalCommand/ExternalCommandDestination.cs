@@ -41,7 +41,7 @@ namespace Greenshot.Plugin.ExternalCommand
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 
         private static readonly Regex URI_REGEXP =
-            new Regex(
+            new(
                 @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 
         private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
@@ -65,8 +65,8 @@ namespace Greenshot.Plugin.ExternalCommand
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
+            ExportInformation exportInformation = new(Designation, Description);
+            SurfaceOutputSettings outputSettings = new();
             outputSettings.PreventGreenshotFormat();
 
             if (_presetCommand != null)
@@ -83,7 +83,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 string error;
                 if (runInBackground)
                 {
-                    Thread commandThread = new Thread(delegate()
+                    Thread commandThread = new(delegate ()
                     {
                         CallExternalCommand(exportInformation, fullPath, out output, out error);
                         ProcessExport(exportInformation, surface);
@@ -210,7 +210,7 @@ namespace Greenshot.Plugin.ExternalCommand
             error = null;
             if (!string.IsNullOrEmpty(commandline))
             {
-                using Process process = new Process();
+                using Process process = new();
                 // Fix variables
                 commandline = FilenameHelper.FillVariables(commandline, true);
                 commandline = FilenameHelper.FillCmdVariables(commandline, true);

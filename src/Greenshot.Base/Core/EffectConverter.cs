@@ -12,7 +12,7 @@ namespace Greenshot.Base.Core
     public class EffectConverter : TypeConverter
     {
         // Fix to prevent BUG-1753
-        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo();
+        private readonly NumberFormatInfo _numberFormatInfo = new();
 
         public EffectConverter()
         {
@@ -22,12 +22,7 @@ namespace Greenshot.Base.Core
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            if (sourceType == typeof(string))
-            {
-                return true;
-            }
-
-            return base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
@@ -42,12 +37,7 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            if (destinationType == typeof(TornEdgeEffect))
-            {
-                return true;
-            }
-
-            return base.CanConvertTo(context, destinationType);
+            return destinationType == typeof(TornEdgeEffect) || base.CanConvertTo(context, destinationType);
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
@@ -55,7 +45,7 @@ namespace Greenshot.Base.Core
             // to string
             if (destinationType == typeof(string))
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 if (value.GetType() == typeof(DropShadowEffect))
                 {
                     DropShadowEffect effect = value as DropShadowEffect;
@@ -79,14 +69,14 @@ namespace Greenshot.Base.Core
                 string settings = value as string;
                 if (destinationType == typeof(DropShadowEffect))
                 {
-                    DropShadowEffect effect = new DropShadowEffect();
+                    DropShadowEffect effect = new();
                     ApplyDropShadowEffectValues(settings, effect);
                     return effect;
                 }
 
                 if (destinationType == typeof(TornEdgeEffect))
                 {
-                    TornEdgeEffect effect = new TornEdgeEffect();
+                    TornEdgeEffect effect = new();
                     ApplyDropShadowEffectValues(settings, effect);
                     ApplyTornEdgeEffectValues(settings, effect);
                     return effect;
@@ -100,12 +90,9 @@ namespace Greenshot.Base.Core
         {
             if (value is string settings)
             {
-                if (settings.Contains("ToothHeight"))
-                {
-                    return ConvertTo(context, culture, settings, typeof(TornEdgeEffect));
-                }
-
-                return ConvertTo(context, culture, settings, typeof(DropShadowEffect));
+                return settings.Contains("ToothHeight")
+                    ? ConvertTo(context, culture, settings, typeof(TornEdgeEffect))
+                    : ConvertTo(context, culture, settings, typeof(DropShadowEffect));
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -138,7 +125,7 @@ namespace Greenshot.Base.Core
 
                         break;
                     case "ShadowOffset":
-                        NativePoint shadowOffset = new NativePoint();
+                        NativePoint shadowOffset = new();
                         string[] coordinates = pair[1].Split(',');
                         if (int.TryParse(coordinates[0], out var shadowOffsetX))
                         {

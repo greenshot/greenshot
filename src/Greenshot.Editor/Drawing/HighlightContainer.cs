@@ -75,7 +75,7 @@ namespace Greenshot.Editor.Drawing
 
         private void ConfigurePreparedFilters()
         {
-            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+            PreparedFilter preset = (PreparedFilter)GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             while (Filters.Count > 0)
             {
                 Remove(Filters[0]);

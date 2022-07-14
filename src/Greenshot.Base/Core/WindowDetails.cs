@@ -87,7 +87,7 @@ namespace Greenshot.Base.Core
         private IntPtr _parentHandle = IntPtr.Zero;
         private WindowDetails _parent;
         private bool _frozen;
-        
+
         /// <summary>
         /// This checks if the window is a Windows 10 App
         /// For Windows 10 apps are hosted inside "ApplicationFrameWindow"
@@ -99,7 +99,6 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) &&
                                             !Children.Any(window => string.Equals(window.ClassName, AppWindowClass));
-
 
         /// <summary>
         /// To allow items to be compared, the hash code
@@ -134,18 +133,13 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            if (GetType() != other.GetType())
-            {
-                return false;
-            }
-
-            return other.Handle == Handle;
+            return GetType() == other.GetType() && other.Handle == Handle;
         }
 
         /// <summary>
         /// Check if the window has children
         /// </summary>
-        public bool HasChildren => (_childWindows != null) && (_childWindows.Count > 0);
+        public bool HasChildren => _childWindows?.Count > 0;
 
         /// <summary>
         /// Freeze information updates
@@ -181,7 +175,6 @@ namespace Greenshot.Base.Core
                 return Kernel32Api.GetProcessPath(processId);
             }
         }
-
 
         /// <summary>
         /// Get the icon belonging to the process
@@ -226,8 +219,8 @@ namespace Greenshot.Base.Core
         private static Icon GetAppIcon(IntPtr hWnd)
         {
             IntPtr iconSmall = IntPtr.Zero;
-            IntPtr iconBig = new IntPtr(1);
-            IntPtr iconSmall2 = new IntPtr(2);
+            IntPtr iconBig = new(1);
+            IntPtr iconSmall2 = new(2);
 
             IntPtr iconHandle;
             if (Conf.UseLargeIcons)
@@ -370,12 +363,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public IList<WindowDetails> GetChildren()
         {
-            if (_childWindows == null)
-            {
-                return GetChildren(0);
-            }
-
-            return _childWindows;
+            return _childWindows ?? GetChildren(0);
         }
 
         /// <summary>
@@ -492,12 +480,7 @@ namespace Greenshot.Base.Core
             get
             {
                 // Tip from Raymond Chen https://devblogs.microsoft.com/oldnewthing/20200302-00/?p=103507
-                if (IsCloaked)
-                {
-                    return false;
-                }
-
-                return User32Api.IsWindowVisible(Handle);
+                return !IsCloaked && User32Api.IsWindowVisible(Handle);
             }
         }
 
@@ -599,7 +582,6 @@ namespace Greenshot.Base.Core
 
                 _previousWindowRectangle = windowRect;
                 return windowRect;
-
             }
         }
 
@@ -675,7 +657,7 @@ namespace Greenshot.Base.Core
             get => unchecked(
                 (WindowStyleFlags)User32Api.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE).ToInt64()
             );
-            set => User32Api.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE, new IntPtr((long) value));
+            set => User32Api.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
         }
 
         /// <summary>
@@ -697,8 +679,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         public ExtendedWindowStyleFlags ExtendedWindowStyle
         {
-            get => (ExtendedWindowStyleFlags) User32Api.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE);
-            set => User32Api.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint) value));
+            get => (ExtendedWindowStyleFlags)User32Api.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE);
+            set => User32Api.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
         }
 
         /// <summary>
@@ -713,7 +695,6 @@ namespace Greenshot.Base.Core
             capture.Image = capturedImage;
             capture.Location = Location;
             return capture;
-
         }
 
         /// <summary>
@@ -751,14 +732,14 @@ namespace Greenshot.Base.Core
                 // Calculate the location of the temp form
                 NativeRect windowRectangle = WindowRectangle;
                 NativePoint formLocation = windowRectangle.Location;
-                NativeSize borderSize = new NativeSize();
+                NativeSize borderSize = new();
                 bool doesCaptureFit = false;
                 if (!Maximised)
                 {
                     // Assume using it's own location
                     formLocation = windowRectangle.Location;
                     // TODO: Use Rectangle.Union!
-                    using Region workingArea = new Region(Screen.PrimaryScreen.Bounds);
+                    using Region workingArea = new(Screen.PrimaryScreen.Bounds);
                     // Find the screen where the window is and check if it fits
                     foreach (Screen screen in Screen.AllScreens)
                     {
@@ -1025,12 +1006,12 @@ namespace Greenshot.Base.Core
                         else
                         {
                             // Calculate original color
-                            byte originalAlpha = (byte) Math.Min(255, alpha);
+                            byte originalAlpha = (byte)Math.Min(255, alpha);
                             var alphaFactor = alpha / 255d;
                             //LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-                            byte originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
-                            byte originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
-                            byte originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
+                            byte originalRed = (byte)Math.Min(255, c0.R / alphaFactor);
+                            byte originalGreen = (byte)Math.Min(255, c0.G / alphaFactor);
+                            byte originalBlue = (byte)Math.Min(255, c0.B / alphaFactor);
                             Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
                             //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
                             targetBuffer.SetColorAt(x, y, originalColor);
@@ -1237,10 +1218,9 @@ namespace Greenshot.Base.Core
 
                 Log.DebugFormat("Freezing process: {0}", processName);
 
-
                 foreach (ProcessThread pT in proc.Threads)
                 {
-                    IntPtr pOpenThread = Kernel32Api.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint) pT.Id);
+                    IntPtr pOpenThread = Kernel32Api.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
 
                     if (pOpenThread == IntPtr.Zero)
                     {
@@ -1279,7 +1259,7 @@ namespace Greenshot.Base.Core
 
             foreach (ProcessThread pT in proc.Threads)
             {
-                IntPtr pOpenThread = Kernel32Api.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint) pT.Id);
+                IntPtr pOpenThread = Kernel32Api.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
 
                 if (pOpenThread == IntPtr.Zero)
                 {
@@ -1311,8 +1291,8 @@ namespace Greenshot.Base.Core
                     pixelFormat = PixelFormat.Format32bppArgb;
                     backgroundColor = Color.Transparent;
                 }
-                
-                returnImage = ImageHelper.CreateEmpty(windowRect.Width, windowRect.Height, pixelFormat, backgroundColor, 96,96);
+
+                returnImage = ImageHelper.CreateEmpty(windowRect.Width, windowRect.Height, pixelFormat, backgroundColor, 96, 96);
                 using Graphics graphics = Graphics.FromImage(returnImage);
                 using (SafeGraphicsDcHandle graphicsDc = graphics.GetSafeDeviceContext())
                 {
@@ -1326,7 +1306,7 @@ namespace Greenshot.Base.Core
                 }
 
                 // Apply the region "transparency"
-                if (region != null && !region.IsEmpty(graphics))
+                if (region?.IsEmpty(graphics) == false)
                 {
                     graphics.ExcludeClip(region);
                     graphics.Clear(Color.Transparent);
@@ -1347,7 +1327,7 @@ namespace Greenshot.Base.Core
             {
                 Log.Debug("Correcting for maximized window");
                 GetBorderSize(out var borderSize);
-                NativeRect borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
+                NativeRect borderRectangle = new(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
                 ImageHelper.Crop(ref returnImage, ref borderRectangle);
             }
 
@@ -1378,14 +1358,9 @@ namespace Greenshot.Base.Core
                     return GetDesktopWindow();
                 }
 
-                WindowDetails activeWindow = new WindowDetails(hWnd);
+                WindowDetails activeWindow = new(hWnd);
                 // Invisible Windows should not be active
-                if (!activeWindow.Visible)
-                {
-                    return GetDesktopWindow();
-                }
-
-                return activeWindow;
+                return !activeWindow.Visible ? GetDesktopWindow() : activeWindow;
             }
 
             return null;
@@ -1483,12 +1458,7 @@ namespace Greenshot.Base.Core
 
             // Skip everything which is not rendered "normally", trying to fix BUG-2017
             var exWindowStyle = window.ExtendedWindowStyle;
-            if (!window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
-            {
-                return false;
-            }
-
-            return true;
+            return window.IsWin10App || (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) == 0;
         }
 
         /// <summary>
@@ -1560,12 +1530,7 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            if (!(window.Visible || window.Iconic))
-            {
-                return false;
-            }
-
-            return !window.IsBackgroundWin10App;
+            return (window.Visible || window.Iconic) && !window.IsBackgroundWin10App;
         }
 
         /// <summary>
@@ -1657,12 +1622,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (AppVisibility != null)
-                {
-                    return AppVisibility.IsLauncherVisible;
-                }
-
-                return false;
+                return AppVisibility != null && AppVisibility.IsLauncherVisible;
             }
         }
 
@@ -1673,21 +1633,21 @@ namespace Greenshot.Base.Core
         public override string ToString()
         {
             var result = new StringBuilder();
-            result.AppendLine($"Text: {Text}");
-            result.AppendLine($"ClassName: {ClassName}");
-            result.AppendLine($"ExtendedWindowStyle: {ExtendedWindowStyle}");
-            result.AppendLine($"WindowStyle: {WindowStyle}");
-            result.AppendLine($"Size: {WindowRectangle.Size}");
-            result.AppendLine($"HasParent: {HasParent}");
-            result.AppendLine($"IsWin10App: {IsWin10App}");
-            result.AppendLine($"Visible: {Visible}");
-            result.AppendLine($"IsWindowVisible: {User32Api.IsWindowVisible(Handle)}");
-            result.AppendLine($"IsCloaked: {IsCloaked}");
-            result.AppendLine($"Iconic: {Iconic}");
-            result.AppendLine($"IsBackgroundWin10App: {IsBackgroundWin10App}");
+            result.Append("Text: ").AppendLine(Text);
+            result.Append("ClassName: ").AppendLine(ClassName);
+            result.Append("ExtendedWindowStyle: ").Append(ExtendedWindowStyle).AppendLine();
+            result.Append("WindowStyle: ").Append(WindowStyle).AppendLine();
+            result.Append("Size: ").Append(WindowRectangle.Size).AppendLine();
+            result.Append("HasParent: ").Append(HasParent).AppendLine();
+            result.Append("IsWin10App: ").Append(IsWin10App).AppendLine();
+            result.Append("Visible: ").Append(Visible).AppendLine();
+            result.Append("IsWindowVisible: ").Append(User32Api.IsWindowVisible(Handle)).AppendLine();
+            result.Append("IsCloaked: ").Append(IsCloaked).AppendLine();
+            result.Append("Iconic: ").Append(Iconic).AppendLine();
+            result.Append("IsBackgroundWin10App: ").Append(IsBackgroundWin10App).AppendLine();
             if (HasChildren)
             {
-                result.AppendLine($"Children classes: {string.Join(",", Children.Select(c => c.ClassName))}");
+                result.Append("Children classes: ").AppendLine(string.Join(",", Children.Select(c => c.ClassName)));
             }
 
             return result.ToString();

@@ -39,7 +39,6 @@ namespace Greenshot.Forms
             checkbox_dontaskagain.Checked = false;
         }
 
-
         private void Button_okClick(object sender, EventArgs e)
         {
             // update config

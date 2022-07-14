@@ -31,17 +31,14 @@ namespace Greenshot.Base.Core
     {
         public virtual int CompareTo(object obj)
         {
-            if (!(obj is IProcessor other))
+            if (obj is not IProcessor other)
             {
                 return 1;
             }
 
-            if (Priority == other.Priority)
-            {
-                return string.Compare(Description, other.Description, StringComparison.Ordinal);
-            }
-
-            return Priority - other.Priority;
+            return Priority == other.Priority
+                ? string.CompareOrdinal(Description, other.Description)
+                : Priority - other.Priority;
         }
 
         public abstract string Designation { get; }

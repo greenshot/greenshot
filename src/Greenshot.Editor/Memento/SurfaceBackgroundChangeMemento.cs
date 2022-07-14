@@ -78,7 +78,7 @@ namespace Greenshot.Editor.Memento
 
         public IMemento Restore()
         {
-            SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(_surface, _matrix);
+            SurfaceBackgroundChangeMemento oldState = new(_surface, _matrix);
             _surface.UndoBackgroundChange(_image, _matrix);
             _surface.Invalidate();
             return oldState;

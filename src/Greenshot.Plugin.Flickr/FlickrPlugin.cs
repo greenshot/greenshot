@@ -87,7 +87,7 @@ namespace Greenshot.Plugin.Flickr
             _itemPlugInConfig = new ToolStripMenuItem
             {
                 Text = Language.GetString("flickr", LangKey.Configure),
-                Image = (Image) _resources.GetObject("flickr")
+                Image = (Image)_resources.GetObject("flickr")
             };
             _itemPlugInConfig.Click += ConfigMenuClick;
             SimpleServiceProvider.Current.AddService<IDestination>(new FlickrDestination(this));
@@ -124,7 +124,7 @@ namespace Greenshot.Plugin.Flickr
 
         public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, false);
             uploadUrl = null;
             try
             {

@@ -112,10 +112,10 @@ namespace Greenshot.Plugin.Imgur
             response = response.Replace("&copy;", "&#169;");
             response = response.Replace("&reg;", "&#174;");
 
-            ImgurInfo imgurInfo = new ImgurInfo();
+            ImgurInfo imgurInfo = new();
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.LoadXml(response);
                 XmlNodeList nodes = doc.GetElementsByTagName("id");
                 if (nodes.Count > 0)

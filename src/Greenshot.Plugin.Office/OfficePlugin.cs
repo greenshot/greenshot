@@ -130,7 +130,6 @@ namespace Greenshot.Plugin.Office
             }
         }
 
-
         /// <summary>
         /// Implementation of the IGreenshotPlugin.Initialize
         /// </summary>

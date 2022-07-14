@@ -56,7 +56,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// The StringFormat object is not serializable!!
         /// </summary>
-        [NonSerialized] private StringFormat _stringFormat = new StringFormat();
+        [NonSerialized] private StringFormat _stringFormat = new();
 
         public StringFormat StringFormat => _stringFormat;
 
@@ -185,7 +185,7 @@ namespace Greenshot.Editor.Drawing
         public override void Invalidate()
         {
             base.Invalidate();
-            if (_textBox != null && _textBox.Visible)
+            if (_textBox?.Visible == true)
             {
                 _textBox.Invalidate();
             }
@@ -362,7 +362,7 @@ namespace Greenshot.Editor.Drawing
             rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             int pixelsAfter = rect.Width * rect.Height;
-            float factor = pixelsAfter / (float) pixelsBefore;
+            float factor = pixelsAfter / (float)pixelsBefore;
 
             float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
             fontSize *= factor;
@@ -462,8 +462,8 @@ namespace Greenshot.Editor.Drawing
 
         private void UpdateAlignment()
         {
-            _stringFormat.Alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-            _stringFormat.LineAlignment = (StringAlignment) GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+            _stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+            _stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
         }
 
         /// <summary>
@@ -501,7 +501,7 @@ namespace Greenshot.Editor.Drawing
 
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
-            int lineWidth = (int) Math.Floor(lineThickness / 2d);
+            int lineWidth = (int)Math.Floor(lineThickness / 2d);
             int correction = (lineThickness + 1) % 2;
             if (lineThickness <= 1)
             {
@@ -518,8 +518,8 @@ namespace Greenshot.Editor.Drawing
                 lineWidth = 0;
             }
 
-            _textBox.Width = displayRectangle.Width - 2 * lineWidth + correction;
-            _textBox.Height = displayRectangle.Height - 2 * lineWidth + correction;
+            _textBox.Width = displayRectangle.Width - (2 * lineWidth) + correction;
+            _textBox.Height = displayRectangle.Height - (2 * lineWidth) + correction;
         }
 
         /// <summary>
@@ -532,7 +532,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            var alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+            var alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
             switch (alignment)
             {
                 case StringAlignment.Near:
@@ -645,13 +645,13 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 #endif
-            int textOffset = lineThickness > 0 ? (int) Math.Ceiling(lineThickness / 2d) : 0;
+            int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
             // draw shadow before anything else
             if (drawShadow)
             {
-                int basealpha = 100;
+                const int basealpha = 100;
                 int alpha = basealpha;
-                int steps = 5;
+                const int steps = 5;
                 int currentStep = 1;
                 while (currentStep <= steps)
                 {

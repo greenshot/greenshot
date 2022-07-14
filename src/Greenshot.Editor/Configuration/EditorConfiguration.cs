@@ -80,7 +80,6 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
         public NativeSize DefaultEditorSize { get; set; }
 
-
         public override void AfterLoad()
         {
             base.AfterLoad();
@@ -140,14 +139,7 @@ namespace Greenshot.Editor.Configuration
             LastUsedFieldValues ??= new Dictionary<string, object>();
 
             // check if settings for the requesting type exist, if not create!
-            if (LastUsedFieldValues.ContainsKey(requestedField))
-            {
-                LastUsedFieldValues[requestedField] = field.Value;
-            }
-            else
-            {
-                LastUsedFieldValues.Add(requestedField, field.Value);
-            }
+            LastUsedFieldValues[requestedField] = field.Value;
         }
 
         public void ResetEditorPlacement()

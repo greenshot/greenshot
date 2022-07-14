@@ -170,8 +170,8 @@ namespace Greenshot.Plugin.Win10
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var location = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
-                        (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
+                    var location = new NativeRect((int)ocrWord.BoundingRect.X, (int)ocrWord.BoundingRect.Y,
+                        (int)ocrWord.BoundingRect.Width, (int)ocrWord.BoundingRect.Height);
 
                     var word = line.Words[index];
                     word.Text = ocrWord.Text;

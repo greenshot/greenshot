@@ -116,7 +116,7 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                List<IFilter> ret = new List<IFilter>();
+                List<IFilter> ret = new();
                 foreach (IFieldHolder c in Children)
                 {
                     if (c is IFilter)
@@ -164,7 +164,6 @@ namespace Greenshot.Editor.Drawing
             get => _status;
             set => _status = value;
         }
-
 
         private int left;
 
@@ -232,7 +231,7 @@ namespace Greenshot.Editor.Drawing
 
         public NativePoint Location
         {
-            get => new NativePoint(left, top);
+            get => new(left, top);
             set
             {
                 left = value.X;
@@ -242,7 +241,7 @@ namespace Greenshot.Editor.Drawing
 
         public NativeSize Size
         {
-            get => new NativeSize(width, height);
+            get => new(width, height);
             set
             {
                 width = value.Width;
@@ -285,7 +284,7 @@ namespace Greenshot.Editor.Drawing
             Height = Round(newBounds.Height);
         }
 
-        public DrawableContainer(ISurface parent)
+        protected DrawableContainer(ISurface parent)
         {
             InitializeFields();
             _parent = parent;
@@ -304,8 +303,7 @@ namespace Greenshot.Editor.Drawing
         private static int Round(float f)
         {
             if (float.IsPositiveInfinity(f) || f > int.MaxValue / 2) return int.MaxValue / 2;
-            if (float.IsNegativeInfinity(f) || f < int.MinValue / 2) return int.MinValue / 2;
-            return (int) Math.Round(f);
+            return float.IsNegativeInfinity(f) || f < int.MinValue / 2 ? int.MinValue / 2 : (int)Math.Round(f);
         }
 
         private bool accountForShadowChange;
@@ -470,7 +468,7 @@ namespace Greenshot.Editor.Drawing
 
         protected void DrawSelectionBorder(Graphics g, NativeRect rect)
         {
-            using Pen pen = new Pen(Color.MediumSeaGreen)
+            using Pen pen = new(Color.MediumSeaGreen)
             {
                 DashPattern = new float[]
                 {
@@ -515,7 +513,7 @@ namespace Greenshot.Editor.Drawing
         public virtual bool HandleMouseDown(int x, int y)
         {
             _boundsBeforeResize = Bounds.MoveTo(x, y);
-            Left =  x;
+            Left = x;
             Top = y;
             return true;
         }
@@ -635,7 +633,7 @@ namespace Greenshot.Editor.Drawing
             const int M11 = 0;
             const int M21 = 2;
             var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
-            return (int) -Math.Round(radians * 180 / Math.PI);
+            return (int)-Math.Round(radians * 180 / Math.PI);
         }
 
         /// <summary>
@@ -653,8 +651,8 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Point topLeft = new Point(Left, Top);
-            Point bottomRight = new Point(Left + Width, Top + Height);
+            Point topLeft = new(Left, Top);
+            Point bottomRight = new(Left + Width, Top + Height);
             Point[] points = new[]
             {
                 topLeft, bottomRight

@@ -89,7 +89,7 @@ csharp_style_expression_bodied_local_functions = false:silent
 dotnet_diagnostic.S125.severity = silent
 dotnet_diagnostic.RCS1075.severity = suggestion
 dotnet_diagnostic.S1075.severity = suggestion
-dotnet_diagnostic.S112.severity = suggestion
+dotnet_diagnostic.S112.severity = silent
 dotnet_diagnostic.S4136.severity = silent
 
 # IDE1006: Naming Styles

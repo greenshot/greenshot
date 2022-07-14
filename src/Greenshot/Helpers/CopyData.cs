@@ -45,12 +45,11 @@ namespace Greenshot.Helpers
     [Serializable()]
     public class CopyDataTransport
     {
-        private readonly List<KeyValuePair<CommandEnum, string>> _commands;
-        public List<KeyValuePair<CommandEnum, string>> Commands => _commands;
+        public List<KeyValuePair<CommandEnum, string>> Commands { get; }
 
         public CopyDataTransport()
         {
-            _commands = new List<KeyValuePair<CommandEnum, string>>();
+            Commands = new List<KeyValuePair<CommandEnum, string>>();
         }
 
         public CopyDataTransport(CommandEnum command) : this()
@@ -65,12 +64,12 @@ namespace Greenshot.Helpers
 
         public void AddCommand(CommandEnum command)
         {
-            _commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
+            Commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
         }
 
         public void AddCommand(CommandEnum command, string commandData)
         {
-            _commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
+            Commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
         }
     }
 
@@ -88,7 +87,7 @@ namespace Greenshot.Helpers
     public class CopyData : NativeWindow, IDisposable
     {
         /// <summary>
-        /// Event raised when data is received on any of the channels 
+        /// Event raised when data is received on any of the channels
         /// this class is subscribed to.
         /// </summary>
         public event CopyDataReceivedEventHandler CopyDataReceived;
@@ -115,20 +114,20 @@ namespace Greenshot.Helpers
         {
             if (m.Msg == WM_COPYDATA)
             {
-                var cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
+                var cds = (COPYDATASTRUCT)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
                 if (cds.cbData > 0)
                 {
                     byte[] data = new byte[cds.cbData];
                     Marshal.Copy(cds.lpData, data, 0, cds.cbData);
-                    MemoryStream stream = new MemoryStream(data);
-                    BinaryFormatter b = new BinaryFormatter();
-                    CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
+                    MemoryStream stream = new(data);
+                    BinaryFormatter b = new();
+                    CopyDataObjectData cdo = (CopyDataObjectData)b.Deserialize(stream);
 
-                    if (_channels != null && _channels.Contains(cdo.Channel))
+                    if (_channels?.Contains(cdo.Channel) == true)
                     {
-                        CopyDataReceivedEventArgs d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
+                        CopyDataReceivedEventArgs d = new(cdo.Channel, cdo.Data, cdo.Sent);
                         OnCopyDataReceived(d);
-                        m.Result = (IntPtr) 1;
+                        m.Result = (IntPtr)1;
                     }
                 }
             }
@@ -295,7 +294,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Returns the CopyDataChannel for the specified channelName
         /// </summary>
-        public CopyDataChannel this[string channelName] => (CopyDataChannel) Dictionary[channelName];
+        public CopyDataChannel this[string channelName] => (CopyDataChannel)Dictionary[channelName];
 
         /// <summary>
         /// Adds a new channel on which this application can send and
@@ -303,7 +302,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public void Add(string channelName)
         {
-            CopyDataChannel cdc = new CopyDataChannel(_owner, channelName);
+            CopyDataChannel cdc = new(_owner, channelName);
             Dictionary.Add(channelName, cdc);
         }
 
@@ -348,7 +347,7 @@ namespace Greenshot.Helpers
         /// just been removed</param>
         protected override void OnRemoveComplete(object key, object data)
         {
-            ((CopyDataChannel) data).Dispose();
+            ((CopyDataChannel)data).Dispose();
             OnRemove(key, data);
         }
 
@@ -431,21 +430,20 @@ namespace Greenshot.Helpers
                 AddChannel();
             }
 
-            CopyDataObjectData cdo = new CopyDataObjectData(obj, ChannelName);
-
+            CopyDataObjectData cdo = new(obj, ChannelName);
 
             // Try to do a binary serialization on obj.
             // This will throw and exception if the object to
             // be passed isn't serializable.
-            BinaryFormatter b = new BinaryFormatter();
-            MemoryStream stream = new MemoryStream();
+            BinaryFormatter b = new();
+            MemoryStream stream = new();
             b.Serialize(stream, cdo);
             stream.Flush();
 
             // Now move the data into a pointer so we can send
             // it using WM_COPYDATA:
             // Get the length of the data:
-            int dataSize = (int) stream.Length;
+            int dataSize = (int)stream.Length;
             if (dataSize > 0)
             {
                 // This isn't very efficient if your data is very large.
@@ -467,7 +465,7 @@ namespace Greenshot.Helpers
                     {
                         if (GetProp(window.Handle, ChannelName) != IntPtr.Zero)
                         {
-                            COPYDATASTRUCT cds = new COPYDATASTRUCT
+                            COPYDATASTRUCT cds = new()
                             {
                                 cbData = dataSize,
                                 dwData = IntPtr.Zero,

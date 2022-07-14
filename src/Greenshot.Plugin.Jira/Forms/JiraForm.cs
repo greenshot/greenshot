@@ -139,7 +139,7 @@ namespace Greenshot.Plugin.Jira.Forms
             if (_jiraConnector.IsLoggedIn)
             {
                 uploadButton.Enabled = false;
-                var filter = (Filter) jiraFilterBox.SelectedItem;
+                var filter = (Filter)jiraFilterBox.SelectedItem;
                 if (filter == null)
                 {
                     return;
@@ -225,7 +225,7 @@ namespace Greenshot.Plugin.Jira.Forms
         {
             if (jiraListView.SelectedItems.Count > 0)
             {
-                _selectedIssue = (Issue) jiraListView.SelectedItems[0].Tag;
+                _selectedIssue = (Issue)jiraListView.SelectedItems[0].Tag;
                 jiraKey.Text = _selectedIssue.Key;
                 uploadButton.Enabled = true;
             }

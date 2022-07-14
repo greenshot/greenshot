@@ -51,7 +51,7 @@ namespace Greenshot.Editor.Controls
         {
             BorderStyle = BorderStyle.FixedSingle;
             _dragging = false;
-            _image = (Bitmap) new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
+            _image = (Bitmap)new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
             Image = _image;
             _cursor = CreateCursor(_image, 1, 14);
             _movableShowColorForm = new MovableShowColorForm();
@@ -67,7 +67,7 @@ namespace Greenshot.Editor.Controls
         /// <returns>Cursor</returns>
         private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
         {
-            using SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon());
+            using SafeIconHandle iconHandle = new(bitmap.GetHicon());
             NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
             iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
             iconInfo.IsIcon = false;
@@ -91,10 +91,7 @@ namespace Greenshot.Editor.Controls
         {
             if (disposing)
             {
-                if (_cursor != null)
-                {
-                    _cursor.Dispose();
-                }
+                _cursor?.Dispose();
 
                 _movableShowColorForm?.Dispose();
             }
@@ -181,9 +178,9 @@ namespace Greenshot.Editor.Controls
         {
             if (_dragging)
             {
-                if (m.Msg == (int) WindowsMessages.WM_CHAR)
+                if (m.Msg == (int)WindowsMessages.WM_CHAR)
                 {
-                    if ((int) m.WParam == VkEsc)
+                    if ((int)m.WParam == VkEsc)
                     {
                         User32Api.ReleaseCapture();
                     }

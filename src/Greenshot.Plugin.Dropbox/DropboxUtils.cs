@@ -61,7 +61,7 @@ namespace Greenshot.Plugin.Dropbox
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
-                SurfaceContainer image = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+                SurfaceContainer image = new(surfaceToUpload, outputSettings, filename);
 
                 IDictionary<string, object> arguments = new Dictionary<string, object>
                 {

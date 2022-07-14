@@ -41,8 +41,7 @@ namespace Greenshot.Base.Core
         {
             return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
                 .Where(destination => destination.IsActive)
-                .Where(destination => CoreConfig.ExcludeDestinations == null ||
-                                      !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
+                .Where(destination => CoreConfig.ExcludeDestinations?.Contains(destination.Designation) != true).OrderBy(p => p.Priority).ThenBy(p => p.Description);
         }
 
         /// <summary>
@@ -90,12 +89,7 @@ namespace Greenshot.Base.Core
         public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
         {
             IDestination destination = GetDestination(designation);
-            if (destination != null && destination.IsActive)
-            {
-                return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
-            }
-
-            return null;
+            return destination?.IsActive == true ? destination.ExportCapture(manuallyInitiated, surface, captureDetails) : null;
         }
     }
 }

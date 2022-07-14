@@ -63,7 +63,7 @@ namespace Greenshot.Base.Core
         public static T FromIntPtr<T>(IntPtr intPtr) where T : struct
         {
             object obj = Marshal.PtrToStructure(intPtr, typeof(T));
-            return (T) obj;
+            return (T)obj;
         }
 
         /// <summary>

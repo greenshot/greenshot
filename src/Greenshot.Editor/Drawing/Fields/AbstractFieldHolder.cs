@@ -109,7 +109,6 @@ namespace Greenshot.Editor.Drawing.Fields
             return fields;
         }
 
-
         public IField GetField(IFieldType fieldType)
         {
             try
@@ -159,7 +158,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default)
         {
-            return (Color) (GetFieldValue(fieldType) ?? defaultColor);
+            return (Color)(GetFieldValue(fieldType) ?? defaultColor);
         }
 
         public bool HasField(IFieldType fieldType)

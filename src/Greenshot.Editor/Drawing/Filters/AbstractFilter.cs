@@ -64,7 +64,7 @@ namespace Greenshot.Editor.Drawing.Filters
             set { parent = value; }
         }
 
-        public AbstractFilter(DrawableContainer parent)
+        protected AbstractFilter(DrawableContainer parent)
         {
             this.parent = parent;
         }

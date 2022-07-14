@@ -67,7 +67,6 @@ namespace Greenshot.Editor.Controls
             set { NumericUpDown.DecimalPlaces = value; }
         }
 
-
         protected override void OnSubscribeControlEvents(Control control)
         {
             base.OnSubscribeControlEvents(control);

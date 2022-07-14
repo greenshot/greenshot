@@ -67,7 +67,7 @@ namespace Greenshot.Plugin.Confluence.Forms
         {
             if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
             {
-                _confluenceUpload.SelectedPage = (Page) PageListView.SelectedItem;
+                _confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
             }
             else
             {
@@ -82,7 +82,7 @@ namespace Greenshot.Plugin.Confluence.Forms
 
         private void DoSearch()
         {
-            string spaceKey = (string) SpaceComboBox.SelectedValue;
+            string spaceKey = (string)SpaceComboBox.SelectedValue;
             ConfluenceConfig.SearchSpaceKey = spaceKey;
             Pages.Clear();
             foreach (var page in ConfluencePlugin.ConfluenceConnector.SearchPages(searchText.Text, spaceKey).OrderBy(p => p.Title))

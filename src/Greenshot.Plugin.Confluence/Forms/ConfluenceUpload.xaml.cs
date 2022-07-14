@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Confluence.Forms
                 if (_pickerPage == null)
                 {
                     List<Page> pages = ConfluenceUtils.GetCurrentPages();
-                    if (pages != null && pages.Count > 0)
+                    if (pages?.Count > 0)
                     {
                         _pickerPage = new ConfluencePagePicker(this, pages);
                     }
@@ -124,14 +124,14 @@ namespace Greenshot.Plugin.Confluence.Forms
             // Check if load is needed
             if (_spaces == null)
             {
-                (new Thread(() =>
+                new Thread(() =>
                 {
                     _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
                     _lastLoad = DateTime.Now;
                 })
                 {
                     Name = "Loading spaces for confluence"
-                }).Start();
+                }.Start();
             }
         }
 

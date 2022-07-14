@@ -33,7 +33,7 @@ namespace Greenshot.Editor.Helpers
 
         public double Process(double angle)
         {
-            return Math.Round((angle + 45) / 90) * 90 - 45;
+            return (Math.Round((angle + 45) / 90) * 90) - 45;
         }
     }
 }

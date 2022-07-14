@@ -46,14 +46,14 @@ namespace Greenshot.Plugin.Dropbox
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(DropboxPlugin));
-                return (Image) resources.GetObject("Dropbox");
+                ComponentResourceManager resources = new(typeof(DropboxPlugin));
+                return (Image)resources.GetObject("Dropbox");
             }
         }
 
         public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
             if (uploaded)
             {

@@ -77,7 +77,7 @@ namespace Greenshot.Plugin.Dropbox
             _itemPlugInConfig = new ToolStripMenuItem
             {
                 Text = Language.GetString("dropbox", LangKey.Configure),
-                Image = (Image) _resources.GetObject("Dropbox")
+                Image = (Image)_resources.GetObject("Dropbox")
             };
             _itemPlugInConfig.Click += ConfigMenuClick;
 
@@ -118,7 +118,7 @@ namespace Greenshot.Plugin.Dropbox
         public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
         {
             uploadUrl = null;
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+            SurfaceOutputSettings outputSettings = new(_config.UploadFormat, _config.UploadJpegQuality, false);
             try
             {
                 bool result = false;

@@ -48,7 +48,7 @@ namespace Greenshot.Base.Effects
 
         public Image Apply(Image sourceImage, Matrix matrix)
         {
-            using (WuQuantizer quantizer = new WuQuantizer((Bitmap) sourceImage))
+            using (WuQuantizer quantizer = new((Bitmap)sourceImage))
             {
                 int colorCount = quantizer.GetColorCount();
                 if (colorCount > Colors)

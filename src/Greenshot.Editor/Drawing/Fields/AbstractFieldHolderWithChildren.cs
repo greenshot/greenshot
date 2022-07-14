@@ -46,7 +46,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public IList<IFieldHolder> Children = new List<IFieldHolder>();
 
-        public AbstractFieldHolderWithChildren()
+        protected AbstractFieldHolderWithChildren()
         {
             _fieldChangedEventHandler = OnFieldChanged;
         }
@@ -108,12 +108,7 @@ namespace Greenshot.Editor.Drawing.Fields
                 }
             }
 
-            if (ret == null)
-            {
-                throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType());
-            }
-
-            return ret;
+            return ret ?? throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType());
         }
 
         public new bool HasField(IFieldType fieldType)
@@ -137,7 +132,7 @@ namespace Greenshot.Editor.Drawing.Fields
         public new bool HasFieldValue(IFieldType fieldType)
         {
             IField f = GetField(fieldType);
-            return f != null && f.HasValue;
+            return f?.HasValue == true;
         }
 
         public new void SetFieldValue(IFieldType fieldType, object value)

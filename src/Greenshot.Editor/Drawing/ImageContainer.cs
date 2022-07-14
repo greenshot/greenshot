@@ -54,7 +54,7 @@ namespace Greenshot.Editor.Drawing
         /// This is the offset for the shadow version of the bitmap
         /// Do not serialize, as the offset is recreated
         /// </summary>
-        [NonSerialized] private NativePoint _shadowOffset = new NativePoint(-1, -1);
+        [NonSerialized] private readonly NativePoint _shadowOffset = new(-1, -1);
 
         public ImageContainer(ISurface parent, string filename) : this(parent)
         {
@@ -173,7 +173,6 @@ namespace Greenshot.Editor.Drawing
             _shadowBitmap?.Dispose();
             _shadowBitmap = null;
         }
-
 
         /// <summary>
         /// Make sure the content is also transformed.

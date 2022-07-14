@@ -64,7 +64,7 @@ namespace Greenshot.Editor.Drawing.Filters
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect);
             using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect))
             {
-                List<Color> colors = new List<Color>();
+                List<Color> colors = new();
                 int halbPixelSize = pixelSize / 2;
                 for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y += pixelSize)
                 {

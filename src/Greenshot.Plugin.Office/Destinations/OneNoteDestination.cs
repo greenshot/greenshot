@@ -37,7 +37,7 @@ namespace Greenshot.Plugin.Office.Destinations
         public const string DESIGNATION = "OneNote";
         private static readonly string exePath;
         private readonly OneNotePage page;
-        private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
+        private readonly OneNoteExporter _oneNoteExporter = new();
 
         static OneNoteDestination()
         {
@@ -70,14 +70,7 @@ namespace Greenshot.Plugin.Office.Destinations
         {
             get
             {
-                if (page == null)
-                {
-                    return "Microsoft OneNote";
-                }
-                else
-                {
-                    return page.DisplayName;
-                }
+                return page == null ? "Microsoft OneNote" : page.DisplayName;
             }
         }
 
@@ -111,7 +104,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
 
             if (page == null)
             {

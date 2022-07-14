@@ -43,14 +43,14 @@ namespace Greenshot.Plugin.Box
         {
             get
             {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
-                return (Image) resources.GetObject("Box");
+                ComponentResourceManager resources = new(typeof(BoxPlugin));
+                return (Image)resources.GetObject("Box");
             }
         }
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            ExportInformation exportInformation = new(Designation, Description);
             string uploadUrl = _plugin.Upload(captureDetails, surface);
             if (uploadUrl != null)
             {

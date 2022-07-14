@@ -31,10 +31,10 @@ namespace Greenshot.Base.Controls
         {
             private const int OLECMDID_SHOWSCRIPTERROR = 40;
 
-            private static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+            private static readonly Guid CGID_DocHostCommandHandler = new("F38BC242-B950-11D1-8918-00C04FC2C836");
 
             private const int S_OK = 0;
-            private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
+            private const int OLECMDERR_E_NOTSUPPORTED = -2147221248;
 
             public ExtendedWebBrowserSite(WebBrowser wb) : base(wb)
             {

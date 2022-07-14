@@ -65,7 +65,7 @@ namespace Greenshot.Base.Controls
             Items.Clear();
             foreach (var enumValue in availableValues)
             {
-                Items.Add(Language.Translate((Enum) enumValue));
+                Items.Add(Language.Translate((Enum)enumValue));
             }
         }
 
@@ -101,7 +101,7 @@ namespace Greenshot.Base.Controls
                 }
             }
 
-            _selectedEnum = (Enum) returnValue;
+            _selectedEnum = (Enum)returnValue;
         }
 
         /// <summary>

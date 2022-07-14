@@ -52,7 +52,7 @@ namespace Greenshot.Controls
             }
 
             NativeRect old = e.ImageRectangle;
-            ToolStripItemImageRenderEventArgs clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new NativeRect(old.X, 0, old.Width, old.Height));
+            ToolStripItemImageRenderEventArgs clone = new(e.Graphics, e.Item, _scaledCheckbox, new NativeRect(old.X, 0, old.Width, old.Height));
             base.OnRenderItemCheck(clone);
         }
     }

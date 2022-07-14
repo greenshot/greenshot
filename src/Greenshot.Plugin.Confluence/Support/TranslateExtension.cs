@@ -10,23 +10,17 @@ namespace Greenshot.Plugin.Confluence.Support
     /// </summary>
     public class TranslateExtension : MarkupExtension
     {
-        private string _key;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TranslateExtension"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         public TranslateExtension(string key)
         {
-            _key = key;
+            Key = key;
         }
 
         [ConstructorArgument("key")]
-        public string Key
-        {
-            get { return _key; }
-            set { _key = value; }
-        }
+        public string Key { get; set; }
 
         /// <summary>
         /// See <see cref="MarkupExtension.ProvideValue" />
@@ -35,7 +29,7 @@ namespace Greenshot.Plugin.Confluence.Support
         {
             var binding = new Binding("Value")
             {
-                Source = new TranslationData(_key)
+                Source = new TranslationData(Key)
             };
             return binding.ProvideValue(serviceProvider);
         }

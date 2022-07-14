@@ -104,7 +104,7 @@ namespace Greenshot.Forms
 
                 if (arguments.Length > 0 && LOG.IsDebugEnabled)
                 {
-                    StringBuilder argumentString = new StringBuilder();
+                    StringBuilder argumentString = new();
                     foreach (string argument in arguments)
                     {
                         argumentString.Append("[").Append(argument).Append("] ");
@@ -223,7 +223,7 @@ namespace Greenshot.Forms
                 }
 
                 // Finished parsing the command line arguments, see if we need to do anything
-                CopyDataTransport transport = new CopyDataTransport();
+                CopyDataTransport transport = new();
                 if (filesToOpen.Count > 0)
                 {
                     foreach (string fileToOpen in filesToOpen)
@@ -241,7 +241,7 @@ namespace Greenshot.Forms
                     }
                     else
                     {
-                        StringBuilder instanceInfo = new StringBuilder();
+                        StringBuilder instanceInfo = new();
                         bool matchedThisProcess = false;
                         int index = 1;
                         int currentProcessId;
@@ -254,7 +254,7 @@ namespace Greenshot.Forms
                         {
                             try
                             {
-                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32Api.GetProcessPath(greenshotProcess.Id));
+                                instanceInfo.Append(index++).Append(": ").AppendLine(Kernel32Api.GetProcessPath(greenshotProcess.Id));
                                 if (currentProcessId == greenshotProcess.Id)
                                 {
                                     matchedThisProcess = true;
@@ -271,11 +271,11 @@ namespace Greenshot.Forms
                         if (!matchedThisProcess)
                         {
                             using Process currentProcess = Process.GetCurrentProcess();
-                            instanceInfo.Append(index + ": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
+                            instanceInfo.Append(index).Append(": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
                         }
 
                         // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
-                        using Form dummyForm = new Form
+                        using Form dummyForm = new()
                         {
                             Icon = GreenshotResources.GetGreenshotIcon(),
                             ShowInTaskbar = true,
@@ -339,7 +339,7 @@ namespace Greenshot.Forms
         private static void SendData(CopyDataTransport dataTransport)
         {
             string appName = Application.ProductName;
-            CopyData copyData = new CopyData();
+            CopyData copyData = new();
             copyData.Channels.Add(appName);
             copyData.Channels[appName].Send(dataTransport);
         }
@@ -376,13 +376,13 @@ namespace Greenshot.Forms
         private AboutForm _aboutForm;
 
         // Timer for the double click test
-        private readonly Timer _doubleClickTimer = new Timer();
+        private readonly Timer _doubleClickTimer = new();
 
         public MainForm(CopyDataTransport dataTransport)
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
- 
+
             // The most important form is this
             SimpleServiceProvider.Current.AddService<Form>(this);
             // Also as itself
@@ -395,9 +395,9 @@ namespace Greenshot.Forms
             EditorInitialize.Initialize();
 
             // Factory for surface objects
-            ISurface SurfaceFactory() => new Surface();
+            static ISurface SurfaceFactory() => new Surface();
 
-            SimpleServiceProvider.Current.AddService((Func<ISurface>) SurfaceFactory);
+            SimpleServiceProvider.Current.AddService((Func<ISurface>)SurfaceFactory);
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -524,7 +524,7 @@ namespace Greenshot.Forms
                 new EmailDestination(),
                 new PickerDestination()
             };
-            
+
             bool useEditor = false;
             if (WindowsVersion.IsWindows10OrLater)
             {
@@ -536,7 +536,8 @@ namespace Greenshot.Forms
                 {
                     useEditor = true;
                 }
-            } else
+            }
+            else
             {
                 useEditor = true;
             }
@@ -587,7 +588,7 @@ namespace Greenshot.Forms
         private void CopyDataDataReceived(object sender, CopyDataReceivedEventArgs copyDataReceivedEventArgs)
         {
             // Cast the data to the type of object we sent:
-            var dataTransport = (CopyDataTransport) copyDataReceivedEventArgs.Data;
+            var dataTransport = (CopyDataTransport)copyDataReceivedEventArgs.Data;
             HandleDataTransport(dataTransport);
         }
 
@@ -614,7 +615,7 @@ namespace Greenshot.Forms
                         try
                         {
                             IniConfig.Reload();
-                            Invoke((MethodInvoker) delegate
+                            Invoke((MethodInvoker)delegate
                             {
                                 // Even update language when needed
                                 UpdateUi();
@@ -635,7 +636,7 @@ namespace Greenshot.Forms
                         LOG.InfoFormat("Open file requested: {0}", filename);
                         if (File.Exists(filename))
                         {
-                            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFile(filename); });
+                            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureFile(filename); });
                         }
                         else
                         {
@@ -786,7 +787,7 @@ namespace Greenshot.Forms
             }
 
             bool success = true;
-            StringBuilder failedKeys = new StringBuilder();
+            StringBuilder failedKeys = new();
 
             if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", _instance.CaptureRegion, ignoreFailedRegistration))
             {
@@ -878,7 +879,7 @@ namespace Greenshot.Forms
         /// <returns></returns>
         private static bool HandleFailedHotkeyRegistration(string failedKeys)
         {
-            bool success = false;
+            const bool success = false;
             var warningTitle = Language.GetString(LangKey.warning);
             var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
             var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
@@ -887,13 +888,13 @@ namespace Greenshot.Forms
             {
                 LOG.DebugFormat("Re-trying to register hotkeys");
                 HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(false);
+                return RegisterHotkeys(false);
             }
             else if (dr == DialogResult.Ignore)
             {
                 LOG.DebugFormat("Ignoring failed hotkey registration");
                 HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(true);
+                return RegisterHotkeys(true);
             }
 
             return success;
@@ -917,7 +918,6 @@ namespace Greenshot.Forms
             }
         }
 
-
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
             LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
@@ -929,7 +929,7 @@ namespace Greenshot.Forms
         {
             Hide();
             ShowInTaskbar = false;
-            
+
             // TODO: Do we really need this?
             //using var loProcess = Process.GetCurrentProcess();
             //loProcess.MaxWorkingSet = (IntPtr)750000;
@@ -948,7 +948,7 @@ namespace Greenshot.Forms
 
             var openFileDialog = new OpenFileDialog
             {
-                Filter = @$"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
+                Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
             };
             if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
@@ -999,7 +999,6 @@ namespace Greenshot.Forms
             }
         }
 
-
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
             var factor = DeviceDpi / 96f;
@@ -1046,7 +1045,7 @@ namespace Greenshot.Forms
             {
                 // birthday
                 var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = (Image)resources.GetObject("contextmenu_present.Image");
             }
         }
 
@@ -1075,7 +1074,7 @@ namespace Greenshot.Forms
                 {
                     contextmenu_captureie.Enabled = true;
                     contextmenu_captureiefromlist.Enabled = true;
-                    Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
+                    Dictionary<WindowDetails, int> counter = new();
 
                     foreach (KeyValuePair<WindowDetails, string> tabData in tabs)
                     {
@@ -1096,14 +1095,7 @@ namespace Greenshot.Forms
                         captureIeTabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
                         captureIeTabItem.Click += Contextmenu_CaptureIeFromList_Click;
                         contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
-                        if (counter.ContainsKey(tabData.Key))
-                        {
-                            counter[tabData.Key] = index;
-                        }
-                        else
-                        {
-                            counter.Add(tabData.Key, index);
-                        }
+                        counter[tabData.Key] = index;
                     }
                 }
                 else
@@ -1125,15 +1117,17 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void MultiScreenDropDownOpening(object sender, EventArgs e)
         {
-            ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem) sender;
+            ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
             captureScreenMenuItem.DropDownItems.Clear();
             if (DisplayInfo.AllDisplayInfos.Length <= 1) return;
 
             var allScreensBounds = DisplayInfo.ScreenBounds;
 
             var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-            captureScreenItem.Click += delegate {
-                BeginInvoke((MethodInvoker) delegate {
+            captureScreenItem.Click += delegate
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
                     CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
                 });
             };
@@ -1143,7 +1137,7 @@ namespace Greenshot.Forms
             {
                 var displayToCapture = displayInfo;
                 string deviceAlignment = displayToCapture.DeviceName;
-                    
+
                 if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
                 {
                     deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
@@ -1165,7 +1159,7 @@ namespace Greenshot.Forms
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
                 captureScreenItem.Click += delegate
                 {
-                    BeginInvoke((MethodInvoker) delegate
+                    BeginInvoke((MethodInvoker)delegate
                     {
                         CaptureHelper.CaptureRegion(false, displayToCapture.Bounds);
                     });
@@ -1181,7 +1175,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void MultiScreenDropDownClosing(object sender, EventArgs e)
         {
-            ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem) sender;
+            ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
             captureScreenMenuItem.DropDownItems.Clear();
         }
 
@@ -1193,7 +1187,7 @@ namespace Greenshot.Forms
             // The Capture window context menu item used to go to the following code:
             // captureForm.MakeCapture(CaptureMode.Window, false);
             // Now we check which windows are there to capture
-            ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem) sender;
+            ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem)sender;
             AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_CaptureWindowFromList_Click);
         }
 
@@ -1206,12 +1200,7 @@ namespace Greenshot.Forms
         {
             if (sender is not ToolStripMenuItem captureWindowItem) return;
             var window = captureWindowItem.Tag as WindowDetails;
-            if (_thumbnailForm == null)
-            {
-                _thumbnailForm = new ThumbnailForm();
-            }
-
-            _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
+            (_thumbnailForm ??= new ThumbnailForm()).ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
         }
 
         private void HideThumbnailOnLeave(object sender, EventArgs e)
@@ -1274,42 +1263,42 @@ namespace Greenshot.Forms
 
         private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false); });
+            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureRegion(false); });
         }
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureClipboard(); });
+            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureClipboard(); });
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureFile(); });
+            BeginInvoke((MethodInvoker)delegate { CaptureFile(); });
         }
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
+            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
         }
 
         private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureLastRegion(false); });
+            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureLastRegion(false); });
         }
 
         private void Contextmenu_CaptureWindow_Click(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureWindowInteractive(false); });
+            BeginInvoke((MethodInvoker)delegate { CaptureHelper.CaptureWindowInteractive(false); });
         }
 
         private void Contextmenu_CaptureWindowFromList_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
-            BeginInvoke((MethodInvoker) delegate
+            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
+            BeginInvoke((MethodInvoker)delegate
             {
                 try
                 {
-                    WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
+                    WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
                     CaptureHelper.CaptureWindow(windowToCapture);
                 }
                 catch (Exception exception)
@@ -1332,9 +1321,9 @@ namespace Greenshot.Forms
                 return;
             }
 
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
-            KeyValuePair<WindowDetails, int> tabData = (KeyValuePair<WindowDetails, int>) clickedItem.Tag;
-            BeginInvoke((MethodInvoker) delegate
+            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
+            KeyValuePair<WindowDetails, int> tabData = (KeyValuePair<WindowDetails, int>)clickedItem.Tag;
+            BeginInvoke((MethodInvoker)delegate
             {
                 WindowDetails ieWindowToCapture = tabData.Key;
                 if (ieWindowToCapture != null && (!ieWindowToCapture.Visible || ieWindowToCapture.Iconic))
@@ -1369,7 +1358,7 @@ namespace Greenshot.Forms
         /// <param name="e">EventArgs</param>
         private void Contextmenu_DonateClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
+            BeginInvoke((MethodInvoker)delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
         }
 
         /// <summary>
@@ -1379,7 +1368,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_SettingsClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) ShowSetting);
+            BeginInvoke((MethodInvoker)ShowSetting);
         }
 
         /// <summary>
@@ -1486,7 +1475,7 @@ namespace Greenshot.Forms
             if (!_conf.Values["CaptureMousepointer"].IsFixed)
             {
                 // For the capture mouse-cursor option
-                ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem
+                ToolStripMenuSelectListItem captureMouseItem = new()
                 {
                     Text = Language.GetString("settings_capture_mousepointer"),
                     Checked = _conf.CaptureMousepointer,
@@ -1546,7 +1535,7 @@ namespace Greenshot.Forms
                     iniValue = _conf.Values[propertyName];
                     if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
                     {
-                        selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
+                        selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
                     }
                 }
             }
@@ -1566,13 +1555,13 @@ namespace Greenshot.Forms
             iniValue = _conf.Values["PlayCameraSound"];
             if (!iniValue.IsFixed)
             {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
             }
 
             iniValue = _conf.Values["ShowTrayNotification"];
             if (!iniValue.IsFixed)
             {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool)iniValue.Value);
             }
 
             if (selectList.DropDownItems.Count > 0)
@@ -1584,8 +1573,8 @@ namespace Greenshot.Forms
 
         private void QuickSettingCaptureModeChanged(object sender, EventArgs e)
         {
-            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
-            WindowCaptureMode windowsCaptureMode = (WindowCaptureMode) item.Data;
+            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
+            WindowCaptureMode windowsCaptureMode = (WindowCaptureMode)item.Data;
             if (item.Checked)
             {
                 _conf.WindowCaptureMode = windowsCaptureMode;
@@ -1594,7 +1583,7 @@ namespace Greenshot.Forms
 
         private void QuickSettingBoolItemChanged(object sender, EventArgs e)
         {
-            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
+            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
             if (item.Data is IniValue iniValue)
             {
                 iniValue.Value = item.Checked;
@@ -1604,8 +1593,8 @@ namespace Greenshot.Forms
 
         private void QuickSettingDestinationChanged(object sender, EventArgs e)
         {
-            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
-            IDestination selectedDestination = (IDestination) item.Data;
+            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
+            IDestination selectedDestination = (IDestination)item.Data;
             if (item.Checked)
             {
                 if (selectedDestination.Designation.Equals(nameof(WellKnownDestinations.Picker)))
@@ -1668,7 +1657,7 @@ namespace Greenshot.Forms
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the UnhandledException handler.");
             LOG.Error(exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+            if (exceptionText?.Contains("InputLanguageChangedEventArgs") == true)
             {
                 // Ignore for BUG-1809
                 return;
@@ -1683,7 +1672,7 @@ namespace Greenshot.Forms
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the ThreadException handler.");
             LOG.Error(exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+            if (exceptionText?.Contains("InputLanguageChangedEventArgs") == true)
             {
                 // Ignore for BUG-1809
                 return;
@@ -1740,7 +1729,7 @@ namespace Greenshot.Forms
         {
             _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
             _doubleClickTimer.Stop();
-            BeginInvoke((MethodInvoker) delegate { NotifyIconClick(_conf.LeftClickAction); });
+            BeginInvoke((MethodInvoker)delegate { NotifyIconClick(_conf.LeftClickAction); });
         }
 
         /// <summary>
@@ -1849,7 +1838,7 @@ namespace Greenshot.Forms
             LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
-            List<Form> formsToClose = new List<Form>();
+            List<Form> formsToClose = new();
             foreach (Form form in Application.OpenForms)
             {
                 if (form.Handle != Handle && form.GetType() != typeof(ImageEditorForm))
@@ -1864,7 +1853,7 @@ namespace Greenshot.Forms
                 {
                     LOG.InfoFormat("Closing form: {0}", form.Name);
                     Form formCapturedVariable = form;
-                    Invoke((MethodInvoker) delegate { formCapturedVariable.Close(); });
+                    Invoke((MethodInvoker)delegate { formCapturedVariable.Close(); });
                 }
                 catch (Exception e)
                 {
