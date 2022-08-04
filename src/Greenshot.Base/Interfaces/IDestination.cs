@@ -127,5 +127,11 @@ namespace Greenshot.Base.Interfaces
         /// <param name="captureDetails"></param>
         /// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
         ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+
+        /// <summary>
+        /// Executed when the user clicks on the exported notification
+        /// </summary>
+        /// <param name="e">Notification event args. <see cref="ISurface"/> may be disposed.</param>
+        void OnExportedNotificationClick(SurfaceMessageEventArgs e);
     }
 }

@@ -504,6 +504,8 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="editor_close_on_save_title">
 		Salvați imaginea?
 	</resource>
+    <resource name="editor_close_on_clipboard">Doriți să copiați imaginea în clipboard?</resource>
+    <resource name="editor_close_on_clipboard_title">Copiați imaginea în clipboard?</resource>
 	<resource name="settings_capture_windows_interactive">
 		Folosiți metoda interactivă de captură a ferestrei
 	</resource>

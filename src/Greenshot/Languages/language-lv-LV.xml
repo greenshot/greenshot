@@ -87,6 +87,8 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_close">Aizvērt</resource>
 		<resource name="editor_close_on_save">Vai gribi saglabāt ekrānattēlu?</resource>
 		<resource name="editor_close_on_save_title">Saglabāt attēlu?</resource>
+        <resource name="editor_close_on_clipboard">Vai vēlaties kopēt attēlu starpliktuvē?</resource>
+        <resource name="editor_close_on_clipboard_title">Vai kopēt attēlu starpliktuvē?</resource>
 		<resource name="editor_confirm">Apstiprināt</resource>
 		<resource name="editor_copyimagetoclipboard">Ievit attēlu starpliktuvē</resource>
 		<resource name="editor_copypathtoclipboard">Ievietot ceļu starpliktuvē</resource>

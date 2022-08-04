@@ -73,6 +73,8 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_close">Zapri</resource>
 		<resource name="editor_close_on_save">Ali želite shraniti zajem?</resource>
 		<resource name="editor_close_on_save_title">Shranim sliko?</resource>
+        <resource name="editor_close_on_clipboard">Ali želite kopirati sliko v odložišče?</resource>
+        <resource name="editor_close_on_clipboard_title">Kopirati sliko v odložišče?</resource>
 		<resource name="editor_confirm">Potrdite</resource>
 		<resource name="editor_copyimagetoclipboard">Kopiraj sliko na odložišče</resource>
 		<resource name="editor_copypathtoclipboard">Kopiraj pot na odložišče</resource>

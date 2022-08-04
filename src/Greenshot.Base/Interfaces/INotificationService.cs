@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -35,7 +36,8 @@ namespace Greenshot.Base.Interfaces
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
+        /// <param name="heroImage">Optional hero image (used only when supported by notification system)</param>
+        void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null);
 
         /// <summary>
         /// This will show an error message to the user
@@ -44,7 +46,8 @@ namespace Greenshot.Base.Interfaces
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
+        /// <param name="heroImage">Optional hero image (used only when supported by notification system)</param>
+        void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null);
 
         /// <summary>
         /// This will show an info message to the user
@@ -53,6 +56,7 @@ namespace Greenshot.Base.Interfaces
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
+        /// <param name="heroImage">Optional hero image (used only when supported by notification system)</param>
+        void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null);
     }
 }

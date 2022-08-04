@@ -88,6 +88,8 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_close">Schließen</resource>
 		<resource name="editor_close_on_save">Möchten Sie den Screenshot speichern?</resource>
 		<resource name="editor_close_on_save_title">Bild speichern?</resource>
+        <resource name="editor_close_on_clipboard">Möchten Sie das Bild in die Zwischenablage kopieren?</resource>
+        <resource name="editor_close_on_clipboard_title">Bild in die Zwischenablage kopieren?</resource>
 		<resource name="editor_confirm">Bestätigen</resource>
 		<resource name="editor_copyimagetoclipboard">Grafik in die Zwischenablage kopieren</resource>
 		<resource name="editor_copypathtoclipboard">Pfad in Zwischenablage kopieren</resource>

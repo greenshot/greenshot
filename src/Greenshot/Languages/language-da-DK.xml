@@ -502,6 +502,8 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="editor_close_on_save_title">
 		Gem billede?
 	</resource>
+    <resource name="editor_close_on_clipboard">Vil du kopiere billedet til udklipsholderen?</resource>
+    <resource name="editor_close_on_clipboard_title">Vil du kopiere billedet til udklipsholderen?</resource>
 	<resource name="settings_capture_windows_interactive">
 		Brug interaktiv vinduesklip-tilstand
 	</resource>

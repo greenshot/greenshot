@@ -73,6 +73,8 @@
 		<resource name="editor_close">Затвори</resource>
 		<resource name="editor_close_on_save">Желите ли да сачувате снимак екрана?</resource>
 		<resource name="editor_close_on_save_title">Чување слике</resource>
+        <resource name="editor_close_on_clipboard">Да ли желите да копирате слику у међуспремник?</resource>
+        <resource name="editor_close_on_clipboard_title">Копирати слику у међуспремник?</resource>
 		<resource name="editor_confirm">Потврди</resource>
 		<resource name="editor_copyimagetoclipboard">Умножи слику</resource>
 		<resource name="editor_copypathtoclipboard">Умножи путању</resource>

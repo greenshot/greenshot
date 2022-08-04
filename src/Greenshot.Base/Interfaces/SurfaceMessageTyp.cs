@@ -25,7 +25,7 @@ namespace Greenshot.Base.Interfaces
     {
         FileSaved,
         Error,
-        Info,
+        Exported,
         UploadedUri
     }
 }

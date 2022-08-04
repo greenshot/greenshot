@@ -87,6 +87,8 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_close">Tutup</resource>
 		<resource name="editor_close_on_save">Apakah anda ingin menyimpan layar yang tertangkap?</resource>
 		<resource name="editor_close_on_save_title">Simpan gambar?</resource>
+        <resource name="editor_close_on_clipboard">Apakah Anda ingin menyalin gambar ke papan klip?</resource>
+        <resource name="editor_close_on_clipboard_title">Salin gambar ke papan klip?</resource>
 		<resource name="editor_confirm">Konfirmasi</resource>
 		<resource name="editor_copyimagetoclipboard">Kopi gambar ke papan klip</resource>
 		<resource name="editor_copypathtoclipboard">Kopi jalur ke papan klip</resource>

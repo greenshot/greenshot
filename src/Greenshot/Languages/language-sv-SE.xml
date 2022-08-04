@@ -88,6 +88,8 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_close">Stäng</resource>
 		<resource name="editor_close_on_save">Vill du spara skärmdumpen?</resource>
 		<resource name="editor_close_on_save_title">Spara bild?</resource>
+        <resource name="editor_close_on_clipboard">Vill du kopiera bilden till urklipp?</resource>
+        <resource name="editor_close_on_clipboard_title">Vill du kopiera bilden till urklipp?</resource>
 		<resource name="editor_confirm">Godkänn</resource>
 		<resource name="editor_copyimagetoclipboard">Kopiera bilden till urklipp</resource>
 		<resource name="editor_copypathtoclipboard">Kopiera sökväg till urklipp</resource>

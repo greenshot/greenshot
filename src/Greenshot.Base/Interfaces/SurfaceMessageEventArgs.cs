@@ -20,13 +20,19 @@
  */
 
 using System;
+using System.Drawing;
 
 namespace Greenshot.Base.Interfaces
 {
-    public class SurfaceMessageEventArgs : EventArgs
+    public sealed class SurfaceMessageEventArgs : EventArgs, IDisposable
     {
+        public Image Image { get; set; }
         public SurfaceMessageTyp MessageType { get; set; }
         public string Message { get; set; }
         public ISurface Surface { get; set; }
+        public void Dispose()
+        {
+            Image.Dispose();
+        }
     }
 }

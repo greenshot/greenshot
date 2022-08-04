@@ -87,6 +87,8 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_close">Sulge</resource>
 		<resource name="editor_close_on_save">Kas te tahate salvestada kuvatõmmist?</resource>
 		<resource name="editor_close_on_save_title">Salvestage pilt?</resource>
+        <resource name="editor_close_on_clipboard">Kas soovite pildi lõikelauale kopeerida?</resource>
+        <resource name="editor_close_on_clipboard_title">Kas kopeerida pilt lõikelauale?</resource>
 		<resource name="editor_confirm">Kinnitan</resource>
 		<resource name="editor_copyimagetoclipboard">Kopeerige pilt lõikelauale</resource>
 		<resource name="editor_copypathtoclipboard">Kopeerige asukoht lõikelauale</resource>

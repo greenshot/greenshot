@@ -58,6 +58,8 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_close">סגור</resource>
 		<resource name="editor_close_on_save">? האם ברצונך לשמור את תמונת הלכידה</resource>
 		<resource name="editor_close_on_save_title">? שמור תמונה</resource>
+        <resource name="editor_close_on_clipboard">האם ברצונך להעתיק את התמונה ללוח?</resource>
+        <resource name="editor_close_on_clipboard_title">להעתיק תמונה ללוח?</resource>
 		<resource name="editor_confirm">אישור</resource>
 		<resource name="editor_copyimagetoclipboard">העתקת תמונה אל הלוח</resource>
 		<resource name="editor_copypathtoclipboard">העתק נתיב אל הלוח</resource>

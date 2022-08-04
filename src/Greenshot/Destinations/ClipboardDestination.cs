@@ -26,6 +26,9 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
+using Greenshot.Editor.Destinations;
+using Greenshot.Editor.Drawing;
+using log4net;
 
 namespace Greenshot.Destinations
 {
@@ -34,6 +37,8 @@ namespace Greenshot.Destinations
     /// </summary>
     public class ClipboardDestination : AbstractDestination
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ClipboardDestination));
+        
         public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
         public override string Description
@@ -72,6 +77,16 @@ namespace Greenshot.Destinations
 
             ProcessExport(exportInformation, surface);
             return exportInformation;
+        }
+
+        public override void OnExportedNotificationClick(SurfaceMessageEventArgs e)
+        {
+            Log.Info(Designation + " Notification Clicked!");
+            
+            var surface = new Surface((Image)e.Image.Clone()) { CaptureDetails = new CaptureDetails { CaptureMode = CaptureMode.Clipboard } };
+
+            DestinationHelper.GetDestination(EditorDestination.DESIGNATION)
+                .ExportCapture(true, surface, new CaptureDetails { CaptureMode = CaptureMode.Clipboard });
         }
     }
 }

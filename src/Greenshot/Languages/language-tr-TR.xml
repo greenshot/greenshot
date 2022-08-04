@@ -73,6 +73,8 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_close">Kapat</resource>
 		<resource name="editor_close_on_save">Ekran görüntüsünü kaydetmek istiyor musunuz?</resource>
 		<resource name="editor_close_on_save_title">Görüntü kaydedilsin mi?</resource>
+        <resource name="editor_close_on_clipboard">Resmi panoya kopyalamak istiyor musunuz?</resource>
+        <resource name="editor_close_on_clipboard_title">Resim panoya kopyalansın mı?</resource>
 		<resource name="editor_confirm">Tamam</resource>
 		<resource name="editor_copyimagetoclipboard">Görüntüyü panoya kopyala</resource>
 		<resource name="editor_copypathtoclipboard">Yolu panoya kopyala</resource>

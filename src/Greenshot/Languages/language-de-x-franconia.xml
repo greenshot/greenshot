@@ -83,6 +83,8 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_close">Wech!</resource>
 		<resource name="editor_close_on_save">Moggsd dei Gschmarri ned schbeichern?</resource>
 		<resource name="editor_close_on_save_title">Bild schbeichern?</resource>
+        <resource name="editor_close_on_clipboard">Möchten Sie das Bild in die Zwischenablage kopieren?</resource>
+        <resource name="editor_close_on_clipboard_title">Bild in die Zwischenablage kopieren?</resource>
 		<resource name="editor_confirm">Fei wärgli!</resource>
 		<resource name="editor_copyimagetoclipboard">Grafig in däi Zwischnblach nei</resource>
 		<resource name="editor_copypathtoclipboard">Bfad in däi Zwischnblach nei</resource>

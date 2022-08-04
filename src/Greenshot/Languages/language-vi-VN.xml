@@ -53,6 +53,8 @@
 		<resource name="editor_close">Đóng</resource>
 		<resource name="editor_close_on_save">Lưu ảnh chụp?</resource>
 		<resource name="editor_close_on_save_title">Xác nhận lưu ảnh</resource>
+        <resource name="editor_close_on_clipboard">Bạn có muốn sao chép hình ảnh vào khay nhớ tạm?</resource>
+        <resource name="editor_close_on_clipboard_title">Sao chép hình ảnh vào khay nhớ tạm?</resource>
 		<resource name="editor_confirm">Kiểm tra</resource>
 		<resource name="editor_copyimagetoclipboard">Chép ảnh vào clipboard</resource>
 		<resource name="editor_copypathtoclipboard">Chép đuờng dẫn tới clipboard.</resource>

@@ -75,6 +75,8 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_close">Cerrar</resource>
 		<resource name="editor_close_on_save">¿Guardar la captura?</resource>
 		<resource name="editor_close_on_save_title">¿Guardar imagen?</resource>
+        <resource name="editor_close_on_clipboard">¿Quieres copiar la imagen al portapapeles?</resource>
+        <resource name="editor_close_on_clipboard_title">¿Copiar imagen al portapapeles?</resource>
 		<resource name="editor_confirm">Confirmar</resource>
 		<resource name="editor_copyimagetoclipboard">Copiar imagen al portapapeles</resource>
 		<resource name="editor_copypathtoclipboard">Copiar ruta al portapapeles</resource>

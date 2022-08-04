@@ -56,6 +56,8 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_close">Uždaryti</resource>
 		<resource name="editor_close_on_save">Išsaugoti atidarytą nuotrauką?</resource>
 		<resource name="editor_close_on_save_title">Išsaugoti vaizdą?</resource>
+        <resource name="editor_close_on_clipboard">Ar norite nukopijuoti vaizdą į mainų sritį?</resource>
+        <resource name="editor_close_on_clipboard_title">Kopijuoti vaizdą į mainų sritį?</resource>
 		<resource name="editor_confirm">Patvirtinti</resource>
 		<resource name="editor_copyimagetoclipboard">Patalpinti į iškarpinių podelį</resource>
 		<resource name="editor_copypathtoclipboard">Kopijuoti pilną failo vardą</resource>

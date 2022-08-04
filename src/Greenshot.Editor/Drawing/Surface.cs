@@ -1134,9 +1134,9 @@ namespace Greenshot.Editor.Drawing
         public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message)
         {
             if (_surfaceMessage == null) return;
-
             var eventArgs = new SurfaceMessageEventArgs
             {
+                Image = GetImageForExport(),
                 Message = message,
                 MessageType = messageType,
                 Surface = this

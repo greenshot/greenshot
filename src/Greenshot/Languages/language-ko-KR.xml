@@ -87,6 +87,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_close">닫기</resource>
 		<resource name="editor_close_on_save">화면 캡처를 저장할까요?</resource>
 		<resource name="editor_close_on_save_title">이미지를 저장할까요?</resource>
+        <resource name="editor_close_on_clipboard">이미지를 클립보드에 복사하시겠습니까?</resource>
+        <resource name="editor_close_on_clipboard_title">이미지를 클립보드에 복사하시겠습니까?</resource>
 		<resource name="editor_confirm">확인</resource>
 		<resource name="editor_copyimagetoclipboard">이미지를 클립보드로 복사</resource>
 		<resource name="editor_copypathtoclipboard">경로를 클립보드로 복사</resource>

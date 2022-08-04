@@ -88,6 +88,8 @@
 		<resource name="editor_close">Κλείσιμο</resource>
 		<resource name="editor_close_on_save">Θέλετε να αποθηκεύσετε το στιγμιότυπο οθόνης;</resource>
 		<resource name="editor_close_on_save_title">Αποθήκευση εικόνας;</resource>
+        <resource name="editor_close_on_clipboard">Θέλετε να αντιγράψετε την εικόνα στο πρόχειρο;</resource>
+        <resource name="editor_close_on_clipboard_title">Αντιγραφή εικόνας στο πρόχειρο;</resource>
 		<resource name="editor_confirm">Επιβεβαίωση</resource>
 		<resource name="editor_copyimagetoclipboard">Αντιγραφή εικόνας στο πρόχειρο</resource>
 		<resource name="editor_copypathtoclipboard">Αντιγραφή της θέσης του αρχείου στο πρόχειρο</resource>

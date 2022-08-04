@@ -88,6 +88,8 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_close">Sluiten</resource>
 		<resource name="editor_close_on_save">Wilt u de schermopname opslaan?</resource>
 		<resource name="editor_close_on_save_title">Afbeelding opslaan?</resource>
+        <resource name="editor_close_on_clipboard">Wilt u de afbeelding naar het klembord kopiëren?</resource>
+        <resource name="editor_close_on_clipboard_title">Afbeelding naar klembord kopiëren?</resource>
 		<resource name="editor_confirm">Bevestigen</resource>
 		<resource name="editor_copyimagetoclipboard">Afbeelding naar klembord kopiëren</resource>
 		<resource name="editor_copypathtoclipboard">Locatie naar klembord kopiëren</resource>
