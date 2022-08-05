@@ -935,7 +935,8 @@ namespace Greenshot.Editor.Forms
                 // Make sure the editor is visible
                 WindowDetails.ToForeground(Handle);
 
-                bool saveToClipboard = _surface.CaptureDetails.CaptureMode == CaptureMode.Clipboard;
+                // If the user choose the clipboard as destination, just keep it also on close
+                bool saveToClipboard = _surface.CaptureDetails.CaptureDestinations.SingleOrDefault()?.Designation == nameof(WellKnownDestinations.Clipboard);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
                 // Dissallow "CANCEL" if the application needs to shutdown
@@ -958,7 +959,6 @@ namespace Greenshot.Editor.Forms
 
                 if (result.Equals(DialogResult.Yes))
                 {
-                    // If the user choose the clipboard as destination, just keep it also on close
                     if (saveToClipboard)
                     {
                         BtnClipboardClick(sender, e);

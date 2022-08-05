@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base;
@@ -82,11 +83,17 @@ namespace Greenshot.Destinations
         public override void OnExportedNotificationClick(SurfaceMessageEventArgs e)
         {
             Log.Info(Designation + " Notification Clicked!");
+
+            var captureDetails = new CaptureDetails
+            {
+                CaptureMode = CaptureMode.Clipboard,
+                CaptureDestinations = new List<IDestination> { DestinationHelper.GetDestination(Designation) }
+            };
             
-            var surface = new Surface((Image)e.Image.Clone()) { CaptureDetails = new CaptureDetails { CaptureMode = CaptureMode.Clipboard } };
+            var surface = new Surface((Image)e.Image.Clone()) { CaptureDetails = captureDetails };
 
             DestinationHelper.GetDestination(EditorDestination.DESIGNATION)
-                .ExportCapture(true, surface, new CaptureDetails { CaptureMode = CaptureMode.Clipboard });
+                .ExportCapture(true, surface, captureDetails);
         }
     }
 }
