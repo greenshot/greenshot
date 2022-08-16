@@ -40,13 +40,87 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+        private static string[] strRootKeys = { @"SOFTWARE\Microsoft\Office", @"SOFTWARE\WOW6432Node\Microsoft\Office" };
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
 
         static PluginUtils()
         {
             CoreConfig.PropertyChanged += OnIconSizeChanged;
         }
+        /// <summary>
+        /// Clear icon cache
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static string GetOfficeExePath(string keyname, string returnValue)
+        {
+            string strKeyName = "";
 
+            switch (keyname)
+            {
+                case "WINWORD.EXE":
+                    strKeyName = "Word";
+                    break;
+                case "EXCEL.EXE":
+                    strKeyName = "Excel";
+                    break;
+                case "MSACCESS.EXE":
+                    strKeyName = "Access";
+                    break;
+                case "POWERPNT.EXE":
+                    strKeyName = "PowerPoint";
+                    break;
+                case "OUTLOOK.EXE":
+                    strKeyName = "Outlook";
+                    break;
+                case "ONENOTE.EXE":
+                    strKeyName = "OneNote";
+                    break;
+                case "MSPUB.EXE":
+                    strKeyName = "Publisher";
+                    break;
+                default:
+                    strKeyName = "";
+                    break;
+            }
+            RegistryKey rootKey = null;
+            RegistryKey officeKey;
+            RegistryKey programKey;
+            RegistryKey installRootKey;
+
+            foreach (string strRootKey in strRootKeys)
+            {
+                rootKey = Registry.LocalMachine.OpenSubKey(strRootKey);
+
+                if (rootKey != null)
+                {
+                    string[] officeVersions = rootKey.GetSubKeyNames();
+                    if (officeVersions != null)
+                    {
+                        officeVersions = Array.FindAll(officeVersions, r => r.Contains("."));
+                        Array.Reverse(officeVersions);
+                        // string latestOfficeVersion = officeVersions.Where(r => r.Contains(".")).Max();
+
+                        foreach (string officeVersion in officeVersions)
+                        {
+                            officeKey = Registry.LocalMachine.OpenSubKey(strRootKey + "\\" + officeVersion);
+
+                            if (officeKey != null)
+                            {
+                                programKey = officeKey.OpenSubKey(strKeyName);
+                                if (programKey != null)
+                                {
+                                    installRootKey = programKey.OpenSubKey("InstallRoot");
+                                    if (installRootKey != null)
+                                        return installRootKey.GetValue(returnValue).ToString() + "\\" + keyname;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return string.Empty;
+        }
         /// <summary>
         /// Clear icon cache
         /// </summary>
@@ -84,7 +158,7 @@ namespace Greenshot.Base.Core
                 if (key != null)
                 {
                     // "" is the default key, which should point to the requested location
-                    return (string) key.GetValue(string.Empty);
+                    return (string)key.GetValue(string.Empty);
                 }
             }
 

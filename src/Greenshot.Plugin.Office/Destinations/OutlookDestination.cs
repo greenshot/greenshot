@@ -58,8 +58,9 @@ namespace Greenshot.Plugin.Office.Destinations
             {
                 IsActiveFlag = true;
             }
-
-            ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
+            ExePath = PluginUtils.GetOfficeExePath("OUTLOOK.EXE", "Path");
+            if (ExePath == null)
+                ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("outlook");
