@@ -42,9 +42,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static ExcelDestination()
         {
-            ExePath = PluginUtils.GetOfficeExePath("EXCEL.EXE");
-            if (ExePath == null)
-                ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+            ExePath = OfficeUtils.GetOfficeExePath("EXCEL.EXE") ?? PluginUtils.GetExePath("EXCEL.EXE");
 
             if (ExePath != null && File.Exists(ExePath))
             {

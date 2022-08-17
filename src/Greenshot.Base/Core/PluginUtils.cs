@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.IniFile;
@@ -39,86 +40,14 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-        private static string[] strRootKeys = { @"SOFTWARE\Microsoft\Office", @"SOFTWARE\WOW6432Node\Microsoft\Office" };
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
-
+        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+        
         static PluginUtils()
         {
             CoreConfig.PropertyChanged += OnIconSizeChanged;
         }
-        /// <summary>
-        /// Clear icon cache
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static string GetOfficeExePath(string keyname)
-        {
-            string strKeyName = keyname switch
-            {
-                "WINWORD.EXE" => "Word",
-                "EXCEL.EXE" => "Excel",
-                "POWERPNT.EXE" => "PowerPoint",
-                "OUTLOOK.EXE" => "Outlook",
-                "ONENOTE.EXE" => "OneNote",
-                _ => ""
-            };
 
-            RegistryKey rootKey = null;
-            RegistryKey officeKey = null;
-            RegistryKey programKey = null;
-            RegistryKey installRootKey = null;
-            string retValue = string.Empty;
-
-            foreach (string strRootKey in strRootKeys)
-            {
-                rootKey = Registry.LocalMachine.OpenSubKey(strRootKey);
-
-                if (rootKey != null)
-                {
-                    string[] officeVersions = rootKey.GetSubKeyNames();
-                    if (officeVersions is null)
-                        continue;
-                    officeVersions = Array.FindAll(officeVersions, r => r.Contains("."));
-                    Array.Reverse(officeVersions);
-                    // string latestOfficeVersion = officeVersions.Where(r => r.Contains(".")).Max();
-
-                    foreach (string officeVersion in officeVersions)
-                    {
-                        officeKey = Registry.LocalMachine.OpenSubKey(strRootKey + "\\" + officeVersion);
-
-                        if (officeKey is null)
-                            continue;
-
-                        programKey = officeKey.OpenSubKey(strKeyName);
-
-                        if (programKey is null)
-                            continue;
-
-                        installRootKey = programKey.OpenSubKey("InstallRoot");
-
-                        if (installRootKey != null)
-                        {
-                            retValue = installRootKey.GetValue("Path").ToString() + "\\" + keyname;
-                            break;
-
-                        }
-
-                    }
-
-
-                }
-            }
-            if (rootKey != null)
-                rootKey.Dispose();
-            if (officeKey != null)
-                officeKey.Dispose();
-            if (programKey != null)
-                programKey.Dispose();
-            if (installRootKey != null)
-                installRootKey.Dispose();
-            return retValue;
-        }
         /// <summary>
         /// Clear icon cache
         /// </summary>
