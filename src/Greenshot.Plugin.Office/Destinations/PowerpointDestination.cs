@@ -45,7 +45,9 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static PowerpointDestination()
         {
-            ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
+            ExePath = PluginUtils.GetOfficeExePath("POWERPNT.EXE");
+            if (ExePath == null)
+                ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");

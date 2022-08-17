@@ -42,7 +42,10 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static ExcelDestination()
         {
-            ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+            ExePath = PluginUtils.GetOfficeExePath("EXCEL.EXE");
+            if (ExePath == null)
+                ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("excel");

@@ -46,7 +46,9 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static WordDestination()
         {
-            ExePath = PluginUtils.GetExePath("WINWORD.EXE");
+            ExePath = PluginUtils.GetOfficeExePath("WINWORD.EXE");
+            if (ExePath == null)
+                ExePath = PluginUtils.GetExePath("WINWORD.EXE");
             if (ExePath != null && !File.Exists(ExePath))
             {
                 ExePath = null;
