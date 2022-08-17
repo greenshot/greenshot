@@ -29,10 +29,8 @@ internal static class OfficeUtils
         foreach (string strRootKey in OfficeRootKeys)
         {
             using RegistryKey rootKey = Registry.LocalMachine.OpenSubKey(strRootKey);
-
             if (rootKey is null) continue;
             
-
             foreach (string officeVersion in rootKey.GetSubKeyNames().Where(r => r.Contains(".")).Reverse())
             {
                 using RegistryKey installRootKey = Registry.LocalMachine.OpenSubKey($@"{strRootKey}\{officeVersion}\{strKeyName}\InstallRoot");
