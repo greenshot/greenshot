@@ -38,6 +38,6 @@ internal static class OfficeUtils
                 return $@"{installRootKey.GetValue("Path")}\{exeName}";
             }
         }
-        return string.Empty;
+        return null;
     }
 }
