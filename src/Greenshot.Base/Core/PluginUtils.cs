@@ -52,41 +52,23 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public static string GetOfficeExePath(string keyname, string returnValue)
+        public static string GetOfficeExePath(string keyname)
         {
-            string strKeyName = "";
-
-            switch (keyname)
+            string strKeyName = keyname switch
             {
-                case "WINWORD.EXE":
-                    strKeyName = "Word";
-                    break;
-                case "EXCEL.EXE":
-                    strKeyName = "Excel";
-                    break;
-                case "MSACCESS.EXE":
-                    strKeyName = "Access";
-                    break;
-                case "POWERPNT.EXE":
-                    strKeyName = "PowerPoint";
-                    break;
-                case "OUTLOOK.EXE":
-                    strKeyName = "Outlook";
-                    break;
-                case "ONENOTE.EXE":
-                    strKeyName = "OneNote";
-                    break;
-                case "MSPUB.EXE":
-                    strKeyName = "Publisher";
-                    break;
-                default:
-                    strKeyName = "";
-                    break;
-            }
+                "WINWORD.EXE" => "Word",
+                "EXCEL.EXE" => "Excel",
+                "POWERPNT.EXE" => "PowerPoint",
+                "OUTLOOK.EXE" => "Outlook",
+                "ONENOTE.EXE" => "OneNote",
+                _ => ""
+            };
+
             RegistryKey rootKey = null;
-            RegistryKey officeKey;
-            RegistryKey programKey;
-            RegistryKey installRootKey;
+            RegistryKey officeKey = null;
+            RegistryKey programKey = null;
+            RegistryKey installRootKey = null;
+            string retValue = string.Empty;
 
             foreach (string strRootKey in strRootKeys)
             {
@@ -95,31 +77,47 @@ namespace Greenshot.Base.Core
                 if (rootKey != null)
                 {
                     string[] officeVersions = rootKey.GetSubKeyNames();
-                    if (officeVersions != null)
+                    if (officeVersions is null)
+                        continue;
+                    officeVersions = Array.FindAll(officeVersions, r => r.Contains("."));
+                    Array.Reverse(officeVersions);
+                    // string latestOfficeVersion = officeVersions.Where(r => r.Contains(".")).Max();
+
+                    foreach (string officeVersion in officeVersions)
                     {
-                        officeVersions = Array.FindAll(officeVersions, r => r.Contains("."));
-                        Array.Reverse(officeVersions);
-                        // string latestOfficeVersion = officeVersions.Where(r => r.Contains(".")).Max();
+                        officeKey = Registry.LocalMachine.OpenSubKey(strRootKey + "\\" + officeVersion);
 
-                        foreach (string officeVersion in officeVersions)
+                        if (officeKey is null)
+                            continue;
+
+                        programKey = officeKey.OpenSubKey(strKeyName);
+
+                        if (programKey is null)
+                            continue;
+
+                        installRootKey = programKey.OpenSubKey("InstallRoot");
+
+                        if (installRootKey != null)
                         {
-                            officeKey = Registry.LocalMachine.OpenSubKey(strRootKey + "\\" + officeVersion);
+                            retValue = installRootKey.GetValue("Path").ToString() + "\\" + keyname;
+                            break;
 
-                            if (officeKey != null)
-                            {
-                                programKey = officeKey.OpenSubKey(strKeyName);
-                                if (programKey != null)
-                                {
-                                    installRootKey = programKey.OpenSubKey("InstallRoot");
-                                    if (installRootKey != null)
-                                        return installRootKey.GetValue(returnValue).ToString() + "\\" + keyname;
-                                }
-                            }
                         }
+
                     }
+
+
                 }
             }
-            return string.Empty;
+            if (rootKey != null)
+                rootKey.Dispose();
+            if (officeKey != null)
+                officeKey.Dispose();
+            if (programKey != null)
+                programKey.Dispose();
+            if (installRootKey != null)
+                installRootKey.Dispose();
+            return retValue;
         }
         /// <summary>
         /// Clear icon cache

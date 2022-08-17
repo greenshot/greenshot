@@ -45,7 +45,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static PowerpointDestination()
         {
-            ExePath = PluginUtils.GetOfficeExePath("POWERPNT.EXE", "Path");
+            ExePath = PluginUtils.GetOfficeExePath("POWERPNT.EXE");
             if (ExePath == null)
                 ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
             if (ExePath != null && File.Exists(ExePath))
