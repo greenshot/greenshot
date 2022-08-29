@@ -35,6 +35,14 @@ using Greenshot.Editor.Memento;
 
 namespace Greenshot.Editor.Drawing
 {
+    public enum Direction
+    {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM,
+    }
+
     /// <summary>
     /// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
     /// </summary>
@@ -608,7 +616,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut("right", surface, this[0], this);
+                PushOut(Direction.RIGHT, surface, this[0]);
             };
             alignSubmenu.DropDownItems.Add(item);
 
@@ -619,7 +627,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut("left", surface, this[0], this);
+                PushOut(Direction.LEFT, surface, this[0]);
             };
             alignSubmenu.DropDownItems.Add(item);
 
@@ -630,7 +638,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut("top", surface, this[0], this);
+                PushOut(Direction.TOP, surface, this[0]);
             };
             alignSubmenu.DropDownItems.Add(item);
 
@@ -641,7 +649,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut("bottom", surface, this[0], this);
+                PushOut(Direction.BOTTOM, surface, this[0]);
             };
             alignSubmenu.DropDownItems.Add(item);
             menu.Items.Add(alignSubmenu);
@@ -661,7 +669,7 @@ namespace Greenshot.Editor.Drawing
                     MakeBoundsChangeUndoable(false);
                     item.Width = surface.Image.Width;
                 }
-                SnapAllToEdge("left", surface, this);
+                SnapAllToEdge(Direction.LEFT, surface, this);
                 surface.Invalidate(); // not sure if this belongs
             };
             fitSubmenu.DropDownItems.Add(item);
@@ -678,7 +686,7 @@ namespace Greenshot.Editor.Drawing
                     MakeBoundsChangeUndoable(false);
                     item.Height = surface.Image.Height;
                 }
-                SnapAllToEdge("top", surface, this);
+                SnapAllToEdge(Direction.TOP, surface, this);
                 surface.Invalidate(); // not sure if this belongs
             };
             fitSubmenu.DropDownItems.Add(item);
@@ -693,7 +701,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                SnapAllToEdge("left", surface, this);
+                SnapAllToEdge(Direction.LEFT, surface, this);
             };
             snapSubmenu.DropDownItems.Add(item);
 
@@ -704,7 +712,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                SnapAllToEdge("right", surface, this);
+                SnapAllToEdge(Direction.RIGHT, surface, this);
             };
             snapSubmenu.DropDownItems.Add(item);
 
@@ -715,7 +723,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                SnapAllToEdge("top", surface, this);
+                SnapAllToEdge(Direction.TOP, surface, this);
             };
             snapSubmenu.DropDownItems.Add(item);
 
@@ -726,7 +734,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                SnapAllToEdge("bottom", surface, this);
+                SnapAllToEdge(Direction.BOTTOM, surface, this);
             };
             snapSubmenu.DropDownItems.Add(item);
             menu.Items.Add(snapSubmenu);
@@ -858,52 +866,70 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public void SnapToEdge(string direction, ISurface surface, IDrawableContainer target)
+        /// <summary>
+        /// Move an element to one edge of the surface.
+        /// </summary>
+        /// <param name="direction">Direction to move the element.</param>
+        /// <param name="surface"></param>
+        /// <param name="targetElement"></param>
+        public void SnapToEdge(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
             int xMovement = 0, yMovement = 0;
-            if (direction == "left")
-                xMovement = -target.Location.X;
-            else if (direction == "right")
-                xMovement = surface.Image.Width - target.Location.X - target.Width;
-            else if (direction == "top")
-                yMovement = -target.Location.Y;
-            else if (direction == "bottom")
-                yMovement = surface.Image.Height - target.Location.Y - target.Height;
-            target.MakeBoundsChangeUndoable(false);
-            target.MoveBy(xMovement, yMovement);
+
+            if (direction == Direction.LEFT)
+                xMovement = -targetElement.Location.X;
+            else if (direction == Direction.RIGHT)
+                xMovement = surface.Image.Width - targetElement.Location.X - targetElement.Width;
+            else if (direction == Direction.TOP)
+                yMovement = -targetElement.Location.Y;
+            else if (direction == Direction.BOTTOM)
+                yMovement = surface.Image.Height - targetElement.Location.Y - targetElement.Height;
+
+            targetElement.MakeBoundsChangeUndoable(allowMerge: false);
+            targetElement.MoveBy(xMovement, yMovement);
         }
 
-        public void SnapAllToEdge(string direction, ISurface surface, IDrawableContainerList containers)
+        /// <summary>
+        /// Moves all selected elements to one edge of the surface.
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <param name="surface"></param>
+        /// <param name="elements"></param>
+        public void SnapAllToEdge(Direction direction, ISurface surface, IDrawableContainerList elements)
         {
-            foreach (var item in containers)
+            foreach (var item in elements)
             {
                 SnapToEdge(direction, surface, item);
             }
             surface.DeselectAllElements();
         }
 
-        public void PushOut(string direction, ISurface surface, IDrawableContainer target, IDrawableContainerList parent)
+        /// <summary>
+        /// Push an element entirely outside the current bounds of the surface, expanding the surface to accomodate it.
+        /// </summary>
+        /// <param name="direction">Direction in which to move element.</param>
+        /// <param name="surface"></param>
+        /// <param name="targetElement"></param>
+        public void PushOut(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
-            // Make calculations
             int left = 0, right = 0, top = 0, bottom = 0;
-            if (direction == "left")
-                left = target.Width;
-            else if (direction == "right")
-                right = target.Width;
-            else if (direction == "top")
-                top = target.Height;
-            else if (direction == "bottom")
-                bottom = target.Height;
+            if (direction == Direction.LEFT)
+                left = targetElement.Width;
+            else if (direction == Direction.RIGHT)
+                right = targetElement.Width;
+            else if (direction == Direction.TOP)
+                top = targetElement.Height;
+            else if (direction == Direction.BOTTOM)
+                bottom = targetElement.Height;
             
-            // Use surface function
             surface.ResizeCanvas(left, right, top, bottom);
 
             // Move target object
-            SnapToEdge(direction, surface, target);
-            if (direction == "left" || direction == "right")
-                SnapToEdge("top", surface, target);
-            else if (direction == "top" || direction == "bottom")
-                SnapToEdge("left", surface, target);
+            SnapToEdge(direction, surface, targetElement);
+            if (direction == Direction.LEFT || direction == Direction.RIGHT)
+                SnapToEdge(Direction.TOP, surface, targetElement);
+            else if (direction == Direction.TOP || direction == Direction.BOTTOM)
+                SnapToEdge(Direction.LEFT, surface, targetElement);
             surface.DeselectAllElements();
         }
     }
