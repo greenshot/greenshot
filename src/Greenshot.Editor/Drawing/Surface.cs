@@ -1433,6 +1433,15 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        public void RecordElementMoved()
+        {
+            if (!_isSurfaceMoveMadeUndoable)
+            {
+                _isSurfaceMoveMadeUndoable = true;
+                selectedElements.MakeBoundsChangeUndoable(false);
+            }
+        }
+
         /// <summary>
         /// This event handler is called when the surface is double clicked.
         /// </summary>

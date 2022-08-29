@@ -598,53 +598,50 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
-            ToolStripMenuItem alignSubmenu = new ToolStripMenuItem("Align/Stack");
+            // Push out
+            ToolStripMenuItem alignSubmenu = new ToolStripMenuItem("Push Out");
 
-            // Align
-            item = new ToolStripMenuItem("Align Right")
+            // Right
+            item = new ToolStripMenuItem("Right")
             {
-                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
-            // Action to perform on click.
             item.Click += delegate
             {
-                AlignOrStack("right", surface, this[0], this);
+                PushOut("right", surface, this[0], this);
             };
             alignSubmenu.DropDownItems.Add(item);
 
             // Left
-            item = new ToolStripMenuItem("Align Left")
+            item = new ToolStripMenuItem("Left")
             {
-                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
-            // Action to perform on click.
             item.Click += delegate
             {
-                AlignOrStack("left", surface, this[0], this);
+                PushOut("left", surface, this[0], this);
             };
             alignSubmenu.DropDownItems.Add(item);
 
             // Top
-            item = new ToolStripMenuItem("Stack on Top")
+            item = new ToolStripMenuItem("Top")
             {
-                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
-            // Action to perform on click.
             item.Click += delegate
             {
-                AlignOrStack("top", surface, this[0], this);
+                PushOut("top", surface, this[0], this);
             };
             alignSubmenu.DropDownItems.Add(item);
 
             // Bottom
-            item = new ToolStripMenuItem("Stack on Bottom")
+            item = new ToolStripMenuItem("Bottom")
             {
-                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
-            // Action to perform on click.
             item.Click += delegate
             {
-                AlignOrStack("bottom", surface, this[0], this);
+                PushOut("bottom", surface, this[0], this);
             };
             alignSubmenu.DropDownItems.Add(item);
             menu.Items.Add(alignSubmenu);
@@ -661,9 +658,11 @@ namespace Greenshot.Editor.Drawing
             {
                 foreach (var item in this)
                 {
+                    MakeBoundsChangeUndoable(false);
                     item.Width = surface.Image.Width;
                 }
                 SnapAllToEdge("left", surface, this);
+                surface.Invalidate(); // not sure if this belongs
             };
             fitSubmenu.DropDownItems.Add(item);
 
@@ -676,9 +675,11 @@ namespace Greenshot.Editor.Drawing
             {
                 foreach (var item in this)
                 {
+                    MakeBoundsChangeUndoable(false);
                     item.Height = surface.Image.Height;
                 }
                 SnapAllToEdge("top", surface, this);
+                surface.Invalidate(); // not sure if this belongs
             };
             fitSubmenu.DropDownItems.Add(item);
             menu.Items.Add(fitSubmenu);
@@ -868,6 +869,7 @@ namespace Greenshot.Editor.Drawing
                 yMovement = -target.Location.Y;
             else if (direction == "bottom")
                 yMovement = surface.Image.Height - target.Location.Y - target.Height;
+            target.MakeBoundsChangeUndoable(false);
             target.MoveBy(xMovement, yMovement);
         }
 
@@ -880,7 +882,7 @@ namespace Greenshot.Editor.Drawing
             surface.DeselectAllElements();
         }
 
-        public void AlignOrStack(string direction, ISurface surface, IDrawableContainer target, IDrawableContainerList parent)
+        public void PushOut(string direction, ISurface surface, IDrawableContainer target, IDrawableContainerList parent)
         {
             // Make calculations
             int left = 0, right = 0, top = 0, bottom = 0;
