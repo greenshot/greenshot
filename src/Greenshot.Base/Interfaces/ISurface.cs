@@ -163,7 +163,6 @@ namespace Greenshot.Base.Interfaces
 
         void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
         void ResizeCanvas(int left, int right, int top, int bottom);
-        void RecordElementMoved();
         void ApplyBitmapEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }

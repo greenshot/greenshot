@@ -972,6 +972,13 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        /// <summary>
+        /// Set the canvas to a new size using the given bounds.
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
         public void ResizeCanvas(int left, int right, int top, int bottom)
         {
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
@@ -1430,15 +1437,6 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.HandleMouseMove(currentMouse.X, currentMouse.Y);
                     _modified = true;
                 }
-            }
-        }
-
-        public void RecordElementMoved()
-        {
-            if (!_isSurfaceMoveMadeUndoable)
-            {
-                _isSurfaceMoveMadeUndoable = true;
-                selectedElements.MakeBoundsChangeUndoable(false);
             }
         }
 
