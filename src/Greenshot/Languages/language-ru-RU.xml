@@ -93,6 +93,8 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_copypathtoclipboard">Копировать путь в буфер обмена</resource>
 		<resource name="editor_copytoclipboard">Копировать</resource>
 		<resource name="editor_crop">Обрезка (C)</resource>
+		<resource name="editor_cropmode_default">Обрезка</resource>
+		<resource name="editor_cropmode_auto">Автообрезка</resource>
 		<resource name="editor_cursortool">Инструмент «Выделение» (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Вырезать</resource>
 		<resource name="editor_deleteelement">Удалить</resource>

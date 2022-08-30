@@ -82,7 +82,7 @@ namespace Greenshot.Helpers
         /// <param name="captureDetails">ICaptureDetails</param>
         public static void SendImage(ISurface surface, ICaptureDetails captureDetails)
         {
-            string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
+            string tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
 
             if (tmpFile == null) return;
 

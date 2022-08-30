@@ -58,6 +58,7 @@
 		<resource name="editor_copypathtoclipboard">Chép đuờng dẫn tới clipboard.</resource>
 		<resource name="editor_copytoclipboard">Chép</resource>
 		<resource name="editor_crop">Cắt (C)</resource>
+		<resource name="editor_cropmode_default">Cắt</resource>
 		<resource name="editor_cursortool">Công cụ chọn (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cắt</resource>
 		<resource name="editor_deleteelement">Xóa</resource>

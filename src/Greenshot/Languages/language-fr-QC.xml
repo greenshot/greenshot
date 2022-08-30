@@ -78,6 +78,8 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_copypathtoclipboard">Copier le chemin vers le presse-papier</resource>
 		<resource name="editor_copytoclipboard">Copier</resource>
 		<resource name="editor_crop">Rogner (C)</resource>
+		<resource name="editor_cropmode_default">Rogner</resource>
+		<resource name="editor_cropmode_auto">Rognage automatique</resource>
 		<resource name="editor_cursortool">Outil de sélection (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Couper</resource>
 		<resource name="editor_deleteelement">Supprimer</resource>

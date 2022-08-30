@@ -42,7 +42,8 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static ExcelDestination()
         {
-            ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+            ExePath = OfficeUtils.GetOfficeExePath("EXCEL.EXE") ?? PluginUtils.GetExePath("EXCEL.EXE");
+
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("excel");
@@ -89,7 +90,7 @@ namespace Greenshot.Plugin.Office.Destinations
             string imageFile = captureDetails.Filename;
             if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
-                imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                imageFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
                 createdFile = true;
             }
 
@@ -107,7 +108,7 @@ namespace Greenshot.Plugin.Office.Destinations
             // Cleanup imageFile if we created it here, so less tmp-files are generated and left
             if (createdFile)
             {
-                ImageOutput.DeleteNamedTmpFile(imageFile);
+                ImageIO.DeleteNamedTmpFile(imageFile);
             }
 
             return exportInformation;

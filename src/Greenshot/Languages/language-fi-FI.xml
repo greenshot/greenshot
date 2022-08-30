@@ -62,6 +62,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_copypathtoclipboard">Kopioi tiedostopolku leikepöydälle</resource>
 		<resource name="editor_copytoclipboard">Kopioi</resource>
 		<resource name="editor_crop">Rajaa (C)</resource>
+		<resource name="editor_cropmode_default">Rajaa</resource>
 		<resource name="editor_cursortool">Valintatyökalu (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Leikkaa</resource>
 		<resource name="editor_deleteelement">Poista</resource>

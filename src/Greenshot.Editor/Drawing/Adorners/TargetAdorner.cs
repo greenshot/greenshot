@@ -22,25 +22,29 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Adorners
 {
     /// <summary>
-    /// This implements the special "gripper" for the Speech-Bubble tail
+    /// This implements the special target "gripper", e.g. used for the Speech-Bubble tail
     /// </summary>
-    public class TargetAdorner : AbstractAdorner
+    public sealed class TargetAdorner : AbstractAdorner
     {
-        public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
+        public TargetAdorner(IDrawableContainer owner, Point location, Color? fillColor = null, Color? outlineColor = null) : base(owner)
         {
             Location = location;
+            FillColor = fillColor ?? Color.Green;
+            OutlineColor = outlineColor ?? Color.White;
         }
 
         /// <summary>
         /// Handle the mouse down
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="mouseEventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
         {
             EditStatus = EditStatus.MOVING;
@@ -49,8 +53,8 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <summary>
         /// Handle the mouse move
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="mouseEventArgs"></param>
+        /// <param name="sender">object</param>
+        /// <param name="mouseEventArgs">MouseEventArgs</param>
         public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
         {
             if (EditStatus != EditStatus.MOVING)
@@ -59,48 +63,35 @@ namespace Greenshot.Editor.Drawing.Adorners
             }
 
             Owner.Invalidate();
-            Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-            Rectangle imageBounds = new Rectangle(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
+            NativePoint newGripperLocation = new NativePoint(mouseEventArgs.X, mouseEventArgs.Y);
+            NativeRect imageBounds = new NativeRect(0, 0, Owner.Parent.Image.Width, Owner.Parent.Image.Height);
             // Check if gripper inside the parent (surface), if not we need to move it inside
             // This was made for BUG-1682
             if (!imageBounds.Contains(newGripperLocation))
             {
                 if (newGripperLocation.X > imageBounds.Right)
                 {
-                    newGripperLocation.X = imageBounds.Right - 5;
+                    newGripperLocation = newGripperLocation.ChangeX(imageBounds.Right - 5);
                 }
 
                 if (newGripperLocation.X < imageBounds.Left)
                 {
-                    newGripperLocation.X = imageBounds.Left;
+                    newGripperLocation = newGripperLocation.ChangeX(imageBounds.Left);
                 }
 
                 if (newGripperLocation.Y > imageBounds.Bottom)
                 {
-                    newGripperLocation.Y = imageBounds.Bottom - 5;
+                    newGripperLocation = newGripperLocation.ChangeY(imageBounds.Bottom - 5);
                 }
 
                 if (newGripperLocation.Y < imageBounds.Top)
                 {
-                    newGripperLocation.Y = imageBounds.Top;
+                    newGripperLocation = newGripperLocation.ChangeY(imageBounds.Top);
                 }
             }
 
             Location = newGripperLocation;
             Owner.Invalidate();
-        }
-
-        /// <summary>
-        /// Draw the adorner
-        /// </summary>
-        /// <param name="paintEventArgs">PaintEventArgs</param>
-        public override void Paint(PaintEventArgs paintEventArgs)
-        {
-            Graphics targetGraphics = paintEventArgs.Graphics;
-
-            var bounds = BoundsOnSurface;
-            targetGraphics.FillRectangle(Brushes.Green, bounds);
-            targetGraphics.DrawRectangle(new Pen(Brushes.White), bounds);
         }
 
         /// <summary>
@@ -114,7 +105,7 @@ namespace Greenshot.Editor.Drawing.Adorners
                 return;
             }
 
-            Point[] points = new[]
+            Point[] points = new Point[]
             {
                 Location
             };

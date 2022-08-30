@@ -28,6 +28,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Configuration;
@@ -69,43 +70,43 @@ namespace Greenshot.Forms
         /// <summary>
         /// The location of every dot in the "G"
         /// </summary>
-        private readonly List<Point> _gSpots = new List<Point>
+        private readonly List<NativePoint> _gSpots = new List<NativePoint>
         {
             // Top row
-            new Point(P2, P1), // 0
-            new Point(P3, P1), // 1
-            new Point(P4, P1), // 2
-            new Point(P5, P1), // 3
-            new Point(P6, P1), // 4
+            new(P2, P1), // 0
+            new(P3, P1), // 1
+            new(P4, P1), // 2
+            new(P5, P1), // 3
+            new(P6, P1), // 4
 
             // Second row
-            new Point(P1, P2), // 5
-            new Point(P2, P2), // 6
+            new(P1, P2), // 5
+            new(P2, P2), // 6
 
             // Third row
-            new Point(P1, P3), // 7
-            new Point(P2, P3), // 8
+            new(P1, P3), // 7
+            new(P2, P3), // 8
 
             // Fourth row
-            new Point(P1, P4), // 9
-            new Point(P2, P4), // 10
-            new Point(P5, P4), // 11
-            new Point(P6, P4), // 12
-            new Point(P7, P4), // 13
+            new(P1, P4), // 9
+            new(P2, P4), // 10
+            new(P5, P4), // 11
+            new(P6, P4), // 12
+            new(P7, P4), // 13
 
             // Fifth row
-            new Point(P1, P5), // 14
-            new Point(P2, P5), // 15
-            new Point(P6, P5), // 16
-            new Point(P7, P5), // 17
+            new(P1, P5), // 14
+            new(P2, P5), // 15
+            new(P6, P5), // 16
+            new(P7, P5), // 17
 
             // Sixth row
-            new Point(P1, P6), // 18
-            new Point(P2, P6), // 19
-            new Point(P3, P6), // 20
-            new Point(P4, P6), // 21
-            new Point(P5, P6), // 22
-            new Point(P6, P6) // 23
+            new(P1, P6), // 18
+            new(P2, P6), // 19
+            new(P3, P6), // 20
+            new(P4, P6), // 21
+            new(P5, P6), // 22
+            new(P6, P6) // 23
         };
 
         //     0  1  2  3  4
@@ -165,7 +166,7 @@ namespace Greenshot.Forms
             for (int index = 0; index < _gSpots.Count; index++)
             {
                 // Read the pixels in the order of the flow
-                Point gSpot = _gSpots[_flowOrder[index]];
+                NativePoint gSpot = _gSpots[_flowOrder[index]];
                 // Create the animation, first we do nothing (on the final destination)
                 RectangleAnimator pixelAnimation;
 
@@ -176,15 +177,15 @@ namespace Greenshot.Forms
                 if (IsTerminalServerSession)
                 {
                     // No animation
-                    pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
+                    pixelAnimation = new RectangleAnimator(new NativeRect(gSpot.X, gSpot.Y, W - 2, W - 2), new NativeRect(gSpot.X, gSpot.Y, W - 2, W - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
                 }
                 else
                 {
                     // Create the animation, first we do nothing (on the final destination)
-                    Rectangle standingStill = new Rectangle(gSpot.X + offset, gSpot.Y + offset, 0, 0);
+                    NativeRect standingStill = new NativeRect(gSpot.X + offset, gSpot.Y + offset, 0, 0);
                     pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingType.Quintic, EasingMode.EaseIn);
                     // And than we size to the wanted size.
-                    pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, W - 2, W - 2), frames);
+                    pixelAnimation.QueueDestinationLeg(new NativeRect(gSpot.X, gSpot.Y, W - 2, W - 2), frames);
                 }
 
                 // Increase the wait frames
@@ -218,15 +219,16 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!(sender is LinkLabel linkLabel)) return;
+            if (sender is not LinkLabel linkLabel) return;
+            var link = linkLabel.Tag?.ToString() ?? linkLabel.Text;
             try
             {
                 linkLabel.LinkVisited = true;
-                Process.Start(linkLabel.Text);
+                Process.Start(link);
             }
             catch (Exception)
             {
-                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+                MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, link), Language.GetString(LangKey.error));
             }
         }
 

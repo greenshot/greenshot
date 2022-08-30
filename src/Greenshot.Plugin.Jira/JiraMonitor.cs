@@ -27,7 +27,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
-using Greenshot.Base.Hooking;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.User32;
 
 namespace Greenshot.Plugin.Jira
 {
@@ -40,7 +42,7 @@ namespace Greenshot.Plugin.Jira
     {
         private static readonly LogSource Log = new LogSource();
         private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
-        private readonly WindowsTitleMonitor _monitor;
+        private readonly IDisposable _monitor;
         private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
         private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
 
@@ -56,9 +58,8 @@ namespace Greenshot.Plugin.Jira
 
         public JiraMonitor(int maxEntries = 40)
         {
+            _monitor = WinEventHook.WindowTitleChangeObservable().Subscribe(wei => MonitorTitleChangeEvent(wei));
             _maxEntries = maxEntries;
-            _monitor = new WindowsTitleMonitor();
-            _monitor.TitleChangeEvent += MonitorTitleChangeEvent;
         }
 
         /// <summary>
@@ -82,7 +83,6 @@ namespace Greenshot.Plugin.Jira
             }
 
             // free managed resources
-            _monitor.TitleChangeEvent -= MonitorTitleChangeEvent;
             _monitor.Dispose();
             // free native resources if there are any.
         }
@@ -162,10 +162,10 @@ namespace Greenshot.Plugin.Jira
         /// <summary>
         /// Handle title changes, check for JIRA
         /// </summary>
-        /// <param name="eventArgs"></param>
-        private void MonitorTitleChangeEvent(TitleChangeEventArgs eventArgs)
+        /// <param name="winEventInfo">WinEventInfo</param>
+        private void MonitorTitleChangeEvent(WinEventInfo winEventInfo)
         {
-            string windowTitle = eventArgs.Title;
+            string windowTitle = User32Api.GetText(winEventInfo.Handle);
             if (string.IsNullOrEmpty(windowTitle))
             {
                 return;

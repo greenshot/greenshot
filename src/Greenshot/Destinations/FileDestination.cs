@@ -68,7 +68,7 @@ namespace Greenshot.Destinations
                 overwrite = true;
                 Log.InfoFormat("Using previous filename");
                 fullPath = captureDetails.Filename;
-                outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
+                outputSettings.Format = ImageIO.FormatForFilename(fullPath);
             }
             else
             {
@@ -87,7 +87,7 @@ namespace Greenshot.Destinations
             // This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
             try
             {
-                ImageOutput.Save(surface, fullPath, overwrite, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                ImageIO.Save(surface, fullPath, overwrite, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
                 outputMade = true;
             }
             catch (ArgumentException ex1)
@@ -95,7 +95,7 @@ namespace Greenshot.Destinations
                 // Our generated filename exists, display 'save-as'
                 Log.InfoFormat("Not overwriting: {0}", ex1.Message);
                 // when we don't allow to overwrite present a new SaveWithDialog
-                fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+                fullPath = ImageIO.SaveWithDialog(surface, captureDetails);
                 outputMade = fullPath != null;
             }
             catch (Exception ex2)
@@ -104,7 +104,7 @@ namespace Greenshot.Destinations
                 // Show the problem
                 MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
                 // when save failed we present a SaveWithDialog
-                fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+                fullPath = ImageIO.SaveWithDialog(surface, captureDetails);
                 outputMade = fullPath != null;
             }
 

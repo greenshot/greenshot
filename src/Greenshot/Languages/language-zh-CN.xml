@@ -84,6 +84,8 @@
 		<resource name="editor_copypathtoclipboard">复制路径到剪贴板</resource>
 		<resource name="editor_copytoclipboard">复制</resource>
 		<resource name="editor_crop">裁剪 (C)</resource>
+		<resource name="editor_cropmode_default">裁剪</resource>
+		<resource name="editor_cropmode_auto">自动裁剪</resource>
 		<resource name="editor_cursortool">选择工具 (ESC)</resource>
 		<resource name="editor_cuttoclipboard">剪切</resource>
 		<resource name="editor_deleteelement">刪除物件</resource>

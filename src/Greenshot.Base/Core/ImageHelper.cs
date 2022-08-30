@@ -24,28 +24,24 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.UnmanagedHelpers;
 using log4net;
+using Brush = System.Drawing.Brush;
+using Color = System.Drawing.Color;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using Pen = System.Drawing.Pen;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace Greenshot.Base.Core
 {
-    internal enum ExifOrientations : byte
-    {
-        Unknown = 0,
-        TopLeft = 1,
-        TopRight = 2,
-        BottomRight = 3,
-        BottomLeft = 4,
-        LeftTop = 5,
-        RightTop = 6,
-        RightBottom = 7,
-        LeftBottom = 8,
-    }
-
     /// <summary>
     /// Description of ImageHelper.
     /// </summary>
@@ -55,83 +51,6 @@ namespace Greenshot.Base.Core
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
-        static ImageHelper()
-        {
-            StreamConverters["greenshot"] = (stream, s) =>
-            {
-                var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-                return surface.GetImageForExport();
-            };
-
-            // Add a SVG converter
-            StreamConverters["svg"] = (stream, s) =>
-            {
-                stream.Position = 0;
-                try
-                {
-                    return SvgImage.FromStream(stream).Image;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Can't load SVG", ex);
-                }
-
-                return null;
-            };
-
-            static Image DefaultConverter(Stream stream, string s)
-            {
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                return Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
-
-            // Fallback
-            StreamConverters[string.Empty] = DefaultConverter;
-            StreamConverters["gif"] = DefaultConverter;
-            StreamConverters["bmp"] = DefaultConverter;
-            StreamConverters["jpg"] = DefaultConverter;
-            StreamConverters["jpeg"] = DefaultConverter;
-            StreamConverters["png"] = DefaultConverter;
-            StreamConverters["wmf"] = DefaultConverter;
-
-            StreamConverters["ico"] = (stream, extension) =>
-            {
-                // Icon logic, try to get the Vista icon, else the biggest possible
-                try
-                {
-                    using Image tmpImage = ExtractVistaIcon(stream);
-                    if (tmpImage != null)
-                    {
-                        return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                    }
-                }
-                catch (Exception vistaIconException)
-                {
-                    Log.Warn("Can't read icon", vistaIconException);
-                }
-
-                try
-                {
-                    // No vista icon, try normal icon
-                    stream.Position = 0;
-                    // We create a copy of the bitmap, so everything else can be disposed
-                    using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
-                    using Image tmpImage = tmpIcon.ToBitmap();
-                    return Clone(tmpImage, PixelFormat.Format32bppArgb);
-                }
-                catch (Exception iconException)
-                {
-                    Log.Warn("Can't read icon", iconException);
-                }
-
-                stream.Position = 0;
-                return DefaultConverter(stream, extension);
-            };
-        }
-
-        public static IDictionary<string, Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Image>>();
 
         /// <summary>
         /// Make sure the image is orientated correctly
@@ -238,7 +157,7 @@ namespace Greenshot.Base.Core
                 graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                Rectangle rectDestination = new Rectangle(0, 0, thumbWidth, thumbHeight);
+                NativeRect rectDestination = new NativeRect(0, 0, thumbWidth, thumbHeight);
                 graphics.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);
             }
 
@@ -246,18 +165,18 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Crops the image to the specified rectangle
+        /// Crops the image to the specified NativeRect
         /// </summary>
         /// <param name="image">Image to crop</param>
-        /// <param name="cropRectangle">Rectangle with bitmap coordinates, will be "intersected" to the bitmap</param>
-        public static bool Crop(ref Image image, ref Rectangle cropRectangle)
+        /// <param name="cropNativeRect">NativeRect with bitmap coordinates, will be "intersected" to the bitmap</param>
+        public static bool Crop(ref Image image, ref NativeRect cropNativeRect)
         {
             if (image is Bitmap && (image.Width * image.Height > 0))
             {
-                cropRectangle.Intersect(new Rectangle(0, 0, image.Width, image.Height));
-                if (cropRectangle.Width != 0 || cropRectangle.Height != 0)
+                cropNativeRect = cropNativeRect.Intersect(new NativeRect(0, 0, image.Width, image.Height));
+                if (cropNativeRect.Width != 0 || cropNativeRect.Height != 0)
                 {
-                    Image returnImage = CloneArea(image, cropRectangle, PixelFormat.DontCare);
+                    Image returnImage = CloneArea(image, cropNativeRect, PixelFormat.DontCare);
                     image.Dispose();
                     image = returnImage;
                     return true;
@@ -269,24 +188,26 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Private helper method for the FindAutoCropRectangle
+        /// Private helper method for the FindAutoCropNativeRect
         /// </summary>
-        /// <param name="fastBitmap"></param>
-        /// <param name="colorPoint"></param>
-        /// <param name="cropDifference"></param>
-        /// <returns>Rectangle</returns>
-        private static Rectangle FindAutoCropRectangle(IFastBitmap fastBitmap, Point colorPoint, int cropDifference)
+        /// <param name="fastBitmap">IFastBitmap</param>
+        /// <param name="colorPoint">NativePoint</param>
+        /// <param name="cropDifference">int</param>
+        /// <param name="area">NativeRect with optional area to scan in</param>
+        /// <returns>NativeRect</returns>
+        private static NativeRect FindAutoCropNativeRect(IFastBitmap fastBitmap, NativePoint colorPoint, int cropDifference, NativeRect? area = null)
         {
-            Rectangle cropRectangle = Rectangle.Empty;
+            area ??= new NativeRect(0, 0, fastBitmap.Width, fastBitmap.Height);
+            NativeRect cropNativeRect = NativeRect.Empty;
             Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
-            Point min = new Point(int.MaxValue, int.MaxValue);
-            Point max = new Point(int.MinValue, int.MinValue);
+            NativePoint min = new NativePoint(int.MaxValue, int.MaxValue);
+            NativePoint max = new NativePoint(int.MinValue, int.MinValue);
 
             if (cropDifference > 0)
             {
-                for (int y = 0; y < fastBitmap.Height; y++)
+                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
                 {
-                    for (int x = 0; x < fastBitmap.Width; x++)
+                    for (int x = area.Value.Left; x < area.Value.Right; x++)
                     {
                         Color currentColor = fastBitmap.GetColorAt(x, y);
                         int diffR = Math.Abs(currentColor.R - referenceColor.R);
@@ -297,18 +218,18 @@ namespace Greenshot.Base.Core
                             continue;
                         }
 
-                        if (x < min.X) min.X = x;
-                        if (y < min.Y) min.Y = y;
-                        if (x > max.X) max.X = x;
-                        if (y > max.Y) max.Y = y;
+                        if (x < min.X) min = min.ChangeX(x);
+                        if (y < min.Y) min = min.ChangeY(y);
+                        if (x > max.X) max = max.ChangeX(x);
+                        if (y > max.Y) max = max.ChangeY(y);
                     }
                 }
             }
             else
             {
-                for (int y = 0; y < fastBitmap.Height; y++)
+                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
                 {
-                    for (int x = 0; x < fastBitmap.Width; x++)
+                    for (int x = area.Value.Left; x < area.Value.Right; x++)
                     {
                         Color currentColor = fastBitmap.GetColorAt(x, y);
                         if (!referenceColor.Equals(currentColor))
@@ -316,41 +237,44 @@ namespace Greenshot.Base.Core
                             continue;
                         }
 
-                        if (x < min.X) min.X = x;
-                        if (y < min.Y) min.Y = y;
-                        if (x > max.X) max.X = x;
-                        if (y > max.Y) max.Y = y;
+                        if (x < min.X) min = min.ChangeX(x);
+                        if (y < min.Y) min = min.ChangeY(y);
+                        if (x > max.X) max = max.ChangeX(x);
+                        if (y > max.Y) max = max.ChangeY(y);
                     }
                 }
             }
 
-            if (!(Point.Empty.Equals(min) && max.Equals(new Point(fastBitmap.Width - 1, fastBitmap.Height - 1))))
+            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Value.Width - 1, area.Value.Height - 1))))
             {
                 if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
                 {
-                    cropRectangle = new Rectangle(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
+                    cropNativeRect = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
                 }
             }
 
-            return cropRectangle;
+            return cropNativeRect;
         }
 
         /// <summary>
-        /// Get a rectangle for the image which crops the image of all colors equal to that on 0,0
+        /// Get a NativeRect for the image which crops the image of all colors equal to that on 0,0
         /// </summary>
-        /// <param name="image"></param>
-        /// <param name="cropDifference"></param>
-        /// <returns>Rectangle</returns>
-        public static Rectangle FindAutoCropRectangle(Image image, int cropDifference)
+        /// <param name="image">Image</param>
+        /// <param name="cropDifference">int</param>
+        /// <param name="area">NativeRect with optional area</param>
+        /// <returns>NativeRect</returns>
+        public static NativeRect FindAutoCropRectangle(Image image, int cropDifference, NativeRect? area = null)
         {
-            Rectangle cropRectangle = Rectangle.Empty;
-            var checkPoints = new List<Point>
+            area ??= new NativeRect(0, 0, image.Width, image.Height);
+            NativeRect cropNativeRect = NativeRect.Empty;
+            var checkPoints = new List<NativePoint>
             {
-                new Point(0, 0),
-                new Point(0, image.Height - 1),
-                new Point(image.Width - 1, 0),
-                new Point(image.Width - 1, image.Height - 1)
+                new(area.Value.Left, area.Value.Top),
+                new(area.Value.Left, area.Value.Bottom - 1),
+                new(area.Value.Right - 1, area.Value.Top),
+                new(area.Value.Right - 1, area.Value.Bottom - 1)
             };
+
             // Top Left
             // Bottom Left
             // Top Right
@@ -358,138 +282,17 @@ namespace Greenshot.Base.Core
             using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap) image))
             {
                 // find biggest area
-                foreach (Point checkPoint in checkPoints)
+                foreach (var checkPoint in checkPoints)
                 {
-                    var currentRectangle = FindAutoCropRectangle(fastBitmap, checkPoint, cropDifference);
-                    if (currentRectangle.Width * currentRectangle.Height > cropRectangle.Width * cropRectangle.Height)
+                    var currentNativeRect = FindAutoCropNativeRect(fastBitmap, checkPoint, cropDifference, area);
+                    if (currentNativeRect.Width * currentNativeRect.Height > cropNativeRect.Width * cropNativeRect.Height)
                     {
-                        cropRectangle = currentRectangle;
+                        cropNativeRect = currentNativeRect;
                     }
                 }
             }
 
-            return cropRectangle;
-        }
-
-        /// <summary>
-        /// Load an image from file
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        public static Image LoadImage(string filename)
-        {
-            if (string.IsNullOrEmpty(filename))
-            {
-                return null;
-            }
-
-            if (!File.Exists(filename))
-            {
-                return null;
-            }
-
-            Image fileImage;
-            Log.InfoFormat("Loading image from file {0}", filename);
-            // Fixed lock problem Bug #3431881
-            using (Stream imageFileStream = File.OpenRead(filename))
-            {
-                fileImage = FromStream(imageFileStream, Path.GetExtension(filename));
-            }
-
-            if (fileImage != null)
-            {
-                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return fileImage;
-        }
-
-        /// <summary>
-        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
-        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
-        /// </summary>
-        /// <param name="iconStream">Stream with the icon information</param>
-        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
-        private static Bitmap ExtractVistaIcon(Stream iconStream)
-        {
-            const int sizeIconDir = 6;
-            const int sizeIconDirEntry = 16;
-            Bitmap bmpPngExtracted = null;
-            try
-            {
-                byte[] srcBuf = new byte[iconStream.Length];
-                iconStream.Read(srcBuf, 0, (int) iconStream.Length);
-                int iCount = BitConverter.ToInt16(srcBuf, 4);
-                for (int iIndex = 0; iIndex < iCount; iIndex++)
-                {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-                    if (iWidth == 0 && iHeight == 0)
-                    {
-                        int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                        int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                        using MemoryStream destStream = new MemoryStream();
-                        destStream.Write(srcBuf, iImageOffset, iImageSize);
-                        destStream.Seek(0, SeekOrigin.Begin);
-                        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return bmpPngExtracted;
-        }
-
-        /// <summary>
-        /// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
-        /// </summary>
-        /// <param name="location">The file (EXE or DLL) to get the icon from</param>
-        /// <param name="index">Index of the icon</param>
-        /// <param name="takeLarge">true if the large icon is wanted</param>
-        /// <returns>Icon</returns>
-        public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
-        {
-            Shell32.ExtractIconEx(location, index, out var large, out var small, 1);
-            Icon returnIcon = null;
-            bool isLarge = false;
-            bool isSmall = false;
-            try
-            {
-                if (takeLarge && !IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-                else if (!IntPtr.Zero.Equals(small))
-                {
-                    returnIcon = Icon.FromHandle(small);
-                    isSmall = true;
-                }
-                else if (!IntPtr.Zero.Equals(large))
-                {
-                    returnIcon = Icon.FromHandle(large);
-                    isLarge = true;
-                }
-            }
-            finally
-            {
-                if (isLarge && !IntPtr.Zero.Equals(small))
-                {
-                    User32.DestroyIcon(small);
-                }
-
-                if (isSmall && !IntPtr.Zero.Equals(large))
-                {
-                    User32.DestroyIcon(large);
-                }
-            }
-
-            return returnIcon;
+            return cropNativeRect;
         }
 
         /// <summary>
@@ -497,7 +300,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sourceImage">Bitmap</param>
         /// <param name="effect">IEffect</param>
-        /// <param name="matrix"></param>
+        /// <param name="matrix">Matrix</param>
         /// <returns>Bitmap</returns>
         public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix)
         {
@@ -543,7 +346,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="path">Path to draw to</param>
         /// <param name="points">Points for the lines to draw</param>
-        private static void DrawLines(GraphicsPath path, List<Point> points)
+        private static void DrawLines(GraphicsPath path, List<NativePoint> points)
         {
             path.AddLine(points[0], points[1]);
             for (int i = 0; i < points.Count - 1; i++)
@@ -563,20 +366,19 @@ namespace Greenshot.Base.Core
         /// <returns>Changed bitmap</returns>
         public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
         {
-            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution,
-                sourceImage.VerticalResolution);
+            Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
                 Random random = new Random();
                 int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
                 int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
 
-                Point topLeft = new Point(0, 0);
-                Point topRight = new Point(sourceImage.Width, 0);
-                Point bottomLeft = new Point(0, sourceImage.Height);
-                Point bottomRight = new Point(sourceImage.Width, sourceImage.Height);
+                var topLeft = new NativePoint(0, 0);
+                var topRight = new NativePoint(sourceImage.Width, 0);
+                var bottomLeft = new NativePoint(0, sourceImage.Height);
+                var bottomRight = new NativePoint(sourceImage.Width, sourceImage.Height);
 
-                List<Point> points = new List<Point>();
+                var points = new List<NativePoint>();
 
                 if (edges[0])
                 {
@@ -587,15 +389,15 @@ namespace Greenshot.Base.Core
                     }
                     else
                     {
-                        points.Add(new Point(random.Next(1, toothHeight), random.Next(1, toothHeight)));
+                        points.Add(new NativePoint(random.Next(1, toothHeight), random.Next(1, toothHeight)));
                     }
 
                     for (int i = 1; i < horizontalRegions - 1; i++)
                     {
-                        points.Add(new Point(i * horizontalToothRange, random.Next(1, toothHeight)));
+                        points.Add(new NativePoint(i * horizontalToothRange, random.Next(1, toothHeight)));
                     }
 
-                    points.Add(new Point(sourceImage.Width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
+                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
                 }
                 else
                 {
@@ -609,10 +411,10 @@ namespace Greenshot.Base.Core
                 {
                     for (int i = 1; i < verticalRegions - 1; i++)
                     {
-                        points.Add(new Point(sourceImage.Width - random.Next(1, toothHeight), i * verticalToothRange));
+                        points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), i * verticalToothRange));
                     }
 
-                    points.Add(new Point(sourceImage.Width - random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
+                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
                 }
                 else
                 {
@@ -627,10 +429,10 @@ namespace Greenshot.Base.Core
                 {
                     for (int i = 1; i < horizontalRegions - 1; i++)
                     {
-                        points.Add(new Point(sourceImage.Width - i * horizontalToothRange, sourceImage.Height - random.Next(1, toothHeight)));
+                        points.Add(new NativePoint(sourceImage.Width - i * horizontalToothRange, sourceImage.Height - random.Next(1, toothHeight)));
                     }
 
-                    points.Add(new Point(random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
+                    points.Add(new NativePoint(random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
                 }
                 else
                 {
@@ -646,7 +448,7 @@ namespace Greenshot.Base.Core
                     // One fewer as the end point is the starting point
                     for (int i = 1; i < verticalRegions - 1; i++)
                     {
-                        points.Add(new Point(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
+                        points.Add(new NativePoint(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
                     }
                 }
                 else
@@ -967,19 +769,18 @@ namespace Greenshot.Base.Core
         /// <param name="applySize"></param>
         /// <param name="rect"></param>
         /// <param name="invert"></param>
-        /// <returns></returns>
-        public static Rectangle CreateIntersectRectangle(Size applySize, Rectangle rect, bool invert)
+        /// <returns>NativeRect</returns>
+        public static NativeRect CreateIntersectRectangle(NativeSize applySize, NativeRect rect, bool invert)
         {
-            Rectangle myRect;
+            NativeRect myRect;
             if (invert)
             {
-                myRect = new Rectangle(0, 0, applySize.Width, applySize.Height);
+                myRect = new NativeRect(0, 0, applySize.Width, applySize.Height);
             }
             else
             {
-                Rectangle applyRect = new Rectangle(0, 0, applySize.Width, applySize.Height);
-                myRect = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
-                myRect.Intersect(applyRect);
+                NativeRect applyRect = new NativeRect(0, 0, applySize.Width, applySize.Height);
+                myRect = new NativeRect(rect.X, rect.Y, rect.Width, rect.Height).Intersect(applyRect);
             }
 
             return myRect;
@@ -995,11 +796,9 @@ namespace Greenshot.Base.Core
         /// <param name="shadowOffset"></param>
         /// <param name="matrix">The transform matrix which describes how the elements need to be transformed to stay at the same location</param>
         /// <returns>Bitmap with the shadow, is bigger than the sourceBitmap!!</returns>
-        public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, Point shadowOffset, Matrix matrix, PixelFormat targetPixelformat)
+        public static Bitmap CreateShadow(Image sourceBitmap, float darkness, int shadowSize, NativePoint shadowOffset, Matrix matrix, PixelFormat targetPixelformat)
         {
-            Point offset = shadowOffset;
-            offset.X += shadowSize - 1;
-            offset.Y += shadowSize - 1;
+            NativePoint offset = shadowOffset.Offset(shadowSize - 1, shadowSize - 1);
             matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
             // Create a new "clean" image
             Bitmap returnImage = CreateEmpty(sourceBitmap.Width + shadowSize * 2, sourceBitmap.Height + shadowSize * 2, targetPixelformat, Color.Empty,
@@ -1010,7 +809,7 @@ namespace Greenshot.Base.Core
                 shadowSize++;
             }
 
-            bool useGdiBlur = GDIplus.IsBlurPossible(shadowSize);
+            bool useGdiBlur = GdiPlusApi.IsBlurPossible(shadowSize);
             // Create "mask" for the shadow
             ColorMatrix maskMatrix = new ColorMatrix
             {
@@ -1027,20 +826,20 @@ namespace Greenshot.Base.Core
                 maskMatrix.Matrix33 = darkness;
             }
 
-            Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
-            ApplyColorMatrix((Bitmap) sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
+            NativeRect shadowNativeRect = new NativeRect(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
+            ApplyColorMatrix((Bitmap) sourceBitmap, NativeRect.Empty, returnImage, shadowNativeRect, maskMatrix);
 
             // blur "shadow", apply to whole new image
             if (useGdiBlur)
             {
                 // Use GDI Blur
-                Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-                GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
+                NativeRect newImageNativeRect = new NativeRect(0, 0, returnImage.Width, returnImage.Height);
+                GdiPlusApi.ApplyBlur(returnImage, newImageNativeRect, shadowSize + 1, false);
             }
             else
             {
                 // try normal software blur
-                //returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+                //returnImage = CreateBlur(returnImage, newImageNativeRect, true, shadowSize, 1d, false, newImageNativeRect);
                 ApplyBoxBlur(returnImage, shadowSize);
             }
 
@@ -1104,18 +903,18 @@ namespace Greenshot.Base.Core
         /// <param name="colorMatrix">ColorMatrix to apply</param>
         public static void ApplyColorMatrix(Bitmap source, ColorMatrix colorMatrix)
         {
-            ApplyColorMatrix(source, Rectangle.Empty, source, Rectangle.Empty, colorMatrix);
+            ApplyColorMatrix(source, NativeRect.Empty, source, NativeRect.Empty, colorMatrix);
         }
 
         /// <summary>
         /// Apply a color matrix by copying from the source to the destination
         /// </summary>
         /// <param name="source">Image to copy from</param>
-        /// <param name="sourceRect">Rectangle to copy from</param>
-        /// <param name="destRect">Rectangle to copy to</param>
+        /// <param name="sourceRect">NativeRect to copy from</param>
+        /// <param name="destRect">NativeRect to copy to</param>
         /// <param name="dest">Image to copy to</param>
         /// <param name="colorMatrix">ColorMatrix to apply</param>
-        public static void ApplyColorMatrix(Bitmap source, Rectangle sourceRect, Bitmap dest, Rectangle destRect, ColorMatrix colorMatrix)
+        public static void ApplyColorMatrix(Bitmap source, NativeRect sourceRect, Bitmap dest, NativeRect destRect, ColorMatrix colorMatrix)
         {
             using ImageAttributes imageAttributes = new ImageAttributes();
             imageAttributes.ClearColorMatrix();
@@ -1127,15 +926,15 @@ namespace Greenshot.Base.Core
         /// Apply a color matrix by copying from the source to the destination
         /// </summary>
         /// <param name="source">Image to copy from</param>
-        /// <param name="sourceRect">Rectangle to copy from</param>
-        /// <param name="destRect">Rectangle to copy to</param>
+        /// <param name="sourceRect">NativeRect to copy from</param>
+        /// <param name="destRect">NativeRect to copy to</param>
         /// <param name="dest">Image to copy to</param>
         /// <param name="imageAttributes">ImageAttributes to apply</param>
-        public static void ApplyImageAttributes(Bitmap source, Rectangle sourceRect, Bitmap dest, Rectangle destRect, ImageAttributes imageAttributes)
+        public static void ApplyImageAttributes(Bitmap source, NativeRect sourceRect, Bitmap dest, NativeRect destRect, ImageAttributes imageAttributes)
         {
-            if (sourceRect == Rectangle.Empty)
+            if (sourceRect == NativeRect.Empty)
             {
-                sourceRect = new Rectangle(0, 0, source.Width, source.Height);
+                sourceRect = new NativeRect(0, 0, source.Width, source.Height);
             }
 
             if (dest == null)
@@ -1143,9 +942,9 @@ namespace Greenshot.Base.Core
                 dest = source;
             }
 
-            if (destRect == Rectangle.Empty)
+            if (destRect == NativeRect.Empty)
             {
-                destRect = new Rectangle(0, 0, dest.Width, dest.Height);
+                destRect = new NativeRect(0, 0, dest.Width, dest.Height);
             }
 
             using Graphics graphics = Graphics.FromImage(dest);
@@ -1194,7 +993,7 @@ namespace Greenshot.Base.Core
         public static Image CreateBorder(Image sourceImage, int borderSize, Color borderColor, PixelFormat targetPixelformat, Matrix matrix)
         {
             // "return" the shifted offset, so the caller can e.g. move elements
-            Point offset = new Point(borderSize, borderSize);
+            NativePoint offset = new NativePoint(borderSize, borderSize);
             matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
 
             // Create a new "clean" image
@@ -1209,7 +1008,7 @@ namespace Greenshot.Base.Core
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 using (GraphicsPath path = new GraphicsPath())
                 {
-                    path.AddRectangle(new Rectangle(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
+                    path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
                     using Pen pen = new Pen(borderColor, borderSize)
                     {
                         LineJoin = LineJoin.Round,
@@ -1289,7 +1088,7 @@ namespace Greenshot.Base.Core
                 sourceImage.VerticalResolution);
             using (ImageAttributes adjustAttributes = CreateAdjustAttributes(brightness, contrast, gamma))
             {
-                ApplyImageAttributes((Bitmap) sourceImage, Rectangle.Empty, newBitmap, Rectangle.Empty, adjustAttributes);
+                ApplyImageAttributes((Bitmap) sourceImage, NativeRect.Empty, newBitmap, NativeRect.Empty, adjustAttributes);
             }
 
             return newBitmap;
@@ -1355,7 +1154,7 @@ namespace Greenshot.Base.Core
                 return (Image) sourceImage.Clone();
             }
 
-            return CloneArea(sourceImage, Rectangle.Empty, PixelFormat.DontCare);
+            return CloneArea(sourceImage, NativeRect.Empty, PixelFormat.DontCare);
         }
 
         /// <summary>
@@ -1366,7 +1165,7 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap with clone image data</returns>
         public static Bitmap Clone(Image sourceBitmap, PixelFormat targetFormat)
         {
-            return CloneArea(sourceBitmap, Rectangle.Empty, targetFormat);
+            return CloneArea(sourceBitmap, NativeRect.Empty, targetFormat);
         }
 
         /// <summary>
@@ -1377,26 +1176,26 @@ namespace Greenshot.Base.Core
         ///	2) When going from a transparent to a non transparent bitmap, we draw the background white!
         /// </summary>
         /// <param name="sourceImage">Source bitmap to clone</param>
-        /// <param name="sourceRect">Rectangle to copy from the source, use Rectangle.Empty for all</param>
+        /// <param name="sourceRect">NativeRect to copy from the source, use NativeRect.Empty for all</param>
         /// <param name="targetFormat">Target Format, use PixelFormat.DontCare if you want the original (or a default if the source PixelFormat is not supported)</param>
         /// <returns></returns>
-        public static Bitmap CloneArea(Image sourceImage, Rectangle sourceRect, PixelFormat targetFormat)
+        public static Bitmap CloneArea(Image sourceImage, NativeRect sourceRect, PixelFormat targetFormat)
         {
             Bitmap newImage;
-            Rectangle bitmapRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+            NativeRect bitmapRect = new NativeRect(0, 0, sourceImage.Width, sourceImage.Height);
 
-            // Make sure the source is not Rectangle.Empty
-            if (Rectangle.Empty.Equals(sourceRect))
+            // Make sure the source is not NativeRect.Empty
+            if (NativeRect.Empty.Equals(sourceRect))
             {
-                sourceRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+                sourceRect = new NativeRect(0, 0, sourceImage.Width, sourceImage.Height);
             }
             else
             {
-                sourceRect.Intersect(bitmapRect);
+                sourceRect = sourceRect.Intersect(bitmapRect);
             }
 
             // If no pixelformat is supplied
-            if (PixelFormat.DontCare == targetFormat || PixelFormat.Undefined == targetFormat)
+            if (targetFormat is PixelFormat.DontCare or PixelFormat.Undefined)
             {
                 if (SupportsPixelFormat(sourceImage.PixelFormat))
                 {
@@ -1497,16 +1296,17 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sourceImage">the source bitmap as the specifications for the new bitmap</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
-        /// <returns></returns>
-        public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor)
+        /// <param name="pixelFormat">PixelFormat</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor, PixelFormat? pixelFormat = null)
         {
-            PixelFormat pixelFormat = sourceImage.PixelFormat;
+            pixelFormat ??= sourceImage.PixelFormat;
             if (backgroundColor.A < 255)
             {
                 pixelFormat = PixelFormat.Format32bppArgb;
             }
 
-            return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+            return CreateEmpty(sourceImage.Width, sourceImage.Height, pixelFormat.Value, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
         }
 
         /// <summary>
@@ -1516,10 +1316,10 @@ namespace Greenshot.Base.Core
         /// <param name="height"></param>
         /// <param name="format"></param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
-        /// <param name="horizontalResolution"></param>
-        /// <param name="verticalResolution"></param>
+        /// <param name="horizontalResolution">float</param>
+        /// <param name="verticalResolution">float</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution, float verticalResolution)
+        public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
             Bitmap newImage = new Bitmap(width, height, format);
@@ -1703,105 +1503,113 @@ namespace Greenshot.Base.Core
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 using ImageAttributes wrapMode = new ImageAttributes();
                 wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                graphics.DrawImage(sourceImage, new Rectangle(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
+                graphics.DrawImage(sourceImage, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
             }
 
             return newImage;
         }
-
+        
         /// <summary>
-        /// Load a Greenshot surface from a stream
+        /// Rotate the image
         /// </summary>
-        /// <param name="surfaceFileStream">Stream</param>
-        /// <param name="returnSurface"></param>
-        /// <returns>ISurface</returns>
-        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
+        /// <param name="image">Input image</param>
+        /// <param name="rotationAngle">Angle in degrees</param>
+        /// <returns>Rotated image</returns>
+        public static Image Rotate(this Image image, float rotationAngle)
         {
-            Image fileImage;
-            // Fixed problem that the bitmap stream is disposed... by Cloning the image
-            // This also ensures the bitmap is correctly created
+            var bitmap = CreateEmptyLike(image, Color.Transparent);
 
-            // We create a copy of the bitmap, so everything else can be disposed
-            surfaceFileStream.Position = 0;
-            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
-            {
-                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                fileImage = Clone(tmpImage);
-            }
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
-            {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
+            graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+            graphics.RotateTransform(rotationAngle);
+            graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
 
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int filesizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
-            }
+            graphics.DrawImage(image, new NativePoint(0, 0));
 
-            if (fileImage != null)
-            {
-                returnSurface.Image = fileImage;
-                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return returnSurface;
+            return bitmap;
         }
 
         /// <summary>
-        /// Create an image from a stream, if an extension is supplied more formats are supported.
+        /// Map a System.Drawing.Imaging.PixelFormat to a System.Windows.Media.PixelFormat
         /// </summary>
-        /// <param name="stream">Stream</param>
-        /// <param name="extension"></param>
-        /// <returns>Image</returns>
-        public static Image FromStream(Stream stream, string extension = null)
+        /// <param name="pixelFormat">System.Drawing.Imaging.PixelFormat</param>
+        /// <returns>System.Windows.Media.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static System.Windows.Media.PixelFormat Map(this PixelFormat pixelFormat) =>
+            pixelFormat switch
+            {
+                PixelFormat.Format32bppArgb => PixelFormats.Bgra32,
+                PixelFormat.Format24bppRgb => PixelFormats.Bgr24,
+                PixelFormat.Format32bppRgb => PixelFormats.Bgr32,
+                _ => throw new NotSupportedException($"Can't map {pixelFormat}.")
+            };
+
+        /// <summary>
+        /// Map a System.Windows.Media.PixelFormat to a System.Drawing.Imaging.PixelFormat
+        /// </summary>
+        /// <param name="pixelFormat">System.Windows.Media.PixelFormat</param>
+        /// <returns>System.Drawing.Imaging.PixelFormat</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static PixelFormat Map(this System.Windows.Media.PixelFormat pixelFormat)
         {
-            if (stream == null)
+            if (pixelFormat == PixelFormats.Bgra32)
             {
-                return null;
+                return PixelFormat.Format32bppArgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr24)
+            {
+                return PixelFormat.Format24bppRgb;
+            }
+            if (pixelFormat == PixelFormats.Bgr32)
+            {
+                return PixelFormat.Format32bppRgb;
             }
 
-            if (!string.IsNullOrEmpty(extension))
+            throw new NotSupportedException($"Can't map {pixelFormat}.");
+        }
+
+        /// <summary>
+        /// Convert a Bitmap to a BitmapSource
+        /// </summary>
+        /// <param name="bitmap">Bitmap</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(new NativeRect(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+            BitmapSource bitmapSource;
+            try
             {
-                extension = extension.Replace(".", string.Empty);
+                bitmapSource = BitmapSource.Create(
+                    bitmapData.Width, bitmapData.Height,
+                    bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                    bitmap.PixelFormat.Map(), null,
+                    bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
             }
 
-            // Make sure we can try multiple times
-            if (!stream.CanSeek)
-            {
-                var memoryStream = new MemoryStream();
-                stream.CopyTo(memoryStream);
-                stream = memoryStream;
-            }
+            return bitmapSource;
+        }
 
-            Image returnImage = null;
-            if (StreamConverters.TryGetValue(extension ?? string.Empty, out var converter))
-            {
-                returnImage = converter(stream, extension);
-            }
+        /// <summary>
+        /// Convert a BitmapSource to a Bitmap
+        /// </summary>
+        /// <param name="bitmapSource">BitmapSource</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap ToBitmap(this BitmapSource bitmapSource)
+        {
+            var pixelFormat = bitmapSource.Format.Map();
 
-            // Fallback
-            if (returnImage == null)
-            {
-                // We create a copy of the bitmap, so everything else can be disposed
-                stream.Position = 0;
-                using var tmpImage = Image.FromStream(stream, true, true);
-                Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                returnImage = Clone(tmpImage, PixelFormat.Format32bppArgb);
-            }
-
-            return returnImage;
+            Bitmap bitmap = new Bitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, pixelFormat);
+            BitmapData data = bitmap.LockBits(new NativeRect(NativePoint.Empty, bitmap.Size), ImageLockMode.WriteOnly, pixelFormat);
+            bitmapSource.CopyPixels(Int32Rect.Empty, data.Scan0, data.Height * data.Stride, data.Stride);
+            bitmap.UnlockBits(data);
+            return bitmap;
         }
     }
 }

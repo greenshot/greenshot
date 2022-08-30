@@ -120,6 +120,7 @@ namespace Greenshot.Base.Controls
 
         private void PrepareFilterOptions()
         {
+            // TODO: Change to the FileFormatHandlerRegistry to look for all the supported extensions
             OutputFormat[] supportedImageFormats = (OutputFormat[]) Enum.GetValues(typeof(OutputFormat));
             _filterOptions = new FilterOption[supportedImageFormats.Length];
             for (int i = 0; i < _filterOptions.Length; i++)
@@ -166,7 +167,7 @@ namespace Greenshot.Base.Controls
                 // if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
                 if (fn.EndsWith(Extension, StringComparison.CurrentCultureIgnoreCase)) return fn;
                 // otherwise we just add the selected filter item's extension
-                else return fn + "." + Extension;
+                return fn + "." + Extension;
             }
             set
             {

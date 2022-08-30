@@ -26,8 +26,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -37,7 +40,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
 
@@ -49,7 +51,6 @@ namespace Greenshot.Editor.Drawing
     public sealed class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-        public static int Count;
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
         // Property to identify the Surface ID
@@ -120,6 +121,49 @@ namespace Greenshot.Editor.Drawing
             remove => _surfaceMessage -= value;
         }
 
+        [NonSerialized] private SurfaceForegroundColorEventHandler _foregroundColorChanged;
+
+        public event SurfaceForegroundColorEventHandler ForegroundColorChanged
+        {
+            add => _foregroundColorChanged += value;
+            remove => _foregroundColorChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceBackgroundColorEventHandler _backgroundColorChanged;
+
+        public event SurfaceBackgroundColorEventHandler BackgroundColorChanged
+        {
+            add => _backgroundColorChanged += value;
+            remove => _backgroundColorChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceLineThicknessEventHandler _lineThicknessChanged;
+
+        public event SurfaceLineThicknessEventHandler LineThicknessChanged
+        {
+            add => _lineThicknessChanged += value;
+            remove => _lineThicknessChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceShadowEventHandler _shadowChanged;
+
+        public event SurfaceShadowEventHandler ShadowChanged
+        {
+            add => _shadowChanged += value;
+            remove => _shadowChanged -= value;
+        }
+
+
+        [NonSerialized] private int _currentDpi = 96;
+        /// <summary>
+        /// The most recent DPI value that was used
+        /// </summary>
+        public int CurrentDpi
+        {
+            get => _currentDpi;
+            set => _currentDpi = value;
+        }
+
         /// <summary>
         /// inUndoRedo makes sure we don't undo/redo while in a undo/redo action
         /// </summary>
@@ -183,7 +227,7 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private IDrawableContainer _undrawnElement;
 
         /// <summary>
-        /// the cropcontainer, when cropping this is set, do not serialize
+        /// the crop container, when cropping this is set, do not serialize
         /// </summary>
         [NonSerialized] private IDrawableContainer _cropContainer;
 
@@ -270,7 +314,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// all elements on the surface, needed with serialization
         /// </summary>
-        private FieldAggregator _fieldAggregator;
+        private IFieldAggregator _fieldAggregator;
 
         /// <summary>
         /// the cursor container, needed with serialization as we need a direct acces to it.
@@ -331,7 +375,7 @@ namespace Greenshot.Editor.Drawing
         /// The field aggregator is that which is used to have access to all the fields inside the currently selected elements.
         /// e.g. used to decided if and which line thickness is shown when multiple elements are selected.
         /// </summary>
-        public FieldAggregator FieldAggregator
+        public IFieldAggregator FieldAggregator
         {
             get => _fieldAggregator;
             set => _fieldAggregator = value;
@@ -429,8 +473,9 @@ namespace Greenshot.Editor.Drawing
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi"></param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
+            CurrentDpi = dpi;
             foreach (var element in this._elements)
             {
                 element.AdjustToDpi(dpi);
@@ -443,7 +488,6 @@ namespace Greenshot.Editor.Drawing
         public Surface()
         {
             _fieldAggregator = new FieldAggregator(this);
-            Count++;
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
             LOG.Debug("Creating surface!");
@@ -506,8 +550,8 @@ namespace Greenshot.Editor.Drawing
             // check if cursor is captured, and visible
             if (capture.Cursor != null && capture.CursorVisible)
             {
-                Rectangle cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
-                Rectangle captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+                var cursorRect = new NativeRect(capture.CursorLocation, capture.Cursor.Size);
+                var captureRect = new NativeRect(NativePoint.Empty, capture.Image.Size);
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
@@ -526,7 +570,6 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
-                Count--;
                 LOG.Debug("Disposing surface!");
                 if (_buffer != null)
                 {
@@ -689,7 +732,7 @@ namespace Greenshot.Editor.Drawing
                 BinaryFormatter binaryRead = new BinaryFormatter();
                 IDrawableContainerList loadedElements = (IDrawableContainerList) binaryRead.Deserialize(streamRead);
                 loadedElements.Parent = this;
-                // Make sure the steplabels are sorted accoring to their number
+                // Make sure the steplabels are sorted according to their number
                 _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
                 DeselectAllElements();
                 AddElements(loadedElements);
@@ -890,33 +933,59 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// This will help to fit the container to the surface
+        /// </summary>
+        /// <param name="drawableContainer">IDrawableContainer</param>
+        private void FitContainer(IDrawableContainer drawableContainer)
+        {
+            double factor = 1;
+            if (drawableContainer.Width > this.Width)
+            {
+                factor = drawableContainer.Width / (double)Width;
+            }
+            if (drawableContainer.Height > this.Height)
+            {
+                var otherFactor = drawableContainer.Height / (double)Height;
+                factor = Math.Max(factor, otherFactor);
+            }
+
+            drawableContainer.Width = (int)(drawableContainer.Width / factor);
+            drawableContainer.Height = (int)(drawableContainer.Height / factor);
+        }
+
+        /// <summary>
         /// Handle the drag/drop
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnDragDrop(object sender, DragEventArgs e)
         {
-            Point mouse = PointToClient(new Point(e.X, e.Y));
+            NativePoint mouse = PointToClient(new NativePoint(e.X, e.Y));
             if (e.Data.GetDataPresent("Text"))
             {
                 string possibleUrl = ClipboardHelper.GetText(e.Data);
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    using Image image = NetworkHelper.DownloadImage(possibleUrl);
-                    if (image != null)
+                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
+                    if (drawableContainer != null)
                     {
-                        AddImageContainer(image, mouse.X, mouse.Y);
+                        drawableContainer.Left = Location.X;
+                        drawableContainer.Top = Location.Y;
+                        FitContainer(drawableContainer);
+                        AddElement(drawableContainer);
                         return;
                     }
                 }
             }
 
-            foreach (Image image in ClipboardHelper.GetImages(e.Data))
+            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
             {
-                AddImageContainer(image, mouse.X, mouse.Y);
-                mouse.Offset(10, 10);
-                image.Dispose();
+                drawableContainer.Left = mouse.X;
+                drawableContainer.Top = mouse.Y;
+                FitContainer(drawableContainer);
+                AddElement(drawableContainer);
+                mouse = mouse.Offset(10, 10);
             }
         }
 
@@ -925,16 +994,17 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Auto crop the image
         /// </summary>
+        /// <param name="cropArea">NativeRect with optional area to find a crop region</param>
         /// <returns>true if cropped</returns>
-        public bool AutoCrop()
+        public bool AutoCrop(NativeRect? cropArea = null)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (Image tmpImage = GetImageForExport())
             {
-                cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
+                cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference, cropArea);
             }
 
-            if (!IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.AutoCrop))
             {
                 return false;
             }
@@ -962,14 +1032,12 @@ namespace Greenshot.Editor.Drawing
         public void Clear(Color newColor)
         {
             //create a blank bitmap the same size as original
-            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
-            if (newBitmap != null)
-            {
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
-                SetImage(newBitmap, false);
-                Invalidate();
-            }
+            Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, newColor);
+            if (newBitmap == null) return;
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
+            SetImage(newBitmap, false);
+            Invalidate();
         }
 
         /// <summary>
@@ -997,7 +1065,7 @@ namespace Greenshot.Editor.Drawing
             Application.DoEvents();
             try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
+                var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
                 Matrix matrix = new Matrix();
                 Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
                 if (newImage != null)
@@ -1008,7 +1076,7 @@ namespace Greenshot.Editor.Drawing
                     MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
                     SetImage(newImage, false);
                     Invalidate();
-                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size)))
+                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
                     {
                         _surfaceSizeChanged(this, null);
                     }
@@ -1029,31 +1097,48 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// check if a crop is possible
         /// </summary>
-        /// <param name="cropRectangle"></param>
+        /// <param name="cropRectangle">Rectangle adapted to the dimensions of the image</param>
+        /// <param name="cropMode">CropModes</param>
         /// <returns>true if this is possible</returns>
-        public bool IsCropPossible(ref Rectangle cropRectangle)
+        public bool IsCropPossible(ref NativeRect cropRectangle, CropContainer.CropModes cropMode)
         {
-            cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+            cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height).Normalize();
+            //Fitting the rectangle to the dimensions of the image
             if (cropRectangle.Left < 0)
             {
-                cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
+                cropRectangle = new NativeRect(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
             }
 
             if (cropRectangle.Top < 0)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
+                cropRectangle = new NativeRect(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
             }
 
             if (cropRectangle.Left + cropRectangle.Width > Image.Width)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
+                cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, Image.Width - cropRectangle.Left, cropRectangle.Height);
             }
 
             if (cropRectangle.Top + cropRectangle.Height > Image.Height)
             {
-                cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
+                cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
             }
 
+            // special condition for vertical 
+            if(cropMode == CropContainer.CropModes.Vertical && cropRectangle.Width == Image.Width)
+            {
+                //crop out the hole image is not allowed
+                return false;
+            }
+
+            // special condition for vertical 
+            if (cropMode == CropContainer.CropModes.Horizontal && cropRectangle.Height == Image.Height)
+            {
+                //crop out the hole image is not allowed
+                return false;
+            }
+
+            //condition for all other crop modes
             if (cropRectangle.Height > 0 && cropRectangle.Width > 0)
             {
                 return true;
@@ -1070,61 +1155,237 @@ namespace Greenshot.Editor.Drawing
         /// <param name="message">Message itself</param>
         public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message)
         {
-            if (_surfaceMessage != null)
+            if (_surfaceMessage == null) return;
+
+            var eventArgs = new SurfaceMessageEventArgs
             {
-                var eventArgs = new SurfaceMessageEventArgs
-                {
-                    Message = message,
-                    MessageType = messageType,
-                    Surface = this
-                };
-                _surfaceMessage(source, eventArgs);
-            }
+                Message = message,
+                MessageType = messageType,
+                Surface = this
+            };
+            _surfaceMessage(source, eventArgs);
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the foreground color
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="color">new color</param>
+        private void UpdateForegroundColorEvent(object source, Color color)
+        {
+            if (_foregroundColorChanged == null) return;
+
+            var eventArgs = new SurfaceForegroundColorEventArgs
+            {
+                Color = color,
+            };
+            _foregroundColorChanged(source, eventArgs);
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the background color
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="color">new color</param>
+        private void UpdateBackgroundColorEvent(object source, Color color)
+        {
+            if (_lineThicknessChanged == null) return;
+
+            var eventArgs = new SurfaceBackgroundColorEventArgs
+            {
+                Color = color,
+            };
+            _backgroundColorChanged(source, eventArgs);
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing a key to change the line thickness
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="thickness">new thickness</param>
+        private void UpdateLineThicknessEvent(object source, int thickness)
+        {
+            if (_lineThicknessChanged == null) return;
+
+            var eventArgs = new SurfaceLineThicknessEventArgs
+            {
+                Thickness = thickness,
+            };
+            _lineThicknessChanged(source, eventArgs);
+        }
+
+        /// <summary>
+        /// Use to update UI when pressing the key to show/hide the shadow
+        /// </summary>
+        /// <param name="source">Who send</param>
+        /// <param name="hasShadow">has shadow</param>
+        private void UpdateShadowEvent(object source, bool hasShadow)
+        {
+            if (_shadowChanged == null) return;
+
+            var eventArgs = new SurfaceShadowEventArgs
+            {
+                HasShadow = hasShadow,
+            };
+            _shadowChanged(source, eventArgs);
         }
 
         /// <summary>
         /// Crop the surface
         /// </summary>
-        /// <param name="cropRectangle"></param>
-        /// <returns></returns>
-        public bool ApplyCrop(Rectangle cropRectangle)
+        /// <param name="cropRectangle">NativeRect that remains</param>
+        /// <returns>bool</returns>
+        public bool ApplyCrop(NativeRect cropRectangle)
         {
-            if (IsCropPossible(ref cropRectangle))
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Default)) return false;
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            Bitmap tmpImage;
+            // Make sure we have information, this this fails
+            try
             {
-                Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
-                Bitmap tmpImage;
-                // Make sure we have information, this this fails
-                try
-                {
-                    tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("CropRectangle", cropRectangle);
-                    ex.Data.Add("Width", Image.Width);
-                    ex.Data.Add("Height", Image.Height);
-                    ex.Data.Add("Pixelformat", Image.PixelFormat);
-                    throw;
-                }
-
-                Matrix matrix = new Matrix();
-                matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
-                // Make undoable
-                MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-
-                // Do not dispose otherwise we can't undo the image!
-                SetImage(tmpImage, false);
-                _elements.Transform(matrix);
-                if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
-                {
-                    _surfaceSizeChanged(this, null);
-                }
-
-                Invalidate();
-                return true;
+                tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
             }
 
-            return false;
+            var matrix = new Matrix();
+            matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(tmpImage, false);
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, tmpImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
+            }
+
+            Invalidate();
+            return true;
+        }
+
+        /// <summary>
+        /// Crop out the surface
+        /// Splits the image in 3 parts(top, middle, bottom). Crop out the middle and joins top and bottom. 
+        /// </summary>
+        /// <param name="cropRectangle">NativeRect of the middle part</param>
+        /// <returns>bool</returns>
+        private bool ApplyHorizontalCrop(NativeRect cropRectangle)
+        {
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Horizontal)) return false;
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            var topRectangle = new NativeRect(0, 0, Image.Size.Width, cropRectangle.Top);
+            var bottomRectangle = new NativeRect(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
+
+            Bitmap newImage;
+            try
+            {
+                newImage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
+
+                using var graphics = Graphics.FromImage(newImage);
+
+                var insertPositionTop = 0;
+                if (topRectangle.Height > 0)
+                {
+                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
+                    insertPositionTop += topRectangle.Height;
+                }
+                if (bottomRectangle.Height > 0)
+                {
+                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
+            }
+            var matrix = new Matrix();
+            matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(newImage, false);
+
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
+            }
+
+            Invalidate();
+            return true;
+        }
+
+        /// <summary>
+        /// Crop out the surface
+        /// Splits the image in 3 parts(left, middle, right). Crop out the middle and joins top and bottom.
+        /// </summary>
+        /// <param name="cropRectangle">NativeRect of the middle part</param>
+        /// <returns>bool</returns>
+        private bool ApplyVerticalCrop(NativeRect cropRectangle)
+        {
+            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Vertical)) return false;
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            var leftRectangle = new NativeRect(0, 0, cropRectangle.Left, Image.Size.Height);
+            var rightRectangle = new NativeRect(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
+            Bitmap newImage;
+            try
+            {
+                newImage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
+
+                using var graphics = Graphics.FromImage(newImage);
+
+                var insertPositionLeft = 0;
+                if (leftRectangle.Width > 0)
+                {
+                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
+                    insertPositionLeft += leftRectangle.Width;
+                }
+                
+                if (rightRectangle.Width > 0)
+                {
+                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("CropRectangle", cropRectangle);
+                ex.Data.Add("Width", Image.Width);
+                ex.Data.Add("Height", Image.Height);
+                ex.Data.Add("Pixelformat", Image.PixelFormat);
+                throw;
+            }
+            var matrix = new Matrix();
+            matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            SetImage(newImage, false);
+
+            _elements.Transform(matrix);
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
+            }
+
+            Invalidate();
+            return true;
         }
 
         /// <summary>
@@ -1156,15 +1417,14 @@ namespace Greenshot.Editor.Drawing
             {
                 foreach (IAdorner adorner in drawableContainer.Adorners)
                 {
-                    if (adorner.IsActive || adorner.HitTest(mouseEventArgs.Location))
+                    if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
+                    
+                    if (adorner.Cursor != null)
                     {
-                        if (adorner.Cursor != null)
-                        {
-                            Cursor = adorner.Cursor;
-                        }
-
-                        return adorner;
+                        Cursor = adorner.Cursor;
                     }
+
+                    return adorner;
                 }
             }
 
@@ -1395,48 +1655,47 @@ namespace Greenshot.Editor.Drawing
 
             Cursor = DrawingMode != DrawingModes.None ? Cursors.Cross : Cursors.Default;
 
-            if (_mouseDown)
+            if (!_mouseDown) return;
+
+            if (_mouseDownElement != null)
             {
-                if (_mouseDownElement != null)
+                // an element is currently dragged
+                _mouseDownElement.Invalidate();
+                selectedElements.Invalidate();
+                // Move the element
+                if (_mouseDownElement.Selected)
                 {
-                    // an element is currently dragged
-                    _mouseDownElement.Invalidate();
-                    selectedElements.Invalidate();
-                    // Move the element
-                    if (_mouseDownElement.Selected)
+                    if (!_isSurfaceMoveMadeUndoable)
                     {
-                        if (!_isSurfaceMoveMadeUndoable)
-                        {
-                            // Only allow one undoable per mouse-down/move/up "cycle"
-                            _isSurfaceMoveMadeUndoable = true;
-                            selectedElements.MakeBoundsChangeUndoable(false);
-                        }
-
-                        // dragged element has been selected before -> move all
-                        selectedElements.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
-                    }
-                    else
-                    {
-                        if (!_isSurfaceMoveMadeUndoable)
-                        {
-                            // Only allow one undoable per mouse-down/move/up "cycle"
-                            _isSurfaceMoveMadeUndoable = true;
-                            _mouseDownElement.MakeBoundsChangeUndoable(false);
-                        }
-
-                        // dragged element is not among selected elements -> just move dragged one
-                        _mouseDownElement.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
+                        // Only allow one undoable per mouse-down/move/up "cycle"
+                        _isSurfaceMoveMadeUndoable = true;
+                        selectedElements.MakeBoundsChangeUndoable(false);
                     }
 
-                    _mouseStart = currentMouse;
-                    _mouseDownElement.Invalidate();
-                    _modified = true;
+                    // dragged element has been selected before -> move all
+                    selectedElements.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
                 }
-                else if (_drawingElement != null)
+                else
                 {
-                    _drawingElement.HandleMouseMove(currentMouse.X, currentMouse.Y);
-                    _modified = true;
+                    if (!_isSurfaceMoveMadeUndoable)
+                    {
+                        // Only allow one undoable per mouse-down/move/up "cycle"
+                        _isSurfaceMoveMadeUndoable = true;
+                        _mouseDownElement.MakeBoundsChangeUndoable(false);
+                    }
+
+                    // dragged element is not among selected elements -> just move dragged one
+                    _mouseDownElement.MoveBy(currentMouse.X - _mouseStart.X, currentMouse.Y - _mouseStart.Y);
                 }
+
+                _mouseStart = currentMouse;
+                _mouseDownElement.Invalidate();
+                _modified = true;
+            }
+            else if (_drawingElement != null)
+            {
+                _drawingElement.HandleMouseMove(currentMouse.X, currentMouse.Y);
+                _modified = true;
             }
         }
 
@@ -1483,9 +1742,9 @@ namespace Greenshot.Editor.Drawing
             return GetImage(RenderMode.EXPORT);
         }
 
-        private static Rectangle ZoomClipRectangle(Rectangle rc, double scale, int inflateAmount = 0)
+        private static NativeRect ZoomClipRectangle(NativeRect rc, double scale, int inflateAmount = 0)
         {
-            rc = new Rectangle(
+            rc = new NativeRect(
                 (int) (rc.X * scale),
                 (int) (rc.Y * scale),
                 (int) (rc.Width * scale) + 1,
@@ -1496,11 +1755,10 @@ namespace Greenshot.Editor.Drawing
                 inflateAmount = (int) (inflateAmount * scale);
             }
 
-            rc.Inflate(inflateAmount, inflateAmount);
-            return rc;
+            return rc.Inflate(inflateAmount, inflateAmount);
         }
 
-        public void InvalidateElements(Rectangle rc)
+        public void InvalidateElements(NativeRect rc)
             => Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
 
         /// <summary>
@@ -1511,8 +1769,8 @@ namespace Greenshot.Editor.Drawing
         private void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
         {
             Graphics targetGraphics = paintEventArgs.Graphics;
-            Rectangle targetClipRectangle = paintEventArgs.ClipRectangle;
-            if (Rectangle.Empty.Equals(targetClipRectangle))
+            NativeRect targetClipRectangle = paintEventArgs.ClipRectangle;
+            if (targetClipRectangle.IsEmpty)
             {
                 LOG.Debug("Empty cliprectangle??");
                 return;
@@ -1526,18 +1784,16 @@ namespace Greenshot.Editor.Drawing
                 int verticalCorrection = targetClipRectangle.Top % (int) _zoomFactor.Numerator;
                 if (horizontalCorrection != 0)
                 {
-                    targetClipRectangle.X -= horizontalCorrection;
-                    targetClipRectangle.Width += horizontalCorrection;
+                    targetClipRectangle = targetClipRectangle.ChangeX(-horizontalCorrection).ChangeWidth(horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
-                    targetClipRectangle.Y -= verticalCorrection;
-                    targetClipRectangle.Height += verticalCorrection;
+                    targetClipRectangle = targetClipRectangle.ChangeY(-verticalCorrection).ChangeHeight(verticalCorrection);
                 }
             }
 
-            Rectangle imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
+            NativeRect imageClipRectangle = ZoomClipRectangle(targetClipRectangle, _zoomFactor.Inverse(), 2);
 
             if (_elements.HasIntersectingFilters(imageClipRectangle) || _zoomFactor > Fraction.Identity)
             {
@@ -1618,7 +1874,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        private void DrawSmoothImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+        private void DrawSmoothImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
             var state = targetGraphics.Save();
             targetGraphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -1631,7 +1887,7 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.Restore(state);
         }
 
-        private void DrawSharpImage(Graphics targetGraphics, Image image, Rectangle imageClipRectangle)
+        private void DrawSharpImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
             var state = targetGraphics.Save();
             targetGraphics.SmoothingMode = SmoothingMode.None;
@@ -1644,7 +1900,7 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.Restore(state);
         }
 
-        private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle)
+        private void DrawBackground(Graphics targetGraphics, NativeRect clipRectangle)
         {
             // check if we need to draw the checkerboard
             if (Image.IsAlphaPixelFormat(Image.PixelFormat) && _transparencyBackgroundBrush != null)
@@ -1696,7 +1952,7 @@ namespace Greenshot.Editor.Drawing
                 element.Invalidate();
             }
 
-            if (makeUndoable)
+            if (makeUndoable && element.IsUndoable)
             {
                 MakeUndoable(new AddElementMemento(this, element), false);
             }
@@ -1712,11 +1968,17 @@ namespace Greenshot.Editor.Drawing
         public void RemoveElements(IDrawableContainerList elementsToRemove, bool makeUndoable = true)
         {
             // fix potential issues with iterating a changing list
-            DrawableContainerList cloned = new DrawableContainerList();
-            cloned.AddRange(elementsToRemove);
+            DrawableContainerList cloned = new DrawableContainerList(elementsToRemove);
+
             if (makeUndoable)
             {
-                MakeUndoable(new DeleteElementsMemento(this, cloned), false);
+                // Take all containers to make undoable
+                var undoableContainers = elementsToRemove.Where(c => c.IsUndoable).ToList();
+                if (undoableContainers.Any())
+                {
+                    var undoableContainerList = new DrawableContainerList(undoableContainers);
+                    MakeUndoable(new DeleteElementsMemento(this, undoableContainerList), false);
+                }
             }
 
             SuspendLayout();
@@ -1764,7 +2026,7 @@ namespace Greenshot.Editor.Drawing
                 Invalidate();
             }
 
-            if (makeUndoable)
+            if (makeUndoable && elementToRemove is { IsUndoable: true })
             {
                 MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
             }
@@ -1780,11 +2042,16 @@ namespace Greenshot.Editor.Drawing
         public void AddElements(IDrawableContainerList elementsToAdd, bool makeUndoable = true)
         {
             // fix potential issues with iterating a changing list
-            DrawableContainerList cloned = new DrawableContainerList();
-            cloned.AddRange(elementsToAdd);
+            DrawableContainerList cloned = new DrawableContainerList(elementsToAdd);
             if (makeUndoable)
             {
-                MakeUndoable(new AddElementsMemento(this, cloned), false);
+                // Take all containers to make undoable
+                var undoableContainers = elementsToAdd.Where(c => c.IsUndoable).ToList();
+                if (undoableContainers.Any())
+                {
+                    var undoableContainerList = new DrawableContainerList(undoableContainers);
+                    MakeUndoable(new AddElementsMemento(this, undoableContainerList), false);
+                }
             }
 
             SuspendLayout();
@@ -1801,23 +2068,27 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Returns if this surface has selected elements
         /// </summary>
-        /// <returns></returns>
-        public bool HasSelectedElements => (selectedElements != null && selectedElements.Count > 0);
+        /// <returns>bool</returns>
+        public bool HasSelectedElements => selectedElements is { Count: > 0 };
+
+        /// <summary>
+        /// Provides the selected elements
+        /// </summary>
+        public IDrawableContainerList SelectedElements => selectedElements;
 
         /// <summary>
         /// Remove all the selected elements
         /// </summary>
         public void RemoveSelectedElements()
         {
-            if (HasSelectedElements)
+            if (!HasSelectedElements) return;
+
+            // As RemoveElement will remove the element from the selectedElements list we need to copy the element to another list.
+            RemoveElements(selectedElements);
+            if (_movingElementChanged != null)
             {
-                // As RemoveElement will remove the element from the selectedElements list we need to copy the element to another list.
-                RemoveElements(selectedElements);
-                if (_movingElementChanged != null)
-                {
-                    SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-                    _movingElementChanged(this, eventArgs);
-                }
+                SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
+                _movingElementChanged(this, eventArgs);
             }
         }
 
@@ -1826,11 +2097,9 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void CutSelectedElements()
         {
-            if (HasSelectedElements)
-            {
-                ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
-                RemoveSelectedElements();
-            }
+            if (!HasSelectedElements) return;
+            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+            RemoveSelectedElements();
         }
 
         /// <summary>
@@ -1838,38 +2107,90 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void CopySelectedElements()
         {
-            if (HasSelectedElements)
+            if (!HasSelectedElements) return;
+            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+        }
+
+        /// <summary>
+        /// This method is called to confirm/cancel.
+        /// Called when pressing enter or using the "check" in the editor.
+        /// redirects to the specialized confirm/cancel method
+        /// </summary>
+        /// <param name="confirm">bool</param>
+        public void Confirm(bool confirm)
+        {
+            if (DrawingMode == DrawingModes.Crop)
             {
-                ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+                ConfirmCrop(confirm);
+            }
+            else
+            {
+                ConfirmSelectedConfirmableElements(confirm);
             }
         }
 
         /// <summary>
-        /// This method is called to confirm/cancel "confirmable" elements, like the crop-container.
+        /// This method is called to confirm/cancel "confirmable" elements
         /// Called when pressing enter or using the "check" in the editor.
+        /// <br/>
+        /// For crop-container there is a dedicated method <see cref="ConfirmCrop(bool)"/>.
         /// </summary>
-        /// <param name="confirm"></param>
+        /// <param name="confirm">bool</param>
         public void ConfirmSelectedConfirmableElements(bool confirm)
         {
             // create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
             List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
-            foreach (IDrawableContainer dc in selectedDCs)
-            {
-                if (dc.Equals(_cropContainer))
-                {
-                    DrawingMode = DrawingModes.None;
-                    // No undo memento for the cropcontainer itself, only for the effect
-                    RemoveElement(_cropContainer, false);
-                    if (confirm)
-                    {
-                        ApplyCrop(_cropContainer.Bounds);
-                    }
-
-                    _cropContainer.Dispose();
-                    _cropContainer = null;
-                    break;
-                }
+            foreach (IDrawableContainer dc in selectedDCs.Where(c => c.IsConfirmable))
+            {                
+                throw new NotImplementedException($"No confirm/cancel defined for Container type {dc.GetType()}");               
             }
+
+            // maybe the undo button has to be enabled
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
+        }
+
+        /// <summary>
+        /// This method is called to confirm/cancel the crop-container.
+        /// Called when pressing enter or using the "check" in the editor.
+        /// </summary>
+        /// <param name="confirm">bool</param>
+        public void ConfirmCrop(bool confirm)
+        {
+            if (_cropContainer is not CropContainer e) return;
+                    
+            if (confirm && selectedElements.Count > 0)
+            {
+                // No undo memento for the cropcontainer itself, only for the effect
+                RemoveElement(_cropContainer, false);
+
+                _ = e.GetFieldValue(FieldType.CROPMODE) switch
+                {
+                    CropContainer.CropModes.Horizontal => ApplyHorizontalCrop(_cropContainer.Bounds),
+                    CropContainer.CropModes.Vertical => ApplyVerticalCrop(_cropContainer.Bounds),
+                    _ => ApplyCrop(_cropContainer.Bounds)
+                };
+
+                _cropContainer.Dispose();
+                _cropContainer = null;
+            }
+            else
+            {
+                RemoveCropContainer();
+            }
+
+            DrawingMode = DrawingModes.None;
+
+            // maybe the undo button has to be enabled
+            _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
+        }
+
+        public void RemoveCropContainer()
+        {
+            if (_cropContainer == null) return;
+
+            RemoveElement(_cropContainer, false);
+            _cropContainer.Dispose();
+            _cropContainer = null;
         }
 
         /// <summary>
@@ -1902,34 +2223,33 @@ namespace Greenshot.Editor.Drawing
                     // Make element(s) only move 10,10 if the surface is the same
                     bool isSameSurface = (dcs.ParentID == _uniqueId);
                     dcs.Parent = this;
-                    var moveOffset = isSameSurface ? new Point(10, 10) : Point.Empty;
+                    var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
                     // Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
-                    Rectangle drawableContainerListBounds = Rectangle.Empty;
+                    NativeRect drawableContainerListBounds = NativeRect.Empty;
                     foreach (var element in dcs)
                     {
-                        drawableContainerListBounds = drawableContainerListBounds == Rectangle.Empty
+                        drawableContainerListBounds = drawableContainerListBounds == NativeRect.Empty
                             ? element.DrawingBounds
-                            : Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
+                            : drawableContainerListBounds.Union(element.DrawingBounds);
                     }
 
                     // And find a location inside the target surface to paste to
                     bool containersCanFit = drawableContainerListBounds.Width < Bounds.Width && drawableContainerListBounds.Height < Bounds.Height;
                     if (!containersCanFit)
                     {
-                        Point containersLocation = drawableContainerListBounds.Location;
+                        NativePoint containersLocation = drawableContainerListBounds.Location;
                         containersLocation.Offset(moveOffset);
                         if (!Bounds.Contains(containersLocation))
                         {
                             // Easy fix for same surface
                             moveOffset = isSameSurface
-                                ? new Point(-10, -10)
-                                : new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
+                                ? new NativePoint(-10, -10)
+                                : new NativePoint(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
                         }
                     }
                     else
                     {
-                        Rectangle moveContainerListBounds = drawableContainerListBounds;
-                        moveContainerListBounds.Offset(moveOffset);
+                        NativeRect moveContainerListBounds = drawableContainerListBounds.Offset(moveOffset);
                         // check if the element is inside
                         if (!Bounds.Contains(moveContainerListBounds))
                         {
@@ -1977,24 +2297,22 @@ namespace Greenshot.Editor.Drawing
             }
             else if (ClipboardHelper.ContainsImage(clipboard))
             {
-                Point pasteLocation = GetPasteLocation(0.1f, 0.1f);
+                NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
+                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
                 {
-                    if (clipboardImage != null)
-                    {
-                        DeselectAllElements();
-                        IImageContainer container = AddImageContainer(clipboardImage as Bitmap, pasteLocation.X, pasteLocation.Y);
-                        SelectElement(container);
-                        clipboardImage.Dispose();
-                        pasteLocation.X += 10;
-                        pasteLocation.Y += 10;
-                    }
+                    if (drawableContainer == null) continue;
+                    DeselectAllElements();
+                    drawableContainer.Left = pasteLocation.X;
+                    drawableContainer.Top = pasteLocation.Y; 
+                    AddElement(drawableContainer);
+                    SelectElement(drawableContainer);
+                    pasteLocation = pasteLocation.Offset(10, 10);
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))
             {
-                Point pasteLocation = GetPasteLocation(0.4f, 0.4f);
+                NativePoint pasteLocation = GetPasteLocation(0.4f, 0.4f);
 
                 string text = ClipboardHelper.GetText(clipboard);
                 if (text != null)
@@ -2014,13 +2332,13 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="horizontalRatio">0.0f for the left edge of visible area, 1.0f for the right edge of visible area.</param>
         /// <param name="verticalRatio">0.0f for the top edge of visible area, 1.0f for the bottom edge of visible area.</param>
-        private Point GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
+        private NativePoint GetPasteLocation(float horizontalRatio = 0.5f, float verticalRatio = 0.5f)
         {
             var point = PointToClient(MousePosition);
             var rc = GetVisibleRectangle();
             if (!rc.Contains(point))
             {
-                point = new Point(
+                point = new NativePoint(
                     rc.Left + (int) (rc.Width * horizontalRatio),
                     rc.Top + (int) (rc.Height * verticalRatio)
                 );
@@ -2032,11 +2350,11 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Get the rectangle bounding the part of this Surface currently visible in the editor (in surface coordinate space).
         /// </summary>
-        public Rectangle GetVisibleRectangle()
+        public NativeRect GetVisibleRectangle()
         {
             var bounds = Bounds;
             var clientArea = Parent.ClientRectangle;
-            return new Rectangle(
+            return new NativeRect(
                 Math.Max(0, -bounds.Left),
                 Math.Max(0, -bounds.Top),
                 clientArea.Width,
@@ -2046,13 +2364,13 @@ namespace Greenshot.Editor.Drawing
 
         /// <summary>
         /// Get the rectangle bounding all selected elements (in surface coordinates space),
-        /// or empty rectangle if nothing is selcted.
+        /// or empty rectangle if nothing is selected.
         /// </summary>
-        public Rectangle GetSelectionRectangle()
+        public NativeRect GetSelectionRectangle()
             => ToSurfaceCoordinates(selectedElements.DrawingBounds);
 
         /// <summary>
-        /// Duplicate all the selecteded elements
+        /// Duplicate all the selected elements
         /// </summary>
         public void DuplicateSelectedElements()
         {
@@ -2130,24 +2448,23 @@ namespace Greenshot.Editor.Drawing
         /// <param name="generateEvents">false to skip event generation</param>
         public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
         {
-            if (!selectedElements.Contains(container))
-            {
-                selectedElements.Add(container);
-                container.Selected = true;
-                FieldAggregator.BindElement(container);
-                if (generateEvents && _movingElementChanged != null)
-                {
-                    SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
-                    {
-                        Elements = selectedElements
-                    };
-                    _movingElementChanged(this, eventArgs);
-                }
+            if (selectedElements.Contains(container)) return;
 
-                if (invalidate)
+            selectedElements.Add(container);
+            container.Selected = true;
+            FieldAggregator.BindElement(container);
+            if (generateEvents && _movingElementChanged != null)
+            {
+                SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
                 {
-                    container.Invalidate();
-                }
+                    Elements = selectedElements
+                };
+                _movingElementChanged(this, eventArgs);
+            }
+
+            if (invalidate)
+            {
+                container.Invalidate();
             }
         }
 
@@ -2192,65 +2509,143 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
-            if (selectedElements.Count > 0)
-            {
-                bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
-                int px = shiftModifier ? 10 : 1;
-                Point moveBy = Point.Empty;
+            if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
-                switch (k)
-                {
-                    case Keys.Left:
-                    case Keys.Left | Keys.Shift:
-                        moveBy = new Point(-px, 0);
-                        break;
-                    case Keys.Up:
-                    case Keys.Up | Keys.Shift:
-                        moveBy = new Point(0, -px);
-                        break;
-                    case Keys.Right:
-                    case Keys.Right | Keys.Shift:
-                        moveBy = new Point(px, 0);
-                        break;
-                    case Keys.Down:
-                    case Keys.Down | Keys.Shift:
-                        moveBy = new Point(0, px);
-                        break;
-                    case Keys.PageUp:
-                        PullElementsUp();
-                        break;
-                    case Keys.PageDown:
-                        PushElementsDown();
-                        break;
-                    case Keys.Home:
-                        PullElementsToTop();
-                        break;
-                    case Keys.End:
-                        PushElementsToBottom();
-                        break;
-                    case Keys.Enter:
-                        ConfirmSelectedConfirmableElements(true);
-                        break;
-                    case Keys.Escape:
-                        ConfirmSelectedConfirmableElements(false);
-                        break;
-                    /*case Keys.Delete:
+            bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
+            int px = shiftModifier ? 10 : 1;
+            NativePoint moveBy = NativePoint.Empty;
+            switch (k)
+            {
+                case Keys.Left:
+                case Keys.Left | Keys.Shift:
+                    moveBy = new NativePoint(-px, 0);
+                    break;
+                case Keys.Up:
+                case Keys.Up | Keys.Shift:
+                    moveBy = new NativePoint(0, -px);
+                    break;
+                case Keys.Right:
+                case Keys.Right | Keys.Shift:
+                    moveBy = new NativePoint(px, 0);
+                    break;
+                case Keys.Down:
+                case Keys.Down | Keys.Shift:
+                    moveBy = new NativePoint(0, px);
+                    break;
+                case Keys.PageUp:
+                    PullElementsUp();
+                    break;
+                case Keys.PageDown:
+                    PushElementsDown();
+                    break;
+                case Keys.Home:
+                    PullElementsToTop();
+                    break;
+                case Keys.End:
+                    PushElementsToBottom();
+                    break;
+                case Keys.Enter:
+                    Confirm(true);
+                    break;
+                case Keys.Escape:
+                    Confirm(false);
+                    break;
+                case Keys.D0 | Keys.Control:
+                case Keys.D0 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(shiftModifier ? Color.Orange : Color.Transparent, false, shiftModifier);
+                    break;
+                case Keys.D1 | Keys.Control:
+                case Keys.D1 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Red, false, shiftModifier);
+                    break;
+                case Keys.D2 | Keys.Control:
+                case Keys.D2 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Green, false, shiftModifier);
+                    break;
+                case Keys.D3 | Keys.Control:
+                case Keys.D3 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Blue, false, shiftModifier);
+                    break;
+                case Keys.D4 | Keys.Control:
+                case Keys.D4 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Cyan, false, shiftModifier);
+                    break;
+                case Keys.D5 | Keys.Control:
+                case Keys.D5 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Magenta, false, shiftModifier);
+                    break;
+                case Keys.D6 | Keys.Control:
+                case Keys.D6 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Yellow, false, shiftModifier);
+                    break;
+                case Keys.D7 | Keys.Control:
+                case Keys.D7 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Black, false, shiftModifier);
+                    break;
+                case Keys.D8 | Keys.Control:
+                case Keys.D8 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.Gray, false, shiftModifier);
+                    break;
+                case Keys.D9 | Keys.Control:
+                case Keys.D9 | Keys.Shift | Keys.Control:
+                    SetSelectedElementColor(Color.White, false, shiftModifier);
+                    break;
+                case Keys.Add | Keys.Control:
+                case Keys.Add | Keys.Shift | Keys.Control:
+                    ChangeLineThickness(shiftModifier ? 5 : 1);
+                    break;
+                case Keys.Subtract | Keys.Control:
+                case Keys.Subtract | Keys.Shift | Keys.Control:
+                    ChangeLineThickness(shiftModifier ? -5 : -1);
+                    break;
+                case Keys.Divide | Keys.Control:
+                    FlipShadow();
+                    break;
+                /*case Keys.Delete:
                         RemoveSelectedElements();
                         break;*/
-                    default:
-                        return false;
-                }
-
-                if (!Point.Empty.Equals(moveBy))
-                {
-                    selectedElements.MakeBoundsChangeUndoable(true);
-                    selectedElements.MoveBy(moveBy.X, moveBy.Y);
-                }
-
-                return true;
+                default:
+                    return false;
             }
 
-            return false;
+            if (moveBy != NativePoint.Empty)
+            {
+                selectedElements.MakeBoundsChangeUndoable(true);
+                selectedElements.MoveBy(moveBy.X, moveBy.Y);
+            }
+
+            return true;
+
+        }
+
+        // for laptops without numPads, also allow shift modifier
+        private void SetSelectedElementColor(Color color, bool numPad, bool shift)
+        {
+	        if (numPad || shift)
+	        {
+		        selectedElements.SetForegroundColor(color);
+				UpdateForegroundColorEvent(this, color);
+	        }
+	        else
+	        {
+		        selectedElements.SetBackgroundColor(color);
+				UpdateBackgroundColorEvent(this, color);
+	        }
+	        selectedElements.Invalidate();
+        }
+
+        private void ChangeLineThickness(int increaseBy)
+        {
+		    var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
+		    UpdateLineThicknessEvent(this, newThickness);
+	        selectedElements.Invalidate();
+        }
+
+        private void FlipShadow()
+        {
+		    var shadow = selectedElements.FlipShadow();
+		    UpdateShadowEvent(this, shadow);
+	        selectedElements.Invalidate();
         }
 
         /// <summary>
@@ -2312,7 +2707,7 @@ namespace Greenshot.Editor.Drawing
             return _elements.CanPushDown(selectedElements);
         }
 
-        public void Element_FieldChanged(object sender, FieldChangedEventArgs e)
+        private void Element_FieldChanged(object sender, FieldChangedEventArgs e)
         {
             selectedElements.HandleFieldChangedEvent(sender, e);
         }
@@ -2322,7 +2717,7 @@ namespace Greenshot.Editor.Drawing
             return _elements.Contains(container);
         }
 
-        public Point ToSurfaceCoordinates(Point point)
+        public NativePoint ToSurfaceCoordinates(NativePoint point)
         {
             Point[] points =
             {
@@ -2332,29 +2727,27 @@ namespace Greenshot.Editor.Drawing
             return points[0];
         }
 
-        public Rectangle ToSurfaceCoordinates(Rectangle rc)
+        public NativeRect ToSurfaceCoordinates(NativeRect rc)
         {
             if (_zoomMatrix.IsIdentity)
             {
                 return rc;
             }
-            else
+
+            Point[] points =
             {
-                Point[] points =
-                {
-                    rc.Location, rc.Location + rc.Size
-                };
-                _zoomMatrix.TransformPoints(points);
-                return new Rectangle(
-                    points[0].X,
-                    points[0].Y,
-                    points[1].X - points[0].X,
-                    points[1].Y - points[0].Y
-                );
-            }
+                rc.Location, rc.Location.Offset(rc.Size.Width, rc.Size.Height)
+            };
+            _zoomMatrix.TransformPoints(points);
+            return new NativeRect(
+                points[0].X,
+                points[0].Y,
+                points[1].X - points[0].X,
+                points[1].Y - points[0].Y
+            );
         }
 
-        public Point ToImageCoordinates(Point point)
+        public NativePoint ToImageCoordinates(NativePoint point)
         {
             Point[] points =
             {
@@ -2364,26 +2757,24 @@ namespace Greenshot.Editor.Drawing
             return points[0];
         }
 
-        public Rectangle ToImageCoordinates(Rectangle rc)
+        public NativeRect ToImageCoordinates(NativeRect rc)
         {
             if (_inverseZoomMatrix.IsIdentity)
             {
                 return rc;
             }
-            else
+
+            Point[] points =
             {
-                Point[] points =
-                {
-                    rc.Location, rc.Location + rc.Size
-                };
-                _inverseZoomMatrix.TransformPoints(points);
-                return new Rectangle(
-                    points[0].X,
-                    points[0].Y,
-                    points[1].X - points[0].X,
-                    points[1].Y - points[0].Y
-                );
-            }
+                rc.Location, rc.Location.Offset(rc.Size.Width, rc.Size.Height)
+            };
+            _inverseZoomMatrix.TransformPoints(points);
+            return new NativeRect(
+                points[0].X,
+                points[0].Y,
+                points[1].X - points[0].X,
+                points[1].Y - points[0].Y
+            );
         }
     }
 }

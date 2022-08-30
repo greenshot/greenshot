@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -29,6 +30,9 @@ using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
+    /// <summary>
+    /// Pixelate an area
+    /// </summary>
     [Serializable()]
     public class PixelizationFilter : AbstractFilter
     {
@@ -37,7 +41,7 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
             int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
             ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);

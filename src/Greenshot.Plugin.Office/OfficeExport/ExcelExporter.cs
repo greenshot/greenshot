@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Base.UnmanagedHelpers;
+using Dapplo.Windows.User32;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -177,7 +177,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             shape.ComObject.ScaleWidth(1, MsoTriState.msoTrue, MsoScaleFrom.msoScaleFromTopLeft);
             workbook.ComObject.Activate();
             using var application = DisposableCom.Create(workbook.ComObject.Application);
-            User32.SetForegroundWindow((IntPtr) application.ComObject.Hwnd);
+            User32Api.SetForegroundWindow((IntPtr) application.ComObject.Hwnd);
         }
 
         /// <summary>

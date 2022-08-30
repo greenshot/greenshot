@@ -30,7 +30,6 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
-using log4net.Config;
 
 namespace Greenshot.Plugin.Flickr
 {

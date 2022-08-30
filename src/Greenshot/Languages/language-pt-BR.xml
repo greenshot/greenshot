@@ -89,6 +89,7 @@
 		<resource name="editor_copypathtoclipboard">Copiar o caminho da pasta atual do arquivo para a Área de transferência</resource>
 		<resource name="editor_copytoclipboard">Copiar</resource>
 		<resource name="editor_crop">Cortar (C)</resource>
+		<resource name="editor_cropmode_default">Cortar</resource>
 		<resource name="editor_cursortool">Ferramenta de Seleção (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cortar</resource>
 		<resource name="editor_deleteelement">Apagar</resource>

@@ -22,7 +22,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Greenshot.Base.UnmanagedHelpers.Structs;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -30,8 +30,8 @@ namespace Greenshot.Base.Core
     {
         public FileDescriptorFlags Flags { get; set; }
         public Guid ClassId { get; set; }
-        public SIZE Size { get; set; }
-        public POINT Point { get; set; }
+        public NativeSize Size { get; set; }
+        public NativePoint Point { get; set; }
         public FileAttributes FileAttributes { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime LastAccessTime { get; set; }
@@ -46,9 +46,9 @@ namespace Greenshot.Base.Core
             //ClassID
             ClassId = new Guid(reader.ReadBytes(16));
             //Size
-            Size = new SIZE(reader.ReadInt32(), reader.ReadInt32());
+            Size = new NativeSize(reader.ReadInt32(), reader.ReadInt32());
             //Point
-            Point = new POINT(reader.ReadInt32(), reader.ReadInt32());
+            Point = new NativePoint(reader.ReadInt32(), reader.ReadInt32());
             //FileAttributes
             FileAttributes = (FileAttributes)reader.ReadUInt32();
             //CreationTime

@@ -45,7 +45,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static PowerpointDestination()
         {
-            ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
+            ExePath = OfficeUtils.GetOfficeExePath("POWERPNT.EXE") ?? PluginUtils.GetExePath("POWERPNT.EXE");
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
@@ -114,7 +114,7 @@ namespace Greenshot.Plugin.Office.Destinations
             Size imageSize = Size.Empty;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
-                tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
                 imageSize = surface.Image.Size;
             }
 

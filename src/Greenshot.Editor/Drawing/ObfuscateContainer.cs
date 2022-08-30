@@ -21,6 +21,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
@@ -28,12 +29,12 @@ using Greenshot.Editor.Drawing.Filters;
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Description of ObfuscateContainer.
+    /// This is a FilterContainer for the obfuscator filters like blur and pixelate.
     /// </summary>
     [Serializable]
     public class ObfuscateContainer : FilterContainer
     {
-        public ObfuscateContainer(Surface parent) : base(parent)
+        public ObfuscateContainer(ISurface parent) : base(parent)
         {
             Init();
         }

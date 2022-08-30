@@ -1,4 +1,26 @@
-﻿using System.Drawing;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Ocr
 {
@@ -7,7 +29,7 @@ namespace Greenshot.Base.Interfaces.Ocr
     /// </summary>
     public class Line
     {
-        private Rectangle? _calculatedBounds;
+        private NativeRect? _calculatedBounds;
 
         /// <summary>
         /// Constructor will preallocate the number of words
@@ -35,18 +57,18 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <summary>
         /// Calculate the bounds of the words
         /// </summary>
-        /// <returns>Rectangle</returns>
-        private Rectangle CalculateBounds()
+        /// <returns>NativeRect</returns>
+        private NativeRect CalculateBounds()
         {
             if (Words.Length == 0)
             {
-                return Rectangle.Empty;
+                return NativeRect.Empty;
             }
 
             var result = Words[0].Bounds;
             for (var index = 0; index < Words.Length; index++)
             {
-                result = Rectangle.Union(result, Words[index].Bounds);
+                result = result.Union(Words[index].Bounds);
             }
 
             return result;
@@ -55,7 +77,7 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <summary>
         /// Return the calculated bounds for the whole line
         /// </summary>
-        public Rectangle CalculatedBounds
+        public NativeRect CalculatedBounds
         {
             get { return _calculatedBounds ??= CalculateBounds(); }
         }
@@ -69,9 +91,7 @@ namespace Greenshot.Base.Interfaces.Ocr
         {
             foreach (var word in Words)
             {
-                var location = word.Bounds;
-                location.Offset(x, y);
-                word.Bounds = location;
+                word.Bounds = word.Bounds.Offset(x, y);
             }
 
             _calculatedBounds = null;

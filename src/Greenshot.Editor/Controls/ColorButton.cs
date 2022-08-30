@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Controls;
 using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
 
@@ -65,7 +66,7 @@ namespace Greenshot.Editor.Controls
                 if (Image != null)
                 {
                     using Graphics graphics = Graphics.FromImage(Image);
-                    graphics.FillRectangle(brush, new Rectangle(4, 17, 16, 3));
+                    graphics.FillRectangle(brush, new NativeRect(4, 17, 16, 3));
                 }
 
                 // cleanup GDI Object

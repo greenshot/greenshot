@@ -33,6 +33,7 @@ namespace Greenshot.Editor.Configuration
         contextmenu_capturefullscreen_right,
         contextmenu_capturefullscreen_bottom,
         contextmenu_captureie,
+        editor_autocrop_not_possible,
         editor_clipboardfailed,
         editor_close_on_save,
         editor_close_on_save_title,

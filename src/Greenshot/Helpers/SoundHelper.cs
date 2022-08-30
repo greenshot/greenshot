@@ -24,10 +24,10 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.IO;
+using Dapplo.Windows.Multimedia;
+using Dapplo.Windows.Multimedia.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.UnmanagedHelpers;
-using Greenshot.Base.UnmanagedHelpers.Enums;
 using log4net;
 
 namespace Greenshot.Helpers
@@ -82,10 +82,10 @@ namespace Greenshot.Helpers
             if (_soundBuffer != null)
             {
                 //Thread playSoundThread = new Thread(delegate() {
-                SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+                var flags = SoundSettings.Async | SoundSettings.Memory| SoundSettings.NoWait| SoundSettings.NoStop;
                 try
                 {
-                    if (_gcHandle != null) WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), (UIntPtr) 0, (uint) flags);
+                    if (_gcHandle != null) WinMm.Play(_gcHandle.Value.AddrOfPinnedObject(), flags);
                 }
                 catch (Exception e)
                 {
@@ -105,14 +105,14 @@ namespace Greenshot.Helpers
             {
                 if (_gcHandle != null)
                 {
-                    WinMM.PlaySound(null, (UIntPtr) 0, 0);
+                    WinMm.StopPlaying();
                     _gcHandle.Value.Free();
                     _gcHandle = null;
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Error in deinitialize.", e);
+                Log.Error("Error in de-initialize.", e);
             }
         }
     }

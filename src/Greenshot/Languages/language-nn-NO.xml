@@ -80,6 +80,8 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_copypathtoclipboard">Kopier filstigen til utklyppstavla</resource>
 		<resource name="editor_copytoclipboard">Kopier</resource>
 		<resource name="editor_crop">Skjer bildet [C]</resource>
+		<resource name="editor_cropmode_default">Skjer bildet</resource>
+		<resource name="editor_cropmode_auto">Auto-skjer</resource>
 		<resource name="editor_cursortool">Peikarverktøy [Esc]</resource>
 		<resource name="editor_cuttoclipboard">Klypp ut</resource>
 		<resource name="editor_deleteelement">Slett</resource>

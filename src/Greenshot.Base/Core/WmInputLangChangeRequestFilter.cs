@@ -20,7 +20,7 @@
  */
 
 using System.Windows.Forms;
-using Greenshot.Base.UnmanagedHelpers.Enums;
+using Dapplo.Windows.Messages.Enumerations;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -51,16 +51,13 @@ namespace Greenshot.Base.Core
         public static bool PreFilterMessageExternal(ref Message m)
         {
             WindowsMessages message = (WindowsMessages) m.Msg;
-            if (message == WindowsMessages.WM_INPUTLANGCHANGEREQUEST || message == WindowsMessages.WM_INPUTLANGCHANGE)
-            {
-                LOG.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
-                // For now we always return true
-                return true;
-                // But it could look something like this:
-                //return (m.LParam.ToInt64() | 0x7FFFFFFF) != 0;
-            }
+            if (message != WindowsMessages.WM_INPUTLANGCHANGEREQUEST && message != WindowsMessages.WM_INPUTLANGCHANGE) return false;
 
-            return false;
+            LOG.DebugFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+            // For now we always return true
+            return true;
+            // But it could look something like this:
+            //return (m.LParam.ToInt64() | 0x7FFFFFFF) != 0;
         }
     }
 }

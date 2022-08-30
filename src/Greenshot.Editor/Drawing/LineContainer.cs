@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Fields;
@@ -36,7 +37,7 @@ namespace Greenshot.Editor.Drawing
     [Serializable()]
     public class LineContainer : DrawableContainer
     {
-        public LineContainer(Surface parent) : base(parent)
+        public LineContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -61,41 +62,40 @@ namespace Greenshot.Editor.Drawing
 
         public override void Draw(Graphics graphics, RenderMode rm)
         {
+
+            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+
+            if (lineThickness <= 0) return;
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-
-            if (lineThickness > 0)
+            if (shadow)
             {
-                if (shadow)
+                //draw shadow first
+                int basealpha = 100;
+                int alpha = basealpha;
+                int steps = 5;
+                int currentStep = 1;
+                while (currentStep <= steps)
                 {
-                    //draw shadow first
-                    int basealpha = 100;
-                    int alpha = basealpha;
-                    int steps = 5;
-                    int currentStep = 1;
-                    while (currentStep <= steps)
-                    {
-                        using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                        graphics.DrawLine(shadowCapPen,
-                            Left + currentStep,
-                            Top + currentStep,
-                            Left + currentStep + Width,
-                            Top + currentStep + Height);
+                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
+                    graphics.DrawLine(shadowCapPen,
+                        Left + currentStep,
+                        Top + currentStep,
+                        Left + currentStep + Width,
+                        Top + currentStep + Height);
 
-                        currentStep++;
-                        alpha -= basealpha / steps;
-                    }
+                    currentStep++;
+                    alpha -= basealpha / steps;
                 }
-
-                using Pen pen = new Pen(lineColor, lineThickness);
-                graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
             }
+
+            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            using Pen pen = new Pen(lineColor, lineThickness);
+            graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
 
         public override bool ClickableAt(int x, int y)
@@ -115,9 +115,9 @@ namespace Greenshot.Editor.Drawing
             return false;
         }
 
-        protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
+        protected override IDoubleProcessor GetAngleRoundProcessor()
         {
-            return ScaleHelper.LineAngleRoundBehavior.Instance;
+            return LineAngleRoundBehavior.INSTANCE;
         }
     }
 }

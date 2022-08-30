@@ -470,7 +470,7 @@ namespace Greenshot.Base.Core
                                 languageFile
                             };
                             LanguageFiles.Add(languageFile.Ietf, currentFiles);
-                            Log.InfoFormat("Added language definition {0} from: {1}", languageFile.Description, languageFile.Filepath);
+                            Log.DebugFormat("Added language definition {0} from: {1}", languageFile.Description, languageFile.Filepath);
                         }
                     }
                 }

@@ -26,6 +26,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -126,12 +129,17 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        [NonSerialized] internal Surface _parent;
+        [NonSerialized] internal ISurface _parent;
 
         public ISurface Parent
         {
             get => _parent;
-            set => SwitchParent((Surface) value);
+            set => SwitchParent(value);
+        }
+
+        protected Surface InternalParent
+        {
+            get => (Surface)_parent;
         }
 
         [NonSerialized] private TargetAdorner _targetAdorner;
@@ -222,9 +230,9 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public Point Location
+        public NativePoint Location
         {
-            get => new Point(left, top);
+            get => new NativePoint(left, top);
             set
             {
                 left = value.X;
@@ -232,9 +240,9 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public Size Size
+        public NativeSize Size
         {
-            get => new Size(width, height);
+            get => new NativeSize(width, height);
             set
             {
                 width = value.Width;
@@ -251,15 +259,15 @@ namespace Greenshot.Editor.Drawing
 
         [NonSerialized]
         // will store current bounds of this DrawableContainer before starting a resize
-        protected Rectangle _boundsBeforeResize = Rectangle.Empty;
+        protected NativeRect _boundsBeforeResize = NativeRect.Empty;
 
         [NonSerialized]
         // "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
-        protected RectangleF _boundsAfterResize = RectangleF.Empty;
+        protected NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
-        public Rectangle Bounds
+        public NativeRect Bounds
         {
-            get => GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+            get => new NativeRect(Left, Top, Width, Height).Normalize();
             set
             {
                 Left = Round(value.Left);
@@ -269,7 +277,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual void ApplyBounds(RectangleF newBounds)
+        public virtual void ApplyBounds(NativeRectFloat newBounds)
         {
             Left = Round(newBounds.Left);
             Top = Round(newBounds.Top);
@@ -277,7 +285,7 @@ namespace Greenshot.Editor.Drawing
             Height = Round(newBounds.Height);
         }
 
-        public DrawableContainer(Surface parent)
+        public DrawableContainer(ISurface parent)
         {
             InitializeFields();
             _parent = parent;
@@ -302,7 +310,7 @@ namespace Greenshot.Editor.Drawing
 
         private bool accountForShadowChange;
 
-        public virtual Rectangle DrawingBounds
+        public virtual NativeRect DrawingBounds
         {
             get
             {
@@ -310,7 +318,7 @@ namespace Greenshot.Editor.Drawing
                 {
                     if (filter.Invert)
                     {
-                        return new Rectangle(Point.Empty, _parent.Image.Size);
+                        return new NativeRect(Point.Empty, _parent.Image.Size);
                     }
                 }
 
@@ -334,7 +342,7 @@ namespace Greenshot.Editor.Drawing
                     shadow += 10;
                 }
 
-                return new Rectangle(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
+                return new NativeRect(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
             }
         }
 
@@ -358,7 +366,8 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Initialize a target gripper
         /// </summary>
-        protected void InitAdorner(Color gripperColor, Point location)
+        /// <param name="location">NativePoint</param>
+        protected void InitTargetAdorner(NativePoint location)
         {
             _targetAdorner = new TargetAdorner(this, location);
             Adorners.Add(_targetAdorner);
@@ -385,11 +394,11 @@ namespace Greenshot.Editor.Drawing
             Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
         }
 
-        public bool hasFilters => Filters.Count > 0;
+        public bool HasFilters => Filters.Count > 0;
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
-        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, Rectangle clipRectangle)
+        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
         {
             if (Children.Count > 0)
             {
@@ -409,8 +418,7 @@ namespace Greenshot.Editor.Drawing
                             }
                             else
                             {
-                                Rectangle drawingRect = new Rectangle(Bounds.Location, Bounds.Size);
-                                drawingRect.Intersect(clipRectangle);
+                                var drawingRect = new NativeRect(Bounds.Location, Bounds.Size).Intersect(clipRectangle);
                                 if (filter is MagnifierFilter)
                                 {
                                     // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
@@ -434,12 +442,18 @@ namespace Greenshot.Editor.Drawing
         /// Adjust UI elements to the supplied DPI settings
         /// </summary>
         /// <param name="dpi">uint with dpi value</param>
-        public void AdjustToDpi(uint dpi)
+        public void AdjustToDpi(int dpi)
         {
             foreach (var adorner in Adorners)
             {
                 adorner.AdjustToDpi(dpi);
             }
+        }
+
+        /// <inheritdoc cref="IDrawableContainer"/>
+        public virtual void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // Empty as we do not want to add something to the context menu for every element
         }
 
         public virtual bool Contains(int x, int y)
@@ -449,12 +463,12 @@ namespace Greenshot.Editor.Drawing
 
         public virtual bool ClickableAt(int x, int y)
         {
-            Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-            r.Inflate(5, 5);
+            var r = new NativeRect(Left, Top, Width, Height).Normalize();
+            r = r.Inflate(5, 5);
             return r.Contains(x, y);
         }
 
-        protected void DrawSelectionBorder(Graphics g, Rectangle rect)
+        protected void DrawSelectionBorder(Graphics g, NativeRect rect)
         {
             using Pen pen = new Pen(Color.MediumSeaGreen)
             {
@@ -467,20 +481,23 @@ namespace Greenshot.Editor.Drawing
             g.DrawRectangle(pen, rect);
         }
 
+        /// <inheritdoc/>
+        public virtual bool IsUndoable => true;
 
-        public void ResizeTo(int width, int height, int anchorPosition)
-        {
-            Width = width;
-            Height = height;
-        }
+        /// <inheritdoc/>
+        public virtual bool IsConfirmable => false;
 
         /// <summary>
-        /// Make a following bounds change on this drawablecontainer undoable!
+        /// Make a following bounds change on this DrawableContainer undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>
-        public void MakeBoundsChangeUndoable(bool allowMerge)
+        public virtual void MakeBoundsChangeUndoable(bool allowMerge)
         {
-            _parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+            if (!IsUndoable)
+            {
+                return;
+            }
+            _parent?.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
         }
 
         public void MoveBy(int dx, int dy)
@@ -497,8 +514,9 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true if the event is handled, false if the surface needs to handle it</returns>
         public virtual bool HandleMouseDown(int x, int y)
         {
-            Left = _boundsBeforeResize.X = x;
-            Top = _boundsBeforeResize.Y = y;
+            _boundsBeforeResize = Bounds.MoveTo(x, y);
+            Left =  x;
+            Top = y;
             return true;
         }
 
@@ -512,13 +530,11 @@ namespace Greenshot.Editor.Drawing
         {
             Invalidate();
 
-            // reset "workrbench" rectangle to current bounds
-            _boundsAfterResize.X = _boundsBeforeResize.Left;
-            _boundsAfterResize.Y = _boundsBeforeResize.Top;
-            _boundsAfterResize.Width = x - _boundsAfterResize.Left;
-            _boundsAfterResize.Height = y - _boundsAfterResize.Top;
+            // reset "workbench" rectangle to current bounds
+            _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, _boundsBeforeResize.Top, x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-            ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
+            var scaleOptions = (this as IHaveScaleOptions)?.GetScaleOptions();
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor(), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);
@@ -536,7 +552,7 @@ namespace Greenshot.Editor.Drawing
         {
         }
 
-        protected virtual void SwitchParent(Surface newParent)
+        protected virtual void SwitchParent(ISurface newParent)
         {
             if (newParent == Parent)
             {
@@ -554,11 +570,10 @@ namespace Greenshot.Editor.Drawing
 
         protected void OnPropertyChanged(string propertyName)
         {
-            if (_propertyChanged != null)
-            {
-                _propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                Invalidate();
-            }
+            if (_propertyChanged == null) return;
+
+            _propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            Invalidate();
         }
 
         /// <summary>
@@ -569,7 +584,10 @@ namespace Greenshot.Editor.Drawing
         /// <param name="newValue">The new value</param>
         public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue)
         {
-            _parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+            if (IsUndoable)
+            {
+                _parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+            }
             Invalidate();
         }
 
@@ -649,16 +667,16 @@ namespace Greenshot.Editor.Drawing
             Height = points[1].Y - points[0].Y;
         }
 
-        protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
+        protected virtual IDoubleProcessor GetAngleRoundProcessor()
         {
-            return ScaleHelper.ShapeAngleRoundBehavior.Instance;
+            return ShapeAngleRoundBehavior.INSTANCE;
         }
 
         public virtual bool HasContextMenu => true;
 
         public virtual bool HasDefaultSize => false;
 
-        public virtual Size DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
+        public virtual NativeSize DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
 
         /// <summary>
         /// Allows to override the initializing of the fields, so we can actually have our own defaults

@@ -26,6 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -58,7 +59,7 @@ namespace Greenshot.Base.Core
         [IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
         public string IEHotkey { get; set; }
 
-        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor")]
+        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor", ExcludeIfNull = true)]
         public string ClipboardHotkey { get; set; }
 
         [IniProperty("IsFirstLaunch", Description = "Is this the first time launch?", DefaultValue = "true")]
@@ -321,17 +322,17 @@ namespace Greenshot.Base.Core
         public bool ProcessEXIFOrientation { get; set; }
 
         [IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-        public Rectangle LastCapturedRegion { get; set; }
+        public NativeRect LastCapturedRegion { get; set; }
 
         [IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
-        public Size Win10BorderCrop { get; set; }
+        public NativeSize Win10BorderCrop { get; set; }
 
-        private Size _iconSize;
+        private NativeSize _iconSize;
 
         [IniProperty("BaseIconSize",
             Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI",
             DefaultValue = "16,16")]
-        public Size IconSize
+        public NativeSize IconSize
         {
             get { return _iconSize; }
             set
@@ -368,13 +369,11 @@ namespace Greenshot.Base.Core
                 }
             }
         }
-
-        public Size ScaledIconSize => DpiHelper.ScaleWithCurrentDpi(_iconSize);
-
-        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        
+        [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
 
-        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
+        [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestReadWriteTimeout { get; set; }
 
         public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
@@ -386,92 +385,67 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public bool IsExperimentalFeatureEnabled(string experimentalFeature)
         {
-            return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
+            return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
+        private string CreateOutputFilePath()
+        {
+            if (IniConfig.IsPortable)
+            {
+                string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
+                if (!Directory.Exists(pafOutputFilePath))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(pafOutputFilePath);
+                        return pafOutputFilePath;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Problem creating directory, fallback to Desktop
+                        LOG.Warn(ex);
+                    }
+                }
+                else
+                {
+                    return pafOutputFilePath;
+                }
+            }
+
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        }
+        
         /// <summary>
         /// Supply values we can't put as defaults
         /// </summary>
         /// <param name="property">The property to return a default for</param>
         /// <returns>object with the default value for the supplied property</returns>
-        public override object GetDefault(string property)
-        {
-            switch (property)
+        public override object GetDefault(string property) =>
+            property switch
             {
-                case "PluginWhitelist":
-                case "PluginBacklist":
-                    return new List<string>();
-                case "OutputFileAsFullpath":
-                    if (IniConfig.IsPortable)
-                    {
-                        return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
-                    }
-
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-                case "OutputFilePath":
-                    if (IniConfig.IsPortable)
-                    {
-                        string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
-                        if (!Directory.Exists(pafOutputFilePath))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(pafOutputFilePath);
-                                return pafOutputFilePath;
-                            }
-                            catch (Exception ex)
-                            {
-                                LOG.Warn(ex);
-                                // Problem creating directory, fallback to Desktop
-                            }
-                        }
-                        else
-                        {
-                            return pafOutputFilePath;
-                        }
-                    }
-
-                    return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                case "DWMBackgroundColor":
-                    return Color.Transparent;
-                case "ActiveTitleFixes":
-                    return new List<string>
-                    {
-                        "Firefox",
-                        "IE",
-                        "Chrome"
-                    };
-                case "TitleFixMatcher":
-                    return new Dictionary<string, string>
-                    {
-                        {
-                            "Firefox", " - Mozilla Firefox.*"
-                        },
-                        {
-                            "IE", " - (Microsoft|Windows) Internet Explorer.*"
-                        },
-                        {
-                            "Chrome", " - Google Chrome.*"
-                        }
-                    };
-                case "TitleFixReplacer":
-                    return new Dictionary<string, string>
-                    {
-                        {
-                            "Firefox", string.Empty
-                        },
-                        {
-                            "IE", string.Empty
-                        },
-                        {
-                            "Chrome", string.Empty
-                        }
-                    };
-            }
-
-            return null;
-        }
-
+                nameof(ExcludePlugins) => new List<string>(),
+                nameof(IncludePlugins) => new List<string>(),
+                nameof(OutputFileAsFullpath) => IniConfig.IsPortable ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png") : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png"),
+                nameof(OutputFilePath) => CreateOutputFilePath(),
+                nameof(DWMBackgroundColor) => Color.Transparent,
+                nameof(ActiveTitleFixes) => new List<string> {
+                    "Firefox",
+                    "IE",
+                    "Chrome"
+                },
+                nameof(TitleFixMatcher) => new Dictionary<string, string> {
+                    { "Firefox", " - Mozilla Firefox.*" },
+                    { "IE", " - (Microsoft|Windows) Internet Explorer.*" },
+                    { "Chrome", " - Google Chrome.*" }
+                },
+                nameof(TitleFixReplacer) => new Dictionary<string, string> {
+                    { "Firefox", string.Empty },
+                    { "IE", string.Empty },
+                    { "Chrome", string.Empty }
+                },
+                _ => null
+            };
+        
         /// <summary>
         /// This method will be called before converting the property, making to possible to correct a certain value
         /// Can be used when migration is needed
@@ -509,7 +483,7 @@ namespace Greenshot.Base.Core
             try
             {
                 // Store version, this can be used later to fix settings after an update
-                LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
             }
             catch
             {
@@ -530,7 +504,7 @@ namespace Greenshot.Base.Core
                 try
                 {
                     // Store version, this can be used later to fix settings after an update
-                    LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                    LastSaveWithVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
                 }
                 catch
                 {
@@ -541,8 +515,9 @@ namespace Greenshot.Base.Core
                 OutputFileAutoReduceColors = false;
             }
 
+            bool isUpgradeFrom12 = LastSaveWithVersion?.StartsWith("1.2") ?? false;
             // Fix for excessive feed checking
-            if (UpdateCheckInterval != 0 && UpdateCheckInterval <= 7 && LastSaveWithVersion.StartsWith("1.2"))
+            if (UpdateCheckInterval != 0 && UpdateCheckInterval <= 7 && isUpgradeFrom12)
             {
                 UpdateCheckInterval = 14;
             }

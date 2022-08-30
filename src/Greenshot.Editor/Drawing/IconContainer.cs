@@ -24,6 +24,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
 
@@ -39,7 +41,7 @@ namespace Greenshot.Editor.Drawing
 
         protected Icon icon;
 
-        public IconContainer(Surface parent) : base(parent)
+        public IconContainer(ISurface parent) : base(parent)
         {
             Init();
         }
@@ -55,9 +57,14 @@ namespace Greenshot.Editor.Drawing
             CreateDefaultAdorners();
         }
 
-        public IconContainer(Surface parent, string filename) : base(parent)
+        public IconContainer(ISurface parent, string filename) : base(parent)
         {
             Load(filename);
+        }
+
+        public IconContainer(ISurface parent, Stream stream) : base(parent)
+        {
+            Load(stream);
         }
 
         public Icon Icon
@@ -99,6 +106,18 @@ namespace Greenshot.Editor.Drawing
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
+        public void Load(Stream iconStream)
+        {
+            if (iconStream == null)
+            {
+                return;
+            }
+
+            using Icon fileIcon = new Icon(iconStream);
+            Icon = fileIcon;
+            Log.Debug("Loaded stream: with resolution: " + Height + "," + Width);
+        }
+
         public override void Draw(Graphics graphics, RenderMode rm)
         {
             if (icon == null)
@@ -115,6 +134,6 @@ namespace Greenshot.Editor.Drawing
 
         public override bool HasDefaultSize => true;
 
-        public override Size DefaultSize => icon?.Size ?? new Size(16, 16);
+        public override NativeSize DefaultSize => icon?.Size ?? new NativeSize(16, 16);
     }
 }

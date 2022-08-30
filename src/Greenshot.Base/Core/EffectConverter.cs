@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Text;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
 
 namespace Greenshot.Base.Core
@@ -136,16 +138,16 @@ namespace Greenshot.Base.Core
 
                         break;
                     case "ShadowOffset":
-                        Point shadowOffset = new Point();
+                        NativePoint shadowOffset = new NativePoint();
                         string[] coordinates = pair[1].Split(',');
                         if (int.TryParse(coordinates[0], out var shadowOffsetX))
                         {
-                            shadowOffset.X = shadowOffsetX;
+                            shadowOffset = shadowOffset.ChangeX(shadowOffsetX);
                         }
 
                         if (int.TryParse(coordinates[1], out var shadowOffsetY))
                         {
-                            shadowOffset.Y = shadowOffsetY;
+                            shadowOffset = shadowOffset.ChangeY(shadowOffsetY);
                         }
 
                         effect.ShadowOffset = shadowOffset;

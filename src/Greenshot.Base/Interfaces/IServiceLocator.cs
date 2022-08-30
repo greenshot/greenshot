@@ -32,7 +32,7 @@ namespace Greenshot.Base.Interfaces
         /// </summary>
         /// <typeparam name="TService">Service to find</typeparam>
         /// <returns>IEnumerable{TService}</returns>
-        IEnumerable<TService> GetAllInstances<TService>();
+        IReadOnlyList<TService> GetAllInstances<TService>();
 
         /// <summary>
         /// Get the only instance of the specified service

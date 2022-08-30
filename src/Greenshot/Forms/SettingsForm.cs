@@ -28,6 +28,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
@@ -35,9 +37,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Configuration;
-using Greenshot.Destinations;
 using Greenshot.Helpers;
 using log4net;
 
@@ -93,6 +93,14 @@ namespace Greenshot.Forms
             lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
             // Changes for BUG-2077
             numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
+
+            // Expert mode, the clipboard formats
+            foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat)))
+            {
+                ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
+                item.Tag = clipboardFormat;
+                item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
+            }
 
             _daysBetweenCheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
             DisplayPluginTab();
@@ -217,7 +225,7 @@ namespace Greenshot.Forms
         private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode)
         {
             WindowCaptureMode[] availableModes;
-            if (!DWM.IsDwmEnabled)
+            if (!DwmApi.IsDwmEnabled)
             {
                 // Remove DWM from configuration, as DWM is disabled!
                 if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent)
@@ -312,7 +320,7 @@ namespace Greenshot.Forms
                 combobox_language.SelectedValue = Language.CurrentLanguage;
             }
 
-            // Delaying the SelectedIndexChanged events untill all is initiated
+            // Delaying the SelectedIndexChanged events until all is initiated
             combobox_language.SelectedIndexChanged += Combobox_languageSelectedIndexChanged;
             UpdateDestinationDescriptions();
             UpdateClipboardFormatDescriptions();
@@ -413,7 +421,7 @@ namespace Greenshot.Forms
             checkbox_picker.Checked = false;
 
             listview_destinations.Items.Clear();
-            var scaledIconSize = DpiHelper.ScaleWithDpi(coreConfiguration.IconSize, DpiHelper.GetDpi(Handle));
+            var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
             listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
             ImageList imageList = new ImageList
             {
@@ -469,14 +477,6 @@ namespace Greenshot.Forms
         private void DisplaySettings()
         {
             colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
-
-            // Expert mode, the clipboard formats
-            foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat)))
-            {
-                ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
-                item.Tag = clipboardFormat;
-                item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
-            }
 
             if (Language.CurrentLanguage != null)
             {
@@ -829,22 +829,19 @@ namespace Greenshot.Forms
     {
         public int Compare(object x, object y)
         {
-            if (!(x is ListViewItem))
+            if (x is not ListViewItem listViewItemX)
             {
                 return 0;
             }
 
-            if (!(y is ListViewItem))
+            if (y is not ListViewItem listViewItemY)
             {
                 return 0;
             }
 
-            ListViewItem l1 = (ListViewItem) x;
-            ListViewItem l2 = (ListViewItem) y;
+            IDestination firstDestination = listViewItemX.Tag as IDestination;
 
-            IDestination firstDestination = l1.Tag as IDestination;
-
-            if (!(l2.Tag is IDestination secondDestination))
+            if (listViewItemY.Tag is not IDestination secondDestination)
             {
                 return 1;
             }

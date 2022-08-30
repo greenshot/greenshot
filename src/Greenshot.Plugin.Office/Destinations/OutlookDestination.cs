@@ -58,8 +58,7 @@ namespace Greenshot.Plugin.Office.Destinations
             {
                 IsActiveFlag = true;
             }
-
-            ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
+            ExePath = OfficeUtils.GetOfficeExePath("OUTLOOK.EXE") ?? PluginUtils.GetExePath("OUTLOOK.EXE");
             if (ExePath != null && File.Exists(ExePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("outlook");
@@ -160,7 +159,7 @@ namespace Greenshot.Plugin.Office.Destinations
             string tmpFile = captureDetails.Filename;
             if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
-                tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
             }
             else
             {

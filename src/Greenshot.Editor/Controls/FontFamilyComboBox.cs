@@ -23,6 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Editor.Controls
 {
@@ -113,12 +114,12 @@ namespace Greenshot.Editor.Controls
         /// <summary>
         /// Helper method to draw the string
         /// </summary>
-        /// <param name="graphics"></param>
-        /// <param name="fontFamily"></param>
-        /// <param name="fontStyle"></param>
-        /// <param name="bounds"></param>
-        /// <param name="text"></param>
-        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, Rectangle bounds, string text)
+        /// <param name="graphics">Graphics</param>
+        /// <param name="fontFamily">FontFamily</param>
+        /// <param name="fontStyle">FontStyle</param>
+        /// <param name="bounds">NativeRect</param>
+        /// <param name="text">string</param>
+        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text)
         {
             using Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel);
             // Make sure the text is visible by centering it in the line

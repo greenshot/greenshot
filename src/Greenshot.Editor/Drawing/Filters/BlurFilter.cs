@@ -22,9 +22,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.UnmanagedHelpers;
 using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Drawing.Filters
@@ -50,10 +51,10 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
             int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
-            Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
             if (applyRect.Width == 0 || applyRect.Height == 0)
             {
                 return;
@@ -66,9 +67,9 @@ namespace Greenshot.Editor.Drawing.Filters
                 graphics.ExcludeClip(rect);
             }
 
-            if (GDIplus.IsBlurPossible(blurRadius))
+            if (GdiPlusApi.IsBlurPossible(blurRadius))
             {
-                GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
+                GdiPlusApi.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
             }
             else
             {

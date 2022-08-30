@@ -1107,4 +1107,13 @@
   <metadata name="zoomMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>782, 17</value>
   </metadata>
+  <data name="AutoCrop.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AutoCrop.Image.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CropHorizontal.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CropHorizontal.Image.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CropVertical.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CropVertical.Image.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

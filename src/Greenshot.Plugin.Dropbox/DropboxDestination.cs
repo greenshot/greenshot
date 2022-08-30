@@ -29,7 +29,7 @@ namespace Greenshot.Plugin.Dropbox
 {
     internal class DropboxDestination : AbstractDestination
     {
-        private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+        private static readonly DropboxConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxConfiguration>();
 
         private readonly DropboxPlugin _plugin;
 

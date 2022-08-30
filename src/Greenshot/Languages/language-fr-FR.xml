@@ -93,6 +93,8 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_copytoclipboard">Copier</resource>
 		<resource name="editor_counter">Ajouter un compteur</resource>
 		<resource name="editor_crop">Recadrer (C)</resource>
+		<resource name="editor_cropmode_default">Recadrer</resource>
+		<resource name="editor_cropmode_auto">Cadrage automatique</resource>
 		<resource name="editor_cursortool">Outil de sélection (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Couper</resource>
 		<resource name="editor_deleteelement">Supprimer</resource>

@@ -4,6 +4,7 @@
 	<!--    
 	Note to translator: uncomment entry "about_translation" to have 
 	your efforts honored in the "About Greenshot" dialog 
+	TODO: remove newlines as in other files -> this leads to problems in multiline texts (or try xml:space=preserve)
 	-->
 	<resource name="about_translation">
 		Dansk oversættelse af Jens Jacob Thomsen
@@ -467,6 +468,9 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	</resource>
 	<resource name="editor_crop">
 		Beskær (C)
+	</resource>
+	<resource name="editor_cropmode_default">
+		Beskær
 	</resource>
 	<resource name="contextmenu_captureclipboard">
 		Åbn billede fra udklipsholder
