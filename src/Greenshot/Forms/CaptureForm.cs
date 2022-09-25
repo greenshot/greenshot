@@ -400,6 +400,11 @@ namespace Greenshot.Forms
             {
                 HandleMouseDown();
             }
+
+            if (e.Button == MouseButtons.Right)
+            {
+                DialogResult = DialogResult.Cancel;
+            }
         }
 
         private void HandleMouseDown()
