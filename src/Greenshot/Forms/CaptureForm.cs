@@ -197,7 +197,7 @@ namespace Greenshot.Forms
         private void CaptureForm_Resize(object sender, EventArgs e)
         {
             Log.DebugFormat("Resize was called, new size: {0}", this.Bounds);
-            if (Bounds.Equals(_capture.ScreenBounds))
+            if (_capture.ScreenBounds.Equals(Bounds))
             {
                 // We have the correct size
                 return;
@@ -425,9 +425,11 @@ namespace Greenshot.Forms
             else if (_captureRect.Height > 0 && _captureRect.Width > 0)
             {
                 // correct the GUI width to real width if Region mode
-                if (_captureMode == CaptureMode.Region || _captureMode == CaptureMode.Text)
+                if (_captureMode is CaptureMode.Region or CaptureMode.Text)
                 {
-                    _captureRect = _captureRect.Inflate(1, 1);
+                    // Correct the rectangle size, by making it 1 pixel bigger
+                    // We cannot use inflate, this would make the rect bigger to all sizes.
+                    _captureRect = new NativeRect(_captureRect.Top, _captureRect.Left, _captureRect.Width+1, _captureRect.Height+1);
                 }
 
                 // Go and process the capture
