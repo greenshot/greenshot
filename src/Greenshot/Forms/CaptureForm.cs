@@ -429,7 +429,7 @@ namespace Greenshot.Forms
                 {
                     // Correct the rectangle size, by making it 1 pixel bigger
                     // We cannot use inflate, this would make the rect bigger to all sizes.
-                    _captureRect = new NativeRect(_captureRect.Top, _captureRect.Left, _captureRect.Width+1, _captureRect.Height+1);
+                    _captureRect = new NativeRect(_captureRect.Left, _captureRect.Top, _captureRect.Width+1, _captureRect.Height+1);
                 }
 
                 // Go and process the capture
