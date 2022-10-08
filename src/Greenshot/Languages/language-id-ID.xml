@@ -177,6 +177,11 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_undo">Batal</resource>
 		<resource name="editor_uponelevel">Naik setingkat</resource>
 		<resource name="editor_uptotop">Naik keatas</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">Klien MAPI</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook dengan HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook dengan teks</resource>

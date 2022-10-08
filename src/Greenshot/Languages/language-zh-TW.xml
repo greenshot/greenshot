@@ -157,6 +157,11 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
         <resource name="editor_undo">復原 {0}</resource>
         <resource name="editor_uponelevel">上移一層</resource>
 		<resource name="editor_uptotop">移到最上層</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI 用戶端</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook 使用 HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook 使用文字</resource>

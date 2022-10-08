@@ -140,6 +140,11 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_undo">Geri al (0)</resource>
 		<resource name="editor_uponelevel">Bir üste</resource>
 		<resource name="editor_uptotop">En üste</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">Mapi istemcisi</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">HTML ile Outlook</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Yazı ile Outlook</resource>

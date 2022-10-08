@@ -112,6 +112,11 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_title">עורך התמונה של התוכנה</resource>
 		<resource name="editor_uponelevel">רמה אחת למעלה</resource>
 		<resource name="editor_uptotop">עד למעלה</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="error">שגיאה</resource>
 		<resource name="error_multipleinstances">עותק אחד של התוכנה כבר פתוח</resource>
 		<resource name="error_nowriteaccess">לא ניתן לשמור קובץ אל {0}.

@@ -157,6 +157,11 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_undo">Ongedaan maken {0}</resource>
 		<resource name="editor_uponelevel">Een niveau omhoog</resource>
 		<resource name="editor_uptotop">Helemaal omhoog</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI client</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook met HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook met tekst</resource>

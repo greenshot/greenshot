@@ -165,6 +165,11 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_undo">Отменить {0}</resource>
 		<resource name="editor_uponelevel">На один уровень вверх</resource>
 		<resource name="editor_uptotop">На самый верх</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI клиент</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook с HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook с текстом</resource>

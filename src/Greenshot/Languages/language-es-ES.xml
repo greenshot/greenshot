@@ -142,6 +142,11 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_undo">Deshacer {0}</resource>
 		<resource name="editor_uponelevel">Subir un nivel</resource>
 		<resource name="editor_uptotop">Subir arriba</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">Cliente MAPI</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook con HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook con texto</resource>

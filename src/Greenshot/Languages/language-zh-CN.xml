@@ -156,6 +156,11 @@
 		<resource name="editor_undo">撤销{0}</resource>
 		<resource name="editor_uponelevel">上移一层</resource>
 		<resource name="editor_uptotop">移动到最上层</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI客户端</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook使用HTML格式</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook使用文本格式</resource>

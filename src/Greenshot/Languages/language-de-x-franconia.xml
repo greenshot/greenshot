@@ -150,6 +150,11 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_undo">Rüggängich {0}</resource>
 		<resource name="editor_uponelevel">Aanz nach vorn</resource>
 		<resource name="editor_uptotop">Ganz nach vorn</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI Glaiend</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Audlugg mid HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Audlugg mit Dexd</resource>

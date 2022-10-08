@@ -177,6 +177,11 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_undo">Annuler {0}</resource>
 		<resource name="editor_uponelevel">Élever</resource>
 		<resource name="editor_uptotop">Au premier plan</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">Client MAPI</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook avec HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook avec texte</resource>

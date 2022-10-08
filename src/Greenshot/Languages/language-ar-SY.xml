@@ -111,6 +111,11 @@
 		<resource name="editor_title">محرر جرين شوت للصور</resource>
 		<resource name="editor_uponelevel">مستوى واحد إلى الأعلى</resource>
 		<resource name="editor_uptotop">إلى الأعلى</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="error">خطأ</resource>
 		<resource name="error_multipleinstances">برنامج جرين شوت يعمل حاليا</resource>
 		<resource name="error_nowriteaccess">لايمكن حفظ الصورة في {0}.

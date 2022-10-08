@@ -199,24 +199,24 @@ namespace Greenshot.Editor.Forms {
 			this.alignCenterToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.alignRightToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.zoomMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.zoomInMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.zoomOutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomInMenuItem = new GreenshotToolStripMenuItem();
+			this.zoomOutMenuItem = new GreenshotToolStripMenuItem();
 			this.zoomMenuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.zoomBestFitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomBestFitMenuItem = new GreenshotToolStripMenuItem();
 			this.zoomMenuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.zoom25MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom50MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom66MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom75MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoomMenuSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.zoomActualSizeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomActualSizeMenuItem = new GreenshotToolStripMenuItem();
 			this.zoomMenuSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.zoom200MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom300MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom400MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoom600MenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.zoomStatusDropDownBtn = new System.Windows.Forms.ToolStripDropDownButton();
-			this.zoomMainMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.zoomMainMenuItem = new GreenshotToolStripMenuItem();
 			this.statusStripSpacer = new System.Windows.Forms.ToolStripStatusLabel();
 			this.topToolStripContainer.BottomToolStripPanel.SuspendLayout();
 			this.topToolStripContainer.ContentPanel.SuspendLayout();
@@ -1696,7 +1696,7 @@ namespace Greenshot.Editor.Forms {
 			this.zoomMainMenuItem.DropDown = this.zoomMenuStrip;
 			this.zoomMainMenuItem.Name = "zoomMainMenuItem";
 			this.zoomMainMenuItem.Size = new System.Drawing.Size(51, 20);
-			this.zoomMainMenuItem.Text = "Zoom";
+			this.zoomMainMenuItem.LanguageKey = "editor_zoom";
 			// 
 			// zoomMenuStrip
 			// 
@@ -1726,7 +1726,7 @@ namespace Greenshot.Editor.Forms {
 			this.zoomInMenuItem.Name = "zoomInMenuItem";
 			this.zoomInMenuItem.ShortcutKeyDisplayString = "Ctrl++";
 			this.zoomInMenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoomInMenuItem.Text = "Zoom In";
+			this.zoomInMenuItem.LanguageKey = "editor_zoom_in";
 			this.zoomInMenuItem.Click += new System.EventHandler(this.ZoomInMenuItemClick);
 			// 
 			// zoomOutMenuItem
@@ -1735,7 +1735,7 @@ namespace Greenshot.Editor.Forms {
 			this.zoomOutMenuItem.Name = "zoomOutMenuItem";
 			this.zoomOutMenuItem.ShortcutKeyDisplayString = "Ctrl+-";
 			this.zoomOutMenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoomOutMenuItem.Text = "Zoom Out";
+			this.zoomOutMenuItem.LanguageKey = "editor_zoom_out";
 			this.zoomOutMenuItem.Click += new System.EventHandler(this.ZoomOutMenuItemClick);
 			// 
 			// zoomMenuSeparator1
@@ -1749,7 +1749,7 @@ namespace Greenshot.Editor.Forms {
 			this.zoomBestFitMenuItem.Name = "zoomBestFitMenuItem";
 			this.zoomBestFitMenuItem.ShortcutKeyDisplayString = "Ctrl+9";
 			this.zoomBestFitMenuItem.Size = new System.Drawing.Size(209, 22);
-			this.zoomBestFitMenuItem.Text = "Best Fit";
+			this.zoomBestFitMenuItem.LanguageKey = "editor_zoom_best_fit";
 			this.zoomBestFitMenuItem.Click += new System.EventHandler(this.ZoomBestFitMenuItemClick);
 			// 
 			// zoomMenuSeparator2
@@ -1801,7 +1801,7 @@ namespace Greenshot.Editor.Forms {
 			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+0";
 			this.zoomActualSizeMenuItem.Size = new System.Drawing.Size(209, 22);
 			this.zoomActualSizeMenuItem.Tag = "1/1";
-			this.zoomActualSizeMenuItem.Text = "100% - Actual Size";
+			this.zoomActualSizeMenuItem.LanguageKey = "editor_zoom_actual_size";
 			this.zoomActualSizeMenuItem.Click += new System.EventHandler(this.ZoomSetValueMenuItemClick);
 			// 
 			// zoomMenuSeparator4
@@ -2031,24 +2031,24 @@ namespace Greenshot.Editor.Forms {
 		private ToolStripColorButton btnFillColor;
 		private ToolStripColorButton btnLineColor;
 		private System.Windows.Forms.ContextMenuStrip zoomMenuStrip;
-		private System.Windows.Forms.ToolStripMenuItem zoomInMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem zoomOutMenuItem;
+		private GreenshotToolStripMenuItem zoomInMenuItem;
+		private GreenshotToolStripMenuItem zoomOutMenuItem;
 		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem zoomBestFitMenuItem;
+		private GreenshotToolStripMenuItem zoomBestFitMenuItem;
 		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator2;
 		private System.Windows.Forms.ToolStripMenuItem zoom25MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom50MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom66MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom75MenuItem;
 		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator3;
-		private System.Windows.Forms.ToolStripMenuItem zoomActualSizeMenuItem;
+		private GreenshotToolStripMenuItem zoomActualSizeMenuItem;
 		private System.Windows.Forms.ToolStripSeparator zoomMenuSeparator4;
 		private System.Windows.Forms.ToolStripMenuItem zoom200MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom300MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom400MenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zoom600MenuItem;
 		private System.Windows.Forms.ToolStripDropDownButton zoomStatusDropDownBtn;
-		private System.Windows.Forms.ToolStripMenuItem zoomMainMenuItem;
+		private GreenshotToolStripMenuItem zoomMainMenuItem;
 		private System.Windows.Forms.ToolStripStatusLabel statusStripSpacer;
 	}
 }

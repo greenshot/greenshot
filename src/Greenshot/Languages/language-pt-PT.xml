@@ -156,6 +156,11 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_undo">Anular {0}</resource>
 		<resource name="editor_uponelevel">Subir um nível</resource>
 		<resource name="editor_uptotop">Subir para o topo</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">Cliente MAPI</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook com HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook com texto</resource>

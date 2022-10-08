@@ -140,6 +140,11 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_undo">Razveljavi {0}</resource>
 		<resource name="editor_uponelevel">En nivo višje</resource>
 		<resource name="editor_uptotop">Do vrha</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI klient</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook kot HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook kot text</resource>

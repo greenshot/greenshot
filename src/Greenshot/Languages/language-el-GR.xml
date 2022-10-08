@@ -165,6 +165,11 @@
 		<resource name="editor_undo">Αναίρεση {0}</resource>
 		<resource name="editor_uponelevel">Μεταφορά ένα επίπεδο εμπρός</resource>
 		<resource name="editor_uptotop">Μεταφορά σε πρώτο πλάνο</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI client</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook με HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook με κείμενο</resource>

@@ -156,6 +156,11 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_undo">Atsaukt {0}</resource>
 		<resource name="editor_uponelevel">Pacelt</resource>
 		<resource name="editor_uptotop">Pacelt virspusē</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI klients</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook ar HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook ar tekstu</resource>

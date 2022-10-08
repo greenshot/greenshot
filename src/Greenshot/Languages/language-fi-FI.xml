@@ -111,6 +111,11 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_title">Greenshot kuvan muokkaus</resource>
 		<resource name="editor_uponelevel">Siirrä eteenpäin</resource>
 		<resource name="editor_uptotop">Tuo eteen</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="error">Virhe</resource>
 		<resource name="error_multipleinstances">Greenshot on jo käynnissä.</resource>
 		<resource name="error_nowriteaccess">Tiedoston tallennus epäonnistui paikkaan {0}.

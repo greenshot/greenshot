@@ -164,6 +164,11 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_undo">Võtke tagasi {0}</resource>
 		<resource name="editor_uponelevel">Aste ülespoole</resource>
 		<resource name="editor_uptotop">Kuni ülesse äärde</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="EmailFormat.MAPI">MAPI klient</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook koos HTML-iga</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook koos tekstiga</resource>

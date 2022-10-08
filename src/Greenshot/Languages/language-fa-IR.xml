@@ -124,6 +124,11 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_title">ویرایشگر گرین شات</resource>
 		<resource name="editor_uponelevel">یک سطح بالا</resource>
 		<resource name="editor_uptotop">به بالاترین سطح</resource>
+		<resource name="editor_zoom_best_fit">Best fit</resource>
+		<resource name="editor_zoom">Zoom</resource>
+		<resource name="editor_zoom_in">Zoom In</resource>
+		<resource name="editor_zoom_out">Zoom Out</resource>
+		<resource name="editor_zoom_actual_size">Actual size</resource>
 		<resource name="error">اشتباه</resource>
 		<resource name="error_multipleinstances">.گرین شات قبلا اجرا شده است</resource>
 		<resource name="error_nowriteaccess">.ذخیره سازی در  {0} امکانپذیر نمیباشد
