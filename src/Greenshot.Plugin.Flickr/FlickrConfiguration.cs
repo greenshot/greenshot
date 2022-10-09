@@ -20,6 +20,7 @@
  */
 
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Flickr.Forms;
@@ -86,5 +87,21 @@ namespace Greenshot.Plugin.Flickr
 
             return false;
         }
+
+        /// <summary>
+        /// Upgrade certain values
+        /// </summary>
+        public override void AfterLoad()
+        {
+            var coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+            bool isUpgradeFrom12 = coreConfiguration.LastSaveWithVersion?.StartsWith("1.2") ?? false;
+            // Clear token when we upgrade from 1.2 to 1.3 as it is no longer valid, discussed in #421
+            if (!isUpgradeFrom12) return;
+
+            // We have an upgrade, remove all previous credentials.
+            FlickrToken = null;
+            FlickrTokenSecret = null;
+        }
+
     }
 }

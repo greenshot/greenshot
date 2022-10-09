@@ -41,7 +41,7 @@ namespace Greenshot.Plugin.Office.Destinations
 
         static OneNoteDestination()
         {
-            exePath = PluginUtils.GetExePath("ONENOTE.EXE");
+            exePath = OfficeUtils.GetOfficeExePath("ONENOTE.EXE") ?? PluginUtils.GetExePath("ONENOTE.EXE");
             if (exePath != null && File.Exists(exePath))
             {
                 WindowDetails.AddProcessToExcludeFromFreeze("onenote");

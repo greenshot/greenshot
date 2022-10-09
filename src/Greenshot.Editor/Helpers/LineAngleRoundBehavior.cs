@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,10 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace Greenshot.Editor.Helpers
 {
-    public interface IHaveScaleOptions
+    public class LineAngleRoundBehavior : IDoubleProcessor
     {
-        ScaleOptions GetScaleOptions();
+        public static readonly LineAngleRoundBehavior INSTANCE = new();
+
+        private LineAngleRoundBehavior()
+        {
+        }
+
+        public double Process(double angle)
+        {
+            return Math.Round(angle / 15) * 15;
+        }
     }
 }

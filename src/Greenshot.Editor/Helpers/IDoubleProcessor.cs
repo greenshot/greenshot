@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,8 +21,8 @@
 
 namespace Greenshot.Editor.Helpers
 {
-    public interface IHaveScaleOptions
+    public interface IDoubleProcessor
     {
-        ScaleOptions GetScaleOptions();
+        double Process(double d);
     }
 }

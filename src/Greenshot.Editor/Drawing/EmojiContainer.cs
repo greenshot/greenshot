@@ -166,9 +166,9 @@ namespace Greenshot.Editor.Drawing
             return image;
         }
 
-        public ScaleHelper.ScaleOptions GetScaleOptions()
+        public ScaleOptions GetScaleOptions()
         {
-            return ScaleHelper.ScaleOptions.Rational;
+            return ScaleOptions.Rational;
         }
     }
 }

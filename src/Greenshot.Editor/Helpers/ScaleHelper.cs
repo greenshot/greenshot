@@ -33,26 +33,7 @@ namespace Greenshot.Editor.Helpers
     /// </summary>
     public static class ScaleHelper
     {
-        [Flags]
-        public enum ScaleOptions
-        {
             /// <summary>
-            /// Default scale behavior.
-            /// </summary>
-            Default = 0x00,
-
-            /// <summary>
-            /// Scale a rectangle in two our four directions, mirrored at it's center coordinates
-            /// </summary>
-            Centered = 0x01,
-
-            /// <summary>
-            /// Scale a rectangle maintaining it's aspect ratio
-            /// </summary>
-            Rational = 0x02
-        }
-
-        /// <summary>
         /// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
         /// </summary>
         /// <param name="currentSize">the size of the element to be resized</param>
@@ -231,16 +212,14 @@ namespace Greenshot.Editor.Helpers
         /// Scale the boundsBeforeResize with the specified position and new location, using the angle angleRoundBehavior
         /// </summary>
         /// <param name="boundsBeforeResize">NativeRect</param>
-        /// <param name="gripperPosition">Positions</param>
         /// <param name="cursorX">int</param>
         /// <param name="cursorY">int</param>
         /// <param name="angleRoundBehavior">IDoubleProcessor</param>
-        /// <param name="options">ScaleOptionsProcessor</param>
+		/// <param name="options">ScaleOptionsProcessor</param>
         /// <returns>NativeRectFloat</returns>
-        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, Positions gripperPosition, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior, ScaleOptions? options = null)
+        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior, ScaleOptions? options = null)
         {
             options ??= GetScaleOptions();
-
             NativeRectFloat result = boundsBeforeResize;
             bool rationalScale = (options & ScaleOptions.Rational) == ScaleOptions.Rational;
             bool centeredScale = (options & ScaleOptions.Centered) == ScaleOptions.Centered;
@@ -281,38 +260,5 @@ namespace Greenshot.Editor.Helpers
             if (maintainAspectRatio) opts |= ScaleOptions.Rational;
             return opts;
         }
-
-        public interface IDoubleProcessor
-        {
-            double Process(double d);
         }
-
-        public class ShapeAngleRoundBehavior : IDoubleProcessor
-        {
-            public static readonly ShapeAngleRoundBehavior INSTANCE = new();
-
-            private ShapeAngleRoundBehavior()
-            {
-            }
-
-            public double Process(double angle)
-            {
-                return Math.Round((angle + 45) / 90) * 90 - 45;
-            }
-        }
-
-        public class LineAngleRoundBehavior : IDoubleProcessor
-        {
-            public static readonly LineAngleRoundBehavior INSTANCE = new();
-
-            private LineAngleRoundBehavior()
-            {
-            }
-
-            public double Process(double angle)
-            {
-                return Math.Round(angle / 15) * 15;
-            }
-        }
-    }
 }

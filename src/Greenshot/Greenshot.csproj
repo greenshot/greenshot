@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tools.InnoSetup" version="6.2.0" GeneratePathProperty="true" />
+    <PackageReference Include="Tools.InnoSetup" version="6.2.1" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>

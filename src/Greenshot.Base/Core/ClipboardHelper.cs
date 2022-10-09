@@ -386,6 +386,7 @@ EndSelection:<<<<<<<4
         /// <returns>IEnumerable{(MemoryStream,string)}</returns>
         private static IEnumerable<(MemoryStream stream,string filename)> IterateClipboardContent(IDataObject dataObject)
         {
+            if (dataObject == null) yield break;
             var fileDescriptors = AvailableFileDescriptors(dataObject);
             if (fileDescriptors == null) yield break;
 
@@ -499,6 +500,10 @@ EndSelection:<<<<<<<4
         public static Image GetImage()
         {
             IDataObject clipboardData = GetDataObject();
+            if (clipboardData == null)
+            {
+                return null;
+            }
             // Return the first image
             foreach (var clipboardImage in GetImages(clipboardData))
             {
@@ -520,7 +525,7 @@ EndSelection:<<<<<<<4
             Bitmap singleImage = GetImage(dataObject);
             if (singleImage != null)
             {
-                Log.InfoFormat($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
+                Log.Info($"Got {singleImage.GetType()} from clipboard with size {singleImage.Size}");
                 yield return singleImage;
                 yield break;
             }
