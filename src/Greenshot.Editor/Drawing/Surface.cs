@@ -39,7 +39,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 using log4net;
 
@@ -60,6 +62,16 @@ namespace Greenshot.Editor.Drawing
         ///     This value is used to start counting the step labels
         /// </summary>
         private int _counterStart = 1;
+
+        /// <summary>
+        /// The image used for the color picker cursor initialized once form has loaded
+        /// </summary>
+        private Cursor colorPickerCursor = null;
+
+        /// <summary>
+        /// The image used for the color picker cursor initialized once form has loaded
+        /// </summary>
+        private MovableShowColorForm _movableShowColorForm = new MovableShowColorForm();
 
         /// <summary>
         /// The GUID of the surface
@@ -483,6 +495,8 @@ namespace Greenshot.Editor.Drawing
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
             LOG.Debug("Creating surface!");
+            MouseEnter += SurfaceMouseEnter;
+            MouseLeave += SurfaceMouseLeave;
             MouseDown += SurfaceMouseDown;
             MouseUp += SurfaceMouseUp;
             MouseMove += SurfaceMouseMove;
@@ -502,6 +516,7 @@ namespace Greenshot.Editor.Drawing
             SetStyle(
                 ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.ContainerControl | ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.SupportsTransparentBackColor, true);
+            colorPickerCursor = Pipette.CreateCursor((Bitmap)new ComponentResourceManager(typeof(ImageEditorForm)).GetObject("colorPicker.Image"), 1, 14);
         }
 
         /// <summary>
@@ -788,6 +803,7 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.Path:
                     _undrawnElement = new FreehandContainer(this);
                     break;
+                case DrawingModes.ColorPicker:
                 case DrawingModes.None:
                     _undrawnElement = null;
                     break;
@@ -1415,6 +1431,7 @@ namespace Greenshot.Editor.Drawing
         private MouseEventArgs InverseZoomMouseCoordinates(MouseEventArgs e)
             => new MouseEventArgs(e.Button, e.Clicks, (int) (e.X / _zoomFactor), (int) (e.Y / _zoomFactor), e.Delta);
 
+
         /// <summary>
         /// This event handler is called when someone presses the mouse on a surface.
         /// </summary>
@@ -1473,7 +1490,14 @@ namespace Greenshot.Editor.Drawing
                 _drawingElement = null;
             }
 
-            if (_drawingElement == null && DrawingMode != DrawingModes.None)
+            if (DrawingMode == DrawingModes.ColorPicker)
+            {
+                var color = _movableShowColorForm.Color;
+                var colorString = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
+                ClipboardHelper.SetClipboardData(colorString);
+                SendMessageEvent(this, SurfaceMessageTyp.Info, colorString);
+            }
+            else if (_drawingElement == null && DrawingMode != DrawingModes.None)
             {
                 if (_undrawnElement == null)
                 {
@@ -1612,6 +1636,32 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+
+        /// <summary>
+        /// This event handler is called when the mouse enters the surface
+        /// </summary>
+        /// <param name="e"></param>
+        private void SurfaceMouseEnter(object sender, EventArgs e)
+        {
+            if (DrawingMode == DrawingModes.ColorPicker)
+            {
+                _movableShowColorForm.Visible = true;
+                Focus(); // steal back focus after the movable form takes it
+            }
+        }
+
+        /// <summary>
+        /// This event handler is called when the mouse leaves the surface
+        /// </summary>
+        /// <param name="e"></param>
+        private void SurfaceMouseLeave(object sender, EventArgs e)
+        {
+            if (DrawingMode == DrawingModes.ColorPicker)
+            {
+                _movableShowColorForm.Visible = false;
+            }
+        }
+
         /// <summary>
         /// This event handler is called when the mouse moves over the surface
         /// </summary>
@@ -1619,6 +1669,11 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
+            if (DrawingMode == DrawingModes.ColorPicker)
+            {
+                _movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
+            }
+
             e = InverseZoomMouseCoordinates(e);
 
             // Handle Adorners
@@ -1631,7 +1686,18 @@ namespace Greenshot.Editor.Drawing
 
             Point currentMouse = e.Location;
 
-            Cursor = DrawingMode != DrawingModes.None ? Cursors.Cross : Cursors.Default;
+            switch (DrawingMode)
+            {
+                case DrawingModes.None:
+                    Cursor = Cursors.Default;
+                    break;
+                case DrawingModes.ColorPicker:
+                    Cursor = colorPickerCursor;
+                    break;
+                default:
+                    Cursor = Cursors.Cross;
+                    break;
+            }
 
             if (!_mouseDown) return;
 
@@ -2100,6 +2166,11 @@ namespace Greenshot.Editor.Drawing
             if (DrawingMode == DrawingModes.Crop)
             {
                 ConfirmCrop(confirm);
+            }
+            else if (DrawingMode == DrawingModes.ColorPicker && !confirm)
+            {
+                Cursor = Cursors.Default;
+                _movableShowColorForm.Visible = false;
             }
             else
             {

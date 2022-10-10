@@ -65,7 +65,7 @@ namespace Greenshot.Editor.Controls
         /// <param name="hotspotX">Hotspot X coordinate</param>
         /// <param name="hotspotY">Hotspot Y coordinate</param>
         /// <returns>Cursor</returns>
-        private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
+        public static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
         {
             using SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon());
             NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);

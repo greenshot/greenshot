@@ -24,6 +24,7 @@ namespace Greenshot.Base.Interfaces
     public enum DrawingModes
     {
         None,
+        ColorPicker,
         Rect,
         Ellipse,
         Text,

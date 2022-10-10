@@ -60,7 +60,8 @@ namespace Greenshot.Editor.Forms {
 			this.panel1 = new NonJumpingPanel();
 			this.toolsToolStrip = new ToolStripEx();
 			this.btnCursor = new GreenshotToolStripButton();
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnColorPicker = new GreenshotToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnRect = new GreenshotToolStripButton();
 			this.btnEllipse = new GreenshotToolStripButton();
 			this.btnLine = new GreenshotToolStripButton();
@@ -327,7 +328,8 @@ namespace Greenshot.Editor.Forms {
 			this.toolsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.toolsToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.btnCursor,
-									this.toolStripSeparator1,
+                                    this.btnColorPicker,
+                                    this.toolStripSeparator1,
 									this.btnRect,
 									this.btnEllipse,
 									this.btnLine,
@@ -362,10 +364,20 @@ namespace Greenshot.Editor.Forms {
 			this.btnCursor.LanguageKey = "editor_cursortool";
 			this.btnCursor.Name = "btnCursor";
 			this.btnCursor.Click += new System.EventHandler(this.BtnCursorClick);
-			// 
-			// toolStripSeparator1
-			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
+            // 
+            // btnColorPicker
+            // 
+            this.btnColorPicker.CheckOnClick = true;
+            this.btnColorPicker.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnColorPicker.Image = ((System.Drawing.Image)(resources.GetObject("colorPicker.Image")));
+            this.btnColorPicker.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnColorPicker.LanguageKey = "colorpicker_title";
+            this.btnColorPicker.Name = "btnColorPicker";
+            this.btnColorPicker.Click += new System.EventHandler(this.BtnColorPickerClick);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
 			// 
 			// btnRect
 			// 
@@ -1969,7 +1981,8 @@ namespace Greenshot.Editor.Forms {
 		private GreenshotToolStripMenuItem upOneLevelToolStripMenuItem;
 		private GreenshotToolStripMenuItem arrangeToolStripMenuItem;
 		private GreenshotToolStripButton btnCursor;
-		private ToolStripEx toolsToolStrip;
+        private GreenshotToolStripButton btnColorPicker;
+        private ToolStripEx toolsToolStrip;
 		private GreenshotToolStripButton btnArrow;
 		private GreenshotToolStripMenuItem drawArrowToolStripMenuItem;
 		private GreenshotToolStripMenuItem drawFreehandToolStripMenuItem;
