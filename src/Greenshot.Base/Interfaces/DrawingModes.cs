@@ -35,6 +35,7 @@ namespace Greenshot.Base.Interfaces
         Bitmap,
         Path,
         SpeechBubble,
-        StepLabel
+        StepLabel,
+        Redact,
     }
 }
