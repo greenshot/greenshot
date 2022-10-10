@@ -452,7 +452,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.btnEmoji.CheckOnClick = true;
 			this.btnEmoji.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnEmoji.Image = EmojiRenderer.GetBitmap("🙂", 32, useSystemFont: false);
+            this.btnEmoji.Image = EmojiRenderer.GetBitmap("🙂", 32);
 			this.btnEmoji.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEmoji.Text = "Emoji (M)";
 			this.btnEmoji.Name = "btnEmoji";

@@ -20,16 +20,11 @@ namespace Greenshot.Editor.Controls
             set { SetValue(EmojiProperty, value); }
         }
 
-        private static void OnUseSystemFontPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((EmojiControl)d).Source = null;
-        }
-
         protected override void OnRender(DrawingContext dc)
         {
             if (Source == null && !string.IsNullOrEmpty(Emoji))
             {
-                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48, useSystemFont: false);
+                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48);
             }
 
             base.OnRender(dc);

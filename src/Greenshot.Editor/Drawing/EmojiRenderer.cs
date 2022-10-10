@@ -30,30 +30,22 @@ namespace Greenshot.Editor.Drawing
             return fontFamily;
         });
 
-        private static Lazy<FontFamily> _segoeUI = new Lazy<FontFamily>(() =>
-        {
-            using var fileStream = new FileStream(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), @"Fonts\seguiemj.ttf"), FileMode.Open, FileAccess.Read);
-            _fontCollection.Add(fileStream);
-            _fontCollection.TryGet("Segoe UI Emoji", out var fontFamily);
-            return fontFamily;
-        });
-
-        public static Image<Rgba32> GetImage(string emoji, int iconSize, bool useSystemFont)
+        public static Image<Rgba32> GetImage(string emoji, int iconSize)
         {
             var image = new Image<Rgba32>(iconSize, iconSize);
 
-            RenderEmoji(emoji, iconSize, image, useSystemFont);
+            RenderEmoji(emoji, iconSize, image);
             return image;
         }
 
-        private static void RenderEmoji(string emoji, int iconSize, SixLabors.ImageSharp.Image image, bool useSystemFont)
+        private static void RenderEmoji(string emoji, int iconSize, SixLabors.ImageSharp.Image image)
         {
-            var fontFamily = useSystemFont ? _segoeUI.Value : _twemoji.Value;
-            var font = fontFamily.CreateFont(useSystemFont ? iconSize * 0.95f : iconSize, FontStyle.Regular);
-            var verticalOffset = useSystemFont ? -font.Size * 0.050f : font.Size * 0.045f;
+            var fontFamily = _twemoji.Value;
+            var font = fontFamily.CreateFont(iconSize, FontStyle.Regular);
+            var verticalOffset = font.Size * 0.045f;
             var textOptions = new TextOptions(font)
             {
-                Origin = new SixLabors.ImageSharp.PointF(font.Size / 2.0f, font.Size / 2.0f - verticalOffset),
+                Origin = new SixLabors.ImageSharp.PointF(font.Size / 2.0f, font.Size / 2.0f + verticalOffset),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -61,7 +53,7 @@ namespace Greenshot.Editor.Drawing
             image.Mutate(x => x.DrawText(textOptions, emoji, SixLabors.ImageSharp.Color.Black));
         }
 
-        public static Image GetBitmap(string emoji, int iconSize, bool useSystemFont)
+        public static Image GetBitmap(string emoji, int iconSize)
         {
             int width = iconSize;
             int height = iconSize;
@@ -74,7 +66,7 @@ namespace Greenshot.Editor.Drawing
                 unsafe
                 {
                     var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, width: width, height: height);
-                    RenderEmoji(emoji, iconSize, image, useSystemFont);
+                    RenderEmoji(emoji, iconSize, image);
                 }
             }
             finally
@@ -85,7 +77,7 @@ namespace Greenshot.Editor.Drawing
             return bitmap;
         }
 
-        public static BitmapSource GetBitmapSource(string emoji, int iconSize, bool useSystemFont)
+        public static BitmapSource GetBitmapSource(string emoji, int iconSize)
         {
             var pixelFormat = PixelFormats.Bgra32;
             int width = iconSize;
@@ -95,7 +87,7 @@ namespace Greenshot.Editor.Drawing
 
             var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(byteMemory: pixels, width: width, height: height);
 
-            RenderEmoji(emoji, iconSize, image, useSystemFont);
+            RenderEmoji(emoji, iconSize, image);
 
             var source = BitmapSource.Create(pixelWidth: width, pixelHeight: height, dpiX: 96, dpiY: 96, pixelFormat: pixelFormat, palette: null, pixels: pixels, stride: stride);
             source.Freeze();

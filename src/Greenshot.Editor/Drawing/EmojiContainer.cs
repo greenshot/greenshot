@@ -155,7 +155,7 @@ namespace Greenshot.Editor.Drawing
             var iconSize = Math.Min(Bounds.Width, Bounds.Height);
             if (iconSize <= 0) return null;
 
-            var image = EmojiRenderer.GetBitmap(Emoji, iconSize, useSystemFont: false);
+            var image = EmojiRenderer.GetBitmap(Emoji, iconSize);
             if (RotationAngle != 0)
             {
                 var newImage = image.Rotate(RotationAngle);
