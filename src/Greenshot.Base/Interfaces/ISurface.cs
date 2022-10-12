@@ -40,6 +40,7 @@ namespace Greenshot.Base.Interfaces
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
         event SurfaceElementEventHandler MovingElementChanged;
+        event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
         event SurfaceBackgroundColorEventHandler BackgroundColorChanged;
         event SurfaceLineThicknessEventHandler LineThicknessChanged;
@@ -203,6 +204,7 @@ namespace Greenshot.Base.Interfaces
         void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true);
 
         void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
+        void ResizeCanvas(int left, int right, int top, int bottom);
         void ApplyBitmapEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }

@@ -105,6 +105,14 @@ namespace Greenshot.Editor.Drawing
             remove => _surfaceSizeChanged -= value;
         }
 
+        [NonSerialized] private SurfaceExpandedEventHandler _surfaceExpanded;
+
+        public event SurfaceExpandedEventHandler SurfaceExpanded
+        {
+            add => _surfaceExpanded += value;
+            remove => _surfaceExpanded -= value;
+        }
+
         [NonSerialized] private SurfaceMessageEventHandler _surfaceMessage;
 
         public event SurfaceMessageEventHandler SurfaceMessage
@@ -1030,6 +1038,20 @@ namespace Greenshot.Editor.Drawing
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
             SetImage(newBitmap, false);
             Invalidate();
+        }
+
+        /// <summary>
+        /// Set the canvas to a new size using the given bounds.
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
+        public void ResizeCanvas(int left, int right, int top, int bottom)
+        {
+            var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
+            ApplyBitmapEffect(resizeEffect);
+            _surfaceExpanded(this, null);
         }
 
         /// <summary>
