@@ -930,19 +930,33 @@ namespace Greenshot.Editor.Drawing
         /// <param name="targetElement"></param>
         public void SnapToEdge(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
-            int xMovement = 0, yMovement = 0;
-
-            if (direction == Direction.LEFT)
-                xMovement = -targetElement.Location.X;
-            else if (direction == Direction.RIGHT)
-                xMovement = surface.Image.Width - targetElement.Location.X - targetElement.Width;
-            else if (direction == Direction.TOP)
-                yMovement = -targetElement.Location.Y;
-            else if (direction == Direction.BOTTOM)
-                yMovement = surface.Image.Height - targetElement.Location.Y - targetElement.Height;
+            Size surfaceBounds = new(surface.Image.Width, surface.Image.Height);
+            NativeRectFloat newBounds = SnapHelper(direction, targetElement.Bounds, surfaceBounds);
 
             targetElement.MakeBoundsChangeUndoable(allowMerge: false);
-            targetElement.MoveBy(xMovement, yMovement);
+            targetElement.ApplyBounds(newBounds);
+        }
+
+        public static NativeRectFloat SnapHelper(Direction direction, NativeRect bounds, Size surfaceSize)
+        {
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    bounds = bounds.ChangeX(0);
+                    break;
+                case Direction.RIGHT:
+                    bounds = bounds.Offset(offsetX: surfaceSize.Width - bounds.Right);
+                    break;
+                case Direction.TOP:
+                    bounds = bounds.ChangeY(0);
+                    break;
+                case Direction.BOTTOM:
+                    bounds = bounds.Offset(offsetY: surfaceSize.Height - bounds.Bottom);
+                    break;
+                default:
+                    break;
+            }
+            return bounds;
         }
 
         /// <summary>
@@ -969,23 +983,35 @@ namespace Greenshot.Editor.Drawing
         public void PushOut(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
             int left = 0, right = 0, top = 0, bottom = 0;
-            if (direction == Direction.LEFT)
-                left = targetElement.Width;
-            else if (direction == Direction.RIGHT)
-                right = targetElement.Width;
-            else if (direction == Direction.TOP)
-                top = targetElement.Height;
-            else if (direction == Direction.BOTTOM)
-                bottom = targetElement.Height;
+
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    left = targetElement.Width;
+                    break;
+                case Direction.RIGHT:
+                    right = targetElement.Width;
+                    break;
+                case Direction.TOP:
+                    top = targetElement.Height;
+                    break;
+                case Direction.BOTTOM:
+                    bottom = targetElement.Height;
+                    break;
+                default:
+                    break;
+            }
             
             surface.ResizeCanvas(left, right, top, bottom);
 
             // Move target object
             SnapToEdge(direction, surface, targetElement);
+
             if (direction == Direction.LEFT || direction == Direction.RIGHT)
                 SnapToEdge(Direction.TOP, surface, targetElement);
             else if (direction == Direction.TOP || direction == Direction.BOTTOM)
                 SnapToEdge(Direction.LEFT, surface, targetElement);
+
             surface.DeselectAllElements();
         }
     }
