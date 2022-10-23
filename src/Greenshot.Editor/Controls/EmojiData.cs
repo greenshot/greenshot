@@ -25,22 +25,7 @@ namespace Greenshot.Editor.Controls
     public static class EmojiData
     {
         private static Task _init;
-
-        public static IEnumerable<Emoji> AllEmoji
-            => from g in AllGroups
-               from e in g.EmojiList
-               select e;
-
         public static IList<Group> AllGroups { get; private set; }
-
-        public static IDictionary<string, Emoji> LookupByText { get; private set; }
-            = new Dictionary<string, Emoji>();
-        public static IDictionary<string, Emoji> LookupByName { get; private set; }
-            = new Dictionary<string, Emoji>();
-
-        public static Regex MatchOne { get; private set; }
-        public static HashSet<char> MatchStart { get; private set; }
-            = new HashSet<char>();
 
         public static void Load()
         {
@@ -86,9 +71,6 @@ namespace Greenshot.Editor.Controls
                    select e;
         }
 
-        private static string m_match_one_string;
-
-        // FIXME: this could be read directly from emoji-test.txt.gz
         private static List<string> SkinToneComponents = new List<string>
         {
             "🏻", // light skin tone
@@ -111,6 +93,7 @@ namespace Greenshot.Editor.Controls
 
         private static void ParseEmojiList()
         {
+            var lookup_by_name = new Dictionary<string, Emoji>();
             var match_group = new Regex(@"^# group: (.*)");
             var match_subgroup = new Regex(@"^# subgroup: (.*)");
             var match_sequence = new Regex(@"^([0-9a-fA-F ]+[0-9a-fA-F]).*; *([-a-z]*) *# [^ ]* (E[0-9.]* )?(.*)");
@@ -204,15 +187,13 @@ namespace Greenshot.Editor.Controls
                         Text = text,
                         SubGroup = current_subgroup,
                     };
-                    // FIXME: this prevents LookupByText from working with the unqualified version
-                    LookupByText[text] = emoji;
-                    LookupByName[ToColonSyntax(name)] = emoji;
-                    MatchStart.Add(text[0]);
+                    
+                    lookup_by_name[ToColonSyntax(name)] = emoji;
 
                     // Get the left part of the name and check whether we’re a variation of an existing
                     // emoji. If so, append to that emoji. Otherwise, add to current subgroup.
                     // FIXME: does not work properly because variations can appear before the generic emoji
-                    if (name.Contains(":") && LookupByName.TryGetValue(ToColonSyntax(name.Split(':')[0]), out var parent_emoji))
+                    if (name.Contains(":") && lookup_by_name.TryGetValue(ToColonSyntax(name.Split(':')[0]), out var parent_emoji))
                     {
                         if (parent_emoji.VariationList.Count == 0)
                             parent_emoji.VariationList.Add(parent_emoji);
@@ -226,17 +207,6 @@ namespace Greenshot.Editor.Controls
             // Remove the Component group. Not sure we want to have the skin tones in the picker.
             list.RemoveAll(g => g.Name == "Component");
             AllGroups = list;
-
-            // Make U+fe0f optional in the regex so that we can match any combination.
-            // FIXME: this is the starting point to implement variation selectors.
-            var sortedtext = alltext.OrderByDescending(x => x.Length);
-            var match_other = string.Join("|", sortedtext)
-                                    .Replace("*", "[*]")
-                                    .Replace("\ufe0f", "\ufe0f?");
-
-            // Build a regex that matches any Emoji
-            m_match_one_string = match_family.ToString() + "|" + match_other;
-            MatchOne = new Regex("(" + m_match_one_string + ")");
         }
 
         private static IEnumerable<string> EmojiDescriptionLines()
@@ -284,4 +254,3 @@ namespace Greenshot.Editor.Controls
         private bool m_has_more;
     }
 }
-
