@@ -13,7 +13,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
-            <ListView Name="VariationListView" ItemsSource="{Binding VariationList}"
+            <ListView Name="VariationListView" ItemsSource="{Binding AllVariations}"
                       BorderThickness="1" Height="Auto" Padding="0" Margin="1"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"

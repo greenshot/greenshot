@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Controls
             InitializeComponent();
         }
 
-        public IList<EmojiData.Group> EmojiGroups => EmojiData.AllGroups;
+        public IList<Emojis.Group> EmojiGroups => EmojiData.Data.Groups;
 
         // Backwards compatibility for when the backend was a TextBlock.
         public double FontSize
@@ -77,8 +77,8 @@ namespace Greenshot.Editor.Controls
 
         private void OnEmojiPicked(object sender, RoutedEventArgs e)
         {
-            if (sender is not Control { DataContext: EmojiData.Emoji emoji }) return;
-            if (emoji.VariationList.Count != 0 && sender is not Button) return;
+            if (sender is not Control { DataContext: Emojis.Emoji emoji }) return;
+            if (emoji.Variations.Count != 0 && sender is not Button) return;
 
             Selection = emoji.Text;
             Button_INTERNAL.IsChecked = false;

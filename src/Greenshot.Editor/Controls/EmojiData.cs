@@ -16,59 +16,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using SixLabors.Fonts.Unicode;
 
 namespace Greenshot.Editor.Controls
 {
     public static class EmojiData
     {
-        private static Task _init;
-        public static IList<Group> AllGroups { get; private set; }
+        private const string FilePath = "emojis.xml";
+
+        public static Emojis Data { get; private set; } = new Emojis();
 
         public static void Load()
         {
-            _init ??= Task.Run(ParseEmojiList);
-        }
+            var x = new XmlSerializer(typeof(Emojis));
 
-        public class Emoji
-        {
-            public string Name { get; set; }
-            public string Text { get; set; }
-            public bool HasVariations => VariationList.Count > 0;
-
-            public Group Group => SubGroup.Group;
-            public SubGroup SubGroup;
-
-            public IList<Emoji> VariationList { get; } = new List<Emoji>();
-        }
-
-        public class SubGroup
-        {
-            public string Name { get; set; }
-            public Group Group;
-
-            public IList<Emoji> EmojiList { get; } = new List<Emoji>();
-        }
-
-        public class Group
-        {
-            public string Name { get; set; }
-            public string Icon => SubGroups.FirstOrDefault()?.EmojiList.FirstOrDefault()?.Text;
-
-            public IList<SubGroup> SubGroups { get; } = new List<SubGroup>();
-
-            public int EmojiCount
-                => SubGroups.Select(s => s.EmojiList.Count).Sum();
-
-            public IEnumerable<IEnumerable<Emoji>> EmojiChunkList
-                => new ChunkHelper<Emoji>(EmojiList, 8);
-
-            public IEnumerable<Emoji> EmojiList
-                => from s in SubGroups
-                   from e in s.EmojiList
-                   select e;
+            if (File.Exists(FilePath))
+            {
+                Data = (Emojis)x.Deserialize(new XmlTextReader(FilePath));
+            }
+            else
+            {
+                // To be removed
+                ParseEmojiList();
+                x.Serialize(new XmlTextWriter(FilePath, Encoding.UTF8), Data);
+            }
         }
 
         private static List<string> SkinToneComponents = new List<string>
@@ -93,7 +68,7 @@ namespace Greenshot.Editor.Controls
 
         private static void ParseEmojiList()
         {
-            var lookup_by_name = new Dictionary<string, Emoji>();
+            var lookup_by_name = new Dictionary<string, Emojis.Emoji>();
             var match_group = new Regex(@"^# group: (.*)");
             var match_subgroup = new Regex(@"^# subgroup: (.*)");
             var match_sequence = new Regex(@"^([0-9a-fA-F ]+[0-9a-fA-F]).*; *([-a-z]*) *# [^ ]* (E[0-9.]* )?(.*)");
@@ -105,26 +80,25 @@ namespace Greenshot.Editor.Controls
             var match_family = new Regex($"{adult}(\u200d{adult})*(\u200d{child})+");
 
             var qualified_lut = new Dictionary<string, string>();
-            var list = new List<Group>();
             var alltext = new List<string>();
 
-            Group current_group = null;
-            SubGroup current_subgroup = null;
+            Emojis.Group current_group = null;
+            Emojis.Group current_subgroup = null;
 
             foreach (var line in EmojiDescriptionLines())
             {
                 var m = match_group.Match(line);
                 if (m.Success)
                 {
-                    current_group = new Group { Name = m.Groups[1].ToString() };
-                    list.Add(current_group);
+                    current_group = new Emojis.Group { Name = m.Groups[1].ToString() };
+                    Data.Groups.Add(current_group);
                     continue;
                 }
 
                 m = match_subgroup.Match(line);
                 if (m.Success)
                 {
-                    current_subgroup = new SubGroup { Name = m.Groups[1].ToString(), Group = current_group };
+                    current_subgroup = new Emojis.Group { Name = m.Groups[1].ToString() };
                     current_group.SubGroups.Add(current_subgroup);
                     continue;
                 }
@@ -181,13 +155,8 @@ namespace Greenshot.Editor.Controls
 
                     qualified_lut[unqualified] = text;
 
-                    var emoji = new Emoji
-                    {
-                        Name = name,
-                        Text = text,
-                        SubGroup = current_subgroup,
-                    };
-                    
+                    var emoji = new Emojis.Emoji { Name = name, Text = text, };
+
                     lookup_by_name[ToColonSyntax(name)] = emoji;
 
                     // Get the left part of the name and check whether we’re a variation of an existing
@@ -195,18 +164,15 @@ namespace Greenshot.Editor.Controls
                     // FIXME: does not work properly because variations can appear before the generic emoji
                     if (name.Contains(":") && lookup_by_name.TryGetValue(ToColonSyntax(name.Split(':')[0]), out var parent_emoji))
                     {
-                        if (parent_emoji.VariationList.Count == 0)
-                            parent_emoji.VariationList.Add(parent_emoji);
-                        parent_emoji.VariationList.Add(emoji);
+                        parent_emoji.Variations.Add(emoji);
                     }
                     else
-                        current_subgroup.EmojiList.Add(emoji);
+                        current_subgroup.Emojis.Add(emoji);
                 }
             }
 
             // Remove the Component group. Not sure we want to have the skin tones in the picker.
-            list.RemoveAll(g => g.Name == "Component");
-            AllGroups = list;
+            Data.Groups.RemoveAll(g => g.Name == "Component");
         }
 
         private static IEnumerable<string> EmojiDescriptionLines()
@@ -214,6 +180,49 @@ namespace Greenshot.Editor.Controls
             using var fileStream = new FileStream(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), @"emoji-test.txt"), FileMode.Open, FileAccess.Read);
             using var streamReader = new StreamReader(fileStream);
             return streamReader.ReadToEnd().Split('\r', '\n');
+        }
+    }
+
+    public class Emojis
+    {
+        [XmlElement(ElementName = "Group")] 
+        public List<Group> Groups { get; set; } = new();
+            
+        public class Group
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+            
+            [XmlElement(ElementName = "Group")]
+            public List<Group> SubGroups { get; set; } = new();
+            
+            [XmlElement(ElementName = "Emoji")]
+            public List<Emoji> Emojis { get; set; } = new();
+
+            public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
+
+            public string Icon => SubGroups.FirstOrDefault()?.Emojis.FirstOrDefault()?.Text;
+
+            public IEnumerable<Emoji> EmojiList
+                => from s in SubGroups
+                   from e in s.Emojis
+                   select e;
+        }
+            
+        public class Emoji
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+            
+            [XmlAttribute]
+            public string Text { get; set; }
+            
+            [XmlArray]
+            public List<Emoji> Variations { get; set; }
+
+            public bool HasVariations => Variations.Count > 0;
+
+            public IEnumerable<Emoji> AllVariations => HasVariations ? new[] { this }.Union(Variations) : Array.Empty<Emoji>();
         }
     }
 
@@ -227,12 +236,10 @@ namespace Greenshot.Editor.Controls
 
         public IEnumerator<IEnumerable<T>> GetEnumerator()
         {
-            using (var enumerator = m_elements.GetEnumerator())
-            {
-                m_has_more = enumerator.MoveNext();
-                while (m_has_more)
-                    yield return GetNextBatch(enumerator).ToList();
-            }
+            using var enumerator = m_elements.GetEnumerator();
+            m_has_more = enumerator.MoveNext();
+            while (m_has_more)
+                yield return GetNextBatch(enumerator).ToList();
         }
 
         private IEnumerable<T> GetNextBatch(IEnumerator<T> enumerator)
@@ -246,8 +253,7 @@ namespace Greenshot.Editor.Controls
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private readonly IEnumerable<T> m_elements;
         private readonly int m_size;
