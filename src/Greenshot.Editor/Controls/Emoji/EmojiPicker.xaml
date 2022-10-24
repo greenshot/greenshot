@@ -4,7 +4,7 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:controls="clr-namespace:Greenshot.Editor.Controls"
+            xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
             Orientation="Horizontal"
             mc:Ignorable="d">
 
@@ -36,7 +36,7 @@
                         <Button Background="Transparent" BorderBrush="Transparent"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40" ToolTip="{Binding Path=Name}">
-                            <controls:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
+                            <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
                         </Button>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -48,7 +48,7 @@
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
                           Click="OnEmojiPicked" Focusable="False" ToolTip="{Binding Path=Name}">
                 <Grid>
-                    <controls:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
+                    <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
@@ -64,7 +64,7 @@
     </StackPanel.Resources>
 
     <ToggleButton x:Name="Button_INTERNAL">
-        <controls:EmojiControl x:Name="Image" Emoji="{Binding ElementName=StackPanel_INTERNAL, Mode=OneWay, Path=Selection, UpdateSourceTrigger=PropertyChanged}"/>
+        <emoji:EmojiControl x:Name="Image" Emoji="{Binding ElementName=StackPanel_INTERNAL, Mode=OneWay, Path=Selection, UpdateSourceTrigger=PropertyChanged}"/>
     </ToggleButton>
 
     <Popup IsOpen="{Binding IsChecked, ElementName=Button_INTERNAL, Mode=TwoWay}"
@@ -77,11 +77,11 @@
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <controls:EmojiControl Height="24" Emoji="{Binding Icon}" >
+                                <emoji:EmojiControl Height="24" Emoji="{Binding Icon}" >
                                     <Image.ToolTip>
                                         <TextBlock Text="{Binding Name}"/>
                                     </Image.ToolTip>
-                                </controls:EmojiControl>
+                                </emoji:EmojiControl>
                             </Grid>
                         </DataTemplate>
                     </TabControl.ItemTemplate>

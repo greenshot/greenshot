@@ -22,9 +22,11 @@
 using Greenshot.Base.Controls;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 
-namespace Greenshot.Editor.Forms {
-	partial class ImageEditorForm {
+namespace Greenshot.Editor.Forms
+{
+    partial class ImageEditorForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>

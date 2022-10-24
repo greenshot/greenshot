@@ -17,6 +17,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Greenshot.Editor.Controls.Emoji;
 
 namespace Greenshot.Editor.Controls
 {

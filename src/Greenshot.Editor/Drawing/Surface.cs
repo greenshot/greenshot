@@ -39,6 +39,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Memento;
 using log4net;

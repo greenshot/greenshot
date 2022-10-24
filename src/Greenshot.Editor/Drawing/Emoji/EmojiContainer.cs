@@ -30,13 +30,13 @@ using Greenshot.Editor.Controls;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
-namespace Greenshot.Editor.Drawing
+namespace Greenshot.Editor.Drawing.Emoji
 {
     /// <summary>
     /// Description of EmojiContainer.
     /// </summary>
     [Serializable]
-    public class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
+    public sealed class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
     {
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;

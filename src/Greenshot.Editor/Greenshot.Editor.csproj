@@ -89,11 +89,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\emoji-test.txt" Link="%(LinkBase)\%(Filename)%(Extension)">
+    <ContentWithTargetPath Include="Controls\Emoji\emoji-test.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\TwemojiMozilla.ttf" Link="%(LinkBase)\%(Filename)%(Extension)">
+      <TargetPath>emoji-test.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Drawing\Emoji\TwemojiMozilla.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <TargetPath>TwemojiMozilla.ttf</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
 </Project>

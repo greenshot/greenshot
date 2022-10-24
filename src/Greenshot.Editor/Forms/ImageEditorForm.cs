@@ -45,7 +45,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Editor.Configuration;
-using Greenshot.Editor.Controls;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
