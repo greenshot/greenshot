@@ -11,15 +11,18 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
+#if DEBUG
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using SixLabors.Fonts.Unicode;
+#endif
 
 namespace Greenshot.Editor.Controls.Emoji
 {
@@ -28,27 +31,17 @@ namespace Greenshot.Editor.Controls.Emoji
     /// </summary>
     public static class EmojiData
     {
-        private const string FilePath = "emojis.xml";
+        private const string EmojisXmlFilePath = "emojis.xml";
+        private const string EmojisTestFile = @"emoji-test.txt.gz";
+#if DEBUG
+        private const string Adult = "(👨|👩)(🏻|🏼|🏽|🏾|🏿)?";
+        private const string Child = "(👦|👧|👶)(🏻|🏼|🏽|🏾|🏿)?";
+        private static readonly Regex MatchFamily = new($"{Adult}(\u200d{Adult})*(\u200d{Child})+");
 
-        public static Emojis Data { get; private set; } = new Emojis();
-
-        public static void Load()
-        {
-            var x = new XmlSerializer(typeof(Emojis));
-
-            if (File.Exists(FilePath))
-            {
-                Data = (Emojis)x.Deserialize(new XmlTextReader(FilePath));
-            }
-            else
-            {
-                // To be removed
-                ParseEmojiList();
-                x.Serialize(new XmlTextWriter(FilePath, Encoding.UTF8), Data);
-            }
-        }
-
-        private static readonly List<string> SkinToneComponents = new List<string>
+        private static readonly Regex MatchGroup = new(@"^# group: (.*)", RegexOptions.Compiled);
+        private static readonly Regex MatchSubgroup = new(@"^# subgroup: (.*)", RegexOptions.Compiled);
+        private static readonly Regex MatchSequence = new(@"^([0-9a-fA-F ]+[0-9a-fA-F]).*; *([-a-z]*) *# [^ ]* (E[0-9.]* )?(.*)", RegexOptions.Compiled);
+        private static readonly List<string> SkinToneComponents = new()
         {
             "🏻", // light skin tone
             "🏼", // medium-light skin tone
@@ -57,29 +50,51 @@ namespace Greenshot.Editor.Controls.Emoji
             "🏿", // dark skin tone
         };
 
-        private static readonly List<string> HairStyleComponents = new List<string>
+        private static readonly List<string> HairStyleComponents = new()
         {
             "🦰", // red hair
             "🦱", // curly hair
             "🦳", // white hair
             "🦲", // bald
         };
+        
+        private static readonly Regex MatchSkinTone = new($"({string.Join("|", SkinToneComponents)})", RegexOptions.Compiled);
+        private static readonly Regex MatchHairStyle = new($"({string.Join("|", HairStyleComponents)})", RegexOptions.Compiled);
 
-        private static string ToColonSyntax(string s)
-            => Regex.Replace(s.Trim().ToLowerInvariant(), "[^a-z0-9]+", "-");
+#endif 
+
+        public static Emojis Data { get; private set; } = new();
+
+        public static void Load()
+        {
+            var x = new XmlSerializer(typeof(Emojis));
+
+            if (File.Exists(EmojisXmlFilePath))
+            {
+                Data = (Emojis)x.Deserialize(new XmlTextReader(EmojisXmlFilePath));
+            }
+#if RELEASE
+            else
+            {
+                throw new NotSupportedException($"Missing {EmojisXmlFilePath}, can't load ");
+            }
+#elif DEBUG
+            else
+            {
+                // To be removed
+                ParseEmojiList();
+                x.Serialize(new XmlTextWriter(EmojisXmlFilePath, Encoding.UTF8), Data);
+            }
+#endif
+        }
+
+
+#if DEBUG
+       private static string ToColonSyntax(string s) => Regex.Replace(s.Trim().ToLowerInvariant(), "[^a-z0-9]+", "-");
 
         private static void ParseEmojiList()
         {
             var lookupByName = new Dictionary<string, Emojis.Emoji>();
-            var matchGroup = new Regex(@"^# group: (.*)");
-            var matchSubgroup = new Regex(@"^# subgroup: (.*)");
-            var matchSequence = new Regex(@"^([0-9a-fA-F ]+[0-9a-fA-F]).*; *([-a-z]*) *# [^ ]* (E[0-9.]* )?(.*)");
-            var matchSkinTone = new Regex($"({string.Join("|", SkinToneComponents)})");
-            var matchHairStyle = new Regex($"({string.Join("|", HairStyleComponents)})");
-
-            var adult = "(👨|👩)(🏻|🏼|🏽|🏾|🏿)?";
-            var child = "(👦|👧|👶)(🏻|🏼|🏽|🏾|🏿)?";
-            var matchFamily = new Regex($"{adult}(\u200d{adult})*(\u200d{child})+");
 
             var qualifiedLut = new Dictionary<string, string>();
             var allText = new List<string>();
@@ -89,7 +104,7 @@ namespace Greenshot.Editor.Controls.Emoji
 
             foreach (var line in EmojiDescriptionLines())
             {
-                var m = matchGroup.Match(line);
+                var m = MatchGroup.Match(line);
                 if (m.Success)
                 {
                     currentGroup = new Emojis.Group { Name = m.Groups[1].ToString() };
@@ -97,85 +112,82 @@ namespace Greenshot.Editor.Controls.Emoji
                     continue;
                 }
 
-                m = matchSubgroup.Match(line);
+                m = MatchSubgroup.Match(line);
                 if (m.Success)
                 {
                     currentSubgroup = new Emojis.Group { Name = m.Groups[1].ToString() };
-                    currentGroup.SubGroups.Add(currentSubgroup);
+                    currentGroup?.SubGroups?.Add(currentSubgroup);
                     continue;
                 }
 
-                m = matchSequence.Match(line);
-                if (m.Success)
+                m = MatchSequence.Match(line);
+                if (!m.Success)
                 {
-                    string sequence = m.Groups[1].ToString();
-                    string name = m.Groups[4].ToString();
+                    continue;
+                }
+                string sequence = m.Groups[1].ToString();
+                string name = m.Groups[4].ToString();
 
-                    string text = string.Join("", from n in sequence.Split(' ')
-                                                  select char.ConvertFromUtf32(Convert.ToInt32(n, 16)));
-                    bool has_modifier = false;
+                string text = string.Join("", sequence.Split(' ').Select(c => char.ConvertFromUtf32(Convert.ToInt32(c, 16))));
+                bool hasModifier = false;
 
-                    if (matchFamily.Match(text).Success)
-                    {
-                        // If this is a family emoji, no need to add it to our big matching
-                        // regex, since the match_family regex is already included.
-                    }
-                    else
-                    {
-                        // Construct a regex to replace e.g. "🏻" with "(🏻|🏼|🏽|🏾|🏿)" in a big
-                        // regex so that we can match all variations of this Emoji even if they are
-                        // not in the standard.
-                        bool hasNonfirstModifier = false;
-                        var regexText = matchSkinTone.Replace(
-                            matchHairStyle.Replace(text, (x) =>
-                            {
-                                has_modifier = true;
-                                hasNonfirstModifier |= x.Value != HairStyleComponents[0];
-                                return matchHairStyle.ToString();
-                            }), (x) =>
-                            {
-                                has_modifier = true;
-                                hasNonfirstModifier |= x.Value != SkinToneComponents[0];
-                                return matchSkinTone.ToString();
-                            });
-
-                        if (!hasNonfirstModifier)
+                // If this is a family emoji, no need to add it to our big matching
+                // regex, since the match_family regex is already included.
+                if (!MatchFamily.Match(text).Success)
+                {
+                    // Construct a regex to replace e.g. "🏻" with "(🏻|🏼|🏽|🏾|🏿)" in a big
+                    // regex so that we can match all variations of this Emoji even if they are
+                    // not in the standard.
+                    bool hasNonfirstModifier = false;
+                    var regexText = MatchSkinTone.Replace(
+                        MatchHairStyle.Replace(text, (x) =>
                         {
-                            allText.Add(has_modifier ? regexText : text);
-                        }
-                    }
+                            hasModifier = true;
+                            hasNonfirstModifier |= x.Value != HairStyleComponents[0];
+                            return MatchHairStyle.ToString();
+                        }), (x) =>
+                        {
+                            hasModifier = true;
+                            hasNonfirstModifier |= x.Value != SkinToneComponents[0];
+                            return MatchSkinTone.ToString();
+                        });
 
-                    // If there is already a differently-qualified version of this character, skip it.
-                    // FIXME: this only works well if fully-qualified appears first in the list.
-                    var unqualified = text.Replace("\ufe0f", "");
-                    if (qualifiedLut.ContainsKey(unqualified))
+                    if (!hasNonfirstModifier)
                     {
-                        continue;
+                        allText.Add(hasModifier ? regexText : text);
                     }
+                }
 
-                    // Fix simple fully-qualified emojis
-                    if (CodePoint.GetCodePointCount(text.AsSpan()) == 2)
-                    {
-                        text = text.TrimEnd('\ufe0f');
-                    }
+                // If there is already a differently-qualified version of this character, skip it.
+                // FIXME: this only works well if fully-qualified appears first in the list.
+                var unqualified = text.Replace("\ufe0f", "");
+                if (qualifiedLut.ContainsKey(unqualified))
+                {
+                    continue;
+                }
 
-                    qualifiedLut[unqualified] = text;
+                // Fix simple fully-qualified emojis
+                if (CodePoint.GetCodePointCount(text.AsSpan()) == 2)
+                {
+                    text = text.TrimEnd('\ufe0f');
+                }
 
-                    var emoji = new Emojis.Emoji { Name = name, Text = text, };
+                qualifiedLut[unqualified] = text;
 
-                    lookupByName[ToColonSyntax(name)] = emoji;
+                var emoji = new Emojis.Emoji { Name = name, Text = text};
 
-                    // Get the left part of the name and check whether we’re a variation of an existing
-                    // emoji. If so, append to that emoji. Otherwise, add to current subgroup.
-                    // FIXME: does not work properly because variations can appear before the generic emoji
-                    if (name.Contains(":") && lookupByName.TryGetValue(ToColonSyntax(name.Split(':')[0]), out var parent_emoji))
-                    {
-                        parent_emoji.Variations.Add(emoji);
-                    }
-                    else
-                    {
-                        currentSubgroup.Emojis.Add(emoji);
-                    }
+                lookupByName[ToColonSyntax(name)] = emoji;
+
+                // Get the left part of the name and check whether we’re a variation of an existing
+                // emoji. If so, append to that emoji. Otherwise, add to current subgroup.
+                // FIXME: does not work properly because variations can appear before the generic emoji
+                if (name.Contains(":") && lookupByName.TryGetValue(ToColonSyntax(name.Split(':')[0]), out var parentEmoji))
+                {
+                    parentEmoji.Variations.Add(emoji);
+                }
+                else
+                {
+                    currentSubgroup?.Emojis?.Add(emoji);
                 }
             }
 
@@ -186,14 +198,16 @@ namespace Greenshot.Editor.Controls.Emoji
         private static IEnumerable<string> EmojiDescriptionLines()
         {
             var exeDirectory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-            var emojiTestFile = Path.Combine(exeDirectory, @"emoji-test.txt");
+            var emojiTestFile = Path.Combine(exeDirectory, EmojisTestFile);
             if (!File.Exists(emojiTestFile))
             {
                 throw new FileNotFoundException($"Can't find {emojiTestFile}, bad installation?");
             }
             using var fileStream = new FileStream(emojiTestFile, FileMode.Open, FileAccess.Read);
+            using var gzStream = new GZipStream(fileStream, CompressionMode.Decompress);
             using var streamReader = new StreamReader(fileStream);
             return streamReader.ReadToEnd().Split('\r', '\n');
         }
+#endif
     }
 }

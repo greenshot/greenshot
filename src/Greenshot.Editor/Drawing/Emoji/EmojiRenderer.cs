@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
@@ -35,9 +36,9 @@ namespace Greenshot.Editor.Drawing.Emoji
     /// </summary>
     internal static class EmojiRenderer
     {
-        private static readonly FontCollection _fontCollection = new FontCollection();
+        private static readonly FontCollection TwemojiFontCollection = new();
 
-        private static readonly Lazy<FontFamily> _twemojiFontFamily = new Lazy<FontFamily>(() =>
+        private static readonly Lazy<FontFamily> TwemojiFontFamily = new(() =>
         {
             var exeDirectory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
             var twemojiFontFile = Path.Combine(exeDirectory, "TwemojiMozilla.ttf");
@@ -47,8 +48,8 @@ namespace Greenshot.Editor.Drawing.Emoji
             }
 
             using var fileStream = new FileStream(twemojiFontFile, FileMode.Open, FileAccess.Read);
-            _fontCollection.Add(fileStream);
-            _fontCollection.TryGet("Twemoji Mozilla", out var fontFamily);
+            TwemojiFontCollection.Add(fileStream);
+            TwemojiFontCollection.TryGet("Twemoji Mozilla", out var fontFamily);
             return fontFamily;
         });
 
@@ -62,7 +63,7 @@ namespace Greenshot.Editor.Drawing.Emoji
 
         private static void RenderEmoji(string emoji, int iconSize, Image image)
         {
-            var fontFamily = _twemojiFontFamily.Value;
+            var fontFamily = TwemojiFontFamily.Value;
             var font = fontFamily.CreateFont(iconSize, FontStyle.Regular);
             var verticalOffset = font.Size * 0.045f;
             var textOptions = new TextOptions(font)

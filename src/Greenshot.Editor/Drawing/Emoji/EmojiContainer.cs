@@ -153,7 +153,10 @@ namespace Greenshot.Editor.Drawing.Emoji
         protected override Image ComputeBitmap()
         {
             var iconSize = Math.Min(Bounds.Width, Bounds.Height);
-            if (iconSize <= 0) return null;
+            if (iconSize <= 0)
+            {
+                return null;
+            }
 
             var image = EmojiRenderer.GetBitmap(Emoji, iconSize);
             if (RotationAngle != 0)

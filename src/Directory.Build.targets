@@ -10,4 +10,22 @@
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
   </Target>
+
+  <UsingTask TaskName="GZipTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <InputFile ParameterType="System.String" Required="true" />
+      <OutputFile ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.IO.Compression" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+          Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
+          var data = File.ReadAllBytes(InputFile);
+          using (var s = new FileStream(OutputFile, FileMode.Create))
+          using (var gs = new GZipStream(s, CompressionMode.Compress, false))
+              gs.Write(data, 0, data.Length);
+      ]]></Code>
+    </Task>
+  </UsingTask>
 </Project>

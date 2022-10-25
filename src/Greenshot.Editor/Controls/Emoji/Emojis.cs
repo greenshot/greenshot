@@ -42,14 +42,7 @@ public class Emojis
         [XmlElement(ElementName = "Emoji")]
         public List<Emoji> Emojis { get; set; } = new();
 
-        public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
-
         public string Icon => SubGroups.FirstOrDefault()?.Emojis.FirstOrDefault()?.Text;
-
-        public IEnumerable<Emoji> EmojiList
-            => from s in SubGroups
-                from e in s.Emojis
-                select e;
     }
 
     public class Emoji
