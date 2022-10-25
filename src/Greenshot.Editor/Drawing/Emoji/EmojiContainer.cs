@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Controls;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
@@ -95,7 +95,10 @@ namespace Greenshot.Editor.Drawing.Emoji
             // Create one picker control by surface
             // TODO: This is not ideal, as we need to controls from the surface, should replace this with a different solution.
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
-            if (_emojiPickerHost != null) return;
+            if (_emojiPickerHost != null)
+            {
+                return;
+            }
 
             _emojiPicker = new EmojiPicker();
             _emojiPicker.Picked += (_, args) =>
@@ -136,7 +139,10 @@ namespace Greenshot.Editor.Drawing.Emoji
         /// <param name="e">PropertyChangedEventArgs</param>
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (!e.PropertyName.Equals(nameof(Selected))) return;
+            if (!e.PropertyName.Equals(nameof(Selected)))
+            {
+                return;
+            }
 
             if (!Selected)
             {

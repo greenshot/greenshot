@@ -17,112 +17,117 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using Greenshot.Editor.Controls.Emoji;
 
-namespace Greenshot.Editor.Controls
+namespace Greenshot.Editor.Controls.Emoji;
+
+/// <summary>
+/// The event which is created when the emoji is picked
+/// </summary>
+public class EmojiPickedEventArgs : EventArgs
 {
-    /// <summary>
-    /// The event which is created when the emoji is picked
-    /// </summary>
-    public class EmojiPickedEventArgs : EventArgs
-    {
-        public EmojiPickedEventArgs() { }
-        public EmojiPickedEventArgs(string emoji) => Emoji = emoji;
+    public EmojiPickedEventArgs() { }
+    public EmojiPickedEventArgs(string emoji) => Emoji = emoji;
 
-        public string Emoji;
+    public string Emoji;
+}
+
+public delegate void EmojiPickedEventHandler(object sender, EmojiPickedEventArgs e);
+
+/// <summary>
+/// Interaction logic for Picker.xaml
+/// </summary>
+public partial class EmojiPicker : StackPanel
+{
+    public EmojiPicker()
+    {
+        InitializeComponent();
     }
 
-    public delegate void EmojiPickedEventHandler(object sender, EmojiPickedEventArgs e);
+    public IList<Emojis.Group> EmojiGroups => EmojiData.Data.Groups;
 
-    /// <summary>
-    /// Interaction logic for Picker.xaml
-    /// </summary>
-    public partial class EmojiPicker : StackPanel
+    // Backwards compatibility for when the backend was a TextBlock.
+    public double FontSize
     {
-        public EmojiPicker()
+        get => Image.Height * 0.75;
+        set => Image.Height = value / 0.75;
+    }
+
+    public event PropertyChangedEventHandler SelectionChanged;
+
+    public event EmojiPickedEventHandler Picked;
+
+    private static void OnSelectionPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+        (source as EmojiPicker)?.OnSelectionChanged(e.NewValue as string);
+    }
+
+    public string Selection
+    {
+        get => (string)GetValue(SelectionProperty);
+        set => SetValue(SelectionProperty, value);
+    }
+
+    private void OnSelectionChanged(string s)
+    {
+        var isDisabled = string.IsNullOrEmpty(s);
+        Image.Emoji = isDisabled ? "???" : s;
+        Image.Opacity = isDisabled ? 0.3 : 1.0;
+        SelectionChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selection)));
+    }
+
+    private void OnEmojiPicked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: Emojis.Emoji emoji })
         {
-            InitializeComponent();
+            return;
         }
 
-        public IList<Emojis.Group> EmojiGroups => EmojiData.Data.Groups;
-
-        // Backwards compatibility for when the backend was a TextBlock.
-        public double FontSize
+        if (emoji.Variations.Count != 0 && sender is not Button)
         {
-            get => Image.Height * 0.75;
-            set => Image.Height = value / 0.75;
+            return;
         }
 
-        public event PropertyChangedEventHandler SelectionChanged;
+        Selection = emoji.Text;
+        Button_INTERNAL.IsChecked = false;
+        e.Handled = true;
+        Picked?.Invoke(this, new EmojiPickedEventArgs(Selection));
+    }
 
-        public event EmojiPickedEventHandler Picked;
+    public static readonly DependencyProperty SelectionProperty = DependencyProperty.Register(
+        nameof(Selection), typeof(string), typeof(EmojiPicker),
+        new FrameworkPropertyMetadata("☺", OnSelectionPropertyChanged));
 
-        private static void OnSelectionPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    private void OnPopupKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Escape || sender is not Popup popup) return;
+        popup.IsOpen = false;
+        e.Handled = true;
+    }
+
+    private void OnPopupLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Popup popup) return;
+
+        var child = popup.Child;
+        IInputElement oldFocus = null;
+        child.Focusable = true;
+        child.IsVisibleChanged += (o, ea) =>
         {
-            (source as EmojiPicker)?.OnSelectionChanged(e.NewValue as string);
-        }
+            if (!child.IsVisible) return;
+            oldFocus = Keyboard.FocusedElement;
+            Keyboard.Focus(child);
+        };
 
-        public string Selection
+        popup.Closed += (o, ea) => Keyboard.Focus(oldFocus);
+    }
+
+    public void ShowPopup(bool show)
+    {
+        foreach (var child in Children)
         {
-            get => (string)GetValue(SelectionProperty);
-            set => SetValue(SelectionProperty, value);
-        }
-
-        private void OnSelectionChanged(string s)
-        {
-            var isDisabled = string.IsNullOrEmpty(s);
-            Image.Emoji = isDisabled ? "???" : s;
-            Image.Opacity = isDisabled ? 0.3 : 1.0;
-            SelectionChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selection)));
-        }
-
-        private void OnEmojiPicked(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Control { DataContext: Emojis.Emoji emoji }) return;
-            if (emoji.Variations.Count != 0 && sender is not Button) return;
-
-            Selection = emoji.Text;
-            Button_INTERNAL.IsChecked = false;
-            e.Handled = true;
-            Picked?.Invoke(this, new EmojiPickedEventArgs(Selection));
-        }
-
-        public static readonly DependencyProperty SelectionProperty = DependencyProperty.Register(
-            nameof(Selection), typeof(string), typeof(EmojiPicker),
-                new FrameworkPropertyMetadata("☺", OnSelectionPropertyChanged));
-
-        private void OnPopupKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Escape || sender is not Popup popup) return;
-            popup.IsOpen = false;
-            e.Handled = true;
-        }
-
-        private void OnPopupLoaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Popup popup) return;
-
-            var child = popup.Child;
-            IInputElement oldFocus = null;
-            child.Focusable = true;
-            child.IsVisibleChanged += (o, ea) =>
+            if (child is ToggleButton button)
             {
-                if (!child.IsVisible) return;
-                oldFocus = Keyboard.FocusedElement;
-                Keyboard.Focus(child);
-            };
-
-            popup.Closed += (o, ea) => Keyboard.Focus(oldFocus);
-        }
-
-        public void ShowPopup(bool show)
-        {
-            foreach (var child in Children)
-            {
-                if (child is ToggleButton button)
-                {
-                    button.IsChecked = show;
-                }
+                button.IsChecked = show;
             }
         }
     }

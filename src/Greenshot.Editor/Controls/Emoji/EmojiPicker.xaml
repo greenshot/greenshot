@@ -1,4 +1,4 @@
-﻿<StackPanel x:Class="Greenshot.Editor.Controls.EmojiPicker"
+﻿<StackPanel x:Class="Greenshot.Editor.Controls.Emoji.EmojiPicker"
             x:Name="StackPanel_INTERNAL"
             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
