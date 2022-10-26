@@ -20,6 +20,11 @@
               OutputFile="Controls\Emoji\emoji-test.txt.gz" />
   </Target>
 
+  <Target Name="CompressTwemojiMozillaTtfResource" BeforeTargets="BeforeBuild" Condition="!Exists('Drawing\Emoji\TwemojiMozilla.ttf.gz')">
+    <GZipTask InputFile="Drawing\Emoji\TwemojiMozilla.ttf"
+              OutputFile="Drawing\Emoji\TwemojiMozilla.ttf.gz" />
+  </Target>
+
   <ItemGroup>
     <Compile Update="Controls\BindableToolStripButton.cs">
       <SubType>Component</SubType>
@@ -98,9 +103,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>emoji-test.txt.gz</TargetPath>
     </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Drawing\Emoji\TwemojiMozilla.ttf">
+    <ContentWithTargetPath Include="Drawing\Emoji\TwemojiMozilla.ttf.gz">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>TwemojiMozilla.ttf</TargetPath>
+      <TargetPath>TwemojiMozilla.ttf.gz</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
 </Project>
