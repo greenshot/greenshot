@@ -83,7 +83,10 @@ namespace Greenshot.Editor.Controls.Emoji
             {
                 // To be removed
                 ParseEmojiList();
-                x.Serialize(new XmlTextWriter(EmojisXmlFilePath, Encoding.UTF8), Data);
+                if (Data.Groups.Any())
+                {
+                    x.Serialize(new XmlTextWriter(EmojisXmlFilePath, Encoding.UTF8), Data);
+                }
             }
 #endif
         }
@@ -205,7 +208,7 @@ namespace Greenshot.Editor.Controls.Emoji
             }
             using var fileStream = new FileStream(emojiTestFile, FileMode.Open, FileAccess.Read);
             using var gzStream = new GZipStream(fileStream, CompressionMode.Decompress);
-            using var streamReader = new StreamReader(fileStream);
+            using var streamReader = new StreamReader(gzStream);
             return streamReader.ReadToEnd().Split('\r', '\n');
         }
 #endif
