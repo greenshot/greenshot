@@ -35,7 +35,7 @@
                     <DataTemplate>
                         <Button Background="Transparent" BorderBrush="Transparent"
                                 Margin="0" Click="OnEmojiPicked"
-                                Width="40" Height="40" ToolTip="{Binding Path=Name}">
+                                Width="40" Height="40">
                             <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
                         </Button>
                     </DataTemplate>
@@ -46,7 +46,7 @@
         <DataTemplate x:Key="CellTemplate">
             <ToggleButton Width="40" Height="40" Margin="0" Padding="2"
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
-                          Click="OnEmojiPicked" Focusable="False" ToolTip="{Binding Path=Name}">
+                          Click="OnEmojiPicked" Focusable="False" >
                 <Grid>
                     <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>

@@ -52,13 +52,17 @@ public class Emojis
     public class Emoji
     {
         [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlAttribute]
         public string Text { get; set; }
 
         [XmlArray]
         public List<Emoji> Variations { get; set; } = new();
+        
+        /// <summary>
+        /// Xml trick so that the Xml serializer does not output the 'Variations' element when the emoji has no variation
+        /// (see https://learn.microsoft.com/en-us/dotnet/api/system.xml.serialization.xmlserializer#controlling-generated-xml)
+        /// </summary>
+        [XmlIgnore]
+        public bool VariationsSpecified => HasVariations;
 
         public bool HasVariations => Variations.Count > 0;
 

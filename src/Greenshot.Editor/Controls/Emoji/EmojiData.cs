@@ -177,7 +177,7 @@ namespace Greenshot.Editor.Controls.Emoji
 
                 qualifiedLut[unqualified] = text;
 
-                var emoji = new Emojis.Emoji { Name = name, Text = text};
+                var emoji = new Emojis.Emoji { Text = text};
 
                 lookupByName[ToColonSyntax(name)] = emoji;
 
