@@ -65,6 +65,12 @@
     </Task>
   </UsingTask>
 
+  <UsingTask TaskName="EmojiDataTask" AssemblyFile="..\Greenshot.BuildTasks\bin\Debug\net472\Greenshot.BuildTasks.dll" />
+
+  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
+    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
+  </Target>
+
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />

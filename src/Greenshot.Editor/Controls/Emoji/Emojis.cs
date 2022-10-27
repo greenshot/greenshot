@@ -26,20 +26,22 @@ using System.Xml.Serialization;
 
 namespace Greenshot.Editor.Controls.Emoji;
 
+[XmlRoot("Es")]
 public class Emojis
 {
-    [XmlElement(ElementName = "Group")]
+    [XmlArray(ElementName = "Gs")]
     public List<Group> Groups { get; set; } = new();
 
+    [XmlType("G")]
     public class Group
     {
-        [XmlAttribute]
+        [XmlAttribute(AttributeName= "N")]
         public string Name { get; set; }
 
-        [XmlElement(ElementName = "Group")]
+        [XmlArray(ElementName = "Sg")]
         public List<Group> SubGroups { get; set; } = new();
 
-        [XmlElement(ElementName = "Emoji")]
+        [XmlArray(ElementName = "Es")]
         public List<Emoji> Emojis { get; set; } = new();
 
         public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
@@ -49,12 +51,13 @@ public class Emojis
         public IEnumerable<Emoji> EmojiList => SubGroups.SelectMany(s => s.Emojis);
     }
 
+    [XmlType("E")]
     public class Emoji
     {
-        [XmlAttribute]
+        [XmlAttribute(AttributeName = "T")]
         public string Text { get; set; }
 
-        [XmlArray]
+        [XmlArray(ElementName = "V")]
         public List<Emoji> Variations { get; set; } = new();
         
         /// <summary>
