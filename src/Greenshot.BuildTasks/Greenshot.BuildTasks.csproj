@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" version="17.3.2" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" version="17.3.2"/>
     <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0-beta15" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
   </ItemGroup>
+  <Target Name="CleanupBuildAssemblies" AfterTargets="AfterBuild">
+    <Exec Command="del $(TargetDir)\Microsoft.Build.*.dll" />
+  </Target>
 </Project>

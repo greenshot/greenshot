@@ -65,7 +65,7 @@
     </Task>
   </UsingTask>
 
-  <UsingTask TaskName="EmojiDataTask" AssemblyFile="..\Greenshot.BuildTasks\bin\Debug\net472\Greenshot.BuildTasks.dll" />
+  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\Debug\net472\Greenshot.BuildTasks.dll" />
 
   <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
