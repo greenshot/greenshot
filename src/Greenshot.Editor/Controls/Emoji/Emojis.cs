@@ -44,11 +44,13 @@ public class Emojis
         [XmlArray(ElementName = "Es")]
         public List<Emoji> Emojis { get; set; } = new();
 
+#if !GREENSHOT_BUILDTASKS
         public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
 
         public string Icon => SubGroups.FirstOrDefault()?.Emojis.FirstOrDefault()?.Text;
 
         public IEnumerable<Emoji> EmojiList => SubGroups.SelectMany(s => s.Emojis);
+#endif
     }
 
     [XmlType("E")]
