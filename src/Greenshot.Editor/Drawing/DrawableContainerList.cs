@@ -1009,16 +1009,16 @@ namespace Greenshot.Editor.Drawing
             switch (direction)
             {
                 case Direction.LEFT:
-                    expansion.Left = elementSize.Width;
+                    expansion.Left = elementSize.Width - 1;
                     break;
                 case Direction.RIGHT:
-                    expansion.Right = elementSize.Width;
+                    expansion.Right = elementSize.Width - 1;
                     break;
                 case Direction.TOP:
-                    expansion.Top = elementSize.Height;
+                    expansion.Top = elementSize.Height - 1;
                     break;
                 case Direction.BOTTOM:
-                    expansion.Bottom = elementSize.Height;
+                    expansion.Bottom = elementSize.Height - 1;
                     break;
                 default:
                     break;
