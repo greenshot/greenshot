@@ -982,29 +982,10 @@ namespace Greenshot.Editor.Drawing
         /// <param name="targetElement"></param>
         public void PushOut(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
-            int left = 0, right = 0, top = 0, bottom = 0;
-
-            switch (direction)
-            {
-                case Direction.LEFT:
-                    left = targetElement.Width;
-                    break;
-                case Direction.RIGHT:
-                    right = targetElement.Width;
-                    break;
-                case Direction.TOP:
-                    top = targetElement.Height;
-                    break;
-                case Direction.BOTTOM:
-                    bottom = targetElement.Height;
-                    break;
-                default:
-                    break;
-            }
+            var expansion = GetExpansionFromSize(direction, targetElement.Size);
             
-            surface.ResizeCanvas(left, right, top, bottom);
+            surface.ResizeCanvas(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
 
-            // Move target object
             SnapToEdge(direction, surface, targetElement);
 
             if (direction == Direction.LEFT || direction == Direction.RIGHT)
@@ -1013,6 +994,37 @@ namespace Greenshot.Editor.Drawing
                 SnapToEdge(Direction.LEFT, surface, targetElement);
 
             surface.DeselectAllElements();
+        }
+
+        /// <summary>
+        /// Calculate the one-directional expansion needed to accommodate an element of the given size.
+        /// </summary>
+        /// <param name="direction">The direction in which to expand.</param>
+        /// <param name="elementSize">The size of the element to accommodate.</param>
+        /// <returns></returns>
+        public static Expansion GetExpansionFromSize(Direction direction, Size elementSize)
+        {
+            var expansion = new Expansion();
+
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    expansion.Left = elementSize.Width;
+                    break;
+                case Direction.RIGHT:
+                    expansion.Right = elementSize.Width;
+                    break;
+                case Direction.TOP:
+                    expansion.Top = elementSize.Height;
+                    break;
+                case Direction.BOTTOM:
+                    expansion.Bottom = elementSize.Height;
+                    break;
+                default:
+                    break;
+            }
+
+            return expansion;
         }
     }
 }
