@@ -143,6 +143,8 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
+			AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+			AddField(GetType(), FieldType.SHADOW, false);
 			AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
 		}
 
@@ -206,10 +208,13 @@ namespace Greenshot.Drawing {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+
 			if (_drawAsRectangle) {
-				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+				RectangleContainer.DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
 			} else {
-				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+				EllipseContainer.DrawEllipse(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
