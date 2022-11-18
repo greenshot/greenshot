@@ -29,6 +29,14 @@ using Greenshot.Base.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
+    public enum Direction
+    {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM,
+    }
+
     public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
@@ -111,5 +119,12 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// <param name="surface">ISurface</param>
         /// <param name="mouseEventArgs">MouseEventArgs</param>
         void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs);
+
+        /// <summary>
+        /// Snap the container to the edge of the surface.
+        /// </summary>
+        /// <param name="direction">Direction in which to move the container.</param>
+        /// <param name="surface">The surface the container belongs to.</param>
+        void SnapToEdge(Direction direction, ISurface surface);
     }
 }

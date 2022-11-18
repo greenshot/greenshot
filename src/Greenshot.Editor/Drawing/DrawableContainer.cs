@@ -684,5 +684,43 @@ namespace Greenshot.Editor.Drawing
         protected virtual void InitializeFields()
         {
         }
+
+        /// <summary>
+        /// Snap the container to the edge of the surface.
+        /// </summary>
+        /// <param name="direction">Direction in which to move the container.</param>
+        /// <param name="surface">The surface the container belongs to.</param>
+        public void SnapToEdge(Direction direction, ISurface surface)
+        {
+            Size surfaceBounds = new(surface.Image.Width, surface.Image.Height);
+            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceBounds);
+
+            this.MakeBoundsChangeUndoable(allowMerge: false);
+            this.ApplyBounds(newBounds);
+        }
+
+        private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)
+        {
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    bounds = bounds.ChangeX(0);
+                    break;
+                case Direction.RIGHT:
+                    bounds = bounds.Offset(offsetX: surfaceSize.Width - bounds.Right);
+                    break;
+                case Direction.TOP:
+                    bounds = bounds.ChangeY(0);
+                    break;
+                case Direction.BOTTOM:
+                    bounds = bounds.Offset(offsetY: surfaceSize.Height - bounds.Bottom);
+                    break;
+                default:
+                    break;
+            }
+            return bounds;
+        }
+
+
     }
 }
