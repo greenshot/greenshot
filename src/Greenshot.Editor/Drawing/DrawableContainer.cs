@@ -690,10 +690,9 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="direction">Direction in which to move the container.</param>
         /// <param name="surface">The surface the container belongs to.</param>
-        public void SnapToEdge(Direction direction, ISurface surface)
+        public void SnapToEdge(Direction direction, Size surfaceSize)
         {
-            Size surfaceBounds = new(surface.Image.Width, surface.Image.Height);
-            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceBounds);
+            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
 
             this.MakeBoundsChangeUndoable(allowMerge: false);
             this.ApplyBounds(newBounds);

@@ -922,9 +922,9 @@ namespace Greenshot.Editor.Drawing
         /// 
         public void SnapAllToEdge(Direction direction, ISurface surface)
         {
-            foreach (IDrawableContainer item in this)
+            foreach (IDrawableContainer container in this)
             {
-                item.SnapToEdge(direction, surface);
+                SnapContainerToEdge(direction, surface, container);
             }
             surface.DeselectAllElements();
         }
@@ -939,15 +939,17 @@ namespace Greenshot.Editor.Drawing
         {
             Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
             
-            targetElement.SnapToEdge(direction, surface);
             surface.ResizeCanvas(expansion);
 
-            if (direction == Direction.LEFT || direction == Direction.RIGHT)
-                targetElement.SnapToEdge(Direction.TOP, surface);
-            else if (direction == Direction.TOP || direction == Direction.BOTTOM)
-                targetElement.SnapToEdge(Direction.LEFT, surface);
+            SnapContainerToEdge(direction, surface, targetElement);
 
             surface.DeselectAllElements();
+        }
+
+        private void SnapContainerToEdge(Direction direction, ISurface surface, IDrawableContainer targetElement)
+        {
+            Size surfaceBounds = new(surface.Image.Width, surface.Image.Height);
+            targetElement.SnapToEdge(direction, surfaceBounds);
         }
 
         /// <summary>

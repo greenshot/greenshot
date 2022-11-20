@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
@@ -133,6 +134,6 @@ namespace Greenshot.Base.Interfaces.Drawing
         /// </summary>
         /// <param name="direction">Direction in which to move the container.</param>
         /// <param name="surface">The surface the container belongs to.</param>
-        void SnapToEdge(Direction direction, ISurface surface);
+        void SnapToEdge(Direction direction, Size surfaceSize);
     }
 }
