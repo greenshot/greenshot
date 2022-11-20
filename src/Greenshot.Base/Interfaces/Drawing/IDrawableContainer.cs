@@ -37,6 +37,14 @@ namespace Greenshot.Base.Interfaces.Drawing
         BOTTOM,
     }
 
+    public struct Expansion
+    {
+        public int Left;
+        public int Right;
+        public int Top;
+        public int Bottom;
+    }
+
     public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
     {
         /// <summary>

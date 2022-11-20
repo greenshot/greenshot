@@ -1055,6 +1055,17 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Set the canvas to a new size using the given expansion directions.
+        /// </summary>
+        /// <param name="expansion">The amount to expand in each direction.</param>
+        public void ResizeCanvas(Expansion expansion)
+        {
+            var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
+            ApplyBitmapEffect(resizeEffect);
+            _surfaceExpanded(this, null);
+        }
+
+        /// <summary>
         /// Apply a bitmap effect to the surface
         /// </summary>
         /// <param name="effect"></param>

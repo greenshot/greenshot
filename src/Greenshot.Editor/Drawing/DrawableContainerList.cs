@@ -937,11 +937,10 @@ namespace Greenshot.Editor.Drawing
         /// <param name="targetElement"></param>
         public void PushOut(Direction direction, ISurface surface, IDrawableContainer targetElement)
         {
-            var expansion = GetExpansionFromSize(direction, targetElement.Size);
+            Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
             
-            surface.ResizeCanvas(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
-
             targetElement.SnapToEdge(direction, surface);
+            surface.ResizeCanvas(expansion);
 
             if (direction == Direction.LEFT || direction == Direction.RIGHT)
                 targetElement.SnapToEdge(Direction.TOP, surface);
@@ -952,12 +951,12 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Calculate the one-directional expansion needed to accommodate an element of the given size.
+        /// Calculate the directional expansion needed to accommodate an element of the given size.
         /// </summary>
         /// <param name="direction">The direction in which to expand.</param>
         /// <param name="elementSize">The size of the element to accommodate.</param>
         /// <returns></returns>
-        public static Expansion GetExpansionFromSize(Direction direction, Size elementSize)
+        private static Expansion GetExpansionFromSize(Direction direction, Size elementSize)
         {
             var expansion = new Expansion();
 
