@@ -2136,7 +2136,7 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                ConfirmSelectedConfirmableElements(confirm);
+                ConfirmSelectedConfirmableElements();
             }
         }
 
@@ -2147,7 +2147,7 @@ namespace Greenshot.Editor.Drawing
         /// For crop-container there is a dedicated method <see cref="ConfirmCrop(bool)"/>.
         /// </summary>
         /// <param name="confirm">bool</param>
-        public void ConfirmSelectedConfirmableElements(bool confirm)
+        public void ConfirmSelectedConfirmableElements()
         {
             // create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
             List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);

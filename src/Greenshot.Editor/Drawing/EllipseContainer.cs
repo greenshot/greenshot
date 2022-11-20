@@ -74,7 +74,7 @@ namespace Greenshot.Editor.Drawing
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-            DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
+            DrawEllipse(rect, graphics, lineThickness, lineColor, fillColor, shadow);
         }
 
         /// <summary>
@@ -82,12 +82,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="graphics"></param>
-        /// <param name="renderMode"></param>
         /// <param name="lineThickness"></param>
         /// <param name="lineColor"></param>
         /// <param name="fillColor"></param>
         /// <param name="shadow"></param>
-        public static void DrawEllipse(NativeRect rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+        public static void DrawEllipse(NativeRect rect, Graphics graphics, int lineThickness, Color lineColor, Color fillColor, bool shadow)
         {
             bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
             // draw shadow before anything else

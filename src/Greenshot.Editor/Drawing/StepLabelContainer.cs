@@ -202,7 +202,7 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+                EllipseContainer.DrawEllipse(rect, graphics, 0, Color.Transparent, fillColor, false);
             }
 
             float fontSize = Math.Min(Math.Abs(Width), Math.Abs(Height)) / 1.4f;
