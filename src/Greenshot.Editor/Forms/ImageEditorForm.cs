@@ -689,12 +689,6 @@ namespace Greenshot.Editor.Forms
             RefreshFieldControls();
         }
 
-        private void BtnRedactClick(object sender, EventArgs e)
-        {
-            _surface.DrawingMode = DrawingModes.Redact;
-            RefreshFieldControls();
-        }
-
         private void BtnTextClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.Text;
@@ -772,11 +766,6 @@ namespace Greenshot.Editor.Forms
         private void AddRectangleToolStripMenuItemClick(object sender, EventArgs e)
         {
             BtnRectClick(sender, e);
-        }
-
-        private void RedactToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            BtnRedactClick(sender, e);
         }
 
         private void DrawFreehandToolStripMenuItemClick(object sender, EventArgs e)

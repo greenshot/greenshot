@@ -754,9 +754,6 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.Rect:
                     _undrawnElement = new RectangleContainer(this);
                     break;
-                case DrawingModes.Redact:
-                    _undrawnElement = new RedactionContainer(this);
-                    break;
                 case DrawingModes.Ellipse:
                     _undrawnElement = new EllipseContainer(this);
                     break;
