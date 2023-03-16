@@ -673,7 +673,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Push out
-            ToolStripMenuItem alignSubmenu = new ToolStripMenuItem("Push Out");
+            var pushOutSubmenu = new ToolStripMenuItem("Push Out");
 
             // Right
             item = new ToolStripMenuItem("Right")
@@ -684,7 +684,7 @@ namespace Greenshot.Editor.Drawing
             {
                 PushOut(Direction.RIGHT, this[0]);
             };
-            alignSubmenu.DropDownItems.Add(item);
+            pushOutSubmenu.DropDownItems.Add(item);
 
             // Left
             item = new ToolStripMenuItem("Left")
@@ -695,7 +695,7 @@ namespace Greenshot.Editor.Drawing
             {
                 PushOut(Direction.LEFT, this[0]);
             };
-            alignSubmenu.DropDownItems.Add(item);
+            pushOutSubmenu.DropDownItems.Add(item);
 
             // Top
             item = new ToolStripMenuItem("Top")
@@ -706,7 +706,7 @@ namespace Greenshot.Editor.Drawing
             {
                 PushOut(Direction.TOP, this[0]);
             };
-            alignSubmenu.DropDownItems.Add(item);
+            pushOutSubmenu.DropDownItems.Add(item);
 
             // Bottom
             item = new ToolStripMenuItem("Bottom")
@@ -717,11 +717,11 @@ namespace Greenshot.Editor.Drawing
             {
                 PushOut(Direction.BOTTOM, this[0]);
             };
-            alignSubmenu.DropDownItems.Add(item);
-            menu.Items.Add(alignSubmenu);
+            pushOutSubmenu.DropDownItems.Add(item);
+            menu.Items.Add(pushOutSubmenu);
 
             // Fit menu
-            ToolStripMenuItem fitSubmenu = new ToolStripMenuItem("Fit");
+            var fitSubmenu = new ToolStripMenuItem("Fit");
 
             // Fit width
             item = new ToolStripMenuItem("Fit to width")
@@ -736,7 +736,7 @@ namespace Greenshot.Editor.Drawing
                     item.Width = surface.Image.Width;
                 }
                 SnapAllToEdge(Direction.LEFT);
-                surface.Invalidate(); // not sure if this belongs
+                surface.Invalidate();
             };
             fitSubmenu.DropDownItems.Add(item);
 
@@ -753,12 +753,12 @@ namespace Greenshot.Editor.Drawing
                     item.Height = surface.Image.Height;
                 }
                 SnapAllToEdge(Direction.TOP);
-                surface.Invalidate(); // not sure if this belongs
+                surface.Invalidate();
             };
             fitSubmenu.DropDownItems.Add(item);
             menu.Items.Add(fitSubmenu);
 
-            ToolStripMenuItem snapSubmenu = new ToolStripMenuItem("Snap");
+            var snapSubmenu = new ToolStripMenuItem("Snap");
 
             // Snap left
             item = new ToolStripMenuItem("Snap left")
@@ -819,7 +819,6 @@ namespace Greenshot.Editor.Drawing
             if (canReset)
             {
                 item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
-                //item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
                 item.Click += delegate
                 {
                     MakeBoundsChangeUndoable(false);
@@ -926,7 +925,7 @@ namespace Greenshot.Editor.Drawing
             {
                 SnapContainerToEdge(direction, container);
             }
-            this.Parent.DeselectAllElements();
+            Parent.DeselectAllElements();
         }
 
         /// <summary>
@@ -939,11 +938,11 @@ namespace Greenshot.Editor.Drawing
         {
             Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
             
-            this.Parent.ResizeCanvas(expansion);
+            Parent.ResizeCanvas(expansion);
 
             SnapContainerToEdge(direction, targetElement);
 
-            this.Parent.DeselectAllElements();
+            Parent.DeselectAllElements();
         }
 
         private void SnapContainerToEdge(Direction direction, IDrawableContainer targetElement)
@@ -954,7 +953,7 @@ namespace Greenshot.Editor.Drawing
 
         private Size GetParentSurfaceSize()
         {
-            return new Size(this.Parent.Image.Width, this.Parent.Image.Height);
+            return new Size(Parent.Image.Width, Parent.Image.Height);
         }
 
         /// <summary>

@@ -1042,11 +1042,8 @@ namespace Greenshot.Editor.Drawing
 
         /// <summary>
         /// Set the canvas to a new size using the given bounds.
+        /// Each parameter is the distance to expand in that direction.
         /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <param name="top"></param>
-        /// <param name="bottom"></param>
         public void ResizeCanvas(int left, int right, int top, int bottom)
         {
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);

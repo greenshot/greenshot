@@ -568,8 +568,10 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
-        /// Used when expanding the surface in one direction to accomodate shifting an object to one side.
+        /// This is called when expanding the surface in one direction, used to accomodate shifting an object to one side.
         /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SurfaceExpanded(object sender, EventArgs e)
         {
             UpdateUndoRedoSurfaceDependencies();
