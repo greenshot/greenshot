@@ -678,7 +678,7 @@ namespace Greenshot.Editor.Drawing
             // Right
             item = new ToolStripMenuItem("Right")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("PushOut-Right.Image")
             };
             item.Click += delegate
             {
@@ -689,7 +689,7 @@ namespace Greenshot.Editor.Drawing
             // Left
             item = new ToolStripMenuItem("Left")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("PushOut-Left.Image")
             };
             item.Click += delegate
             {
@@ -700,7 +700,7 @@ namespace Greenshot.Editor.Drawing
             // Top
             item = new ToolStripMenuItem("Top")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("PushOut-Top.Image")
             };
             item.Click += delegate
             {
@@ -711,7 +711,7 @@ namespace Greenshot.Editor.Drawing
             // Bottom
             item = new ToolStripMenuItem("Bottom")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("PushOut-Bottom.Image")
             };
             item.Click += delegate
             {
@@ -726,7 +726,7 @@ namespace Greenshot.Editor.Drawing
             // Fit width
             item = new ToolStripMenuItem("Fit to width")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Fit-width.Image")
             };
             item.Click += delegate
             {
@@ -743,7 +743,7 @@ namespace Greenshot.Editor.Drawing
             // Fit height
             item = new ToolStripMenuItem("Fit to height")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Fit-height.Image")
             };
             item.Click += delegate
             {
@@ -763,7 +763,7 @@ namespace Greenshot.Editor.Drawing
             // Snap left
             item = new ToolStripMenuItem("Snap left")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Snap-left.Image")
             };
             item.Click += delegate
             {
@@ -774,7 +774,7 @@ namespace Greenshot.Editor.Drawing
             // Snap right
             item = new ToolStripMenuItem("Snap right")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Snap-right.Image")
             };
             item.Click += delegate
             {
@@ -785,7 +785,7 @@ namespace Greenshot.Editor.Drawing
             // Snap to top
             item = new ToolStripMenuItem("Snap to top")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Snap-top.Image")
             };
             item.Click += delegate
             {
@@ -796,7 +796,7 @@ namespace Greenshot.Editor.Drawing
             // Snap to bottom
             item = new ToolStripMenuItem("Snap to bottom")
             {
-                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("Snap-bottom.Image")
             };
             item.Click += delegate
             {
