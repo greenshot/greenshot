@@ -673,6 +673,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Push out
+            #region Push Out
             var pushOutSubmenu = new ToolStripMenuItem("Push Out");
 
             // Right
@@ -719,8 +720,10 @@ namespace Greenshot.Editor.Drawing
             };
             pushOutSubmenu.DropDownItems.Add(item);
             menu.Items.Add(pushOutSubmenu);
+            #endregion Push Out
 
             // Fit menu
+            #region Fit
             var fitSubmenu = new ToolStripMenuItem("Fit");
 
             // Fit width
@@ -730,7 +733,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                foreach (var item in this)
+                foreach (IDrawableContainer item in this)
                 {
                     MakeBoundsChangeUndoable(false);
                     item.Width = surface.Image.Width;
@@ -747,7 +750,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                foreach (var item in this)
+                foreach (IDrawableContainer item in this)
                 {
                     MakeBoundsChangeUndoable(false);
                     item.Height = surface.Image.Height;
@@ -757,7 +760,9 @@ namespace Greenshot.Editor.Drawing
             };
             fitSubmenu.DropDownItems.Add(item);
             menu.Items.Add(fitSubmenu);
+            #endregion Fit
 
+            #region Snap
             var snapSubmenu = new ToolStripMenuItem("Snap");
 
             // Snap left
@@ -804,6 +809,7 @@ namespace Greenshot.Editor.Drawing
             };
             snapSubmenu.DropDownItems.Add(item);
             menu.Items.Add(snapSubmenu);
+            #endregion Snap
 
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
@@ -916,9 +922,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Moves all selected elements to one edge of the surface.
         /// </summary>
-        /// <param name="direction"></param>
-        /// 
-        /// 
+        /// <param name="direction">The direction in which to move the container.</param>
         public void SnapAllToEdge(Direction direction)
         {
             foreach (IDrawableContainer container in this)
@@ -932,8 +936,7 @@ namespace Greenshot.Editor.Drawing
         /// Push an element entirely outside the current bounds of the surface, expanding the surface to accomodate it.
         /// </summary>
         /// <param name="direction">Direction in which to move element.</param>
-        /// <param name="targetElement"></param>
-        /// 
+        /// <param name="targetElement">The element to move.</param>
         public void PushOut(Direction direction, IDrawableContainer targetElement)
         {
             Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
@@ -961,7 +964,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="direction">The direction in which to expand.</param>
         /// <param name="elementSize">The size of the element to accommodate.</param>
-        /// <returns></returns>
+        /// <returns>The new expansion object, or null if an invalid Direction was given.</returns>
         private static Expansion GetExpansionFromSize(Direction direction, Size elementSize)
         {
             var expansion = new Expansion();
