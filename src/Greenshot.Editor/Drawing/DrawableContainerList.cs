@@ -672,7 +672,6 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
-            // Push out
             #region Push Out
             var pushOutSubmenu = new ToolStripMenuItem("Push Out");
 
@@ -683,7 +682,10 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut(Direction.RIGHT, this[0]);
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.RIGHT, this[0]);
+                }
             };
             pushOutSubmenu.DropDownItems.Add(item);
 
@@ -694,7 +696,10 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut(Direction.LEFT, this[0]);
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.LEFT, this[0]);
+                }
             };
             pushOutSubmenu.DropDownItems.Add(item);
 
@@ -705,7 +710,10 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut(Direction.TOP, this[0]);
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.TOP, this[0]);
+                }
             };
             pushOutSubmenu.DropDownItems.Add(item);
 
@@ -716,13 +724,15 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                PushOut(Direction.BOTTOM, this[0]);
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.BOTTOM, this[0]);
+                }
             };
             pushOutSubmenu.DropDownItems.Add(item);
             menu.Items.Add(pushOutSubmenu);
             #endregion Push Out
 
-            // Fit menu
             #region Fit
             var fitSubmenu = new ToolStripMenuItem("Fit");
 
