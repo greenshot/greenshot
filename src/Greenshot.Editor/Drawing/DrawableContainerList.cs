@@ -673,10 +673,10 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             #region Push Out
-            var pushOutSubmenu = new ToolStripMenuItem("Push Out");
+            var pushOutSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_pushout));
 
             // Right
-            item = new ToolStripMenuItem("Right")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
             {
                 Image = (Image)EditorFormResources.GetObject("PushOut-Right.Image")
             };
@@ -690,7 +690,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Left
-            item = new ToolStripMenuItem("Left")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
             {
                 Image = (Image)EditorFormResources.GetObject("PushOut-Left.Image")
             };
@@ -704,7 +704,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Top
-            item = new ToolStripMenuItem("Top")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
             {
                 Image = (Image)EditorFormResources.GetObject("PushOut-Top.Image")
             };
@@ -718,7 +718,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Bottom
-            item = new ToolStripMenuItem("Bottom")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
             {
                 Image = (Image)EditorFormResources.GetObject("PushOut-Bottom.Image")
             };
@@ -734,10 +734,10 @@ namespace Greenshot.Editor.Drawing
             #endregion Push Out
 
             #region Fit
-            var fitSubmenu = new ToolStripMenuItem("Fit");
+            var fitSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_fit));
 
             // Fit width
-            item = new ToolStripMenuItem("Fit to width")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_width))
             {
                 Image = (Image)EditorFormResources.GetObject("Fit-width.Image")
             };
@@ -754,7 +754,7 @@ namespace Greenshot.Editor.Drawing
             fitSubmenu.DropDownItems.Add(item);
 
             // Fit height
-            item = new ToolStripMenuItem("Fit to height")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_height))
             {
                 Image = (Image)EditorFormResources.GetObject("Fit-height.Image")
             };
@@ -773,10 +773,10 @@ namespace Greenshot.Editor.Drawing
             #endregion Fit
 
             #region Snap
-            var snapSubmenu = new ToolStripMenuItem("Snap");
+            var snapSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_snap));
 
             // Snap left
-            item = new ToolStripMenuItem("Snap left")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
             {
                 Image = (Image)EditorFormResources.GetObject("Snap-left.Image")
             };
@@ -787,7 +787,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap right
-            item = new ToolStripMenuItem("Snap right")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
             {
                 Image = (Image)EditorFormResources.GetObject("Snap-right.Image")
             };
@@ -798,7 +798,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap to top
-            item = new ToolStripMenuItem("Snap to top")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
             {
                 Image = (Image)EditorFormResources.GetObject("Snap-top.Image")
             };
@@ -809,7 +809,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap to bottom
-            item = new ToolStripMenuItem("Snap to bottom")
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
             {
                 Image = (Image)EditorFormResources.GetObject("Snap-bottom.Image")
             };
