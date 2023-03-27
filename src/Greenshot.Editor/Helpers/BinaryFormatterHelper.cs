@@ -48,6 +48,7 @@ namespace Greenshot.Editor.Helpers
             {"System.Drawing.Bitmap",typeof(System.Drawing.Bitmap) },
             {"System.Drawing.Icon",typeof(System.Drawing.Icon) },
             {"System.Drawing.Size",typeof(System.Drawing.Size) },
+            {"System.IO.MemoryStream",typeof(System.IO.MemoryStream) },
             {"System.Drawing.StringAlignment",typeof(System.Drawing.StringAlignment) },
             {"System.Collections.Generic.List`1[[Greenshot.Base.Interfaces.Drawing.IFieldHolder", typeof(List<IFieldHolder>)},
             {"System.Collections.Generic.List`1[[Greenshot.Base.Interfaces.Drawing.IField", typeof(List<IField>)},

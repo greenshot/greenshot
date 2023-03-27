@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.IO;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -34,14 +35,32 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class SvgContainer : VectorGraphicsContainer
     {
-        private readonly SvgDocument _svgDocument;
+        private MemoryStream _svgContent;
 
-        public SvgContainer(SvgDocument svgDocument, ISurface parent) : base(parent)
+        [NonSerialized]
+        private SvgDocument _svgDocument;
+
+        public SvgContainer(Stream stream, ISurface parent) : base(parent)
         {
-            _svgDocument = svgDocument;
-            Size = new Size((int)svgDocument.Width, (int)svgDocument.Height);
+            _svgContent = new MemoryStream();
+            stream.CopyTo(_svgContent);
+            Init();
+            Size = new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
         }
-        
+
+        protected override void Init()
+        {
+            base.Init();
+            // Do nothing when there is no content
+            if (_svgContent == null)
+            {
+                return;
+            }
+            _svgContent.Position = 0;
+
+            _svgDocument = SvgDocument.Open<SvgDocument>(_svgContent);
+        }
+
         protected override Image ComputeBitmap()
         {
             //var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);

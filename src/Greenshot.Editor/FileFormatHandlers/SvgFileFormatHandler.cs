@@ -71,18 +71,18 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
-            SvgDocument svgDocument = null;
+            SvgContainer svgContainer = null;
             try
             {
-                svgDocument = SvgDocument.Open<SvgDocument>(stream);
+                svgContainer = new SvgContainer(stream, parent);
             }
             catch (Exception ex)
             {
                 Log.Error("Can't load SVG", ex);
             }
-            if (svgDocument != null)
+            if (svgContainer != null)
             {
-                yield return new SvgContainer(svgDocument, parent);
+                yield return svgContainer;
             }
         }
     }
