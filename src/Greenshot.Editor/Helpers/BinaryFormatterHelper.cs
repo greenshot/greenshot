@@ -32,6 +32,10 @@ using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Editor.Helpers
 {
+    /// <summary>
+    /// This helps to map the serialization of the old .greenshot file to the newer.
+    /// It also prevents misuse.
+    /// </summary>
     internal class BinaryFormatterHelper : SerializationBinder
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(BinaryFormatterHelper));
@@ -42,6 +46,8 @@ namespace Greenshot.Editor.Helpers
             {"System.Drawing.Point",typeof(System.Drawing.Point) },
             {"System.Drawing.Color",typeof(System.Drawing.Color) },
             {"System.Drawing.Bitmap",typeof(System.Drawing.Bitmap) },
+            {"System.Drawing.Icon",typeof(System.Drawing.Icon) },
+            {"System.Drawing.Size",typeof(System.Drawing.Size) },
             {"System.Drawing.StringAlignment",typeof(System.Drawing.StringAlignment) },
             {"System.Collections.Generic.List`1[[Greenshot.Base.Interfaces.Drawing.IFieldHolder", typeof(List<IFieldHolder>)},
             {"System.Collections.Generic.List`1[[Greenshot.Base.Interfaces.Drawing.IField", typeof(List<IField>)},
@@ -80,9 +86,14 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.Fields.FieldType", typeof(FieldType) },
             {"Greenshot.Editor.Drawing.FilterContainer+PreparedFilter", typeof(PreparedFilter) },
         };
-        // Greenshot.Plugin.Drawing.EditStatus -> Greenshot.Base.Interfaces.Drawing.EditStatus
-        // GreenshotPlugin.Interfaces.Drawing.IFieldHolder -> Greenshot.Base.Interfaces.Drawing.IFieldHolder
-        // Greenshot.Drawing.FilterContainer+PreparedFilter -> Greenshot.Editor.Drawing
+
+        /// <summary>
+        /// Do the type mapping
+        /// </summary>
+        /// <param name="assemblyName">Assembly for the type that was serialized</param>
+        /// <param name="typeName">Type that was serialized</param>
+        /// <returns>Type which was mapped</returns>
+        /// <exception cref="SecurityAccessDeniedException">If something smells fishy</exception>
         public override Type BindToType(string assemblyName, string typeName)
         {
             if (string.IsNullOrEmpty(typeName))
