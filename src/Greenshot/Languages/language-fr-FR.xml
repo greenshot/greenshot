@@ -144,7 +144,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_print">Imprimer</resource>
 		<resource name="editor_redo">Rétablir {0}</resource>
 		<resource name="editor_resetsize">Réinitialiser la taille</resource>
-		<resource name="editor_resize">Redimensionner</resource>
+		<resource name="editor_resize">Redimensionner (Z)</resource>
 		<resource name="editor_resize_aspectratio">Maintenir le rapport L / H</resource>
 		<resource name="editor_resize_height">Hauteur</resource>
 		<resource name="editor_resize_percent">Pourcentage</resource>

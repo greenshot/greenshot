@@ -144,7 +144,7 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_print">Siggez</resource>
 		<resource name="editor_redo">Err-d {0}</resource>
 		<resource name="editor_resetsize">Wennez teɣzi</resource>
-		<resource name="editor_resize">Snifel tahri/teɣzi</resource>
+		<resource name="editor_resize">Snifel tahri/teɣzi (Z)</resource>
 		<resource name="editor_resize_aspectratio">Eǧǧ afmiḍi Teɣ / Teh</resource>
 		<resource name="editor_resize_height">Awrir</resource>
 		<resource name="editor_resize_percent">Afmiḍi</resource>
