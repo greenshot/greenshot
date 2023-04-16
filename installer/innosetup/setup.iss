@@ -181,6 +181,8 @@ Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: "
 Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
 Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+; Disable the default PRTSCR Snipping Tool in Windows 11
+Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
 ; HKEY_LOCAL_MACHINE - for all users when admin
 Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
@@ -269,6 +271,7 @@ en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
+en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -281,6 +284,7 @@ de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
 de.win10=Windows 10 Plug-in
+de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.confluence=Extensión para Confluence
 es.default=${default}
@@ -482,6 +486,7 @@ Name: "compact"; Description: "{code:CompactInstall}"
 Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
+Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom; Check: IsWindows11OrNewer()
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disablenouninstallwarning
@@ -531,6 +536,7 @@ Name: "languages\ukUA"; Description: {cm:ukUA}; Types: full custom; Flags: disab
 Name: "languages\viVN"; Description: {cm:viVN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
+
 [Code]
 // Do we have a regular user trying to install this?
 function IsRegularUser(): Boolean;
@@ -743,6 +749,19 @@ end;
 function IsWindows10OrNewer: Boolean;
 begin
   Result := IsWindowsVersionOrNewer(10, 0);
+end;
+
+function IsWindows11OrNewer: Boolean;
+var
+  WindowsVersion: TWindowsVersion;
+begin
+  GetWindowsVersionEx(WindowsVersion);
+  Result := (WindowsVersion.Major >= 10) and (WindowsVersion.Build >= 22000);
+end;
+
+function ShouldDisableSnippingTool: Boolean;
+begin
+  Result := IsComponentSelected('disablesnippingtool');
 end;
 
 [Run]
