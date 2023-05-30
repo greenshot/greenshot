@@ -62,23 +62,32 @@ namespace Greenshot.Plugin.Win10
         /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
         public bool Initialize()
         {
-            // Here we check if the build version of Windows is actually what we support
-            if (!WindowsVersion.IsWindows10BuildOrLater(17763))
+            try
             {
-                Log.WarnFormat("No support for Windows build {0}", WindowsVersion.BuildVersion);
+                // Here we check if the build version of Windows is actually what we support
+                if (!WindowsVersion.IsWindows10BuildOrLater(17763))
+                {
+                    Log.WarnFormat("No support for Windows build {0}", WindowsVersion.BuildVersion);
+                    return false;
+                }
+
+                SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
+                // Set this as IOcrProvider
+                SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+                // Add the processor
+                SimpleServiceProvider.Current.AddService<IProcessor>(new Win10OcrProcessor());
+
+                // Add the destinations
+                SimpleServiceProvider.Current.AddService<IDestination>(new Win10OcrDestination());
+                SimpleServiceProvider.Current.AddService<IDestination>(new Win10ShareDestination());
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Failed to initialize Win10Plugin. Error: " + e.ToString(), e);
                 return false;
             }
-
-            SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
-            // Set this as IOcrProvider
-            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
-            // Add the processor
-            SimpleServiceProvider.Current.AddService<IProcessor>(new Win10OcrProcessor());
-
-            // Add the destinations
-            SimpleServiceProvider.Current.AddService<IDestination>(new Win10OcrDestination());
-            SimpleServiceProvider.Current.AddService<IDestination>(new Win10ShareDestination());
-            return true;
         }
 
         public void Shutdown()
