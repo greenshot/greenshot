@@ -205,7 +205,9 @@ namespace Greenshot.Base.IniFile
             string applicationStartupPath;
             try
             {
-                applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                applicationStartupPath = Environment.CurrentDirectory;
+                //Buggy in designer mode
+                //applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             }
             catch (Exception exception)
             {

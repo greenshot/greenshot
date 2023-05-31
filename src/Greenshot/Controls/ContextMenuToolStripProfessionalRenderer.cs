@@ -26,6 +26,7 @@ using Dapplo.Windows.Dpi;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Forms;
 
 namespace Greenshot.Controls
 {
@@ -39,8 +40,8 @@ namespace Greenshot.Controls
         private static Image _scaledCheckbox;
 
         public ContextMenuToolStripProfessionalRenderer(IProvideDeviceDpi provideDeviceDpi)
-        {
-            _provideDeviceDpi = provideDeviceDpi;
+        {    
+                _provideDeviceDpi = provideDeviceDpi;
         }
         protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
         {

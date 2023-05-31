@@ -69,9 +69,9 @@ namespace Greenshot.Forms {
 			// 
 			// lblTitle
 			// 
-            var fontsize = (this.DeviceDpi / 96) * lblTitle.Font.Size;
+            //var fontsize = (this.DeviceDpi / 96) * lblTitle.Font.Size;//cause the designer to be buggy
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif,8.25f, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTitle.Location = new System.Drawing.Point(108, 12);
 			this.lblTitle.Name = "lblTitle";
 			this.lblTitle.Size = new System.Drawing.Size(263, 19);

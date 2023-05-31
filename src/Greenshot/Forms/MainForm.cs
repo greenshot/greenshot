@@ -62,7 +62,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
+    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper
     {
         private static ILog LOG;
         private static ResourceMutex _applicationMutex;
@@ -322,6 +322,7 @@ namespace Greenshot.Forms
 
                 // Should fix BUG-1633
                 Application.DoEvents();
+                //create the instance
                 _instance = new MainForm(transport);
                 Application.Run();
             }

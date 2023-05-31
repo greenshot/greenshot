@@ -107,10 +107,10 @@ namespace Greenshot.Forms {
 			this.contextMenu.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuClosing);
 			this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpening);
 			this.contextMenu.Renderer = new Greenshot.Controls.ContextMenuToolStripProfessionalRenderer(this);
-			// 
-			// contextmenu_capturearea
-			// 
-			this.contextmenu_capturearea.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturearea.Image")));
+            // 
+            // contextmenu_capturearea
+            // 
+            this.contextmenu_capturearea.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturearea.Image")));
 			this.contextmenu_capturearea.Name = "contextmenu_capturearea";
 			this.contextmenu_capturearea.ShortcutKeyDisplayString = "Print";
 			this.contextmenu_capturearea.Size = new System.Drawing.Size(170, 22);
@@ -204,11 +204,12 @@ namespace Greenshot.Forms {
 			// contextmenu_quicksettings
 			// 
 			this.contextmenu_quicksettings.Name = "contextmenu_quicksettings";
-			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
-			// 
-			// contextmenu_settings
-			// 
-			this.contextmenu_settings.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_settings.Image")));
+            //this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
+            this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, 16 + 8);
+            // 
+            // contextmenu_settings
+            // 
+            this.contextmenu_settings.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_settings.Image")));
 			this.contextmenu_settings.Name = "contextmenu_settings";
 			this.contextmenu_settings.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_settings.Click += new System.EventHandler(this.Contextmenu_SettingsClick);

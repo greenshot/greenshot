@@ -40,45 +40,59 @@ namespace Greenshot.Editor.Configuration
     {
         [IniProperty("RecentColors", Separator = "|", Description = "Last used colors")]
         public List<Color> RecentColors { get; set; }
+        public const string _RecentColors = nameof(RecentColors);
 
         [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are re-used")]
         public Dictionary<string, object> LastUsedFieldValues { get; set; }
+        public const string _LastUsedFieldValues = nameof(LastUsedFieldValues);
 
         [IniProperty("MatchSizeToCapture", Description = "Match the editor window size to the capture", DefaultValue = "True")]
         public bool MatchSizeToCapture { get; set; }
+        public const string _MatchSizeToCapture = nameof(MatchSizeToCapture);
 
         [IniProperty("WindowPlacementFlags", Description = "Placement flags", DefaultValue = "0")]
         public WindowPlacementFlags WindowPlacementFlags { get; set; }
+        public const string _WindowPlacementFlags = nameof(WindowPlacementFlags);
 
         [IniProperty("WindowShowCommand", Description = "Show command", DefaultValue = "Normal")]
         public ShowWindowCommands ShowWindowCommand { get; set; }
+        public const string _ShowWindowCommand = nameof(ShowWindowCommand);
 
         [IniProperty("WindowMinPosition", Description = "Position of minimized window", DefaultValue = "-1,-1")]
         public NativePoint WindowMinPosition { get; set; }
+        public const string _WindowMinPosition = nameof(WindowMinPosition);
 
         [IniProperty("WindowMaxPosition", Description = "Position of maximized window", DefaultValue = "-1,-1")]
         public NativePoint WindowMaxPosition { get; set; }
+        public const string _WindowMaxPosition = nameof(WindowMaxPosition);
 
         [IniProperty("WindowNormalPosition", Description = "Position of normal window", DefaultValue = "100,100,400,400")]
         public NativeRect WindowNormalPosition { get; set; }
+        public const string _WindowNormalPosition = nameof(WindowNormalPosition);
 
         [IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
         public bool ReuseEditor { get; set; }
+        public const string _ReuseEditor = nameof(ReuseEditor);
 
         [IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 2147483647.", DefaultValue = "3")]
         public int FreehandSensitivity { get; set; }
+        public const string _FreehandSensitivity = nameof(FreehandSensitivity);
 
         [IniProperty("SuppressSaveDialogAtClose", Description = "Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue = "False")]
         public bool SuppressSaveDialogAtClose { get; set; }
+        public const string _SuppressSaveDialogAtClose = nameof(SuppressSaveDialogAtClose);
 
         [IniProperty("DropShadowEffectSettings", Description = "Settings for the drop shadow effect.")]
         public DropShadowEffect DropShadowEffectSettings { get; set; }
+        public const string _DropShadowEffectSettings = nameof(DropShadowEffectSettings);
 
         [IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
         public TornEdgeEffect TornEdgeEffectSettings { get; set; }
+        public const string _TornEdgeEffectSettings = nameof(TornEdgeEffectSettings);
 
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
         public NativeSize DefaultEditorSize { get; set; }
+        public const string _DefaultEditorSize = nameof(DefaultEditorSize);
 
 
         public override void AfterLoad()

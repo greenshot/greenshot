@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Forms
 {
@@ -89,7 +90,7 @@ namespace Greenshot.Forms
 			this.checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
 			this.checkboxAllowShrink.Location = new System.Drawing.Point(13, 23);
 			this.checkboxAllowShrink.Name = "checkboxAllowShrink";
-			this.checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
+			this.checkboxAllowShrink.PropertyName = CoreConfiguration._OutputPrintAllowShrink;
 			this.checkboxAllowShrink.Size = new System.Drawing.Size(168, 17);
 			this.checkboxAllowShrink.TabIndex = 2;
 			this.checkboxAllowShrink.Text = "Shrink printout to fit paper size";
@@ -103,7 +104,7 @@ namespace Greenshot.Forms
 			this.checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
 			this.checkboxAllowEnlarge.Location = new System.Drawing.Point(13, 46);
 			this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
-			this.checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
+			this.checkboxAllowEnlarge.PropertyName = CoreConfiguration._OutputPrintAllowEnlarge;
 			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(174, 17);
 			this.checkboxAllowEnlarge.TabIndex = 3;
 			this.checkboxAllowEnlarge.Text = "Enlarge printout to fit paper size";
@@ -117,7 +118,7 @@ namespace Greenshot.Forms
 			this.checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
 			this.checkboxAllowCenter.Location = new System.Drawing.Point(13, 92);
 			this.checkboxAllowCenter.Name = "checkboxAllowCenter";
-			this.checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
+			this.checkboxAllowCenter.PropertyName = CoreConfiguration._OutputPrintCenter;
 			this.checkboxAllowCenter.Size = new System.Drawing.Size(137, 17);
 			this.checkboxAllowCenter.TabIndex = 5;
 			this.checkboxAllowCenter.Text = "Center printout on page";
@@ -131,7 +132,7 @@ namespace Greenshot.Forms
 			this.checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
 			this.checkboxAllowRotate.Location = new System.Drawing.Point(13, 69);
 			this.checkboxAllowRotate.Name = "checkboxAllowRotate";
-			this.checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
+			this.checkboxAllowRotate.PropertyName = CoreConfiguration._OutputPrintAllowRotate;
 			this.checkboxAllowRotate.Size = new System.Drawing.Size(187, 17);
 			this.checkboxAllowRotate.TabIndex = 4;
 			this.checkboxAllowRotate.Text = "Rotate printout to page orientation";
@@ -158,7 +159,7 @@ namespace Greenshot.Forms
 			this.checkboxDateTime.LanguageKey = "printoptions_timestamp";
 			this.checkboxDateTime.Location = new System.Drawing.Point(13, 115);
 			this.checkboxDateTime.Name = "checkboxDateTime";
-			this.checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
+			this.checkboxDateTime.PropertyName = CoreConfiguration._OutputPrintFooter;
 			this.checkboxDateTime.Size = new System.Drawing.Size(187, 17);
 			this.checkboxDateTime.TabIndex = 6;
 			this.checkboxDateTime.Text = "Print date / time at bottom of page";
@@ -184,7 +185,7 @@ namespace Greenshot.Forms
 			this.checkboxPrintInverted.LanguageKey = "printoptions_inverted";
 			this.checkboxPrintInverted.Location = new System.Drawing.Point(13, 88);
 			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
-			this.checkboxPrintInverted.PropertyName = nameof(coreConfiguration.OutputPrintInverted);
+			this.checkboxPrintInverted.PropertyName = CoreConfiguration._OutputPrintInverted;
 			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
 			this.checkboxPrintInverted.TabIndex = 14;
 			this.checkboxPrintInverted.Text = "Print with inverted colors";
@@ -198,7 +199,7 @@ namespace Greenshot.Forms
 			this.radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
 			this.radioBtnGrayScale.Location = new System.Drawing.Point(13, 42);
 			this.radioBtnGrayScale.Name = "radioBtnGrayScale";
-			this.radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
+			this.radioBtnGrayScale.PropertyName = CoreConfiguration._OutputPrintGrayscale;
 			this.radioBtnGrayScale.Size = new System.Drawing.Size(137, 17);
 			this.radioBtnGrayScale.TabIndex = 12;
 			this.radioBtnGrayScale.Text = "Force grayscale printing";
@@ -212,7 +213,7 @@ namespace Greenshot.Forms
 			this.radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
 			this.radioBtnMonochrome.Location = new System.Drawing.Point(13, 65);
 			this.radioBtnMonochrome.Name = "radioBtnMonochrome";
-			this.radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
+			this.radioBtnMonochrome.PropertyName = CoreConfiguration._OutputPrintMonochrome;
 			this.radioBtnMonochrome.Size = new System.Drawing.Size(148, 17);
 			this.radioBtnMonochrome.TabIndex = 13;
 			this.radioBtnMonochrome.Text = "Force black/white printing";
