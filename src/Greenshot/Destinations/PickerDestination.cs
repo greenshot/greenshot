@@ -19,7 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -38,6 +40,7 @@ namespace Greenshot.Destinations
 
         public override int Priority => 1;
 
+        private readonly Func<IDestination, bool> _isNotPickerPredicate = (destination) => !destination.Designation.Equals(nameof(WellKnownDestinations.Picker));
 
         /// <summary>
         /// Export the capture with the destination picker
@@ -48,22 +51,9 @@ namespace Greenshot.Destinations
         /// <returns>true if export was made</returns>
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            List<IDestination> destinations = new List<IDestination>();
-
-            foreach (var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>())
-            {
-                if ("Picker".Equals(destination.Designation))
-                {
-                    continue;
-                }
-
-                if (!destination.IsActive)
-                {
-                    continue;
-                }
-
-                destinations.Add(destination);
-            }
+            List<IDestination> destinations = DestinationHelper.GetAllDestinations(true)
+                .Where(_isNotPickerPredicate)
+                .ToList();
 
             // No Processing, this is done in the selected destination (if anything was selected)
             return ShowPickerMenu(true, surface, captureDetails, destinations);

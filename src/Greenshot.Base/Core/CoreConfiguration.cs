@@ -212,6 +212,9 @@ namespace Greenshot.Base.Core
         [IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.")]
         public List<string> ExcludeDestinations { get; set; }
 
+        [IniProperty("HiddenDestinations", Description = "Comma separated list of destinations which should be hidden.")]
+        public List<string> HiddenDestinations { get; set; }
+
         [IniProperty("UpdateCheckInterval", Description = "How many days between every update check? (0=no checks)", DefaultValue = "14")]
         public int UpdateCheckInterval { get; set; }
 
