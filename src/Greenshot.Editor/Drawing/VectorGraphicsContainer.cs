@@ -47,7 +47,8 @@ namespace Greenshot.Editor.Drawing
         /// This is the cached version of the bitmap, pre-rendered to save performance
         /// Do not serialized, it can be rebuild with other information.
         /// </summary>
-        [NonSerialized] private Image _cachedImage;
+        [NonSerialized]
+        private Image _cachedImage;
 
         /// <summary>
         /// Constructor takes care of calling Init 
