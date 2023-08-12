@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <Target Name="CompressTwemojiMozillaTtfResource" BeforeTargets="BeforeBuild" Condition="!Exists('Drawing\Emoji\TwemojiMozilla.ttf.gz')">
-    <GZipTask InputFile="Drawing\Emoji\TwemojiMozilla.ttf"
-              OutputFile="Drawing\Emoji\TwemojiMozilla.ttf.gz" />
+    <GZipTask InputFile="Drawing\Emoji\Twemoji.Mozilla.ttf"
+              OutputFile="Drawing\Emoji\Twemoji.Mozilla.ttf.gz" />
   </Target>
 
   <ItemGroup>
@@ -94,9 +94,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="Drawing\Emoji\TwemojiMozilla.ttf.gz">
+    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.ttf.gz">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>TwemojiMozilla.ttf.gz</TargetPath>
+      <TargetPath>Twemoji.Mozilla.ttf.gz</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
 </Project>
