@@ -66,11 +66,11 @@ namespace Greenshot.Editor.Drawing.Emoji
         private static void RenderEmoji(string emoji, int iconSize, Image image)
         {
             var fontFamily = TwemojiFontFamily.Value;
-            var font = fontFamily.CreateFont(iconSize, FontStyle.Regular);
+            var font = fontFamily.CreateFont(iconSize * 0.95f, FontStyle.Regular);
             var verticalOffset = font.Size * 0.045f;
             var textOptions = new TextOptions(font)
             {
-                Origin = new PointF(font.Size / 2.0f, font.Size / 2.0f + verticalOffset),
+                Origin = new PointF(iconSize / 2.0f, iconSize / 2.0f + verticalOffset),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
