@@ -56,11 +56,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             }
         }
 
-        public EmojiContainer(Surface parent) : this(parent, "🙂", size: 64)
-        {
-        }
-
-        public EmojiContainer(Surface parent, string emoji, int size) : base(parent)
+        public EmojiContainer(Surface parent, string emoji, int size = 64) : base(parent)
         {
             Emoji = emoji;
             Width = size;

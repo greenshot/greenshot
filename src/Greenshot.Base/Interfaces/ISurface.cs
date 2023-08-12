@@ -99,7 +99,6 @@ namespace Greenshot.Base.Interfaces
         IImageContainer AddImageContainer(string filename, int x, int y);
         ICursorContainer AddCursorContainer(string filename, int x, int y);
         IIconContainer AddIconContainer(string filename, int x, int y);
-        IEmojiContainer AddEmojiContainer(string emoji, int x, int y, int size);
         long SaveElementsToStream(Stream stream);
         void LoadElementsFromStream(Stream stream);
 
