@@ -42,30 +42,15 @@ namespace Greenshot.Editor.Drawing.Emoji
         private static readonly Lazy<FontFamily> TwemojiFontFamily = new(() =>
         {
             var exeDirectory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-            var twemojiFontFile = Path.Combine(exeDirectory, "Twemoji.Mozilla.ttf.gz");
+            var twemojiFontFile = Path.Combine(exeDirectory, "Twemoji.Mozilla.ttf");
             if (!File.Exists(twemojiFontFile))
             {
                 throw new FileNotFoundException($"Can't find {twemojiFontFile}, bad installation?");
             }
 
-            Stopwatch sw = new();
-            sw.Start();
             using var fileStream = new FileStream(twemojiFontFile, FileMode.Open, FileAccess.Read);
-            using var gzStream = new GZipStream(fileStream, CompressionMode.Decompress);
-            using var memoryStream = new MemoryStream();
-            gzStream.CopyTo(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            sw.Stop();
-            
-            Console.WriteLine($"Uncompress .ttf: {sw.ElapsedMilliseconds} ms");
-
-            sw.Reset();
-            sw.Start();
-            TwemojiFontCollection.Add(memoryStream);
+            TwemojiFontCollection.Add(fileStream);
             TwemojiFontCollection.TryGet("Twemoji Mozilla", out var fontFamily);
-            sw.Stop();
-
-            Console.WriteLine($"Parse .ttf: {sw.ElapsedMilliseconds} ms");
             
             return fontFamily;
         });

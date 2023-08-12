@@ -70,7 +70,6 @@
 
   <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
-    <GZipTask InputFile="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" OutputFile="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml.gz" />
   </Target>
 
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">

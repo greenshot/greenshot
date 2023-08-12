@@ -15,11 +15,6 @@
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
 
-  <Target Name="CompressTwemojiMozillaTtfResource" BeforeTargets="BeforeBuild" Condition="!Exists('Drawing\Emoji\TwemojiMozilla.ttf.gz')">
-    <GZipTask InputFile="Drawing\Emoji\Twemoji.Mozilla.ttf"
-              OutputFile="Drawing\Emoji\Twemoji.Mozilla.ttf.gz" />
-  </Target>
-
   <ItemGroup>
     <Compile Update="Controls\BindableToolStripButton.cs">
       <SubType>Component</SubType>
@@ -94,9 +89,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.ttf.gz">
+    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Twemoji.Mozilla.ttf.gz</TargetPath>
+      <TargetPath>Twemoji.Mozilla.ttf</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
 </Project>
