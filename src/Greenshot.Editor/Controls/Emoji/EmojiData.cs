@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -31,7 +32,7 @@ namespace Greenshot.Editor.Controls.Emoji
     /// </summary>
     public static class EmojiData
     {
-        private const string EmojisXmlFilePath = "emojis.xml";
+        private const string EmojisXmlFilePath = "emojis.xml.gz";
 
         public static Emojis Data { get; private set; } = new();
 
@@ -41,7 +42,12 @@ namespace Greenshot.Editor.Controls.Emoji
 
             if (File.Exists(EmojisXmlFilePath))
             {
-                Data = (Emojis)x.Deserialize(new XmlTextReader(EmojisXmlFilePath));
+                using var fileStream = new FileStream(EmojisXmlFilePath, FileMode.Open, FileAccess.Read);
+                using var gzStream = new GZipStream(fileStream, CompressionMode.Decompress);
+                using var memoryStream = new MemoryStream();
+                gzStream.CopyTo(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                Data = (Emojis)x.Deserialize(new XmlTextReader(memoryStream));
             }
             else
             {
