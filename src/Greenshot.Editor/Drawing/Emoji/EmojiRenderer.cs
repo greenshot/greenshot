@@ -68,7 +68,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             var fontFamily = TwemojiFontFamily.Value;
             var font = fontFamily.CreateFont(iconSize * 0.95f, FontStyle.Regular);
             var verticalOffset = font.Size * 0.045f;
-            var textOptions = new TextOptions(font)
+            var textOptions = new RichTextOptions(font)
             {
                 Origin = new PointF(iconSize / 2.0f, iconSize / 2.0f + verticalOffset),
                 HorizontalAlignment = HorizontalAlignment.Center,
