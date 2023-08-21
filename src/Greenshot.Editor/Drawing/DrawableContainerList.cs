@@ -338,7 +338,8 @@ namespace Greenshot.Editor.Drawing
 
                 if (dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
-                    dc.DrawContent(g, bitmap, renderMode, clipRectangle);
+                    IEnumerable<NativeRect> areaHighlightContainers = this.Where(c => c.IsAreaHighlightContainer).Select(c => c.Bounds);
+                    dc.DrawContent(g, bitmap, renderMode, clipRectangle, areaHighlightContainers);
                 }
             }
         }

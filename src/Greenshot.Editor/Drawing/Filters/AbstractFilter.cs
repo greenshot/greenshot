@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
@@ -74,7 +75,7 @@ namespace Greenshot.Editor.Drawing.Filters
             return parent;
         }
 
-        public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
+        public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode, IEnumerable<NativeRect> areasToExcludeFromFilters = null);
 
         protected void OnPropertyChanged(string propertyName)
         {

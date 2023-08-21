@@ -396,9 +396,11 @@ namespace Greenshot.Editor.Drawing
 
         public bool HasFilters => Filters.Count > 0;
 
+        public bool IsAreaHighlightContainer => Filters.Any(f => f is BrightnessFilter) && Filters.Any(f => f is BlurFilter);
+
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
-        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, IEnumerable<NativeRect> areasToExcludeFromFilters)
         {
             if (Children.Count > 0)
             {
@@ -414,7 +416,7 @@ namespace Greenshot.Editor.Drawing
                         {
                             if (filter.Invert)
                             {
-                                filter.Apply(graphics, bmp, Bounds, renderMode);
+                                filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
                             }
                             else
                             {
@@ -423,11 +425,11 @@ namespace Greenshot.Editor.Drawing
                                 {
                                     // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
                                     // what we should actually do to resolve this is add a better magnifier which is not that special
-                                    filter.Apply(graphics, bmp, Bounds, renderMode);
+                                    filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
                                 }
                                 else
                                 {
-                                    filter.Apply(graphics, bmp, drawingRect, renderMode);
+                                    filter.Apply(graphics, bmp, drawingRect, renderMode, areasToExcludeFromFilters);
                                 }
                             }
                         }
