@@ -33,7 +33,7 @@ namespace Greenshot.Editor.Helpers
     /// </summary>
     public static class ScaleHelper
     {
-            /// <summary>
+        /// <summary>
         /// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
         /// </summary>
         /// <param name="currentSize">the size of the element to be resized</param>
@@ -215,14 +215,15 @@ namespace Greenshot.Editor.Helpers
         /// <param name="cursorX">int</param>
         /// <param name="cursorY">int</param>
         /// <param name="angleRoundBehavior">IDoubleProcessor</param>
-		/// <param name="options">ScaleOptionsProcessor</param>
+        /// <param name="scaleOptions">ScaleOptions</param>
         /// <returns>NativeRectFloat</returns>
-        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior, ScaleOptions? options = null)
+        public static NativeRectFloat Scale(NativeRect boundsBeforeResize, int cursorX, int cursorY, IDoubleProcessor angleRoundBehavior, ScaleOptions? scaleOptions = null)
         {
-            options ??= GetScaleOptions();
+            scaleOptions ??= GetScaleOptions();
+
             NativeRectFloat result = boundsBeforeResize;
-            bool rationalScale = (options & ScaleOptions.Rational) == ScaleOptions.Rational;
-            bool centeredScale = (options & ScaleOptions.Centered) == ScaleOptions.Centered;
+            bool rationalScale = (scaleOptions & ScaleOptions.Rational) == ScaleOptions.Rational;
+            bool centeredScale = (scaleOptions & ScaleOptions.Centered) == ScaleOptions.Centered;
 
             if (rationalScale)
             {
@@ -260,5 +261,5 @@ namespace Greenshot.Editor.Helpers
             if (maintainAspectRatio) opts |= ScaleOptions.Rational;
             return opts;
         }
-        }
+    }
 }
