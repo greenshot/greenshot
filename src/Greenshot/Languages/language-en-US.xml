@@ -89,6 +89,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_close">Close</resource>
 		<resource name="editor_close_on_save">Do you want to save the screenshot?</resource>
 		<resource name="editor_close_on_save_title">Save image?</resource>
+        <resource name="editor_close_on_clipboard">Do you want to copy the image to the clipboard?</resource>
+        <resource name="editor_close_on_clipboard_title">Copy image to clipboard?</resource>
 		<resource name="editor_confirm">Confirm</resource>
 		<resource name="editor_copyimagetoclipboard">Copy image to clipboard</resource>
 		<resource name="editor_copypathtoclipboard">Copy path to clipboard</resource>

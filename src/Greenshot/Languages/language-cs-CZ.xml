@@ -88,6 +88,8 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_close">Zavřít</resource>
 		<resource name="editor_close_on_save">Chcete uložit snímek?</resource>
 		<resource name="editor_close_on_save_title">Uložit snímek?</resource>
+        <resource name="editor_close_on_clipboard">Chcete obrázek zkopírovat do schránky?</resource>
+        <resource name="editor_close_on_clipboard_title">Kopírovat obrázek do schránky?</resource>
 		<resource name="editor_confirm">Potvrdit</resource>
 		<resource name="editor_copyimagetoclipboard">Kopírovat obrázek do schránky</resource>
 		<resource name="editor_copypathtoclipboard">Kopírovat cestu do schránky</resource>

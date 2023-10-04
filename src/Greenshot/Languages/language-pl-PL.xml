@@ -88,6 +88,8 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_close">Zamknij</resource>
 		<resource name="editor_close_on_save">Czy chcesz zapisać zrzut ekranu?</resource>
 		<resource name="editor_close_on_save_title">Zapisać obraz?</resource>
+        <resource name="editor_close_on_clipboard">Czy chcesz skopiować obraz do schowka?</resource>
+        <resource name="editor_close_on_clipboard_title">Skopiować obraz do schowka?</resource>
 		<resource name="editor_confirm">Zatwierdź</resource>
 		<resource name="editor_copyimagetoclipboard">Kopiuj obraz do schowka</resource>
 		<resource name="editor_copypathtoclipboard">Kopiuj ścieżkę do schowka</resource>

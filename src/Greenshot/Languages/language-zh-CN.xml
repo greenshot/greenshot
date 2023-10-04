@@ -79,6 +79,8 @@
 		<resource name="editor_close">关闭</resource>
 		<resource name="editor_close_on_save">还没有保存到文件，您要保存此图片吗？</resource>
 		<resource name="editor_close_on_save_title">保存图片</resource>
+        <resource name="editor_close_on_clipboard">是否要将图像复制到剪贴板？</resource>
+        <resource name="editor_close_on_clipboard_title">将图像复制到剪贴板？</resource>
 		<resource name="editor_confirm">确定</resource>
 		<resource name="editor_copyimagetoclipboard">复制图片到剪贴板</resource>
 		<resource name="editor_copypathtoclipboard">复制路径到剪贴板</resource>

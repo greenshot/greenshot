@@ -20,6 +20,8 @@
  */
 
 using System;
+using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
@@ -36,10 +38,12 @@ namespace Greenshot.Helpers
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotifyIconNotificationService));
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
         private readonly NotifyIcon _notifyIcon;
+        private readonly SynchronizationContext _mainSynchronizationContext;
 
         public NotifyIconNotificationService()
         {
             _notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+            _mainSynchronizationContext = SynchronizationContext.Current;
         }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Warning, onClickAction, onClosedAction);
         }
@@ -61,7 +65,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Error, onClickAction, onClosedAction);
         }
@@ -73,7 +77,7 @@ namespace Greenshot.Helpers
         /// <param name="timeout">TimeSpan</param>
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
             ShowMessage(message, timeout, ToolTipIcon.Info, onClickAction, onClosedAction);
         }
@@ -94,43 +98,54 @@ namespace Greenshot.Helpers
                 return;
             }
 
+            void DisposeBalloon()
+            {
+                _notifyIcon.BalloonTipClosed -= BalloonClosedHandler;
+                if (onClickAction != null)
+                {
+                    _notifyIcon.BalloonTipClicked -= BalloonClickedHandler;
+                }
+            }
+
             void BalloonClickedHandler(object s, EventArgs e)
             {
-                try
-                {
-                    onClickAction?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Exception while handling the onclick action: ", ex);
-                }
+                DisposeBalloon();
+                InvokeAction(onClickAction);
+            }
 
-                _notifyIcon.BalloonTipClicked -= BalloonClickedHandler;
+            void BalloonClosedHandler(object s, EventArgs e)
+            {
+                DisposeBalloon();
+                InvokeAction(onClosedAction);
             }
 
             if (onClickAction != null)
             {
                 _notifyIcon.BalloonTipClicked += BalloonClickedHandler;
             }
-
-            void BalloonClosedHandler(object s, EventArgs e)
-            {
-                try
-                {
-                    onClosedAction?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Exception while handling the onClosed action: ", ex);
-                }
-
-                _notifyIcon.BalloonTipClosed -= BalloonClosedHandler;
-                // Remove the other handler too
-                _notifyIcon.BalloonTipClicked -= BalloonClickedHandler;
-            }
-
             _notifyIcon.BalloonTipClosed += BalloonClosedHandler;
+            
             _notifyIcon.ShowBalloonTip(timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : 5000, @"Greenshot", message, level);
         }
+        
+        private void InvokeAction(Action action)
+        {
+            if (action != null)
+            {
+                _mainSynchronizationContext.Post(InternalInvokeAction, action);
+            }
+        } 
+        
+        private void InternalInvokeAction(object state)
+        {
+            try
+            {
+                ((Action)state).Invoke();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Exception while handling the onClosed action: ", ex);
+            }
+        } 
     }
 }

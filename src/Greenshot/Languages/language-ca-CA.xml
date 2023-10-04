@@ -87,6 +87,8 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_close">Tanca</resource>
 		<resource name="editor_close_on_save">Voleu desar la captura?</resource>
 		<resource name="editor_close_on_save_title">Voleu desar la imatge?</resource>
+        <resource name="editor_close_on_clipboard">Voleu copiar la imatge al porta-retalls?</resource>
+        <resource name="editor_close_on_clipboard_title">Voleu copiar la imatge al porta-retalls?</resource>
 		<resource name="editor_confirm">Confirma</resource>
 		<resource name="editor_copyimagetoclipboard">Copia la imatge al porta-retalls</resource>
 		<resource name="editor_copypathtoclipboard">Copia el camí al porta-retalls</resource>

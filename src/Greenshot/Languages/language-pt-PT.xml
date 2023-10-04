@@ -87,6 +87,8 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_close">Fechar</resource>
 		<resource name="editor_close_on_save">Deseja guardar a imagem capturada?</resource>
 		<resource name="editor_close_on_save_title">Guardar imagem?</resource>
+        <resource name="editor_close_on_clipboard">Deseja copiar a imagem para a área de transferência?</resource>
+        <resource name="editor_close_on_clipboard_title">Copiar imagem para a área de transferência?</resource>
 		<resource name="editor_confirm">Confirmar</resource>
 		<resource name="editor_copyimagetoclipboard">Copiar imagem para a Área de transferência</resource>
 		<resource name="editor_copypathtoclipboard">Copiar atalho para a Área de transferência</resource>

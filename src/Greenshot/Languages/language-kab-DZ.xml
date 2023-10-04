@@ -87,6 +87,8 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_close">Mdel</resource>
 		<resource name="editor_close_on_save">Tebɣiḍ ad teselkseḍ tuṭṭfa n ugdil?</resource>
 		<resource name="editor_close_on_save_title">Sekles tugna?</resource>
+        <resource name="editor_close_on_clipboard">Nɣel tugna ɣef afus?</resource>
+        <resource name="editor_close_on_clipboard_title">Nɣel tugna ɣef afus?</resource>
 		<resource name="editor_confirm">Sentem</resource>
 		<resource name="editor_copyimagetoclipboard">Nɣel tugna ɣef afus</resource>
 		<resource name="editor_copypathtoclipboard">Nɣel abrid ɣef afus</resource>

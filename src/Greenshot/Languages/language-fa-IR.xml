@@ -61,6 +61,8 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_close">ببند</resource>
 		<resource name="editor_close_on_save">تصویر ذخیره شود؟</resource>
 		<resource name="editor_close_on_save_title">تصویر ذخیره شود؟</resource>
+        <resource name="editor_close_on_clipboard">آیا می خواهید تصویر را در کلیپ بورد کپی کنید؟</resource>
+        <resource name="editor_close_on_clipboard_title">تصویر در کلیپ بورد کپی شود؟</resource>
 		<resource name="editor_confirm">تایید</resource>
 		<resource name="editor_copyimagetoclipboard">ذخیره سازی در حافظه موقت</resource>
 		<resource name="editor_copypathtoclipboard">ذخیره مسیر در حافظه موقت</resource>

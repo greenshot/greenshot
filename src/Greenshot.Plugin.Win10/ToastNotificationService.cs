@@ -20,8 +20,10 @@
  */
 
 using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
@@ -41,7 +43,11 @@ namespace Greenshot.Plugin.Win10
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
+        private const string _heroImageFilePrefix = "hero-";
         private readonly string _imageFilePath;
+        private readonly string _localAppData;
+        private readonly ToastNotifierCompat _toastNotifier;
+        private readonly SynchronizationContext _mainSynchronizationContext;
 
         public ToastNotificationService()
         {
@@ -62,13 +68,21 @@ namespace Greenshot.Plugin.Win10
                 Log.Info("Toast activated. Args: " + toastArgs.Argument);
             };
 
-            var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
-            if (!Directory.Exists(localAppData))
+            _toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+            _mainSynchronizationContext = SynchronizationContext.Current;
+            _localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+            if (!Directory.Exists(_localAppData))
             {
-                Directory.CreateDirectory(localAppData);
+                Directory.CreateDirectory(_localAppData);
+            }
+            
+            // Cleanup old hero images cache
+            foreach (var heroImagePath in Directory.EnumerateFiles(_localAppData, $"{_heroImageFilePrefix}*", SearchOption.TopDirectoryOnly))
+            {
+                File.Delete(heroImagePath);
             }
 
-            _imageFilePath = Path.Combine(localAppData, "greenshot.png");
+            _imageFilePath = Path.Combine(_localAppData, "greenshot.png");
 
             if (File.Exists(_imageFilePath))
             {
@@ -86,7 +100,8 @@ namespace Greenshot.Plugin.Win10
         /// <param name="timeout">TimeSpan until the toast timeouts</param>
         /// <param name="onClickAction">Action called when clicked</param>
         /// <param name="onClosedAction">Action called when the toast is closed</param>
-        private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
+        /// <param name="heroImage"></param>
+        private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
@@ -114,34 +129,57 @@ namespace Greenshot.Plugin.Win10
             try
             {
                 // Generate the toast and send it off
-                new ToastContentBuilder()
+                var toastBuilder = new ToastContentBuilder();
+                var heroImagePath = Path.Combine(_localAppData, $"{_heroImageFilePrefix}{Guid.NewGuid()}.jpeg");
+                var heroImageUri = new Uri(heroImagePath).AbsoluteUri;
+
+                toastBuilder
                     .AddArgument("ToastID", 100)
-                    // Inline image
-                    .AddText(message)
+                    .AddText(message);
                     // Profile (app logo override) image
                     //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
-                    .Show(toast =>
+
+                if (heroImage != null)
+                {
+                    heroImage = heroImage.GetThumbnailImage(364, 180, () => false, IntPtr.Zero);
+
+                    using var fileStream = new FileStream(heroImagePath, FileMode.CreateNew);
+                    heroImage.Save(fileStream, ImageFormat.Jpeg);
+                    toastBuilder.AddHeroImage(new Uri(heroImageUri, UriKind.Absolute));
+                }
+
+                toastBuilder.Show(toast =>
                     {
-                    // Windows 10 first with 1903: ExpiresOnReboot = true
-                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
+                        void DisposeNotification()
+                        {
+                            if (onClickAction != null)
+                            {
+                                toast.Activated -= ToastActivatedHandler;
+                            }
+
+                            toast.Dismissed -= ToastDismissedHandler;
+                            toast.Failed -= ToastOnFailed;
+                            
+                            if (heroImage != null)
+                            {
+                                File.Delete(heroImagePath);
+                            }
+                        }
+                        
+                        // Windows 10 first with 1903: ExpiresOnReboot = true
+                        toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : null;
+
+                        void ToastOnFailed(ToastNotification toastNotification, ToastFailedEventArgs args)
+                        {
+                            DisposeNotification();
+                            Log.WarnFormat("Failed to display a toast due to {0}", args.ErrorCode);
+                            Log.Debug(toastNotification.Content.GetXml());
+                        }
 
                         void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                         {
-                            try
-                            {
-                                onClickAction?.Invoke();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Exception while handling the onclick action: ", ex);
-                            }
-
-                            toast.Activated -= ToastActivatedHandler;
-                        }
-
-                        if (onClickAction != null)
-                        {
-                            toast.Activated += ToastActivatedHandler;
+                            DisposeNotification();
+                            InvokeAction(onClickAction);
                         }
 
                         void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
@@ -152,25 +190,22 @@ namespace Greenshot.Plugin.Win10
                                 return;
                             }
 
-                            try
-                            {
-                                onClosedAction?.Invoke();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Exception while handling the onClosed action: ", ex);
-                            }
+                            DisposeNotification();
+                            
+                            // Windows lets you Dismiss the notification two time, this is really odd
+                            // So we need to force the removal of the notification
+                            _mainSynchronizationContext.Post(ForceCloseNotification, toastNotification);
 
-                            toast.Dismissed -= ToastDismissedHandler;
-                        // Remove the other handler too
-                        toast.Activated -= ToastActivatedHandler;
-                            toast.Failed -= ToastOnFailed;
+                            InvokeAction(onClosedAction);
                         }
 
+                        if (onClickAction != null)
+                        {
+                            toast.Activated += ToastActivatedHandler;
+                        }
                         toast.Dismissed += ToastDismissedHandler;
                         toast.Failed += ToastOnFailed;
                     });
-
             }
             catch (Exception ex)
             {
@@ -178,25 +213,19 @@ namespace Greenshot.Plugin.Win10
             }
         }
 
-        private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
+        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
-            Log.WarnFormat("Failed to display a toast due to {0}", args.ErrorCode);
-            Log.Debug(sender.Content.GetXml());
+            ShowMessage(message, timeout, onClickAction, onClosedAction, heroImage);
         }
 
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
+            ShowMessage(message, timeout, onClickAction, onClosedAction, heroImage);
         }
 
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null, Image heroImage = null)
         {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
-
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
+            ShowMessage(message, timeout, onClickAction, onClosedAction, heroImage);
         }
 
         /// <summary>
@@ -213,6 +242,31 @@ namespace Greenshot.Plugin.Win10
             Log.Warn("ToastNotificationActionTrigger not available.");
 
             return null;
+        }
+
+        private void ForceCloseNotification(object state)
+        {
+            _toastNotifier.Hide((ToastNotification)state);
+        }
+        
+        private void InvokeAction(Action action)
+        {
+            if (action != null)
+            {
+                _mainSynchronizationContext.Post(InternalInvokeAction, action);
+            }
+        } 
+        
+        private void InternalInvokeAction(object state)
+        {
+            try
+            {
+                ((Action)state).Invoke();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Exception while handling the onClosed action: ", ex);
+            }
         }
     }
 }

@@ -84,6 +84,8 @@
 		<resource name="editor_close">Fechar</resource>
 		<resource name="editor_close_on_save">Deseja salvar a imagem capturada?</resource>
 		<resource name="editor_close_on_save_title">Salvar imagem?</resource>
+        <resource name="editor_close_on_clipboard">Deseja copiar a imagem para a área de transferência?</resource>
+        <resource name="editor_close_on_clipboard_title">Copiar imagem para a área de transferência?</resource>
 		<resource name="editor_confirm">Confirmar</resource>
 		<resource name="editor_copyimagetoclipboard">Copiar imagem para a Área de transferência</resource>
 		<resource name="editor_copypathtoclipboard">Copiar o caminho da pasta atual do arquivo para a Área de transferência</resource>

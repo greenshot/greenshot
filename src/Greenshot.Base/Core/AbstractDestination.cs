@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -105,6 +106,38 @@ namespace Greenshot.Base.Core
         public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
         /// <summary>
+        /// If a balloon tip is show for a taken capture, this handles the click on it
+        /// </summary>
+        /// <param name="e">SurfaceMessageEventArgs</param>
+        public virtual void OnExportedNotificationClick(SurfaceMessageEventArgs e)
+        {
+            Log.Info(Designation + " Notification Clicked!");
+            
+            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+            if (notifyIcon.Tag is not SurfaceMessageEventArgs eventArgs)
+            {
+                Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
+                return;
+            }
+
+            var surface = eventArgs.Surface;
+            if (surface != null)
+            {
+                switch (eventArgs.MessageType)
+                {
+                    case SurfaceMessageTyp.FileSaved:
+                        ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
+                        break;
+                    case SurfaceMessageTyp.UploadedUri:
+                        Process.Start(surface.UploadUrl);
+                        break;
+                }
+            }
+
+            Log.DebugFormat("Deregistering the BalloonTipClicked");
+        }
+
+        /// <summary>
         /// A small helper method to perform some default destination actions, like inform the surface of the export
         /// </summary>
         /// <param name="exportInformation"></param>
@@ -125,7 +158,7 @@ namespace Greenshot.Base.Core
                 }
                 else
                 {
-                    surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
+                    surface.SendMessageEvent(this, SurfaceMessageTyp.Exported, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
                 }
 
                 surface.Modified = false;

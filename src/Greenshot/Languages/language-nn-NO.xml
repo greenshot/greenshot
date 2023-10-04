@@ -75,6 +75,8 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_close">Lukk</resource>
 		<resource name="editor_close_on_save">Vil du lagre skjermbildet?</resource>
 		<resource name="editor_close_on_save_title">Vil du lagre bildet?</resource>
+        <resource name="editor_close_on_clipboard">Vil du kopiere bildet til utklippstavlen?</resource>
+        <resource name="editor_close_on_clipboard_title">Vil du kopiere bildet til utklippstavlen?</resource>
 		<resource name="editor_confirm">Stadfest</resource>
 		<resource name="editor_copyimagetoclipboard">Kopier bildet til utklyppstavla</resource>
 		<resource name="editor_copypathtoclipboard">Kopier filstigen til utklyppstavla</resource>

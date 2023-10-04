@@ -612,36 +612,6 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// If a balloon tip is show for a taken capture, this handles the click on it
-        /// </summary>
-        /// <param name="e">SurfaceMessageEventArgs</param>
-        private void OpenCaptureOnClick(SurfaceMessageEventArgs e)
-        {
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-            if (notifyIcon.Tag is not SurfaceMessageEventArgs eventArgs)
-            {
-                Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-                return;
-            }
-
-            ISurface surface = eventArgs.Surface;
-            if (surface != null)
-            {
-                switch (eventArgs.MessageType)
-                {
-                    case SurfaceMessageTyp.FileSaved:
-                        ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
-                        break;
-                    case SurfaceMessageTyp.UploadedUri:
-                        Process.Start(surface.UploadUrl);
-                        break;
-                }
-            }
-
-            Log.DebugFormat("Deregistering the BalloonTipClicked");
-        }
-
-        /// <summary>
         /// This is the SurfaceMessageEvent receiver
         /// </summary>
         /// <param name="sender">object</param>
@@ -653,19 +623,26 @@ namespace Greenshot.Helpers
                 return;
             }
 
+            var destination = (IDestination)sender;
             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
             switch (eventArgs.MessageType)
             {
                 case SurfaceMessageTyp.Error:
                     notifyIconClassicMessageHandler.ShowErrorMessage(eventArgs.Message, TimeSpan.FromHours(1));
+                    eventArgs.Dispose();
                     break;
-                case SurfaceMessageTyp.Info:
-                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, TimeSpan.FromHours(1), () => { Log.Info("Clicked!"); });
-                    break;
-                case SurfaceMessageTyp.FileSaved:
-                case SurfaceMessageTyp.UploadedUri:
+                default:
                     // Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
-                    notifyIconClassicMessageHandler.ShowInfoMessage(eventArgs.Message, TimeSpan.FromHours(1), () => OpenCaptureOnClick(eventArgs));
+                    notifyIconClassicMessageHandler.ShowInfoMessage(
+                        eventArgs.Message, 
+                        TimeSpan.FromHours(1), 
+                        () =>
+                        {
+                            destination.OnExportedNotificationClick(eventArgs);
+                            eventArgs.Dispose();
+                        },
+                        eventArgs.Dispose,
+                        eventArgs.Image);
                     break;
             }
         }

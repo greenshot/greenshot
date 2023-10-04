@@ -87,6 +87,8 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_close">Fermer</resource>
 		<resource name="editor_close_on_save">Voulez-vous enregistrer la capture d'écran ?</resource>
 		<resource name="editor_close_on_save_title">Enregistrer l'image ?</resource>
+        <resource name="editor_close_on_clipboard">Voulez-vous copier l'image dans le presse-papier ?</resource>
+        <resource name="editor_close_on_clipboard_title">Copier l'image dans le presse-papier ?</resource>
 		<resource name="editor_confirm">Confirmer</resource>
 		<resource name="editor_copyimagetoclipboard">Copier l'image vers le presse-papier</resource>
 		<resource name="editor_copypathtoclipboard">Copier le chemin vers le presse-papier</resource>

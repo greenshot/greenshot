@@ -57,6 +57,8 @@
 		<resource name="editor_close">اغلق</resource>
 		<resource name="editor_close_on_save">هل تريد حفظ اللقطة?</resource>
 		<resource name="editor_close_on_save_title">حفظ الصورة?</resource>
+        <resource name="editor_close_on_clipboard">هل تريد نسخ الصورة إلى الحافظة؟</resource>
+        <resource name="editor_close_on_clipboard_title">نسخ الصورة إلى الحافظة؟</resource>
 		<resource name="editor_confirm">تأكيد</resource>
 		<resource name="editor_copyimagetoclipboard">انسخ الصورة للذاكرة</resource>
 		<resource name="editor_copypathtoclipboard">انسخ المسار الي الذاكرة</resource>

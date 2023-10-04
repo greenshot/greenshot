@@ -58,6 +58,8 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_close">Bezárni</resource>
 		<resource name="editor_close_on_save">Szeretné menteni a képernyőképet?</resource>
 		<resource name="editor_close_on_save_title">Menti a képet?</resource>
+        <resource name="editor_close_on_clipboard">A vágólapra szeretné másolni a képet?</resource>
+        <resource name="editor_close_on_clipboard_title">Másolja a képet a vágólapra?</resource>
 		<resource name="editor_confirm">Alkalmaz</resource>
 		<resource name="editor_copyimagetoclipboard">A kép másolása a vágólapra</resource>
 		<resource name="editor_copypathtoclipboard">Másolja a vágólapra</resource>

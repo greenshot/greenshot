@@ -88,6 +88,8 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_close">Закрыть</resource>
 		<resource name="editor_close_on_save">Сохранить снимок экрана?</resource>
 		<resource name="editor_close_on_save_title">Сохранить изображение?</resource>
+        <resource name="editor_close_on_clipboard">Вы хотите скопировать изображение в буфер обмена?</resource>
+        <resource name="editor_close_on_clipboard_title">Скопировать изображение в буфер обмена?</resource>
 		<resource name="editor_confirm">Подтвердить</resource>
 		<resource name="editor_copyimagetoclipboard">Копировать изображение в буфер обмена</resource>
 		<resource name="editor_copypathtoclipboard">Копировать путь в буфер обмена</resource>

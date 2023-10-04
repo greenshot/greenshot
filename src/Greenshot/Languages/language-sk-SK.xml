@@ -75,6 +75,8 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_close">Zavrieť</resource>
 		<resource name="editor_close_on_save">Chcete uložiť snímku?</resource>
 		<resource name="editor_close_on_save_title">Uložiť obrázok?</resource>
+        <resource name="editor_close_on_clipboard">Chcete skopírovať obrázok do schránky?</resource>
+        <resource name="editor_close_on_clipboard_title">Kopírovať obrázok do schránky?</resource>
 		<resource name="editor_confirm">Potvrdiť</resource>
 		<resource name="editor_copyimagetoclipboard">Kopírovať obrázok do schránky</resource>
 		<resource name="editor_copypathtoclipboard">Kopírovať cestu do schránky</resource>

@@ -935,6 +935,9 @@ namespace Greenshot.Editor.Forms
                 // Make sure the editor is visible
                 WindowDetails.ToForeground(Handle);
 
+                // If the user choose the clipboard as destination, just keep it also on close
+                bool saveToClipboard = _surface.CaptureDetails.CaptureDestinations.SingleOrDefault()?.Designation == nameof(WellKnownDestinations.Clipboard);
+
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
                 // Dissallow "CANCEL" if the application needs to shutdown
                 if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
@@ -942,8 +945,12 @@ namespace Greenshot.Editor.Forms
                     buttons = MessageBoxButtons.YesNo;
                 }
 
-                DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons,
+                DialogResult result = MessageBox.Show(
+                    Language.GetString(saveToClipboard ? LangKey.editor_close_on_clipboard : LangKey.editor_close_on_save), 
+                    Language.GetString(saveToClipboard ? LangKey.editor_close_on_clipboard_title : LangKey.editor_close_on_save_title),
+                    buttons,
                     MessageBoxIcon.Question);
+                
                 if (result.Equals(DialogResult.Cancel))
                 {
                     e.Cancel = true;
@@ -952,7 +959,15 @@ namespace Greenshot.Editor.Forms
 
                 if (result.Equals(DialogResult.Yes))
                 {
-                    BtnSaveClick(sender, e);
+                    if (saveToClipboard)
+                    {
+                        BtnClipboardClick(sender, e);
+                    }
+                    else
+                    {
+                        BtnSaveClick(sender, e);
+                    }
+                    
                     // Check if the save was made, if not it was cancelled so we cancel the closing
                     if (_surface.Modified)
                     {
