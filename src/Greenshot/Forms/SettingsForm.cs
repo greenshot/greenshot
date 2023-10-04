@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base;
@@ -52,6 +53,7 @@ namespace Greenshot.Forms
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _inHotkey;
         private int _daysBetweenCheckPreviousValue;
+        private readonly NativeSize _scaledIconSize;
 
         public SettingsForm()
         {
@@ -61,6 +63,10 @@ namespace Greenshot.Forms
 
             // Make sure the store isn't called to early, that's why we do it manually
             ManualStoreFields = true;
+
+            // Precalculate icon size.
+            //TODO: This might be worth moving to a global service so that the entire UI can use it, rather than re-calculating on each form.
+            _scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
         }
 
         /// <summary>
@@ -421,21 +427,27 @@ namespace Greenshot.Forms
             checkbox_picker.Checked = false;
 
             listview_destinations.Items.Clear();
-            var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
             listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
+
+            listview_hiddenDestinations.Items.Clear();
+            listview_hiddenDestinations.ListViewItemSorter = new ListviewWithDestinationComparer();
+
             ImageList imageList = new ImageList
             {
-                ImageSize = scaledIconSize
+                ImageSize = _scaledIconSize
             };
+
             listview_destinations.SmallImageList = imageList;
-            int imageNr = -1;
+            listview_hiddenDestinations.SmallImageList = imageList;
+
+            int currentImageIndex = -1;
             foreach (IDestination currentDestination in DestinationHelper.GetAllDestinations())
             {
                 Image destinationImage = currentDestination.DisplayIcon;
                 if (destinationImage != null)
                 {
                     imageList.Images.Add(currentDestination.DisplayIcon);
-                    imageNr++;
+                    currentImageIndex++;
                 }
 
                 if (nameof(WellKnownDestinations.Picker).Equals(currentDestination.Designation))
@@ -445,18 +457,12 @@ namespace Greenshot.Forms
                 }
                 else
                 {
-                    ListViewItem item;
-                    if (destinationImage != null)
-                    {
-                        item = listview_destinations.Items.Add(currentDestination.Description, imageNr);
-                    }
-                    else
-                    {
-                        item = listview_destinations.Items.Add(currentDestination.Description);
-                    }
-
-                    item.Tag = currentDestination;
-                    item.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
+                    bool isSelected = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
+                    bool isHidden = coreConfiguration.HiddenDestinations.Contains(currentDestination.Designation);
+                    int? imageIndex = destinationImage != null ? currentImageIndex : null;
+                    
+                    listview_destinations.Items.Add(CreateDestinationListViewItem(currentDestination, isSelected, imageIndex));
+                    listview_hiddenDestinations.Items.Add(CreateDestinationListViewItem(currentDestination, isHidden, imageIndex));
                 }
             }
 
@@ -472,6 +478,17 @@ namespace Greenshot.Forms
 
             checkbox_picker.Enabled = destinationsEnabled;
             listview_destinations.Enabled = destinationsEnabled;
+        }
+
+        private ListViewItem CreateDestinationListViewItem(IDestination destination, bool isChecked, int? imageIndex = null)
+        {
+            var listViewItem = new ListViewItem(destination.Description, imageIndex ?? -1)
+            {
+                Tag = destination,
+                Checked = isChecked
+            };
+
+            return listViewItem;
         }
 
         private void DisplaySettings()
@@ -585,7 +602,20 @@ namespace Greenshot.Forms
                 }
             }
 
+            List<string> hiddenDestinations = new List<string>();
+
+            foreach (int index in listview_hiddenDestinations.CheckedIndices)
+            {
+                ListViewItem item = listview_hiddenDestinations.Items[index];
+
+                if (item.Checked && item.Tag is IDestination hiddenDestinationFromTag)
+                {
+                    hiddenDestinations.Add(hiddenDestinationFromTag.Designation);
+                }
+            }
+
             coreConfiguration.OutputDestinations = destinations;
+            coreConfiguration.HiddenDestinations = hiddenDestinations;
             coreConfiguration.CaptureDelay = (int) numericUpDownWaitTime.Value;
             coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
             coreConfiguration.UpdateCheckInterval = (int) numericUpDown_daysbetweencheck.Value;

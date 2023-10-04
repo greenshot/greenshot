@@ -36,13 +36,16 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Method to get all the destinations from the plugins
         /// </summary>
+        /// <param name="excludeHidden">Whether or not to excluded hidden destinations. Default is false.</param>
         /// <returns>List of IDestination</returns>
-        public static IEnumerable<IDestination> GetAllDestinations()
+        public static IEnumerable<IDestination> GetAllDestinations(bool excludeHidden = false)
         {
             return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
                 .Where(destination => destination.IsActive)
-                .Where(destination => CoreConfig.ExcludeDestinations == null ||
-                                      !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
+                .Where(destination => !excludeHidden || CoreConfig.HiddenDestinations == null || !CoreConfig.HiddenDestinations.Contains(destination.Designation))
+                .Where(destination => CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation))
+                .OrderBy(p => p.Priority)
+                .ThenBy(p => p.Description);
         }
 
         /// <summary>
