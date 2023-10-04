@@ -29,6 +29,9 @@ namespace Greenshot.Plugin.Win10
     [IniSection("Win10", Description = "Greenshot Win10 Plugin configuration")]
     public class Win10Configuration : IniSection
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether OCR should be run automatically on every capture.
+        /// </summary>
         [IniProperty("AlwaysRunOCROnCapture", Description = "Determines if OCR is run automatically on every capture", DefaultValue = "False")]
         public bool AlwaysRunOCROnCapture { get; set; }
     }

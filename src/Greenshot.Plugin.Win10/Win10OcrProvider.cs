@@ -41,7 +41,10 @@ namespace Greenshot.Plugin.Win10
     /// </summary>
     public class Win10OcrProvider : IOcrProvider
     {
+        // Log for debugging and information
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProvider));
+        
+        // Minimum width and height for the OCR to work correctly
         private const int MinWidth = 130;
         private const int MinHeight = 130;
 
@@ -50,7 +53,10 @@ namespace Greenshot.Plugin.Win10
         /// </summary>
         public Win10OcrProvider()
         {
+            // Get available languages from the OCR engine and log them
             var languages = OcrEngine.AvailableRecognizerLanguages;
+            
+            // Log all available languages for OCR.
             foreach (var language in languages)
             {
                 Log.DebugFormat("Found language {0} {1}", language.NativeName, language.LanguageTag);
@@ -64,19 +70,26 @@ namespace Greenshot.Plugin.Win10
         /// <returns>OcrResult sync</returns>
         public async Task<OcrInformation> DoOcrAsync(ISurface surface)
         {
+            // Will contain the result of the OCR process
             OcrInformation result;
+            
+            // Using a memory stream to handle the image
             using (var imageStream = new MemoryStream())
             {
                 // We only want the background
+                // Output settings for the image before OCR process
                 var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 0, true)
                 {
                     ReduceColors = true,
                     SaveBackgroundOnly = true
                 };
-                // Force Grayscale output
+                // Force Grayscale output to the image
                 outputSettings.Effects.Add(new GrayscaleEffect());
+                
+                // If the surface is smaller than the minimum dimensions, resize it
                 if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight)
                 {
+                    // Calculate dimensions to add
                     int addedWidth = MinWidth - surface.Image.Width;
                     if (addedWidth < 0)
                     {
@@ -95,13 +108,18 @@ namespace Greenshot.Plugin.Win10
                     {
                         addedHeight /= 2;
                     }
+                    // Add a resize effect to the image
                     IEffect effect = new ResizeCanvasEffect(addedWidth, addedWidth, addedHeight, addedHeight);
                     outputSettings.Effects.Add(effect);
                 }
+                // Save the surface to the stream and reset position
                 ImageIO.SaveToStream(surface, imageStream, outputSettings);
                 imageStream.Position = 0;
+                
+                // Create a random access stream from the memory stream
                 var randomAccessStream = imageStream.AsRandomAccessStream();
-
+                
+                // Perform OCR on the stream
                 result = await DoOcrAsync(randomAccessStream);
             }
 
@@ -158,8 +176,10 @@ namespace Greenshot.Plugin.Win10
         {
             var result = new OcrInformation();
 
+            // Iterate over all lines in the OCR result
             foreach (var ocrLine in ocrResult.Lines)
             {
+                // Create a new line and add it to the result
                 var line = new Line(ocrLine.Words.Count)
                 {
                     Text = ocrLine.Text
@@ -167,12 +187,16 @@ namespace Greenshot.Plugin.Win10
 
                 result.Lines.Add(line);
 
+                // Loop through each word in the line and process it.
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
+                    
+                    // Create the bounding rectangle for the word
                     var location = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
                         (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
 
+                    // Add the word to the line
                     var word = line.Words[index];
                     word.Text = ocrWord.Text;
                     word.Bounds = location;

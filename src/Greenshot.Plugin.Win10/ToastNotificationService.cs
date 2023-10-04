@@ -42,7 +42,11 @@ namespace Greenshot.Plugin.Win10
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private readonly string _imageFilePath;
-
+        
+        /// <summary>
+        /// Initializes a new instance of the ToastNotificationService class.
+        /// If the program was started by a toast notification, logs this information.
+        /// </summary>
         public ToastNotificationService()
         {
             if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
@@ -80,12 +84,12 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// This creates the actual toast
+        /// Creates and displays the actual toast notification with the specified message and parameters.
         /// </summary>
-        /// <param name="message">string</param>
-        /// <param name="timeout">TimeSpan until the toast timeouts</param>
-        /// <param name="onClickAction">Action called when clicked</param>
-        /// <param name="onClosedAction">Action called when the toast is closed</param>
+        /// <param name="message">The string message to display in the toast notification.</param>
+        /// <param name="timeout">TimeSpan until the toast timeouts or should stay on screen, or null for the default duration.</param>
+        /// <param name="onClickAction">Action called when clicked, or null for no action.</param>
+        /// <param name="onClosedAction">Action called when the toast is closed, or null for no action.</param>
         private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
         {
             // Do not inform the user if this is disabled
@@ -200,7 +204,7 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Factory method, helping with checking if the notification service is even available
+        /// Factory method, helping with checking if the notification service is even available - Creates a new instance of the ToastNotificationService class, if supported on the current system.
         /// </summary>
         /// <returns>ToastNotificationService</returns>
         public static ToastNotificationService Create()

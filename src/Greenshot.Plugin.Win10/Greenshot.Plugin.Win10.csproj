@@ -1,13 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+   
+  <!-- Including language XML files to copy to the output directory for localization. -->
   <ItemGroup>
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
+  <!-- Adding NuGet package references required by the project. -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.2" />
   </ItemGroup>
+   
+  <!-- Adding project references/dependencies for the project. -->
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
