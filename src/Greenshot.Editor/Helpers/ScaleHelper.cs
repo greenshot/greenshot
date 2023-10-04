@@ -202,7 +202,7 @@ namespace Greenshot.Editor.Helpers
             {
                 // scaled rectangle (ratio) would be taller than original
                 // keep width and tweak height to maintain aspect ratio
-                newSize = newSize.ChangeWidth(selectedSize.Width / originalRatio * flippedRatioSign);
+                newSize = newSize.ChangeHeight(selectedSize.Width / originalRatio * flippedRatioSign);
             }
 
             return newSize;
