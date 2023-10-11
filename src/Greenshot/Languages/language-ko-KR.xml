@@ -304,7 +304,7 @@ ${hostname} PC명
     <resource name="editor_counter">카운터 더하기 (I)</resource>
     <resource name="editor_speechbubble">설명선 더하기(S)</resource>
 
-    <resource name="editor_resize">크기조정</resource>
+    <resource name="editor_resize">크기조정 (Z)</resource>
     <resource name="editor_resize_settings">크기조정 설정</resource>
     <resource name="editor_resize_aspectratio">종횡비 유지</resource>
     <resource name="editor_resize_width">너비</resource>

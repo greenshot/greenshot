@@ -307,7 +307,7 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
         <resource name="editor_counter">加入計數器 (I)</resource>
         <resource name="editor_speechbubble">加入對話框 (S)</resource>
 
-        <resource name="editor_resize">縮放</resource>
+        <resource name="editor_resize">縮放 (Z)</resource>
         <resource name="editor_resize_settings">縮放設定</resource>
         <resource name="editor_resize_aspectratio">維持長寬比</resource>
         <resource name="editor_resize_width">長度</resource>

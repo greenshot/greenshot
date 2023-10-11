@@ -305,7 +305,7 @@ Todas as funcionalidades do Greenshot funcionam directamente através do menu de
     <resource name="editor_counter">Adicionar contador (I)</resource>
     <resource name="editor_speechbubble">Adicionar balão de texto (S)</resource>
 
-    <resource name="editor_resize">Redimensionar</resource>
+    <resource name="editor_resize">Redimensionar (Z)</resource>
     <resource name="editor_resize_settings">Definições de Redimensionamento</resource>
     <resource name="editor_resize_aspectratio">Manter proporções</resource>
     <resource name="editor_resize_width">Largura</resource>

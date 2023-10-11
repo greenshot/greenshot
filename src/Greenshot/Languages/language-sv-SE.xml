@@ -305,7 +305,7 @@ Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfä
 	<resource name="editor_counter">Lägg till räknare</resource>
 	<resource name="editor_speechbubble">Lägg till pratbubbla</resource>
 
-    <resource name="editor_resize">Anpassa storlek</resource>
+    <resource name="editor_resize">Anpassa storlek (Z)</resource>
     <resource name="editor_resize_settings">Storleksinställningar</resource>
     <resource name="editor_resize_aspectratio">Behåll bildförhållande</resource>
     <resource name="editor_resize_width">Bredd</resource>

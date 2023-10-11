@@ -144,7 +144,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_print">Cetak</resource>
 		<resource name="editor_redo">Ulang {0}</resource>
 		<resource name="editor_resetsize">Reset ukuran</resource>
-		<resource name="editor_resize">Ubah ukuran</resource>
+		<resource name="editor_resize">Ubah ukuran (Z)</resource>
 		<resource name="editor_resize_aspectratio">Pertahankan aspek rasio</resource>
 		<resource name="editor_resize_height">Tinggi</resource>
 		<resource name="editor_resize_percent">Persen</resource>

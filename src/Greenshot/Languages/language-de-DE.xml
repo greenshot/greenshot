@@ -312,7 +312,7 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_counter">Zähler hinzufügen (I)</resource>
 		<resource name="editor_speechbubble">Sprechblase hinzufügen (S)</resource>
 
-		<resource name="editor_resize">Skalieren</resource>
+		<resource name="editor_resize">Skalieren (Z)</resource>
 		<resource name="editor_resize_settings">Einstellungen für Skalierung</resource>
 		<resource name="editor_resize_aspectratio">Seitenverhältnis beibehalten</resource>
 		<resource name="editor_resize_width">Breite</resource>

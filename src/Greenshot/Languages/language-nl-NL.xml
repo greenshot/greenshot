@@ -307,7 +307,7 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_counter">Teller toevoegen (I)</resource>
 		<resource name="editor_speechbubble">Tekstballon toevoegen (S)</resource>
 
-		<resource name="editor_resize">Grootte</resource>
+		<resource name="editor_resize">Grootte (Z)</resource>
 		<resource name="editor_resize_settings">Vergrotingsinstellingen</resource>
 		<resource name="editor_resize_aspectratio">Verhouding behouden</resource>
 		<resource name="editor_resize_width">Breedte</resource>

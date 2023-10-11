@@ -305,7 +305,7 @@ Malgrat això, encara es poden utilitzar totes les característiques de Greensho
 		<resource name="editor_counter">Afegeix un comptador (I)</resource>
 		<resource name="editor_speechbubble">Afegeix una bafarada (S)</resource>
 
-		<resource name="editor_resize">Canvia la mida</resource>
+		<resource name="editor_resize">Canvia la mida (Z)</resource>
 		<resource name="editor_resize_settings">Configuració del canvi de mida</resource>
 		<resource name="editor_resize_aspectratio">Manté la relació d'aspecte</resource>
 		<resource name="editor_resize_width">Amplada</resource>
