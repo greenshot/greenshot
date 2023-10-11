@@ -804,6 +804,9 @@ namespace Greenshot.Forms
             checkbox_checkunstableupdates.Enabled = state;
             checkbox_minimizememoryfootprint.Enabled = state;
             checkbox_reuseeditor.Enabled = state;
+            label_clipboardformats.Enabled = state;
+            label_footerpattern.Enabled = state;
+            label_counter.Enabled = state;
         }
 
         /// <summary>
