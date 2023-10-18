@@ -40,7 +40,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="contextmenu_capturefullscreen"> نمونه‌برداری از تمام صفحه</resource>
 		<resource name="contextmenu_capturelastregion"> نمونه‌برداری از آخرین ناحیه</resource>
 		<resource name="contextmenu_capturewindow"> نمونه‌برداری از یک  پنجره</resource>
-		<resource name="contextmenu_donate">پشتیبانی نمودن گرین‌شات</resource>
+		<resource name="contextmenu_donate">حمایت از گرین‌شات</resource>
 		<resource name="contextmenu_exit">بستن</resource>
 		<resource name="contextmenu_help">راهنمایی</resource>
 		<resource name="contextmenu_openfile">بازکردن تصویر از پوشه</resource>
@@ -173,7 +173,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_jpegquality">JPEG کیفیت</resource>
 		<resource name="settings_jpegsettings">JPEG تنظیمات</resource>
 		<resource name="settings_language">زبان</resource>
-		<resource name="settings_message_filenamepattern">نمایندههای زیر به صورت خودکار در الگوی تعریف شده جایگزین خواهد شد 
+		<resource name="settings_message_filenamepattern">نماینده‌های زیر به صورت خودکار در الگوی تعریف شده جایگزین خواهد شد 
 %YYYY% year, 4 digits
 %MM% month, 2 digits
 %DD% day, 2 digits
@@ -194,14 +194,14 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_primaryimageformat">قالب تصویر</resource>
 		<resource name="settings_printer">چاپگر</resource>
 		<resource name="settings_printoptions">حالت‌های چاپ</resource>
-		<resource name="settings_registerhotkeys">ثبت دکمه های میانبر</resource>
+		<resource name="settings_registerhotkeys">ثبت دکمه‌های میانبر</resource>
 		<resource name="settings_showflashlight">نمایش نور</resource>
-		<resource name="settings_storagelocation">محل  ذخیره‌سازی</resource>
+		<resource name="settings_storagelocation">محل ذخیره‌سازی</resource>
 		<resource name="settings_title">تنظیمات</resource>
-		<resource name="settings_tooltip_filenamepattern">شیوه نامگذاری نمونه‌ها در هنگام  ذخیره‌سازی</resource>
+		<resource name="settings_tooltip_filenamepattern">شیوه نامگذاری نمونه‌ها در هنگام ذخیره‌سازی</resource>
 		<resource name="settings_tooltip_language">(زبان نمایش کاربر ( نیاز به راه‌اندازی از نو</resource>
 		<resource name="settings_tooltip_primaryimageformat">پیش فرض قالب تصویر</resource>
-		<resource name="settings_tooltip_registerhotkeys">.برای استفاده بوسیله گرین‌شات رزرو شده‌اند Prnt, Ctrl + Print, Alt + Prnt قبل از بسته شدن گرین‌شات، مشخص می‌کند که آیا دکمه های</resource>
+		<resource name="settings_tooltip_registerhotkeys">.برای استفاده بوسیله گرین‌شات رزرو شده‌اند Prnt, Ctrl + Print, Alt + Prnt قبل از بسته شدن گرین‌شات، مشخص می‌کند که آیا دکمه‌های</resource>
 		<resource name="settings_tooltip_storagelocation">(محل  ذخیره‌سازی نمونه‌ها ( برای  ذخیره‌سازی در دسکتاپ,  خالی بگذارید</resource>
 		<resource name="settings_visualization">جلوه‌های ویژه</resource>
 		<resource name="settings_waittime">مکث (میلی ثانیه) تا  نمونه‌برداری</resource>
