@@ -36,14 +36,14 @@
 Could not save Greenshot's configuration file. Please check access permissions for '{0}'.</resource>
 		<resource name="contextmenu_about">درباره گرین‌شات</resource>
 		<resource name="contextmenu_capturearea"> نمونه‌برداری از یک  ناحیه</resource>
-		<resource name="contextmenu_captureclipboard">بازکردن تصویراز حافظه موقت</resource>
+		<resource name="contextmenu_captureclipboard">بازکردن تصویر از حافظه موقت</resource>
 		<resource name="contextmenu_capturefullscreen"> نمونه‌برداری از تمام صفحه</resource>
 		<resource name="contextmenu_capturelastregion"> نمونه‌برداری از آخرین ناحیه</resource>
 		<resource name="contextmenu_capturewindow"> نمونه‌برداری از یک  پنجره</resource>
 		<resource name="contextmenu_donate">پشتیبانی نمودن گرین‌شات</resource>
 		<resource name="contextmenu_exit">بستن</resource>
 		<resource name="contextmenu_help">راهنمایی</resource>
-		<resource name="contextmenu_openfile">بازکردن تصویراز پوشه</resource>
+		<resource name="contextmenu_openfile">بازکردن تصویر از پوشه</resource>
 		<resource name="contextmenu_quicksettings">تنظیمات فوری</resource>
 		<resource name="contextmenu_settings">...تنظیمات</resource>
 		<resource name="editor_arrange">مرتب کردن</resource>
@@ -131,7 +131,16 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="error_openfile">بازکردن پوشه  "{0}"  امکان پذیر  نمی‌باشد</resource>
 		<resource name="error_openlink">.آدرس‌ پیدا نشد</resource>
 		<resource name="error_save">. ذخیره‌سازی امکان‌پذیر نمی‌باشد، لطفا محل مناسبی را برگزینید</resource>
-		<resource name="help_title">راهنمایی گرین‌شات</resource>
+		<resource name="expertsettings">پیشرفته</resource>
+		<resource name="expertsettings_checkunstableupdates">بررسی بروزرسانی‌های ناپایدار</resource>
+		<resource name="expertsettings_clipboardformats">حافظه موقت</resource>
+		<resource name="expertsettings_enableexpert">می‌دونم دارم چیکار می‌کنم!</resource>
+		<resource name="expertsettings_footerpattern">الگوی پانویس صفحه در چاپ</resource>
+		<resource name="expertsettings_minimizememoryfootprint">کاهش سربار حافظه به‌ازای کاهش کارایی (پیشنهاد نمی‌شود).</resource>
+		<resource name="exported_to">خروجی به: {0}</resource>
+		<resource name="exported_to_error">خطایی در حال تهیه خروجی رخ داد {0}:</resource>
+		<resource name="help_title">راهنمای گرین‌شات</resource>
+		<resource name="hotkeys">کلید‌های میانبر</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">.را انخاب نمایید JPEG لطفا تنظیمات کیفیت</resource>
 		<resource name="jpegqualitydialog_dontaskagain">همیشه با این کیفیت</resource>
 		<resource name="jpegqualitydialog_title">گرین‌شات JPEG کیفیت</resource>
@@ -184,7 +193,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_preferredfilesettings">تنظیمات مورد پسند پوشه خروجی</resource>
 		<resource name="settings_primaryimageformat">قالب تصویر</resource>
 		<resource name="settings_printer">چاپگر</resource>
-		<resource name="settings_printoptions">حالتهای چاپ</resource>
+		<resource name="settings_printoptions">حالت‌های چاپ</resource>
 		<resource name="settings_registerhotkeys">ثبت دکمه های میانبر</resource>
 		<resource name="settings_showflashlight">نمایش نور</resource>
 		<resource name="settings_storagelocation">محل  ذخیره‌سازی</resource>
@@ -194,11 +203,12 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_tooltip_primaryimageformat">پیش فرض قالب تصویر</resource>
 		<resource name="settings_tooltip_registerhotkeys">.برای استفاده بوسیله گرین‌شات رزرو شده‌اند Prnt, Ctrl + Print, Alt + Prnt قبل از بسته شدن گرین‌شات، مشخص می‌کند که آیا دکمه های</resource>
 		<resource name="settings_tooltip_storagelocation">(محل  ذخیره‌سازی نمونه‌ها ( برای  ذخیره‌سازی در دسکتاپ,  خالی بگذارید</resource>
-		<resource name="settings_visualization">جلوه های ویژه</resource>
+		<resource name="settings_visualization">جلوه‌های ویژه</resource>
 		<resource name="settings_waittime">مکث (میلی ثانیه) تا  نمونه‌برداری</resource>
 		<resource name="tooltip_firststart">را فشار دهید Print	اینجا کلیک راست کنید یا دکمه	
 Right-click here or press the Print-key.</resource>
 		<resource name="warning">هشدار</resource>
 		<resource name="warning_hotkeys">.ثبت و استفاده از یک یا چند تا از میانبرها امکان پذیر  نمی‌باشد. ممکن است نرم‌افزار دیگری از میانبرها استفاده می‌کند</resource>
+		<resource name="settings_iconsize">اندازه آیکن</resource>
 	</resources>
 </language>
