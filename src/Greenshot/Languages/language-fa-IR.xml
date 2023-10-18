@@ -205,7 +205,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_tooltip_storagelocation">(محل  ذخیره‌سازی نمونه‌ها ( برای  ذخیره‌سازی در دسکتاپ,  خالی بگذارید</resource>
 		<resource name="settings_visualization">جلوه‌های ویژه</resource>
 		<resource name="settings_waittime">مکث (میلی ثانیه) تا  نمونه‌برداری</resource>
-		<resource name="tooltip_firststart">را فشار دهید Print	اینجا کلیک راست کنید یا دکمه	
+		<resource name="tooltip_firststart">را فشار دهید Print	اینجا کلیک‌راست کنید یا دکمه	
 Right-click here or press the Print-key.</resource>
 		<resource name="warning">هشدار</resource>
 		<resource name="warning_hotkeys">.ثبت و استفاده از یک یا چند تا از میانبرها امکان پذیر  نمی‌باشد. ممکن است نرم‌افزار دیگری از میانبرها استفاده می‌کند</resource>
