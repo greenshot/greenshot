@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -265,6 +266,12 @@ namespace Greenshot.Base.Core
 
             return exceptionText.ToString();
         }
+
+        /// <summary>
+        /// Returns the directory where the application is located
+        /// </summary>
+        public static string GetApplicationFolder()
+            => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     }
 
     /// <summary>
