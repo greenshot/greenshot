@@ -73,7 +73,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                string applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string applicationFolder = EnvironmentInfo.GetApplicationFolder();
 
                 // PAF Path
                 if (applicationFolder != null)

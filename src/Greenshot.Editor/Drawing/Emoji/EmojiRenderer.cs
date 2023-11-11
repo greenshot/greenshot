@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using Greenshot.Base.Core;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -41,8 +42,7 @@ namespace Greenshot.Editor.Drawing.Emoji
 
         private static readonly Lazy<FontFamily> TwemojiFontFamily = new(() =>
         {
-            var exeDirectory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-            var twemojiFontFile = Path.Combine(exeDirectory, "Twemoji.Mozilla.ttf");
+            var twemojiFontFile = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "Twemoji.Mozilla.ttf");
             if (!File.Exists(twemojiFontFile))
             {
                 throw new FileNotFoundException($"Can't find {twemojiFontFile}, bad installation?");

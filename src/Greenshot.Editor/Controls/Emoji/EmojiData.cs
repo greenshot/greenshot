@@ -21,9 +21,9 @@
 
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Xml;
 using System.Xml.Serialization;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.Controls.Emoji
 {
@@ -32,7 +32,7 @@ namespace Greenshot.Editor.Controls.Emoji
     /// </summary>
     public static class EmojiData
     {
-        private const string EmojisXmlFilePath = "emojis.xml";
+        private static readonly string EmojisXmlFilePath = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "emojis.xml");
 
         public static Emojis Data { get; private set; } = new();
 
