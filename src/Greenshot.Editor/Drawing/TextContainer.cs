@@ -281,7 +281,7 @@ namespace Greenshot.Editor.Drawing
         {
             _textBox = new TextBox
             {
-                ImeMode = ImeMode.On,
+                ImeMode = ImeMode.NoControl,
                 Multiline = true,
                 AcceptsTab = true,
                 AcceptsReturn = true,
