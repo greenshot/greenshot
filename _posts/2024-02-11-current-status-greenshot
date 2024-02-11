@@ -1,0 +1,32 @@
+---
+layout: post
+status: publish
+published: true
+title: Current Status of Greenshot
+tags:
+---
+Hey folks,
+
+You haven't heard from us for a long time, so it's high time we gave you an update.
+
+*tl;dr: We are struggling with a lack of time, but are gradually trying to pick up speed again.*
+
+You may have noticed that the activity in this project has decreased a lot recently: the last release was a while ago, tickets remain 
+unanswered for a long time, etc. Occasionally people have asked whether the project has been abandoned or whether (and when) a new 
+release is coming.
+
+You probably know that this project is run by a few people entirely in their spare time, that's the little time we have left beneath 
+our full-time jobs, families, homes, etc. At the moment, our capacities are more limited than ever before. Of course, this is 
+clearly noticeable in our communication with you, and our internal communication is also affected by this, which slows some things
+down even more.
+
+In addition, we are currently not in a position to publish signed releases. This is due to organizational issues that we need to 
+clarify.
+Our goal is to get all the issues sorted out bit by bit so that we can hopefully provide a stable release again soon.
+
+For everyone who can’t wait: there are also unstable releases available. „Unstable“ means that the releases are not signed (Windows 
+probably displays a warning before installation - make sure to always get Greenshot from getgreenshot.org). „Unstable“ also means that 
+the releases have not been thoroughly tested, so unexpected behavior can occur. But „unstable“ also means that the release contains 
+bleeding edge features, and some quite interesting things have been developed since the last stable release.
+
+So, please bear with us. We’re doing our best to get everything running again, but it will take some time.
