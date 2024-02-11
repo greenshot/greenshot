@@ -4,7 +4,10 @@ status: publish
 published: true
 title: Current Status of Greenshot
 tags:
+- status
+- '1.3'
 ---
+
 Hey folks,
 
 You haven't heard from us for a long time, so it's high time we gave you an update.
