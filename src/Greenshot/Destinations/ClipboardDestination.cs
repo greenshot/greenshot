@@ -61,8 +61,32 @@ namespace Greenshot.Destinations
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
             try
             {
-                ClipboardHelper.SetClipboardData(surface);
-                exportInformation.ExportMade = true;
+                if (Control.ModifierKeys == Keys.Control)
+                {
+                    // Copy file itself to clipboard
+                    string filePath = captureDetails.Filename;
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { filePath });
+                        exportInformation.ExportMade = true;
+                    }
+                }
+                else if (Control.ModifierKeys == Keys.None)
+                {
+                    // Copy file path to clipboard
+                    string filePath = captureDetails.Filename;
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        Clipboard.SetText(filePath);
+                        exportInformation.ExportMade = true;
+                    }
+                }
+                else
+                {
+                    // Copy image to clipboard
+                    ClipboardHelper.SetClipboardData(surface);
+                    exportInformation.ExportMade = true;
+                }
             }
             catch (Exception)
             {
