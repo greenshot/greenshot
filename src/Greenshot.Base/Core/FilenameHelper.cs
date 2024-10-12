@@ -23,6 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
@@ -421,8 +422,16 @@ namespace Greenshot.Base.Core
                         break;
                     case "NUM":
                         CoreConfig.OutputFileIncrementingNumber++;
+                        var maxNumber = Directory.GetFiles(CoreConfig.OutputFilePath)
+                                                 .Select(Path.GetFileNameWithoutExtension)
+                                                 // 連番を抽出するための正規表現
+                                                 .Select(filename => new Regex(@"\d+").Match(filename))
+                                                 .Where(match => match.Success)
+                                                 .Select(match => int.Parse(match.Value))
+                                                 .DefaultIfEmpty(0)
+                                                 .Max() + 1;
                         IniConfig.Save();
-                        replaceValue = CoreConfig.OutputFileIncrementingNumber.ToString();
+                        replaceValue = maxNumber.ToString();
                         if (padWidth == 0)
                         {
                             padWidth = -6;
