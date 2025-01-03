@@ -3,9 +3,9 @@ name: .NET Desktop CI/CD
 on:
   push:
     branches:
-      - 'develop'
+      - 'release/1.*'
     paths-ignore:
-      - 'release/1*'
+      - 'develop'
 
 jobs:
   build:
