@@ -1,0 +1,72 @@
+name: .NET Desktop CI/CD
+
+on:
+  push:
+    branches:
+      - 'release/1.*'
+    paths-ignore:
+      - 'develop'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x' # Setze die gewünschte .NET-Version
+
+    - name: Restore nuget packages and generate credential templates
+      run: dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild
+
+    - name: Build and package
+      run: dotnet msbuild src/Greenshot.sln /p:Configuration=Release
+      env:
+        Box13_ClientId: ${{ secrets.Box13_ClientId }}
+        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+
+    - name: Copy Files to Artifact Staging Directory
+      run: |
+        mkdir -p ${{ github.workspace }}/drop
+        Copy-Item -Path "$(Build.SourcesDirectory)\installer\Greenshot-INSTALLER-*.exe" -Destination "${{ github.workspace }}/drop" -Force
+
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: drop
+        path: ${{ github.workspace }}/drop/*.exe
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: drop
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Greenshot ${{ github.run_number }} unstable
+        draft: true
+        prerelease: true
+        files: ${{ github.workspace }}/drop/*.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
