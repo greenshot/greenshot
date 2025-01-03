@@ -45,7 +45,7 @@ jobs:
         Copy-Item -Path "$(Build.SourcesDirectory)\installer\Greenshot-INSTALLER-*.exe" -Destination "${{ github.workspace }}/drop" -Force
 
     - name: Publish Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: drop
         path: ${{ github.workspace }}/drop/*.exe
@@ -55,7 +55,7 @@ jobs:
     needs: build
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: drop
 
@@ -69,4 +69,3 @@ jobs:
         files: ${{ github.workspace }}/drop/*.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
