@@ -21,7 +21,7 @@ jobs:
         dotnet-version: '5.0.100' # Setze die gewünschte .NET-Version
 
     - name: Restore NuGet packages
-      run: dotnet restore src/Greenshot-Full.sln
+      run: dotnet restore src/Greenshot.sln
 
     - name: Publish single-exe x64
       run: dotnet publish src/Greenshot/Greenshot.csproj -f net5.0-windows -c Release /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:RuntimeIdentifier=win-x64
